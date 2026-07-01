@@ -49,11 +49,11 @@ ViewTabBase::ViewTabBase(EditorState& editor,
 }
 
 void ViewTabBase::onCreate() {
-    camera_.SetAspect((float)kTextureWidth / (float)kTextureHeight);
-    camera_.SetDirty();
+    camera_.setAspect((float)kTextureWidth / (float)kTextureHeight);
+    camera_.setDirty();
     switch (dim_) {
         case ViewDimension::Dim2: {
-            camera_.SetProjection(ProjectionType::Orthographic);
+            camera_.setProjectionType(ProjectionType::Orthographic);
             camera_transform_.translate(Vec3f(0, 0, 4));
             camera_controller_ = std::make_unique<CameraController2DEditor>(camera_, camera_transform_);
         } break;
@@ -64,7 +64,7 @@ void ViewTabBase::onCreate() {
     }
 
     camera_transform_.updateTransform();
-    camera_.Update(camera_transform_.worldMatrix());
+    camera_.update(camera_transform_.worldMatrix());
 
     view_id_ = view_manager_.createView(
         "SceneView",
@@ -127,7 +127,7 @@ void ViewTabBase::updateRect(math::FloatRect& out_rect) {
         size.x -= 2 * cursor_pos.x;
         size.y -= 1.2f * cursor_pos.y;
 
-        const float aspect = camera_.GetAspect();
+        const float aspect = camera_.aspect();
         fitAspect(aspect, size.x, size.y);
     }
 

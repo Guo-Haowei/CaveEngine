@@ -86,14 +86,14 @@ void RunTransformAnimationSystem(Scene& scene, jobsystem::Context&, float dt) {
 
     std::vector<ecs::Entity> pending_removes;
 
-    for (auto [id, anim, trans] : view) {
+    for (auto [id, anim, transform] : view) {
         if (!anim.playing) {
             continue;
         }
         anim.elapsed += dt;
         const float t = anim.elapsed / anim.duration;
         if (t >= 1.0f) {
-            trans.setTranslation(anim.end);
+            transform.setTranslation(anim.end);
             anim.playing = false;
             if (anim.destroy_on_finish) {
                 pending_removes.push_back(id);
@@ -102,7 +102,7 @@ void RunTransformAnimationSystem(Scene& scene, jobsystem::Context&, float dt) {
         }
 
         const math::Vec3f pos = t * anim.end + (1 - t) * anim.begin;
-        trans.setTranslation(pos);
+        transform.setTranslation(pos);
     }
 
     for (ecs::Entity e : pending_removes) {

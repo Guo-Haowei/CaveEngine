@@ -14,6 +14,21 @@ TransformComponent::TransformComponent()
     setDirty();
 }
 
+void TransformComponent::setTranslation(const math::Vec3f& v) {
+    setDirty();
+    translation_ = v;
+}
+
+void TransformComponent::setRotation(const math::Vec4f& v) {
+    setDirty();
+    rotation_ = v;
+}
+
+void TransformComponent::setScale(const math::Vec3f& v) {
+    setDirty();
+    scale_ = v;
+}
+
 Mat4f TransformComponent::localMatrix() const {
     Mat4f rotationMatrix = glm::toMat4(Quaternion(rotation_.w, rotation_.x, rotation_.y, rotation_.z));
     Mat4f translationMatrix = cave::Translate(translation_);

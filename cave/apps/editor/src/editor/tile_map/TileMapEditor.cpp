@@ -198,7 +198,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
 
 void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
 
-    const Mat4f& proj_view = camera_.GetProjectionViewMatrix();
+    const Mat4f& proj_view = camera_.projectionViewMatrix();
 
     ImGuizmo::SetOrthographic(true);
     ImGuizmo::BeginFrame();
@@ -337,7 +337,7 @@ Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {
 
     Vec2f ndc = view->screenToNDC(point_os);
 
-    Mat4f pv_inv = glm::inverse(camera_.GetProjectionViewMatrix());
+    Mat4f pv_inv = glm::inverse(camera_.projectionViewMatrix());
 
     Vec4f pos = pv_inv * Vec4f(ndc, 0.0f, 1.0f);
     pos /= pos.w;

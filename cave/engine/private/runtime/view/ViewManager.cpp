@@ -60,9 +60,9 @@ static ResolvedView ResolveView(ViewDesc&& view_desc,
     Mat4f proj;
     float fovy_rad = 0.0f;
     if (cam) {
-        view = cam->GetViewMatrix();
-        proj = cam->GetProjectionMatrix();
-        fovy_rad = glm::radians(cam->GetFovy());
+        view = cam->viewMatrix();
+        proj = cam->projectionMatrix();
+        fovy_rad = glm::radians(cam->fovy());
     }
 
     math::Frustum frustum(proj * view);

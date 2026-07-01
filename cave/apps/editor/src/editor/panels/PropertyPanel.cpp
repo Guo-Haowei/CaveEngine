@@ -395,7 +395,7 @@ void PropertyPanel::drawUIImpl() {
         TransformComponent copy = p_transform;
         const bool dirty = DrawComponentAuto<TransformComponent>(&copy, ctx);
         if (dirty && camera) {
-            camera->SetDirty();
+            camera->setDirty();
         }
     });
 
@@ -547,7 +547,7 @@ void PropertyPanel::drawUIImpl() {
 
     DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
         if (DrawComponentAuto<CameraComponent>(&p_camera, ctx)) {
-            p_camera.SetDirty();
+            p_camera.setDirty();
         }
     });
 }

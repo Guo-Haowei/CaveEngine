@@ -87,6 +87,8 @@ std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) co
 }
 
 void TileWorldSystem::rebuildCollision(SceneContext& ctx) {
+    world_bound_.invalidate();
+
     auto view = ctx.scene.view<TileMapInstanceComponent, TransformComponent>();
     for (auto [ent, instance, transform] : view) {
         TileMapAsset* tile_map = instance.tileMapHandle().get();
@@ -121,6 +123,8 @@ void TileWorldSystem::rebuildCollision(SceneContext& ctx) {
                     coord.x = chunk_coord.x * kTileChunkSize + (int16_t)offset.x + x;
                     coord.y = chunk_coord.y * kTileChunkSize + (int16_t)offset.y + y;
                     rigid_tiles_.addTile(coord, tile_id);
+
+                    world_bound_.expandToInclude(Vec2f{ coord.x, coord.y });
                 }
             }
         }

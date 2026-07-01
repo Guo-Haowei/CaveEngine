@@ -64,7 +64,7 @@ void Scene::update(float dt) {
 
     // @TODO: refactor
     for (auto [entity, camera, transform] : view<CameraComponent, TransformComponent>()) {
-        if (camera.Update(transform.worldMatrix())) {
+        if (camera.update(transform.worldMatrix())) {
             dirtyFlags_.fetch_or(SCENE_DIRTY_CAMERA);
         }
     }

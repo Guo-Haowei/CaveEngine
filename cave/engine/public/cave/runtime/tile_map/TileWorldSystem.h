@@ -30,6 +30,8 @@ public:
 
     std::vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
 
+    const math::Box2 worldBound() const { return world_bound_; }
+
     static TileCoord worldToTile(math::Vec2f world_pos, float tile_size = 1.0f);
 
 protected:
@@ -42,6 +44,7 @@ private:
     const DebugId debug_id_;
 
     ChunkedTileData rigid_tiles_;
+    math::Box2 world_bound_;
 };
 
 }  // namespace cave

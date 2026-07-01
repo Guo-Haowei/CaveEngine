@@ -9,61 +9,95 @@ using math::Vec3f;
 using math::Vec4f;
 
 Mat4f CameraComponent::CalcProjection() const {
-    if (m_projection == ProjectionType::Orthographic) {
-        const float half_height = m_ortho_height * 0.5f;
-        const float half_width = half_height * GetAspect();
+    if (projection_ == ProjectionType::Orthographic) {
+        const float half_height = ortho_height_ * 0.5f;
+        const float half_width = half_height * aspect();
         return math::BuildOrthoRH(-half_width,
                                   half_width,
                                   -half_height,
                                   half_height,
-                                  m_near,
-                                  m_far);
+                                  near_,
+                                  far_);
     }
-    return math::BuildPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
+    return math::BuildPerspectiveRH(glm::radians<float>(fovy_), aspect(), near_, far_);
 }
 
 Mat4f CameraComponent::CalcProjectionGL() const {
-    if (m_projection == ProjectionType::Orthographic) {
-        const float half_height = m_ortho_height * 0.5f;
-        const float half_width = half_height * GetAspect();
+    if (projection_ == ProjectionType::Orthographic) {
+        const float half_height = ortho_height_ * 0.5f;
+        const float half_width = half_height * aspect();
         return math::BuildOpenGlOrthoRH(-half_width,
                                         half_width,
                                         -half_height,
                                         half_height,
-                                        m_near,
-                                        m_far);
+                                        near_,
+                                        far_);
     }
-    return math::BuildOpenGlPerspectiveRH(glm::radians<float>(m_fovy), GetAspect(), m_near, m_far);
+    return math::BuildOpenGlPerspectiveRH(glm::radians<float>(fovy_), aspect(), near_, far_);
 }
 
-bool CameraComponent::Update(const math::Mat4f& p_transform) {
+bool CameraComponent::update(const math::Mat4f& transform) {
     // @NOTE: the logic is wrong here,
     // if the transform has changed, the cache must update too
-    if (IsDirty() || true) {
-        SetDirty(false);
+    if (dirty() || true) {
+        setDirty(false);
 
-        m_front = (p_transform * -Vec4f::UnitZ).xyz;
-        m_right = (p_transform * Vec4f::UnitX).xyz;
-        m_up = (p_transform * Vec4f::UnitY).xyz;
-        m_position = (p_transform * Vec4f::UnitW).xyz;
+        front_ = (transform * -Vec4f::UnitZ).xyz;
+        right_ = (transform * Vec4f::UnitX).xyz;
+        up_ = (transform * Vec4f::UnitY).xyz;
+        position_ = (transform * Vec4f::UnitW).xyz;
 
-        // @TOD: should be inverse of transform
-        m_view_matrix = LookAtRh(m_position, m_position + m_front, Vec3f::UnitY);
+        // @TODO: should be inverse of transform
+        view_matrix_ = LookAtRh(position_, position_ + front_, Vec3f::UnitY);
 
         // use gl matrix for frustum culling
-        m_projection_matrix = CalcProjectionGL();
-        m_projection_view_matrix = m_projection_matrix * m_view_matrix;
+        projection_matrix_ = CalcProjectionGL();
+        projection_view_matrix_ = projection_matrix_ * view_matrix_;
         return true;
     }
 
     return false;
 }
 
-// @TODO: reflection?
-void CameraComponent::SetOrthoHeight(float p_height) {
-    if (p_height != m_ortho_height) {
-        m_ortho_height = p_height;
-        SetDirty();
+void CameraComponent::setAspect(float aspect) {
+    if (aspect != aspect_) {
+        setDirty();
+        aspect_ = aspect;
+    }
+}
+
+void CameraComponent::setFovy(float degree) {
+    if (degree != fovy_) {
+        setDirty();
+        fovy_ = degree;
+    }
+}
+
+void CameraComponent::setNear(float near) {
+    if (near != near_) {
+        setDirty();
+        near_ = near;
+    }
+}
+
+void CameraComponent::setFar(float far) {
+    if (far != far_) {
+        setDirty();
+        far_ = far;
+    }
+}
+
+void CameraComponent::setProjectionType(ProjectionType projection) {
+    if (projection != projection_) {
+        setDirty();
+        projection_ = projection;
+    }
+}
+
+void CameraComponent::setOrthoHeight(float ortho_height) {
+    if (ortho_height != ortho_height_) {
+        setDirty();
+        ortho_height_ = ortho_height;
     }
 }
 
