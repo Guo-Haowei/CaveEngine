@@ -15,40 +15,27 @@ public:
 
     ecs::Entity entity() const { return entity_; }
 
-    virtual void onCollision(ecs::Entity) {}
-
-protected:
-    SceneContext& context() {
-        DEV_ASSERT(context_);
-        return *context_;
-    }
-
-    const SceneContext& context() const {
-        DEV_ASSERT(context_);
-        return *context_;
-    }
-
-    virtual void onCreate() {}
+    virtual void onCreate(SceneContext&) {}
     virtual void onDestroy() {}
 
-    virtual void onUpdate(float) {}
+    virtual void onUpdate(SceneContext&, float) {}
+
+    virtual void onBodyEntered(SceneContext&, ecs::Entity) {}
+    virtual void onBodyOverlapping(SceneContext&, ecs::Entity) {}
+    virtual void onBodyExited(SceneContext&, ecs::Entity) {}
 
 private:
     friend class NativeScriptSystem;
 
-    void bind(SceneContext& ctx, ecs::Entity entity) {
-        context_ = &ctx;
+    void bind(ecs::Entity entity) {
         entity_ = entity;
     }
 
     void unbind() {
-        context_ = nullptr;
         entity_ = ecs::Entity::Null();
     }
 
 private:
-    SceneContext* context_{ nullptr };
-
     ecs::Entity entity_{};
 };
 

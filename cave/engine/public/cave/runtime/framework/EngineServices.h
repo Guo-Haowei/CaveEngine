@@ -14,6 +14,7 @@ class AssetRegistry;
 class DisplayService;
 class IAssetManager;
 class IDebugDrawService;
+class IGameInput;
 class InputService;
 class IntentDispatcher;
 class IUIRuntime;
@@ -31,6 +32,7 @@ struct EngineServices {
     DisplayService* display_service_{};
     IAssetManager* asset_manager_{};
     IDebugDrawService* debug_draw_{};
+    IGameInput* game_input_{};
     InputService* input_service_{};
     IntentDispatcher* intent_dispatcher_{};
     IUIRuntime* ui_{};
@@ -47,9 +49,10 @@ struct EngineServices {
     render::Renderer* renderer_{};
 
     AssetRegistry& assetRegistry() { return *asset_registry_; }
+    DisplayService& displayService() { return *display_service_; }
     IAssetManager& assetManager() { return *asset_manager_; }
     IDebugDrawService& debugDraw() { return *debug_draw_; }
-    DisplayService& displayService() { return *display_service_; }
+    IGameInput& gameInput() { return *game_input_; }
     InputService& inputService() { return *input_service_; }
     IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
     NativeScriptRegistry& nativeScripts() { return *native_scripts_; }

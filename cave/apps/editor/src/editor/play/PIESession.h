@@ -22,7 +22,7 @@ struct PIEStartDesc {
 };
 
 class PIESession : public NonCopyable,
-                   public ISceneTickContributor {
+                   public ISceneOwner {
 public:
     explicit PIESession(EngineServices& services);
 
@@ -38,6 +38,8 @@ public:
     SceneId getPIESceneId() const { return pie_scene_; }
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
+    void commitSceneChange() override;
+
     DebugId debugId() const override { return debug_id_; }
 
 private:

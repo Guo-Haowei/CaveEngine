@@ -2,18 +2,20 @@
 // File: cave/runtime/scene/SceneContext.h
 // =============================================================================
 #pragma once
+#include "cave/runtime/scene/SceneQuery.h"
 
 namespace cave {
 
 struct EngineServices;
 class Scene;
 class NativeScriptRegistry;
-class IGameInput;
+class ISceneOwner;
 
 struct SceneContext {
-    const IGameInput& game_input;
     NativeScriptRegistry& native_scripts;
     Scene& scene;
+    ISceneOwner& scene_owner;
+    SceneQuery query;
 
     // @TODO: do not expose all services
     EngineServices& engine_services;

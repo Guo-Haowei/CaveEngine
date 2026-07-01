@@ -4,6 +4,7 @@
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/assets/IAsset.h"
 #include "cave/runtime/ecs/ComponentStorage.h"
+#include "cave/runtime/scene/SceneTickContext.h"
 
 #include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
@@ -18,7 +19,6 @@ namespace cave {
 // @TODO: refactor
 class PrefabInstanceComponent;
 
-struct SceneContext;
 class SystemManager;
 
 enum SceneDirtyFlags : uint32_t {
@@ -115,6 +115,7 @@ public:
     void attachChild(ecs::Entity child) { attachChild(child, root_); }
 
     void update(float dt);
+    void tick(SceneTickContext& ctx);
 
     void copy(const Scene& other);
 
@@ -127,17 +128,22 @@ public:
     // @TODO: refactor
     SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(dirtyFlags_.load()); }
 
-    ecs::ComponentStorage& storage() noexcept { return storage_; }
-    const ecs::ComponentStorage& storage() const noexcept { return storage_; }
-
     std::string_view name() const { return name_; }
 
     void onSimBegin(SceneContext& ctx);
-    void onSimEnd();
-    void simulate(float dt);
+    void onSimEnd(SceneContext& ctx);
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
+
+    ecs::ComponentStorage& storage() noexcept { return storage_; }
+    const ecs::ComponentStorage& storage() const noexcept { return storage_; }
+
+    SystemManager* systems() { return systems_.get(); }
+    const SystemManager* systems() const { return systems_.get(); }
+
+    ecs::Entity root() const { return root_; }
+    void setRoot(ecs::Entity root) { root_ = root; }
 
     // -------------------------------------------------------------------------
     // IAsset
@@ -153,9 +159,9 @@ public:
     // @TODO: refactor
     math::AABB bound_;
 
-    ecs::Entity root_;
-
 private:
+    void simulate(SceneTickContext& ctx);
+
     std::vector<ecs::Entity> getSortedEntityArray() const;
     void flushPendingDestroy();
 
@@ -164,12 +170,12 @@ private:
     ecs::ComponentStorage storage_;
 
     uint32_t entity_seed_{ 0 };
+    ecs::Entity root_;
 
     std::unique_ptr<SystemManager> systems_;
 
     friend class AssimpImporter;
     friend class TinyGltfImporter;
-    friend class SceneQuery;
 };
 
 }  // namespace cave

@@ -1,7 +1,7 @@
 type: image
 guid: 5DAAD570-BEFA-9343-A2611349F7AEF10D
-name: spider.png
-import_path: "@res://monsters/spider.png"
+name: spr_spider.png
+import_path: "@res://textures/spr_spider.png"
 dependencies: []
 source_created_time: ""
 source_last_modified: ""

@@ -39,13 +39,12 @@ public:
     TransformComponent();
 
     const math::Vec3f& translation() const { return translation_; }
-    void setTranslation(const math::Vec3f& v) { translation_ = v; }
-
     const math::Vec4f& rotation() const { return rotation_; }
-    void setRotation(const math::Vec4f& v) { rotation_ = v; }
-
     const math::Vec3f& scale() const { return scale_; }
-    void setScale(const math::Vec3f& v) { scale_ = v; }
+
+    void setTranslation(const math::Vec3f& v);
+    void setRotation(const math::Vec4f& v);
+    void setScale(const math::Vec3f& v);
 
     const math::Mat4f& worldMatrix() const { return world_; }
 

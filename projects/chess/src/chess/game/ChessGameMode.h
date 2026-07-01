@@ -17,25 +17,25 @@ class IChessGameState;
 class ChessGameMode final : public cave::IGameMode,
                             public cave::IIntentHandler {
 public:
-    ChessGameMode(IHostServices& p_host);
+    ChessGameMode(IHostServices& host);
     ~ChessGameMode();
 
-    void OnEnter(IHostServices& p_host) final;
-    void OnExit(IHostServices& p_host) final;
-    void Tick(IHostServices& p_host, const FrameTime& p_time) final;
+    void onEnter(IHostServices& host) final;
+    void onExit(IHostServices& host) final;
+    void tick(IHostServices& host, const FrameTime& time) final;
 
-    bool handleIntent(cave::Intent& p_intent) override;
+    bool handleIntent(cave::Intent& intent) override;
 
-    DebugId debugId() const override { return m_debug_id; }
+    DebugId debugId() const override { return debug_id_; }
 
 private:
-    void CommitStateChange(std::unique_ptr<IChessGameState>&& p_new_state);
+    void commitStateChange(std::unique_ptr<IChessGameState>&& new_state);
 
-    IHostServices& m_host;
-    cave::IntentDispatcher& m_intent;
-    const DebugId m_debug_id;
+    IHostServices& host_;
+    cave::IntentDispatcher& intent_;
+    const DebugId debug_id_;
 
-    std::unique_ptr<IChessGameState> m_state;
+    std::unique_ptr<IChessGameState> state_;
 };
 
 }  // namespace chess

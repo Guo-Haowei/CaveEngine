@@ -72,45 +72,13 @@ bool CheckWallGrab(
     return false;
 }
 
-bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
-    auto* player_transform = query.component<TransformComponent>(player);
-    auto* player_collider = query.component<ColliderComponent>(player);
-    auto* player_velocity = query.component<VelocityComponent>(player);
-
-    auto* enemy_transform = query.component<TransformComponent>(enemy);
-    auto* enemy_collider = query.component<ColliderComponent>(enemy);
-
-    if (!player_transform || !player_collider || !player_velocity ||
-        !enemy_transform || !enemy_collider) {
-        return false;
-    }
-
-    // Y-up convention:
-    // falling downward means velocity.y < 0.
-    if (player_velocity->linear.y >= 0.0f) {
-        return false;
-    }
-
-    const Box2 player_box = ComputeWorldAABB(*player_transform, *player_collider);
-    const Box2 enemy_box = ComputeWorldAABB(*enemy_transform, *enemy_collider);
-
-    const float player_feet_y = player_box.min().y;
-    const float enemy_top_y = enemy_box.max().y;
-
-    // Since this runs after overlap is already detected, player's feet may
-    // already be slightly inside enemy's box.
-    return player_feet_y >= enemy_top_y - kPlayerStompTolerance;
-}
-
 }  // namespace
 
-void PlayerController::onCreate() {
-    const SceneQuery query(context().scene);
-
-    animator_ = query.findChildByName("animator_node", entity());
+void PlayerController::onCreate(cave::SceneContext& ctx) {
+    animator_ = ctx.query.findChildByName("animator_node", entity());
 }
 
-void PlayerController::onUpdate(float dt) {
+void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
     hurt_timer_.tick(dt);
 
     if (health_ <= 0) {
@@ -118,8 +86,8 @@ void PlayerController::onUpdate(float dt) {
         // Revive();
     }
 
-    const IGameInput& input = context().game_input;
-    SceneQuery query(context().scene);
+    const IGameInput& input = ctx.engine_services.gameInput();
+    SceneQuery& query = ctx.query;
 
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
@@ -198,46 +166,6 @@ void PlayerController::onUpdate(float dt) {
 
     updatePlayerState(*vel);
     updateAnimation(*animator);
-}
-
-void PlayerController::onCollision(ecs::Entity other) {
-    SceneQuery query(context().scene);
-
-    auto* other_collider = query.component<ColliderComponent>(other);
-    if (!other_collider) {
-        return;
-    }
-
-    if (!IsEnemy(*other_collider)) {
-        return;
-    }
-
-    auto* vel = query.component<VelocityComponent>(entity());
-    auto* motor = query.component<MotorComponent>(entity());
-    DEV_ASSERT(motor && vel);
-    if (IsStompingEnemy(query, entity(), other)) {
-        bounceFromEnemy(*vel, *motor, kPlayerBounceSpeed);
-        query.queueDestroy(other);
-        return;
-    }
-
-    auto* transform = query.component<TransformComponent>(entity());
-    auto* enemy_transform = query.component<TransformComponent>(other);
-    DEV_ASSERT(transform && enemy_transform);
-
-    const float player_x = transform->translation().x;
-    const float enemy_x = enemy_transform->translation().x;
-
-    const float dir_x = player_x >= enemy_x ? 1.0f : -1.0f;
-
-    PlayerHurtInfo hurt_info{
-        .damage = 1,
-        .knockback = math::Vec2f{
-            dir_x * kPlayerKnockbackX,
-            kPlayerKnockbackY,
-        },
-    };
-    takeDamage(*vel, *motor, hurt_info);
 }
 
 void PlayerController::updateAnimation(SpriteAnimatorComponent& animator) {

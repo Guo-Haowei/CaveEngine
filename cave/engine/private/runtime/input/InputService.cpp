@@ -10,9 +10,9 @@ namespace cave {
 using namespace cave::literals;
 using namespace cave::math;
 
-InputService::InputService()
+InputService::InputService(GameInput& game_input)
     : IService("InputService")
-    , game_input_(pointers_.data()) {}
+    , game_input_(game_input) {}
 
 auto InputService::InitializeImpl() -> Result<void> {
     game_input_.initialize();
@@ -112,7 +112,7 @@ void InputService::tick(const FrameTime& time) {
     axis_state_.updateFromEvents(input_events_.data(), input_events_.size());
 
     // *) Feed ImGui from remaining raw events
-    if (ImguiManager* imgui = m_app->GetImguiManager()) {
+    if (ImguiManager* imgui = m_app->imguiManager()) {
         imgui->Feed(input_events_);
 
         // Gate gameplay/editor mapping based on ImGui capture

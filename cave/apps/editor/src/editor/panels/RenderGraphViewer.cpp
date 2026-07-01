@@ -116,7 +116,7 @@ void RenderGraphViewer::drawUIImpl() {
 
     CAVE_PROFILE_EVENT();
 
-    m_backend = m_editor.app().GetBackend();
+    m_backend = m_editor.app().backend();
 
     switch (m_backend) {
         case Backend::Vulkan:

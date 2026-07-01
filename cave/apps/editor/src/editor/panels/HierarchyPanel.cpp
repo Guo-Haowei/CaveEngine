@@ -223,7 +223,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& p_ctx) {
         DEV_ASSERT(selection.doc == p_ctx.doc_id);
         ecs::Entity selected = selection.entity;
 
-        ecs::Entity parent = selected.IsValid() ? selected : p_ctx.scene->root_;
+        ecs::Entity parent = selected.IsValid() ? selected : p_ctx.scene->root();
 
         if (ImGui::BeginMenu("Add")) {
             openAddEntityPopupImpl(p_ctx.doc_id, parent);

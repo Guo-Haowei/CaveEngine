@@ -12,7 +12,8 @@ NativeScriptSystem::NativeScriptSystem()
     : debug_id_(MakeDebugId(this)) {
 }
 
-void NativeScriptSystem::ensureCreated(Entity entity,
+void NativeScriptSystem::ensureCreated(SceneContext& ctx,
+                                       Entity entity,
                                        NativeScriptComponent& component) {
     if (component.created) {
         return;
@@ -22,7 +23,6 @@ void NativeScriptSystem::ensureCreated(Entity entity,
         return;
     }
 
-    SceneContext& ctx = context();
     NativeScript* script = ctx.native_scripts.create(component.name);
     if (!script) {
         LOG_ERROR(LogChannel::Script, "Failed to create native script '{}'", component.name.c_str());
@@ -30,13 +30,14 @@ void NativeScriptSystem::ensureCreated(Entity entity,
     }
 
     component.instance = script;
-    component.instance->bind(ctx, entity);
-    component.instance->onCreate();
+    component.instance->bind(entity);
+    component.instance->onCreate(ctx);
     component.created = true;
     component.pending_reload = false;
 }
 
-void NativeScriptSystem::destroyScript(NativeScriptComponent& component) {
+void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
+                                       NativeScriptComponent& component) {
     if (!component.instance) {
         component.created = false;
         return;
@@ -48,42 +49,42 @@ void NativeScriptSystem::destroyScript(NativeScriptComponent& component) {
 
     component.instance->unbind();
 
-    context().native_scripts.destroy(component.name, component.instance);
+    script_registry.destroy(component.name, component.instance);
 
     component.instance = nullptr;
     component.created = false;
     component.pending_reload = false;
 }
 
-void NativeScriptSystem::reloadIfNeeded(
-    Entity entity,
-    NativeScriptComponent& component) {
+void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
+                                        Entity entity,
+                                        NativeScriptComponent& component) {
     if (!component.pending_reload) {
         return;
     }
 
-    destroyScript(component);
-    ensureCreated(entity, component);
+    destroyScript(ctx.native_scripts, component);
+    ensureCreated(ctx, entity, component);
 }
 
-void NativeScriptSystem::update(float dt) {
-    auto& scene = context().scene;
+void NativeScriptSystem::update(SceneTickContext& ctx) {
+    auto& scene = ctx.scene_ctx.scene;
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        reloadIfNeeded(ent, script);
-        ensureCreated(ent, script);
+        reloadIfNeeded(ctx.scene_ctx, ent, script);
+        ensureCreated(ctx.scene_ctx, ent, script);
 
         if (script.instance) {
-            script.instance->onUpdate(dt);
+            script.instance->onUpdate(ctx.scene_ctx, ctx.dt);
         }
     }
 }
 
-void NativeScriptSystem::onDetach() {
-    auto& scene = context().scene;
+void NativeScriptSystem::onDetach(SceneContext& ctx) {
+    auto& scene = ctx.scene;
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        destroyScript(script);
+        destroyScript(ctx.native_scripts, script);
     }
 }
 

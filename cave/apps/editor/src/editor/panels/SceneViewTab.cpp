@@ -77,7 +77,7 @@ Option<PickData> SceneViewTab::getPickData(const Vec2f& point_os) {
     }
 
     return Some(PickData{
-        .proj_view = camera_.GetProjectionViewMatrix(),
+        .proj_view = camera_.projectionViewMatrix(),
         .cursor_ndc = view->screenToNDC(point_os),
         .scene_id = preview_scene_id_,
         .doc_id = doc_id_,
@@ -153,12 +153,12 @@ void SceneViewTab::drawUIImpl() {
 // @TODO: instead of asking for image, provide an image to renderer
 // @TODO: move this to gizmo
 void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
-    DEV_ASSERT(!camera_.IsDirty());
+    DEV_ASSERT(!camera_.dirty());
     DocId doc_id = docId();
 
-    const Mat4f& view_matrix = camera_.GetViewMatrix();
-    const Mat4f& proj_matrix = camera_.GetProjectionMatrix();
-    const Mat4f& proj_view = camera_.GetProjectionViewMatrix();
+    const Mat4f& view_matrix = camera_.viewMatrix();
+    const Mat4f& proj_matrix = camera_.projectionMatrix();
+    const Mat4f& proj_view = camera_.projectionViewMatrix();
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();

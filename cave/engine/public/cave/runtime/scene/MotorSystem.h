@@ -2,6 +2,8 @@
 // File: cave/runtime/scene/MotorSystem.h
 // =============================================================================
 #pragma once
+#include <memory>
+
 #include "cave/core/math/Box.h"
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/scene/ISceneSystem.h"
@@ -19,13 +21,16 @@ class SceneQuery;
 math::Box2 ComputeWorldAABB(const TransformComponent& transform,
                             const ColliderComponent& collider);
 
+class CollisionSystem;
+
 class MotorSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::Motor)
 
 public:
     MotorSystem();
+    ~MotorSystem();
 
-    void update(float dt) override;
+    void update(SceneTickContext& ctx) override;
 
     DebugId debugId() const override { return debug_id_; }
 
@@ -38,10 +43,11 @@ private:
                          ContactComponent* contact,
                          math::Vec2f desired_delta);
 
-    void runTileWorldCollision(SceneQuery& query, float dt);
-    void runCollisionPair(SceneQuery& query, float dt);
+    void runTileWorldCollision(SceneTickContext& ctx);
 
     const DebugId debug_id_;
+
+    std::unique_ptr<CollisionSystem> collision_;
 };
 
 }  // namespace cave

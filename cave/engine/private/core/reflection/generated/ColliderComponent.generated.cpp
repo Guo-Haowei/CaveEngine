@@ -12,9 +12,9 @@ namespace cave {
 // bool debug_draw_ (editor = Toggle, serialize = false)
 // Shape shape_ ()
 // uint32_t flags_ ()
-// uint64_t category_ ()
 // uint32_t layer_ (editor = BitMask)
 // uint32_t mask_ (editor = BitMask)
+// bool is_trigger_ (editor = Toggle)
 
 template<>
 const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
@@ -23,9 +23,9 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
         REGISTER_FIELD(ColliderComponent, "debug_draw", debug_draw_, FieldFlag::None, EditorHint::Toggle),
         REGISTER_FIELD(ColliderComponent, "shape", shape_, FieldFlag::Serialize, EditorHint::None),
         REGISTER_FIELD(ColliderComponent, "flags", flags_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(ColliderComponent, "category", category_, FieldFlag::Serialize, EditorHint::None),
         REGISTER_FIELD(ColliderComponent, "layer", layer_, FieldFlag::Serialize, EditorHint::BitMask),
         REGISTER_FIELD(ColliderComponent, "mask", mask_, FieldFlag::Serialize, EditorHint::BitMask),
+        REGISTER_FIELD(ColliderComponent, "is_trigger", is_trigger_, FieldFlag::Serialize, EditorHint::Toggle),
     };
 
     return s_table;

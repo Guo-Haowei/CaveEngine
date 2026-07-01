@@ -44,7 +44,7 @@ auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
 
     m_meshes.set_description("GPU-Mesh-Allocator");
 
-    auto imgui = m_app->GetImguiManager();
+    auto imgui = m_app->imguiManager();
     if (imgui) {
         imgui->SetRenderCallbacks(
             []() {

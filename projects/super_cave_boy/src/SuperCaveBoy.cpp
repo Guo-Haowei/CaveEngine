@@ -1,10 +1,11 @@
-#include "GameModule.h"
+#include "SuperCaveBoy.h"
 
 #include "cave/core/diagnostics/Log.h"
 #include "cave/game/IHostServices.h"
 
 #include "controllers/BatController.h"
 #include "controllers/CameraController.h"
+#include "controllers/ExitTrigger.h"
 #include "controllers/PlayerController.h"
 #include "controllers/SnakeController.h"
 #include "controllers/SpiderController.h"
@@ -13,35 +14,36 @@ namespace super_cave_boy {
 
 using namespace ::cave;
 
-GameModule::GameModule() = default;
-GameModule::~GameModule() = default;
+SuperCaveBoy::SuperCaveBoy() = default;
+SuperCaveBoy::~SuperCaveBoy() = default;
 
-void GameModule::registerNativeScripts(NativeScriptRegistry& registry) {
+void SuperCaveBoy::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<CameraController>("CameraController");
     registry.registerScript<PlayerController>("PlayerController");
+    registry.registerScript<ExitTrigger>("ExitTrigger");
     registry.registerScript<SpiderController>("SpiderController");
     registry.registerScript<SnakeController>("SnakeController");
     registry.registerScript<BatController>("BatController");
 }
 
-void GameModule::onModuleLoaded(IHostServices& host) {
-    LOG_OK(LogChannel::Game, "GameModule Loaded");
+void SuperCaveBoy::onModuleLoaded(IHostServices& host) {
+    LOG_OK(LogChannel::Game, "SuperCaveBoy Loaded");
 
     unused(host);
 }
 
-void GameModule::onModuleUnloaded(IHostServices&) {
+void SuperCaveBoy::onModuleUnloaded(IHostServices&) {
 }
 
-void GameModule::onGameBegin(IHostServices& host) {
+void SuperCaveBoy::onGameBegin(IHostServices& host) {
     unused(host);
 }
 
-void GameModule::onGameEnd(IHostServices& host) {
+void SuperCaveBoy::onGameEnd(IHostServices& host) {
     unused(host);
 }
 
-void GameModule::tick(IHostServices& host, const FrameTime& time) {
+void SuperCaveBoy::tick(IHostServices& host, const FrameTime& time) {
     unused(host);
     unused(time);
 }

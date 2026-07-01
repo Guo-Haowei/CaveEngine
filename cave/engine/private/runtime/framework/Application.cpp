@@ -23,7 +23,6 @@
 #include "engine/private/runtime/framework/ServiceRegistry.h"
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
-#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/runtime/view/ViewManager.h"
 
@@ -42,43 +41,45 @@ extern void registerCommands(CommandRegistry& cmd_reg);
 
 namespace fs = std::filesystem;
 
-Application::Application(const AppSpec& p_spec, AppType p_type)
-    : IApplication(p_spec)
-    , type_(p_type)
+Application::Application(const AppSpec& spec, AppType type)
+    : IApplication(spec)
+    , type_(type)
     , state_machine_(*this) {
 
     // @TODO: refactor this select work directory
-    vfs_.Mount("@user", fs::path(m_spec.userFolder));
+    vfs_.Mount("@user", fs::path(spec_.userFolder));
 }
 
 IApplication::~IApplication() = default;
 Application::~Application() = default;
 
-void Application::RegisterModule(IService* p_module) {
+void Application::registerModule(IService* p_module) {
     DEV_ASSERT(p_module);
     p_module->SetApp(this);
     subsystems_.push_back(p_module);
 }
 
-Result<ImguiManager*> Application::CreateImguiManager() {
+Result<ImguiManager*> Application::createImguiManager() {
     return new ImguiManager();
 }
 
-auto Application::SetupModules() -> Result<void> {
-    m_cmd_reg = new cave::CommandRegistry();
-    m_console = new cave::Console(*this);
+auto Application::setupModules() -> Result<void> {
+    // @TODO: clean up
+    cmd_reg_ = new cave::CommandRegistry();
+    console_ = new cave::Console(*this);
 
     asset_manager_ = CreateAssetService();
     asset_registry_ = new AssetRegistry();
-    render_device_ = CreateRenderDevice(m_spec.backend);
+    render_device_ = CreateRenderDevice(spec_.backend);
     display_service_ = CreateDisplayService();
-    input_service_ = new cave::InputService();
+    input_service_ = new InputService(game_input_);
+    game_input_.setPointer(input_service_->pointers());
     task_manager_ = new TaskManager();
 
     // @TODO: dependency injection?
     renderer_ = std::make_unique<render::Renderer>(*render_device_, debug_draw_);
 
-    scene_scheduler_ = std::make_unique<SceneScheduler>(scene_registry_);
+    scene_scheduler_ = std::make_unique<SceneScheduler>(services_);
 
     scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
 
@@ -97,6 +98,7 @@ auto Application::SetupModules() -> Result<void> {
     services_.asset_registry_ = asset_registry_;
     services_.debug_draw_ = &debug_draw_;
     services_.display_service_ = display_service_;
+    services_.game_input_ = &game_input_;
     services_.input_service_ = input_service_;
     services_.intent_dispatcher_ = &intent_dispatcher_;
     services_.native_scripts_ = &native_scripts_;
@@ -112,32 +114,32 @@ auto Application::SetupModules() -> Result<void> {
     services_.vfs_ = &vfs_;
 
     // register subsystems
-    RegisterModule(task_manager_);
-    RegisterModule(asset_manager_);
-    RegisterModule(asset_registry_);
-    RegisterModule(input_service_);
-    RegisterModule(display_service_);
-    RegisterModule(render_device_);
+    registerModule(task_manager_);
+    registerModule(asset_manager_);
+    registerModule(asset_registry_);
+    registerModule(input_service_);
+    registerModule(display_service_);
+    registerModule(render_device_);
 
-    if (m_spec.enableImgui) {
-        auto res = CreateImguiManager();
+    if (spec_.enableImgui) {
+        auto res = createImguiManager();
         if (!res) {
             return CAVE_ERROR(res.error());
         }
-        m_imgui_manager = *res;
-        RegisterModule(m_imgui_manager);
+        imgui_manager_ = *res;
+        registerModule(imgui_manager_);
     }
 
     event_queue_.RegisterListener(render_device_);
 
     // @TODO: move to registerCommands
-    DvarCache::registerCmd(*m_cmd_reg);
+    DvarCache::registerCmd(*cmd_reg_);
 
-    registerCommands(*m_cmd_reg);
+    registerCommands(*cmd_reg_);
     return Result<void>();
 }
 
-auto Application::Initialize() -> Result<void> {
+auto Application::initialize() -> Result<void> {
     LOG_WARN("@TODO: move thumbnail render target creation to somewhere else");
     LOG_WARN("@TODO: support material in path tracer");
     LOG_WARN("@TODO: remove global path tracer object");
@@ -149,10 +151,10 @@ auto Application::Initialize() -> Result<void> {
         const std::string& backend = DVAR_GET_STRING(gfx_backend);
         if (!backend.empty()) {
             do {
-#define BACKEND_DECLARE(ENUM, STR, DVAR)     \
-    if (backend == #DVAR) {                  \
-        m_spec.backend = rhi::Backend::ENUM; \
-        break;                               \
+#define BACKEND_DECLARE(ENUM, STR, DVAR)    \
+    if (backend == #DVAR) {                 \
+        spec_.backend = rhi::Backend::ENUM; \
+        break;                              \
     }
                 BACKEND_LIST
 #undef BACKEND_DECLARE
@@ -161,7 +163,7 @@ auto Application::Initialize() -> Result<void> {
         }
     }
 
-    if (auto res = SetupModules(); !res) {
+    if (auto res = setupModules(); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -179,7 +181,7 @@ auto Application::Initialize() -> Result<void> {
     return Result<void>();
 }
 
-void Application::Finalize() {
+void Application::finalize() {
     state_machine_.shutdown();
 
     // @TODO: move it to request shutdown
@@ -194,14 +196,14 @@ void Application::Finalize() {
     }
 }
 
-float Application::UpdateTime() {
+float Application::updateTime() {
     const Nanoseconds elapsed = stopwatch_.Restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
     return math::min(elapsed_sec, 0.5f);
 }
 
-bool Application::MainLoop() {
+bool Application::mainLoop() {
     using namespace render;
     CAVE_PROFILE_FRAME("MainThread");
 
@@ -215,12 +217,13 @@ bool Application::MainLoop() {
     task_manager_->TickMainThread();
 
     FrameTime time{
-        .dt = UpdateTime(),
+        .dt = updateTime(),
         .frame_index = frame_counter_++,
     };
 
     input_service_->tick(time);
 
+    scene_scheduler_->flushSceneCommands();
     ui_->beginFrame(input_service_->getUIInput());
 
     asset_manager_->update();
@@ -244,7 +247,7 @@ bool Application::MainLoop() {
 }
 
 // @TODO: get rid of this
-void IApplication::Run(IApplication* p_app) {
+void IApplication::run(IApplication* p_app) {
     LOG_INFO(LogChannel::App, "----------- Enter Main Loop -----------");
 
 #if USING(PLATFORM_WASM)
@@ -254,13 +257,13 @@ void IApplication::Run(IApplication* p_app) {
     },
                              -1, 1);
 #else
-    while (p_app->MainLoop());
+    while (p_app->mainLoop());
 #endif
 
     LOG_INFO(LogChannel::App, "----------- Exit Main Loop -----------");
 }
 
-AppStateId Application::GetStateId() const {
+AppStateId Application::stateId() const {
     return state_machine_.stateId();
 }
 

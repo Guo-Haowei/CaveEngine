@@ -31,7 +31,7 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
-    scene->root_ = map.Resolve(root);
+    scene->setRoot(map.Resolve(root));
     scene->update(0.0f);
 
     SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(map.Resolve(ent));

@@ -126,7 +126,7 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
     auto camera = (const CameraComponent*)host_.sceneQuery().component(CameraComponent_Id, camera_id_);
     assert(camera);
 
-    Ray ray = Ray::unproject(camera->GetProjectionViewMatrix(), ndc);
+    Ray ray = Ray::unproject(camera->projectionViewMatrix(), ndc);
 
     if (!ray.intersects(Plane::xz())) {
         return;

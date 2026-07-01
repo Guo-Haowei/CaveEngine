@@ -22,7 +22,7 @@ public:
 #endif
 
 private:
-    std::unique_ptr<ChessGameSession> m_session;
+    std::unique_ptr<ChessGameSession> session_;
 };
 
 }  // namespace chess

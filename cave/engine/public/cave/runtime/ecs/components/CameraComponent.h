@@ -26,91 +26,78 @@ class CameraComponent {
 
 private:
     CAVE_PROP()
-    uint32_t m_flags = DirtyFlag;
+    uint32_t flags_ = DirtyFlag;
 
     CAVE_PROP(editor = EnumDropDown)
-    ProjectionType m_projection;
+    ProjectionType projection_;
 
     CAVE_PROP(editor = DragFloat, min = 1, max = 179)
-    float m_fovy = kDefaultFovy;
+    float fovy_ = kDefaultFovy;
 
     CAVE_PROP(editor = DragFloat, min = 0.1f, max = 9)
-    float m_near = kDefaultNear;
+    float near_ = kDefaultNear;
 
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
-    float m_far = kDefaultFar;
+    float far_ = kDefaultFar;
 
     CAVE_PROP(editor = InputFloat)
-    float m_aspect = 1.0f;
+    float aspect_ = 1.0f;
 
     CAVE_PROP()
-    float m_ortho_height = 10;
+    float ortho_height_ = 10;
 
     // Not serlialized
-    math::Vec3f m_front = -math::Vec3f::UnitZ;
-    math::Vec3f m_right = math::Vec3f::UnitX;
-    math::Vec3f m_up = math::Vec3f::UnitY;
-    math::Vec3f m_position = math::Vec3f::Zero;
+    math::Vec3f front_ = -math::Vec3f::UnitZ;
+    math::Vec3f right_ = math::Vec3f::UnitX;
+    math::Vec3f up_ = math::Vec3f::UnitY;
+    math::Vec3f position_ = math::Vec3f::Zero;
 
-    math::Mat4f m_view_matrix;
-    math::Mat4f m_projection_matrix;
-    math::Mat4f m_projection_view_matrix;
+    math::Mat4f view_matrix_;
+    math::Mat4f projection_matrix_;
+    math::Mat4f projection_view_matrix_;
 
 public:
     static constexpr float kDefaultNear = 0.1f;
     static constexpr float kDefaultFar = 1000.0f;
     static constexpr float kDefaultFovy = 60.0f;
 
-    bool Update(const math::Mat4f& p_transform);
+    bool update(const math::Mat4f& transform);
 
-    float GetFovy() const { return m_fovy; }
+    float aspect() const { return aspect_; }
+    void setAspect(float aspect);
 
-    void SetFovy(float p_degree) {
-        m_fovy = p_degree;
-        SetDirty();
-    }
+    float fovy() const { return fovy_; }
+    void setFovy(float degree);
 
-    float GetNear() const { return m_near; }
-    void SetNear(float p_near) {
-        m_near = p_near;
-        SetDirty();
-    }
+    float near() const { return near_; }
+    void setNear(float near);
 
-    float GetFar() const { return m_far; }
-    void SetFar(float p_far) {
-        m_far = p_far;
-        SetDirty();
-    }
+    float far() const { return far_; }
+    void setFar(float far);
 
-    float GetAspect() const { return m_aspect; }
-    void SetAspect(float p_aspect) {
-        m_aspect = p_aspect;
-        SetDirty();
-    }
+    void setProjectionType(ProjectionType projection);
 
-    void SetProjection(ProjectionType p_projection) { m_projection = p_projection; }
-
-    float GetOrthoHeight() const { return m_ortho_height; }
-    void SetOrthoHeight(float p_height);
+    float orthoHeight() const { return ortho_height_; }
+    void setOrthoHeight(float height);
 
     math::Mat4f CalcProjection() const;
     math::Mat4f CalcProjectionGL() const;
 
     // ---------------- Accessors ----------------
     // these values are modified by Update() function only
-    const math::Mat4f& GetViewMatrix() const { return m_view_matrix; }
-    const math::Mat4f& GetProjectionMatrix() const { return m_projection_matrix; }
-    const math::Mat4f& GetProjectionViewMatrix() const { return m_projection_view_matrix; }
+    const math::Mat4f& viewMatrix() const { return view_matrix_; }
+    const math::Mat4f& projectionMatrix() const { return projection_matrix_; }
+    const math::Mat4f& projectionViewMatrix() const { return projection_view_matrix_; }
 
-    const math::Vec3f& GetFront() const { return m_front; }
-    const math::Vec3f& GetRight() const { return m_right; }
-    const math::Vec3f& GetUp() const { return m_up; }
-    const math::Vec3f& GetPosition() const { return m_position; }
+    const math::Vec3f& front() const { return front_; }
+    const math::Vec3f& right() const { return right_; }
+    const math::Vec3f& up() const { return up_; }
+    const math::Vec3f& position() const { return position_; }
 
-    bool IsDirty() const { return m_flags & DirtyFlag; }
-    void SetDirty(bool p_value = true) { p_value ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }
+    bool dirty() const { return flags_ & DirtyFlag; }
+    void setDirty(bool dirty = true) { dirty ? flags_ |= DirtyFlag : flags_ &= ~DirtyFlag; }
 
-    void OnDeserialized() { m_flags |= DirtyFlag; }
+    void OnDeserialized() { flags_ |= DirtyFlag; }
 };
 
 }  // namespace cave

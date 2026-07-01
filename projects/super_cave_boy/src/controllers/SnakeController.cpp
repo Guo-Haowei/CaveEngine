@@ -43,9 +43,8 @@ bool ShouldTurnAround(const Box2& body,
 
 }  // namespace
 
-void SnakeController::onCreate() {
-    SceneQuery query(context().scene);
-    auto facing = query.component<FacingComponent>(entity());
+void SnakeController::onCreate(SceneContext& ctx) {
+    auto facing = ctx.query.component<FacingComponent>(entity());
     // @TODO: prefab override
     switch (facing->facing) {
         case Facing::Left: {
@@ -61,8 +60,8 @@ void SnakeController::onCreate() {
     }
 }
 
-void SnakeController::onUpdate(float dt) {
-    SceneQuery query(context().scene);
+void SnakeController::onUpdate(cave::SceneContext& ctx, float dt) {
+    SceneQuery& query = ctx.query;
 
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());

@@ -34,16 +34,16 @@ void ChessGameModule::onModuleUnloaded(IHostServices&) {
 
 void ChessGameModule::onGameBegin(IHostServices& host) {
     game_ = std::make_unique<ChessGameMode>(host);
-    game_->OnEnter(host);
+    game_->onEnter(host);
 }
 
 void ChessGameModule::onGameEnd(IHostServices& host) {
-    game_->OnExit(host);
+    game_->onExit(host);
     game_.reset();
 }
 
 void ChessGameModule::tick(IHostServices& host, const FrameTime& time) {
-    game_->Tick(host, time);
+    game_->tick(host, time);
 }
 
 // @TODO: extract it,

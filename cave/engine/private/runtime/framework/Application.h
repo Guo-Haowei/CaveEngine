@@ -9,6 +9,7 @@
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
+#include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
@@ -24,30 +25,30 @@ public:
     Application(const AppSpec& spec, AppType type);
     ~Application();
 
-    AppStateId GetStateId() const override;
+    AppStateId stateId() const override;
 
-    Result<void> Initialize() override;
-    void Finalize() override;
+    Result<void> initialize() override;
+    void finalize() override;
 
-    QuitVote OnQuitRequested(const QuitContext&) override {
+    QuitVote onQuitRequested(const QuitContext&) override {
         return QuitVote::Allow;
     }
 
-    EventQueue& GetEventQueue() override { return event_queue_; }
+    EventQueue& eventQueue() override { return event_queue_; }
 
-    AppType GetType() const override { return type_; }
+    AppType appType() const override { return type_; }
 
 protected:
-    [[nodiscard]] auto SetupModules() -> Result<void>;
+    [[nodiscard]] auto setupModules() -> Result<void>;
 
-    bool MainLoop() override;
+    bool mainLoop() override;
 
-    float UpdateTime();
+    float updateTime();
 
     // @TODO: add CreateXXXManager for all managers
-    virtual Result<ImguiManager*> CreateImguiManager();
+    virtual Result<ImguiManager*> createImguiManager();
 
-    void RegisterModule(IService* module);
+    void registerModule(IService* module);
 
     const AppType type_;
     uint64_t frame_counter_{};
@@ -73,6 +74,7 @@ protected:
     // @TODO: do not use raw pointers
     DisplayService* display_service_{};
     InputService* input_service_{};
+    GameInput game_input_;
     TaskManager* task_manager_{};
     AssetRegistry* asset_registry_{};
     IAssetManager* asset_manager_{};

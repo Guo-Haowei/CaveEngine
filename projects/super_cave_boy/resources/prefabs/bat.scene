@@ -15,9 +15,9 @@ entities:
         type: box
         data: [0.300000012, 0.300000012, 0.5]
       flags: 0
-      category: 0
-      mask: 1
       layer: 2
+      mask: 1
+      is_trigger: true
     ContactComponent:
       {}
     MotorComponent:
@@ -53,4 +53,3 @@ entities:
         max: [0.200000003, 0.5]
       flip_x: false
       flip_y: false
-      is_billboard: false

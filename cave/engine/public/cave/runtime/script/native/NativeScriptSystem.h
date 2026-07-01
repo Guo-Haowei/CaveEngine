@@ -14,16 +14,22 @@ class NativeScriptSystem final : public ISceneSystem {
 public:
     NativeScriptSystem();
 
-    void onDetach() override;
+    void onDetach(SceneContext& ctx) override;
 
-    void update(float dt) override;
+    void update(SceneTickContext& ctx) override;
 
     DebugId debugId() const override { return debug_id_; }
 
+    void destroyScript(NativeScriptRegistry& script_registry,
+                       NativeScriptComponent& component);
+
 private:
-    void ensureCreated(ecs::Entity entity, NativeScriptComponent& component);
-    void destroyScript(NativeScriptComponent& component);
-    void reloadIfNeeded(ecs::Entity entity, NativeScriptComponent& component);
+    void ensureCreated(SceneContext& ctx,
+                       ecs::Entity entity,
+                       NativeScriptComponent& component);
+    void reloadIfNeeded(SceneContext& ctx,
+                        ecs::Entity entity,
+                        NativeScriptComponent& component);
 
     const DebugId debug_id_;
 };

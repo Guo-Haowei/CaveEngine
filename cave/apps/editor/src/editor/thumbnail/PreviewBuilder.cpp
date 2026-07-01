@@ -46,12 +46,12 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
     const float near_z = std::max(0.01f, dist - r * 2.0f);
     const float far_z = dist + r * 2.0f;
 
-    camera.SetNear(near_z);
-    camera.SetFar(far_z);
-    camera.SetAspect((float)options.width / (float)options.height);
-    camera.SetFovy(options.fov_y_deg);
+    camera.setNear(near_z);
+    camera.setFar(far_z);
+    camera.setAspect((float)options.width / (float)options.height);
+    camera.setFovy(options.fov_y_deg);
 
-    camera.Update(transform * rotation);
+    camera.update(transform * rotation);
     return camera;
 }
 
@@ -88,7 +88,7 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     scene->copy(*source_scene);
 
     for (auto [id, cam] : scene->view<CameraComponent>()) {
-        cam.SetAspect(1.0f);
+        cam.setAspect(1.0f);
     }
     scene->update(0.0f);
 
@@ -124,15 +124,15 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->root_ = map.Resolve(root);
+    scene->setRoot(map.Resolve(root));
     scene->update(0.0f);
 
     Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
 
     CameraComponent camera{};
-    camera.SetAspect((float)options.width / (float)options.height);
-    camera.Update(transform);
-    camera.SetFovy(options.fov_y_deg);
+    camera.setAspect((float)options.width / (float)options.height);
+    camera.update(transform);
+    camera.setFovy(options.fov_y_deg);
 
     return {
         .status = PreviewBuildStatus::Ok,
@@ -169,7 +169,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     EntityMap map(cb.GetAllocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->root_ = map.Resolve(root);
+    scene->setRoot(map.Resolve(root));
     scene->update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);

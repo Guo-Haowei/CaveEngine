@@ -178,7 +178,7 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
             IID_PPV_ARGS(&m_debugIndexData)));
     }
 
-    auto imgui = m_app->GetImguiManager();
+    auto imgui = m_app->imguiManager();
     if (imgui) {
         imgui->SetRenderCallbacks(
             [this]() {
@@ -232,7 +232,7 @@ void D3d12GraphicsManager::Render() {
     cmd_list->ClearDepthStencilView(dsv_handle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     // @TODO: refactor this
-    if (m_app->IsRuntime()) {
+    if (m_app->isRuntime()) {
         CRASH_NOW();
         // RenderGraphBuilder::DrawDebugImages(*GetRenderData(),
         //                                               width,
@@ -240,7 +240,7 @@ void D3d12GraphicsManager::Render() {
         //                                               *this);
     }
 
-    if (m_app->GetSpecification().enableImgui) {
+    if (m_app->specification().enableImgui) {
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd_list);
     }
 
@@ -251,7 +251,7 @@ void D3d12GraphicsManager::Render() {
 }
 
 void D3d12GraphicsManager::Present() {
-    if (m_app->GetSpecification().enableImgui) {
+    if (m_app->specification().enableImgui) {
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             ImGui::UpdatePlatformWindows();

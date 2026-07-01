@@ -52,7 +52,7 @@ auto D3d11GraphicsManager::InitializeInternal() -> Result<void> {
 
     m_meshes.set_description("GPU-Mesh-Allocator");
 
-    auto imgui = m_app->GetImguiManager();
+    auto imgui = m_app->imguiManager();
     if (imgui) {
         imgui->SetRenderCallbacks(
             [this]() {
@@ -79,17 +79,17 @@ void D3d11GraphicsManager::Render() {
     // @TODO: refactor this
     // const auto [width, height] = m_app->GetDisplayService()->windowSize();
 
-    if (m_app->IsRuntime()) {
+    if (m_app->isRuntime()) {
         CRASH_NOW();
     }
 
-    if (m_app->GetSpecification().enableImgui) {
+    if (m_app->specification().enableImgui) {
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     }
 }
 
 void D3d11GraphicsManager::Present() {
-    if (m_app->GetSpecification().enableImgui) {
+    if (m_app->specification().enableImgui) {
         ImGuiIO& io = ImGui::GetIO();
         // Update and Render additional Platform Windows
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {

@@ -79,14 +79,14 @@ int Main(int p_argc, const char** p_argv) {
         return 1;
     }
 
-    if (auto res = app->Initialize(); !res) {
+    if (auto res = app->initialize(); !res) {
         LOG_ERROR("{}", ToString(res.error()));
         DestroyApp(app);
         return 1;
     }
 
-    IApplication::Run(app);
-    app->Finalize();
+    IApplication::run(app);
+    app->finalize();
     DestroyApp(app);
     return 0;
 }

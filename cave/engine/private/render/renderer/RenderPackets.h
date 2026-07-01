@@ -19,11 +19,12 @@ struct DrawItem {
     const GpuTexture* texture = nullptr;
     Range index;
 
-    int bone_idx{ -1 };
-    int mat_idx{ -1 };
-    int batch_idx{ -1 };
+    int bone_idx = -1;
+    int mat_idx = -1;
+    int batch_idx = -1;
+    int z_index = 0;
 
-    StencilFlags flags{ 0 };
+    StencilFlags flags{};
 
     // @TODO: implement the following
     // PsoHandle pso{};

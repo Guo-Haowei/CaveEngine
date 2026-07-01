@@ -64,12 +64,20 @@ void Scene::update(float dt) {
 
     // @TODO: refactor
     for (auto [entity, camera, transform] : view<CameraComponent, TransformComponent>()) {
-        if (camera.Update(transform.worldMatrix())) {
+        if (camera.update(transform.worldMatrix())) {
             dirtyFlags_.fetch_or(SCENE_DIRTY_CAMERA);
         }
     }
 
     flushPendingDestroy();
+}
+
+void Scene::tick(SceneTickContext& ctx) {
+    if (ctx.mode == SceneTickMode::Simulation) {
+        simulate(ctx);
+    }
+
+    update(ctx.dt);
 }
 
 void Scene::copy(const Scene& other) {
@@ -220,7 +228,10 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
 
 void Scene::removeEntity(ecs::Entity ent) {
     // @TODO: move it to SceneCommandExecutor
-    if (!ent.IsValid()) return;
+    if (!ent.IsValid()) {
+        return;
+    }
+
     std::vector<ecs::Entity> children;
     for (auto [child, hierarchy] : view<HierarchyComponent>()) {
         if (hierarchy.parent_id == ent) {
@@ -230,6 +241,11 @@ void Scene::removeEntity(ecs::Entity ent) {
 
     for (auto child : children) {
         removeEntity(child);
+    }
+
+    NativeScriptComponent* script = component<NativeScriptComponent>(ent);
+    if (script && script->instance) {
+        script->instance->onDestroy();
     }
 
     for (auto& e : storage_.GetEntries()) {
@@ -487,14 +503,14 @@ void Scene::onSimBegin(SceneContext& ctx) {
     systems_->onSceneCreate(ctx);
 }
 
-void Scene::onSimEnd() {
-    systems_->onSceneDestroy();
+void Scene::onSimEnd(SceneContext& ctx) {
+    systems_->onSceneDestroy(ctx);
 
     systems_.reset();
 }
 
-void Scene::simulate(float dt) {
-    systems_->update(dt);
+void Scene::simulate(SceneTickContext& ctx) {
+    systems_->update(ctx);
 }
 
 }  // namespace cave

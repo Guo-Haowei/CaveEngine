@@ -1,61 +1,81 @@
 #include "SceneScheduler.h"
 
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/framework/EngineServices.h"
 
+// @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 
-bool SceneScheduler::add(ISceneTickContributor* contributor) {
-    DEV_ASSERT(contributor);
-    if (!contributor) return false;
+bool SceneScheduler::add(ISceneOwner* owner) {
+    DEV_ASSERT(owner);
+    if (!owner) return false;
 
-    auto it = std::ranges::find(contributors_, contributor);
-    if (it != contributors_.end()) return false;
+    auto it = std::ranges::find(owners_, owner);
+    if (it != owners_.end()) return false;
 
-    contributors_.push_back(contributor);
+    owners_.push_back(owner);
 
 #if USING(USE_LOG)
-    const DebugId id = contributor->debugId();
+    const DebugId id = owner->debugId();
     LOG_TRACE(LogChannel::Scene, "+{}#{}", id.type, id.uid);
 #endif
     return true;
 }
 
-bool SceneScheduler::remove(ISceneTickContributor* contributor) {
-    DEV_ASSERT(contributor);
+bool SceneScheduler::remove(ISceneOwner* owner) {
+    DEV_ASSERT(owner);
 
-    auto it = std::ranges::find(contributors_, contributor);
-    if (it == contributors_.end()) {
+    auto it = std::ranges::find(owners_, owner);
+    if (it == owners_.end()) {
         return false;
     }
 
-    contributors_.erase(it);
+    owners_.erase(it);
 
 #if USING(USE_LOG)
-    const DebugId id = contributor->debugId();
+    const DebugId id = owner->debugId();
     LOG_TRACE(LogChannel::Scene, "-{}#{}", id.type, id.uid);
 #endif
     return true;
 }
 
+void SceneScheduler::flushSceneCommands() {
+    for (ISceneOwner* owner : owners_) {
+        if (owner) {
+            owner->commitSceneChange();
+        }
+    }
+}
+
 void SceneScheduler::tick(const FrameTime& time) {
     std::vector<SceneTickRequest> requests;
-    for (ISceneTickContributor* c : contributors_) {
-        if (c == nullptr) continue;
-        c->collectSceneTicks(requests);
+    for (ISceneOwner* owner : owners_) {
+        if (owner) {
+            owner->collectSceneTicks(requests);
+        }
     }
 
-    //// @TODO: merge same scenes from different contributors
-    for (const SceneTickRequest& req : requests) {
-        if (Scene* scene = scene_manager_.resolve(req.scene_id)) {
-            // @TODO: this should be ticked inside scene::Update()
-            if (req.mode == SceneTickMode::Simulation) {
-                scene->simulate(time.dt);
-            }
+    SceneRegistry& scene_registry = services_.sceneRegistry();
 
-            scene->update(time.dt);
+    for (const SceneTickRequest& req : requests) {
+        if (Scene* scene = scene_registry.resolve(req.scene_id)) {
+            SceneContext ctx = {
+                .native_scripts = services_.nativeScripts(),
+                .scene = *scene,
+                .scene_owner = req.owner,
+                .query = SceneQuery(*scene),
+                .engine_services = services_,
+            };
+
+            SceneTickContext tickCtx = {
+                .mode = req.mode,
+                .dt = time.dt,
+                .scene_ctx = ctx,
+            };
+            scene->tick(tickCtx);
         }
     }
 }

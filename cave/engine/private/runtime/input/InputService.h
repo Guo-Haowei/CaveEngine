@@ -20,7 +20,7 @@ class KeyState;
 class InputService : public IService,
                      public Singleton<InputService> {
 public:
-    InputService();
+    InputService(GameInput& game_input);
 
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
@@ -43,6 +43,8 @@ public:
 
     const UIInput& getUIInput() const { return ui_input_; }
     const GameInput& gameInput() const { return game_input_; }
+    // @TODO: fix this part
+    const PointerState* pointers() const { return pointers_.data(); }
 
 private:
     void updatePointers(std::vector<InputEvent>& events);
@@ -56,7 +58,7 @@ private:
     KeyState key_state_;
     AxisState axis_state_;
 
-    GameInput game_input_;
+    GameInput& game_input_;
     InputRouter router_;
 
     UIInput ui_input_;

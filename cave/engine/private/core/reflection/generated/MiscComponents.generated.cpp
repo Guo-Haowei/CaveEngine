@@ -20,6 +20,18 @@ const MetaTableFields& MetaDataTable<NoSaveTag>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_NoSaveTag_meta = MetaDataTable<NoSaveTag>::GetFields();
 
+
+template<>
+const MetaTableFields& MetaDataTable<PendingDestroy>::GetFields() {
+    static MetaTableFields s_table = {
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_PendingDestroy_meta = MetaDataTable<PendingDestroy>::GetFields();
+
 // FixedString<64> name_ ()
 
 template<>

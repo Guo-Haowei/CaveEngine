@@ -34,8 +34,8 @@ public:
         , m_is_world_2d(DVAR_GET_BOOL(is_world_2d)) {
     }
 
-    Result<void> Initialize() final {
-        if (auto res = Application::Initialize(); !res) {
+    Result<void> initialize() override {
+        if (auto res = Application::initialize(); !res) {
             return res;
         }
 
@@ -59,16 +59,16 @@ public:
         return Result<void>();
     }
 
-    void Finalize() final {
+    void finalize() override {
         if (display_service_) {
             [[maybe_unused]] auto window_size = display_service_->windowSize();
             DVAR_SET_IVEC2(window_resolution, window_size.x, window_size.y);
         }
 
-        Application::Finalize();
+        Application::finalize();
     }
 
-    QuitVote OnQuitRequested(const QuitContext&) override {
+    QuitVote onQuitRequested(const QuitContext&) override {
         if (EditorState* editor = dynamic_cast<EditorState*>(state_machine_.appState())) {
             const bool should_quit = editor->services().workspace().onCloseRequested();
             if (!should_quit) {

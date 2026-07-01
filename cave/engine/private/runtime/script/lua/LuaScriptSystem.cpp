@@ -84,8 +84,8 @@ LuaScriptSystem::LuaScriptSystem()
     : debug_id_(MakeDebugId(this)) {
 }
 
-void LuaScriptSystem::onAttach() {
-    Scene& scene = context().scene;
+void LuaScriptSystem::onAttach(SceneContext& ctx) {
+    Scene& scene = ctx.scene;
 
     state_ = nullptr;
 
@@ -116,7 +116,7 @@ void LuaScriptSystem::onAttach() {
             continue;
         }
 
-        const auto& meta = findOrAdd(L, script.m_source_id, script.m_class_name.c_str());
+        const auto& meta = findOrAdd(ctx, L, script.m_source_id, script.m_class_name.c_str());
         if (script.m_instance == 0) {
             const auto instance = CreateInstance(meta, L, entity.GetId());
             script.m_instance = instance;
@@ -127,7 +127,7 @@ void LuaScriptSystem::onAttach() {
     return;
 }
 
-void LuaScriptSystem::onDetach() {
+void LuaScriptSystem::onDetach(SceneContext&) {
     meta_lookup_.clear();
 
     if (state_) {
@@ -136,14 +136,14 @@ void LuaScriptSystem::onDetach() {
     }
 }
 
-void LuaScriptSystem::update(float dt) {
+void LuaScriptSystem::update(SceneTickContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    Scene& scene = context().scene;
+    Scene& scene = ctx.scene_ctx.scene;
     lua_State* L = state_;
 
     if (DEV_VERIFY(L)) {
-        const lua_Number timestep = dt;
+        const lua_Number timestep = ctx.dt;
 
         for (auto [entity, script] : scene.view<LuaScriptComponent>()) {
             if (script.m_source_id.IsNull()) {
@@ -157,29 +157,12 @@ void LuaScriptSystem::update(float dt) {
     }
 }
 
-#if 0
-void LuaScriptSystem::OnCollision(Scene& p_scene, ecs::Entity p_ent_1, ecs::Entity p_ent_2) {
-    lua_State* L = m_state;
-    if (DEV_VERIFY(L)) {
-        LuaScriptComponent* script_1 = p_scene.GetComponent<LuaScriptComponent>(p_ent_1);
-        LuaScriptComponent* script_2 = p_scene.GetComponent<LuaScriptComponent>(p_ent_2);
-
-        if (script_1 && script_1->m_instance) {
-            EntityCall(L, script_1->m_instance, "_on_collision", p_ent_2.GetId());
-        }
-
-        if (script_2 && script_2->m_instance) {
-            EntityCall(L, script_2->m_instance, "_on_collision", p_ent_1.GetId());
-        }
-    }
-}
-#endif
-
-Result<void> LuaScriptSystem::loadMetaTable(lua_State* L,
+Result<void> LuaScriptSystem::loadMetaTable(SceneContext& ctx,
+                                            lua_State* L,
                                             const Guid& guid,
                                             const char* class_name,
                                             ObjectFunctions& meta) {
-    auto& asset_reg = context().engine_services.assetRegistry();
+    auto& asset_reg = ctx.engine_services.assetRegistry();
     auto _handle = asset_reg.findByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.ToString());
@@ -211,17 +194,20 @@ Result<void> LuaScriptSystem::loadMetaTable(lua_State* L,
     return Result<void>();
 }
 
-ObjectFunctions LuaScriptSystem::findOrAdd(lua_State* L, const Guid& p_guid, const char* p_class_name) {
-    auto it = meta_lookup_.find(p_guid);
+ObjectFunctions LuaScriptSystem::findOrAdd(SceneContext& ctx,
+                                           lua_State* L,
+                                           const Guid& guid,
+                                           const char* class_name) {
+    auto it = meta_lookup_.find(guid);
     if (it != meta_lookup_.end()) {
         return it->second;
     }
 
     ObjectFunctions meta;
-    if (auto res = loadMetaTable(L, p_guid, p_class_name, meta); !res) {
+    if (auto res = loadMetaTable(ctx, L, guid, class_name, meta); !res) {
         LOG_ERROR("{}", ToString(res.error()));
     } else {
-        meta_lookup_[p_guid] = meta;
+        meta_lookup_[guid] = meta;
     }
 
     return meta;

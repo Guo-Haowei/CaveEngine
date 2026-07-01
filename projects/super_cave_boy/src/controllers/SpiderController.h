@@ -13,8 +13,8 @@ enum class SpiderState {
 
 class SpiderController : public EnemyControllerBase {
 private:
-    void onCreate() override;
-    void onUpdate(float dt) override;
+    void onCreate(cave::SceneContext& ctx) override;
+    void onUpdate(cave::SceneContext& ctx, float dt) override;
 
     void updateIdle(cave::SceneQuery& query, float dt);
     void enterAttack(cave::SceneQuery& query);

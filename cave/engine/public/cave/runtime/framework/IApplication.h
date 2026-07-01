@@ -55,47 +55,47 @@ struct QuitContext {
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& spec)
-        : m_spec(spec) {
+        : spec_(spec) {
     }
 
     virtual ~IApplication();
 
-    virtual Result<void> Initialize() = 0;
-    virtual void Finalize() = 0;
+    virtual Result<void> initialize() = 0;
+    virtual void finalize() = 0;
 
-    virtual QuitVote OnQuitRequested(const QuitContext& quit) = 0;
+    virtual QuitVote onQuitRequested(const QuitContext& quit) = 0;
 
-    virtual AppStateId GetStateId() const = 0;
-    virtual EventQueue& GetEventQueue() = 0;
-
-    // @TODO: return reference instead
-    ImguiManager* GetImguiManager() { return m_imgui_manager; }
-
-    CommandRegistry& CommandRegistry() { return *m_cmd_reg; }
-    Console& Console() { return *m_console; }
+    virtual AppStateId stateId() const = 0;
 
     EngineServices& services() { return services_; }
 
-    const AppSpec& GetSpecification() const { return m_spec; }
-    rhi::Backend GetBackend() const { return m_spec.backend; }
+    const AppSpec& specification() const { return spec_; }
+    rhi::Backend backend() const { return spec_.backend; }
 
-    static void Run(IApplication* p_app);
+    static void run(IApplication* app);
 
-    // @TODO: get rid of the following
-    virtual AppType GetType() const = 0;
-    bool IsRuntime() const { return GetType() == AppType::Runtime; }
+    // @TODO: clean up
+    virtual AppType appType() const = 0;
+    bool isRuntime() const { return appType() == AppType::Runtime; }
+
+    // @TODO: clean up
+    ImguiManager* imguiManager() { return imgui_manager_; }
+
+    CommandRegistry& commandRegistry() { return *cmd_reg_; }
+    Console& console() { return *console_; }
+    virtual EventQueue& eventQueue() = 0;
 
 protected:
-    virtual bool MainLoop() = 0;
+    virtual bool mainLoop() = 0;
 
-    AppSpec m_spec;
+    AppSpec spec_;
 
     // @TODO: move the following to services
     // also need subsystems
-    ImguiManager* m_imgui_manager{};
+    ImguiManager* imgui_manager_{};
 
-    cave::CommandRegistry* m_cmd_reg{ nullptr };
-    cave::Console* m_console{ nullptr };
+    cave::CommandRegistry* cmd_reg_{};
+    cave::Console* console_{};
 
     EngineServices services_;
 };
