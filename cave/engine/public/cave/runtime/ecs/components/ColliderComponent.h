@@ -75,14 +75,14 @@ private:
     CAVE_PROP()
     uint32_t flags_ = None;
 
-    CAVE_PROP()
-    uint64_t category_ = 0;
-
     CAVE_PROP(editor = BitMask)
     uint32_t layer_ = 0;
 
     CAVE_PROP(editor = BitMask)
     uint32_t mask_ = 0;
+
+    CAVE_PROP(editor = Toggle)
+    bool is_trigger_ = false;
 
     // Non-serialized
     mutable uint64_t user_data_ = 0;

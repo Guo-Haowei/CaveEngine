@@ -1,7 +1,7 @@
 type: image
 guid: 900112E5-AECA-0049-A2A2B565F78CCA67
-name: ""
-import_path: "@res://misc/spr_entrance.png"
+name: spr_entrance.png
+import_path: "@res://textures/spr_entrance.png"
 dependencies: []
 source_created_time: ""
 source_last_modified: ""

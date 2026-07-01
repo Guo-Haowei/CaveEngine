@@ -1,7 +1,7 @@
 type: image
 guid: 3F1DA968-0BAE-6D4A-8886F3EC9187FDE7
 name: snake.png
-import_path: "@res://monsters/snake.png"
+import_path: "@res://textures/spr_snake.png"
 dependencies: []
 source_created_time: ""
 source_last_modified: ""

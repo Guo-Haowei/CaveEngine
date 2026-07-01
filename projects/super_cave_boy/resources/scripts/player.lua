@@ -35,6 +35,3 @@ function Player:_process(timestep)
     --     self.velocity.linear.x = move_x * 3.5
     -- end
 end
-
-function Player:_on_collision(other)
-end

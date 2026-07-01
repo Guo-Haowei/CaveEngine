@@ -4,6 +4,6 @@ name: portal.scene
 import_path: "@res://prefabs/portal.scene"
 dependencies: []
 source_created_time: 2026-06-30 15:08:16.3242142
-source_last_modified: 2026-06-30 15:17:18.8808948
+source_last_modified: 2026-06-30 15:22:35.7348544
 import_settings:
   {}
