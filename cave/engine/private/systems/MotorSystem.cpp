@@ -199,6 +199,8 @@ struct ColliderProxy {
 struct CollisionPair {
     ecs::Entity a;
     ecs::Entity b;
+    bool a_is_trigger;
+    bool b_is_trigger;
 };
 
 void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
@@ -216,16 +218,20 @@ void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
         });
     }
 
+    TriggerCache cache;
     std::vector<CollisionPair> pairs;
 
     for (size_t i = 0; i < colliders.size(); ++i) {
         for (size_t j = i + 1; j < colliders.size(); ++j) {
             const ColliderProxy& a = colliders[i];
             const ColliderProxy& b = colliders[j];
+            const bool a_is_trigger = a.collider->isTrigger();
+            const bool b_is_trigger = b.collider->isTrigger();
 
             bool passes_filter =
                 ((a.collider->mask() & b.collider->layer()) != 0) &&
-                ((b.collider->mask() & a.collider->layer()) != 0);
+                ((b.collider->mask() & a.collider->layer()) != 0) &&
+                (a_is_trigger || b_is_trigger);
 
             if (!passes_filter) {
                 continue;
@@ -236,22 +242,36 @@ void MotorSystem::runCollisionPair(SceneTickContext& ctx) {
             }
 
             pairs.push_back({
-                .a = a.entity,
-                .b = b.entity,
+                a.entity,
+                b.entity,
+                a_is_trigger,
+                b_is_trigger,
             });
+
+            cache.insert(EntityPair::make(a.entity, b.entity));
         }
     }
 
     for (const auto& pair : pairs) {
-        auto a = query.component<NativeScriptComponent>(pair.a);
-        if (a && a->instance) {
-            a->instance->onCollision(ctx.scene_ctx, pair.b);
+        if (trigger_cache_.find(EntityPair::make(pair.a, pair.b)) != trigger_cache_.end()) {
+            continue;
         }
-        auto b = query.component<NativeScriptComponent>(pair.b);
-        if (b && b->instance) {
-            b->instance->onCollision(ctx.scene_ctx, pair.a);
+
+        if (pair.a_is_trigger) {
+            auto a = query.component<NativeScriptComponent>(pair.a);
+            if (a && a->instance) {
+                a->instance->onTriggerEnter(ctx.scene_ctx, pair.b);
+            }
+        }
+        if (pair.b_is_trigger) {
+            auto b = query.component<NativeScriptComponent>(pair.b);
+            if (b && b->instance) {
+                b->instance->onTriggerEnter(ctx.scene_ctx, pair.a);
+            }
         }
     }
+
+    trigger_cache_ = std::move(cache);
 }
 
 void MotorSystem::update(SceneTickContext& ctx) {

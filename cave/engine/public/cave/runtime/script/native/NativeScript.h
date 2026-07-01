@@ -15,12 +15,13 @@ public:
 
     ecs::Entity entity() const { return entity_; }
 
-    virtual void onCollision(SceneContext&, ecs::Entity) {}
-
     virtual void onCreate(SceneContext&) {}
     virtual void onDestroy() {}
 
     virtual void onUpdate(SceneContext&, float) {}
+
+    virtual void onTriggerEnter(SceneContext&, ecs::Entity) {}
+    virtual void onTriggerExit(SceneContext&, ecs::Entity) {}
 
 private:
     friend class NativeScriptSystem;

@@ -8,8 +8,8 @@ namespace super_cave_boy {
 class ExitTrigger final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
-public:
-    void onCreate(cave::SceneContext& ctx) override;
+protected:
+    void onTriggerEnter(cave::SceneContext& ctx, Entity player) override;
 };
 
 }  // namespace super_cave_boy

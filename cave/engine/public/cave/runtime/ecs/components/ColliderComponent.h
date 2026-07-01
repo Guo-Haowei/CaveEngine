@@ -107,6 +107,8 @@ public:
     uint32_t mask() const { return mask_; }
     void mask(uint32_t mask) { mask_ = mask; }
 
+    bool isTrigger() const { return is_trigger_; }
+
     bool debugDraw() const { return debug_draw_; }
 };
 

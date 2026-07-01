@@ -26,18 +26,7 @@ struct PlayerHurtInfo {
 class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
-protected:
-    void onCreate(cave::SceneContext& ctx) override;
-    void onUpdate(cave::SceneContext& ctx, float dt) override;
-    void onCollision(cave::SceneContext& ctx, Entity other) override;
-
-private:
-    void updateAnimation(cave::SpriteAnimatorComponent& animator);
-    void updatePlayerState(cave::VelocityComponent& vel);
-
-    void tryJump(cave::VelocityComponent& vel,
-                 cave::MotorComponent& motor);
-
+public:
     void takeDamage(cave::VelocityComponent& vel,
                     cave::MotorComponent& motor,
                     const PlayerHurtInfo& info);
@@ -45,6 +34,17 @@ private:
     void bounceFromEnemy(cave::VelocityComponent& vel,
                          cave::MotorComponent& motor,
                          float bounce_speed);
+
+protected:
+    void onCreate(cave::SceneContext& ctx) override;
+    void onUpdate(cave::SceneContext& ctx, float dt) override;
+
+private:
+    void updateAnimation(cave::SpriteAnimatorComponent& animator);
+    void updatePlayerState(cave::VelocityComponent& vel);
+
+    void tryJump(cave::VelocityComponent& vel,
+                 cave::MotorComponent& motor);
     bool hurt() const { return hurt_timer_.active(); }
 
     PlayerState state_ = PlayerState::Air;
