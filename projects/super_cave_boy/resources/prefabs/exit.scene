@@ -4,7 +4,7 @@ root: 1
 entities:
   - id: 1
     NameComponent:
-      name: portal
+      name: exit
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -19,7 +19,7 @@ entities:
       mask: 1
       is_trigger: true
     NativeScriptComponent:
-      name: ""
+      name: ExitTrigger
   - id: 2
     NameComponent:
       name: sprite

@@ -228,7 +228,10 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
 
 void Scene::removeEntity(ecs::Entity ent) {
     // @TODO: move it to SceneCommandExecutor
-    if (!ent.IsValid()) return;
+    if (!ent.IsValid()) {
+        return;
+    }
+
     std::vector<ecs::Entity> children;
     for (auto [child, hierarchy] : view<HierarchyComponent>()) {
         if (hierarchy.parent_id == ent) {
@@ -238,6 +241,11 @@ void Scene::removeEntity(ecs::Entity ent) {
 
     for (auto child : children) {
         removeEntity(child);
+    }
+
+    NativeScriptComponent* script = component<NativeScriptComponent>(ent);
+    if (script && script->instance) {
+        script->instance->onDestroy();
     }
 
     for (auto& e : storage_.GetEntries()) {

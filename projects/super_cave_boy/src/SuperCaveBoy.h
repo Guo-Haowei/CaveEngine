@@ -5,10 +5,10 @@
 
 namespace super_cave_boy {
 
-class GameModule final : public cave::IGameModule {
+class SuperCaveBoy final : public cave::IGameModule {
 public:
-    GameModule();
-    ~GameModule();
+    SuperCaveBoy();
+    ~SuperCaveBoy();
 
     void registerNativeScripts(cave::NativeScriptRegistry& registry) override;
 
@@ -26,7 +26,7 @@ public:
 extern "C" {
 
 CAVE_API cave::IGameModule* CreateGameModule() {
-    return new ::super_cave_boy::GameModule();
+    return new ::super_cave_boy::SuperCaveBoy();
 }
 
 CAVE_API void DestroyGameModule(::cave::IGameModule* game) {

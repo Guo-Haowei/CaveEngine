@@ -1,7 +1,5 @@
 #include "CameraController.h"
 
-#include "cave/core/diagnostics/Log.h"
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/SceneContext.h"
@@ -47,9 +45,6 @@ Vec2f ClampCameraToTileMap(Vec2f camera_pos,
 
 void CameraController::onCreate(SceneContext& ctx) {
     target_ = ctx.query.findFirstByName("player");
-}
-
-void CameraController::onDestroy(SceneContext&) {
 }
 
 void CameraController::onUpdate(SceneContext& ctx, float dt) {

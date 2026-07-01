@@ -17,9 +17,8 @@ public:
 
     virtual void onCollision(SceneContext&, ecs::Entity) {}
 
-protected:
     virtual void onCreate(SceneContext&) {}
-    virtual void onDestroy(SceneContext&) {}
+    virtual void onDestroy() {}
 
     virtual void onUpdate(SceneContext&, float) {}
 

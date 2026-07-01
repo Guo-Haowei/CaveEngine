@@ -36,7 +36,7 @@ void NativeScriptSystem::ensureCreated(SceneContext& ctx,
     component.pending_reload = false;
 }
 
-void NativeScriptSystem::destroyScript(SceneContext& ctx,
+void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
                                        NativeScriptComponent& component) {
     if (!component.instance) {
         component.created = false;
@@ -44,12 +44,12 @@ void NativeScriptSystem::destroyScript(SceneContext& ctx,
     }
 
     if (component.created) {
-        component.instance->onDestroy(ctx);
+        component.instance->onDestroy();
     }
 
     component.instance->unbind();
 
-    ctx.native_scripts.destroy(component.name, component.instance);
+    script_registry.destroy(component.name, component.instance);
 
     component.instance = nullptr;
     component.created = false;
@@ -63,7 +63,7 @@ void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
         return;
     }
 
-    destroyScript(ctx, component);
+    destroyScript(ctx.native_scripts, component);
     ensureCreated(ctx, entity, component);
 }
 
@@ -84,7 +84,7 @@ void NativeScriptSystem::onDetach(SceneContext& ctx) {
     auto& scene = ctx.scene;
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        destroyScript(ctx, script);
+        destroyScript(ctx.native_scripts, script);
     }
 }
 

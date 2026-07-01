@@ -129,6 +129,10 @@ void TileWorldSystem::rebuildCollision(SceneContext& ctx) {
             }
         }
     }
+
+    if (world_bound_.isValid()) {
+        world_bound_.setMinMax(world_bound_.min(), world_bound_.max() + Vec2f::One);
+    }
 }
 
 }  // namespace cave

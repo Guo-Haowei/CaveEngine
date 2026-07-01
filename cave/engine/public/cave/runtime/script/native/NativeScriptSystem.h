@@ -20,11 +20,12 @@ public:
 
     DebugId debugId() const override { return debug_id_; }
 
+    void destroyScript(NativeScriptRegistry& script_registry,
+                       NativeScriptComponent& component);
+
 private:
     void ensureCreated(SceneContext& ctx,
                        ecs::Entity entity,
-                       NativeScriptComponent& component);
-    void destroyScript(SceneContext& ctx,
                        NativeScriptComponent& component);
     void reloadIfNeeded(SceneContext& ctx,
                         ecs::Entity entity,
