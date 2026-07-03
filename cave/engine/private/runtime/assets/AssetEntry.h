@@ -16,22 +16,23 @@ public:
     AssetMetaData metadata;
     AssetRef asset{ nullptr };
     std::atomic<AssetStatus> status{ AssetStatus::Unloaded };
+    std::uint32_t revision = 0;
 
-    AssetEntry(const AssetMetaData& p_metadata)
-        : metadata(p_metadata) {}
+    AssetEntry(const AssetMetaData& metadata)
+        : metadata(metadata) {}
 
-    AssetEntry(AssetMetaData&& p_metadata)
-        : metadata(std::move(p_metadata)) {}
+    AssetEntry(AssetMetaData&& metadata)
+        : metadata(std::move(metadata)) {}
 
-    [[nodiscard]] AssetRef Wait();
+    [[nodiscard]] AssetRef wait();
 
-    void MarkLoaded(AssetRef p_asset);
+    void markLoaded(AssetRef asset);
 
-    void MarkFailed();
+    void markFailed();
 
 private:
-    std::mutex m_mutex;
-    std::condition_variable m_cv;
+    std::mutex mutex_;
+    std::condition_variable cv_;
 };
 
 }  // namespace cave

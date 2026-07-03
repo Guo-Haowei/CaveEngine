@@ -7,6 +7,7 @@ namespace cave {
 
 struct EngineServices;
 class AssetRegistry;
+class EditorAssetManager;
 class SceneRegistry;
 
 class DocumentBase : public IDocument {
@@ -60,6 +61,7 @@ protected:
 
     SceneId preview_scene_{};
     AssetRegistry& asset_reg_;
+    EditorAssetManager& asset_mgr_;
     SceneRegistry& scene_reg_;
     Guid guid_;
 

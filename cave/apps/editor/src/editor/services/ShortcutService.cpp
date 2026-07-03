@@ -6,7 +6,6 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/input/InputService.h"
 
 #include "editor/services/DocumentService.h"
@@ -40,16 +39,7 @@ ShortcutService::~ShortcutService() {
 
 bool ShortcutService::handleIntent(Intent& intent) {
     if (auto save = dynamic_cast<const SaveIntent*>(&intent)) {
-        const bool save_all = save->save_all();
-
-        AssetRegistry& asset_reg = app_services_.assetRegistry();
-        if (save_all) {
-            // @TODO: fix this
-            asset_reg.saveAllAssets();
-        } else {
-            editor_services_.document().save(save->doc_id());
-        }
-
+        editor_services_.document().save(save->doc_id());
         return true;
     }
 
@@ -102,14 +92,14 @@ void ShortcutService::initShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [active_document, this]() {
-            app_services_.intentDispatcher().queue<SaveIntent>(active_document(), true);
+            app_services_.intentDispatcher().queue<SaveIntent>(active_document());
         },
     };
     shortcuts_[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [active_document, this]() {
-            app_services_.intentDispatcher().queue<SaveIntent>(active_document(), false);
+            app_services_.intentDispatcher().queue<SaveIntent>(active_document());
         },
     };
 

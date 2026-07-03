@@ -298,7 +298,7 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
 
     auto res = LoadAsset(entry);
     if (!res) {
-        entry->MarkFailed();
+        entry->markFailed();
         LOG_ERROR("Failed to load asset '{}', reason {}",
                   entry->metadata.import_path,
                   ToString(res.error()));
@@ -310,7 +310,7 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
 
     // @TODO: based on render, create asset on work threads
     DEV_ASSERT(asset);
-    switch (asset->GetType()) {
+    switch (asset->type()) {
         case AssetType::Image: {
             auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
             device.RequestTexture(image.get());
@@ -324,8 +324,15 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
     }
 
     stopwatch.Stop();
-    LOG_TRACE(LogChannel::Asset, "Loaded {} {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
-    entry->MarkLoaded(asset);
+    entry->markLoaded(asset);
+    ++entry->revision;
+
+    // @TODO: emit event?
+    LOG_TRACE(LogChannel::Asset,
+              "Asset '{}' loaded. revision={} ({})",
+              entry->metadata.import_path,
+              entry->revision,
+              stopwatch.Elapsed().ToString());
     return asset;
 }
 

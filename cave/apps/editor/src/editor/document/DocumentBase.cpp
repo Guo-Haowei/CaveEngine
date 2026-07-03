@@ -4,6 +4,8 @@
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
+#include "editor/EditorAssetManager.h"
+
 #define DEBUG_DOC IN_USE
 #if USING(DEBUG_DOC)
 #define DEBUG_DOC_LOG(...) LOG_TRACE(__VA_ARGS__)
@@ -15,6 +17,7 @@ namespace cave {
 
 DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
     : asset_reg_(services.assetRegistry())
+    , asset_mgr_(static_cast<EditorAssetManager&>(services.assetManager()))
     , scene_reg_(services.sceneRegistry())
     , guid_(guid) {
 
@@ -103,7 +106,15 @@ void DocumentBase::trimUndoIfNeeded() {
 }
 
 bool DocumentBase::save() {
-    return asset_reg_.saveAsset(guid_);
+    bool ok = asset_reg_.saveAsset(guid_);
+    if (ok) {
+        asset_mgr_.onAssetSaved({
+            .reason = AssetChangeReason::Saved,
+            .revision = asset_reg_.revision(guid_),
+            .guid = guid_,
+        });
+    }
+    return ok;
 }
 
 bool DocumentBase::saveAs(std::string_view) {

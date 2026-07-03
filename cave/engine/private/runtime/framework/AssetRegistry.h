@@ -32,11 +32,11 @@ public:
         return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
 
+    uint32_t revision(const Guid& guid);
+
     void moveAsset(std::string old_path, std::string new_path);
 
-    bool saveAsset(const Guid& guid) const;
-
-    bool saveAllAssets() const;
+    bool saveAsset(const Guid& guid);
 
     void registerAsset(AssetMetaData&& meta, AssetRef asset);
 
@@ -45,6 +45,14 @@ public:
                                  AssetRef asset);
 
     std::vector<AssetHandle> getAssetsOfType(AssetType type) const;
+
+    void refreshDependencies(Guid guid);
+
+    bool assetDependsOn(Guid asset, Guid dependency) const;
+    bool assetTransitivelyDependsOn(Guid asset, Guid dependency) const;
+
+    std::vector<Guid> findReverseDependencies(Guid dependency) const;
+    std::vector<Guid> findReverseDependenciesTransitively(Guid dependency) const;
 
     // should only used by AssetManager
     //[[deprecated]]
@@ -57,11 +65,14 @@ protected:
     auto InitializeImpl() -> Result<void> override;
     void FinalizeImpl() override;
 
-    bool saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) const;
+    bool saveAssetHelper(const std::shared_ptr<AssetEntry>& entry);
 
     mutable std::mutex registry_mutex_;
     std::unordered_map<std::string, Guid> path_map_;
     std::unordered_map<Guid, std::shared_ptr<AssetEntry>> guid_map_;
+
+    std::unordered_map<Guid, std::vector<Guid>> deps_;
+    std::unordered_map<Guid, std::vector<Guid>> reverse_deps_;
 };
 
 }  // namespace cave

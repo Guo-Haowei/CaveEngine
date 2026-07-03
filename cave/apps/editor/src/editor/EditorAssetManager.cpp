@@ -151,7 +151,8 @@ void EditorAssetManager::update() {
     }
 
     if (file_watcher_->hasChanged()) {
-        rebuildAssetFolderTree();
+        refreshAssetFolderTree();
+        refreshDependencies();
         file_watcher_->clearFlag();
     }
 }
@@ -164,7 +165,7 @@ static void BuildFolderLut(const ContentEntry* p_node,
     }
 }
 
-void EditorAssetManager::rebuildAssetFolderTree() {
+void EditorAssetManager::refreshAssetFolderTree() {
     CAVE_PROFILE_EVENT("Build folder tree");
 
     asset_root_ = BuildFolderTree(resource_folder_, nullptr);
@@ -173,6 +174,11 @@ void EditorAssetManager::rebuildAssetFolderTree() {
     if (asset_root_) {
         BuildFolderLut(asset_root_.get(), folder_lut_);
     }
+}
+
+void EditorAssetManager::refreshDependencies() {
+    CAVE_PROFILE_EVENT("Refresh dependencies");
+
 }
 
 Result<void> EditorAssetManager::addAlwaysLoadImages() {
@@ -208,6 +214,10 @@ std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_n
         return nullptr;
     }
     return it->second;
+}
+
+void EditorAssetManager::onAssetSaved(const AssetChangedEvent& event) {
+    unused(event);
 }
 
 }  // namespace cave

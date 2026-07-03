@@ -55,16 +55,8 @@ class SaveIntent : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.doc.save");
 
-    SaveIntent(DocId doc_id, bool save_all)
-        : BaseDocIntent(doc_id)
-        , save_all_(save_all) {}
-
-    bool save_all() const {
-        return save_all_;
-    }
-
-private:
-    bool save_all_;
+    SaveIntent(DocId doc_id)
+        : BaseDocIntent(doc_id) {}
 };
 
 class EditIntent : public BaseDocIntent {

@@ -19,7 +19,7 @@ bool SceneDocument::save() {
     Scene* source = handle_.get<Scene>();
     Scene* tmp = scene_reg_.resolve(preview_scene_);
     source->copy(*tmp);
-    return asset_reg_.saveAsset(guid_);
+    return DocumentBase::save();
 }
 
 bool SceneDocument::saveAs(std::string_view p_new_path) {

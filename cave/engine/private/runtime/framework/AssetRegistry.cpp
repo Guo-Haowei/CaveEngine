@@ -67,7 +67,7 @@ void AssetRegistry::registerPersistentAsset(const std::string& name,
                                             AssetRef asset) {
     AssetMetaData meta;
     meta.guid = guid;
-    meta.type = asset->GetType();
+    meta.type = asset->type();
     meta.name = name;
     meta.import_path = std::format("@persist://{}", name);
 
@@ -104,6 +104,15 @@ Option<AssetHandle> AssetRegistry::findByPath(const std::string& path, AssetType
     return None();
 }
 
+uint32_t AssetRegistry::revision(const Guid& guid) {
+    std::lock_guard lock(registry_mutex_);
+    auto it = guid_map_.find(guid);
+    if (it != guid_map_.end()) {
+        return it->second->revision;
+    }
+    return 0;
+}
+
 void AssetRegistry::moveAsset(std::string old_path, std::string new_path) {
     std::lock_guard lock(registry_mutex_);
     auto it = path_map_.find(old_path);
@@ -117,7 +126,7 @@ void AssetRegistry::moveAsset(std::string old_path, std::string new_path) {
     it2->second->metadata.import_path = std::move(new_path);
 }
 
-bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) const {
+bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry)  {
     if (!entry->asset) {
         LOG_ERROR("Asset not loaded {}", entry->metadata.import_path);
         return false;
@@ -129,20 +138,12 @@ bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) co
         return false;
     }
 
-    LOG_OK("Asset '{}' saved!", entry->metadata.import_path);
+    ++entry->revision;
+    LOG_OK("Asset '{}' saved. revision={}", entry->metadata.import_path, entry->revision);
     return true;
 }
 
-bool AssetRegistry::saveAllAssets() const {
-    std::lock_guard lock(registry_mutex_);
-    for (const auto& it : guid_map_) {
-        saveAssetHelper(it.second);
-    }
-
-    return true;
-}
-
-bool AssetRegistry::saveAsset(const Guid& guid) const {
+bool AssetRegistry::saveAsset(const Guid& guid)  {
     std::lock_guard lock(registry_mutex_);
 
     auto it = guid_map_.find(guid);

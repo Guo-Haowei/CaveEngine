@@ -20,7 +20,7 @@ IAsset* AssetHandle::get() const {
 [[nodiscard]] AssetRef AssetHandle::wait() const {
     auto entry = entry_.lock();
     DEV_ASSERT(entry);
-    return entry->Wait();
+    return entry->wait();
 }
 
 AssetMetaData* AssetHandle::meta() {
