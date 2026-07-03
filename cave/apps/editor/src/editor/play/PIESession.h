@@ -22,15 +22,15 @@ struct PIEStartDesc {
 };
 
 class PIESession : public NonCopyable,
-                   public ISceneOwner {
+                   public SceneOwner {
 public:
     explicit PIESession(EngineServices& services);
 
     bool start(PIEStartDesc desc);
     void stop();
 
-    void onSimBegin(SceneId scene_id, ViewId view_id);
-    void onSimEnd();
+    void beginPIESession(SceneId scene_id, ViewId view_id);
+    void endPIESession();
 
     void tick(const FrameTime& time);
 
@@ -45,6 +45,10 @@ public:
 private:
     bool ensureGameModuleLoaded();
 
+    SceneContext makeSceneContext(Scene& scene);
+    Scene* beginPIEScene(Scene* asset_scene);
+    void endPIEScene();
+
     EngineServices& services_;
     const DebugId debug_id_;
 
@@ -55,8 +59,9 @@ private:
     GameModuleHandle game_module_handle_;
     IGameModule* game_module_{ nullptr };
 
-    SceneId pie_scene_{};
     std::unique_ptr<PIEHostServices> host_;
+
+    SceneId pie_scene_{};
 };
 
 }  // namespace cave

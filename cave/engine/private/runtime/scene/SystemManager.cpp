@@ -57,7 +57,7 @@ void SystemManager::onSceneCreate(SceneContext& ctx) {
     DEV_ASSERT(!scene_created_);
 
     for (auto& system : systems_) {
-        LOG_INFO(LogChannel::Core, "+{}", system->debugId().type);
+        LOG_TRACE(LogChannel::Scene, "+{}", system->debugId().type);
         system->attach(ctx);
     }
 

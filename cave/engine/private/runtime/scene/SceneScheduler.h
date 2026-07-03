@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/scene/ISceneOwner.h"
+#include "SceneOwner.h"
 
 namespace cave {
 
@@ -12,8 +12,8 @@ public:
         : services_(services) {
     }
 
-    bool add(ISceneOwner* owner);
-    bool remove(ISceneOwner* owner);
+    bool add(SceneOwner* owner);
+    bool remove(SceneOwner* owner);
 
     void flushSceneCommands();
     void tick(const FrameTime& time);
@@ -21,7 +21,7 @@ public:
 private:
     EngineServices& services_;
 
-    std::vector<ISceneOwner*> owners_;
+    std::vector<SceneOwner*> owners_;
 };
 
 }  // namespace cave

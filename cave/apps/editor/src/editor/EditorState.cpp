@@ -181,10 +181,10 @@ void EditorState::commitModeSwitch() {
     switch (old_mode) {
         case EditorState::Mode::Editing: {
             PreviewScene preview = workspace_->focusedPreviewScene();
-            pie_.onSimBegin(preview.scene_id, preview.view_id);
+            pie_.beginPIESession(preview.scene_id, preview.view_id);
         } break;
         case EditorState::Mode::Playing: {
-            pie_.onSimEnd();
+            pie_.endPIESession();
         } break;
     }
 

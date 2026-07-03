@@ -9,12 +9,12 @@ namespace cave {
 struct EngineServices;
 class Scene;
 class NativeScriptRegistry;
-class ISceneOwner;
+class ISceneTransitionRequests;
 
 struct SceneContext {
     NativeScriptRegistry& native_scripts;
     Scene& scene;
-    ISceneOwner& scene_owner;
+    ISceneTransitionRequests& scene_transition;
     SceneQuery query;
 
     // @TODO: do not expose all services

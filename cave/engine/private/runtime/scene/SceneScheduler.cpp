@@ -9,7 +9,7 @@
 
 namespace cave {
 
-bool SceneScheduler::add(ISceneOwner* owner) {
+bool SceneScheduler::add(SceneOwner* owner) {
     DEV_ASSERT(owner);
     if (!owner) return false;
 
@@ -25,7 +25,7 @@ bool SceneScheduler::add(ISceneOwner* owner) {
     return true;
 }
 
-bool SceneScheduler::remove(ISceneOwner* owner) {
+bool SceneScheduler::remove(SceneOwner* owner) {
     DEV_ASSERT(owner);
 
     auto it = std::ranges::find(owners_, owner);
@@ -43,7 +43,7 @@ bool SceneScheduler::remove(ISceneOwner* owner) {
 }
 
 void SceneScheduler::flushSceneCommands() {
-    for (ISceneOwner* owner : owners_) {
+    for (SceneOwner* owner : owners_) {
         if (owner) {
             owner->commitSceneChange();
         }
@@ -52,7 +52,7 @@ void SceneScheduler::flushSceneCommands() {
 
 void SceneScheduler::tick(const FrameTime& time) {
     std::vector<SceneTickRequest> requests;
-    for (ISceneOwner* owner : owners_) {
+    for (SceneOwner* owner : owners_) {
         if (owner) {
             owner->collectSceneTicks(requests);
         }
@@ -65,7 +65,7 @@ void SceneScheduler::tick(const FrameTime& time) {
             SceneContext ctx = {
                 .native_scripts = services_.nativeScripts(),
                 .scene = *scene,
-                .scene_owner = req.owner,
+                .scene_transition = req.owner,
                 .query = SceneQuery(*scene),
                 .engine_services = services_,
             };

@@ -1,5 +1,5 @@
 version: 19
-seed: 6
+seed: 9
 root: 1
 entities:
   - id: 1
@@ -52,3 +52,15 @@ entities:
       ortho_height: 10
     NativeScriptComponent:
       name: CameraController
+  - id: 9
+    NameComponent:
+      name: exit
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
+      translation: [16.5, 2.5, 0]

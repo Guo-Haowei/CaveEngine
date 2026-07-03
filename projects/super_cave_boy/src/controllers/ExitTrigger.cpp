@@ -1,6 +1,7 @@
 #include "ExitTrigger.h"
 
 #include "cave/core/diagnostics/Log.h"
+#include "cave/runtime/scene/ISceneTransitionRequests.h"
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
@@ -19,7 +20,7 @@ void ExitTrigger::onBodyEntered(cave::SceneContext& ctx, Entity player) {
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
 
-    LOG_OK("Entered portal!");
+    ctx.scene_transition.requestSceneChange("@res://scenes/level_10.scene");
 }
 
 void ExitTrigger::onBodyExited(cave::SceneContext& ctx, Entity player) {
