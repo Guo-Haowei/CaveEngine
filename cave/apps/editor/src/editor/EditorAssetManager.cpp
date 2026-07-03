@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/VFS.h"
 
@@ -152,7 +153,6 @@ void EditorAssetManager::update() {
 
     if (file_watcher_->hasChanged()) {
         refreshAssetFolderTree();
-        refreshDependencies();
         file_watcher_->clearFlag();
     }
 }
@@ -174,10 +174,6 @@ void EditorAssetManager::refreshAssetFolderTree() {
     if (asset_root_) {
         BuildFolderLut(asset_root_.get(), folder_lut_);
     }
-}
-
-void EditorAssetManager::refreshDependencies() {
-    CAVE_PROFILE_EVENT("Refresh dependencies");
 }
 
 Result<void> EditorAssetManager::addAlwaysLoadImages() {
@@ -216,7 +212,11 @@ std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_n
 }
 
 void EditorAssetManager::onAssetSaved(const AssetChangedEvent& event) {
-    unused(event);
+    AssetRegistry& asset_reg = m_app->services().assetRegistry();
+    auto dependencies = asset_reg.findReverseDependenciesTransitively(event.guid);
+    for (const Guid& user : dependencies) {
+        LOG_WARN("asset '{}' is affected", user.toString());
+    }
 }
 
 }  // namespace cave

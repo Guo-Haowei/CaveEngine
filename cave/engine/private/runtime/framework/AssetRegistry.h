@@ -46,11 +46,10 @@ public:
 
     std::vector<AssetHandle> getAssetsOfType(AssetType type) const;
 
-    bool assetDependsOn(Guid asset, Guid dependency) const;
-    bool assetTransitivelyDependsOn(Guid asset, Guid dependency) const;
-
     std::vector<Guid> findReverseDependencies(Guid dependency) const;
     std::vector<Guid> findReverseDependenciesTransitively(Guid dependency) const;
+
+    void refreshAllDependencies();
 
     // should only used by AssetManager
     //[[deprecated]]

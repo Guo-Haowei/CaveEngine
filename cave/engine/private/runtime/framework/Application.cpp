@@ -14,7 +14,6 @@
 #include "engine/private/core/os/os.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/runtime/dvar/DvarCache.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
@@ -36,7 +35,7 @@ static cave::IApplication* s_app = nullptr;
 namespace cave {
 
 #if USING(USE_COMMAND)
-extern void registerCommands(CommandRegistry& cmd_reg);
+extern void RegisterCommands(CommandRegistry& cmd_reg);
 #endif
 
 namespace fs = std::filesystem;
@@ -133,9 +132,7 @@ auto Application::setupModules() -> Result<void> {
     event_queue_.RegisterListener(render_device_);
 
     // @TODO: move to registerCommands
-    DvarCache::registerCmd(*cmd_reg_);
-
-    registerCommands(*cmd_reg_);
+    RegisterCommands(*cmd_reg_);
     return Result<void>();
 }
 
@@ -266,22 +263,5 @@ void IApplication::run(IApplication* p_app) {
 AppStateId Application::stateId() const {
     return state_machine_.stateId();
 }
-
-// void Application::RequestProject(std::string_view p_path) {
-//     DEV_ASSERT(!p_path.empty());
-//     DEV_ASSERT_MSG(!m_vfs.HasMount("@res"), "resource folder already mounted");
-//
-//     fs::path resource_folder = fs::path(p_path) / "resources";
-//     m_vfs.Mount("@res", resource_folder);
-//
-//     fs::path project_setting = fs::path(p_path) / "project.yaml";
-//
-//     std::ifstream file(project_setting.string());
-//     if (file.is_open()) {
-//         // @TODO: load stuff
-//     }
-//
-//     m_boot_load_pipeline->RequestProject(resource_folder);
-// }
 
 }  // namespace cave

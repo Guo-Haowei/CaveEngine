@@ -8,24 +8,26 @@
 
 namespace cave {
 
-BootLoadPipeline::BootLoadPipeline(TaskManager& p_task_manager,
-                                   IAssetManager& p_asset_manager,
-                                   AssetRegistry& p_asset_registry)
-    : m_task_manager(p_task_manager)
-    , m_asset_manager(p_asset_manager)
-    , m_asset_registry(p_asset_registry) {}
+BootLoadPipeline::BootLoadPipeline(TaskManager& task_manager,
+                                   IAssetManager& asset_manager,
+                                   AssetRegistry& asset_registry)
+    : task_manager_(task_manager)
+    , asset_manager_(asset_manager)
+    , asset_registry_(asset_registry) {}
 
-std::vector<TaskSnapshot> BootLoadPipeline::ChildSnapshots() const {
+std::vector<TaskSnapshot> BootLoadPipeline::childSnapshots() const {
     std::vector<TaskSnapshot> out;
-    out.reserve(m_children.size());
-    for (auto id : m_children) out.push_back(m_task_manager.GetSnapshot(id));
+    out.reserve(children_.size());
+    for (auto id : children_) {
+        out.push_back(task_manager_.GetSnapshot(id));
+    }
     return out;
 }
 
-auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_path) -> Result<void> {
+auto BootLoadPipeline::requestProject(const std::filesystem::path& project_path) -> Result<void> {
     namespace fs = std::filesystem;
 
-    DEV_ASSERT(!p_project_path.empty());
+    DEV_ASSERT(!project_path.empty());
 
     struct Pair {
         bool has_meta;
@@ -35,9 +37,9 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
     std::unordered_map<std::string, Pair> resources;
 
     // go through all files, create meta if not exists
-    for (const auto& entry : fs::recursive_directory_iterator(p_project_path)) {
+    for (const auto& entry : fs::recursive_directory_iterator(project_path)) {
         if (entry.is_regular_file()) {
-            std::string virtual_path = m_asset_manager.resolvePath(entry.path());
+            std::string virtual_path = asset_manager_.resolvePath(entry.path());
 
             auto ext = StringUtils::Extension(virtual_path);
             if (ext == ".meta") {
@@ -112,15 +114,16 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
 
     const auto order = TopologicalSort(N, edges).unwrap();
     for (int idx : order) {
-        m_children.push_back(m_asset_registry.startAsyncLoad(std::move(assets[idx])));
+        children_.push_back(asset_registry_.startAsyncLoad(std::move(assets[idx])));
     }
 
     TaskGroupSpec group;
     group.name = "Boot";
-    group.children = m_children;
+    group.children = children_;
 
-    m_root = m_task_manager.SubmitGroup(std::move(group), TaskPriority::High);
+    root_task_id_ = task_manager_.SubmitGroup(std::move(group), TaskPriority::High);
 
+    asset_registry_.refreshAllDependencies();
     return Result<void>();
 }
 

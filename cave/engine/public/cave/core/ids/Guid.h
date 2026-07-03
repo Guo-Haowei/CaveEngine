@@ -23,8 +23,12 @@ public:
     static Guid make();
     static Option<Guid> parse(const char* start, size_t length);
 
-    static Option<Guid> parse(const std::string& string) {
-        return parse(string.c_str(), string.length());
+    static Option<Guid> parse(std::string_view sv) {
+        return parse(sv.data(), sv.size());
+    }
+
+    static Option<Guid> parse(const std::string& str) {
+        return parse(str.c_str(), str.length());
     }
 
     bool isNull() const { return *this == Guid{}; }

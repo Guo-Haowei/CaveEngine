@@ -38,7 +38,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     return meta;
 }
 
-Result<void> AssetMetaData::saveToDisk(const IAsset* p_asset) const {
+Result<void> AssetMetaData::saveToDisk(const IAsset* asset) const {
     YamlSerializer yaml;
 
     std::string asset_name = name;
@@ -46,8 +46,8 @@ Result<void> AssetMetaData::saveToDisk(const IAsset* p_asset) const {
         asset_name = StringUtils::FileName(import_path.c_str(), '/');
     }
 
-    if (p_asset) {
-        dependencies = p_asset->dependencies();
+    if (asset) {
+        dependencies = asset->dependencies();
     }
 
     yaml.Write(*this);
@@ -55,8 +55,8 @@ Result<void> AssetMetaData::saveToDisk(const IAsset* p_asset) const {
     return SaveYaml(meta_path, yaml);
 }
 
-auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData> {
-    auto extension = StringUtils::Extension(p_path);
+auto AssetMetaData::CreateMeta(std::string_view path) -> Option<AssetMetaData> {
+    auto extension = StringUtils::Extension(path);
 
     // @TODO: [SCRUM-222] refactor this part
     AssetType type = AssetType::Blob;
@@ -81,7 +81,7 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     AssetMetaData meta;
     meta.guid = Guid::make();
     meta.type = type;
-    meta.import_path = p_path;
+    meta.import_path = path;
 
     return Some(meta);
 }

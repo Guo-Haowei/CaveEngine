@@ -9,25 +9,25 @@ class AssetRegistry;
 
 class BootLoadPipeline {
 public:
-    BootLoadPipeline(TaskManager& p_task_manager,
-                     IAssetManager& p_asset_manager,
-                     AssetRegistry& p_asset_registry);
+    BootLoadPipeline(TaskManager& task_manager,
+                     IAssetManager& asset_manager,
+                     AssetRegistry& asset_registry);
 
-    auto RequestProject(const std::filesystem::path& p_project_path) -> Result<void>;
+    auto requestProject(const std::filesystem::path& project_path) -> Result<void>;
 
-    TaskSnapshot RootSnapshot() const { return m_task_manager.GetSnapshot(m_root); }
+    TaskSnapshot rootSnapshot() const { return task_manager_.GetSnapshot(root_task_id_); }
 
-    std::vector<TaskSnapshot> ChildSnapshots() const;
+    std::vector<TaskSnapshot> childSnapshots() const;
 
-    uint64_t RootId() const { return m_root; }
+    uint64_t rootTaskId() const { return root_task_id_; }
 
 private:
-    TaskManager& m_task_manager;
-    IAssetManager& m_asset_manager;
-    AssetRegistry& m_asset_registry;
+    TaskManager& task_manager_;
+    IAssetManager& asset_manager_;
+    AssetRegistry& asset_registry_;
 
-    uint64_t m_root{ kInvalidTaskId };
-    std::vector<uint64_t> m_children{};
+    uint64_t root_task_id_{ kInvalidTaskId };
+    std::vector<uint64_t> children_{};
 };
 
 }  // namespace cave

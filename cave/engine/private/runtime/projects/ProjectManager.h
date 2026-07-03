@@ -27,7 +27,7 @@ public:
     const ProjectInfo& project() const { return project_.unwrap(); }
 
     // @TODO: better snapshot
-    TaskSnapshot snapshot() const { return boot_load_pipeline_.RootSnapshot(); }
+    TaskSnapshot snapshot() const { return boot_load_pipeline_.rootSnapshot(); }
 
 private:
     VFS& vfs_;

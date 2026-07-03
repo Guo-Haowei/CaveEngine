@@ -55,6 +55,17 @@ uint64_t AssetRegistry::startAsyncLoad(AssetMetaData&& meta) {
     return 0;
 }
 
+void AssetRegistry::refreshAllDependencies() {
+    std::scoped_lock lock(registry_mutex_);
+
+    deps_.clear();
+    reverse_deps_.clear();
+
+    for (const auto& [guid, entry] : guid_map_) {
+        refreshDependenciesUnlocked(guid);
+    }
+}
+
 // @TODO: use this for string look up
 struct TransparentCompare {
     using is_transparent = void;
@@ -200,53 +211,6 @@ std::vector<AssetHandle> AssetRegistry::getAssetsOfType(AssetType type) const {
     return res;
 }
 
-bool AssetRegistry::assetDependsOn(Guid asset, Guid dependency) const {
-    std::scoped_lock lock(registry_mutex_);
-
-    auto it = deps_.find(asset);
-    if (it == deps_.end()) {
-        return false;
-    }
-
-    return Contains(it->second, dependency);
-}
-
-bool AssetRegistry::assetTransitivelyDependsOn(Guid asset, Guid dependency) const {
-    if (asset == dependency) {
-        return true;
-    }
-
-    std::scoped_lock lock(registry_mutex_);
-
-    std::vector<Guid> stack;
-    std::unordered_set<Guid> visited;
-
-    stack.push_back(asset);
-    visited.insert(asset);
-
-    while (!stack.empty()) {
-        Guid current = stack.back();
-        stack.pop_back();
-
-        auto it = deps_.find(current);
-        if (it == deps_.end()) {
-            continue;
-        }
-
-        for (Guid dep : it->second) {
-            if (dep == dependency) {
-                return true;
-            }
-
-            if (visited.insert(dep).second) {
-                stack.push_back(dep);
-            }
-        }
-    }
-
-    return false;
-}
-
 std::vector<Guid> AssetRegistry::findReverseDependencies(Guid dependency) const {
     std::scoped_lock lock(registry_mutex_);
 
@@ -297,10 +261,6 @@ void AssetRegistry::refreshDependenciesUnlocked(Guid guid) {
     }
 
     const auto& entry = it->second;
-    if (!entry->asset) {
-        deps_.erase(guid);
-        return;
-    }
 
     // Remove old reverse edges.
     auto old_it = deps_.find(guid);
@@ -319,7 +279,8 @@ void AssetRegistry::refreshDependenciesUnlocked(Guid guid) {
         }
     }
 
-    std::vector<Guid> new_deps = entry->asset->dependencies();
+    std::vector<Guid> new_deps = entry->asset ? entry->asset->dependencies()
+                                              : entry->metadata.dependencies;
 
     new_deps.erase(
         std::remove_if(new_deps.begin(), new_deps.end(),
@@ -332,10 +293,8 @@ void AssetRegistry::refreshDependenciesUnlocked(Guid guid) {
 
     deps_[guid] = new_deps;
 
-    // Optional but recommended if metadata owns direct dependencies too.
     entry->metadata.dependencies = new_deps;
 
-    // Add new reverse edges.
     for (Guid dep : new_deps) {
         auto& users = reverse_deps_[dep];
 

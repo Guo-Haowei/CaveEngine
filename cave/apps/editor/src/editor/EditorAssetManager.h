@@ -41,7 +41,6 @@ public:
 protected:
     Result<void> addAlwaysLoadImages();
     void refreshAssetFolderTree();
-    void refreshDependencies();
 
     EditorServices* editor_services_{};
 
