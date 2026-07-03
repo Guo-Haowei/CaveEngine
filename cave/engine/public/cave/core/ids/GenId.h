@@ -17,16 +17,16 @@ struct GenId {
     uint32_t index{};
     uint32_t gen{};
 
-    bool IsValid() const {
+    bool isValid() const {
         return gen != kInvalidGen;
     }
 
-    bool operator==(const GenId<Tag>& p_other) const {
-        return index == p_other.index && gen == p_other.gen;
+    bool operator==(const GenId<Tag>& rhs) const {
+        return index == rhs.index && gen == rhs.gen;
     }
 
-    bool operator!=(const GenId<Tag>& p_other) const {
-        return index != p_other.index || gen != p_other.gen;
+    bool operator!=(const GenId<Tag>& rhs) const {
+        return index != rhs.index || gen != rhs.gen;
     }
 };
 

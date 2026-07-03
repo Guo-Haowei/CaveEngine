@@ -18,7 +18,7 @@ enum class ViewDimension : uint8_t {
 };
 
 class ViewTabBase : public Tab,
-                    public ISceneOwner {
+                    public SceneOwner {
 public:
     ViewTabBase(EditorState& editor,
                 DocId doc_id,

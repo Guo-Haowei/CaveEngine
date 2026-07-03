@@ -37,6 +37,7 @@ public:
     SceneId registerScene(std::unique_ptr<Scene> scene);
 
     SceneId cloneScene(SceneId scene_id);
+    SceneId cloneScene(const Scene& scene);
 
     void destroyScene(SceneId scene_id);
 
@@ -75,6 +76,10 @@ SceneId SceneRegistry::cloneScene(SceneId scene_id) {
     return impl_->cloneScene(scene_id);
 }
 
+SceneId SceneRegistry::cloneScene(const Scene& scene) {
+    return impl_->cloneScene(scene);
+}
+
 void SceneRegistry::destroyScene(SceneId scene_id) {
     impl_->destroyScene(scene_id);
 }
@@ -105,12 +110,16 @@ SceneId SceneRegistry::Impl::registerScene(std::unique_ptr<Scene> scene) {
     return id;
 }
 
+SceneId SceneRegistry::Impl::cloneScene(const Scene& scene) {
+    auto copy = std::make_unique<Scene>(std::string(scene.name()));
+    copy->copy(scene);
+    return registerScene(std::move(copy));
+}
+
 SceneId SceneRegistry::Impl::cloneScene(SceneId scene_id) {
     const Scene* scene = Base::Resolve(scene_id);
     if (!scene) return {};
-    auto copy = std::make_unique<Scene>(std::string(scene->name()));
-    copy->copy(*scene);
-    return registerScene(std::move(copy));
+    return cloneScene(*scene);
 }
 
 void SceneRegistry::Impl::destroyScene(SceneId scene_id) {

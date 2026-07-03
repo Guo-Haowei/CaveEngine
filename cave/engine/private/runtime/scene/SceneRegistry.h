@@ -17,6 +17,7 @@ public:
     SceneId registerScene(std::unique_ptr<Scene> scene);
 
     SceneId cloneScene(SceneId scene_id);
+    SceneId cloneScene(const Scene& scene);
 
     void destroyScene(SceneId scene_id);
 

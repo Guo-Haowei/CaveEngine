@@ -35,8 +35,7 @@ private:
 
     float wait_timer_ = 0.0f;
 
-    // Tile units, not old JS pixels.
-    float detect_range_x_ = 6.0f;
+    float detect_range_x_ = 5.0f;
     float detect_above_ = 3.0f;
     float detect_below_ = 1.0f;
 
