@@ -213,8 +213,8 @@ std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_n
 
 void EditorAssetManager::onAssetSaved(const AssetChangedEvent& event) {
     AssetRegistry& asset_reg = m_app->services().assetRegistry();
-    auto dependencies = asset_reg.findReverseDependenciesTransitively(event.guid);
-    for (const Guid& user : dependencies) {
+    auto users = asset_reg.findReverseDependenciesTransitively(event.guid);
+    for (const Guid& user : users) {
         LOG_WARN("asset '{}' is affected", user.toString());
     }
 }
