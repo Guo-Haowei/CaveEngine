@@ -63,7 +63,7 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
             auto meta = std::move(*res);
 
             if (meta.import_path != key) {
-                LOG_WARN("path of asset '{}' is outdated expect: '{}', actual: '{}'", meta.guid.ToString(), meta.import_path, key);
+                LOG_WARN("path of asset '{}' is outdated expect: '{}', actual: '{}'", meta.guid.toString(), meta.import_path, key);
                 meta.import_path = key;
             }
 
@@ -101,8 +101,8 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
         for (const auto& guid : asset.dependencies) {
             auto from = mapping.find(guid);
             if (from == mapping.end()) {
-                if (!guid.IsNull()) {
-                    LOG_WARN(LogChannel::Asset, "Asset '{}' not found", guid.ToString());
+                if (!guid.isNull()) {
+                    LOG_WARN(LogChannel::Asset, "Asset '{}' not found", guid.toString());
                     continue;
                 }
             }

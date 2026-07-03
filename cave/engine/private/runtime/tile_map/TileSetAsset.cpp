@@ -52,7 +52,7 @@ void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {
     if (image) {
         Guid guid = image_handle_.guid();
         if (guid != image_guid_) {
-            LOG_INFO("TileSetAsset: GUID changed from {} to {}", image_guid_.ToString(), guid.ToString());
+            LOG_INFO("TileSetAsset: GUID changed from {} to {}", image_guid_.toString(), guid.toString());
             image_guid_ = guid;
         }
 

@@ -22,7 +22,7 @@ void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
             tile_set_id_ = guid;
             tile_set_handle_ = std::move(handle.unwrap());
         } else {
-            tile_set_id_ = Guid::Null();
+            tile_set_id_ = Guid::null();
             tile_set_handle_.Invalidate();
         }
 

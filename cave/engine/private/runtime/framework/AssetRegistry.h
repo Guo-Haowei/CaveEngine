@@ -46,8 +46,6 @@ public:
 
     std::vector<AssetHandle> getAssetsOfType(AssetType type) const;
 
-    void refreshDependencies(Guid guid);
-
     bool assetDependsOn(Guid asset, Guid dependency) const;
     bool assetTransitivelyDependsOn(Guid asset, Guid dependency) const;
 
@@ -66,6 +64,7 @@ protected:
     void FinalizeImpl() override;
 
     bool saveAssetHelper(const std::shared_ptr<AssetEntry>& entry);
+    void refreshDependenciesUnlocked(Guid guid);
 
     mutable std::mutex registry_mutex_;
     std::unordered_map<std::string, Guid> path_map_;

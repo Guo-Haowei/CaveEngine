@@ -31,7 +31,7 @@ bool IDeserializer::Read(Guid& p_object) {
         return false;
     }
 
-    auto res = Guid::Parse(raw);
+    auto res = Guid::parse(raw);
 
     ERR_FAIL_COND_V_MSG(res.is_none(), false, "failed to parse guid");
 

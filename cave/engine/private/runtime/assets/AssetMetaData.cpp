@@ -79,7 +79,7 @@ auto AssetMetaData::CreateMeta(std::string_view p_path) -> Option<AssetMetaData>
     }
 
     AssetMetaData meta;
-    meta.guid = Guid::Create();
+    meta.guid = Guid::make();
     meta.type = type;
     meta.import_path = p_path;
 

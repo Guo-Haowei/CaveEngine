@@ -314,9 +314,9 @@ std::vector<Guid> Scene::dependencies() const {
         std::remove_if(dependencies.begin(), dependencies.end(),
                        [](Guid guid) {
                            // @HACK: replace the last two digits to see if guid is 0
-                           uint8_t* data = const_cast<uint8_t*>(guid.GetData());
+                           uint8_t* data = const_cast<uint8_t*>(guid.data());
                            data[15] = 0;
-                           return guid.IsNull();
+                           return guid.isNull();
                        }),
         dependencies.end());
 

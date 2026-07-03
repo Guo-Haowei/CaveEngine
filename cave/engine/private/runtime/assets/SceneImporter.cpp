@@ -90,7 +90,7 @@ Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
 
     fs::path sys_path = m_dest_dir / std::format("{}.mat", p_name);
 
-    Guid guid = Guid::Create();
+    Guid guid = Guid::make();
     AssetMetaData meta;
     meta.type = AssetType::Material;
     meta.name = std::move(p_name);
@@ -112,7 +112,7 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
                                          std::shared_ptr<MeshAsset>&& p_mesh) {
     fs::path sys_path = m_dest_dir / std::format("{}.mesh", p_name);
 
-    Guid guid = Guid::Create();
+    Guid guid = Guid::make();
     AssetMetaData meta;
     meta.type = AssetType::Mesh;
     meta.name = std::move(p_name);
@@ -140,7 +140,7 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity root) {
     AssetMetaData meta;
     meta.type = AssetType::Scene;
     meta.name = m_file_name;
-    meta.guid = Guid::Create();
+    meta.guid = Guid::make();
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
     if (auto res = m_scene->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());

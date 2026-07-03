@@ -32,7 +32,7 @@ MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
         cb.AttachChild(sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>(std::format("preview-material-{}", guid.ToString()));
+    auto scene = std::make_unique<Scene>(std::format("preview-material-{}", guid.toString()));
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());

@@ -430,7 +430,7 @@ void PropertyPanel::drawUIImpl() {
         const Guid new_guid = prefab.prefabGuid();
 
         // @NOTE: can only instantiate once
-        if (old_guid.IsNull() && !new_guid.IsNull()) {
+        if (old_guid.isNull() && !new_guid.isNull()) {
             scene.instantiatePrefab(prefab, id);
         }
 

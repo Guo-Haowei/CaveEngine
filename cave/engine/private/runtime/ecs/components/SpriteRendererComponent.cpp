@@ -13,7 +13,7 @@ bool SpriteRendererComponent::SetResourceGuid(const Guid& guid) {
 }
 
 void SpriteRendererComponent::OnDeserialized() {
-    if (!image_id_.IsNull()) {
+    if (!image_id_.isNull()) {
         image_handle_ =
             AssetRegistry::singleton().findByGuid<ImageAsset>(image_id_).unwrap();
     }

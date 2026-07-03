@@ -9,7 +9,7 @@ namespace cave {
 SceneDocument::SceneDocument(EngineServices& services, const Guid& p_guid)
     : DocumentBase(services, p_guid) {
 
-    auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", p_guid.ToString()));
+    auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", p_guid.toString()));
     scene->copy(*handle_.get<Scene>());
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));

@@ -2,49 +2,45 @@
 // File: cave/core/ids/Guid.h
 // =============================================================================
 #pragma once
+#include <array>
+#include <compare>
 #include <string>
+
 #include "cave/core/Option.h"
 
 namespace cave {
 
 class Guid {
 public:
+    static constexpr size_t kSize = 16;
+
     Guid() = default;
 
-    static Guid Null() {
+    static Guid null() {
         return Guid{};
     }
 
-    static Guid Create();
-    static Option<Guid> Parse(const char* p_start, size_t p_length);
+    static Guid make();
+    static Option<Guid> parse(const char* start, size_t length);
 
-    static Option<Guid> Parse(const std::string& p_string) {
-        return Parse(p_string.c_str(), p_string.length());
+    static Option<Guid> parse(const std::string& string) {
+        return parse(string.c_str(), string.length());
     }
 
-    bool IsNull() const { return *this == Guid{}; }
+    bool isNull() const { return *this == Guid{}; }
 
-    bool operator==(const Guid& p_rhs) const {
-        for (size_t i = 0; i < std::size(m_data); ++i) {
-            if (m_data[i] != p_rhs.m_data[i]) {
-                return false;
-            }
-        }
-        return true;
+    bool operator==(const Guid& rhs) const { return data_ == rhs.data_; }
+    bool operator!=(const Guid& rhs) const { return data_ != rhs.data_; }
+    std::strong_ordering operator<=>(const Guid& rhs) const noexcept {
+        return data_ <=> rhs.data_;
     }
 
-    bool operator!=(const Guid& p_rhs) const {
-        return !(*this == p_rhs);
-    }
+    const uint8_t* data() const { return data_.data(); };
 
-    std::string ToString() const;
-
-    const uint8_t* GetData() const {
-        return m_data;
-    };
+    std::string toString() const;
 
 private:
-    uint8_t m_data[16]{};
+    std::array<uint8_t, kSize> data_{};
 };
 
 }  // namespace cave
@@ -53,23 +49,15 @@ namespace std {
 
 template<>
 struct hash<cave::Guid> {
-    std::size_t operator()(const cave::Guid& p_guid) const {
+    std::size_t operator()(const cave::Guid& guid) const {
         std::size_t hash = 0;
-
-        const uint8_t* data = p_guid.GetData();
+        const uint8_t* data = guid.data();
         // Combine hash for each byte in the buffer
         for (std::size_t i = 0; i < sizeof(cave::Guid); ++i) {
             hash ^= std::hash<uint8_t>{}(data[i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         }
 
         return hash;
-    }
-};
-
-template<>
-struct less<cave::Guid> {
-    bool operator()(const cave::Guid& p_lhs, const cave::Guid& p_rhs) const {
-        return memcmp(p_lhs.GetData(), p_rhs.GetData(), sizeof(cave::Guid)) < 0;
     }
 };
 

@@ -49,7 +49,7 @@ bool AssetHandle::replaceGuidAndHandle(AssetType type,
 
     auto res = AssetRegistry::singleton().findByGuid(guid, type);
     if (res.is_none()) {
-        LOG_WARN("asset '{}' not found", guid.ToString());
+        LOG_WARN("asset '{}' not found", guid.toString());
         return false;
     }
 

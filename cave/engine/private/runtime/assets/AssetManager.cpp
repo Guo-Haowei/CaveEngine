@@ -214,7 +214,7 @@ uint64_t AssetManager::submitLoadAsset(const AssetLoadRequest& request) {
 
             AssetRef asset = asset_manager_.loadAssetSync(guid_);
             if (!asset) {
-                ctx.Fail(std::format("LoadAssetSync failed for '{}'", guid_.ToString()));
+                ctx.Fail(std::format("LoadAssetSync failed for '{}'", guid_.toString()));
                 return;
             }
 

@@ -12,6 +12,26 @@ namespace fs = std::filesystem;
 
 extern void RegisterAllPersistentAssets(EngineServices& services);
 
+namespace {
+
+template<typename T>
+bool Contains(const std::vector<T>& vec, const T& value) {
+    return std::find(vec.begin(), vec.end(), value) != vec.end();
+}
+
+template<typename T>
+void SortAndUnique(std::vector<T>& vec) {
+    std::sort(vec.begin(), vec.end());
+    vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+}
+
+template<typename T>
+void EraseValue(std::vector<T>& vec, const T& value) {
+    std::erase(vec, value);
+}
+
+}  // namespace
+
 auto AssetRegistry::InitializeImpl() -> Result<void> {
     RegisterAllPersistentAssets(m_app->services());
     return Result<void>();
@@ -60,6 +80,8 @@ void AssetRegistry::registerAsset(AssetMetaData&& meta, AssetRef asset) {
         auto [_, ok] = guid_map_.try_emplace(guid, std::move(entry));
         DEV_ASSERT(ok);
     }
+
+    refreshDependenciesUnlocked(guid);
 }
 
 void AssetRegistry::registerPersistentAsset(const std::string& name,
@@ -124,9 +146,11 @@ void AssetRegistry::moveAsset(std::string old_path, std::string new_path) {
 
     path_map_[new_path] = guid;
     it2->second->metadata.import_path = std::move(new_path);
+
+    // @TODO: update mapping
 }
 
-bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry)  {
+bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) {
     if (!entry->asset) {
         LOG_ERROR("Asset not loaded {}", entry->metadata.import_path);
         return false;
@@ -143,12 +167,12 @@ bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry)  {
     return true;
 }
 
-bool AssetRegistry::saveAsset(const Guid& guid)  {
+bool AssetRegistry::saveAsset(const Guid& guid) {
     std::lock_guard lock(registry_mutex_);
 
     auto it = guid_map_.find(guid);
     if (it == guid_map_.end()) {
-        LOG_ERROR("Asset '{}' not found", guid.ToString());
+        LOG_ERROR("Asset '{}' not found", guid.toString());
         return false;
     }
 
@@ -174,6 +198,151 @@ std::vector<AssetHandle> AssetRegistry::getAssetsOfType(AssetType type) const {
     }
 
     return res;
+}
+
+bool AssetRegistry::assetDependsOn(Guid asset, Guid dependency) const {
+    std::scoped_lock lock(registry_mutex_);
+
+    auto it = deps_.find(asset);
+    if (it == deps_.end()) {
+        return false;
+    }
+
+    return Contains(it->second, dependency);
+}
+
+bool AssetRegistry::assetTransitivelyDependsOn(Guid asset, Guid dependency) const {
+    if (asset == dependency) {
+        return true;
+    }
+
+    std::scoped_lock lock(registry_mutex_);
+
+    std::vector<Guid> stack;
+    std::unordered_set<Guid> visited;
+
+    stack.push_back(asset);
+    visited.insert(asset);
+
+    while (!stack.empty()) {
+        Guid current = stack.back();
+        stack.pop_back();
+
+        auto it = deps_.find(current);
+        if (it == deps_.end()) {
+            continue;
+        }
+
+        for (Guid dep : it->second) {
+            if (dep == dependency) {
+                return true;
+            }
+
+            if (visited.insert(dep).second) {
+                stack.push_back(dep);
+            }
+        }
+    }
+
+    return false;
+}
+
+std::vector<Guid> AssetRegistry::findReverseDependencies(Guid dependency) const {
+    std::scoped_lock lock(registry_mutex_);
+
+    auto it = reverse_deps_.find(dependency);
+    if (it == reverse_deps_.end()) {
+        return {};
+    }
+
+    return it->second;
+}
+
+std::vector<Guid> AssetRegistry::findReverseDependenciesTransitively(Guid dependency) const {
+    std::scoped_lock lock(registry_mutex_);
+
+    std::vector<Guid> result;
+    std::vector<Guid> stack;
+    std::unordered_set<Guid> visited;
+
+    stack.push_back(dependency);
+    visited.insert(dependency);
+
+    while (!stack.empty()) {
+        Guid current = stack.back();
+        stack.pop_back();
+
+        auto it = reverse_deps_.find(current);
+        if (it == reverse_deps_.end()) {
+            continue;
+        }
+
+        for (Guid user : it->second) {
+            if (!visited.insert(user).second) {
+                continue;
+            }
+
+            result.push_back(user);
+            stack.push_back(user);
+        }
+    }
+
+    return result;
+}
+
+void AssetRegistry::refreshDependenciesUnlocked(Guid guid) {
+    auto it = guid_map_.find(guid);
+    if (it == guid_map_.end() || !it->second) {
+        return;
+    }
+
+    const auto& entry = it->second;
+    if (!entry->asset) {
+        deps_.erase(guid);
+        return;
+    }
+
+    // Remove old reverse edges.
+    auto old_it = deps_.find(guid);
+    if (old_it != deps_.end()) {
+        for (Guid old_dep : old_it->second) {
+            auto rev_it = reverse_deps_.find(old_dep);
+            if (rev_it == reverse_deps_.end()) {
+                continue;
+            }
+
+            EraseValue(rev_it->second, guid);
+
+            if (rev_it->second.empty()) {
+                reverse_deps_.erase(rev_it);
+            }
+        }
+    }
+
+    std::vector<Guid> new_deps = entry->asset->dependencies();
+
+    new_deps.erase(
+        std::remove_if(new_deps.begin(), new_deps.end(),
+                       [&](const Guid& dep) {
+                           return dep.isNull() || dep == guid;
+                       }),
+        new_deps.end());
+
+    SortAndUnique(new_deps);
+
+    deps_[guid] = new_deps;
+
+    // Optional but recommended if metadata owns direct dependencies too.
+    entry->metadata.dependencies = new_deps;
+
+    // Add new reverse edges.
+    for (Guid dep : new_deps) {
+        auto& users = reverse_deps_[dep];
+
+        if (!Contains(users, guid)) {
+            users.push_back(guid);
+        }
+    }
 }
 
 }  // namespace cave

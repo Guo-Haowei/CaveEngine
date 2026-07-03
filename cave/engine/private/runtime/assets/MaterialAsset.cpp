@@ -14,7 +14,7 @@ std::vector<Guid> MaterialAsset::dependencies() const {
     std::vector<Guid> dependencies;
     dependencies.reserve(textures.size());
     for (const auto& guid : textures) {
-        if (!guid.IsNull()) {
+        if (!guid.isNull()) {
             dependencies.push_back(guid);
         }
     }

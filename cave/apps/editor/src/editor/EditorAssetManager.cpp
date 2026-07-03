@@ -178,7 +178,6 @@ void EditorAssetManager::refreshAssetFolderTree() {
 
 void EditorAssetManager::refreshDependencies() {
     CAVE_PROFILE_EVENT("Refresh dependencies");
-
 }
 
 Result<void> EditorAssetManager::addAlwaysLoadImages() {

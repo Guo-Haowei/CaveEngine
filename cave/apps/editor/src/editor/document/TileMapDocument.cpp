@@ -24,7 +24,7 @@ TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
     cb.AttachChild(ent, root);
     cb.SetProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid);
 
-    auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid.ToString()));
+    auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid.toString()));
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
