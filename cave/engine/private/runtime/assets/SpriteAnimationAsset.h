@@ -70,11 +70,11 @@ public:
 
     Handle<ImageAsset> imageHandle() const { return image_handle_; }
 
-    auto SaveToDisk(const AssetMetaData& meta) const -> Result<void> override;
+    auto saveToDisk(const AssetMetaData& meta) const -> Result<void> override;
 
-    auto LoadFromDisk(const AssetMetaData& meta) -> Result<void> override;
+    auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;
 
-    std::vector<Guid> GetDependencies() const override {
+    std::vector<Guid> dependencies() const override {
         return { image_guid_ };
     }
 

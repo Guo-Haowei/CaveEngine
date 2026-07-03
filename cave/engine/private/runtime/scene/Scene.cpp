@@ -292,7 +292,7 @@ ecs::Entity Scene::duplicateEntity(ecs::Entity ent) {
     return entity;
 }
 
-std::vector<Guid> Scene::GetDependencies() const {
+std::vector<Guid> Scene::dependencies() const {
     std::vector<Guid> dependencies;
     for (const auto& [id, material] : view<MaterialComponent>()) {
         dependencies.push_back(material.m_material_id);
@@ -368,7 +368,7 @@ static void DeserializeComponent(IDeserializer& d,
     }
 }
 
-auto Scene::LoadFromDisk(const AssetMetaData& meta) -> Result<void> {
+auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YAML::Node root;
 
     if (auto res = LoadYaml(meta.import_path, root); !res) {
@@ -439,8 +439,8 @@ static bool SerializeComponent(ISerializer& s,
     return true;
 }
 
-auto Scene::SaveToDisk(const AssetMetaData& meta) const -> Result<void> {
-    auto res = meta.SaveToDisk(this);
+auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
+    auto res = meta.saveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }

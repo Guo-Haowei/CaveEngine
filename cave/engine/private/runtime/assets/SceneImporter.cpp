@@ -72,7 +72,7 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
     meta.import_settings["color_space"] = p_srgb ? "srgb" : "linear";
     meta.import_settings["sampler"] = "linear";
 
-    if (auto res = meta.SaveToDisk(nullptr); !res) {
+    if (auto res = meta.saveToDisk(nullptr); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -97,7 +97,7 @@ Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
     meta.guid = guid;
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
-    if (auto res = p_material->SaveToDisk(meta); !res) {
+    if (auto res = p_material->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -119,7 +119,7 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
     meta.guid = guid;
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
-    if (auto res = p_mesh->SaveToDisk(meta); !res) {
+    if (auto res = p_mesh->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -142,7 +142,7 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity root) {
     meta.name = m_file_name;
     meta.guid = Guid::Create();
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
-    if (auto res = m_scene->SaveToDisk(meta); !res) {
+    if (auto res = m_scene->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 

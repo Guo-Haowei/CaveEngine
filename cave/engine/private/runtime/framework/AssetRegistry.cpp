@@ -123,7 +123,7 @@ bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) co
         return false;
     }
 
-    auto res = entry->asset->SaveToDisk(entry->metadata);
+    auto res = entry->asset->saveToDisk(entry->metadata);
     if (!res) {
         LOG_ERROR("{}", ToString(res.error()));
         return false;

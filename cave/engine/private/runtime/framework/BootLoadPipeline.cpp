@@ -79,7 +79,7 @@ auto BootLoadPipeline::RequestProject(const std::filesystem::path& p_project_pat
         }
 
         auto meta2 = std::move(meta.unwrap_unchecked());
-        auto res = meta2.SaveToDisk(nullptr);
+        auto res = meta2.saveToDisk(nullptr);
         if (!res) {
             return CAVE_ERROR(res.error());
         }

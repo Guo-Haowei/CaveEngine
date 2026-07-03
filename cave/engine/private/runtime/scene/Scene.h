@@ -123,11 +123,6 @@ public:
 
     void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::Null());
 
-    const math::AABB& bound() const { return bound_; }
-
-    // @TODO: refactor
-    SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(dirtyFlags_.load()); }
-
     std::string_view name() const { return name_; }
 
     void onSimBegin(SceneContext& ctx);
@@ -138,26 +133,21 @@ public:
 
     ecs::ComponentStorage& storage() noexcept { return storage_; }
     const ecs::ComponentStorage& storage() const noexcept { return storage_; }
-
     SystemManager* systems() { return systems_.get(); }
     const SystemManager* systems() const { return systems_.get(); }
-
+    const math::AABB& bound() const { return bound_; }
+    void setBound(const math::AABB& bound) { bound_ = bound; }
     ecs::Entity root() const { return root_; }
     void setRoot(ecs::Entity root) { root_ = root; }
 
-    // -------------------------------------------------------------------------
-    // IAsset
-    // -------------------------------------------------------------------------
-    auto LoadFromDisk(const AssetMetaData&) -> Result<void> override;
-
-    auto SaveToDisk(const AssetMetaData&) const -> Result<void> override;
-
-    virtual std::vector<Guid> GetDependencies() const override;
+    auto loadFromDisk(const AssetMetaData&) -> Result<void> override;
+    auto saveToDisk(const AssetMetaData&) const -> Result<void> override;
+    virtual std::vector<Guid> dependencies() const override;
 
     // @TODO: deprecate
+    SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(dirtyFlags_.load()); }
+    // @TODO: deprecate
     std::atomic<uint32_t> dirtyFlags_{ SCENE_DIRTY_NONE };
-    // @TODO: refactor
-    math::AABB bound_;
 
 private:
     void simulate(SceneTickContext& ctx);
@@ -171,6 +161,7 @@ private:
 
     uint32_t entity_seed_{ 0 };
     ecs::Entity root_;
+    math::AABB bound_;
 
     std::unique_ptr<SystemManager> systems_;
 

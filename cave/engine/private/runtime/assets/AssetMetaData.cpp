@@ -38,7 +38,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     return meta;
 }
 
-Result<void> AssetMetaData::SaveToDisk(const IAsset* p_asset) const {
+Result<void> AssetMetaData::saveToDisk(const IAsset* p_asset) const {
     YamlSerializer yaml;
 
     std::string asset_name = name;
@@ -47,7 +47,7 @@ Result<void> AssetMetaData::SaveToDisk(const IAsset* p_asset) const {
     }
 
     if (p_asset) {
-        dependencies = p_asset->GetDependencies();
+        dependencies = p_asset->dependencies();
     }
 
     yaml.Write(*this);

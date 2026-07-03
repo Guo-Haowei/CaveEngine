@@ -95,21 +95,21 @@ static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) 
     return Result<void>();
 }
 
-Result<void> ImageAsset::LoadFromDisk(const AssetMetaData& p_meta) {
+Result<void> ImageAsset::loadFromDisk(const AssetMetaData& p_meta) {
     sampler = EnumTraits<Sampler>::FromString(p_meta.import_settings["sampler"]).unwrap_or(Sampler::Linear);
     color_space = EnumTraits<ColorSpace>::FromString(p_meta.import_settings["color_space"]).unwrap_or(ColorSpace::Linear);
 
     return LoadImage(p_meta, *this);
 }
 
-Result<void> ImageAsset::SaveToDisk(const AssetMetaData& p_meta) const {
+Result<void> ImageAsset::saveToDisk(const AssetMetaData& p_meta) const {
     p_meta.import_settings["sampler"] = EnumTraits<Sampler>::ToString(sampler);
     p_meta.import_settings["color_space"] = EnumTraits<ColorSpace>::ToString(color_space);
 
-    return p_meta.SaveToDisk(this);
+    return p_meta.saveToDisk(this);
 }
 
-std::vector<Guid> ImageAsset::GetDependencies() const {
+std::vector<Guid> ImageAsset::dependencies() const {
     return {};
 }
 

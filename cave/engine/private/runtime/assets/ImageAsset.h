@@ -32,11 +32,11 @@ struct ImageAsset : IAsset {
     // @TODO: refactor
     std::shared_ptr<GpuTexture> gpu_texture;
 
-    Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
+    Result<void> loadFromDisk(const AssetMetaData& p_meta) override;
 
-    Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
+    Result<void> saveToDisk(const AssetMetaData& p_meta) const override;
 
-    std::vector<Guid> GetDependencies() const override;
+    std::vector<Guid> dependencies() const override;
 };
 
 DECLARE_ENUM_TRAITS(ImageAsset::Sampler, "linear", "point");

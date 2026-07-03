@@ -72,12 +72,12 @@ void MeshAsset::OnDeserialized() {
     }
 }
 
-std::vector<Guid> MeshAsset::GetDependencies() const {
+std::vector<Guid> MeshAsset::dependencies() const {
     return {};
 }
 
-Result<void> MeshAsset::SaveToDisk(const AssetMetaData& p_meta) const {
-    if (auto res = p_meta.SaveToDisk(this); !res) {
+Result<void> MeshAsset::saveToDisk(const AssetMetaData& p_meta) const {
+    if (auto res = p_meta.saveToDisk(this); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -93,7 +93,7 @@ Result<void> MeshAsset::SaveToDisk(const AssetMetaData& p_meta) const {
     return Result<void>();
 }
 
-Result<void> MeshAsset::LoadFromDisk(const AssetMetaData& p_meta) {
+Result<void> MeshAsset::loadFromDisk(const AssetMetaData& p_meta) {
     Archive archive;
     if (auto res = archive.OpenRead(p_meta.import_path); !res) {
         return CAVE_ERROR(res.error());

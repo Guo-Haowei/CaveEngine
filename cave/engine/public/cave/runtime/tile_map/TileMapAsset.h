@@ -63,10 +63,10 @@ public:
     bool visible() const { return visible_; }
     void visible(bool visible) { visible_ = visible; }
 
-    Result<void> SaveToDisk(const AssetMetaData& meta) const override;
-    Result<void> LoadFromDisk(const AssetMetaData& meta) override;
+    Result<void> saveToDisk(const AssetMetaData& meta) const override;
+    Result<void> loadFromDisk(const AssetMetaData& meta) override;
 
-    std::vector<Guid> GetDependencies() const override;
+    std::vector<Guid> dependencies() const override;
 };
 
 }  // namespace cave

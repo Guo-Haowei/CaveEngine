@@ -88,7 +88,7 @@ auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
-    if (auto res = asset->LoadFromDisk(entry->metadata); !res) {
+    if (auto res = asset->loadFromDisk(entry->metadata); !res) {
         return CAVE_ERROR(res.error());
     }
     return asset;
@@ -125,7 +125,7 @@ Result<Guid> AssetManager::createAsset(AssetType type,
     }
 
     auto meta = std::move(_meta.unwrap_unchecked());
-    if (auto res = asset->SaveToDisk(meta); !res) {
+    if (auto res = asset->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 

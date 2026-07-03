@@ -109,7 +109,7 @@ namespace {
 
 auto CreateImageAsset(const AssetMetaData& meta) -> Result<std::shared_ptr<ImageAsset>> {
     auto image = std::make_shared<ImageAsset>();
-    if (auto res = image->LoadFromDisk(meta); !res) {
+    if (auto res = image->loadFromDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 

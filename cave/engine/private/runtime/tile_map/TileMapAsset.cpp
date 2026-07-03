@@ -30,7 +30,7 @@ void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
     }
 }
 
-std::vector<Guid> TileMapAsset::GetDependencies() const {
+std::vector<Guid> TileMapAsset::dependencies() const {
     return { tile_set_id_ };
 }
 
@@ -116,8 +116,8 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
     return true;
 }
 
-Result<void> TileMapAsset::SaveToDisk(const AssetMetaData& meta) const {
-    auto res = meta.SaveToDisk(this);
+Result<void> TileMapAsset::saveToDisk(const AssetMetaData& meta) const {
+    auto res = meta.saveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -132,7 +132,7 @@ Result<void> TileMapAsset::SaveToDisk(const AssetMetaData& meta) const {
     return SaveYaml(meta.import_path, yaml);
 }
 
-Result<void> TileMapAsset::LoadFromDisk(const AssetMetaData& meta) {
+Result<void> TileMapAsset::loadFromDisk(const AssetMetaData& meta) {
     YAML::Node root;
 
     if (auto res = LoadYaml(meta.import_path, root); !res) {

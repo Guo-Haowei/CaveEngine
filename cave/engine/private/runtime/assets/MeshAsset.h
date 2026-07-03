@@ -65,11 +65,11 @@ public:
 
     VertexAttribute attributes[std::to_underlying(VertexAttributeName::COUNT)];
 
-    std::vector<Guid> GetDependencies() const override;
+    std::vector<Guid> dependencies() const override;
 
-    Result<void> SaveToDisk(const AssetMetaData& p_meta) const override;
+    Result<void> saveToDisk(const AssetMetaData& p_meta) const override;
 
-    Result<void> LoadFromDisk(const AssetMetaData& p_meta) override;
+    Result<void> loadFromDisk(const AssetMetaData& p_meta) override;
 
     void CreateRenderData();
 
