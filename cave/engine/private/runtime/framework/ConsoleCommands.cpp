@@ -33,7 +33,7 @@ void RegisterCommands::dvar(CommandRegistry& cmd_reg) {
             DvarParser parser(args, DvarParser::Source::Console);
 
             std::string err;
-            if (parser.ParseSetCmd(err)) return true;
+            if (parser.parseSetCmd(err)) return true;
 
             ctx.log.Error(LogChannel::Console, std::move(err));
             return false;

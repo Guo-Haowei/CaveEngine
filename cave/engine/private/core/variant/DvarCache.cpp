@@ -52,16 +52,16 @@ void DvarCache::deserialize(std::string_view path) {
 
     std::vector<std::string_view> commands = StringUtils::tokenize(buffer);
     DvarParser parser(commands, DvarParser::Source::Cache);
-    if (!parser.Parse()) {
-        LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.GetError());
+    if (!parser.parse()) {
+        LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.error());
     }
 }
 
 bool DvarCache::parse(std::span<const std::string_view> commands) {
     DvarParser parser(commands, DvarParser::Source::CommandLine);
-    bool ok = parser.Parse();
+    bool ok = parser.parse();
     if (!ok) {
-        LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.GetError());
+        LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.error());
     }
     return ok;
 }

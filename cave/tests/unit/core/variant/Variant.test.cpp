@@ -1,6 +1,6 @@
 #include "cave/core/variant/Variant.h"
 
-namespace cave {
+namespace cave::variant {
 
 using namespace ::cave::math;
 
@@ -220,4 +220,4 @@ TEST(Variant, variant_map_stores_values) {
     EXPECT_EQ(map["name"].asString(), "player");
 }
 
-}  // namespace cave
+}  // namespace cave::variant

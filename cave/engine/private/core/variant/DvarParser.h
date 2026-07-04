@@ -13,27 +13,27 @@ public:
         Console,
     };
 
-    DvarParser(std::span<const std::string_view> p_commands, Source p_source = Source::None)
-        : m_source(p_source), m_commands(p_commands) {}
+    DvarParser(std::span<const std::string_view> commands, Source source = Source::None)
+        : source_(source), commands_(commands) {}
 
-    bool Parse();
-    bool ParseSetCmd(std::string& p_out);
+    bool parse();
+    bool parseSetCmd(std::string& out);
 
-    std::string_view GetError() const { return m_error; }
+    std::string_view error() const { return error_; }
 
 private:
-    bool OutOfBound();
-    std::string_view Peek();
-    std::string_view Consume();
+    bool outOfBound();
+    std::string_view peek();
+    std::string_view consume();
 
-    bool TryGetInt(int& p_out);
-    bool TryGetFloat(float& p_out);
-    bool TryGetString(std::string_view& p_out);
+    bool tryGetInt(int& out);
+    bool tryGetFloat(float& out);
+    bool tryGetString(std::string_view& out);
 
-    const Source m_source;
-    size_t m_cursor = 0;
-    std::span<const std::string_view>& m_commands;
-    std::string m_error;
+    const Source source_;
+    size_t cursor_ = 0;
+    std::span<const std::string_view>& commands_;
+    std::string error_;
 };
 
 }  // namespace cave

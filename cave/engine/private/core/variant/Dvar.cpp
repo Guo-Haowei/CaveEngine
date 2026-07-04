@@ -54,21 +54,21 @@ void Dvar::registerVector4f(std::string_view key, float x, float y, float z, flo
 
 void Dvar::registerVector2i(std::string_view key, int x, int y) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
-        variant_ = Variant(Vec2f{ x, y });
+        variant_ = Variant(Vec2i{ x, y });
     }
     registerDvar(key, this);
 }
 
 void Dvar::registerVector3i(std::string_view key, int x, int y, int z) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
-        variant_ = Variant(Vec3f{ x, y, z });
+        variant_ = Variant(Vec3i{ x, y, z });
     }
     registerDvar(key, this);
 }
 
 void Dvar::registerVector4i(std::string_view key, int x, int y, int z, int w) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
-        variant_ = Variant(Vec4f{ x, y, z, w });
+        variant_ = Variant(Vec4i{ x, y, z, w });
     }
     registerDvar(key, this);
 }
