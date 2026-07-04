@@ -28,6 +28,8 @@ entities:
       linear: [0, 0, 0]
     NativeScriptComponent:
       name: SpiderController
+      params:
+        {}
     FacingComponent:
       facing: left
   - id: 2
@@ -53,3 +55,4 @@ entities:
         max: [0.400000006, 0]
       flip_x: false
       flip_y: false
+      z_index: 0

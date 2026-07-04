@@ -41,6 +41,12 @@ ISerializer& ISerializer::write(const Variant& variant) {
         .beginKey("value");
 
     switch (type) {
+        case VariantType::Int: {
+            write(variant.asInt());
+        } break;
+        case VariantType::Float: {
+            write(variant.asFloat());
+        } break;
         case VariantType::String: {
             write(variant.asString());
         } break;
