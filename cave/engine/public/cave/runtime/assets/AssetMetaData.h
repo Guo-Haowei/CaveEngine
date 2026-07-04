@@ -46,7 +46,7 @@ struct AssetMetaData {
     /// Create meta based on asset file
     [[nodiscard]] static auto CreateMeta(std::string_view p_path) -> Option<AssetMetaData>;
 
-    [[nodiscard]] Result<void> SaveToDisk(const IAsset* p_asset) const;
+    [[nodiscard]] Result<void> saveToDisk(const IAsset* p_asset) const;
 };
 
 }  // namespace cave

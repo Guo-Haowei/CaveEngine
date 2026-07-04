@@ -25,7 +25,7 @@ public:
         , entry_(std::move(entry)) {}
 
     void Invalidate() {
-        guid_ = Guid::Null();
+        guid_ = Guid::null();
         entry_.reset();
     }
 

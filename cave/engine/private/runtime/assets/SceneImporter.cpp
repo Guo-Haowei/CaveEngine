@@ -72,7 +72,7 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
     meta.import_settings["color_space"] = p_srgb ? "srgb" : "linear";
     meta.import_settings["sampler"] = "linear";
 
-    if (auto res = meta.SaveToDisk(nullptr); !res) {
+    if (auto res = meta.saveToDisk(nullptr); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -90,14 +90,14 @@ Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
 
     fs::path sys_path = m_dest_dir / std::format("{}.mat", p_name);
 
-    Guid guid = Guid::Create();
+    Guid guid = Guid::make();
     AssetMetaData meta;
     meta.type = AssetType::Material;
     meta.name = std::move(p_name);
     meta.guid = guid;
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
-    if (auto res = p_material->SaveToDisk(meta); !res) {
+    if (auto res = p_material->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -112,14 +112,14 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
                                          std::shared_ptr<MeshAsset>&& p_mesh) {
     fs::path sys_path = m_dest_dir / std::format("{}.mesh", p_name);
 
-    Guid guid = Guid::Create();
+    Guid guid = Guid::make();
     AssetMetaData meta;
     meta.type = AssetType::Mesh;
     meta.name = std::move(p_name);
     meta.guid = guid;
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
-    if (auto res = p_mesh->SaveToDisk(meta); !res) {
+    if (auto res = p_mesh->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -140,9 +140,9 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity root) {
     AssetMetaData meta;
     meta.type = AssetType::Scene;
     meta.name = m_file_name;
-    meta.guid = Guid::Create();
+    meta.guid = Guid::make();
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
-    if (auto res = m_scene->SaveToDisk(meta); !res) {
+    if (auto res = m_scene->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 

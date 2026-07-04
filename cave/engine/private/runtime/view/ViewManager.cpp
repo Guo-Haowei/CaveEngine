@@ -119,13 +119,13 @@ ViewId ViewManager::createView(std::string_view debug_name,
     auto view = std::make_unique<ViewRecord>();
     view->debug_name = debug_name;
     view->viewport_fb = viewport_px;
-    const ViewId id = Base::Create(std::move(view));
+    const ViewId id = Base::create(std::move(view));
     LOG_TRACE(LogChannel::View, "+{} id=({},{})", debug_name, id.index, id.gen);
     return id;
 }
 
 void ViewManager::destroyView(ViewId view_id) {
-    Base::Destroy(view_id);
+    Base::destroy(view_id);
     LOG_TRACE(LogChannel::View, "-View id=({},{})", view_id.index, view_id.gen);
 }
 

@@ -8,16 +8,16 @@ namespace cave {
 
 class CommandRegistry {
 public:
-    void Register(CommandDesc p_cmd);
+    void registerCmd(CommandDesc&& cmd);
 
-    [[nodiscard]] const CommandDesc* Find(std::string_view p_name) const;
+    [[nodiscard]] const CommandDesc* findCmd(std::string_view name) const;
 
-    [[nodiscard]] std::span<const CommandDesc> Commands() const;
+    [[nodiscard]] std::span<const CommandDesc> allCommands() const;
 
-    void FindByPrefix(std::string_view p_prefix, std::vector<std::string_view>& p_out) const;
+    void findByPrefix(std::string_view prefix, std::vector<std::string_view>& out) const;
 
 private:
-    std::vector<CommandDesc> m_cmds;
+    std::vector<CommandDesc> cmds_;
 };
 
 }  // namespace cave

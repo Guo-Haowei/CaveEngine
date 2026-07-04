@@ -45,7 +45,7 @@ bool SceneScheduler::remove(SceneOwner* owner) {
 void SceneScheduler::flushSceneCommands() {
     for (SceneOwner* owner : owners_) {
         if (owner) {
-            owner->commitSceneChange();
+            owner->flushSceneCommands();
         }
     }
 }

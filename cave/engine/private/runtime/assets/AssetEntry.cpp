@@ -2,10 +2,10 @@
 
 namespace cave {
 
-AssetRef AssetEntry::Wait() {
-    std::unique_lock lock(m_mutex);
+AssetRef AssetEntry::wait() {
+    std::unique_lock lock(mutex_);
 
-    m_cv.wait(lock, [this]() {
+    cv_.wait(lock, [this]() {
         return status == AssetStatus::Loaded || status == AssetStatus::Failed;
     });
 
@@ -16,21 +16,19 @@ AssetRef AssetEntry::Wait() {
     return asset;
 }
 
-void AssetEntry::MarkLoaded(AssetRef p_asset) {
-    {
-        std::lock_guard lock(m_mutex);
-        asset = std::move(p_asset);
-        status = AssetStatus::Loaded;
-    }
-    m_cv.notify_all();
+void AssetEntry::markLoaded(AssetRef asset_ref) {
+    mutex_.lock();
+    asset = std::move(asset_ref);
+    status = AssetStatus::Loaded;
+    mutex_.unlock();
+    cv_.notify_all();
 }
 
-void AssetEntry::MarkFailed() {
-    {
-        std::lock_guard lock(m_mutex);
-        status = AssetStatus::Failed;
-    }
-    m_cv.notify_all();
+void AssetEntry::markFailed() {
+    mutex_.lock();
+    status = AssetStatus::Failed;
+    mutex_.unlock();
+    cv_.notify_all();
 }
 
 }  // namespace cave

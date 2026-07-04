@@ -12,7 +12,6 @@
 #include "editor/panels/LogPanel.h"
 #include "editor/panels/MenuBar.h"
 #include "editor/panels/PropertyPanel.h"
-#include "editor/panels/RenderGraphViewer.h"
 #include "editor/panels/RendererPanel.h"
 
 #include "editor/services/DocumentService.h"
@@ -23,6 +22,8 @@
 #include "editor/services/ShortcutService.h"
 #include "editor/services/ThumbnailService.h"
 #include "editor/services/Workspace.h"
+
+#include "editor/EditorAssetManager.h"
 
 // @TODO: refactor
 #include <imgui/imgui_internal.h>
@@ -89,8 +90,9 @@ EditorState::EditorState(IApplication& app)
     addPanel(std::make_shared<HierarchyPanel>(*this));
     addPanel(std::make_shared<PropertyPanel>(*this));
     addPanel(content_browser_);
-    // addPanel(std::make_shared<RenderGraphViewer>(*this));
     addPanel(file_system_panel_);
+
+    static_cast<EditorAssetManager&>(app_services.assetManager()).setEditorServices(&services_);
 }
 
 EditorState::~EditorState() {

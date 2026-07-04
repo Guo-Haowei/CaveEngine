@@ -176,11 +176,11 @@ void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
     if (cmd.GetBackend() == Backend::OPENGL) {
         cmd.SetViewport(Viewport(voxel_size, voxel_size));
         cmd.SetPipelineState(PSO_VOXELIZATION);
-        cmd.SetBlendState(PipelineStateManager::GetBlendDescDisable(), nullptr, 0xFFFFFFFF);
+        cmd.SetBlendState(PipelineStateManager::blendDescDisabled(), nullptr, 0xFFFFFFFF);
         ExecuteDrawCommands(p_ctx, p_ctx.frameData.commands[std::to_underlying(DrawPhase::Voxelization)], false);
 
         // glSubpixelPrecisionBiasNV(0, 0);
-        cmd.SetBlendState(PipelineStateManager::GetBlendDescDefault(), nullptr, 0xFFFFFFFF);
+        cmd.SetBlendState(PipelineStateManager::defaultBlendDesc(), nullptr, 0xFFFFFFFF);
     }
 
     // post process
@@ -468,22 +468,22 @@ static std::shared_ptr<GpuMesh> DebugDrawItemsBuffer(render::IRenderDevice& devi
     return *(device.CreateMeshImpl(desc, buffer_descs, &index_desc));
 }
 
-void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
+void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = ctx.cmd;
 
-    const bool nothing_to_draw = p_ctx.frameData.tile_maps.empty() && p_ctx.frameData.sprites.empty();
+    const bool nothing_to_draw = ctx.frameData.tile_maps.empty() && ctx.frameData.sprites.empty();
     if (nothing_to_draw) {
         return;
     }
 
     auto& frame = cmd.GetCurrentFrame();
-    const PassContext& pass = p_ctx.frameData.mainPass;
+    const PassContext& pass = ctx.frameData.mainPass;
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.SetPipelineState(PSO_SPRITE);
-    for (const DrawItem& draw : p_ctx.frameData.tile_maps) {
+    for (const DrawItem& draw : ctx.frameData.tile_maps) {
         const auto tile = draw.mesh_data;
         if (draw.texture) {
             cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
@@ -495,7 +495,7 @@ void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
 
     cmd.SetMesh(nullptr);
     cmd.SetPipelineState(PSO_SPRITE_NO_VERT);
-    for (const DrawItem& draw : p_ctx.frameData.sprites) {
+    for (const DrawItem& draw : ctx.frameData.sprites) {
         DEV_ASSERT(draw.mesh_data == nullptr);
         if (draw.texture) {
             cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
@@ -505,8 +505,8 @@ void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx) {
     }
 
     // debug draw
-    IDebugDrawService& debug_draw = p_ctx.services.debugDraw();
-    auto mesh = DebugDrawItemsBuffer(p_ctx.cmd, debug_draw.items());
+    IDebugDrawService& debug_draw = ctx.services.debugDraw();
+    auto mesh = DebugDrawItemsBuffer(ctx.cmd, debug_draw.items());
     debug_draw.clear();
     if (mesh) {
         cmd.SetMesh(mesh.get());

@@ -17,7 +17,7 @@ void Console::SubmitLine(std::string_view p_line) {
     std::vector<std::string_view> tokens = StringUtils::Tokenize(p_line);
     if (tokens.empty()) return;
 
-    std::span<const CommandDesc> cmds = m_reg.Commands();
+    std::span<const CommandDesc> cmds = m_reg.allCommands();
     bool ok = false;
     for (const CommandDesc& cmd : cmds) {
         if (cmd.name == tokens[0]) {

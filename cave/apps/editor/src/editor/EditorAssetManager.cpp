@@ -5,12 +5,14 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/VFS.h"
 
 // @TODO: refactor
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
+#include "editor/services/Workspace.h"
 #include "editor/utility/ContentEntry.h"
 
 namespace cave {
@@ -109,7 +111,7 @@ namespace {
 
 auto CreateImageAsset(const AssetMetaData& meta) -> Result<std::shared_ptr<ImageAsset>> {
     auto image = std::make_shared<ImageAsset>();
-    if (auto res = image->LoadFromDisk(meta); !res) {
+    if (auto res = image->loadFromDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -151,7 +153,7 @@ void EditorAssetManager::update() {
     }
 
     if (file_watcher_->hasChanged()) {
-        rebuildAssetFolderTree();
+        refreshAssetFolderTree();
         file_watcher_->clearFlag();
     }
 }
@@ -164,7 +166,7 @@ static void BuildFolderLut(const ContentEntry* p_node,
     }
 }
 
-void EditorAssetManager::rebuildAssetFolderTree() {
+void EditorAssetManager::refreshAssetFolderTree() {
     CAVE_PROFILE_EVENT("Build folder tree");
 
     asset_root_ = BuildFolderTree(resource_folder_, nullptr);
@@ -208,6 +210,16 @@ std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_n
         return nullptr;
     }
     return it->second;
+}
+
+void EditorAssetManager::onAssetSaved(const AssetChangedEvent& event) {
+    AssetRegistry& asset_reg = m_app->services().assetRegistry();
+    auto affected = asset_reg.findReverseDependenciesTransitively(event.guid);
+    for (const Guid& guid : affected) {
+        reloadAsset(guid);
+    }
+
+    editor_services_->workspace().onAssetChanged(event.guid, affected);
 }
 
 }  // namespace cave

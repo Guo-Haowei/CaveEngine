@@ -895,7 +895,7 @@ void D3d11GraphicsManager::DrawArraysInstanced(uint32_t p_instance_count, uint32
 }
 
 void D3d11GraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
-    auto pipeline = reinterpret_cast<D3d11PipelineState*>(m_pipelineStateManager->Find(p_name));
+    auto pipeline = reinterpret_cast<D3d11PipelineState*>(m_pipelineStateManager->findPSO(p_name));
     DEV_ASSERT(pipeline);
     if (pipeline->computeShader) {
         m_deviceContext->CSSetShader(pipeline->computeShader.Get(), nullptr, 0);
@@ -920,7 +920,7 @@ void D3d11GraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
         m_stateCache.blendState = pipeline->blendState.Get();
     }
 
-    auto topology = d3d::Convert(pipeline->desc.primitiveTopology);
+    auto topology = d3d::Convert(pipeline->desc.primitive_topology);
     m_deviceContext->IASetPrimitiveTopology(topology);
 }
 

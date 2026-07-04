@@ -26,7 +26,7 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     cb.AddComponent(ent, SpriteRendererComponent_Id);
     cb.AddComponent(ent, SpriteAnimatorComponent_Id);
 
-    auto scene = std::make_unique<Scene>(std::format("preview-animation-{}", guid.ToString()));
+    auto scene = std::make_unique<Scene>(std::format("preview-animation-{}", guid.toString()));
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());

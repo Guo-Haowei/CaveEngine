@@ -112,7 +112,7 @@ void LuaScriptSystem::onAttach(SceneContext& ctx) {
     lua_setglobal(L, LUA_GLOBAL_SCENE);
 
     for (auto [entity, script] : scene.view<LuaScriptComponent>()) {
-        if (script.m_source_id.IsNull()) {
+        if (script.m_source_id.isNull()) {
             continue;
         }
 
@@ -146,7 +146,7 @@ void LuaScriptSystem::update(SceneTickContext& ctx) {
         const lua_Number timestep = ctx.dt;
 
         for (auto [entity, script] : scene.view<LuaScriptComponent>()) {
-            if (script.m_source_id.IsNull()) {
+            if (script.m_source_id.isNull()) {
                 continue;
             }
 
@@ -165,12 +165,12 @@ Result<void> LuaScriptSystem::loadMetaTable(SceneContext& ctx,
     auto& asset_reg = ctx.engine_services.assetRegistry();
     auto _handle = asset_reg.findByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.ToString());
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.toString());
     }
 
     const BlobAsset* blob = _handle.unwrap_unchecked().get();
     if (!blob) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not loaded", guid.ToString());
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not loaded", guid.toString());
     }
 
     if (luaL_dostring(L, blob->c_str()) != LUA_OK) {

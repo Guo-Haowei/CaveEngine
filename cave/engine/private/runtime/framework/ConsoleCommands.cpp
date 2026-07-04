@@ -3,13 +3,67 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/render/renderer/Renderer.h"
+#include "engine/private/runtime/dvar/DvarParser.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 
 #if USING(USE_COMMAND)
-static void registerRendererCommands(CommandRegistry& cmd_reg) {
-    cmd_reg.Register({
+class RegisterCommands {
+public:
+    static void dvar(CommandRegistry& cmd_reg);
+    static void render(CommandRegistry& cmd_reg);
+    static void intent(CommandRegistry& cmd_reg);
+    static void scene(CommandRegistry& cmd_reg);
+    static void asset(CommandRegistry& cmd_reg);
+};
+
+void RegisterCommands::dvar(CommandRegistry& cmd_reg) {
+    cmd_reg.registerCmd({
+        .name = "dvar.set",
+        .help = "List registered dvars.",
+        .usage = "Usage: dvar.set name [value]",
+        .fn = [](CommandContext& ctx, const CommandArgs& args_) {
+            if (args_.tokens.empty()) {
+                ctx.log.Error(LogChannel::Console, std::string(ctx.desc.usage));
+                return false;
+            }
+            std::span<const std::string_view> args = args_.tokens.subspan(1);
+            DvarParser parser(args, DvarParser::Source::Console);
+
+            std::string err;
+            if (parser.ParseSetCmd(err)) return true;
+
+            ctx.log.Error(LogChannel::Console, std::move(err));
+            return false;
+        },
+    });
+    cmd_reg.registerCmd({
+        .name = "dvar.dump",
+        .help = "Dump all registered dvars.",
+        .usage = "dvar.dump",
+        .fn = [](CommandContext& ctx, const CommandArgs&) {
+            std::string msg;
+            msg.reserve(512);
+            msg.append("Dvar:");
+            for (const auto& it : Dvar::s_map) {
+                msg.append(std::format(
+                    "\n -- {}, '{}', {}",
+                    it.first,
+                    it.second->ValueToString(),
+                    it.second->GetDesc()));
+            }
+            msg.push_back('\n');
+
+            ctx.log.Info(LogChannel::Console, std::move(msg));
+            return true;
+        },
+    });
+};
+
+void RegisterCommands::render(CommandRegistry& cmd_reg) {
+    cmd_reg.registerCmd({
         .name = "render.pool.dump",
         .help = "List textures in transient pool.",
         .usage = "render.pool.dump",
@@ -19,8 +73,8 @@ static void registerRendererCommands(CommandRegistry& cmd_reg) {
     });
 }
 
-static void registerIntentCommands(CommandRegistry& cmd_reg) {
-    cmd_reg.Register({
+void RegisterCommands::intent(CommandRegistry& cmd_reg) {
+    cmd_reg.registerCmd({
         .name = "intent.dump",
         .help = "List all registered intent handlers.",
         .usage = "intent.dump",
@@ -30,8 +84,8 @@ static void registerIntentCommands(CommandRegistry& cmd_reg) {
     });
 }
 
-static void registerSceneCommands(CommandRegistry& cmd_reg) {
-    cmd_reg.Register({
+void RegisterCommands::scene(CommandRegistry& cmd_reg) {
+    cmd_reg.registerCmd({
         .name = "scene.reg.dump",
         .help = "List registered scenes.",
         .usage = "scene.reg.dump",
@@ -41,10 +95,59 @@ static void registerSceneCommands(CommandRegistry& cmd_reg) {
     });
 }
 
-void registerCommands(CommandRegistry& cmd_reg) {
-    registerRendererCommands(cmd_reg);
-    registerIntentCommands(cmd_reg);
-    registerSceneCommands(cmd_reg);
+void RegisterCommands::asset(CommandRegistry& cmd_reg) {
+    cmd_reg.registerCmd({
+        .name = "asset.users",
+        .help = "Dump assets that depend on this asset.",
+        .usage = "Usage: asset.users <asset_path_or_guid>",
+        .fn = [](CommandContext& ctx, const CommandArgs& args) {
+            if (args.tokens.size() != 2) {
+                ctx.log.Error(LogChannel::Console, std::string(ctx.desc.usage));
+                return false;
+            }
+
+            auto& asset_reg = ctx.services.assetRegistry();
+
+            std::string_view asset_str = args.tokens[1];
+            Option<AssetHandle> handle;
+            if (auto guid = Guid::parse(asset_str); guid.is_some()) {
+                handle = asset_reg.findByGuid(guid.unwrap_unchecked());
+            } else {
+                handle = asset_reg.findByPath(std::string(asset_str));
+            }
+
+            if (handle.is_none()) {
+                ctx.log.Error(LogChannel::Console, std::format("Failed to find '{}'", asset_str));
+                return false;
+            }
+
+            Guid guid = handle.unwrap_unchecked().guid();
+            auto users = asset_reg.findReverseDependenciesTransitively(guid);
+            auto msg = std::format("\nTransitive users of {}:", handle.unwrap_unchecked().meta()->name);
+
+            if (users.empty()) {
+                msg.append("  <none>");
+            } else {
+                for (const Guid& user : users) {
+                    msg.append("\n  -> ");
+                    auto entry = asset_reg.entry(user);
+                    msg.append(entry ? entry->metadata.name : "???");
+                }
+            }
+
+            msg.append(std::format("\nTotal: {} dependency asset(s).", users.size()));
+            ctx.log.Info(LogChannel::Console, std::move(msg));
+            return true;
+        },
+    });
+}
+
+void RegisterCommands(CommandRegistry& cmd_reg) {
+    RegisterCommands::asset(cmd_reg);
+    RegisterCommands::dvar(cmd_reg);
+    RegisterCommands::render(cmd_reg);
+    RegisterCommands::scene(cmd_reg);
+    RegisterCommands::intent(cmd_reg);
 }
 #endif
 

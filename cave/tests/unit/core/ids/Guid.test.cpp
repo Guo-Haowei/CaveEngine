@@ -15,17 +15,17 @@ TEST(guid, default_constructor) {
 
 TEST(guid, padd_zero) {
     Guid guid;
-    std::string str = guid.ToString();
+    std::string str = guid.toString();
     EXPECT_EQ(str, "00000000-0000-0000-0000000000000000");
 }
 
 #if USING(PLATFORM_WINDOWS)
 TEST(guid, generation) {
-    Guid guid1 = Guid::Create();
-    Guid guid2 = Guid::Create();
+    Guid guid1 = Guid::make();
+    Guid guid2 = Guid::make();
 
-    std::string str1 = guid1.ToString();
-    std::string str2 = guid2.ToString();
+    std::string str1 = guid1.toString();
+    std::string str2 = guid2.toString();
     if (str1 != str2) {
         EXPECT_NE(guid1, guid2);
     } else {
@@ -36,37 +36,37 @@ TEST(guid, generation) {
 
 TEST(guid, parse_wrong_length) {
     const std::string source = "578F-E7F234-E948-9EBCEF5BA35E854C";
-    auto res = Guid::Parse(source);
+    auto res = Guid::parse(source);
     EXPECT_FALSE(res.is_some());
 }
 
 TEST(guid, parse_wrong_dash) {
     const std::string source = "61578F-E7F234-E948-9EBCEF5BA35E854C";
-    auto res = Guid::Parse(source);
+    auto res = Guid::parse(source);
     EXPECT_FALSE(res.is_some());
 }
 
 TEST(guid, parse_wrong_value) {
     const std::string source = "61578X-E7G234-E948-9EBCEF5BA35E854C";
-    auto res = Guid::Parse(source);
+    auto res = Guid::parse(source);
     EXPECT_FALSE(res.is_some());
 }
 
 TEST(guid, parse_ok) {
     const std::string source = "61578FE7-F234-E948-9EBCEF5BA35E854C";
-    auto res = Guid::Parse(source);
+    auto res = Guid::parse(source);
     ASSERT_TRUE(res.is_some());
     Guid guid = res.unwrap_unchecked();
-    std::string dump = guid.ToString();
+    std::string dump = guid.toString();
     EXPECT_EQ(source, dump);
 }
 
 TEST(guid, compare) {
-    Guid guid = Guid::Create();
+    Guid guid = Guid::make();
 
-    const std::string source = guid.ToString();
+    const std::string source = guid.toString();
 
-    auto res = Guid::Parse(source);
+    auto res = Guid::parse(source);
     ASSERT_TRUE(res.is_some());
     Guid guid2 = res.unwrap_unchecked();
     EXPECT_EQ(guid, guid2);
@@ -75,9 +75,9 @@ TEST(guid, compare) {
 TEST(guid, hasing) {
     std::set<Guid> guids;
 
-    Guid guid = Guid::Create();
-    const std::string source = guid.ToString();
-    auto res = Guid::Parse(source);
+    Guid guid = Guid::make();
+    const std::string source = guid.toString();
+    auto res = Guid::parse(source);
     ASSERT_TRUE(res.is_some());
     Guid guid2 = res.unwrap_unchecked();
 

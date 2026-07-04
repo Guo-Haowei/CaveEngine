@@ -41,7 +41,7 @@ void TileMapInstanceComponent::createRenderData() {
     visible_ = tile_map->visible();
 
     // @TODO: update guid
-    if (cache_.tile_set_handle.guid() == Guid::Null()) {
+    if (cache_.tile_set_handle.guid() == Guid::null()) {
         auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(tile_map->tileSetGuid());
         if (tile_set_handle.is_some()) {
             cache_.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());

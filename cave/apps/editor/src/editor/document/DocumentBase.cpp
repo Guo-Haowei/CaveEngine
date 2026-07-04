@@ -3,6 +3,10 @@
 #include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
+
+#include "editor/EditorAssetManager.h"
 
 #define DEBUG_DOC IN_USE
 #if USING(DEBUG_DOC)
@@ -15,6 +19,7 @@ namespace cave {
 
 DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
     : asset_reg_(services.assetRegistry())
+    , asset_mgr_(static_cast<EditorAssetManager&>(services.assetManager()))
     , scene_reg_(services.sceneRegistry())
     , guid_(guid) {
 
@@ -103,11 +108,32 @@ void DocumentBase::trimUndoIfNeeded() {
 }
 
 bool DocumentBase::save() {
-    return asset_reg_.saveAsset(guid_);
+    bool ok = asset_reg_.saveAsset(guid_);
+    if (ok) {
+        asset_mgr_.onAssetSaved({
+            .reason = AssetChangeReason::Saved,
+            .revision = asset_reg_.revision(guid_),
+            .guid = guid_,
+        });
+    }
+    return ok;
 }
 
 bool DocumentBase::saveAs(std::string_view) {
     return false;
+}
+
+std::unique_ptr<Scene> DocumentBase::createPreviewScene() const {
+    return nullptr;
+}
+
+void DocumentBase::reloadPreviewScene() {
+    auto preview_scene = createPreviewScene();
+    if (preview_scene == nullptr) {
+        return;
+    }
+
+    scene_reg_.replaceScene(preview_scene_, std::move(preview_scene));
 }
 
 }  // namespace cave

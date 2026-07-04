@@ -29,16 +29,17 @@ public:
     void onDestroy() override;
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
-    void commitSceneChange() override {}
 
     ViewId viewId() const override { return view_id_; }
 
+private:
+    void commitSceneChange(std::string&&) override {}
+    void commitSceneReload() override;
+
 protected:
     void submitView(bool support_pie);
-
-    void updateRect(math::FloatRect& out_rect);
-
     void drawMainView(const math::FloatRect& rect);
+    void updateRect(math::FloatRect& out_rect);
 
     ViewManager& view_manager_;
     const ViewDimension dim_;

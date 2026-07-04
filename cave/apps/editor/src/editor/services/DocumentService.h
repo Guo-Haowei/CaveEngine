@@ -36,10 +36,10 @@ public:
 
     CloseRequestResult closeDoc(DocId doc_id);
 
-    bool isAlive(DocId doc_id) const { return Base::IsAlive(doc_id); }
+    bool isAlive(DocId doc_id) const { return Base::isAlive(doc_id); }
 
-    IDocument* resolve(DocId doc_id) { return Base::Resolve(doc_id); }
-    const IDocument* resolve(DocId doc_id) const { return Base::Resolve(doc_id); }
+    IDocument* resolve(DocId doc_id) { return Base::resolve(doc_id); }
+    const IDocument* resolve(DocId doc_id) const { return Base::resolve(doc_id); }
 
     bool save(DocId doc_id);
     bool save(const Guid& guid);

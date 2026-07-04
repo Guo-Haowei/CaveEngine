@@ -1391,10 +1391,10 @@ void D3d12GraphicsManager::OnWindowResize(int p_width, int p_height) {
 }
 
 void D3d12GraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
-    auto pipeline = reinterpret_cast<D3d12PipelineState*>(m_pipelineStateManager->Find(p_name));
+    auto pipeline = reinterpret_cast<D3d12PipelineState*>(m_pipelineStateManager->findPSO(p_name));
     DEV_ASSERT(pipeline);
 
-    auto primitive_topology = d3d::Convert(pipeline->desc.primitiveTopology);
+    auto primitive_topology = d3d::Convert(pipeline->desc.primitive_topology);
     m_graphicsCommandList->IASetPrimitiveTopology(primitive_topology);
 
     m_graphicsCommandList->SetPipelineState(pipeline->pso.Get());

@@ -88,7 +88,7 @@ auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
-    if (auto res = asset->LoadFromDisk(entry->metadata); !res) {
+    if (auto res = asset->loadFromDisk(entry->metadata); !res) {
         return CAVE_ERROR(res.error());
     }
     return asset;
@@ -125,7 +125,7 @@ Result<Guid> AssetManager::createAsset(AssetType type,
     }
 
     auto meta = std::move(_meta.unwrap_unchecked());
-    if (auto res = asset->SaveToDisk(meta); !res) {
+    if (auto res = asset->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -214,7 +214,7 @@ uint64_t AssetManager::submitLoadAsset(const AssetLoadRequest& request) {
 
             AssetRef asset = asset_manager_.loadAssetSync(guid_);
             if (!asset) {
-                ctx.Fail(std::format("LoadAssetSync failed for '{}'", guid_.ToString()));
+                ctx.Fail(std::format("LoadAssetSync failed for '{}'", guid_.toString()));
                 return;
             }
 
@@ -291,26 +291,13 @@ uint64_t AssetManager::submitImportScene(const SceneImportRequest& request) {
 
 AssetRef AssetManager::loadAssetSync(const Guid& guid) {
     DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
+    auto asset = loadAssetSyncHelper(guid);
 
-    Stopwatch stopwatch;
-    stopwatch.Start();
-    auto entry = services().assetRegistry().entry(guid);
-
-    auto res = LoadAsset(entry);
-    if (!res) {
-        entry->MarkFailed();
-        LOG_ERROR("Failed to load asset '{}', reason {}",
-                  entry->metadata.import_path,
-                  ToString(res.error()));
-        return nullptr;
-    }
-
-    AssetRef asset = *res;
     auto& device = services().renderDevice();
 
     // @TODO: based on render, create asset on work threads
     DEV_ASSERT(asset);
-    switch (asset->GetType()) {
+    switch (asset->type()) {
         case AssetType::Image: {
             auto image = std::dynamic_pointer_cast<ImageAsset>(asset);
             device.RequestTexture(image.get());
@@ -323,9 +310,39 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
             break;
     }
 
+    return asset;
+}
+
+AssetRef AssetManager::reloadAsset(const Guid& guid) {
+    return loadAssetSyncHelper(guid);
+}
+
+AssetRef AssetManager::loadAssetSyncHelper(const Guid& guid) {
+    Stopwatch stopwatch;
+    stopwatch.Start();
+    auto entry = services().assetRegistry().entry(guid);
+
+    auto res = LoadAsset(entry);
+    if (!res) {
+        entry->markFailed();
+        LOG_ERROR("Failed to load asset '{}', reason {}",
+                  entry->metadata.import_path,
+                  ToString(res.error()));
+        return nullptr;
+    }
+
+    AssetRef asset = *res;
+
     stopwatch.Stop();
-    LOG_TRACE(LogChannel::Asset, "Loaded {} {}", entry->metadata.import_path, stopwatch.Elapsed().ToString());
-    entry->MarkLoaded(asset);
+    entry->markLoaded(asset);
+    ++entry->revision;
+
+    // @TODO: emit event?
+    LOG_TRACE(LogChannel::Asset,
+              "Asset '{}' loaded. revision={} ({})",
+              entry->metadata.import_path,
+              entry->revision,
+              stopwatch.Elapsed().ToString());
     return asset;
 }
 

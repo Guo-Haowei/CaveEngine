@@ -68,8 +68,8 @@ void SpriteAnimationAsset::OnDeserialized() {
     }
 }
 
-auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& meta) const -> Result<void> {
-    auto res = meta.SaveToDisk(this);
+auto SpriteAnimationAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
+    auto res = meta.saveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -84,7 +84,7 @@ auto SpriteAnimationAsset::SaveToDisk(const AssetMetaData& meta) const -> Result
     return SaveYaml(meta.import_path, yaml);
 }
 
-auto SpriteAnimationAsset::LoadFromDisk(const AssetMetaData& meta) -> Result<void> {
+auto SpriteAnimationAsset::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YAML::Node root;
 
     if (auto res = LoadYaml(meta.import_path, root); !res) {

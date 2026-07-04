@@ -2,34 +2,34 @@
 
 namespace cave {
 
-void CommandRegistry::Register(CommandDesc p_cmd) {
-    for (const CommandDesc& cmd : m_cmds) {
-        if (cmd.name == p_cmd.name) {
-            LOG_ERROR("CommandRegistry::Register: command '{}' already registered", p_cmd.name);
+void CommandRegistry::registerCmd(CommandDesc&& cmd) {
+    for (const CommandDesc& desc : cmds_) {
+        if (desc.name == cmd.name) {
+            LOG_ERROR("CommandRegistry::Register: command '{}' already registered", cmd.name);
             return;
         }
     }
 
-    m_cmds.emplace_back(std::move(p_cmd));
+    cmds_.emplace_back(std::move(cmd));
 }
 
-const CommandDesc* CommandRegistry::Find(std::string_view p_name) const {
-    for (const CommandDesc& cmd : m_cmds) {
-        if (cmd.name == p_name) {
+const CommandDesc* CommandRegistry::findCmd(std::string_view name) const {
+    for (const CommandDesc& cmd : cmds_) {
+        if (cmd.name == name) {
             return &cmd;
         }
     }
     return nullptr;
 }
 
-std::span<const CommandDesc> CommandRegistry::Commands() const {
-    return m_cmds;
+std::span<const CommandDesc> CommandRegistry::allCommands() const {
+    return cmds_;
 }
 
-void CommandRegistry::FindByPrefix(std::string_view p_prefix, std::vector<std::string_view>& p_out) const {
-    for (const CommandDesc& cmd : m_cmds) {
-        if (cmd.name.starts_with(p_prefix)) {
-            p_out.push_back(cmd.name);
+void CommandRegistry::findByPrefix(std::string_view prefix, std::vector<std::string_view>& out) const {
+    for (const CommandDesc& cmd : cmds_) {
+        if (cmd.name.starts_with(prefix)) {
+            out.push_back(cmd.name);
         }
     }
 }

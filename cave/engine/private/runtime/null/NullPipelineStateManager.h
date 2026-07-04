@@ -11,12 +11,12 @@ public:
         : PipelineStateManager(Backend::Null) {}
 
 protected:
-    auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
+    auto graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
         unused(p_desc);
         return CAVE_ERROR(ErrorCode::FAILURE);
     }
 
-    auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
+    auto computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
         unused(p_desc);
         return CAVE_ERROR(ErrorCode::FAILURE);
     }

@@ -64,48 +64,5 @@ bool DvarCache::parse(std::span<const std::string_view> commands) {
     return ok;
 }
 
-void DvarCache::registerCmd(CommandRegistry& reg) {
-    reg.Register({
-        .name = "dvar.set",
-        .help = "List registered dvars.",
-        .usage = "Usage: dvar.set name [value]",
-        .fn = [](CommandContext& p_ctx, const CommandArgs& p_args) {
-            if (p_args.tokens.empty()) {
-                p_ctx.log.Error(LogChannel::Console, std::string(p_ctx.desc.usage));
-                return false;
-            }
-            std::span<const std::string_view> args = p_args.tokens.subspan(1);
-            DvarParser parser(args, DvarParser::Source::Console);
-
-            std::string err;
-            if (parser.ParseSetCmd(err)) return true;
-
-            p_ctx.log.Error(LogChannel::Console, std::move(err));
-            return false;
-        },
-    });
-    reg.Register({
-        .name = "dvar.dump",
-        .help = "Dump all registered dvars.",
-        .usage = "dvar.dump",
-        .fn = [](CommandContext& p_ctx, const CommandArgs&) {
-            std::string msg;
-            msg.reserve(512);
-            msg.append("Dvar:");
-            for (const auto& it : Dvar::s_map) {
-                msg.append(std::format(
-                    "\n -- {}, '{}', {}",
-                    it.first,
-                    it.second->ValueToString(),
-                    it.second->GetDesc()));
-            }
-            msg.push_back('\n');
-
-            p_ctx.log.Info(LogChannel::Console, std::move(msg));
-            return true;
-        },
-    });
-}
-
 }  // namespace cave
 #endif

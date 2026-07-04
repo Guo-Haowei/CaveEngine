@@ -52,7 +52,7 @@ void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {
     if (image) {
         Guid guid = image_handle_.guid();
         if (guid != image_guid_) {
-            LOG_INFO("TileSetAsset: GUID changed from {} to {}", image_guid_.ToString(), guid.ToString());
+            LOG_INFO("TileSetAsset: GUID changed from {} to {}", image_guid_.toString(), guid.toString());
             image_guid_ = guid;
         }
 
@@ -70,7 +70,7 @@ void TileSetAsset::setImage(const Guid& guid) {
     updateFrames();
 }
 
-std::vector<Guid> TileSetAsset::GetDependencies() const {
+std::vector<Guid> TileSetAsset::dependencies() const {
     return { image_guid_ };
 }
 
@@ -105,9 +105,9 @@ void TileSetAsset::updateFrames() {
     dirty_ = true;
 }
 
-auto TileSetAsset::SaveToDisk(const AssetMetaData& meta) const -> Result<void> {
+auto TileSetAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     // meta
-    auto res = meta.SaveToDisk(this);
+    auto res = meta.saveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -122,7 +122,7 @@ auto TileSetAsset::SaveToDisk(const AssetMetaData& meta) const -> Result<void> {
     return SaveYaml(meta.import_path, yaml);
 }
 
-auto TileSetAsset::LoadFromDisk(const AssetMetaData& meta) -> Result<void> {
+auto TileSetAsset::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YAML::Node root;
 
     if (auto res = LoadYaml(meta.import_path, root); !res) {

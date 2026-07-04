@@ -7,6 +7,7 @@ namespace cave {
 
 struct EngineServices;
 class AssetRegistry;
+class EditorAssetManager;
 class SceneRegistry;
 
 class DocumentBase : public IDocument {
@@ -39,9 +40,14 @@ public:
     bool save() override;
     bool saveAs(std::string_view) override;
 
+    Guid guid() const override { return guid_; }
+
     SceneId previewScene() const override {
         return preview_scene_;
     }
+
+    std::unique_ptr<Scene> createPreviewScene() const override;
+    void reloadPreviewScene() override;
 
 private:
     void touchDirtyAfterEdit() {
@@ -60,6 +66,7 @@ protected:
 
     SceneId preview_scene_{};
     AssetRegistry& asset_reg_;
+    EditorAssetManager& asset_mgr_;
     SceneRegistry& scene_reg_;
     Guid guid_;
 

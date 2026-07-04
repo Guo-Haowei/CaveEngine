@@ -71,10 +71,10 @@ public:
     bool dirty() const { return dirty_; }
     void dirty(bool dirty) { dirty_ = dirty; }
 
-    auto SaveToDisk(const AssetMetaData& meta) const -> Result<void> override;
-    auto LoadFromDisk(const AssetMetaData& meta) -> Result<void> override;
+    auto saveToDisk(const AssetMetaData& meta) const -> Result<void> override;
+    auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;
 
-    std::vector<Guid> GetDependencies() const override;
+    std::vector<Guid> dependencies() const override;
 
 private:
     void setHandle(Handle<ImageAsset>&& handle);

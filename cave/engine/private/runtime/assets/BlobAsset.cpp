@@ -10,7 +10,7 @@ void BlobAsset::SetBlob(std::vector<char>&& p_blob) {
     m_blob.push_back('\0');
 }
 
-Result<void> BlobAsset::LoadFromDisk(const AssetMetaData& p_meta) {
+Result<void> BlobAsset::loadFromDisk(const AssetMetaData& p_meta) {
     auto res = FileAccess::Open(p_meta.import_path, FileAccess::READ);
     if (!res) {
         return CAVE_ERROR(res.error());
@@ -30,11 +30,11 @@ Result<void> BlobAsset::LoadFromDisk(const AssetMetaData& p_meta) {
     return Result<void>();
 }
 
-Result<void> BlobAsset::SaveToDisk(const AssetMetaData& p_meta) const {
-    return p_meta.SaveToDisk(this);
+Result<void> BlobAsset::saveToDisk(const AssetMetaData& p_meta) const {
+    return p_meta.saveToDisk(this);
 }
 
-std::vector<Guid> BlobAsset::GetDependencies() const {
+std::vector<Guid> BlobAsset::dependencies() const {
     return {};
 }
 

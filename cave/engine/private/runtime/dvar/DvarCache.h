@@ -11,7 +11,6 @@ public:
     static void serialize(std::string_view path);
     static void deserialize(std::string_view path);
     static bool parse(std::span<const std::string_view> commands);
-    static void registerCmd(CommandRegistry& reg);
 };
 
 }  // namespace cave

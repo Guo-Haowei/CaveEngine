@@ -4,7 +4,7 @@
 #define OPENGL_HELPERS_INCLUDED
 
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/pipeline_state.h"
+#include "engine/private/render/rhi/PipelineState.h"
 #include "engine/private/renderer/sampler.h"
 #include "opengl_prerequisites.h"
 

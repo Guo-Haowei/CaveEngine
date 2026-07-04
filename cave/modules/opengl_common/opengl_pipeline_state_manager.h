@@ -18,8 +18,8 @@ public:
     explicit OpenGlPipelineStateManager() noexcept
         : PipelineStateManager(Backend::OpenGL) {}
 
-    auto CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
-    auto CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
+    auto graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
+    auto computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
 
 private:
     auto CreatePipelineImpl(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>>;

@@ -72,8 +72,8 @@ void Workspace::requestClose(DocId doc_id) {
 }
 
 void Workspace::drawTabs() {
-    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
-        auto& slot = m_slots[idx];
+    for (uint32_t idx = 0; idx < slots_.size(); ++idx) {
+        auto& slot = slots_[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
             TabId current_id = tab.tabId();
@@ -110,8 +110,8 @@ void Workspace::onEvents(const InputFrame& input) {
         return;
     }
 
-    for (size_t i = 0; i < m_slots.size(); ++i) {
-        Tab* tab = m_slots[i].storage.get();
+    for (size_t i = 0; i < slots_.size(); ++i) {
+        Tab* tab = slots_[i].storage.get();
         if (tab && tab->isHovered()) {
             tab->onInputEvents(input);
             break;
@@ -174,25 +174,30 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         } break;
     }
 
-    const TabId tab_id = Create(std::move(tab));
+    const TabId tab_id = create(std::move(tab));
 
-    Tab* tab_raw = (m_slots[tab_id.index].storage).get();
+    Tab* tab_raw = (slots_[tab_id.index].storage).get();
     tab_raw->tabId(tab_id);
     tab_raw->onCreate();
     request_focus_ = tab_id;
+
     doc_to_tab_[doc_id] = tab_id;
+    guid_to_tab_[doc->guid()] = tab_id;
 }
 
 bool Workspace::closeDoc(DocId doc_id) {
     auto it = doc_to_tab_.find(doc_id);
     DEV_ASSERT(it != doc_to_tab_.end());
+    IDocument* doc = editor_services_.document().resolve(doc_id);
+    Guid guid = doc ? doc->guid() : Guid::null();
 
     const TabId tab_id = it->second;
-    Tab* tab = Resolve(tab_id);
+    Tab* tab = resolve(tab_id);
     DEV_ASSERT(tab->docId() == doc_id);
     tab->onDestroy();
-    Destroy(tab_id);
-    doc_to_tab_.erase(doc_id);
+    destroy(tab_id);
+    doc_to_tab_.erase(it);
+    guid_to_tab_.erase(guid);
 
     editor_services_.document().closeDoc(doc_id);
     return true;
@@ -203,8 +208,8 @@ extern CloseDecision AskCloseUnsaved(const char* title);
 
 bool Workspace::onCloseRequested() {
     std::vector<DocId> unsaved;
-    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
-        auto& slot = m_slots[idx];
+    for (uint32_t idx = 0; idx < slots_.size(); ++idx) {
+        auto& slot = slots_[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
             DocId doc = tab.docId();
@@ -231,6 +236,17 @@ bool Workspace::onCloseRequested() {
         editor_services_.edit().save(doc);
     }
     return true;
+}
+
+void Workspace::onAssetChanged(const Guid&, std::span<const Guid> affected) {
+    for (const Guid& guid : affected) {
+        if (auto it = guid_to_tab_.find(guid); it != guid_to_tab_.end()) {
+            const TabId tab_id = it->second;
+            if (auto tab = dynamic_cast<ViewTabBase*>(resolve(tab_id))) {
+                tab->requestSceneReload();
+            }
+        }
+    }
 }
 
 }  // namespace cave

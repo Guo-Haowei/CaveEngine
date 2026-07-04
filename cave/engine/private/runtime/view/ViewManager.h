@@ -27,11 +27,11 @@ public:
     void submit(const ViewDesc& view_desc);
 
     ViewRecord* resolve(ViewId view_id) {
-        return Base::Resolve(view_id);
+        return Base::resolve(view_id);
     }
 
     const ViewRecord* resolve(ViewId view_id) const {
-        return Base::Resolve(view_id);
+        return Base::resolve(view_id);
     }
 
 private:

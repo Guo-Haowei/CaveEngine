@@ -25,7 +25,7 @@ void ProjectManager::loadProject(const ProjectInfo& project) {
     vfs_.Mount("@res", resource_folder);
 
     LOG_INFO(LogChannel::Asset, "+ @{}", resource_folder.string());
-    boot_load_pipeline_.RequestProject(resource_folder);
+    boot_load_pipeline_.requestProject(resource_folder);
 
     project_ = Some(project);
     renderer_.setMode(project.is_2d);

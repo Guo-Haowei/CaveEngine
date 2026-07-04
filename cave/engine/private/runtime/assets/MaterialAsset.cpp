@@ -10,19 +10,19 @@ const MaterialAsset* MaterialAsset::Default() {
     return &s_default;
 }
 
-std::vector<Guid> MaterialAsset::GetDependencies() const {
+std::vector<Guid> MaterialAsset::dependencies() const {
     std::vector<Guid> dependencies;
     dependencies.reserve(textures.size());
     for (const auto& guid : textures) {
-        if (!guid.IsNull()) {
+        if (!guid.isNull()) {
             dependencies.push_back(guid);
         }
     }
     return dependencies;
 }
 
-Result<void> MaterialAsset::SaveToDisk(const AssetMetaData& p_meta) const {
-    auto res = p_meta.SaveToDisk(this);
+Result<void> MaterialAsset::saveToDisk(const AssetMetaData& p_meta) const {
+    auto res = p_meta.saveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
@@ -37,7 +37,7 @@ Result<void> MaterialAsset::SaveToDisk(const AssetMetaData& p_meta) const {
     return SaveYaml(p_meta.import_path, yaml);
 }
 
-Result<void> MaterialAsset::LoadFromDisk(const AssetMetaData& p_meta) {
+Result<void> MaterialAsset::loadFromDisk(const AssetMetaData& p_meta) {
     YAML::Node root;
 
     if (auto res = LoadYaml(p_meta.import_path, root); !res) {

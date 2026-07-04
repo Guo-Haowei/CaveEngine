@@ -346,7 +346,7 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
         bound.expandToInclude(aabb);
     }
 
-    scene.bound_ = bound;
+    scene.setBound(bound);
 }
 
 void RunFacingUpdateSystem(Scene& scene, jobsystem::Context&, float) {

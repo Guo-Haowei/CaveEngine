@@ -93,6 +93,7 @@ private:
 
     inline static std::unordered_map<std::string, Dvar*> s_map;
     friend class DvarCache;
+    friend class RegisterCommands;
 };
 
 }  // namespace cave

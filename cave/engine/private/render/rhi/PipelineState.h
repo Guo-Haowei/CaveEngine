@@ -6,13 +6,13 @@ namespace cave {
 
 struct InputLayoutDesc {
     struct Element {
-        std::string semanticName;
-        uint32_t semanticIndex;
+        std::string semantic_name;
+        uint32_t semantic_index;
         PixelFormat format;
-        uint32_t inputSlot;
-        uint32_t alignedByteOffset;
-        InputClassification inputSlotClass;
-        uint32_t instanceDataStepRate;
+        uint32_t input_slot;
+        uint32_t aligned_byte_offset;
+        InputClassification input_slot_class;
+        uint32_t instance_data_step_rate;
     };
 
     std::vector<Element> elements;
@@ -70,20 +70,20 @@ struct PipelineStateDesc {
     std::string_view gs;
     std::string_view cs;
 
-    PrimitiveTopology primitiveTopology{ PrimitiveTopology::TRIANGLE };
-    const RasterizerDesc* rasterizerDesc{ nullptr };
-    const DepthStencilDesc* depthStencilDesc{ nullptr };
-    const InputLayoutDesc* inputLayoutDesc{ nullptr };
-    const BlendDesc* blendDesc{ nullptr };
+    PrimitiveTopology primitive_topology{ PrimitiveTopology::TRIANGLE };
+    const RasterizerDesc* rasterizer_desc{};
+    const DepthStencilDesc* depth_stencil_desc{};
+    const InputLayoutDesc* input_layout_desc{};
+    const BlendDesc* blend_desc{};
 
-    uint32_t numRenderTargets{ 0 };
-    PixelFormat rtvFormats[8];
-    PixelFormat dsvFormat;
+    uint32_t num_render_targets{ 0 };
+    PixelFormat rtv_formats[8]{};
+    PixelFormat dsv_format{};
 };
 
 struct PipelineState {
-    PipelineState(const PipelineStateDesc& p_desc)
-        : desc(p_desc) {}
+    PipelineState(const PipelineStateDesc& pso_desc)
+        : desc(pso_desc) {}
 
     virtual ~PipelineState() = default;
 
@@ -132,15 +132,15 @@ enum PipelineStateName : uint8_t {
         PSO_NAME_MAX,
 };
 
-static inline const char* EnumToString(PipelineStateName p_name) {
-    DEV_ASSERT_INDEX(p_name, PipelineStateName::PSO_NAME_MAX);
+static inline const char* EnumToString(PipelineStateName name) {
+    DEV_ASSERT_INDEX(name, PipelineStateName::PSO_NAME_MAX);
     static const char* s_table[] = {
 #define PSO_NAME(ENUM) #ENUM,
         PSO_NAME_LIST
 #undef PSO_NAME
     };
     static_assert(std::size(s_table) == std::to_underlying(PipelineStateName::PSO_NAME_MAX));
-    return s_table[p_name];
+    return s_table[name];
 }
 
 }  // namespace cave

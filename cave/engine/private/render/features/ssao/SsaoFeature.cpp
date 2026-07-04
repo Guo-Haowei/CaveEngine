@@ -9,7 +9,7 @@
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/core/base/random.h"
 #include "engine/private/renderer/sampler.h"
-#include "engine/private/renderer/pipeline_state.h"
+#include "engine/private/render/rhi/PipelineState.h"
 
 namespace cave {
 #include "shader_resource_defines.hlsl.h"

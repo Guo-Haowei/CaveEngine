@@ -1,11 +1,22 @@
 #pragma once
 #include "engine/private/runtime/assets/AssetManager.h"
+#include "editor/services/EditorServices.h"
 
 namespace cave {
 
 struct ContentEntry;
 struct ImageAsset;
 class FileWatcher;
+
+enum class AssetChangeReason : uint8_t {
+    Saved,
+};
+
+struct AssetChangedEvent {
+    AssetChangeReason reason;
+    uint64_t revision;
+    Guid guid;
+};
 
 class EditorAssetManager : public AssetManager {
 public:
@@ -19,12 +30,19 @@ public:
 
     std::shared_ptr<ImageAsset> findImage(const std::string& name);
 
+    void onAssetSaved(const AssetChangedEvent& event);
+
     const auto& assetRoot() const { return asset_root_; }
     const auto& folderLut() const { return folder_lut_; }
 
+    EditorServices& editorServices() { return *editor_services_; }
+    void setEditorServices(EditorServices* services) { editor_services_ = services; }
+
 protected:
     Result<void> addAlwaysLoadImages();
-    void rebuildAssetFolderTree();
+    void refreshAssetFolderTree();
+
+    EditorServices* editor_services_{};
 
     std::unordered_map<std::string, std::shared_ptr<ImageAsset>> images_;
     std::unique_ptr<FileWatcher> file_watcher_;

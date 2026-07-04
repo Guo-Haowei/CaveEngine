@@ -96,7 +96,7 @@ ISerializer& YamlSerializer::Write(const std::string& p_value) {
 }
 
 ISerializer& YamlSerializer::Write(const Guid& p_object) {
-    return Write(p_object.ToString());
+    return Write(p_object.toString());
 }
 
 auto SaveYaml(std::string_view p_path, YamlSerializer& p_serializer) -> Result<void> {

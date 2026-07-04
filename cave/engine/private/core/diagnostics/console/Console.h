@@ -12,7 +12,7 @@ public:
     void SubmitLine(std::string_view p_line);
 
     void FindByPrefix(std::string_view p_prefix, std::vector<std::string_view>& p_out) const {
-        m_reg.FindByPrefix(p_prefix, p_out);
+        m_reg.findByPrefix(p_prefix, p_out);
     }
 
     Option<std::string_view> Prev();

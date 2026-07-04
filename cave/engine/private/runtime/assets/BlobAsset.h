@@ -18,11 +18,11 @@ public:
 
     const char* c_str() const { return m_blob.data() ? m_blob.data() : ""; }
 
-    Result<void> LoadFromDisk(const AssetMetaData&) override;
+    Result<void> loadFromDisk(const AssetMetaData&) override;
 
-    Result<void> SaveToDisk(const AssetMetaData&) const override;
+    Result<void> saveToDisk(const AssetMetaData&) const override;
 
-    std::vector<Guid> GetDependencies() const override;
+    std::vector<Guid> dependencies() const override;
 };
 
 }  // namespace cave
