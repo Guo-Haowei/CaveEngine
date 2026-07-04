@@ -1,4 +1,4 @@
-#include "engine/private/runtime/dvar/DvarBegin.h"
+#include "engine/private/core/variant/DvarBegin.h"
 
 DVAR_BOOL(show_editor, DVAR_FLAG_CACHE, "Show editor", true);
 
@@ -10,4 +10,4 @@ DVAR_STRING(last_opened_project, DVAR_FLAG_CACHE, "Last opened project path", ""
 
 DVAR_BOOL(auto_open_last_project, DVAR_FLAG_NONE, "Automatically open last selected project", false);
 
-#include "engine/private/runtime/dvar/DvarEnd.h"
+#include "engine/private/core/variant/DvarEnd.h"

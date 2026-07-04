@@ -86,60 +86,60 @@ void Dvar::RegisterVector4i(std::string_view p_key, int p_x, int p_y, int p_z, i
 }
 
 int Dvar::AsInt() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_INT);
+    DEV_ASSERT(m_type == VariantType::Int);
     return m_int;
 }
 
 float Dvar::AsFloat() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_FLOAT);
+    DEV_ASSERT(m_type == VariantType::Float);
     return m_float;
 }
 
 const std::string& Dvar::AsString() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_STRING);
+    DEV_ASSERT(m_type == VariantType::String);
     return m_string;
 }
 
 Vec2f Dvar::asVec2f() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_VEC2);
+    DEV_ASSERT(m_type == VariantType::Vec2f);
     return Vec2f(m_vec.x, m_vec.y);
 }
 
 Vec3f Dvar::asVec3f() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_VEC3);
+    DEV_ASSERT(m_type == VariantType::Vec3f);
     return Vec3f(m_vec.x, m_vec.y, m_vec.z);
 }
 
 Vec4f Dvar::asVec4f() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_VEC4);
+    DEV_ASSERT(m_type == VariantType::Vec4f);
     return m_vec;
 }
 
 Vec2i Dvar::asVec2i() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_IVEC2);
+    DEV_ASSERT(m_type == VariantType::Vec2i);
     return Vec2i(m_ivec.x, m_ivec.y);
 }
 
 Vec3i Dvar::asVec3i() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_IVEC3);
+    DEV_ASSERT(m_type == VariantType::Vec3i);
     return Vec3i(m_ivec.x, m_ivec.y, m_ivec.z);
 }
 
 Vec4i Dvar::asVec4i() const {
-    DEV_ASSERT(m_type == VARIANT_TYPE_IVEC4);
+    DEV_ASSERT(m_type == VariantType::Vec4i);
     return m_ivec;
 }
 
 void* Dvar::AsPointer() {
     switch (m_type) {
-        case VARIANT_TYPE_INT:
-        case VARIANT_TYPE_FLOAT:
-        case VARIANT_TYPE_VEC2:
-        case VARIANT_TYPE_VEC3:
-        case VARIANT_TYPE_VEC4:
-        case VARIANT_TYPE_IVEC2:
-        case VARIANT_TYPE_IVEC3:
-        case VARIANT_TYPE_IVEC4:
+        case VariantType::Int:
+        case VariantType::Float:
+        case VariantType::Vec2f:
+        case VariantType::Vec3f:
+        case VariantType::Vec4f:
+        case VariantType::Vec2i:
+        case VariantType::Vec3i:
+        case VariantType::Vec4i:
             return &m_int;
         default:
             CRASH_NOW();
@@ -148,38 +148,38 @@ void* Dvar::AsPointer() {
 }
 
 bool Dvar::SetInt(int p_value) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_INT, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Int, false);
     m_int = p_value;
     return true;
 }
 
 bool Dvar::SetFloat(float p_value) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_FLOAT, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Float, false);
     m_float = p_value;
     return true;
 }
 
 bool Dvar::SetString(const std::string& p_value) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_STRING, false);
+    ERR_FAIL_COND_V(m_type != VariantType::String, false);
     m_string = p_value;
     return true;
 }
 
 bool Dvar::SetString(std::string_view p_value) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_STRING, false);
+    ERR_FAIL_COND_V(m_type != VariantType::String, false);
     m_string = p_value;
     return true;
 }
 
 bool Dvar::SetVector2f(float p_x, float p_y) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_VEC2, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Vec2f, false);
     m_vec.x = p_x;
     m_vec.y = p_y;
     return true;
 }
 
 bool Dvar::SetVector3f(float p_x, float p_y, float p_z) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_VEC3, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Vec3f, false);
     m_vec.x = p_x;
     m_vec.y = p_y;
     m_vec.z = p_z;
@@ -187,7 +187,7 @@ bool Dvar::SetVector3f(float p_x, float p_y, float p_z) {
 }
 
 bool Dvar::SetVector4f(float p_x, float p_y, float p_z, float p_w) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_VEC4, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Vec4f, false);
     m_vec.x = p_x;
     m_vec.y = p_y;
     m_vec.z = p_z;
@@ -196,14 +196,14 @@ bool Dvar::SetVector4f(float p_x, float p_y, float p_z, float p_w) {
 }
 
 bool Dvar::SetVector2i(int p_x, int p_y) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_IVEC2, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Vec2i, false);
     m_ivec.x = p_x;
     m_ivec.y = p_y;
     return true;
 }
 
 bool Dvar::SetVector3i(int p_x, int p_y, int p_z) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_IVEC3, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Vec3i, false);
     m_ivec.x = p_x;
     m_ivec.y = p_y;
     m_ivec.z = p_z;
@@ -211,7 +211,7 @@ bool Dvar::SetVector3i(int p_x, int p_y, int p_z) {
 }
 
 bool Dvar::SetVector4i(int p_x, int p_y, int p_z, int p_w) {
-    ERR_FAIL_COND_V(m_type != VARIANT_TYPE_IVEC4, false);
+    ERR_FAIL_COND_V(m_type != VariantType::Vec4i, false);
     m_ivec.x = p_x;
     m_ivec.y = p_y;
     m_ivec.z = p_z;
@@ -221,23 +221,23 @@ bool Dvar::SetVector4i(int p_x, int p_y, int p_z, int p_w) {
 
 std::string Dvar::ValueToString() const {
     switch (m_type) {
-        case VARIANT_TYPE_INT:
+        case VariantType::Int:
             return std::format("{}", m_int);
-        case VARIANT_TYPE_FLOAT:
+        case VariantType::Float:
             return std::format("{}", m_float);
-        case VARIANT_TYPE_STRING:
+        case VariantType::String:
             return std::format("\"{}\"", m_string);
-        case VARIANT_TYPE_VEC2:
+        case VariantType::Vec2f:
             return std::format("{} {}", m_vec.x, m_vec.y);
-        case VARIANT_TYPE_IVEC2:
+        case VariantType::Vec2i:
             return std::format("{} {}", m_ivec.x, m_ivec.y);
-        case VARIANT_TYPE_VEC3:
+        case VariantType::Vec3f:
             return std::format("{} {} {}", m_vec.x, m_vec.y, m_vec.z);
-        case VARIANT_TYPE_IVEC3:
+        case VariantType::Vec3i:
             return std::format("{} {} {}", m_ivec.x, m_ivec.y, m_ivec.z);
-        case VARIANT_TYPE_VEC4:
+        case VariantType::Vec4f:
             return std::format("{} {} {} {}", m_vec.x, m_vec.y, m_vec.z, m_vec.w);
-        case VARIANT_TYPE_IVEC4:
+        case VariantType::Vec4i:
             return std::format("{} {} {} {}", m_ivec.x, m_ivec.y, m_ivec.z, m_ivec.w);
         default:
             CRASH_NOW();

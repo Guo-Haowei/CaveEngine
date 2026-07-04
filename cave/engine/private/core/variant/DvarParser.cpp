@@ -51,32 +51,32 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
     size_t arg_start_index = m_cursor;
     const bool overriden = dvar->GetFlags() & DVAR_FLAG_OVERRIDEN;
     switch (type) {
-        case VARIANT_TYPE_INT: {
+        case VariantType::Int: {
             ok = ok && TryGetInt(ix);
             if (!overriden) {
                 ok = ok && dvar->SetInt(ix);
             }
         } break;
-        case VARIANT_TYPE_FLOAT: {
+        case VariantType::Float: {
             ok = ok && TryGetFloat(fx);
             if (!overriden) {
                 ok = ok && dvar->SetFloat(fx);
             }
         } break;
-        case VARIANT_TYPE_STRING: {
+        case VariantType::String: {
             ok = ok && TryGetString(str);
             if (!overriden) {
                 ok = ok && dvar->SetString(str);
             }
         } break;
-        case VARIANT_TYPE_VEC2: {
+        case VariantType::Vec2f: {
             ok = ok && TryGetFloat(fx);
             ok = ok && TryGetFloat(fy);
             if (!overriden) {
                 ok = ok && dvar->SetVector2f(fx, fy);
             }
         } break;
-        case VARIANT_TYPE_VEC3: {
+        case VariantType::Vec3f: {
             ok = ok && TryGetFloat(fx);
             ok = ok && TryGetFloat(fy);
             ok = ok && TryGetFloat(fz);
@@ -84,7 +84,7 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
                 ok = ok && dvar->SetVector3f(fx, fy, fz);
             }
         } break;
-        case VARIANT_TYPE_VEC4: {
+        case VariantType::Vec4f: {
             ok = ok && TryGetFloat(fx);
             ok = ok && TryGetFloat(fy);
             ok = ok && TryGetFloat(fz);
@@ -93,14 +93,14 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
                 ok = ok && dvar->SetVector4f(fx, fy, fz, fw);
             }
         } break;
-        case VARIANT_TYPE_IVEC2: {
+        case VariantType::Vec2i: {
             ok = ok && TryGetInt(ix);
             ok = ok && TryGetInt(iy);
             if (!overriden) {
                 ok = ok && dvar->SetVector2i(ix, iy);
             }
         } break;
-        case VARIANT_TYPE_IVEC3: {
+        case VariantType::Vec3i: {
             ok = ok && TryGetInt(ix);
             ok = ok && TryGetInt(iy);
             ok = ok && TryGetInt(iz);
@@ -108,7 +108,7 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
                 ok = ok && dvar->SetVector3i(ix, iy, iz);
             }
         } break;
-        case VARIANT_TYPE_IVEC4: {
+        case VariantType::Vec4i: {
             ok = ok && TryGetInt(ix);
             ok = ok && TryGetInt(iy);
             ok = ok && TryGetInt(iz);

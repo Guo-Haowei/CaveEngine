@@ -4,10 +4,10 @@
 
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/diagnostics/ILogSink.h"
+#include "cave/core/string/StringUtils.h"
 
 #include "engine/private/core/io/archive.h"
-#include "cave/core/string/StringUtils.h"
-#include "engine/private/runtime/dvar/DvarParser.h"
+#include "engine/private/core/variant/DvarParser.h"
 
 namespace cave {
 

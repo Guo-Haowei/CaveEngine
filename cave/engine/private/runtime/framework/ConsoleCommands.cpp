@@ -3,7 +3,7 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/render/renderer/Renderer.h"
-#include "engine/private/runtime/dvar/DvarParser.h"
+#include "engine/private/core/variant/DvarParser.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 

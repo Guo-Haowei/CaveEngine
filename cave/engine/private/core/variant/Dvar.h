@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/variant/Variant.h"
 
 #define ENABLE_DVAR USE_IF(!USING(PLATFORM_WASM))
 
@@ -7,27 +7,13 @@
 // clang-format off
 enum DvarFlags : uint32_t {
     DVAR_FLAG_NONE      = 0,
-    DVAR_FLAG_CACHE     = BIT(0),
-    DVAR_FLAG_OVERRIDEN = BIT(1),
+    DVAR_FLAG_CACHE     = 1,
+    DVAR_FLAG_OVERRIDEN = 2,
 };
 // clang-format on
 DEFINE_ENUM_BITWISE_OPERATIONS(DvarFlags);
 
 namespace cave {
-
-enum VariantType {
-    VARIANT_TYPE_INVALID = 0,
-    VARIANT_TYPE_INT,
-    VARIANT_TYPE_FLOAT,
-    VARIANT_TYPE_STRING,
-    VARIANT_TYPE_VEC2,
-    VARIANT_TYPE_VEC3,
-    VARIANT_TYPE_VEC4,
-    VARIANT_TYPE_IVEC2,
-    VARIANT_TYPE_IVEC3,
-    VARIANT_TYPE_IVEC4,
-    VARIANT_TYPE_MAX,
-};
 
 class Dvar {
 public:

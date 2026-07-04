@@ -1,4 +1,4 @@
-#include "engine/private/runtime/dvar/DvarBegin.h"
+#include "engine/private/core/variant/DvarBegin.h"
 
 DVAR_INT(test_int, DVAR_FLAG_NONE, "", 100);
 DVAR_FLOAT(test_float, DVAR_FLAG_NONE, "", 2.3f);
@@ -10,4 +10,4 @@ DVAR_IVEC2(test_ivec2, DVAR_FLAG_NONE, "", 1, 2);
 DVAR_IVEC3(test_ivec3, DVAR_FLAG_NONE, "", 1, 2, 3);
 DVAR_IVEC4(test_ivec4, DVAR_FLAG_NONE, "", 1, 2, 3, 4);
 
-#include "engine/private/runtime/dvar/DvarEnd.h"
+#include "engine/private/core/variant/DvarEnd.h"

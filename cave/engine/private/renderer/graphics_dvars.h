@@ -1,4 +1,4 @@
-#include "engine/private/runtime/dvar/DvarBegin.h"
+#include "engine/private/core/variant/DvarBegin.h"
 
 // @TODO: Dvar List
 // @TODO: Dvar Enum
@@ -37,4 +37,4 @@ DVAR_INT(gfx_shadow_res, DVAR_FLAG_NONE, "Shadow resolution", 1024 * 2);
 // Bloom
 DVAR_FLOAT(gfx_bloom_threshold, DVAR_FLAG_NONE, "", 1.3f);
 
-#include "engine/private/runtime/dvar/DvarEnd.h"
+#include "engine/private/core/variant/DvarEnd.h"
