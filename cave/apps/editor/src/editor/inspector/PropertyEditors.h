@@ -107,8 +107,7 @@ static void DrawComponent(const std::string& p_name,
 
 bool DrawAsset(const DrawComponentCtx& ctx,
                const char* name,
-               const Guid& guid,
-               std::function<bool(const AssetMetaData&)>&& callback = nullptr);
+               Guid& guid);
 
 bool DrawVariantMap(const char* label, VariantMap& map);
 

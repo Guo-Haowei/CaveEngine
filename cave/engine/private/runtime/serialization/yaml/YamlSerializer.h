@@ -28,6 +28,7 @@ public:
     ISerializer& write(const bool& value) override;
     ISerializer& write(const float& value) override;
     ISerializer& write(const char* value) override;
+    ISerializer& write(std::string_view value) override;
     ISerializer& write(const std::string& value) override;
 
     ISerializer& write(const int8_t& value) override;

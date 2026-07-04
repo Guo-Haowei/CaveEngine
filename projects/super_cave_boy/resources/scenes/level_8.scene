@@ -1,5 +1,5 @@
 version: 19
-seed: 2
+seed: 7
 root: 1
 entities:
   - id: 1
@@ -19,5 +19,64 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapInstanceComponent:
-      tile_map_id: 00000000-0000-0000-0000000000000000
+      tile_map_id: FD6F7481-5751-A04A-91D221E2CD687683
       tint_color: [1, 1, 1, 1]
+  - id: 3
+    NameComponent:
+      name: player-01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
+    PrefabOverride:
+      TransformComponent:
+        translation: [2.5, 5, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 4
+    NameComponent:
+      name: camera
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 4]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    CameraComponent:
+      flags: 0
+      projection: orthographic
+      fovy: 60
+      near: 0.100000001
+      far: 1000
+      aspect: 1.77999997
+      ortho_height: 10
+    NativeScriptComponent:
+      name: CameraController
+      params:
+        {}
+  - id: 7
+    NameComponent:
+      name: exit
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
+    PrefabOverride:
+      TransformComponent:
+        translation: [35.5, 2.5, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+      NativeScriptComponent:
+        name: ExitTrigger
+        params:
+          level:
+            type: string
+            value: level_9

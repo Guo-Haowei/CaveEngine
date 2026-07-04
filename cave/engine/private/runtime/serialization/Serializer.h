@@ -40,6 +40,7 @@ public:
     virtual ISerializer& write(const bool& value) = 0;
     virtual ISerializer& write(const float& value) = 0;
     virtual ISerializer& write(const char* value) = 0;
+    virtual ISerializer& write(std::string_view value) = 0;
     virtual ISerializer& write(const std::string& value) = 0;
 
     virtual ISerializer& write(const int8_t& value) = 0;

@@ -48,26 +48,6 @@ concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
     { t.SetResourceGuid(guid) } -> std::same_as<bool>;
 };
 
-// @TODO: make this an undoable command instead
-template<typename T>
-bool DrawAsset(const DrawComponentCtx& ctx,
-               const char* name,
-               const Guid& guid,
-               T* component) {
-    if constexpr (HasSetResourceGuid<T>) {
-        return DrawAsset(ctx, name, guid, [&](const AssetMetaData& meta) {
-            if (auto _handle = DragDropTarget(meta.type); _handle.is_some()) {
-                if (component) {
-                    return component->SetResourceGuid(_handle.unwrap_unchecked().guid());
-                }
-            }
-            return false;
-        });
-    } else {
-        return DrawAsset(ctx, name, guid);
-    }
-};
-
 bool DrawPropertyAuto(const FieldMetaBase* property,
                       void* component,
                       const DrawComponentCtx& ctx) {
@@ -160,8 +140,11 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             return true;
         } break;
         case EditorHint::Asset: {
-            const Guid& guid = property->template GetData<Guid>(component);
-            return DrawAsset(ctx, property->name, guid, component);
+            return EditAndSubmit<Guid>(
+                ctx, component, property,
+                [&ctx](const char* label, Guid& guid) {
+                    return DrawAsset(ctx, label, guid);
+                });
         } break;
         case EditorHint::VariantMap: {
             return EditAndSubmit<VariantMap>(
@@ -318,6 +301,7 @@ void PropertyPanel::drawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Native Script"), native_script, [&](NativeScriptComponent& script) {
+        // @TODO: fix this
         FixedString<32>& name = script.name;
         ui::TextBox("class_name", name.data(), name.capacity(), false);
 
@@ -325,14 +309,7 @@ void PropertyPanel::drawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent& prefab) {
-        const Guid old_guid = prefab.prefabGuid();
         DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
-        const Guid new_guid = prefab.prefabGuid();
-
-        // @NOTE: can only instantiate once
-        if (old_guid.isNull() && !new_guid.isNull()) {
-            scene.instantiatePrefab(prefab, id);
-        }
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& collider) {

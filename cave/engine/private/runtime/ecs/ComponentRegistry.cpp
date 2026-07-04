@@ -56,45 +56,79 @@ ComponentMeta& ComponentRegistry::GetMut(ComponentId p_id) {
     return m_table[p_id];
 }
 
-static void Transform_OnEdited(Scene& scene,
-                               ecs::Entity ent,
-                               ComponentId,
-                               const PropertyId&,
-                               const void*,
-                               uint32_t) {
-    auto* t = (TransformComponent*)scene.storage().getRaw(TransformComponent_Id, ent);
-    if (DEV_VERIFY(t)) {
-        t->setDirty();
+namespace {
+
+void Transform_OnEdited(Scene& scene,
+                        ecs::Entity ent,
+                        ComponentId,
+                        const PropertyId&,
+                        const void*,
+                        uint32_t) {
+    auto* c = (TransformComponent*)scene.storage().getRaw(TransformComponent_Id, ent);
+    if (DEV_VERIFY(c)) {
+        c->setDirty();
     }
 }
 
-static void MeshRenderer_OnEdited(Scene& scene,
-                                  ecs::Entity ent,
-                                  ComponentId,
-                                  const PropertyId& pid,
-                                  const void*,
-                                  uint32_t) {
+void MeshRenderer_OnEdited(Scene& scene,
+                           ecs::Entity ent,
+                           ComponentId,
+                           const PropertyId& pid,
+                           const void*,
+                           uint32_t) {
     if (pid == "mesh_id"_sid) {
-        auto* mesh = (MeshRendererComponent*)scene.storage().getRaw(MeshRendererComponent_Id, ent);
-        if (DEV_VERIFY(mesh)) {
-            mesh->OnDeserialized();
+        auto* c = (MeshRendererComponent*)scene.storage().getRaw(MeshRendererComponent_Id, ent);
+        if (DEV_VERIFY(c)) {
+            c->OnDeserialized();
         }
     }
 }
 
-static void Materail_OnEdited(Scene& scene,
+void Materail_OnEdited(Scene& scene,
+                       ecs::Entity ent,
+                       ComponentId,
+                       const PropertyId& pid,
+                       const void*,
+                       uint32_t) {
+    if (pid == "material_id"_sid) {
+        auto* c = (MaterialComponent*)scene.storage().getRaw(MaterialComponent_Id, ent);
+        if (DEV_VERIFY(c)) {
+            c->OnDeserialized();
+        }
+    }
+}
+
+void TileMapInstance_OnEdited(Scene& scene,
                               ecs::Entity ent,
                               ComponentId,
                               const PropertyId& pid,
                               const void*,
                               uint32_t) {
-    if (pid == "material_id"_sid) {
-        auto* m = (MaterialComponent*)scene.storage().getRaw(MaterialComponent_Id, ent);
-        if (DEV_VERIFY(m)) {
-            m->OnDeserialized();
+    if (pid == "tile_map_id"_sid) {
+        auto* c = (TileMapInstanceComponent*)scene.storage().getRaw(TileMapInstanceComponent_Id, ent);
+        if (DEV_VERIFY(c)) {
+            c->OnDeserialized();
         }
     }
 }
+
+void PrefabInstance_OnEdited(Scene& scene,
+                             ecs::Entity ent,
+                             ComponentId,
+                             const PropertyId& pid,
+                             const void* data,
+                             uint32_t) {
+    if (pid == "prefab_id"_sid) {
+        auto* c = (PrefabInstanceComponent*)scene.storage().getRaw(PrefabInstanceComponent_Id, ent);
+        if (DEV_VERIFY(c)) {
+            const Guid* guid = (const Guid*)data;
+            unused(guid);
+            scene.instantiatePrefab(*c, ent);
+        }
+    }
+}
+
+}  // namespace
 
 void ComponentRegistry::Builtin(ComponentRegistry& out) {
 #define REGISTER_COMPONENT(T, ...)              \
@@ -110,18 +144,11 @@ void ComponentRegistry::Builtin(ComponentRegistry& out) {
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-    {
-        ecs::ComponentMeta& meta = out.GetMut(TransformComponent_Id);
-        meta.on_edited = Transform_OnEdited;
-    }
-    {
-        ecs::ComponentMeta& meta = out.GetMut(MeshRendererComponent_Id);
-        meta.on_edited = MeshRenderer_OnEdited;
-    }
-    {
-        ecs::ComponentMeta& meta = out.GetMut(MaterialComponent_Id);
-        meta.on_edited = Materail_OnEdited;
-    }
+    out.GetMut(TransformComponent_Id).on_edited = Transform_OnEdited;
+    out.GetMut(MeshRendererComponent_Id).on_edited = MeshRenderer_OnEdited;
+    out.GetMut(MaterialComponent_Id).on_edited = Materail_OnEdited;
+    out.GetMut(TileMapInstanceComponent_Id).on_edited = TileMapInstance_OnEdited;
+    out.GetMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
 }
 
 }  // namespace cave::ecs

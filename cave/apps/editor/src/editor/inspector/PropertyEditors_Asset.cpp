@@ -12,12 +12,10 @@ namespace cave {
 
 bool DrawAsset(const DrawComponentCtx& ctx,
                const char* name,
-               const Guid& guid,
-               std::function<bool(const AssetMetaData&)>&& callback) {
+               Guid& guid) {
     auto handle_ = ctx.services.assetRegistry().findByGuid(guid);
 
     const AssetMetaData* meta = nullptr;
-    const IAsset* asset = nullptr;
 
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, ui::kDefaultColumnWidth);
@@ -28,7 +26,6 @@ bool DrawAsset(const DrawComponentCtx& ctx,
         AssetHandle handle = handle_.unwrap_unchecked();
         meta = handle.meta();
         DEV_ASSERT(meta);
-        asset = handle.get();
     }
 
     ImGui::Text(" %s ", meta ? meta->name.c_str() : "not set");
@@ -36,8 +33,9 @@ bool DrawAsset(const DrawComponentCtx& ctx,
     const bool hovered = ImGui::IsItemHovered();
 
     bool dirty = false;
-    if (callback) {
-        dirty = callback(*meta);
+    if (auto _handle = DragDropTarget(meta ? meta->type : AssetType::All); _handle.is_some()) {
+        dirty = true;
+        guid = _handle.unwrap_unchecked().guid();
     }
 
     ImGui::Columns(1);

@@ -23,6 +23,9 @@ bool TileMapInstanceComponent::SetResourceGuid(const Guid& guid) {
 }
 
 void TileMapInstanceComponent::OnDeserialized() {
+    if (tile_map_id_.isNull()) {
+        return;
+    }
     auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(tile_map_id_);
     handle_ = std::move(res.unwrap());
 }

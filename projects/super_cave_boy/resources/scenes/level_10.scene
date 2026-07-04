@@ -40,7 +40,7 @@ entities:
         scale: [1, 1, 1]
   - id: 6
     NameComponent:
-      name: game_camera
+      name: camera
     HierarchyComponent:
       parent_id: 1
     TransformComponent:

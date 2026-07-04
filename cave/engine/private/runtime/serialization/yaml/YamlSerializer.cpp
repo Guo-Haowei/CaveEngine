@@ -90,6 +90,11 @@ ISerializer& YamlSerializer::write(const char* value) {
     return *this;
 }
 
+ISerializer& YamlSerializer::write(std::string_view value) {
+    out_ << value.data();
+    return *this;
+}
+
 ISerializer& YamlSerializer::write(const std::string& value) {
     out_ << value;
     return *this;
