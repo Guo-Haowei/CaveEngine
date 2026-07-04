@@ -38,8 +38,8 @@ class MockPool : public ComponentPool<T> {
 public:
     void Add(Entity p_ent, const T& p_component) {
         const size_t index = ComponentPool<T>::component_array_.size();
-        ComponentPool<T>::m_lookup[p_ent] = index;
-        ComponentPool<T>::m_entity_array.emplace_back(p_ent);
+        ComponentPool<T>::lookup_[p_ent] = index;
+        ComponentPool<T>::entity_array_.emplace_back(p_ent);
         ComponentPool<T>::component_array_.emplace_back(p_component);
     }
 };
