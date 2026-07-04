@@ -6,9 +6,6 @@ namespace cave {
 
 using namespace ::cave::math;
 
-Variant::Variant(VariantType type)
-    : type_(type), ivec_{ 0 } {}
-
 Variant::Variant(bool value)
     : type_(VariantType::Int), int_(value ? 1 : 0) {}
 
@@ -124,6 +121,7 @@ void* Variant::asPointer() {
     }
 }
 
+// @TODO: serializer?
 std::string Variant::toString() const {
     switch (type()) {
         case VariantType::Int:
@@ -147,6 +145,31 @@ std::string Variant::toString() const {
         default:
             CRASH_NOW();
             return std::string{};
+    }
+}
+
+Variant Variant::makeDefault(VariantType type) {
+    switch (type) {
+        case VariantType::Int:
+            return Variant(0);
+        case VariantType::Float:
+            return Variant(0.0f);
+        case VariantType::String:
+            return Variant("");
+        case VariantType::Vec2f:
+            return Variant(math::Vec2f::Zero);
+        case VariantType::Vec3f:
+            return Variant(math::Vec3f::Zero);
+        case VariantType::Vec4f:
+            return Variant(math::Vec4f::Zero);
+        case VariantType::Vec2i:
+            return Variant(math::Vec2i::Zero);
+        case VariantType::Vec3i:
+            return Variant(math::Vec3i::Zero);
+        case VariantType::Vec4i:
+            return Variant(math::Vec4i::Zero);
+        default:
+            return Variant();
     }
 }
 

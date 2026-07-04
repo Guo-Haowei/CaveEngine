@@ -7,7 +7,9 @@ namespace cave {
 using namespace cave::math;
 
 Dvar::Dvar(VariantType type, DvarFlags flags, const char* desc)
-    : variant_(type), m_desc(desc), flags_(flags) {
+    : variant_(Variant::makeDefault(type))
+    , desc_(desc)
+    , flags_(flags) {
 }
 
 void Dvar::registerInt(std::string_view key, int value) {

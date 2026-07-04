@@ -52,6 +52,8 @@ entities:
       ortho_height: 10
     NativeScriptComponent:
       name: CameraController
+      params:
+        {}
   - id: 15
     NameComponent:
       name: snake-01

@@ -38,7 +38,6 @@ DECLARE_ENUM_TRAITS(VariantType,
 class Variant {
 public:
     Variant() = default;
-    Variant(VariantType type);
 
     Variant(bool value);
     Variant(int value);
@@ -71,6 +70,8 @@ public:
     void* asPointer();
 
     std::string toString() const;
+
+    static Variant makeDefault(VariantType type);
 
 private:
     VariantType type_{};

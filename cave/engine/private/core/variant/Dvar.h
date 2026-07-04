@@ -47,7 +47,7 @@ public:
     const Variant& variant() const { return variant_; }
 
     VariantType type() const { return variant_.type(); }
-    const char* desc() const { return m_desc; }
+    const char* desc() const { return desc_; }
     uint32_t flags() const { return flags_; }
 
     static Dvar* findDvar(const std::string& name);
@@ -56,7 +56,7 @@ public:
 private:
     Variant variant_;
 
-    const char* m_desc;
+    const char* desc_;
     DvarFlags flags_;
 
     std::string name_;
