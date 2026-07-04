@@ -13,66 +13,76 @@ class GenIdRegistry {
 public:
     using IdT = GenId<T>;
 
-    IdT Create(std::unique_ptr<T>&& p_data) {
-        IdT id = Alloc();
-        Slot& slot = m_slots[id.index];
+    IdT create(std::unique_ptr<T>&& data) {
+        IdT id = allocate();
+        Slot& slot = slots_[id.index];
         DEV_ASSERT(slot.storage == nullptr);
-        slot.storage = std::move(p_data);
+        slot.storage = std::move(data);
         return id;
     }
 
-    void Destroy(IdT p_id) {
-        if (!IsAlive(p_id)) {
+    void destroy(IdT id) {
+        if (!isAlive(id)) {
             return;
         }
-        Free(p_id);
+        free(id);
     }
 
-    T* Resolve(IdT p_id) {
-        return IsAlive(p_id) ? m_slots[p_id.index].storage.get() : nullptr;
-    }
-
-    const T* Resolve(IdT p_id) const {
-        return IsAlive(p_id) ? m_slots[p_id.index].storage.get() : nullptr;
-    }
-
-    bool IsAlive(IdT p_id) const {
-        if (p_id.index >= static_cast<uint32_t>(m_slots.size())) {
+    bool replace(IdT id, std::unique_ptr<T>&& data) {
+        DEV_ASSERT(data != nullptr);
+        if (!isAlive(id) || !data) {
             return false;
         }
 
-        const Slot& slot = m_slots[p_id.index];
-        if (slot.gen != p_id.gen) {
+        slots_[id.index].storage = std::move(data);
+        return true;
+    }
+
+    T* resolve(IdT id) {
+        return isAlive(id) ? slots_[id.index].storage.get() : nullptr;
+    }
+
+    const T* resolve(IdT id) const {
+        return isAlive(id) ? slots_[id.index].storage.get() : nullptr;
+    }
+
+    bool isAlive(IdT id) const {
+        if (id.index >= static_cast<uint32_t>(slots_.size())) {
+            return false;
+        }
+
+        const Slot& slot = slots_[id.index];
+        if (slot.gen != id.gen) {
             return false;
         }
         return slot.storage != nullptr;
     }
 
 protected:
-    IdT Alloc() {
+    IdT allocate() {
         uint32_t index;
-        if (m_free.empty()) {
-            index = static_cast<uint32_t>(m_slots.size());
-            m_slots.emplace_back();
+        if (free_.empty()) {
+            index = static_cast<uint32_t>(slots_.size());
+            slots_.emplace_back();
         } else {
-            index = m_free.back();
-            m_free.pop_back();
-            DEV_ASSERT(m_slots[index].storage == nullptr);
+            index = free_.back();
+            free_.pop_back();
+            DEV_ASSERT(slots_[index].storage == nullptr);
         }
 
-        return { index, m_slots[index].gen };
+        return { index, slots_[index].gen };
     }
 
-    void Free(IdT p_id) {
-        Slot& slot = m_slots[p_id.index];
+    void free(IdT id) {
+        Slot& slot = slots_[id.index];
         ++slot.gen;
         slot.storage.reset();
-        m_free.push_back(p_id.index);
+        free_.push_back(id.index);
     }
 
 protected:
-    std::vector<Slot> m_slots;
-    std::vector<uint32_t> m_free;
+    std::vector<Slot> slots_;
+    std::vector<uint32_t> free_;
 };
 
 }  // namespace cave

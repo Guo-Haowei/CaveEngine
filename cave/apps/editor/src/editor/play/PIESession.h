@@ -39,6 +39,7 @@ public:
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
     void commitSceneChange() override;
+    void commitSceneReload() override {}
 
     DebugId debugId() const override { return debug_id_; }
 

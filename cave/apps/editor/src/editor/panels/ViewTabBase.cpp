@@ -2,6 +2,7 @@
 
 #include "engine/private/runtime/view/ViewManager.h"
 
+#include "editor/services/DocumentService.h"
 #include "editor/services/SelectionService.h"
 
 // @TODO: remove
@@ -174,6 +175,22 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
         }
         ImGui::EndDragDropTarget();
     }
+}
+
+void ViewTabBase::commitSceneReload() {
+    if (!pending_reload_) {
+        return;
+    }
+
+    pending_reload_ = false;
+
+    DocId doc_id = docId();
+    IDocument* doc = editor_services_.document().resolve(doc_id);
+    if (!doc) {
+        return;
+    }
+
+    doc->reloadPreviewScene();
 }
 
 }  // namespace cave

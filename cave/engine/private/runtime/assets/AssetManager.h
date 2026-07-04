@@ -34,8 +34,11 @@ public:
 
     // @TODO: deprecate
     AssetRef loadAssetSync(const Guid& guid) override;
+    AssetRef reloadAsset(const Guid& guid) override;
 
 protected:
+    AssetRef loadAssetSyncHelper(const Guid& guid);
+
     uint32_t counter_{ 0 };
     std::mutex asset_lock_;
 };

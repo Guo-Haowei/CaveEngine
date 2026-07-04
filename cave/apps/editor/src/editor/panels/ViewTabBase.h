@@ -30,6 +30,7 @@ public:
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
     void commitSceneChange() override {}
+    void commitSceneReload() override;
 
     ViewId viewId() const override { return view_id_; }
 

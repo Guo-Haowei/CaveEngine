@@ -6,7 +6,7 @@ class TestRegistry : public GenIdRegistry<int> {
 public:
     template<typename... Args>
     IdT Create(Args&&... args) {
-        return GenIdRegistry<int>::Create(std::make_unique<int>(std::forward<Args>(args)...));
+        return GenIdRegistry<int>::create(std::make_unique<int>(std::forward<Args>(args)...));
     }
 };
 
@@ -14,40 +14,40 @@ TEST(GenIdRegistry, create_returns_alive_and_resolvable) {
     TestRegistry reg;
 
     auto a = reg.Create(10);
-    ASSERT_TRUE(reg.IsAlive(a));
-    ASSERT_NE(reg.Resolve(a), nullptr);
+    ASSERT_TRUE(reg.isAlive(a));
+    ASSERT_NE(reg.resolve(a), nullptr);
 
-    reg.Destroy(a);
-    ASSERT_FALSE(reg.IsAlive(a));
-    ASSERT_EQ(reg.Resolve(a), nullptr);
+    reg.destroy(a);
+    ASSERT_FALSE(reg.isAlive(a));
+    ASSERT_EQ(reg.resolve(a), nullptr);
 }
 
 TEST(GenIdRegistry, destroy_is_idempotent) {
     TestRegistry reg;
 
     auto a = reg.Create();
-    ASSERT_TRUE(reg.IsAlive(a));
+    ASSERT_TRUE(reg.isAlive(a));
 
-    reg.Destroy(a);
-    ASSERT_FALSE(reg.IsAlive(a));
+    reg.destroy(a);
+    ASSERT_FALSE(reg.isAlive(a));
 
     // Destroy again should not crash, should remain dead.
-    reg.Destroy(a);
-    ASSERT_FALSE(reg.IsAlive(a));
-    ASSERT_EQ(reg.Resolve(a), nullptr);
+    reg.destroy(a);
+    ASSERT_FALSE(reg.isAlive(a));
+    ASSERT_EQ(reg.resolve(a), nullptr);
 }
 
 TEST(GenIdRegistry, reuse_slot_bumps_generation) {
     TestRegistry reg;
 
     auto a = reg.Create(8);
-    ASSERT_TRUE(reg.IsAlive(a));
+    ASSERT_TRUE(reg.isAlive(a));
 
     const uint32_t oldIndex = a.index;
     const uint32_t oldGen = a.gen;
 
-    reg.Destroy(a);
-    ASSERT_FALSE(reg.IsAlive(a));
+    reg.destroy(a);
+    ASSERT_FALSE(reg.isAlive(a));
 
     // Next allocation should reuse the freed slot (your allocator is free-list based).
     auto b = reg.Create(9);
@@ -56,12 +56,12 @@ TEST(GenIdRegistry, reuse_slot_bumps_generation) {
     ASSERT_NE(b.gen, oldGen) << "Generation must change on reuse to invalidate stale IDs";
 
     // Old ID must remain invalid.
-    ASSERT_FALSE(reg.IsAlive(a));
-    ASSERT_EQ(reg.Resolve(a), nullptr);
+    ASSERT_FALSE(reg.isAlive(a));
+    ASSERT_EQ(reg.resolve(a), nullptr);
 
     // New ID must be valid.
-    ASSERT_TRUE(reg.IsAlive(b));
-    ASSERT_NE(reg.Resolve(b), nullptr);
+    ASSERT_TRUE(reg.isAlive(b));
+    ASSERT_NE(reg.resolve(b), nullptr);
 }
 
 TEST(GenIdRegistry, free_list_is_lifo) {
@@ -71,8 +71,8 @@ TEST(GenIdRegistry, free_list_is_lifo) {
     auto b = reg.Create(8);
     auto c = reg.Create(9);
 
-    reg.Destroy(b);
-    reg.Destroy(c);
+    reg.destroy(b);
+    reg.destroy(c);
 
     // If free-list is LIFO (push_back / pop_back), next allocation should reuse 'c' first.
     auto x = reg.Create(10);
@@ -83,9 +83,9 @@ TEST(GenIdRegistry, free_list_is_lifo) {
     ASSERT_EQ(y.index, b.index);
 
     // Clean up
-    reg.Destroy(a);
-    reg.Destroy(x);
-    reg.Destroy(y);
+    reg.destroy(a);
+    reg.destroy(x);
+    reg.destroy(y);
 }
 
 TEST(GenIdRegistry, destroyed_id_never_becomes_valid_again) {
@@ -95,19 +95,19 @@ TEST(GenIdRegistry, destroyed_id_never_becomes_valid_again) {
     const uint32_t idx = a.index;
     const uint32_t gen = a.gen;
 
-    reg.Destroy(a);
+    reg.destroy(a);
 
     // Allocate/destroy a bunch to force multiple reuses of the same slot.
     for (int i = 0; i < 10; ++i) {
         auto t = reg.Create();
-        reg.Destroy(t);
+        reg.destroy(t);
     }
 
     // Even if the index is reused, the original generation must not match again.
     // (If gen overflows eventually, this could fail after billions of frees; acceptable.)
     TestRegistry::IdT stale{ idx, gen };
-    ASSERT_FALSE(reg.IsAlive(stale));
-    ASSERT_EQ(reg.Resolve(stale), nullptr);
+    ASSERT_FALSE(reg.isAlive(stale));
+    ASSERT_EQ(reg.resolve(stale), nullptr);
 }
 
 }  // namespace cave

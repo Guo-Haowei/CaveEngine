@@ -14,7 +14,8 @@ public:
 
     SceneId createScene(std::string name);
 
-    SceneId registerScene(std::unique_ptr<Scene> scene);
+    SceneId registerScene(std::unique_ptr<Scene>&& scene);
+    bool replaceScene(SceneId id, std::unique_ptr<Scene>&& scene);
 
     SceneId cloneScene(SceneId scene_id);
     SceneId cloneScene(const Scene& scene);

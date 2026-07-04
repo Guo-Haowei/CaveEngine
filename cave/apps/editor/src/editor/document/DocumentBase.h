@@ -40,9 +40,14 @@ public:
     bool save() override;
     bool saveAs(std::string_view) override;
 
+    Guid guid() const override { return guid_; }
+
     SceneId previewScene() const override {
         return preview_scene_;
     }
+
+    std::unique_ptr<Scene> createPreviewScene() const override;
+    void reloadPreviewScene() override;
 
 private:
     void touchDirtyAfterEdit() {

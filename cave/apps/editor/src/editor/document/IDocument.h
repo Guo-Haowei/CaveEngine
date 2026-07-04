@@ -49,8 +49,13 @@ public:
         return Handle<T>(std::move(copy));
     }
 
+    virtual Guid guid() const = 0;
+
     // @TODO: remove this, not all doc is related to scene
     virtual SceneId previewScene() const { return {}; }
+
+    virtual std::unique_ptr<Scene> createPreviewScene() const = 0;
+    virtual void reloadPreviewScene() = 0;
 
 protected:
     AssetHandle handle_;

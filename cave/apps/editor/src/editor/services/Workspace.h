@@ -35,7 +35,7 @@ public:
 
     TabId focusedTabId() const { return focused_tab_; }
 
-    Tab* focusedTab() { return Resolve(focused_tab_); }
+    Tab* focusedTab() { return resolve(focused_tab_); }
 
     DocId focusedDoc();
 
@@ -48,6 +48,8 @@ public:
     void onEvents(const InputFrame& input) override;
     int priority() const override { return 10; }
     DebugId debugId() const override { return debug_id_; }
+
+    void onAssetChanged(const Guid& changed, std::span<const Guid> affected);
 
 private:
     void openOrFocusDoc(DocId doc_id);
@@ -65,6 +67,7 @@ private:
     TabId request_focus_{};
 
     std::unordered_map<DocId, TabId> doc_to_tab_;
+    std::unordered_map<Guid, TabId> guid_to_tab_;
 };
 
 }  // namespace cave

@@ -32,7 +32,7 @@ DocId DocumentService::openDoc(const OpenDocDesc& desc) {
         doc_id = it->second;
     } else {
         auto doc = CreateDoc(app_services_, desc);
-        doc_id = Base::Create(std::move(doc));
+        doc_id = Base::create(std::move(doc));
         guid_to_doc_[desc.guid] = doc_id;
     }
 
@@ -45,7 +45,7 @@ CloseRequestResult DocumentService::closeDoc(DocId doc_id) {
     DEV_ASSERT(doc);
     auto handle = doc->rawHandle();
     guid_to_doc_.erase(handle.guid());
-    Destroy(doc_id);
+    destroy(doc_id);
     return {};
 }
 

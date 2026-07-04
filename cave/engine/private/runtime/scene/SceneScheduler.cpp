@@ -46,6 +46,7 @@ void SceneScheduler::flushSceneCommands() {
     for (SceneOwner* owner : owners_) {
         if (owner) {
             owner->commitSceneChange();
+            owner->commitSceneReload();
         }
     }
 }

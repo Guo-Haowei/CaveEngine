@@ -17,14 +17,19 @@ using ecs::Entity;
 TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
-    SceneCommandWriter cb(services.assetRegistry());
+    auto scene = createPreviewScene();
+    preview_scene_ = scene_reg_.registerScene(std::move(scene));
+}
+
+std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
+    SceneCommandWriter cb(asset_reg_);
     Entity root = cb.CreateRootObject();
 
     Entity ent = cb.CreateTileMapObject("tilemap");
     cb.AttachChild(ent, root);
-    cb.SetProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid);
+    cb.SetProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid());
 
-    auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid.toString()));
+    auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid().toString()));
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.GetAllocationCount());
@@ -32,7 +37,7 @@ TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
     scene->setRoot(map.Resolve(root));
     scene->update(0.0f);
 
-    preview_scene_ = scene_reg_.registerScene(std::move(scene));
+    return scene;
 }
 
 }  // namespace cave

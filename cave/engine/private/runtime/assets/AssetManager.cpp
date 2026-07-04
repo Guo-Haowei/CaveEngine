@@ -291,21 +291,8 @@ uint64_t AssetManager::submitImportScene(const SceneImportRequest& request) {
 
 AssetRef AssetManager::loadAssetSync(const Guid& guid) {
     DEV_ASSERT(thread::GetThreadId() != thread::THREAD_MAIN);
+    auto asset = loadAssetSyncHelper(guid);
 
-    Stopwatch stopwatch;
-    stopwatch.Start();
-    auto entry = services().assetRegistry().entry(guid);
-
-    auto res = LoadAsset(entry);
-    if (!res) {
-        entry->markFailed();
-        LOG_ERROR("Failed to load asset '{}', reason {}",
-                  entry->metadata.import_path,
-                  ToString(res.error()));
-        return nullptr;
-    }
-
-    AssetRef asset = *res;
     auto& device = services().renderDevice();
 
     // @TODO: based on render, create asset on work threads
@@ -322,6 +309,29 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
         default:
             break;
     }
+
+    return asset;
+}
+
+AssetRef AssetManager::reloadAsset(const Guid& guid) {
+    return loadAssetSyncHelper(guid);
+}
+
+AssetRef AssetManager::loadAssetSyncHelper(const Guid& guid) {
+    Stopwatch stopwatch;
+    stopwatch.Start();
+    auto entry = services().assetRegistry().entry(guid);
+
+    auto res = LoadAsset(entry);
+    if (!res) {
+        entry->markFailed();
+        LOG_ERROR("Failed to load asset '{}', reason {}",
+                  entry->metadata.import_path,
+                  ToString(res.error()));
+        return nullptr;
+    }
+
+    AssetRef asset = *res;
 
     stopwatch.Stop();
     entry->markLoaded(asset);

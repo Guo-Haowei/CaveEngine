@@ -3,6 +3,8 @@
 #include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 #include "editor/EditorAssetManager.h"
 
@@ -119,6 +121,19 @@ bool DocumentBase::save() {
 
 bool DocumentBase::saveAs(std::string_view) {
     return false;
+}
+
+std::unique_ptr<Scene> DocumentBase::createPreviewScene() const {
+    return nullptr;
+}
+
+void DocumentBase::reloadPreviewScene() {
+    auto preview_scene = createPreviewScene();
+    if (preview_scene == nullptr) {
+        return;
+    }
+
+    scene_reg_.replaceScene(preview_scene_, std::move(preview_scene));
 }
 
 }  // namespace cave

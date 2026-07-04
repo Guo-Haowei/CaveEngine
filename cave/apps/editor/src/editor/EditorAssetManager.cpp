@@ -12,6 +12,7 @@
 // @TODO: refactor
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
+#include "editor/services/Workspace.h"
 #include "editor/utility/ContentEntry.h"
 
 namespace cave {
@@ -213,10 +214,12 @@ std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_n
 
 void EditorAssetManager::onAssetSaved(const AssetChangedEvent& event) {
     AssetRegistry& asset_reg = m_app->services().assetRegistry();
-    auto users = asset_reg.findReverseDependenciesTransitively(event.guid);
-    for (const Guid& user : users) {
-        LOG_WARN("asset '{}' is affected", user.toString());
+    auto affected = asset_reg.findReverseDependenciesTransitively(event.guid);
+    for (const Guid& guid : affected) {
+        reloadAsset(guid);
     }
+
+    editor_services_->workspace().onAssetChanged(event.guid, affected);
 }
 
 }  // namespace cave
