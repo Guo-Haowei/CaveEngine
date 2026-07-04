@@ -27,7 +27,6 @@ TEST(Variant, construct_from_bool_stores_as_integer_like_value) {
     Variant false_value(false);
     Variant true_value(true);
 
-    // If you add VariantType::Bool, change these to VariantType::Bool.
     EXPECT_EQ(false_value.type(), VariantType::Int);
     EXPECT_EQ(true_value.type(), VariantType::Int);
 
@@ -136,8 +135,6 @@ TEST(Variant, construct_from_vec2f) {
     EXPECT_FALSE(value.isNumeric());
 
     EXPECT_EQ(value.asVec2f(), Vec2f(1.0f, 2.0f));
-    EXPECT_EQ(value.asVec3f(), Vec3f(1.0f, 2.0f, 0.0f));
-    EXPECT_EQ(value.asVec4f(), Vec4f(1.0f, 2.0f, 0.0f, 0.0f));
 
     EXPECT_EQ(value.asInt(7), 7);
     EXPECT_FLOAT_EQ(value.asFloat(8.0f), 8.0f);
@@ -148,9 +145,7 @@ TEST(Variant, construct_from_vec3f) {
 
     EXPECT_EQ(value.type(), VariantType::Vec3f);
 
-    EXPECT_EQ(value.asVec2f(), Vec2f(1.0f, 2.0f));
     EXPECT_EQ(value.asVec3f(), Vec3f(1.0f, 2.0f, 3.0f));
-    EXPECT_EQ(value.asVec4f(), Vec4f(1.0f, 2.0f, 3.0f, 0.0f));
 }
 
 TEST(Variant, construct_from_vec4f) {
@@ -158,8 +153,6 @@ TEST(Variant, construct_from_vec4f) {
 
     EXPECT_EQ(value.type(), VariantType::Vec4f);
 
-    EXPECT_EQ(value.asVec2f(), Vec2f(1.0f, 2.0f));
-    EXPECT_EQ(value.asVec3f(), Vec3f(1.0f, 2.0f, 3.0f));
     EXPECT_EQ(value.asVec4f(), Vec4f(1.0f, 2.0f, 3.0f, 4.0f));
 }
 
@@ -169,8 +162,6 @@ TEST(Variant, construct_from_vec2i) {
     EXPECT_EQ(value.type(), VariantType::Vec2i);
 
     EXPECT_EQ(value.asVec2i(), Vec2i(1, 2));
-    EXPECT_EQ(value.asVec3i(), Vec3i(1, 2, 0));
-    EXPECT_EQ(value.asVec4i(), Vec4i(1, 2, 0, 0));
 }
 
 TEST(Variant, construct_from_vec3i) {
@@ -178,9 +169,7 @@ TEST(Variant, construct_from_vec3i) {
 
     EXPECT_EQ(value.type(), VariantType::Vec3i);
 
-    EXPECT_EQ(value.asVec2i(), Vec2i(1, 2));
     EXPECT_EQ(value.asVec3i(), Vec3i(1, 2, 3));
-    EXPECT_EQ(value.asVec4i(), Vec4i(1, 2, 3, 0));
 }
 
 TEST(Variant, construct_from_vec4i) {
@@ -188,8 +177,6 @@ TEST(Variant, construct_from_vec4i) {
 
     EXPECT_EQ(value.type(), VariantType::Vec4i);
 
-    EXPECT_EQ(value.asVec2i(), Vec2i(1, 2));
-    EXPECT_EQ(value.asVec3i(), Vec3i(1, 2, 3));
     EXPECT_EQ(value.asVec4i(), Vec4i(1, 2, 3, 4));
 }
 

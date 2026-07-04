@@ -4,7 +4,7 @@ namespace cave {
 
 using namespace ::cave::math;
 
-Variant::Variant(bool value) : type_(VariantType::Bool), int_(value) {}
+Variant::Variant(bool value) : type_(VariantType::Int), int_(value ? 1 : 0) {}
 
 Variant::Variant(int value) : type_(VariantType::Int), int_(value) {}
 

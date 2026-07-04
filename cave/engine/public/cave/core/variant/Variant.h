@@ -14,7 +14,6 @@ namespace cave {
 enum class VariantType : uint8_t {
     Invalid = 0,
 
-    Bool,
     Int,
     Float,
     String,
@@ -62,7 +61,7 @@ public:
     math::Vec4i asVec4i(math::Vec4i fallback = math::Vec4i::Zero) const;
 
 private:
-    VariantType type_;
+    VariantType type_{};
 
     union {
         int int_;
