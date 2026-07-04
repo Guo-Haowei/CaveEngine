@@ -2,7 +2,7 @@
 
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -75,12 +75,12 @@ auto SpriteAnimationAsset::saveToDisk(const AssetMetaData& meta) const -> Result
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap(false)
+    yaml.beginMap(false)
         .Key("version")
         .Write(VERSION)
         .Key("content")
         .Write(*this)
-        .EndMap();
+        .endMap();
     return SaveYaml(meta.import_path, yaml);
 }
 

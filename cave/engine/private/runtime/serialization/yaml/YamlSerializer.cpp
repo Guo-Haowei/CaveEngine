@@ -4,29 +4,29 @@
 
 namespace cave {
 
-ISerializer& YamlSerializer::BeginArray(bool p_single_line) {
+ISerializer& YamlSerializer::beginArray(bool p_single_line) {
     IF_VALIDATE_SERIALIZER(CheckEnter(SerializerState::Array));
     m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
     m_out << YAML::BeginSeq;
     return *this;
 }
 
-ISerializer& YamlSerializer::EndArray() {
+ISerializer& YamlSerializer::endArray() {
     IF_VALIDATE_SERIALIZER(CheckExit(SerializerState::Array));
     m_out << YAML::EndSeq;
     return *this;
 }
 
-ISerializer& YamlSerializer::BeginMap(bool p_single_line) {
+ISerializer& YamlSerializer::beginMap(bool p_single_line) {
     IF_VALIDATE_SERIALIZER(CheckEnter(SerializerState::Map));
     m_out.SetSeqFormat(p_single_line ? YAML::Flow : YAML::Block);
-    m_out << YAML::BeginMap;
+    m_out << YAML::beginMap;
     return *this;
 }
 
-ISerializer& YamlSerializer::EndMap() {
+ISerializer& YamlSerializer::endMap() {
     IF_VALIDATE_SERIALIZER(CheckExit(SerializerState::Map));
-    m_out << YAML::EndMap;
+    m_out << YAML::endMap;
     return *this;
 }
 

@@ -1,4 +1,4 @@
-#include "serializer.h"
+#include "Serializer.h"
 
 namespace cave {
 
@@ -22,12 +22,12 @@ ISerializer& ISerializer::Write(const math::Degree& p_object) {
 }
 
 ISerializer& ISerializer::Write(const math::Mat4f& p_object) {
-    BeginArray(true);
+    beginArray(true);
     const float* ptr = &p_object[0].x;
     for (int i = 0; i < 16; ++i) {
         Write(ptr[i]);
     }
-    EndArray();
+    endArray();
     return *this;
 }
 

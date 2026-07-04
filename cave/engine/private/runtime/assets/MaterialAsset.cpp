@@ -1,6 +1,6 @@
 #include "MaterialAsset.h"
 
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -28,12 +28,12 @@ Result<void> MaterialAsset::saveToDisk(const AssetMetaData& p_meta) const {
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap(false)
+    yaml.beginMap(false)
         .Key("version")
         .Write(VERSION)
         .Key("content")
         .Write(*this)
-        .EndMap();
+        .endMap();
     return SaveYaml(p_meta.import_path, yaml);
 }
 

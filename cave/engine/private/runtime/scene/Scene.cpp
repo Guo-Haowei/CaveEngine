@@ -18,7 +18,7 @@
 #include "engine/private/runtime/script/lua/LuaScriptSystem.h"
 
 // @TODO: refactor
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -450,7 +450,7 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
 
     auto entity_array = getSortedEntityArray();
 
-    yaml.BeginMap(false)
+    yaml.beginMap(false)
         .Key("version")
         .Write(LATEST_SCENE_VERSION)
         .Key("seed")
@@ -459,14 +459,14 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
         .Write(root_)
         .Key("entities");
 
-    yaml.BeginArray(false);
+    yaml.beginArray(false);
 
     for (auto entity : entity_array) {
         if (has<NoSaveTag>(entity)) {
             continue;
         }
 
-        yaml.BeginMap(false)
+        yaml.beginMap(false)
             .Key("id")
             .Write(entity);
 
@@ -476,11 +476,11 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-        yaml.EndMap();
+        yaml.endMap();
     }
 
-    yaml.EndArray();
-    yaml.EndMap();
+    yaml.endArray();
+    yaml.endMap();
     return SaveYaml(meta.import_path, yaml);
 }
 

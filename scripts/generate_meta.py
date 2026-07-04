@@ -185,7 +185,7 @@ def generate_meta_file(base_path, file_path, metas):
 
         f.write(f'#include "{short_path}"\n')
         f.write('#include "engine/private/core/reflection/MetaEditor.h"\n')
-        f.write('#include "engine/private/serialization/yaml_include.h"\n')
+        f.write('#include "engine/private/runtime/serialization/YamlInclude.h"\n')
         f.write('\nnamespace cave {\n\n')
 
         for class_name, fields in metas.items():

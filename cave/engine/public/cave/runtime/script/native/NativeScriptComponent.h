@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include "cave/core/containers/FixedString.h"
+#include "cave/core/variant/Variant.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
@@ -13,6 +14,9 @@ struct NativeScriptComponent {
 
     CAVE_PROP()
     FixedString<32> name;
+
+    CAVE_PROP(editor = VariantMap)
+    VariantMap params;
 
     // Non-Serialized
     NativeScript* instance = nullptr;

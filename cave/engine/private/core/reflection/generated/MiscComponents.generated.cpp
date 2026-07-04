@@ -4,7 +4,7 @@
 
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "engine/private/core/reflection/MetaEditor.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 

@@ -17,7 +17,7 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 #include "engine/private/ui/layout.h"
 
 namespace cave {

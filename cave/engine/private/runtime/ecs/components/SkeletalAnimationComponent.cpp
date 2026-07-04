@@ -1,6 +1,6 @@
 #include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 

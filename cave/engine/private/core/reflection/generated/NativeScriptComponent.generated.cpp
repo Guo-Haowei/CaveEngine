@@ -4,16 +4,18 @@
 
 #include "cave/runtime/script/native/NativeScriptComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
 // FixedString<32> name ()
+// VariantMap params (editor = VariantMap)
 
 template<>
 const MetaTableFields& MetaDataTable<NativeScriptComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(NativeScriptComponent, "name", name, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(NativeScriptComponent, "params", params, FieldFlag::Serialize, EditorHint::VariantMap),
     };
 
     return s_table;

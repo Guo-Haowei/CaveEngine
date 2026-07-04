@@ -3,7 +3,7 @@
 
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -35,7 +35,7 @@ std::vector<Guid> TileMapAsset::dependencies() const {
 }
 
 ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
-    s.BeginArray(false);
+    s.beginArray(false);
 
     auto chunk_empty = [](const TileChunk& p_chunk) {
         for (int16_t y = 0; y < kTileChunkSize; ++y) {
@@ -53,13 +53,13 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
             continue;
         }
 
-        s.BeginMap(false)
+        s.beginMap(false)
             .Key("x")
             .Write(index.x)
             .Key("y")
             .Write(index.y)
             .Key("tiles")
-            .BeginArray(true);
+            .beginArray(true);
 
         for (int16_t y = 0; y < kTileChunkSize; ++y) {
             for (int16_t x = 0; x < kTileChunkSize; ++x) {
@@ -67,11 +67,11 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
             }
         }
 
-        s.EndArray()
-            .EndMap();
+        s.endArray()
+            .endMap();
     }
 
-    return s.EndArray();
+    return s.endArray();
 }
 
 bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
@@ -123,12 +123,12 @@ Result<void> TileMapAsset::saveToDisk(const AssetMetaData& meta) const {
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap(false)
+    yaml.beginMap(false)
         .Key("version")
         .Write(VERSION)
         .Key("content")
         .Write(*this)
-        .EndMap();
+        .endMap();
     return SaveYaml(meta.import_path, yaml);
 }
 

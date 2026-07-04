@@ -28,19 +28,11 @@ class ISerializer {
 public:
     virtual ~ISerializer() = default;
 
-    // virtual bool IsGood() const = 0;
+    virtual ISerializer& beginArray(bool single_line) = 0;
+    virtual ISerializer& endArray() = 0;
 
-    // virtual auto WriteToFile() -> Result<void> = 0;
-
-    // virtual const std::string& GetError() const = 0;
-
-    // virtual const std::string& GetWarning() const = 0;
-
-    virtual ISerializer& BeginArray(bool p_single_line) = 0;
-    virtual ISerializer& EndArray() = 0;
-
-    virtual ISerializer& BeginMap(bool p_single_line) = 0;
-    virtual ISerializer& EndMap() = 0;
+    virtual ISerializer& beginMap(bool single_line) = 0;
+    virtual ISerializer& endMap() = 0;
 
     virtual ISerializer& Key(std::string_view p_key) = 0;
 
@@ -72,40 +64,40 @@ public:
     template<typename T, size_t N>
     ISerializer& Write(const FixedStack<T, N>& p_array) {
         const size_t len = std::ranges::size(p_array);
-        BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
+        beginArray(len < SINGLE_LINE_MAX_ELEMENT);
         for (const T& val : p_array) Write(val);
-        EndArray();
+        endArray();
         return *this;
     }
 
     template<ArrayLike T>
     ISerializer& Write(const T& p_array) {
         const size_t len = std::ranges::size(p_array);
-        BeginArray(len < SINGLE_LINE_MAX_ELEMENT);
+        beginArray(len < SINGLE_LINE_MAX_ELEMENT);
         for (const auto& val : p_array) Write(val);
-        EndArray();
+        endArray();
         return *this;
     }
 
     template<StringKeyMap T>
     ISerializer& Write(const T& p_map) {
         const size_t len = std::ranges::size(p_map);
-        BeginMap(len < SINGLE_LINE_MAX_ELEMENT);
+        beginMap(len < SINGLE_LINE_MAX_ELEMENT);
         for (const auto& [key, value] : p_map) {
             Key(key).Write(value);
         }
-        EndMap();
+        endMap();
         return *this;
     }
 
     template<IntegralKeyMap T>
     ISerializer& Write(const T& p_map) {
         const size_t len = std::ranges::size(p_map);
-        BeginMap(len < SINGLE_LINE_MAX_ELEMENT);
+        beginMap(len < SINGLE_LINE_MAX_ELEMENT);
         for (const auto& [key, value] : p_map) {
             Key(std::to_string(key)).Write(value);
         }
-        EndMap();
+        endMap();
         return *this;
     }
 
@@ -125,7 +117,7 @@ public:
 
     template<typename T, int N>
     ISerializer& Write(const math::Vector<T, N>& p_object) {
-        BeginArray(true);
+        beginArray(true);
         Write(p_object.x);
         Write(p_object.y);
         if constexpr (N > 2) {
@@ -134,28 +126,28 @@ public:
         if constexpr (N > 3) {
             Write(p_object.w);
         }
-        EndArray();
+        endArray();
         return *this;
     }
 
     template<typename T, int N>
     ISerializer& Write(const T (&p_object)[N]) {
-        BeginArray(true);
+        beginArray(true);
         for (int i = 0; i < N; ++i) {
             Write(p_object[i]);
         }
-        EndArray();
+        endArray();
         return *this;
     }
 
     template<typename T, int N>
     ISerializer& Write(const math::Box<T, N>& p_object) {
-        BeginMap(true)
+        beginMap(true)
             .Key("min")
             .Write(p_object.min())
             .Key("max")
             .Write(p_object.max());
-        EndMap();
+        endMap();
         return *this;
     }
 
@@ -164,14 +156,14 @@ public:
     ISerializer& Write(const T& p_object) {
         const auto& meta = MetaDataTable<T>::GetFields();
 
-        BeginMap(false);
+        beginMap(false);
 
         for (const auto& field : meta) {
             if ((field->flags & FieldFlag::Serialize) == FieldFlag::None) continue;
             field->Write(*this, &p_object);
         }
 
-        EndMap();
+        endMap();
 
         return *this;
     }

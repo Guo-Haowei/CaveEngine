@@ -1,7 +1,7 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 
-#include "engine/private/serialization/serializer.h"
+#include "engine/private/runtime/serialization/Serializer.h"
 
 #include "engine/private/core/io/file_access.h"
 
@@ -19,11 +19,11 @@ class YamlSerializer : public ISerializer {
 public:
     using ISerializer::Write;
 
-    ISerializer& BeginArray(bool p_single_line) override;
-    ISerializer& EndArray() override;
+    ISerializer& beginArray(bool p_single_line) override;
+    ISerializer& endArray() override;
 
-    ISerializer& BeginMap(bool p_single_line) override;
-    ISerializer& EndMap() override;
+    ISerializer& beginMap(bool p_single_line) override;
+    ISerializer& endMap() override;
 
     ISerializer& Key(std::string_view p_key) override;
 

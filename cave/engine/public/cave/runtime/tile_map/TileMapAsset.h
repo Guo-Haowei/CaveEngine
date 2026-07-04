@@ -9,7 +9,7 @@
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/assets/IAsset.h"
 
-#include "cave/core/serialization/Concepts.h"
+#include "cave/runtime/serialization/Concepts.h"
 
 namespace cave {
 
