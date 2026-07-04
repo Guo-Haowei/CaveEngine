@@ -24,40 +24,40 @@ class ComponentStorage {
 public:
     explicit ComponentStorage() = default;
 
-    void ClearAll();
+    void clearAll();
 
-    bool IsRegistered(ComponentId p_id) const;
+    bool isRegistered(ComponentId cid) const;
 
-    IComponentPool& GetOrCreate(ComponentId p_id);
+    IComponentPool& getOrCreate(ComponentId cid);
 
     template<ComponentType T>
-    IComponentPool& GetOrCreate() {
-        return GetOrCreate(T::kId);
+    IComponentPool& getOrCreate() {
+        return getOrCreate(T::kId);
     }
 
-    IComponentPool* TryGet(ComponentId p_id);
+    IComponentPool* tryGet(ComponentId cid);
 
-    const IComponentPool* TryGet(ComponentId p_id) const;
+    const IComponentPool* tryGet(ComponentId cid) const;
 
-    bool Has(Entity p_ent, ComponentId p_id) const;
+    bool has(ComponentId cid, Entity ent) const;
 
-    void* GetRaw(Entity p_ent, ComponentId p_id);
+    void* getRaw(ComponentId cid, Entity ent);
 
-    const void* GetRaw(Entity p_ent, ComponentId p_id) const;
+    const void* getRaw(ComponentId cid, Entity ent) const;
 
-    void* CreateRaw(Entity p_ent, ComponentId p_id);
+    void* createRaw(ComponentId cid, Entity ent);
 
-    bool Remove(Entity p_ent, ComponentId p_id);
+    bool remove(ComponentId cid, Entity ent);
 
-    const auto& GetEntries() const { return m_entries; }
+    std::span<const Entry> entries() const { return entries_; }
 
 private:
     ComponentStorage(ComponentStorage&) = delete;
     ComponentStorage& operator=(ComponentStorage&) = delete;
 
-    void Ensure(ComponentId p_id);
+    void ensure(ComponentId cid);
 
-    std::vector<Entry> m_entries;
+    std::vector<Entry> entries_;
 
     friend class ::cave::Scene;
 };

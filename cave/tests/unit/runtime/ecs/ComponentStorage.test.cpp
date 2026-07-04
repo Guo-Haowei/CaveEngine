@@ -11,32 +11,32 @@ TEST(ComponentStorage, add_get_remove) {
 
     ecs::Entity e1{ 1 }, e2{ 2 }, e3{ 3 };
 
-    storage.CreateRaw(e1, NameComponent_Id);
-    storage.CreateRaw(e2, NameComponent_Id);
-    storage.CreateRaw(e3, NameComponent_Id);
+    storage.createRaw(e1, NameComponent_Id);
+    storage.createRaw(e2, NameComponent_Id);
+    storage.createRaw(e3, NameComponent_Id);
 
-    EXPECT_TRUE(storage.Has(e1, NameComponent_Id));
-    EXPECT_TRUE(storage.Has(e2, NameComponent_Id));
-    EXPECT_TRUE(storage.Has(e3, NameComponent_Id));
+    EXPECT_TRUE(storage.has(e1, NameComponent_Id));
+    EXPECT_TRUE(storage.has(e2, NameComponent_Id));
+    EXPECT_TRUE(storage.has(e3, NameComponent_Id));
 
     // write distinct values to detect swap bugs
-    auto* t1 = (NameComponent*)storage.GetRaw(e1, NameComponent_Id);
-    auto* t2 = (NameComponent*)storage.GetRaw(e2, NameComponent_Id);
-    auto* t3 = (NameComponent*)storage.GetRaw(e3, NameComponent_Id);
+    auto* t1 = (NameComponent*)storage.getRaw(e1, NameComponent_Id);
+    auto* t2 = (NameComponent*)storage.getRaw(e2, NameComponent_Id);
+    auto* t3 = (NameComponent*)storage.getRaw(e3, NameComponent_Id);
 
     t1->setName("111");
     t2->setName("222");
     t3->setName("333");
 
     // remove middle
-    EXPECT_TRUE(storage.Remove(e2, NameComponent_Id));
+    EXPECT_TRUE(storage.remove(e2, NameComponent_Id));
 
-    EXPECT_FALSE(storage.Has(e2, NameComponent_Id));
-    EXPECT_TRUE(storage.Has(e1, NameComponent_Id));
-    EXPECT_TRUE(storage.Has(e3, NameComponent_Id));
+    EXPECT_FALSE(storage.has(e2, NameComponent_Id));
+    EXPECT_TRUE(storage.has(e1, NameComponent_Id));
+    EXPECT_TRUE(storage.has(e3, NameComponent_Id));
 
-    auto* t1b = (NameComponent*)storage.GetRaw(e1, NameComponent_Id);
-    auto* t3b = (NameComponent*)storage.GetRaw(e3, NameComponent_Id);
+    auto* t1b = (NameComponent*)storage.getRaw(e1, NameComponent_Id);
+    auto* t3b = (NameComponent*)storage.getRaw(e3, NameComponent_Id);
 
     EXPECT_TRUE(t1b->name() == "111");
     EXPECT_TRUE(t3b->name() == "333");

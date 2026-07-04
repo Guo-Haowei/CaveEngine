@@ -56,49 +56,49 @@ ComponentMeta& ComponentRegistry::GetMut(ComponentId p_id) {
     return m_table[p_id];
 }
 
-static void Transform_OnEdited(Scene& p_scene,
-                               ecs::Entity p_ent,
+static void Transform_OnEdited(Scene& scene,
+                               ecs::Entity ent,
                                ComponentId,
                                const PropertyId&,
                                const void*,
                                uint32_t) {
-    auto* t = (TransformComponent*)p_scene.storage().GetRaw(p_ent, TransformComponent_Id);
+    auto* t = (TransformComponent*)scene.storage().getRaw(TransformComponent_Id, ent);
     if (DEV_VERIFY(t)) {
         t->setDirty();
     }
 }
 
-static void MeshRenderer_OnEdited(Scene& p_scene,
-                                  ecs::Entity p_ent,
+static void MeshRenderer_OnEdited(Scene& scene,
+                                  ecs::Entity ent,
                                   ComponentId,
-                                  const PropertyId& p_prop_id,
+                                  const PropertyId& pid,
                                   const void*,
                                   uint32_t) {
-    if (p_prop_id == "mesh_id"_sid) {
-        auto* mesh = (MeshRendererComponent*)p_scene.storage().GetRaw(p_ent, MeshRendererComponent_Id);
+    if (pid == "mesh_id"_sid) {
+        auto* mesh = (MeshRendererComponent*)scene.storage().getRaw(MeshRendererComponent_Id, ent);
         if (DEV_VERIFY(mesh)) {
             mesh->OnDeserialized();
         }
     }
 }
 
-static void Materail_OnEdited(Scene& p_scene,
-                              ecs::Entity p_ent,
+static void Materail_OnEdited(Scene& scene,
+                              ecs::Entity ent,
                               ComponentId,
-                              const PropertyId& p_prop_id,
+                              const PropertyId& pid,
                               const void*,
                               uint32_t) {
-    if (p_prop_id == "material_id"_sid) {
-        auto* m = (MaterialComponent*)p_scene.storage().GetRaw(p_ent, MaterialComponent_Id);
+    if (pid == "material_id"_sid) {
+        auto* m = (MaterialComponent*)scene.storage().getRaw(MaterialComponent_Id, ent);
         if (DEV_VERIFY(m)) {
             m->OnDeserialized();
         }
     }
 }
 
-void ComponentRegistry::Builtin(ComponentRegistry& p_out) {
+void ComponentRegistry::Builtin(ComponentRegistry& out) {
 #define REGISTER_COMPONENT(T, ...)              \
-    p_out.Register({                            \
+    out.Register({                              \
         .cid = T##_Id,                          \
         .name = #T,                             \
         .size = sizeof(T),                      \
@@ -111,15 +111,15 @@ void ComponentRegistry::Builtin(ComponentRegistry& p_out) {
 #undef REGISTER_COMPONENT
 
     {
-        ecs::ComponentMeta& meta = p_out.GetMut(TransformComponent_Id);
+        ecs::ComponentMeta& meta = out.GetMut(TransformComponent_Id);
         meta.on_edited = Transform_OnEdited;
     }
     {
-        ecs::ComponentMeta& meta = p_out.GetMut(MeshRendererComponent_Id);
+        ecs::ComponentMeta& meta = out.GetMut(MeshRendererComponent_Id);
         meta.on_edited = MeshRenderer_OnEdited;
     }
     {
-        ecs::ComponentMeta& meta = p_out.GetMut(MaterialComponent_Id);
+        ecs::ComponentMeta& meta = out.GetMut(MaterialComponent_Id);
         meta.on_edited = Materail_OnEdited;
     }
 }

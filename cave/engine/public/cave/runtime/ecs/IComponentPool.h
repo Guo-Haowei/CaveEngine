@@ -2,6 +2,7 @@
 // File: cave/runtime/ecs/IComponentPool.h
 // =============================================================================
 #pragma once
+#include <span>
 #include <vector>
 #include <unordered_map>
 #include "cave/runtime/ecs/ComponentDefines.h"
@@ -16,30 +17,30 @@ class IComponentPool {
 public:
     IComponentPool() = default;
     virtual ~IComponentPool() = default;
-    virtual void Clear() = 0;
-    virtual void Copy(const IComponentPool& p_other) = 0;
-    virtual std::unique_ptr<IComponentPool> Clone() const = 0;
+    virtual void clear() = 0;
+    virtual void copy(const IComponentPool& other) = 0;
+    virtual std::unique_ptr<IComponentPool> clone() const = 0;
 
-    virtual void* CreateRaw(Entity p_ent) = 0;
-    virtual void Remove(Entity p_ent) = 0;
+    virtual void* createRaw(Entity ent) = 0;
+    virtual void remove(Entity ent) = 0;
 
-    bool Has(Entity p_ent) const;
+    bool has(Entity ent) const;
 
-    virtual void* GetRaw(Entity p_ent) = 0;
-    virtual const void* GetRaw(Entity p_ent) const = 0;
+    virtual void* getRaw(Entity ent) = 0;
+    virtual const void* getRaw(Entity ent) const = 0;
 
-    virtual void Merge(IComponentPool&& p_other) = 0;
-    virtual size_t GetCount() const = 0;
+    virtual void merge(IComponentPool&& other) = 0;
+    virtual size_t count() const = 0;
 
-    void Remap(const std::unordered_map<Entity, Entity>& p_map);
+    void remap(const std::unordered_map<Entity, Entity>& map);
 
-    const std::vector<Entity>& GetEntityArray() const {
-        return m_entity_array;
+    const std::vector<Entity>& entityArray() const {
+        return entity_array_;
     }
 
 protected:
-    std::vector<Entity> m_entity_array;
-    std::unordered_map<Entity, size_t> m_lookup;
+    std::vector<Entity> entity_array_;
+    std::unordered_map<Entity, size_t> lookup_;
 };
 
 }  // namespace cave::ecs

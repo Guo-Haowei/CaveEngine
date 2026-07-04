@@ -12,7 +12,7 @@
 #include "editor/edit/AddComponentCmd.h"
 #include "editor/edit/RemoveComponentCmd.h"
 
-// 
+//
 #include "engine/private/ui/inputs.h"
 
 namespace cave {
@@ -110,8 +110,8 @@ concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
 
 template<typename T>
 bool DrawToggle(const DrawComponentCtx& ctx,
-                        const FieldMetaBase* property,
-                        T* component) {
+                const FieldMetaBase* property,
+                T* component) {
     return EditAndSubmit<T, bool>(
         ctx, component, property,
         [](const char* label, bool& value) {

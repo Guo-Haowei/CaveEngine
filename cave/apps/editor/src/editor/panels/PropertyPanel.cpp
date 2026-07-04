@@ -232,7 +232,7 @@ void PropertyPanel::drawUIImpl() {
     }
 
     auto create_component = [&](BuiltinComponentId cid) {
-        if (scene.storage().Has(id, cid)) {
+        if (scene.storage().has(cid, id)) {
             LOG_ERROR("object {} already has component {}",
                       name_component->name(),
                       std::to_underlying(cid));

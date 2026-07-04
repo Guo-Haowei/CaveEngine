@@ -35,11 +35,11 @@ void SceneQuery::queueDestroy(ecs::Entity ent) {
 void* SceneQuery::component(ComponentId cid, Entity ent) {
     scene_.systems()->get(SceneSystemId::TileWorld);
 
-    return scene_.storage().GetRaw(ent, cid);
+    return scene_.storage().getRaw(cid, ent);
 }
 
 const void* SceneQuery::component(ComponentId cid, Entity ent) const {
-    return scene_.storage().GetRaw(ent, cid);
+    return scene_.storage().getRaw(cid, ent);
 }
 
 size_t SceneQuery::componentCount(ComponentId cid) const {

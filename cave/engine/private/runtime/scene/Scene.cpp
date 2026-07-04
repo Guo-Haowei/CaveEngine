@@ -82,10 +82,10 @@ void Scene::tick(SceneTickContext& ctx) {
 
 void Scene::copy(const Scene& other) {
     ComponentId idx = 0;
-    for (auto& entry : other.storage_.GetEntries()) {
+    for (auto& entry : other.storage_.entries()) {
         if (entry.pool) {
-            storage_.Ensure(idx);
-            storage_.m_entries[idx].pool = std::move(entry.pool->Clone());
+            storage_.ensure(idx);
+            storage_.entries_[idx].pool = std::move(entry.pool->clone());
         }
         ++idx;
     }
@@ -98,9 +98,9 @@ void Scene::copy(const Scene& other) {
 std::vector<Entity> Scene::getSortedEntityArray() const {
     std::unordered_set<Entity> entity_set;
 
-    for (const auto& it : storage_.GetEntries()) {
+    for (const auto& it : storage_.entries()) {
         if (!it.pool) continue;
-        for (auto entity : it.pool->GetEntityArray()) {
+        for (auto entity : it.pool->entityArray()) {
             if (has<NoSaveTag>(entity)) {
                 continue;
             }
@@ -166,18 +166,18 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     }
 
     // remap all entities
-    for (uint16_t cid = 0; cid < (uint16_t)copy.storage_.m_entries.size(); ++cid) {
-        auto& entry = copy.storage_.m_entries[cid];
+    for (uint16_t cid = 0; cid < (uint16_t)copy.storage_.entries_.size(); ++cid) {
+        auto& entry = copy.storage_.entries_[cid];
         if (!entry.pool) continue;
-        entry.pool->Remap(mapping);
+        entry.pool->remap(mapping);
 
-        CRASH_COND(cid >= storage_.m_entries.size());
-        auto& my_entry = storage_.m_entries[cid];
+        CRASH_COND(cid >= storage_.entries_.size());
+        auto& my_entry = storage_.entries_[cid];
 
         if (!my_entry.pool) {
-            storage_.GetOrCreate(cid);
+            storage_.getOrCreate(cid);
         }
-        my_entry.pool->Merge(std::move(*entry.pool));
+        my_entry.pool->merge(std::move(*entry.pool));
     }
 
     // link instance
@@ -192,19 +192,19 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
-    return storage_.Has(ent, cid);
+    return storage_.has(cid, ent);
 }
 
 size_t Scene::count(ComponentId cid) const {
-    if (const ecs::IComponentPool* pool = storage_.TryGet(cid)) {
-        return pool->GetCount();
+    if (const ecs::IComponentPool* pool = storage_.tryGet(cid)) {
+        return pool->count();
     }
 
     return 0;
 }
 
 bool Scene::remove(ComponentId cid, Entity ent) {
-    return storage_.Remove(ent, cid);
+    return storage_.remove(cid, ent);
 }
 
 Entity Scene::findFirstByName(std::string_view name) const {
@@ -248,9 +248,9 @@ void Scene::removeEntity(ecs::Entity ent) {
         script->instance->onDestroy();
     }
 
-    for (auto& e : storage_.GetEntries()) {
+    for (auto& e : storage_.entries()) {
         if (e.pool) {
-            e.pool->Remove(ent);
+            e.pool->remove(ent);
         }
     }
 }

@@ -40,22 +40,22 @@ public:
     ~Scene() override;
 
     void* create(ComponentId cid, ecs::Entity ent) {
-        return storage_.CreateRaw(ent, cid);
+        return storage_.createRaw(cid, ent);
     }
 
     template<ComponentType T>
     T& create(ecs::Entity ent) {
-        return *((T*)storage_.CreateRaw(ent, T::kId));
+        return *((T*)storage_.createRaw(T::kId, ent));
     }
 
     template<ComponentType T>
     T* component(ecs::Entity ent) {
-        return (T*)storage_.GetRaw(ent, T::kId);
+        return (T*)storage_.getRaw(T::kId, ent);
     }
 
     template<ComponentType T>
     const T* component(ecs::Entity ent) const {
-        return (const T*)storage_.GetRaw(ent, T::kId);
+        return (const T*)storage_.getRaw(T::kId, ent);
     }
 
     bool has(ComponentId cid, ecs::Entity ent) const;
@@ -72,8 +72,8 @@ public:
     // @TODO: remove depracated
     template<ComponentType T>
     [[deprecated]] T& getComponentByIndex(size_t idx) {
-        if (auto* pool = (ecs::ComponentPool<T>*)storage_.TryGet(T::kId)) {
-            return pool->GetComponentArray()[idx];
+        if (auto* pool = (ecs::ComponentPool<T>*)storage_.tryGet(T::kId)) {
+            return pool->componentArray()[idx];
         }
 
         return *(T*)nullptr;
@@ -81,8 +81,8 @@ public:
 
     template<ComponentType T>
     [[deprecated]] ecs::Entity getEntityByIndex(size_t idx) {
-        if (ecs::IComponentPool* pool = storage_.TryGet(T::kId)) {
-            return pool->GetEntityArray()[idx];
+        if (ecs::IComponentPool* pool = storage_.tryGet(T::kId)) {
+            return pool->entityArray()[idx];
         }
 
         return ecs::Entity::Null();
@@ -90,12 +90,12 @@ public:
 
     template<ComponentType T>
     ecs::ComponentPool<T>* get() {
-        return (ecs::ComponentPool<T>*)storage_.TryGet(T::kId);
+        return (ecs::ComponentPool<T>*)storage_.tryGet(T::kId);
     }
 
     template<ComponentType T>
     const ecs::ComponentPool<T>* get() const {
-        return (const ecs::ComponentPool<T>*)storage_.TryGet(T::kId);
+        return (const ecs::ComponentPool<T>*)storage_.tryGet(T::kId);
     }
 
     template<class... Cs>
