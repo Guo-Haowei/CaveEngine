@@ -6,6 +6,7 @@
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/script/native/NativeScriptComponent.h"
+#include "cave/runtime/script/native/NativeScript.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"

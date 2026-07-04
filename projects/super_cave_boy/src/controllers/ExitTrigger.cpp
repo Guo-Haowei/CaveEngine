@@ -12,7 +12,7 @@ namespace super_cave_boy {
 using namespace ::cave;
 using namespace ::cave::math;
 
-void ExitTrigger::onBodyEntered(cave::SceneContext& ctx, Entity player) {
+void ExitTrigger::onBodyEntered(SceneContext& ctx, Entity player) {
     SceneQuery& query = ctx.query;
 #if USING(ENABLE_ASSERT)
     auto* player_collider = query.component<ColliderComponent>(player);
@@ -20,10 +20,15 @@ void ExitTrigger::onBodyEntered(cave::SceneContext& ctx, Entity player) {
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
 
-    ctx.scene_transition.requestSceneChange("@res://scenes/level_10.scene");
+    auto it = params().find("level");
+    if (it != params().end()) {
+        std::string_view level = it->second.asString();
+        LOG_INFO(LogChannel::Game, "next level '{}'", level);
+        ctx.scene_transition.requestSceneChange(std::format("@res://scenes/{}.scene", level));
+    }
 }
 
-void ExitTrigger::onBodyExited(cave::SceneContext& ctx, Entity player) {
+void ExitTrigger::onBodyExited(SceneContext& ctx, Entity player) {
     unused(ctx);
     unused(player);
 

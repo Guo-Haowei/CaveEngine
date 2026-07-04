@@ -5,9 +5,10 @@
 #include "cave/core/containers/FixedString.h"
 #include "cave/core/variant/Variant.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/script/native/NativeScript.h"
 
 namespace cave {
+
+class NativeScript;
 
 struct NativeScriptComponent {
     CAVE_COMPONENT(NativeScriptComponent)

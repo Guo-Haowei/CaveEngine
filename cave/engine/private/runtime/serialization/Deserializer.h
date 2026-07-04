@@ -118,9 +118,10 @@ public:
     bool read(T& map) {
         if (auto _keys = getKeys(); _keys.is_some()) {
             for (const auto& key : _keys.unwrap_unchecked()) {
-                tryEnterKey(key.c_str());
-                read(map[key]);
-                leaveKey();
+                if (tryEnterKey(key.c_str())) {
+                    read(map[key]);
+                    leaveKey();
+                }
             }
 
             return true;

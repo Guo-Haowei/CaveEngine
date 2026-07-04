@@ -55,11 +55,8 @@ bool IDeserializer::read(math::Mat4f& object) {
 }
 
 bool IDeserializer::read(Variant& variant) {
-    const auto size = arraySize().unwrap_or(-1);
-    ERR_FAIL_COND_V_MSG(size != 16, false, "expect float[16]");
-
-    VariantType type{};
     ERR_FAIL_COND_V_MSG(!tryEnterKey("type"), false, "expect type");
+    VariantType type{};
     read(type);
     leaveKey();
 

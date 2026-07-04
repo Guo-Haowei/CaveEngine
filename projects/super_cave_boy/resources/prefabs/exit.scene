@@ -21,7 +21,9 @@ entities:
     NativeScriptComponent:
       name: ExitTrigger
       params:
-        {}
+        level:
+          type: string
+          value: level_10
   - id: 2
     NameComponent:
       name: sprite

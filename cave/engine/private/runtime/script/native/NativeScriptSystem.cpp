@@ -30,7 +30,7 @@ void NativeScriptSystem::ensureCreated(SceneContext& ctx,
     }
 
     component.instance = script;
-    component.instance->bind(entity);
+    component.instance->bind(entity, component.params);
     component.instance->onCreate(ctx);
     component.created = true;
     component.pending_reload = false;
