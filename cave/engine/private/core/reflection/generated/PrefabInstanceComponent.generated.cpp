@@ -9,13 +9,11 @@
 namespace cave {
 
 // Guid prefab_id_ (editor = Asset)
-// math::Vec3f translation_ (editor = Translation)
 
 template<>
 const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(PrefabInstanceComponent, "prefab_id", prefab_id_, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(PrefabInstanceComponent, "translation", translation_, FieldFlag::Serialize, EditorHint::Translation),
     };
 
     return s_table;

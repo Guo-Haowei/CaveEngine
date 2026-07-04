@@ -185,9 +185,6 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
     hier.parent_id = ent.IsValid() ? ent : root_;
 
-    TransformComponent* transform = component<TransformComponent>(mapped_root);
-    transform->setTranslation(prefab.translation());
-
     prefab.child(mapped_root);
 }
 
@@ -353,11 +350,28 @@ concept HasOnDeserialized = requires(T& t) {
     { t.OnDeserialized() } -> std::same_as<void>;
 };
 
+namespace {
+
 template<ComponentType T>
-static void DeserializeComponent(IDeserializer& d,
-                                 const char* key,
-                                 ecs::Entity ent,
-                                 Scene& scene) {
+Option<T> DeserializeComponent(IDeserializer& d,
+                               const char* key) {
+    if (d.tryEnterKey(key)) {
+        T component;
+        d.read(component);
+        d.leaveKey();
+        if constexpr (HasOnDeserialized<T>) {
+            component.OnDeserialized();
+        }
+        return Some(std::move(component));
+    }
+    return None();
+}
+
+template<ComponentType T>
+void DeserializeComponent(IDeserializer& d,
+                          const char* key,
+                          ecs::Entity ent,
+                          Scene& scene) {
     if (d.tryEnterKey(key)) {
         T& component = scene.create<T>(ent);
         d.read(component);
@@ -367,65 +381,6 @@ static void DeserializeComponent(IDeserializer& d,
         }
     }
 }
-
-auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
-    YAML::Node root;
-
-    if (auto res = LoadYaml(meta.import_path, root); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    YamlDeserializer yaml;
-    yaml.Initialize(root);
-
-    IDeserializer& d = yaml;
-
-    const int version = d.version();
-    DEV_ASSERT(version);
-
-    if (d.tryEnterKey("seed")) {
-        d.read(entity_seed_);
-        d.leaveKey();
-    }
-    if (d.tryEnterKey("root")) {
-        d.read(root_);
-        d.leaveKey();
-    }
-
-    const bool ok = d.tryEnterKey("entities");
-    DEV_ASSERT(ok);
-
-    const int entity_count = d.arraySize().unwrap_or(0);
-    for (int i = 0; i < entity_count; ++i) {
-        DEV_ASSERT(d.tryEnterIndex(i));
-        auto keys = d.getKeys().unwrap();
-        ecs::Entity id;
-        DEV_ASSERT(d.tryEnterKey("id"));
-        d.read((uint32_t&)id);
-        d.leaveKey();
-
-        // @TODO: use component registry instead of this
-#define REGISTER_COMPONENT(a, ...)                 \
-    do {                                           \
-        DeserializeComponent<a>(d, #a, id, *this); \
-    } while (0);
-        REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-
-        d.leaveIndex();
-    }
-
-    d.leaveKey();
-
-    // @TODO: instantiate prefab
-    for (auto&& [id, prefab] : view<PrefabInstanceComponent>()) {
-        instantiatePrefab(prefab, id);
-    }
-
-    return Result<void>();
-}
-
-namespace {
 
 template<ComponentType T>
 bool SerializeComponent(ISerializer& s,
@@ -492,7 +447,7 @@ static bool SerializeComponentOverride(ISerializer& s,
 bool SerializePrefabDiff(ISerializer& s,
                          const Scene& scene,
                          const PrefabInstanceComponent& prefab) {
-    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid()); 
+    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
     if (handle.is_none()) {
         return false;
     }
@@ -571,6 +526,88 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
 
     yaml.endMap();
     return SaveYaml(meta.import_path, yaml);
+}
+
+auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
+    YAML::Node root;
+
+    if (auto res = LoadYaml(meta.import_path, root); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    YamlDeserializer yaml;
+    yaml.Initialize(root);
+
+    IDeserializer& d = yaml;
+
+    const int version = d.version();
+    DEV_ASSERT(version);
+
+    if (d.tryEnterKey("seed")) {
+        d.read(entity_seed_);
+        d.leaveKey();
+    }
+    if (d.tryEnterKey("root")) {
+        d.read(root_);
+        d.leaveKey();
+    }
+
+    const bool ok = d.tryEnterKey("entities");
+    DEV_ASSERT(ok);
+
+    struct OverrideComponents {
+        Option<TransformComponent> transform;
+
+        bool is_some() { return transform.is_some(); }
+    };
+
+    std::unordered_map<Entity, OverrideComponents> overrides_map;
+
+    const int entity_count = d.arraySize().unwrap_or(0);
+    for (int i = 0; i < entity_count; ++i) {
+        DEV_ASSERT(d.tryEnterIndex(i));
+        auto keys = d.getKeys().unwrap();
+        ecs::Entity ent;
+        DEV_ASSERT(d.tryEnterKey("id"));
+        d.read((uint32_t&)ent);
+        d.leaveKey();
+
+        // @TODO: use component registry instead of this
+#define REGISTER_COMPONENT(a, ...)                  \
+    do {                                            \
+        DeserializeComponent<a>(d, #a, ent, *this); \
+    } while (0);
+        REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+        // parse overrides
+        OverrideComponents overrides;
+        if (d.tryEnterKey("PrefabOverride")) {
+            overrides.transform = DeserializeComponent<TransformComponent>(d, "TransformComponent");
+            d.leaveKey();
+        }
+        if (overrides.is_some()) {
+            overrides_map[ent] = overrides;
+        }
+
+        d.leaveIndex();
+    }
+
+    d.leaveKey();
+
+    for (auto&& [ent, prefab] : view<PrefabInstanceComponent>()) {
+        instantiatePrefab(prefab, ent);
+    }
+
+    for (auto&& [ent, overrides] : overrides_map) {
+        const auto& prefab = *component<PrefabInstanceComponent>(ent);
+        Entity child_ent = prefab.child();
+        if (overrides.transform.is_some()) {
+            *component<TransformComponent>(child_ent) = overrides.transform.unwrap_unchecked();
+        }
+    }
+
+    return Result<void>();
 }
 
 void Scene::onSimBegin(SceneContext& ctx) {

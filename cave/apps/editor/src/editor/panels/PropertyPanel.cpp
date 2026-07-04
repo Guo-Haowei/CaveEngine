@@ -326,18 +326,12 @@ void PropertyPanel::drawUIImpl() {
 
     DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent& prefab) {
         const Guid old_guid = prefab.prefabGuid();
-        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
+        DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
         const Guid new_guid = prefab.prefabGuid();
 
         // @NOTE: can only instantiate once
         if (old_guid.isNull() && !new_guid.isNull()) {
             scene.instantiatePrefab(prefab, id);
-        }
-
-        if (dirty) {
-            ecs::Entity child = prefab.child();
-            TransformComponent* transform = scene.component<TransformComponent>(child);
-            transform->setTranslation(prefab.translation());
         }
     });
 

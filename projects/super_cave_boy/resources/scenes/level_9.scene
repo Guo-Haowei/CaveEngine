@@ -32,7 +32,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
-      translation: [3, 6, 0]
     PrefabOverride:
       TransformComponent:
         translation: [3, 6, 0]
@@ -70,7 +69,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
-      translation: [14.5, 5.30000019, 0]
     PrefabOverride:
       TransformComponent:
         translation: [14.5, 5.30000019, 0]
@@ -87,7 +85,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
-      translation: [23.5, 5.30000019, 0]
     PrefabOverride:
       TransformComponent:
         translation: [23.5, 5.30000019, 0]
@@ -104,7 +101,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
-      translation: [10.1999998, 8.5, 0]
     PrefabOverride:
       TransformComponent:
         translation: [10.1999998, 8.5, 0]
@@ -121,7 +117,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
-      translation: [30.2999992, 8.5, 0]
     PrefabOverride:
       TransformComponent:
         translation: [30.2999992, 8.5, 0]
@@ -138,7 +133,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
-      translation: [29.5, 5.4000001, 0]
     PrefabOverride:
       TransformComponent:
         translation: [29.5, 5.4000001, 0]
@@ -155,7 +149,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
-      translation: [36.5, 3.4000001, 0]
     PrefabOverride:
       TransformComponent:
         translation: [36.5, 3.4000001, 0]
@@ -172,7 +165,6 @@ entities:
       scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
-      translation: [34.5, 2.5, 0]
     PrefabOverride:
       TransformComponent:
         translation: [34.5, 2.5, 0]

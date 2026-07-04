@@ -16,16 +16,10 @@ private:
     CAVE_PROP(editor = Asset)
     Guid prefab_id_;
 
-    CAVE_PROP(editor = Translation)
-    math::Vec3f translation_;
-
     // Non-serialzed
     ecs::Entity child_;
 
 public:
-    const math::Vec3f& translation() const { return translation_; }
-    void translation(const math::Vec3f& translation) { translation_ = translation; }
-
     ecs::Entity child() const { return child_; }
     void child(ecs::Entity ent) { child_ = ent; }
 
