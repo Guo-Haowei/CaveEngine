@@ -14,6 +14,7 @@
 namespace cave {
 
 class Guid;
+class Variant;
 
 #if USING(VALIDATE_SERIALIZER)
 #define IF_VALIDATE_SERIALIZER(x) \
@@ -34,133 +35,134 @@ public:
     virtual ISerializer& beginMap(bool single_line) = 0;
     virtual ISerializer& endMap() = 0;
 
-    virtual ISerializer& Key(std::string_view p_key) = 0;
+    virtual ISerializer& beginKey(std::string_view key) = 0;
 
-    virtual ISerializer& Write(const bool& p_value) = 0;
-    virtual ISerializer& Write(const float& p_value) = 0;
-    virtual ISerializer& Write(const char* p_value) = 0;
-    virtual ISerializer& Write(const std::string& p_value) = 0;
+    virtual ISerializer& write(const bool& value) = 0;
+    virtual ISerializer& write(const float& value) = 0;
+    virtual ISerializer& write(const char* value) = 0;
+    virtual ISerializer& write(const std::string& value) = 0;
 
-    virtual ISerializer& Write(const int8_t& p_value) = 0;
-    virtual ISerializer& Write(const uint8_t& p_value) = 0;
-    virtual ISerializer& Write(const int16_t& p_value) = 0;
-    virtual ISerializer& Write(const uint16_t& p_value) = 0;
-    virtual ISerializer& Write(const int32_t& p_value) = 0;
-    virtual ISerializer& Write(const uint32_t& p_value) = 0;
-    virtual ISerializer& Write(const int64_t& p_value) = 0;
-    virtual ISerializer& Write(const uint64_t& p_value) = 0;
+    virtual ISerializer& write(const int8_t& value) = 0;
+    virtual ISerializer& write(const uint8_t& value) = 0;
+    virtual ISerializer& write(const int16_t& value) = 0;
+    virtual ISerializer& write(const uint16_t& value) = 0;
+    virtual ISerializer& write(const int32_t& value) = 0;
+    virtual ISerializer& write(const uint32_t& value) = 0;
+    virtual ISerializer& write(const int64_t& value) = 0;
+    virtual ISerializer& write(const uint64_t& value) = 0;
 
-    virtual ISerializer& Write(const Guid& p_object) = 0;
+    virtual ISerializer& write(const Guid& object) = 0;
 
-    ISerializer& Write(const ecs::Entity& p_object);
-    ISerializer& Write(const math::Degree& p_object);
-    ISerializer& Write(const math::Mat4f& p_object);
+    ISerializer& write(const ecs::Entity& object);
+    ISerializer& write(const math::Degree& object);
+    ISerializer& write(const math::Mat4f& object);
+    ISerializer& write(const Variant& variant);
 
     template<size_t N>
-    ISerializer& Write(const FixedString<N>& p_value) {
-        return Write(p_value.data());
+    ISerializer& write(const FixedString<N>& value) {
+        return write(value.data());
     }
 
     template<typename T, size_t N>
-    ISerializer& Write(const FixedStack<T, N>& p_array) {
-        const size_t len = std::ranges::size(p_array);
+    ISerializer& write(const FixedStack<T, N>& array) {
+        const size_t len = std::ranges::size(array);
         beginArray(len < SINGLE_LINE_MAX_ELEMENT);
-        for (const T& val : p_array) Write(val);
+        for (const T& val : array) write(val);
         endArray();
         return *this;
     }
 
     template<ArrayLike T>
-    ISerializer& Write(const T& p_array) {
-        const size_t len = std::ranges::size(p_array);
+    ISerializer& write(const T& array) {
+        const size_t len = std::ranges::size(array);
         beginArray(len < SINGLE_LINE_MAX_ELEMENT);
-        for (const auto& val : p_array) Write(val);
+        for (const auto& val : array) write(val);
         endArray();
         return *this;
     }
 
     template<StringKeyMap T>
-    ISerializer& Write(const T& p_map) {
-        const size_t len = std::ranges::size(p_map);
+    ISerializer& write(const T& map) {
+        const size_t len = std::ranges::size(map);
         beginMap(len < SINGLE_LINE_MAX_ELEMENT);
-        for (const auto& [key, value] : p_map) {
-            Key(key).Write(value);
+        for (const auto& [key, value] : map) {
+            beginKey(key).write(value);
         }
         endMap();
         return *this;
     }
 
     template<IntegralKeyMap T>
-    ISerializer& Write(const T& p_map) {
-        const size_t len = std::ranges::size(p_map);
+    ISerializer& write(const T& map) {
+        const size_t len = std::ranges::size(map);
         beginMap(len < SINGLE_LINE_MAX_ELEMENT);
-        for (const auto& [key, value] : p_map) {
-            Key(std::to_string(key)).Write(value);
+        for (const auto& [key, value] : map) {
+            beginKey(std::to_string(key)).write(value);
         }
         endMap();
         return *this;
     }
 
     template<IsSerializable T>
-    ISerializer& Write(const T& p_value) {
-        return WriteObject(*this, p_value);
+    ISerializer& write(const T& value) {
+        return WriteObject(*this, value);
     }
 
     template<IsEnum T>
-    ISerializer& Write(const T& p_object) {
+    ISerializer& write(const T& object) {
         if constexpr (HasEnumTraits<T>) {
-            return Write(EnumTraits<T>::ToString(p_object).data());
+            return write(EnumTraits<T>::ToString(object).data());
         } else {
-            return Write(static_cast<uint64_t>(std::to_underlying(p_object)));
+            return write(static_cast<uint64_t>(std::to_underlying(object)));
         }
     }
 
     template<typename T, int N>
-    ISerializer& Write(const math::Vector<T, N>& p_object) {
+    ISerializer& write(const math::Vector<T, N>& object) {
         beginArray(true);
-        Write(p_object.x);
-        Write(p_object.y);
+        write(object.x);
+        write(object.y);
         if constexpr (N > 2) {
-            Write(p_object.z);
+            write(object.z);
         }
         if constexpr (N > 3) {
-            Write(p_object.w);
+            write(object.w);
         }
         endArray();
         return *this;
     }
 
     template<typename T, int N>
-    ISerializer& Write(const T (&p_object)[N]) {
+    ISerializer& write(const T (&object)[N]) {
         beginArray(true);
         for (int i = 0; i < N; ++i) {
-            Write(p_object[i]);
+            write(object[i]);
         }
         endArray();
         return *this;
     }
 
     template<typename T, int N>
-    ISerializer& Write(const math::Box<T, N>& p_object) {
+    ISerializer& write(const math::Box<T, N>& object) {
         beginMap(true)
-            .Key("min")
-            .Write(p_object.min())
-            .Key("max")
-            .Write(p_object.max());
+            .beginKey("min")
+            .write(object.min())
+            .beginKey("max")
+            .write(object.max());
         endMap();
         return *this;
     }
 
 #if USING(USE_REFLECTION)
     template<IsReflectable T>
-    ISerializer& Write(const T& p_object) {
+    ISerializer& write(const T& object) {
         const auto& meta = MetaDataTable<T>::GetFields();
 
         beginMap(false);
 
         for (const auto& field : meta) {
             if ((field->flags & FieldFlag::Serialize) == FieldFlag::None) continue;
-            field->Write(*this, &p_object);
+            field->Write(*this, &object);
         }
 
         endMap();
@@ -171,17 +173,17 @@ public:
 
 protected:
 #if USING(VALIDATE_SERIALIZER)
-    void CheckEnter(SerializerState p_state);
-    void CheckExit(SerializerState p_state);
+    void checkEnter(SerializerState state);
+    void checkExit(SerializerState state);
 
-    std::vector<SerializerState> m_stack;
+    std::vector<SerializerState> stack_;
 #endif
 };
 
 template<typename T>
-ISerializer& FieldMeta<T>::Write(ISerializer& p_serializer, const void* p_object) const {
-    const T& data = FieldMetaBase::GetData<T>(p_object);
-    return p_serializer.Key(name).Write(data);
+ISerializer& FieldMeta<T>::Write(ISerializer& serializer, const void* object) const {
+    const T& data = FieldMetaBase::GetData<T>(object);
+    return serializer.beginKey(name).write(data);
 }
 
 }  // namespace cave

@@ -358,10 +358,10 @@ static void DeserializeComponent(IDeserializer& d,
                                  const char* key,
                                  ecs::Entity ent,
                                  Scene& scene) {
-    if (d.TryEnterKey(key)) {
+    if (d.tryEnterKey(key)) {
         T& component = scene.create<T>(ent);
-        d.Read(component);
-        d.LeaveKey();
+        d.read(component);
+        d.leaveKey();
         if constexpr (HasOnDeserialized<T>) {
             component.OnDeserialized();
         }
@@ -380,29 +380,29 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
 
     IDeserializer& d = yaml;
 
-    const int version = d.GetVersion();
+    const int version = d.version();
     DEV_ASSERT(version);
 
-    if (d.TryEnterKey("seed")) {
-        d.Read(entity_seed_);
-        d.LeaveKey();
+    if (d.tryEnterKey("seed")) {
+        d.read(entity_seed_);
+        d.leaveKey();
     }
-    if (d.TryEnterKey("root")) {
-        d.Read(root_);
-        d.LeaveKey();
+    if (d.tryEnterKey("root")) {
+        d.read(root_);
+        d.leaveKey();
     }
 
-    const bool ok = d.TryEnterKey("entities");
+    const bool ok = d.tryEnterKey("entities");
     DEV_ASSERT(ok);
 
-    const int entity_count = d.ArraySize().unwrap_or(0);
+    const int entity_count = d.arraySize().unwrap_or(0);
     for (int i = 0; i < entity_count; ++i) {
-        DEV_ASSERT(d.TryEnterIndex(i));
-        auto keys = d.GetKeys().unwrap();
+        DEV_ASSERT(d.tryEnterIndex(i));
+        auto keys = d.getKeys().unwrap();
         ecs::Entity id;
-        DEV_ASSERT(d.TryEnterKey("id"));
-        d.Read((uint32_t&)id);
-        d.LeaveKey();
+        DEV_ASSERT(d.tryEnterKey("id"));
+        d.read((uint32_t&)id);
+        d.leaveKey();
 
         // @TODO: use component registry instead of this
 #define REGISTER_COMPONENT(a, ...)                 \
@@ -412,10 +412,10 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-        d.LeaveIndex();
+        d.leaveIndex();
     }
 
-    d.LeaveKey();
+    d.leaveKey();
 
     // @TODO: instantiate prefab
     for (auto&& [id, prefab] : view<PrefabInstanceComponent>()) {
@@ -433,8 +433,8 @@ static bool SerializeComponent(ISerializer& s,
 
     const T* component = scene.component<T>(ent);
     if (component) {
-        s.Key(name);
-        s.Write(*component);
+        s.beginKey(name);
+        s.write(*component);
     }
     return true;
 }
@@ -451,13 +451,13 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     auto entity_array = getSortedEntityArray();
 
     yaml.beginMap(false)
-        .Key("version")
-        .Write(LATEST_SCENE_VERSION)
-        .Key("seed")
-        .Write(entity_array.back())
-        .Key("root")
-        .Write(root_)
-        .Key("entities");
+        .beginKey("version")
+        .write(LATEST_SCENE_VERSION)
+        .beginKey("seed")
+        .write(entity_array.back())
+        .beginKey("root")
+        .write(root_)
+        .beginKey("entities");
 
     yaml.beginArray(false);
 
@@ -467,8 +467,8 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
         }
 
         yaml.beginMap(false)
-            .Key("id")
-            .Write(entity);
+            .beginKey("id")
+            .write(entity);
 
 #define REGISTER_COMPONENT(COMPONENT, ...) \
     SerializeComponent<COMPONENT>(yaml, #COMPONENT, entity, *this);

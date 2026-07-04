@@ -7,51 +7,46 @@
 
 namespace cave {
 
-// @TODO: move general logic from YamlSerializer to ISerializer
-auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
-
 class YamlSerializer;
 
-// @TODO: refactor
-auto SaveYaml(std::string_view p_path, YamlSerializer& p_serializer) -> Result<void>;
+// @TODO: move general logic from YamlSerializer to ISerializer
+auto LoadYaml(std::string_view path, YAML::Node& node) -> Result<void>;
+auto SaveYaml(std::string_view path, YamlSerializer& serializer) -> Result<void>;
 
 class YamlSerializer : public ISerializer {
 public:
-    using ISerializer::Write;
+    using ISerializer::write;
 
-    ISerializer& beginArray(bool p_single_line) override;
+    ISerializer& beginArray(bool single_line) override;
     ISerializer& endArray() override;
 
-    ISerializer& beginMap(bool p_single_line) override;
+    ISerializer& beginMap(bool single_line) override;
     ISerializer& endMap() override;
 
-    ISerializer& Key(std::string_view p_key) override;
+    ISerializer& beginKey(std::string_view key) override;
 
-    ISerializer& Write(const bool& p_value) override;
-    ISerializer& Write(const float& p_value) override;
-    ISerializer& Write(const char* p_value) override;
-    ISerializer& Write(const std::string& p_value) override;
+    ISerializer& write(const bool& value) override;
+    ISerializer& write(const float& value) override;
+    ISerializer& write(const char* value) override;
+    ISerializer& write(const std::string& value) override;
 
-    ISerializer& Write(const int8_t& p_value) override;
-    ISerializer& Write(const uint8_t& p_value) override;
-    ISerializer& Write(const int16_t& p_value) override;
-    ISerializer& Write(const uint16_t& p_value) override;
-    ISerializer& Write(const int32_t& p_value) override;
-    ISerializer& Write(const uint32_t& p_value) override;
-    ISerializer& Write(const int64_t& p_value) override;
-    ISerializer& Write(const uint64_t& p_value) override;
+    ISerializer& write(const int8_t& value) override;
+    ISerializer& write(const uint8_t& value) override;
+    ISerializer& write(const int16_t& value) override;
+    ISerializer& write(const uint16_t& value) override;
+    ISerializer& write(const int32_t& value) override;
+    ISerializer& write(const uint32_t& value) override;
+    ISerializer& write(const int64_t& value) override;
+    ISerializer& write(const uint64_t& value) override;
 
-    ISerializer& Write(const Guid& p_object) override;
+    ISerializer& write(const Guid& object) override;
 
-    YAML::Emitter& GetEmitter() {
-        return m_out;
+    YAML::Emitter& emitter() {
+        return out_;
     }
 
-public:
-    uint32_t version;
-    FileAccess* file;
-
-    YAML::Emitter m_out;
+private:
+    YAML::Emitter out_;
 };
 
 }  // namespace cave
@@ -61,30 +56,30 @@ namespace cave {
 // @TODO:
 static constexpr char BIN_GUARD_MAGIC[] = "SEETHIS";
 
-static inline Result<void> FileWrite(FileAccess* p_file, const void* p_data, size_t p_length) {
-    const size_t written = p_file->WriteBuffer(p_data, p_length);
-    if (written != p_length) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to write {} bytes, only wrote {}", p_length, written);
+static inline Result<void> FileWrite(FileAccess* file, const void* data, size_t length) {
+    const size_t written = file->WriteBuffer(data, length);
+    if (written != length) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_WRITE, "failed to write {} bytes, only wrote {}", length, written);
     }
     return Result<void>();
 }
 
 template<TriviallyCopyable T>
-static inline Result<void> FileWrite(FileAccess* p_file, const T& p_data) {
-    return FileWrite(p_file, &p_data, sizeof(T));
+static inline Result<void> FileWrite(FileAccess* file, const T& data) {
+    return FileWrite(file, &data, sizeof(T));
 }
 
-static inline Result<void> FileRead(FileAccess* p_file, void* p_data, size_t p_length) {
-    const size_t read = p_file->ReadBuffer(p_data, p_length);
-    if (read != p_length) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes, only read {}", p_length, read);
+static inline Result<void> FileRead(FileAccess* file, void* data, size_t length) {
+    const size_t read = file->ReadBuffer(data, length);
+    if (read != length) {
+        return CAVE_ERROR(ErrorCode::ERR_FILE_CANT_READ, "failed to read {} bytes, only read {}", length, read);
     }
     return Result<void>();
 }
 
 template<TriviallyCopyable T>
-static inline Result<void> FileRead(FileAccess* p_file, T& p_data) {
-    return FileRead(p_file, &p_data, sizeof(T));
+static inline Result<void> FileRead(FileAccess* file, T& data) {
+    return FileRead(file, &data, sizeof(T));
 }
 
 }  // namespace cave

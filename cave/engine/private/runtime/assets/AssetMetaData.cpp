@@ -19,7 +19,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
 
     YamlDeserializer d;
     d.Initialize(root);
-    d.Read(meta);
+    d.read(meta);
 
     // meta sys path
     std::string sys_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, p_path);
@@ -50,7 +50,7 @@ Result<void> AssetMetaData::saveToDisk(const IAsset* asset) const {
         dependencies = asset->dependencies();
     }
 
-    yaml.Write(*this);
+    yaml.write(*this);
     auto meta_path = std::format("{}.meta", import_path);
     return SaveYaml(meta_path, yaml);
 }

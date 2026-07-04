@@ -20,6 +20,8 @@ entities:
       is_trigger: true
     NativeScriptComponent:
       name: ExitTrigger
+      params:
+        {}
   - id: 2
     NameComponent:
       name: sprite

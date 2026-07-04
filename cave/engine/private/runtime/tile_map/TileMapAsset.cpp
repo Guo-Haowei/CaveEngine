@@ -54,16 +54,16 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
         }
 
         s.beginMap(false)
-            .Key("x")
-            .Write(index.x)
-            .Key("y")
-            .Write(index.y)
-            .Key("tiles")
+            .beginKey("x")
+            .write(index.x)
+            .beginKey("y")
+            .write(index.y)
+            .beginKey("tiles")
             .beginArray(true);
 
         for (int16_t y = 0; y < kTileChunkSize; ++y) {
             for (int16_t x = 0; x < kTileChunkSize; ++x) {
-                s.Write(chunk->at(x, y));
+                s.write(chunk->at(x, y));
             }
         }
 
@@ -75,42 +75,42 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
 }
 
 bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
-    const int chunk_size = d.ArraySize().unwrap_or(-1);
+    const int chunk_size = d.arraySize().unwrap_or(-1);
     if (chunk_size < 0) {
         return false;
     }
 
     for (int chunk_idx = 0; chunk_idx < chunk_size; ++chunk_idx) {
-        DEV_ASSERT(d.TryEnterIndex(chunk_idx));
+        DEV_ASSERT(d.tryEnterIndex(chunk_idx));
         int16_t x = INT16_MAX;
         int16_t y = INT16_MAX;
-        if (DEV_VERIFY(d.TryEnterKey("x"))) {
-            d.Read(x);
-            d.LeaveKey();
+        if (DEV_VERIFY(d.tryEnterKey("x"))) {
+            d.read(x);
+            d.leaveKey();
         }
-        if (DEV_VERIFY(d.TryEnterKey("y"))) {
-            d.Read(y);
-            d.LeaveKey();
+        if (DEV_VERIFY(d.tryEnterKey("y"))) {
+            d.read(y);
+            d.leaveKey();
         }
 
         if (x != INT16_MAX && y != INT16_MAX) {
-            if (d.TryEnterKey("tiles")) {
+            if (d.tryEnterKey("tiles")) {
                 auto chunk = std::make_unique<TileChunk>();
                 auto& tiles = chunk->tiles;
                 tile_data.chunks()[TileChunkCoord(x, y)] = std::move(chunk);
 
                 constexpr int TILE_COUNT = kTileChunkSize * kTileChunkSize;
-                DEV_ASSERT(d.ArraySize().unwrap_or(0) == TILE_COUNT);
+                DEV_ASSERT(d.arraySize().unwrap_or(0) == TILE_COUNT);
                 for (int tile_idx = 0; tile_idx < TILE_COUNT; ++tile_idx) {
-                    DEV_ASSERT(d.TryEnterIndex(tile_idx));
-                    d.Read(tiles[tile_idx]);
-                    d.LeaveIndex();
+                    DEV_ASSERT(d.tryEnterIndex(tile_idx));
+                    d.read(tiles[tile_idx]);
+                    d.leaveIndex();
                 }
-                d.LeaveKey();
+                d.leaveKey();
             }
         }
 
-        d.LeaveIndex();
+        d.leaveIndex();
     }
 
     return true;
@@ -124,10 +124,10 @@ Result<void> TileMapAsset::saveToDisk(const AssetMetaData& meta) const {
 
     YamlSerializer yaml;
     yaml.beginMap(false)
-        .Key("version")
-        .Write(VERSION)
-        .Key("content")
-        .Write(*this)
+        .beginKey("version")
+        .write(VERSION)
+        .beginKey("content")
+        .write(*this)
         .endMap();
     return SaveYaml(meta.import_path, yaml);
 }
@@ -142,18 +142,18 @@ Result<void> TileMapAsset::loadFromDisk(const AssetMetaData& meta) {
     YamlDeserializer d;
     d.Initialize(root);
 
-    const int version = d.GetVersion();
+    const int version = d.version();
 
-    if (d.TryEnterKey("content")) {
+    if (d.tryEnterKey("content")) {
         switch (version) {
             case 1:
                 [[fallthrough]];
             default:
-                d.Read(*this);
+                d.read(*this);
                 break;
         }
 
-        d.LeaveKey();
+        d.leaveKey();
     }
 
     tileSetGuid(tile_set_id_, true);

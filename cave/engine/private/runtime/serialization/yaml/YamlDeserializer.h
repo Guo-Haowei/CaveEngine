@@ -7,70 +7,67 @@ namespace cave {
 
 class Guid;
 
-auto LoadYaml(std::string_view p_path, YAML::Node& p_node) -> Result<void>;
+auto LoadYaml(std::string_view path, YAML::Node& node) -> Result<void>;
 
 class YamlDeserializer : public IDeserializer {
 public:
-    using IDeserializer::Read;
+    using IDeserializer::read;
 
     // @TODO: make it private
-    bool Initialize(const YAML::Node& p_node);
+    bool Initialize(const YAML::Node& node);
 
     ~YamlDeserializer();
 
-    int GetVersion() const override {
-        DEV_ASSERT(m_initialized);
-        return m_version;
+    int version() const override {
+        DEV_ASSERT(initialized_);
+        return version_;
     }
 
-    bool TryEnterKey(const char* p_key) override;
+    bool tryEnterKey(const char* key) override;
 
-    void LeaveKey() override;
+    void leaveKey() override;
 
-    bool TryEnterIndex(int p_index) override;
+    bool tryEnterIndex(int index) override;
 
-    void LeaveIndex() override;
+    void leaveIndex() override;
 
-    Option<int> ArraySize() override;
+    Option<int> arraySize() override;
 
-    Option<std::vector<std::string>> GetKeys() override;
+    Option<std::vector<std::string>> getKeys() override;
 
-    bool Read(bool& p_value) override;
-    bool Read(float& p_value) override;
-    bool Read(std::string& p_value) override;
+    bool read(bool& value) override;
+    bool read(float& value) override;
+    bool read(std::string& value) override;
 
-    bool Read(int8_t& p_value) override;
-    bool Read(uint8_t& p_value) override;
-    bool Read(int16_t& p_value) override;
-    bool Read(uint16_t& p_value) override;
-    bool Read(int32_t& p_value) override;
-    bool Read(uint32_t& p_value) override;
-    bool Read(int64_t& p_value) override;
-    bool Read(uint64_t& p_value) override;
-
-    const YAML::Node& Current() {
-        DEV_ASSERT(!m_node_stack.empty());
-        return m_node_stack.back();
-    }
+    bool read(int8_t& value) override;
+    bool read(uint8_t& value) override;
+    bool read(int16_t& value) override;
+    bool read(uint16_t& value) override;
+    bool read(int32_t& value) override;
+    bool read(uint32_t& value) override;
+    bool read(int64_t& value) override;
+    bool read(uint64_t& value) override;
 
 private:
+    const YAML::Node& current() const;
+
     template<typename T>
-    bool ReadScalar(T& p_out);
+    bool readScalar(T& p_out);
 
 #if USING(VALIDATE_SERIALIZER)
-    std::vector<SerializerState> m_type_stack;
+    std::vector<SerializerState> type_stack_;
 #endif
 
-    std::vector<YAML::Node> m_node_stack;
-    int m_version{ -1 };
-    bool m_initialized{ false };
+    std::vector<YAML::Node> node_stack_;
+    int version_{ -1 };
+    bool initialized_{ false };
 };
 
 template<typename T>
-bool FieldMeta<T>::Read(IDeserializer& p_deserializer, void* p_object) const {
-    T& data = FieldMetaBase::GetData<T>(p_object);
+bool FieldMeta<T>::Read(IDeserializer& deserializer, void* object) const {
+    T& data = FieldMetaBase::GetData<T>(object);
 
-    return p_deserializer.Read(data);
+    return deserializer.read(data);
 }
 
 }  // namespace cave

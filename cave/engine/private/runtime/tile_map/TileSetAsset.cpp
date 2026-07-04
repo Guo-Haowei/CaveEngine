@@ -114,10 +114,10 @@ auto TileSetAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
 
     YamlSerializer yaml;
     yaml.beginMap(false)
-        .Key("version")
-        .Write(VERSION)
-        .Key("content")
-        .Write(*this)
+        .beginKey("version")
+        .write(VERSION)
+        .beginKey("content")
+        .write(*this)
         .endMap();
     return SaveYaml(meta.import_path, yaml);
 }
@@ -132,18 +132,18 @@ auto TileSetAsset::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YamlDeserializer deserializer;
     deserializer.Initialize(root);
 
-    const int version = deserializer.GetVersion();
+    const int version = deserializer.version();
 
-    if (deserializer.TryEnterKey("content")) {
+    if (deserializer.tryEnterKey("content")) {
         switch (version) {
             case 1:
                 [[fallthrough]];
             default:
-                deserializer.Read(*this);
+                deserializer.read(*this);
                 break;
         }
 
-        deserializer.LeaveKey();
+        deserializer.leaveKey();
     }
 
     // @TODO: post load?

@@ -2,32 +2,33 @@
 
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Angle.h"
+#include "cave/core/variant/Variant.h"
 
 namespace cave {
 
-bool IDeserializer::Read(ecs::Entity& p_object) {
+bool IDeserializer::read(ecs::Entity& object) {
     uint32_t raw = 0;
-    if (!Read(raw)) {
+    if (!read(raw)) {
         return false;
     }
 
-    p_object = ecs::Entity(raw);
+    object = ecs::Entity(raw);
     return true;
 }
 
-bool IDeserializer::Read(math::Degree& p_object) {
+bool IDeserializer::read(math::Degree& object) {
     float raw = 0;
-    if (!Read(raw)) {
+    if (!read(raw)) {
         return false;
     }
 
-    p_object = math::Degree(raw);
+    object = math::Degree(raw);
     return true;
 }
 
-bool IDeserializer::Read(Guid& p_object) {
+bool IDeserializer::read(Guid& object) {
     std::string raw;
-    if (!Read(raw)) {
+    if (!read(raw)) {
         return false;
     }
 
@@ -35,25 +36,45 @@ bool IDeserializer::Read(Guid& p_object) {
 
     ERR_FAIL_COND_V_MSG(res.is_none(), false, "failed to parse guid");
 
-    p_object = res.unwrap_unchecked();
+    object = res.unwrap_unchecked();
     return true;
 }
 
-bool IDeserializer::Read(math::Mat4f& p_object) {
-    const auto size = ArraySize().unwrap_or(-1);
+bool IDeserializer::read(math::Mat4f& object) {
+    const auto size = arraySize().unwrap_or(-1);
     ERR_FAIL_COND_V_MSG(size != 16, false, "expect float[16]");
 
-    float* ptr = &p_object[0].x;
+    float* ptr = &object[0].x;
     for (int i = 0; i < 16; ++i) {
-        TryEnterIndex(i);
-        Read(ptr[i]);
-        LeaveIndex();
+        tryEnterIndex(i);
+        read(ptr[i]);
+        leaveIndex();
     }
 
     return true;
 }
 
-Option<std::vector<std::string>> IDeserializer::GetKeys() {
+bool IDeserializer::read(Variant& variant) {
+    const auto size = arraySize().unwrap_or(-1);
+    ERR_FAIL_COND_V_MSG(size != 16, false, "expect float[16]");
+
+    VariantType type{};
+    ERR_FAIL_COND_V_MSG(!tryEnterKey("type"), false, "expect type");
+    read(type);
+    leaveKey();
+
+    DEV_ASSERT(type == VariantType::String);
+
+    ERR_FAIL_COND_V_MSG(!tryEnterKey("value"), false, "expect value");
+    std::string value;
+    read(value);
+    variant = Variant(value);
+    leaveKey();
+
+    return true;
+}
+
+Option<std::vector<std::string>> IDeserializer::getKeys() {
     CRASH_NOW_MSG("GetKeys is very inefficient, try to avoid using it");
     std::exit(-1);
 }

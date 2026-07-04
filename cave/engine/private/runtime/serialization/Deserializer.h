@@ -15,112 +15,112 @@ class Degree;
 namespace cave {
 
 class Guid;
+class Variant;
 
 class IDeserializer {
 public:
     virtual ~IDeserializer() = default;
 
-    virtual int GetVersion() const = 0;
+    virtual int version() const = 0;
 
-    virtual bool TryEnterKey(const char* p_key) = 0;
+    virtual bool tryEnterKey(const char* key) = 0;
+    virtual void leaveKey() = 0;
 
-    virtual void LeaveKey() = 0;
+    virtual bool tryEnterIndex(int index) = 0;
+    virtual void leaveIndex() = 0;
 
-    virtual bool TryEnterIndex(int p_index) = 0;
+    virtual Option<int> arraySize() = 0;
 
-    virtual void LeaveIndex() = 0;
+    virtual Option<std::vector<std::string>> getKeys();
 
-    virtual Option<int> ArraySize() = 0;
+    virtual bool read(bool& value) = 0;
+    virtual bool read(float& value) = 0;
+    virtual bool read(std::string& value) = 0;
 
-    virtual Option<std::vector<std::string>> GetKeys();
+    virtual bool read(int8_t& value) = 0;
+    virtual bool read(uint8_t& value) = 0;
+    virtual bool read(int16_t& value) = 0;
+    virtual bool read(uint16_t& value) = 0;
+    virtual bool read(int32_t& value) = 0;
+    virtual bool read(uint32_t& value) = 0;
+    virtual bool read(int64_t& value) = 0;
+    virtual bool read(uint64_t& value) = 0;
 
-    virtual bool Read(bool& p_value) = 0;
-    virtual bool Read(float& p_value) = 0;
-    virtual bool Read(std::string& p_value) = 0;
-
-    virtual bool Read(int8_t& p_value) = 0;
-    virtual bool Read(uint8_t& p_value) = 0;
-    virtual bool Read(int16_t& p_value) = 0;
-    virtual bool Read(uint16_t& p_value) = 0;
-    virtual bool Read(int32_t& p_value) = 0;
-    virtual bool Read(uint32_t& p_value) = 0;
-    virtual bool Read(int64_t& p_value) = 0;
-    virtual bool Read(uint64_t& p_value) = 0;
-
-    bool Read(ecs::Entity& p_object);
-    bool Read(math::Degree& p_object);
-    bool Read(Guid& p_object);
-    bool Read(math::Mat4f& p_object);
+    bool read(ecs::Entity& object);
+    bool read(math::Degree& object);
+    bool read(Guid& object);
+    bool read(math::Mat4f& object);
+    bool read(Variant& variant);
 
     template<size_t N>
-    bool Read(FixedString<N>& p_value) {
+    bool read(FixedString<N>& value) {
         std::string s;
-        if (!Read(s)) {
+        if (!read(s)) {
             return false;
         }
-        p_value = s;
+        value = s;
         return true;
     }
 
     template<typename T, size_t N>
-    bool Read(FixedStack<T, N>& p_array) {
-        const auto size = ArraySize().unwrap_or(-1);
+    bool read(FixedStack<T, N>& array) {
+        const auto size = arraySize().unwrap_or(-1);
         ERR_FAIL_COND_V_MSG(size < 0, false, "expect array[]");
-        ERR_FAIL_COND_V_MSG(size > p_array.capacity(), false, "array overflow");
+        ERR_FAIL_COND_V_MSG(size > array.capacity(), false, "array overflow");
 
-        p_array.resize(size);
+        array.resize(size);
         for (int i = 0; i < size; ++i) {
-            TryEnterIndex(i);
-            Read(p_array[i]);
-            LeaveIndex();
+            tryEnterIndex(i);
+            read(array[i]);
+            leaveIndex();
         }
 
         return true;
     }
 
     template<IsSerializable T>
-    bool Read(T& p_value) {
-        return ReadObject(*this, p_value);
+    bool read(T& value) {
+        return ReadObject(*this, value);
     }
 
     template<IsEnum T>
-    bool Read(T& p_object) {
+    bool read(T& object) {
         if constexpr (HasEnumTraits<T>) {
             std::string value;
-            Read(value);
-            p_object = EnumTraits<T>::FromString(value).unwrap_or(static_cast<T>(0));
+            read(value);
+            object = EnumTraits<T>::FromString(value).unwrap_or(static_cast<T>(0));
         } else {
             uint64_t value = 0;
-            Read(value);
-            p_object = static_cast<T>(value);
+            read(value);
+            object = static_cast<T>(value);
         }
         return true;
     }
 
     template<ArrayLike T>
-    bool Read(T& p_array) {
-        const auto size = ArraySize().unwrap_or(-1);
+    bool read(T& array) {
+        const auto size = arraySize().unwrap_or(-1);
         ERR_FAIL_COND_V_MSG(size < 0, false, "expect array[]");
 
         if constexpr (HasResize<T>) {
-            p_array.resize(size);
+            array.resize(size);
         }
         for (int i = 0; i < size; ++i) {
-            TryEnterIndex(i);
-            Read(p_array[i]);
-            LeaveIndex();
+            tryEnterIndex(i);
+            read(array[i]);
+            leaveIndex();
         }
 
         return true;
     }
 
     template<StringKeyMap T>
-    bool Read(T& p_map) {
-        if (auto _keys = GetKeys(); _keys.is_some()) {
+    bool read(T& map) {
+        if (auto _keys = getKeys(); _keys.is_some()) {
             for (const auto& key : _keys.unwrap_unchecked()) {
-                TryEnterKey(key.c_str());
-                Read(p_map[key]);
-                LeaveKey();
+                tryEnterKey(key.c_str());
+                read(map[key]);
+                leaveKey();
             }
 
             return true;
@@ -130,13 +130,13 @@ public:
     }
 
     template<IntegralKeyMap T>
-    bool Read(T& p_map) {
-        if (auto _keys = GetKeys(); _keys.is_some()) {
+    bool read(T& map) {
+        if (auto _keys = getKeys(); _keys.is_some()) {
             for (const auto& key : _keys.unwrap_unchecked()) {
-                TryEnterKey(key.c_str());
+                tryEnterKey(key.c_str());
                 const auto val = static_cast<typename MapTraits<T>::key_type>(std::stoll(key));
-                Read(p_map[val]);
-                LeaveKey();
+                read(map[val]);
+                leaveKey();
             }
 
             return true;
@@ -146,47 +146,47 @@ public:
     }
 
     template<typename T, int N>
-    bool Read(math::Vector<T, N>& p_object) {
-        const auto size = ArraySize().unwrap_or(-1);
+    bool read(math::Vector<T, N>& object) {
+        const auto size = arraySize().unwrap_or(-1);
         ERR_FAIL_COND_V_MSG(size != N, false, "expect vector");
 
         for (int i = 0; i < size; ++i) {
-            DEV_ASSERT(TryEnterIndex(i));
-            Read(p_object[i]);
-            LeaveIndex();
+            DEV_ASSERT(tryEnterIndex(i));
+            read(object[i]);
+            leaveIndex();
         }
 
         return true;
     }
 
     template<typename T, int N>
-    bool Read(math::Box<T, N>& p_object) {
+    bool read(math::Box<T, N>& object) {
         auto min = math::Vector<T, N>(std::numeric_limits<T>::infinity());
-        if (TryEnterKey("min")) {
-            Read(min);
-            LeaveKey();
+        if (tryEnterKey("min")) {
+            read(min);
+            leaveKey();
         }
 
         auto max = math::Vector<T, N>(-std::numeric_limits<T>::infinity());
-        if (TryEnterKey("max")) {
-            Read(max);
-            LeaveKey();
+        if (tryEnterKey("max")) {
+            read(max);
+            leaveKey();
         }
 
-        p_object = math::Box<T, N>(min, max);
+        object = math::Box<T, N>(min, max);
         return true;
     }
 
 #if USING(USE_REFLECTION)
     template<IsReflectable T>
-    bool Read(T& p_object) {
+    bool read(T& object) {
         const auto& meta = MetaDataTable<T>::GetFields();
 
         for (const auto& field : meta) {
             if ((field->flags & FieldFlag::Serialize) == FieldFlag::None) continue;
-            if (TryEnterKey(field->name)) {
-                field->Read(*this, &p_object);
-                LeaveKey();
+            if (tryEnterKey(field->name)) {
+                field->Read(*this, &object);
+                leaveKey();
             }
         }
 

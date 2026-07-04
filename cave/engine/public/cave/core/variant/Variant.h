@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "cave/core/math/Vector.h"
+#include "cave/core/reflection/Reflection.h"
 
 namespace cave {
 
@@ -26,6 +27,13 @@ enum class VariantType : uint8_t {
 
     Count,
 };
+
+DECLARE_ENUM_TRAITS(VariantType,
+                    "invalid",
+                    "int", "float",
+                    "string",
+                    "vec2f", "vec3f", "vec4f",
+                    "ivec2f", "ivec3f", "ivec4f");
 
 class Variant {
 public:
