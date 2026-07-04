@@ -21,8 +21,10 @@ void DvarCache::serialize(std::string_view path) {
     auto writer = std::move(*res);
 
     for (auto const& [key, dvar] : Dvar::s_map) {
-        if (dvar->m_flags & DVAR_FLAG_CACHE) {
-            auto line = std::format("+set {} {}\n", dvar->m_name, dvar->ValueToString());
+        if (dvar->flags_ & DVAR_FLAG_CACHE) {
+            auto line = std::format("+set {} {}\n",
+                                    dvar->name_,
+                                    dvar->variant().toString());
             writer->WriteBuffer(line.data(), line.length());
         }
     }

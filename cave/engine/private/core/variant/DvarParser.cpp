@@ -37,43 +37,43 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
         return false;
     }
 
-    Dvar* dvar = Dvar::FindDvar(std::string(name));
+    Dvar* dvar = Dvar::findDvar(std::string(name));
     if (dvar == nullptr) {
         p_out = std::format("dvar '{}' not found", name);
         return false;
     }
 
-    VariantType type = dvar->GetType();
+    VariantType type = dvar->type();
     bool ok = true;
     std::string_view str;
     int ix = 0, iy = 0, iz = 0, iw = 0;
     float fx = 0, fy = 0, fz = 0, fw = 0;
     size_t arg_start_index = m_cursor;
-    const bool overriden = dvar->GetFlags() & DVAR_FLAG_OVERRIDEN;
+    const bool overriden = dvar->flags() & DVAR_FLAG_OVERRIDDEN;
     switch (type) {
         case VariantType::Int: {
             ok = ok && TryGetInt(ix);
             if (!overriden) {
-                ok = ok && dvar->SetInt(ix);
+                ok = ok && dvar->setInt(ix);
             }
         } break;
         case VariantType::Float: {
             ok = ok && TryGetFloat(fx);
             if (!overriden) {
-                ok = ok && dvar->SetFloat(fx);
+                ok = ok && dvar->setFloat(fx);
             }
         } break;
         case VariantType::String: {
             ok = ok && TryGetString(str);
             if (!overriden) {
-                ok = ok && dvar->SetString(str);
+                ok = ok && dvar->setString(str);
             }
         } break;
         case VariantType::Vec2f: {
             ok = ok && TryGetFloat(fx);
             ok = ok && TryGetFloat(fy);
             if (!overriden) {
-                ok = ok && dvar->SetVector2f(fx, fy);
+                ok = ok && dvar->setVec2f(fx, fy);
             }
         } break;
         case VariantType::Vec3f: {
@@ -81,7 +81,7 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
             ok = ok && TryGetFloat(fy);
             ok = ok && TryGetFloat(fz);
             if (!overriden) {
-                ok = ok && dvar->SetVector3f(fx, fy, fz);
+                ok = ok && dvar->setVec3f(fx, fy, fz);
             }
         } break;
         case VariantType::Vec4f: {
@@ -90,14 +90,14 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
             ok = ok && TryGetFloat(fz);
             ok = ok && TryGetFloat(fw);
             if (!overriden) {
-                ok = ok && dvar->SetVector4f(fx, fy, fz, fw);
+                ok = ok && dvar->setVec4f(fx, fy, fz, fw);
             }
         } break;
         case VariantType::Vec2i: {
             ok = ok && TryGetInt(ix);
             ok = ok && TryGetInt(iy);
             if (!overriden) {
-                ok = ok && dvar->SetVector2i(ix, iy);
+                ok = ok && dvar->setVec2i(ix, iy);
             }
         } break;
         case VariantType::Vec3i: {
@@ -105,7 +105,7 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
             ok = ok && TryGetInt(iy);
             ok = ok && TryGetInt(iz);
             if (!overriden) {
-                ok = ok && dvar->SetVector3i(ix, iy, iz);
+                ok = ok && dvar->setVec3i(ix, iy, iz);
             }
         } break;
         case VariantType::Vec4i: {
@@ -114,7 +114,7 @@ bool DvarParser::ParseSetCmd(std::string& p_out) {
             ok = ok && TryGetInt(iz);
             ok = ok && TryGetInt(iw);
             if (!overriden) {
-                ok = ok && dvar->SetVector4i(ix, iy, iz, iw);
+                ok = ok && dvar->setVec4i(ix, iy, iz, iw);
             }
         } break;
         default:

@@ -6,246 +6,134 @@ namespace cave {
 
 using namespace cave::math;
 
-Dvar::Dvar(VariantType p_type, DvarFlags p_flags, const char* p_desc)
-    : m_type(p_type), m_desc(p_desc), m_flags(p_flags), m_int(0) {
+Dvar::Dvar(VariantType type, DvarFlags flags, const char* desc)
+    : variant_(type), m_desc(desc), flags_(flags) {
 }
 
-void Dvar::RegisterInt(std::string_view p_key, int p_value) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        SetInt(p_value);
+void Dvar::registerInt(std::string_view key, int value) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(value);
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterFloat(std::string_view p_key, float p_value) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        SetFloat(p_value);
+void Dvar::registerFloat(std::string_view key, float value) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(value);
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterString(std::string_view p_key, std::string_view p_value) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        SetString(p_value);
+void Dvar::registerString(std::string_view key, std::string_view value) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(value);
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterVector2f(std::string_view p_key, float p_x, float p_y) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        m_vec.x = p_x;
-        m_vec.y = p_y;
+void Dvar::registerVector2f(std::string_view key, float x, float y) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(Vec2f{ x, y });
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterVector3f(std::string_view p_key, float p_x, float p_y, float p_z) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        m_vec.x = p_x;
-        m_vec.y = p_y;
-        m_vec.z = p_z;
+void Dvar::registerVector3f(std::string_view key, float x, float y, float z) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(Vec3f{ x, y, z });
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterVector4f(std::string_view p_key, float p_x, float p_y, float p_z, float p_w) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        m_vec.x = p_x;
-        m_vec.y = p_y;
-        m_vec.z = p_z;
-        m_vec.w = p_w;
+void Dvar::registerVector4f(std::string_view key, float x, float y, float z, float w) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(Vec4f{ x, y, z, w });
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterVector2i(std::string_view p_key, int p_x, int p_y) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        m_ivec.x = p_x;
-        m_ivec.y = p_y;
+void Dvar::registerVector2i(std::string_view key, int x, int y) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(Vec2f{ x, y });
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterVector3i(std::string_view p_key, int p_x, int p_y, int p_z) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        m_ivec.x = p_x;
-        m_ivec.y = p_y;
-        m_ivec.z = p_z;
+void Dvar::registerVector3i(std::string_view key, int x, int y, int z) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(Vec3f{ x, y, z });
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-void Dvar::RegisterVector4i(std::string_view p_key, int p_x, int p_y, int p_z, int p_w) {
-    if (!(m_flags & DVAR_FLAG_OVERRIDEN)) {
-        m_ivec.x = p_x;
-        m_ivec.y = p_y;
-        m_ivec.z = p_z;
-        m_ivec.w = p_w;
+void Dvar::registerVector4i(std::string_view key, int x, int y, int z, int w) {
+    if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
+        variant_ = Variant(Vec4f{ x, y, z, w });
     }
-    RegisterDvar(p_key, this);
+    registerDvar(key, this);
 }
 
-int Dvar::AsInt() const {
-    DEV_ASSERT(m_type == VariantType::Int);
-    return m_int;
-}
-
-float Dvar::AsFloat() const {
-    DEV_ASSERT(m_type == VariantType::Float);
-    return m_float;
-}
-
-const std::string& Dvar::AsString() const {
-    DEV_ASSERT(m_type == VariantType::String);
-    return m_string;
-}
-
-Vec2f Dvar::asVec2f() const {
-    DEV_ASSERT(m_type == VariantType::Vec2f);
-    return Vec2f(m_vec.x, m_vec.y);
-}
-
-Vec3f Dvar::asVec3f() const {
-    DEV_ASSERT(m_type == VariantType::Vec3f);
-    return Vec3f(m_vec.x, m_vec.y, m_vec.z);
-}
-
-Vec4f Dvar::asVec4f() const {
-    DEV_ASSERT(m_type == VariantType::Vec4f);
-    return m_vec;
-}
-
-Vec2i Dvar::asVec2i() const {
-    DEV_ASSERT(m_type == VariantType::Vec2i);
-    return Vec2i(m_ivec.x, m_ivec.y);
-}
-
-Vec3i Dvar::asVec3i() const {
-    DEV_ASSERT(m_type == VariantType::Vec3i);
-    return Vec3i(m_ivec.x, m_ivec.y, m_ivec.z);
-}
-
-Vec4i Dvar::asVec4i() const {
-    DEV_ASSERT(m_type == VariantType::Vec4i);
-    return m_ivec;
-}
-
-void* Dvar::AsPointer() {
-    switch (m_type) {
-        case VariantType::Int:
-        case VariantType::Float:
-        case VariantType::Vec2f:
-        case VariantType::Vec3f:
-        case VariantType::Vec4f:
-        case VariantType::Vec2i:
-        case VariantType::Vec3i:
-        case VariantType::Vec4i:
-            return &m_int;
-        default:
-            CRASH_NOW();
-            return nullptr;
-    }
-}
-
-bool Dvar::SetInt(int p_value) {
-    ERR_FAIL_COND_V(m_type != VariantType::Int, false);
-    m_int = p_value;
+bool Dvar::setInt(int value) {
+    ERR_FAIL_COND_V(type() != VariantType::Int, false);
+    variant_ = Variant(value);
     return true;
 }
 
-bool Dvar::SetFloat(float p_value) {
-    ERR_FAIL_COND_V(m_type != VariantType::Float, false);
-    m_float = p_value;
+bool Dvar::setFloat(float p_value) {
+    ERR_FAIL_COND_V(type() != VariantType::Float, false);
+    variant_ = Variant(p_value);
     return true;
 }
 
-bool Dvar::SetString(const std::string& p_value) {
-    ERR_FAIL_COND_V(m_type != VariantType::String, false);
-    m_string = p_value;
+bool Dvar::setString(const std::string& value) {
+    ERR_FAIL_COND_V(type() != VariantType::String, false);
+    variant_ = Variant(value);
     return true;
 }
 
-bool Dvar::SetString(std::string_view p_value) {
-    ERR_FAIL_COND_V(m_type != VariantType::String, false);
-    m_string = p_value;
+bool Dvar::setString(std::string_view value) {
+    ERR_FAIL_COND_V(type() != VariantType::String, false);
+    variant_ = Variant(value);
     return true;
 }
 
-bool Dvar::SetVector2f(float p_x, float p_y) {
-    ERR_FAIL_COND_V(m_type != VariantType::Vec2f, false);
-    m_vec.x = p_x;
-    m_vec.y = p_y;
+bool Dvar::setVec2f(float x, float y) {
+    ERR_FAIL_COND_V(type() != VariantType::Vec2f, false);
+    variant_ = Variant(Vec2f{ x, y });
     return true;
 }
 
-bool Dvar::SetVector3f(float p_x, float p_y, float p_z) {
-    ERR_FAIL_COND_V(m_type != VariantType::Vec3f, false);
-    m_vec.x = p_x;
-    m_vec.y = p_y;
-    m_vec.z = p_z;
+bool Dvar::setVec3f(float x, float y, float z) {
+    ERR_FAIL_COND_V(type() != VariantType::Vec3f, false);
+    variant_ = Variant(Vec3f{ x, y, z });
     return true;
 }
 
-bool Dvar::SetVector4f(float p_x, float p_y, float p_z, float p_w) {
-    ERR_FAIL_COND_V(m_type != VariantType::Vec4f, false);
-    m_vec.x = p_x;
-    m_vec.y = p_y;
-    m_vec.z = p_z;
-    m_vec.w = p_w;
+bool Dvar::setVec4f(float x, float y, float z, float w) {
+    ERR_FAIL_COND_V(type() != VariantType::Vec4f, false);
+    variant_ = Variant(Vec4f{ x, y, z, w });
     return true;
 }
 
-bool Dvar::SetVector2i(int p_x, int p_y) {
-    ERR_FAIL_COND_V(m_type != VariantType::Vec2i, false);
-    m_ivec.x = p_x;
-    m_ivec.y = p_y;
+bool Dvar::setVec2i(int x, int y) {
+    ERR_FAIL_COND_V(type() != VariantType::Vec2i, false);
+    variant_ = Variant(Vec2i{ x, y });
     return true;
 }
 
-bool Dvar::SetVector3i(int p_x, int p_y, int p_z) {
-    ERR_FAIL_COND_V(m_type != VariantType::Vec3i, false);
-    m_ivec.x = p_x;
-    m_ivec.y = p_y;
-    m_ivec.z = p_z;
+bool Dvar::setVec3i(int x, int y, int z) {
+    ERR_FAIL_COND_V(type() != VariantType::Vec3i, false);
+    variant_ = Variant(Vec3i{ x, y, z });
     return true;
 }
 
-bool Dvar::SetVector4i(int p_x, int p_y, int p_z, int p_w) {
-    ERR_FAIL_COND_V(m_type != VariantType::Vec4i, false);
-    m_ivec.x = p_x;
-    m_ivec.y = p_y;
-    m_ivec.z = p_z;
-    m_ivec.w = p_w;
+bool Dvar::setVec4i(int x, int y, int z, int w) {
+    ERR_FAIL_COND_V(type() != VariantType::Vec4i, false);
+    variant_ = Variant(Vec4i{ x, y, z, w });
     return true;
 }
 
-std::string Dvar::ValueToString() const {
-    switch (m_type) {
-        case VariantType::Int:
-            return std::format("{}", m_int);
-        case VariantType::Float:
-            return std::format("{}", m_float);
-        case VariantType::String:
-            return std::format("\"{}\"", m_string);
-        case VariantType::Vec2f:
-            return std::format("{} {}", m_vec.x, m_vec.y);
-        case VariantType::Vec2i:
-            return std::format("{} {}", m_ivec.x, m_ivec.y);
-        case VariantType::Vec3f:
-            return std::format("{} {} {}", m_vec.x, m_vec.y, m_vec.z);
-        case VariantType::Vec3i:
-            return std::format("{} {} {}", m_ivec.x, m_ivec.y, m_ivec.z);
-        case VariantType::Vec4f:
-            return std::format("{} {} {} {}", m_vec.x, m_vec.y, m_vec.z, m_vec.w);
-        case VariantType::Vec4i:
-            return std::format("{} {} {} {}", m_ivec.x, m_ivec.y, m_ivec.z, m_ivec.w);
-        default:
-            CRASH_NOW();
-            return std::string{};
-    }
-}
-
-Dvar* Dvar::FindDvar(const std::string& p_name) {
+Dvar* Dvar::findDvar(const std::string& p_name) {
     auto it = s_map.find(p_name);
     if (it == s_map.end()) {
         return nullptr;
@@ -253,16 +141,16 @@ Dvar* Dvar::FindDvar(const std::string& p_name) {
     return it->second;
 }
 
-void Dvar::RegisterDvar(std::string_view p_key, Dvar* p_dvar) {
-    const std::string keyStr(p_key);
+void Dvar::registerDvar(std::string_view key, Dvar* dvar) {
+    const std::string keyStr(key);
     auto it = s_map.find(keyStr);
     if (it != s_map.end()) {
-        LOG_ERROR("duplicated dvar {} detected", p_key);
+        LOG_ERROR("duplicated dvar {} detected", key);
     }
 
-    p_dvar->m_name = p_key;
+    dvar->name_ = key;
 
-    s_map.insert(std::make_pair(keyStr, p_dvar));
+    s_map.insert(std::make_pair(keyStr, dvar));
 }
 
 }  // namespace cave

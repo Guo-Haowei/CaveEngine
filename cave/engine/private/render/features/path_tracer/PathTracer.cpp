@@ -290,7 +290,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     /// objects
     p_out_scene.geometries.clear();
     for (auto [entity, light] : p_scene.m_LightComponents) {
-        if (light.GetType() == LIGHT_TYPE_INFINITE) {
+        if (light.type() == LIGHT_TYPE_INFINITE) {
             auto transform = p_scene.GetComponent<TransformComponent>(entity);
             DEV_ASSERT(transform);
             Vector3f rotation = (transform->GetWorldMatrix() * Vector4f::UnitZ).xyz;

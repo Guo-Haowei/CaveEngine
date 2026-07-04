@@ -16,16 +16,16 @@
 #endif
 
 #if defined(REGISTER_DVAR)
-#define DVAR_BOOL(name, flags, desc, value)       (DVAR_##name).RegisterInt(#name, !!(value))
-#define DVAR_INT(name, flags, desc, value)        (DVAR_##name).RegisterInt(#name, value)
-#define DVAR_FLOAT(name, flags, desc, value)      (DVAR_##name).RegisterFloat(#name, value)
-#define DVAR_STRING(name, flags, desc, value)     (DVAR_##name).RegisterString(#name, value)
-#define DVAR_VEC2(name, flags, desc, x, y)        (DVAR_##name).RegisterVector2f(#name, x, y)
-#define DVAR_VEC3(name, flags, desc, x, y, z)     (DVAR_##name).RegisterVector3f(#name, x, y, z)
-#define DVAR_VEC4(name, flags, desc, x, y, z, w)  (DVAR_##name).RegisterVector4f(#name, x, y, z, w)
-#define DVAR_IVEC2(name, flags, desc, x, y)       (DVAR_##name).RegisterVector2i(#name, x, y)
-#define DVAR_IVEC3(name, flags, desc, x, y, z)    (DVAR_##name).RegisterVector3i(#name, x, y, z)
-#define DVAR_IVEC4(name, flags, desc, x, y, z, w) (DVAR_##name).RegisterVector4i(#name, x, y, z, w)
+#define DVAR_BOOL(name, flags, desc, value)       (DVAR_##name).registerInt(#name, !!(value))
+#define DVAR_INT(name, flags, desc, value)        (DVAR_##name).registerInt(#name, value)
+#define DVAR_FLOAT(name, flags, desc, value)      (DVAR_##name).registerFloat(#name, value)
+#define DVAR_STRING(name, flags, desc, value)     (DVAR_##name).registerString(#name, value)
+#define DVAR_VEC2(name, flags, desc, x, y)        (DVAR_##name).registerVector2f(#name, x, y)
+#define DVAR_VEC3(name, flags, desc, x, y, z)     (DVAR_##name).registerVector3f(#name, x, y, z)
+#define DVAR_VEC4(name, flags, desc, x, y, z, w)  (DVAR_##name).registerVector4f(#name, x, y, z, w)
+#define DVAR_IVEC2(name, flags, desc, x, y)       (DVAR_##name).registerVector2i(#name, x, y)
+#define DVAR_IVEC3(name, flags, desc, x, y, z)    (DVAR_##name).registerVector3i(#name, x, y, z)
+#define DVAR_IVEC4(name, flags, desc, x, y, z, w) (DVAR_##name).registerVector4i(#name, x, y, z, w)
 #endif
 
 #if !defined(DEFINE_DVAR) && !defined(REGISTER_DVAR)

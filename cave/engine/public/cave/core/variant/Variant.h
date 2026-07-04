@@ -30,6 +30,7 @@ enum class VariantType : uint8_t {
 class Variant {
 public:
     Variant() = default;
+    Variant(VariantType type);
 
     Variant(bool value);
     Variant(int value);
@@ -59,6 +60,9 @@ public:
     math::Vec2i asVec2i(math::Vec2i fallback = math::Vec2i::Zero) const;
     math::Vec3i asVec3i(math::Vec3i fallback = math::Vec3i::Zero) const;
     math::Vec4i asVec4i(math::Vec4i fallback = math::Vec4i::Zero) const;
+    void* asPointer();
+
+    std::string toString() const;
 
 private:
     VariantType type_{};

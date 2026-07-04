@@ -51,8 +51,8 @@ void RegisterCommands::dvar(CommandRegistry& cmd_reg) {
                 msg.append(std::format(
                     "\n -- {}, '{}', {}",
                     it.first,
-                    it.second->ValueToString(),
-                    it.second->GetDesc()));
+                    it.second->variant().toString(),
+                    it.second->desc()));
             }
             msg.push_back('\n');
 
