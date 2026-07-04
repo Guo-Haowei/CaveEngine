@@ -70,7 +70,7 @@ public:
     void* asPointer();
 
     std::string toString() const;
-    
+
     bool operator==(const Variant& rhs) const;
     bool operator!=(const Variant& rhs) const { return !(*this == rhs); }
 

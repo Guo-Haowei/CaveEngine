@@ -1,0 +1,9 @@
+type: scene
+guid: C22C0A50-701F-D94D-95F8EE5577EF5982
+name: level_8.scene
+import_path: "@res://scenes/level_8.scene"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}
