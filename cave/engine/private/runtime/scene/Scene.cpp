@@ -352,8 +352,9 @@ concept HasOnDeserialized = requires(T& t) {
 
 namespace {
 
-#define PREFAB_OVERRIDE_LIST            \
-    PREFAB_OVERRIDE(TransformComponent) \
+#define PREFAB_OVERRIDE_LIST               \
+    PREFAB_OVERRIDE(TransformComponent)    \
+    PREFAB_OVERRIDE(NativeScriptComponent) \
     PREFAB_OVERRIDE(FacingComponent)
 
 template<ComponentType T>
@@ -435,9 +436,6 @@ bool SerializeComponentOverride(ISerializer& s,
                                 Entity instance_ent) {
     const T* prefab_component = prefab_scene.component<T>(prefab_ent);
     const T* instance_component = instance_scene.component<T>(instance_ent);
-    DEV_ASSERT(prefab_component);
-    DEV_ASSERT(instance_component);
-
     if (!prefab_component || !instance_component) {
         return true;
     }
@@ -564,9 +562,12 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     struct OverrideComponents {
         Option<TransformComponent> TransformComponent;
         Option<FacingComponent> FacingComponent;
+        Option<NativeScriptComponent> NativeScriptComponent;
 
         bool is_some() const {
-            return TransformComponent.is_some() || FacingComponent.is_some();
+            return TransformComponent.is_some() ||
+                   FacingComponent.is_some() ||
+                   NativeScriptComponent.is_some();
         }
     };
 

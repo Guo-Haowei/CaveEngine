@@ -70,6 +70,9 @@ public:
     void* asPointer();
 
     std::string toString() const;
+    
+    bool operator==(const Variant& rhs) const;
+    bool operator!=(const Variant& rhs) const { return !(*this == rhs); }
 
     static Variant makeDefault(VariantType type);
 
@@ -86,5 +89,8 @@ private:
 };
 
 using VariantMap = std::unordered_map<std::string, Variant>;
+
+bool operator==(const VariantMap& lhs, const VariantMap& rhs);
+bool operator!=(const VariantMap& lhs, const VariantMap& rhs);
 
 }  // namespace cave

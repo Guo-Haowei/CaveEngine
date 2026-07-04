@@ -23,6 +23,13 @@ struct NativeScriptComponent {
     NativeScript* instance = nullptr;
     bool created = false;
     bool pending_reload = false;
+
+    bool operator==(const NativeScriptComponent& rhs) const {
+        return name == rhs.name && params == rhs.params;
+    }
+    bool operator!=(const NativeScriptComponent& rhs) const {
+        return name != rhs.name || params != rhs.params;
+    }
 };
 
 }  // namespace cave

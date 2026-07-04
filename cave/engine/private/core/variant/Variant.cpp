@@ -121,6 +121,37 @@ void* Variant::asPointer() {
     }
 }
 
+bool Variant::operator==(const Variant& rhs) const {
+    if (type_ != rhs.type_) {
+        return false;
+    }
+
+    switch (type_) {
+        case VariantType::Invalid:
+            return true;
+        case VariantType::Int:
+            return int_ == rhs.int_;
+        case VariantType::Float:
+            return float_ == rhs.float_;
+        case VariantType::String:
+            return string_ == rhs.string_;
+        case VariantType::Vec2f:
+            return asVec2f() == rhs.asVec2f();
+        case VariantType::Vec3f:
+            return asVec3f() == rhs.asVec3f();
+        case VariantType::Vec4f:
+            return vec_ == rhs.vec_;
+        case VariantType::Vec2i:
+            return asVec2i() == rhs.asVec2i();
+        case VariantType::Vec3i:
+            return asVec3i() == rhs.asVec3i();
+        case VariantType::Vec4i:
+            return ivec_ == rhs.ivec_;
+        default:
+            return false;
+    }
+}
+
 // @TODO: serializer?
 std::string Variant::toString() const {
     switch (type()) {
@@ -171,6 +202,29 @@ Variant Variant::makeDefault(VariantType type) {
         default:
             return Variant();
     }
+}
+
+bool operator==(const VariantMap& lhs, const VariantMap& rhs) {
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+
+    for (const auto& [key, lhs_value] : lhs) {
+        auto it = rhs.find(key);
+        if (it == rhs.end()) {
+            return false;
+        }
+
+        if (lhs_value != it->second) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool operator!=(const VariantMap& lhs, const VariantMap& rhs) {
+    return !(lhs == rhs);
 }
 
 }  // namespace cave
