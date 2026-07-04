@@ -352,6 +352,10 @@ concept HasOnDeserialized = requires(T& t) {
 
 namespace {
 
+#define PREFAB_OVERRIDE_LIST            \
+    PREFAB_OVERRIDE(TransformComponent) \
+    PREFAB_OVERRIDE(FacingComponent)
+
 template<ComponentType T>
 Option<T> DeserializeComponent(IDeserializer& d,
                                const char* key) {
@@ -423,20 +427,22 @@ bool SerializeNormalEntity(ISerializer& s,
 }
 
 template<ComponentType T>
-static bool SerializeComponentOverride(ISerializer& s,
-                                       const char* name,
-                                       const Scene& prefab_scene,
-                                       Entity prefab_ent,
-                                       const Scene& instance_scene,
-                                       Entity instance_ent) {
+bool SerializeComponentOverride(ISerializer& s,
+                                const char* name,
+                                const Scene& prefab_scene,
+                                Entity prefab_ent,
+                                const Scene& instance_scene,
+                                Entity instance_ent) {
     const T* prefab_component = prefab_scene.component<T>(prefab_ent);
     const T* instance_component = instance_scene.component<T>(instance_ent);
+    DEV_ASSERT(prefab_component);
+    DEV_ASSERT(instance_component);
 
-    if (!prefab_component && !instance_component) {
+    if (!prefab_component || !instance_component) {
         return true;
     }
 
-    if (!(*prefab_component == *instance_component)) {
+    if (*prefab_component != *instance_component) {
         s.beginKey(name);
         s.write(*instance_component);
     }
@@ -459,9 +465,9 @@ bool SerializePrefabDiff(ISerializer& s,
     s.beginKey("PrefabOverride");
     s.beginMap(false);
 
-#define OVERRIDE(T) SerializeComponentOverride<T>(s, #T, *prefab_scene, prefab_ent, scene, instance_ent);
-    OVERRIDE(TransformComponent);
-#undef OVERRIDE
+#define PREFAB_OVERRIDE(T) SerializeComponentOverride<T>(s, #T, *prefab_scene, prefab_ent, scene, instance_ent);
+    PREFAB_OVERRIDE_LIST
+#undef PREFAB_OVERRIDE
 
     s.endMap();
     return true;
@@ -556,9 +562,12 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     DEV_ASSERT(ok);
 
     struct OverrideComponents {
-        Option<TransformComponent> transform;
+        Option<TransformComponent> TransformComponent;
+        Option<FacingComponent> FacingComponent;
 
-        bool is_some() { return transform.is_some(); }
+        bool is_some() const {
+            return TransformComponent.is_some() || FacingComponent.is_some();
+        }
     };
 
     std::unordered_map<Entity, OverrideComponents> overrides_map;
@@ -583,11 +592,14 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
         // parse overrides
         OverrideComponents overrides;
         if (d.tryEnterKey("PrefabOverride")) {
-            overrides.transform = DeserializeComponent<TransformComponent>(d, "TransformComponent");
+#define PREFAB_OVERRIDE(T) overrides.T = DeserializeComponent<T>(d, #T);
+            PREFAB_OVERRIDE_LIST
+#undef PREFAB_OVERRIDE
+
             d.leaveKey();
-        }
-        if (overrides.is_some()) {
-            overrides_map[ent] = overrides;
+            if (overrides.is_some()) {
+                overrides_map[ent] = overrides;
+            }
         }
 
         d.leaveIndex();
@@ -602,9 +614,12 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     for (auto&& [ent, overrides] : overrides_map) {
         const auto& prefab = *component<PrefabInstanceComponent>(ent);
         Entity child_ent = prefab.child();
-        if (overrides.transform.is_some()) {
-            *component<TransformComponent>(child_ent) = overrides.transform.unwrap_unchecked();
-        }
+#define PREFAB_OVERRIDE(T)                                         \
+    if (overrides.T.is_some()) {                                   \
+        *component<T>(child_ent) = overrides.T.unwrap_unchecked(); \
+    }
+        PREFAB_OVERRIDE_LIST
+#undef PREFAB_OVERRIDE
     }
 
     return Result<void>();
