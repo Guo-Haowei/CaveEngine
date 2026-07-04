@@ -1,7 +1,7 @@
 #pragma once
-#include "EditCmdBase.h"
-
 #include "cave/runtime/ecs/ComponentDefines.h"
+
+#include "EditCmdBase.h"
 
 namespace cave {
 
@@ -9,27 +9,27 @@ class ChangePropertyCmd : public EditCmdBase {
     using Self = ChangePropertyCmd;
 
 public:
-    ChangePropertyCmd(SceneRegistry& p_scene_reg,
-                      ecs::Entity p_ent,
-                      ComponentId p_cid,
-                      const PropertyId& p_pid,
-                      const void* p_old_data,
-                      const void* p_new_data,
-                      uint32_t p_data_size);
+    ChangePropertyCmd(SceneRegistry& scene_reg,
+                      ecs::Entity ent,
+                      ComponentId cid,
+                      const PropertyId& pid,
+                      const void* old_data,
+                      const void* new_data,
+                      uint32_t data_size);
 
     template<typename U>
-    ChangePropertyCmd(SceneRegistry& p_scene_reg,
-                      ecs::Entity p_ent,
-                      ComponentId p_cid,
-                      const PropertyId& p_prop_id,
-                      const U& p_old,
-                      const U& p_new)
-        : ChangePropertyCmd(p_scene_reg,
-                            p_ent,
-                            p_cid,
-                            p_prop_id,
-                            &p_old,
-                            &p_new,
+    ChangePropertyCmd(SceneRegistry& scene_reg,
+                      ecs::Entity ent,
+                      ComponentId cid,
+                      const PropertyId& proid,
+                      const U& old_value,
+                      const U& new_value)
+        : ChangePropertyCmd(scene_reg,
+                            ent,
+                            cid,
+                            proid,
+                            &old_value,
+                            &new_value,
                             sizeof(U)) {
         static_assert(std::is_trivially_copyable_v<U>);
     }
@@ -38,20 +38,20 @@ public:
         return "ChangePropertyCmd";
     }
 
-    bool apply(IDocument& p_doc) override;
+    bool apply(IDocument& doc) override;
 
-    bool undo(IDocument& p_doc) override;
+    bool undo(IDocument& doc) override;
 
-    bool canCoalesceWith(const IEditCmd* p_cmd) const override;
+    bool canCoalesceWith(const IEditCmd* cmd) const override;
 
-    void coalesceFrom(std::unique_ptr<IEditCmd> p_cmd) override;
+    void coalesceFrom(std::unique_ptr<IEditCmd> cmd) override;
 
 private:
-    const ComponentId m_cid;
-    const PropertyId m_pid;
+    const ComponentId cid_;
+    const PropertyId pid_;
 
-    std::vector<uint8_t> m_old;
-    std::vector<uint8_t> m_new;
+    std::vector<uint8_t> old_;
+    std::vector<uint8_t> new_;
 };
 
 }  // namespace cave

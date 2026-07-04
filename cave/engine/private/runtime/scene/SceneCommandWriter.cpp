@@ -17,7 +17,7 @@ Entity SceneCommandWriter::CreateNameObject(std::string_view p_name) {
     Entity e = CreateEntity();
     AddComponent(e, NameComponent_Id);
     if (m_no_save) {
-        AddComponent(e, NoSaveTag_Id);
+        AddComponent(e, PrefabChildComponent_Id);
     }
     SetProperty(e, NameComponent_Id, "name"_sid, FixedString<64>(p_name));
     return e;

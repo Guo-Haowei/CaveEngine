@@ -145,7 +145,7 @@ auto Application::initialize() -> Result<void> {
 
     // select backend
     {
-        const std::string& backend = DVAR_GET_STRING(gfx_backend);
+        std::string_view backend = DVAR_GET_STRING(gfx_backend);
         if (!backend.empty()) {
             do {
 #define BACKEND_DECLARE(ENUM, STR, DVAR)    \

@@ -91,7 +91,7 @@ int ConsolePanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
     if (!candidate.empty()) {
         // @TODO: don't need to delete the previous chars,
         // also save the draft
-        StringUtils::Strcpy(self->m_cmd_buffer, candidate);
+        StringUtils::strcpy(self->m_cmd_buffer, candidate);
         p_data->DeleteChars(0, text_length);
         p_data->InsertChars(0, self->m_cmd_buffer);
     }

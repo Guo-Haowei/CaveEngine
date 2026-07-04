@@ -1,6 +1,6 @@
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -33,23 +33,23 @@ Shape Shape::makeRound(float radius) {
 }
 
 ISerializer& WriteObject(ISerializer& s, const Shape& shape) {
-    s.BeginMap(false)
-        .Key("type")
-        .Write(shape.type)
-        .Key("data")
-        .Write(shape.data.half);
-    s.EndMap();
+    s.beginMap(false)
+        .beginKey("type")
+        .write(shape.type)
+        .beginKey("data")
+        .write(shape.data.half);
+    s.endMap();
     return s;
 }
 
 bool ReadObject(IDeserializer& d, Shape& shape) {
-    if (d.TryEnterKey("type")) {
-        d.Read(shape.type);
-        d.LeaveKey();
+    if (d.tryEnterKey("type")) {
+        d.read(shape.type);
+        d.leaveKey();
     }
-    if (d.TryEnterKey("data")) {
-        d.Read(shape.data.half);
-        d.LeaveKey();
+    if (d.tryEnterKey("data")) {
+        d.read(shape.data.half);
+        d.leaveKey();
     }
     return true;
 }

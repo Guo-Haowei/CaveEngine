@@ -179,9 +179,9 @@ void EditorAssetManager::refreshAssetFolderTree() {
 
 Result<void> EditorAssetManager::addAlwaysLoadImages() {
     // @TODO: fix this path, it won't work if the file is moved
-    std::string_view tmp = StringUtils::BasePath(__FILE__);
-    tmp = StringUtils::BasePath(tmp);
-    tmp = StringUtils::BasePath(tmp);
+    std::string_view tmp = StringUtils::basePath(__FILE__);
+    tmp = StringUtils::basePath(tmp);
+    tmp = StringUtils::basePath(tmp);
     fs::path image_folder = tmp;
     image_folder = image_folder / "resources" / "images";
     DEV_ASSERT(fs::is_directory(image_folder));

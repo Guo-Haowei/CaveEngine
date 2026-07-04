@@ -65,7 +65,7 @@ public:
             // Safe because view guarantees "no null pools" when m_ents != nullptr.
             DEV_ASSERT(all_pools_non_null());
             return std::tuple<MaybeRef<IsConst, Cs>...>(
-                std::get<I>(m_pools)->GetComponentByIndex(index_of<I>(e))...);
+                std::get<I>(m_pools)->getComponentByIndex(index_of<I>(e))...);
         }
 
         auto refs_for(Entity e) const {
@@ -80,13 +80,13 @@ public:
         bool present_in_all_impl(Entity e, std::index_sequence<I...>) const {
             // Safe because view guarantees "no null pools" when m_ents != nullptr.
             bool ok = true;
-            ((ok = ok && std::get<I>(m_pools)->Has(e)), ...);
+            ((ok = ok && std::get<I>(m_pools)->has(e)), ...);
             return ok;
         }
 
         template<std::size_t I>
         std::size_t index_of(Entity e) const {
-            auto idx = std::get<I>(m_pools)->FindIndex(e);
+            auto idx = std::get<I>(m_pools)->findIndex(e);
             DEV_ASSERT(idx.is_some());
             return idx.unwrap();
         }
@@ -157,8 +157,8 @@ private:
     template<std::size_t... I>
     void pick_baseline_impl(std::index_sequence<I...>) {
         // Baseline: choose pool with smallest entity array.
-        const std::vector<Entity>* ents[] = { &std::get<I>(m_pools)->GetEntityArray()... };
-        std::size_t sizes[] = { std::get<I>(m_pools)->GetEntityArray().size()... };
+        const std::vector<Entity>* ents[] = { &std::get<I>(m_pools)->entityArray()... };
+        std::size_t sizes[] = { std::get<I>(m_pools)->entityArray().size()... };
 
         std::size_t minIdx = 0;
         for (std::size_t i = 1; i < sizeof...(Cs); ++i) {

@@ -37,10 +37,10 @@ template<ComponentType T>
 class MockPool : public ComponentPool<T> {
 public:
     void Add(Entity p_ent, const T& p_component) {
-        const size_t index = ComponentPool<T>::m_component_array.size();
-        ComponentPool<T>::m_lookup[p_ent] = index;
-        ComponentPool<T>::m_entity_array.emplace_back(p_ent);
-        ComponentPool<T>::m_component_array.emplace_back(p_component);
+        const size_t index = ComponentPool<T>::component_array_.size();
+        ComponentPool<T>::lookup_[p_ent] = index;
+        ComponentPool<T>::entity_array_.emplace_back(p_ent);
+        ComponentPool<T>::component_array_.emplace_back(p_component);
     }
 };
 
@@ -61,10 +61,10 @@ TEST(View, single_manager) {
         c1.a += 1;
     }
 
-    EXPECT_EQ(m1.GetComponent(Entity(1))->a, 11);
-    EXPECT_EQ(m1.GetComponent(Entity(2))->a, 21);
-    EXPECT_EQ(m1.GetComponent(Entity(3))->a, 31);
-    EXPECT_EQ(m1.GetComponent(Entity(5))->a, 51);
+    EXPECT_EQ(m1.getComponent(Entity(1))->a, 11);
+    EXPECT_EQ(m1.getComponent(Entity(2))->a, 21);
+    EXPECT_EQ(m1.getComponent(Entity(3))->a, 31);
+    EXPECT_EQ(m1.getComponent(Entity(5))->a, 51);
 }
 
 TEST(View, intersection_two_managers) {
@@ -102,10 +102,10 @@ TEST(View, intersection_two_managers) {
     EXPECT_EQ(std::get<1>(got[1]), 30);
     EXPECT_FLOAT_EQ(std::get<2>(got[1]), 3.0f);
 
-    EXPECT_EQ(m1.GetComponentByIndex(m1.FindIndex(Entity(2)).unwrap()).a, 21);
-    EXPECT_FLOAT_EQ(m2.GetComponentByIndex(m2.FindIndex(Entity(2)).unwrap()).b, 2.5f);
-    EXPECT_EQ(m1.GetComponentByIndex(m1.FindIndex(Entity(3)).unwrap()).a, 31);
-    EXPECT_FLOAT_EQ(m2.GetComponentByIndex(m2.FindIndex(Entity(3)).unwrap()).b, 3.5f);
+    EXPECT_EQ(m1.getComponentByIndex(m1.findIndex(Entity(2)).unwrap()).a, 21);
+    EXPECT_FLOAT_EQ(m2.getComponentByIndex(m2.findIndex(Entity(2)).unwrap()).b, 2.5f);
+    EXPECT_EQ(m1.getComponentByIndex(m1.findIndex(Entity(3)).unwrap()).a, 31);
+    EXPECT_FLOAT_EQ(m2.getComponentByIndex(m2.findIndex(Entity(3)).unwrap()).b, 3.5f);
 }
 
 TEST(View, intersection_three_managers) {

@@ -20,7 +20,7 @@ public:
     virtual void Tick(cave::IHostServices&, const cave::FrameTime&) = 0;
 
 #if USING(DEBUG_BUILD)
-    virtual const char* DebugName() const = 0;
+    virtual const char* debugName() const = 0;
 #endif
 };
 

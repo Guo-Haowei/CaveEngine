@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/runtime/dvar/DvarCache.h"
+#include "engine/private/core/variant/DvarCache.h"
 #include "engine/private/runtime/framework/Engine.h"
 
 #define DEFINE_DVAR

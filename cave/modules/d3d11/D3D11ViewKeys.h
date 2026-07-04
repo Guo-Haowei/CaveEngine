@@ -30,12 +30,12 @@ template<typename T>
 struct hash<cave::render::D3D11TextureKey<T>> {
     std::size_t operator()(const cave::render::D3D11TextureKey<T>& p_key) const {
         size_t hash = 0;
-        cave::Hash::Add(hash, p_key.resource);
-        cave::Hash::Add(hash, p_key.format);
-        cave::Hash::Add(hash, p_key.dimension);
-        cave::Hash::Add(hash, p_key.mip_slice);
-        cave::Hash::Add(hash, p_key.first_array_slice);
-        cave::Hash::Add(hash, p_key.array_size);
+        cave::Hash::add(hash, p_key.resource);
+        cave::Hash::add(hash, p_key.format);
+        cave::Hash::add(hash, p_key.dimension);
+        cave::Hash::add(hash, p_key.mip_slice);
+        cave::Hash::add(hash, p_key.first_array_slice);
+        cave::Hash::add(hash, p_key.array_size);
         return hash;
     }
 };

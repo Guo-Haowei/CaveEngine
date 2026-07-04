@@ -29,7 +29,7 @@ static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) 
         return CAVE_ERROR(res.error());
     }
 
-    std::string_view extension = StringUtils::Extension(p_meta.import_path);
+    std::string_view extension = StringUtils::extension(p_meta.import_path);
 
     // @TODO: improve this part
     const bool is_float = extension == ".hdr";

@@ -3,7 +3,7 @@
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "engine/private/render/renderer/Renderer.h"
-#include "engine/private/runtime/dvar/DvarParser.h"
+#include "engine/private/core/variant/DvarParser.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
@@ -33,7 +33,7 @@ void RegisterCommands::dvar(CommandRegistry& cmd_reg) {
             DvarParser parser(args, DvarParser::Source::Console);
 
             std::string err;
-            if (parser.ParseSetCmd(err)) return true;
+            if (parser.parseSetCmd(err)) return true;
 
             ctx.log.Error(LogChannel::Console, std::move(err));
             return false;
@@ -51,8 +51,8 @@ void RegisterCommands::dvar(CommandRegistry& cmd_reg) {
                 msg.append(std::format(
                     "\n -- {}, '{}', {}",
                     it.first,
-                    it.second->ValueToString(),
-                    it.second->GetDesc()));
+                    it.second->variant().toString(),
+                    it.second->desc()));
             }
             msg.push_back('\n');
 

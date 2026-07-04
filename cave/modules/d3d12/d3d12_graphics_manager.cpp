@@ -1368,7 +1368,7 @@ auto D3d12GraphicsManager::CreateRootSignature() -> Result<void> {
     HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
     if (FAILED(hr)) {
         char buffer[256]{ 0 };
-        StringUtils::Sprintf(buffer, "%.*s", error->GetBufferSize(), error->GetBufferPointer());
+        StringUtils::sprintf(buffer, "%.*s", error->GetBufferSize(), error->GetBufferPointer());
         LOG_ERROR("Failed to create root signature, reason {}", buffer);
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create root signature");
     }

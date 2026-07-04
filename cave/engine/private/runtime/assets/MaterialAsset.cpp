@@ -1,6 +1,6 @@
 #include "MaterialAsset.h"
 
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -28,12 +28,12 @@ Result<void> MaterialAsset::saveToDisk(const AssetMetaData& p_meta) const {
     }
 
     YamlSerializer yaml;
-    yaml.BeginMap(false)
-        .Key("version")
-        .Write(VERSION)
-        .Key("content")
-        .Write(*this)
-        .EndMap();
+    yaml.beginMap(false)
+        .beginKey("version")
+        .write(VERSION)
+        .beginKey("content")
+        .write(*this)
+        .endMap();
     return SaveYaml(p_meta.import_path, yaml);
 }
 
@@ -47,18 +47,18 @@ Result<void> MaterialAsset::loadFromDisk(const AssetMetaData& p_meta) {
     YamlDeserializer deserializer;
     deserializer.Initialize(root);
 
-    const int version = deserializer.GetVersion();
+    const int version = deserializer.version();
 
-    if (deserializer.TryEnterKey("content")) {
+    if (deserializer.tryEnterKey("content")) {
         switch (version) {
             case 1:
                 [[fallthrough]];
             default:
-                deserializer.Read(*this);
+                deserializer.read(*this);
                 break;
         }
 
-        deserializer.LeaveKey();
+        deserializer.leaveKey();
     }
 
     OnDeserialized();

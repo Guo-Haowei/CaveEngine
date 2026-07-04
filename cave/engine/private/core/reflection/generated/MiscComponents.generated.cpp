@@ -4,13 +4,13 @@
 
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "engine/private/core/reflection/MetaEditor.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
 
 template<>
-const MetaTableFields& MetaDataTable<NoSaveTag>::GetFields() {
+const MetaTableFields& MetaDataTable<PrefabChildComponent>::GetFields() {
     static MetaTableFields s_table = {
     };
 
@@ -18,11 +18,11 @@ const MetaTableFields& MetaDataTable<NoSaveTag>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_NoSaveTag_meta = MetaDataTable<NoSaveTag>::GetFields();
+[[maybe_unused]] static const auto& s_PrefabChildComponent_meta = MetaDataTable<PrefabChildComponent>::GetFields();
 
 
 template<>
-const MetaTableFields& MetaDataTable<PendingDestroy>::GetFields() {
+const MetaTableFields& MetaDataTable<PendingDestroyComponent>::GetFields() {
     static MetaTableFields s_table = {
     };
 
@@ -30,7 +30,7 @@ const MetaTableFields& MetaDataTable<PendingDestroy>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_PendingDestroy_meta = MetaDataTable<PendingDestroy>::GetFields();
+[[maybe_unused]] static const auto& s_PendingDestroyComponent_meta = MetaDataTable<PendingDestroyComponent>::GetFields();
 
 // FixedString<64> name_ ()
 

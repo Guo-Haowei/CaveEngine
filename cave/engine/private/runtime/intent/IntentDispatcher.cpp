@@ -44,7 +44,7 @@ bool IntentDispatcher::addHandler(IntentTypeId type_id, IIntentHandler* handler)
 
     handlers.push_back(handler);
     [[maybe_unused]] const DebugId id = handler->debugId();
-    TRACE_INTENT("Bind {}#{} -> {}", id.type, id.uid, type_id.DebugName());
+    TRACE_INTENT("Bind {}#{} -> {}", id.type, id.uid, type_id.debugName());
     return true;
 }
 
@@ -61,7 +61,7 @@ bool IntentDispatcher::removeHandler(IntentTypeId type_id, IIntentHandler* handl
     handlers.erase(it2, handlers.end());
 
     [[maybe_unused]] const DebugId id = handler->debugId();
-    TRACE_INTENT("Unbind {}#{} -> {}", id.type, id.uid, type_id.DebugName());
+    TRACE_INTENT("Unbind {}#{} -> {}", id.type, id.uid, type_id.debugName());
     return true;
 }
 
@@ -109,7 +109,7 @@ bool IntentDispatcher::Cmd_dump(CommandContext& ctx, const CommandArgs&) {
     msg.reserve(512);
     msg.append("Registered Intent:");
     for (const auto& it : handlers_) {
-        msg.append(std::format("\n'{}' - ", it.first.DebugName()));
+        msg.append(std::format("\n'{}' - ", it.first.debugName()));
         DEV_ASSERT(!it.second.empty());
         for (const IIntentHandler* handler : it.second) {
             const DebugId id = handler->debugId();

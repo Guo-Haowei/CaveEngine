@@ -40,8 +40,8 @@ Option<Guid> Guid::parse(const char* start, size_t length) {
             ++i;  // skip '-'
         }
 
-        const char high = StringUtils::HexToInt(start[i]);
-        const char low = StringUtils::HexToInt(start[i + 1]);
+        const char high = StringUtils::hexToInt(start[i]);
+        const char low = StringUtils::hexToInt(start[i + 1]);
         if (low < 0 || high < 0) {
             return None();
         }

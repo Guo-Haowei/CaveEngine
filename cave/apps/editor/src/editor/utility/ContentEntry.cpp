@@ -37,7 +37,7 @@ auto BuildFolderTree(const fs::path& sys_path,
         node->parent = parent;
         if (parent) {
             node->virtual_path = IAssetManager::singleton().resolvePath(sys_path);
-            node->file_name = StringUtils::FileName(node->virtual_path, '/');
+            node->file_name = StringUtils::fileName(node->virtual_path, '/');
         } else {
             node->virtual_path = "@res://";
             node->file_name = node->virtual_path;
@@ -58,7 +58,7 @@ auto BuildFolderTree(const fs::path& sys_path,
 
             DEV_ASSERT(meta);
             node->type = meta->type;
-            node->extension = StringUtils::Extension(node->file_name);
+            node->extension = StringUtils::extension(node->file_name);
 #if 0
             if (node->type == AssetType::Image) {
                 node->thumbnail = node->handle;

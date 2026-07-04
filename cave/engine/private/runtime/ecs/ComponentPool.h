@@ -14,211 +14,211 @@ namespace cave::ecs {
 template<ComponentType T>
 class ComponentPool : public IComponentPool {
 public:
-    ComponentPool(size_t p_capacity = 0) { Reserve(p_capacity); }
+    ComponentPool(size_t capacity = 0) { reserve(capacity); }
 
-    void Reserve(size_t p_capacity);
+    void reserve(size_t capacity);
 
-    void Clear() override;
+    void clear() override;
 
     // @TODO: refactor
-    std::unique_ptr<IComponentPool> Clone() const override {
+    std::unique_ptr<IComponentPool> clone() const override {
         std::unique_ptr<IComponentPool> clone = std::make_unique<ComponentPool<T>>();
-        clone->Copy(*this);
+        clone->copy(*this);
         return clone;
     }
 
-    void Copy(const ComponentPool<T>& p_other);
-    void Copy(const IComponentPool& p_other) override;
+    void copy(const ComponentPool<T>& other);
+    void copy(const IComponentPool& other) override;
 
-    void Merge(ComponentPool<T>&& p_other);
-    void Merge(IComponentPool&& p_other) override;
+    void merge(ComponentPool<T>&& other);
+    void merge(IComponentPool&& other) override;
 
-    T& Create(Entity p_ent);
-    void* CreateRaw(Entity p_ent) override;
-    void Remove(Entity p_ent) override;
+    T& create(Entity ent);
+    void* createRaw(Entity ent) override;
+    void remove(Entity ent) override;
 
-    void* GetRaw(Entity p_ent) override;
-    const void* GetRaw(Entity p_ent) const override;
+    void* getRaw(Entity ent) override;
+    const void* getRaw(Entity ent) const override;
 
-    T* GetComponent(Entity p_ent);
+    T* getComponent(Entity ent);
 
-    const T* GetComponent(Entity p_ent) const;
+    const T* getComponent(Entity ent) const;
 
-    T& GetComponentByIndex(size_t p_index);
-    const T& GetComponentByIndex(size_t p_index) const;
+    T& getComponentByIndex(size_t index);
+    const T& getComponentByIndex(size_t index) const;
 
-    size_t GetCount() const override { return m_component_array.size(); }
+    size_t count() const override { return component_array_.size(); }
 
-    Option<size_t> FindIndex(Entity p_ent) const {
-        auto it = m_lookup.find(p_ent);
-        if (it == m_lookup.end()) return None();
+    Option<size_t> findIndex(Entity ent) const {
+        auto it = lookup_.find(ent);
+        if (it == lookup_.end()) return None();
         return Some(it->second);
     }
 
-    std::vector<T>& GetComponentArray() {
-        return m_component_array;
+    std::vector<T>& componentArray() {
+        return component_array_;
     }
 
 protected:
-    std::vector<T> m_component_array;
+    std::vector<T> component_array_;
 
     friend class ::cave::Scene;
 };
 
 template<ComponentType T>
-void ComponentPool<T>::Reserve(size_t p_capacity) {
+void ComponentPool<T>::reserve(size_t p_capacity) {
     if (p_capacity) {
-        m_component_array.reserve(p_capacity);
-        m_entity_array.reserve(p_capacity);
-        m_lookup.reserve(p_capacity);
+        component_array_.reserve(p_capacity);
+        entity_array_.reserve(p_capacity);
+        lookup_.reserve(p_capacity);
     }
 }
 
 template<ComponentType T>
-void ComponentPool<T>::Clear() {
-    m_component_array.clear();
-    m_entity_array.clear();
-    m_lookup.clear();
+void ComponentPool<T>::clear() {
+    component_array_.clear();
+    entity_array_.clear();
+    lookup_.clear();
 }
 
 template<ComponentType T>
-void ComponentPool<T>::Copy(const ComponentPool<T>& p_other) {
-    Clear();
-    m_component_array = p_other.m_component_array;
-    m_entity_array = p_other.m_entity_array;
-    m_lookup = p_other.m_lookup;
+void ComponentPool<T>::copy(const ComponentPool<T>& p_other) {
+    clear();
+    component_array_ = p_other.component_array_;
+    entity_array_ = p_other.entity_array_;
+    lookup_ = p_other.lookup_;
 }
 
 template<ComponentType T>
-void ComponentPool<T>::Copy(const IComponentPool& p_other) {
-    Copy((ComponentPool<T>&)p_other);
+void ComponentPool<T>::copy(const IComponentPool& p_other) {
+    copy((ComponentPool<T>&)p_other);
 }
 
 template<ComponentType T>
-void ComponentPool<T>::Merge(ComponentPool<T>&& p_other) {
-    const size_t base_count = GetCount();
-    const size_t other_count = p_other.GetCount();
+void ComponentPool<T>::merge(ComponentPool<T>&& p_other) {
+    const size_t base_count = count();
+    const size_t other_count = p_other.count();
     const size_t reserved = base_count + other_count;
-    m_component_array.reserve(reserved);
-    m_entity_array.reserve(reserved);
-    m_lookup.reserve(reserved);
+    component_array_.reserve(reserved);
+    entity_array_.reserve(reserved);
+    lookup_.reserve(reserved);
 
     for (size_t i = 0; i < other_count; ++i) {
-        Entity entity = p_other.m_entity_array[i];
-        DEV_ASSERT(!Has(entity));
-        m_entity_array.push_back(entity);
-        m_lookup[entity] = base_count + i;
-        m_component_array.push_back(std::move(p_other.m_component_array[i]));
+        Entity entity = p_other.entity_array_[i];
+        DEV_ASSERT(!has(entity));
+        entity_array_.push_back(entity);
+        lookup_[entity] = base_count + i;
+        component_array_.push_back(std::move(p_other.component_array_[i]));
     }
 
-    p_other.Clear();
+    p_other.clear();
 }
 
 template<ComponentType T>
-void ComponentPool<T>::Merge(IComponentPool&& p_other) {
-    Merge((ComponentPool<T>&&)p_other);
+void ComponentPool<T>::merge(IComponentPool&& p_other) {
+    merge((ComponentPool<T>&&)p_other);
 }
 
 template<ComponentType T>
-T& ComponentPool<T>::Create(Entity p_ent) {
+T& ComponentPool<T>::create(Entity p_ent) {
     DEV_ASSERT(p_ent.IsValid());
 
-    const size_t componentCount = m_component_array.size();
-    DEV_ASSERT(m_lookup.find(p_ent) == m_lookup.end());
-    DEV_ASSERT(m_entity_array.size() == componentCount);
-    DEV_ASSERT(m_lookup.size() == componentCount);
+    const size_t componentCount = component_array_.size();
+    DEV_ASSERT(lookup_.find(p_ent) == lookup_.end());
+    DEV_ASSERT(entity_array_.size() == componentCount);
+    DEV_ASSERT(lookup_.size() == componentCount);
 
-    m_lookup[p_ent] = componentCount;
-    m_component_array.emplace_back();
-    m_entity_array.push_back(p_ent);
-    return m_component_array.back();
+    lookup_[p_ent] = componentCount;
+    component_array_.emplace_back();
+    entity_array_.push_back(p_ent);
+    return component_array_.back();
 }
 
 template<ComponentType T>
-void* ComponentPool<T>::CreateRaw(Entity p_ent) {
-    T& c = Create(p_ent);
+void* ComponentPool<T>::createRaw(Entity p_ent) {
+    T& c = create(p_ent);
     return (void*)&c;
 }
 
 template<ComponentType T>
-void* ComponentPool<T>::GetRaw(Entity p_ent) {
-    return (void*)this->GetComponent(p_ent);
+void* ComponentPool<T>::getRaw(Entity p_ent) {
+    return (void*)this->getComponent(p_ent);
 }
 
 template<ComponentType T>
-const void* ComponentPool<T>::GetRaw(Entity p_ent) const {
-    return (const void*)this->GetComponent(p_ent);
+const void* ComponentPool<T>::getRaw(Entity p_ent) const {
+    return (const void*)this->getComponent(p_ent);
 }
 
 template<ComponentType T>
-void ComponentPool<T>::Remove(Entity p_ent) {
-    auto it = m_lookup.find(p_ent);
-    if (it == m_lookup.end()) {
+void ComponentPool<T>::remove(Entity p_ent) {
+    auto it = lookup_.find(p_ent);
+    if (it == lookup_.end()) {
         return;
     }
 
     const size_t index = it->second;
-    DEV_ASSERT_INDEX(index, m_entity_array.size());
-    const size_t last = m_component_array.size() - 1;
+    DEV_ASSERT_INDEX(index, entity_array_.size());
+    const size_t last = component_array_.size() - 1;
 
     if (index != last) {
         // 1) Move last component into the gap
-        m_component_array[index] = std::move(m_component_array[last]);
+        component_array_[index] = std::move(component_array_[last]);
 
         // 2) Move last entity id into the gap
-        const Entity movedEntity = m_entity_array[last];
-        m_entity_array[index] = movedEntity;
+        const Entity movedEntity = entity_array_[last];
+        entity_array_[index] = movedEntity;
 
         // 3) Fix the moved entity's index in the lookup
-        m_lookup[movedEntity] = index;
+        lookup_[movedEntity] = index;
     }
 
     // 4) Pop the last slot and erase the removed entity from the map
-    m_component_array.pop_back();
-    m_entity_array.pop_back();
-    m_lookup.erase(it);
+    component_array_.pop_back();
+    entity_array_.pop_back();
+    lookup_.erase(it);
 }
 
 template<ComponentType T>
-T& ComponentPool<T>::GetComponentByIndex(size_t p_index) {
-    DEV_ASSERT(p_index < m_component_array.size());
-    return m_component_array[p_index];
+T& ComponentPool<T>::getComponentByIndex(size_t p_index) {
+    DEV_ASSERT(p_index < component_array_.size());
+    return component_array_[p_index];
 }
 
 template<ComponentType T>
-const T& ComponentPool<T>::GetComponentByIndex(size_t p_index) const {
-    DEV_ASSERT(p_index < m_component_array.size());
-    return m_component_array[p_index];
+const T& ComponentPool<T>::getComponentByIndex(size_t p_index) const {
+    DEV_ASSERT(p_index < component_array_.size());
+    return component_array_[p_index];
 }
 
 template<ComponentType T>
-T* ComponentPool<T>::GetComponent(Entity p_ent) {
-    if (!p_ent.IsValid() || m_lookup.empty()) {
+T* ComponentPool<T>::getComponent(Entity p_ent) {
+    if (!p_ent.IsValid() || lookup_.empty()) {
         return nullptr;
     }
 
-    auto it = m_lookup.find(p_ent);
+    auto it = lookup_.find(p_ent);
 
-    if (it == m_lookup.end()) {
+    if (it == lookup_.end()) {
         return nullptr;
     }
 
-    return &m_component_array[it->second];
+    return &component_array_[it->second];
 }
 
 template<ComponentType T>
-const T* ComponentPool<T>::GetComponent(Entity p_ent) const {
-    if (!p_ent.IsValid() || m_lookup.empty()) {
+const T* ComponentPool<T>::getComponent(Entity p_ent) const {
+    if (!p_ent.IsValid() || lookup_.empty()) {
         return nullptr;
     }
 
-    auto it = m_lookup.find(p_ent);
+    auto it = lookup_.find(p_ent);
 
-    if (it == m_lookup.end()) {
+    if (it == lookup_.end()) {
         return nullptr;
     }
 
-    return &m_component_array[it->second];
+    return &component_array_[it->second];
 }
 
 }  // namespace cave::ecs

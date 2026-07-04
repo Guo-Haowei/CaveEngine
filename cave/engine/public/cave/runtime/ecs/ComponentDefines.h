@@ -44,10 +44,10 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)         \
     REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)
 
-#define REGISTER_COMPONENT_LIST                          \
-    REGISTER_COMPONENT_SERIALIZED_LIST                   \
-    REGISTER_COMPONENT(NoSaveTag, "World::NoSaveTag", 0) \
-    REGISTER_COMPONENT(PendingDestroy, "World::PendingDestroy", 0)
+#define REGISTER_COMPONENT_LIST                                                \
+    REGISTER_COMPONENT_SERIALIZED_LIST                                         \
+    REGISTER_COMPONENT(PrefabChildComponent, "World::PrefabChildComponent", 0) \
+    REGISTER_COMPONENT(PendingDestroyComponent, "World::PendingDestroyComponent", 0)
 
 enum BuiltinComponentId : ComponentId {
 #define REGISTER_COMPONENT(TYPE, ...) TYPE##_Id,

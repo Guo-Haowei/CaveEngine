@@ -19,7 +19,7 @@ template<>
 struct hash<cave::ThumbnailKey> {
     std::size_t operator()(const cave::ThumbnailKey& p_key) const {
         size_t hash = std::hash<cave::Guid>{}(p_key.guid);
-        cave::Hash::Add(hash, p_key.size);
+        cave::Hash::add(hash, p_key.size);
         return hash;
     }
 };

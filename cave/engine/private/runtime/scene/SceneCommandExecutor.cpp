@@ -19,42 +19,42 @@ SceneCommandExecutor::SceneCommandExecutor(Scene& p_scene) noexcept
     , m_reg(engine::GetComponentRegistry()) {
 }
 
-void SceneCommandExecutor::AddComponent(Entity p_ent, ComponentId p_id) {
-    m_scene.storage().CreateRaw(p_ent, p_id);
+void SceneCommandExecutor::AddComponent(Entity ent, ComponentId cid) {
+    m_scene.storage().createRaw(cid, ent);
     return;
 }
 
-bool SceneCommandExecutor::RemoveComponent(Entity p_ent, ComponentId p_id) {
-    return m_scene.storage().Remove(p_ent, p_id);
+bool SceneCommandExecutor::RemoveComponent(Entity ent, ComponentId cid) {
+    return m_scene.storage().remove(cid, ent);
 }
 
-bool SceneCommandExecutor::ChangeProperty(Entity p_ent,
-                                          ComponentId p_cid,
-                                          const PropertyId& p_pid,
-                                          const void* p_data,
-                                          uint32_t p_data_size) {
-    const ecs::ComponentMeta* meta = m_reg.TryGet(p_cid);
+bool SceneCommandExecutor::ChangeProperty(Entity ent,
+                                          ComponentId cid,
+                                          const PropertyId& pid,
+                                          const void* data,
+                                          uint32_t data_size) {
+    const ecs::ComponentMeta* meta = m_reg.TryGet(cid);
     if (!meta) {
-        LOG_WARN("Can't find meta for component '{}'", p_cid);
+        LOG_WARN("Can't find meta for component '{}'", cid);
         return false;
     }
 
-    void* comp = m_scene.storage().GetRaw(p_ent, meta->cid);
+    void* comp = m_scene.storage().getRaw(meta->cid, ent);
     if (!comp) {
-        LOG_WARN("Can't find '{}' for ent {}", meta->name, p_ent.GetId());
+        LOG_WARN("Can't find '{}' for ent {}", meta->name, ent.GetId());
         return false;
     }
 
-    const FieldMetaBase* field = meta->Find(p_pid);
+    const FieldMetaBase* field = meta->Find(pid);
     if (!field) {
-        LOG_WARN("Can't find '{}.{}' for ent {}", meta->name, p_pid.DebugName(), p_ent.GetId());
+        LOG_WARN("Can't find '{}.{}' for ent {}", meta->name, pid.debugName(), ent.GetId());
         return false;
     }
 
-    char* data = reinterpret_cast<char*>(comp) + field->offset;
-    std::memcpy(data, p_data, p_data_size);
+    char* ptr = reinterpret_cast<char*>(comp) + field->offset;
+    std::memcpy(ptr, data, data_size);
     if (meta->on_edited) {
-        meta->on_edited(m_scene, p_ent, p_cid, p_pid, p_data, p_data_size);
+        meta->on_edited(m_scene, ent, cid, pid, data, data_size);
     }
 
     return true;

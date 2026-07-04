@@ -3,7 +3,7 @@
 #include "cave/runtime/assets/IAsset.h"
 
 #include "engine/private/core/io/file_access.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -19,7 +19,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
 
     YamlDeserializer d;
     d.Initialize(root);
-    d.Read(meta);
+    d.read(meta);
 
     // meta sys path
     std::string sys_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, p_path);
@@ -43,20 +43,20 @@ Result<void> AssetMetaData::saveToDisk(const IAsset* asset) const {
 
     std::string asset_name = name;
     if (asset_name.empty()) {
-        asset_name = StringUtils::FileName(import_path.c_str(), '/');
+        asset_name = StringUtils::fileName(import_path.c_str(), '/');
     }
 
     if (asset) {
         dependencies = asset->dependencies();
     }
 
-    yaml.Write(*this);
+    yaml.write(*this);
     auto meta_path = std::format("{}.meta", import_path);
     return SaveYaml(meta_path, yaml);
 }
 
 auto AssetMetaData::CreateMeta(std::string_view path) -> Option<AssetMetaData> {
-    auto extension = StringUtils::Extension(path);
+    auto extension = StringUtils::extension(path);
 
     // @TODO: [SCRUM-222] refactor this part
     AssetType type = AssetType::Blob;

@@ -7,7 +7,7 @@ namespace chess {
 ChessStateIntent::ChessStateIntent(std::unique_ptr<IChessGameState> state)
     : state_(std::move(state))
 #if USING(DEBUG_BUILD)
-    , debug_name_(state_->DebugName())
+    , debug_name_(state_->debugName())
 #endif
 {
 }

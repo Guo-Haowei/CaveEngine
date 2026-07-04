@@ -3,24 +3,16 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
-#include "editor/edit/ChangePropertyCmd.h"
-#include "editor/edit/AddComponentCmd.h"
-#include "editor/edit/RemoveComponentCmd.h"
-#include "editor/services/EditService.h"
-#include "editor/services/SelectionService.h"
-#include "editor/services/Workspace.h"
+#include "editor/inspector/PropertyEditors.h"
 
 // @TODO: refactor
-
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/ui/inputs.h"
 #include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"
@@ -50,159 +42,38 @@ using namespace ::cave::math;
     COMPONENT_DECL(TileMapInstance) \
     COMPONENT_DECL(PrefabInstance)
 
-struct DrawComponentCtx {
-    IApplication& app;
-    EditService& edit;
-    ThumbnailService& thumbnail;
-    Scene* scene;
-    ecs::Entity entity;
-    DocId doc_id;
-};
-
-// @TODO: refactor DrawComponent
-template<ComponentType T, typename UIFunction>
-static void DrawComponent(const std::string& p_name,
-                          const DrawComponentCtx& ctx,
-                          T* p_component,
-                          UIFunction p_function) {
-    const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
-                                             ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap |
-                                             ImGuiTreeNodeFlags_FramePadding;
-    if (p_component) {
-        ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-        float line_height = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-        ImGui::Separator();
-        bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, "%s", p_name.c_str());
-        ImGui::PopStyleVar();
-        ImGui::SameLine(contentRegionAvailable.x - line_height * 0.5f);
-        if (ImGui::Button("-", ImVec2{ line_height, line_height })) {
-            ImGui::OpenPopup("ComponentSettings");
-        }
-
-        if (ImGui::BeginPopup("ComponentSettings")) {
-            if (ImGui::MenuItem("remove component")) {
-                auto cmd = std::make_unique<RemoveComponentCmd<T>>(
-                    ctx.app.services().sceneRegistry(),
-                    ctx.entity,
-                    *p_component);
-                ctx.edit.submit(ctx.doc_id, std::move(cmd));
-            }
-
-            ImGui::EndPopup();
-        }
-
-        if (open) {
-            p_function(*p_component);
-            ImGui::TreePop();
-        }
-    }
-}
-
+// @TODO: refactor this part
 template<typename T>
 concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
     { t.SetResourceGuid(guid) } -> std::same_as<bool>;
 };
 
-static_assert(HasSetResourceGuid<LuaScriptComponent>);
-
-// @TODO: make this an editable command
-template<typename T>
-bool DrawAsset(const char* p_name,
-               const Guid& p_guid,
-               T* p_component,
-               const DrawComponentCtx& p_context) {
-    auto handle_ = AssetRegistry::singleton().findByGuid(p_guid);
-
-    AssetType type = AssetType::All;
-    const AssetMetaData* meta = nullptr;
-    const IAsset* asset = nullptr;
-
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, ui::kDefaultColumnWidth);
-    ImGui::Text(ICON_FA_CUBE "  %s", p_name);
-    ImGui::NextColumn();
-
-    if (handle_.is_some()) {
-        AssetHandle handle = handle_.unwrap_unchecked();
-        meta = handle.meta();
-        DEV_ASSERT(meta);
-        asset = handle.get();
-        type = meta->type;
-    }
-
-    ImGui::Text(" %s ", meta ? meta->name.c_str() : "not set");
-
-    bool dirty = false;
-
-    const bool hovered = ImGui::IsItemHovered();
-    if (auto _handle = DragDropTarget(type); _handle.is_some()) {
-        if constexpr (HasSetResourceGuid<T>) {
-            if (p_component) {
-                dirty = p_component->SetResourceGuid(_handle.unwrap_unchecked().guid());
-            }
-        }
-    }
-
-    ImGui::Columns(1);
-    if (hovered && meta) {
-        ShowAssetToolTip(p_context.thumbnail, handle_.unwrap_unchecked());
-    }
-    return dirty;
-};
-
-template<typename ComponentT, typename ValueT, typename UiFn>
-bool EditAndSubmit(const DrawComponentCtx& p_ctx,
-                   ComponentT* p_component,
-                   const FieldMetaBase* p_field,
-                   UiFn&& p_ui_fn) {
-    static_assert(std::is_trivially_copyable_v<ValueT>);
-
-    ValueT old_v = p_field->template GetData<ValueT>(p_component);
-    ValueT new_v = old_v;
-    if (!p_ui_fn(p_field->name, new_v)) {
-        return false;
-    }
-
-    auto cmd = std::make_unique<ChangePropertyCmd>(
-        p_ctx.app.services().sceneRegistry(),
-        p_ctx.entity,
-        p_component->GetId(),
-        p_field->id,
-        old_v,
-        new_v);
-    p_ctx.edit.submit(p_ctx.doc_id, std::move(cmd));
-    return true;
-}
-
-template<typename T>
 bool DrawPropertyAuto(const FieldMetaBase* property,
-                      T* component,
+                      void* component,
                       const DrawComponentCtx& ctx) {
     switch (property->editor_hint) {
         case EditorHint::EnumDropDown:
             return property->DrawEditor(component, ui::kDefaultColumnWidth);
         case EditorHint::Toggle:
-            return EditAndSubmit<T, bool>(
+            return EditAndSubmit<bool>(
                 ctx, component, property,
                 [](const char* label, bool& value) {
                     return ui::CheckBox(label, value);
                 });
         case EditorHint::InputInt:
-            return (int)EditAndSubmit<T, int>(
+            return EditAndSubmit<int>(
                 ctx, component, property,
                 [](const char* label, int& value) {
                     return ui::InputInt(label, value);
                 });
         case EditorHint::InputFloat:
-            return EditAndSubmit<T, float>(
+            return EditAndSubmit<float>(
                 ctx, component, property,
                 [](const char* label, float& value) {
                     return ui::InputFloat(label, value);
                 });
         case EditorHint::BitMask: {
-            return EditAndSubmit<T, uint32_t>(
+            return EditAndSubmit<uint32_t>(
                 ctx, component, property,
                 [](const char* label, uint32_t& value) {
                     return ui::DrawBitMask32(label, value);
@@ -212,7 +83,7 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             BreakIfDebug();
             return false;
         case EditorHint::DragFloat:
-            return EditAndSubmit<T, float>(
+            return EditAndSubmit<float>(
                 ctx, component, property,
                 [&](const char* label, float& value) {
                     return ui::DragFloat(label,
@@ -222,19 +93,19 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                                          property->v_max);
                 });
         case EditorHint::Color:
-            return EditAndSubmit<T, Vec4f>(
+            return EditAndSubmit<Vec4f>(
                 ctx, component, property,
                 [](const char* label, Vec4f& value) {
                     return ui::ColorPicker4(label, value);
                 });
         case EditorHint::Translation:
-            return EditAndSubmit<T, Vec3f>(
+            return EditAndSubmit<Vec3f>(
                 ctx, component, property,
                 [](const char* label, Vec3f& value) {
                     return ui::Float3(label, value, 0.0f);
                 });
         case EditorHint::Scale:
-            return EditAndSubmit<T, Vec3f>(
+            return EditAndSubmit<Vec3f>(
                 ctx, component, property,
                 [](const char* label, Vec3f& value) {
                     return ui::Float3(label, value, 1.0f);
@@ -259,9 +130,9 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
 
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                ctx.app.services().sceneRegistry(),
+                ctx.services.sceneRegistry(),
                 ctx.entity,
-                component->GetId(),
+                ctx.cid,
                 property->id,
                 old_v,
                 new_v);
@@ -269,8 +140,18 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             return true;
         } break;
         case EditorHint::Asset: {
-            const Guid& guid = property->template GetData<Guid>(component);
-            return DrawAsset(property->name, guid, component, ctx);
+            return EditAndSubmit<Guid>(
+                ctx, component, property,
+                [&ctx](const char* label, Guid& guid) {
+                    return DrawAsset(ctx, label, guid);
+                });
+        } break;
+        case EditorHint::VariantMap: {
+            return EditAndSubmit<VariantMap>(
+                ctx, component, property,
+                [](const char* label, VariantMap& map) {
+                    return DrawVariantMap(label, map);
+                });
         } break;
         default:
             return false;
@@ -278,12 +159,14 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
 }
 
 template<typename T>
-bool DrawComponentAuto(T* p_component, const DrawComponentCtx& p_ctx) {
+bool DrawComponentAuto(T* component, const DrawComponentCtx& ctx) {
     const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();
+    DrawComponentCtx ctx2 = ctx;
+    ctx2.cid = T::kId;
 
     int dirty = 0;
     for (const auto& field : meta_table) {
-        dirty |= (int)DrawPropertyAuto(field, p_component, p_ctx);
+        dirty |= (int)DrawPropertyAuto(field, component, ctx2);
     }
     return (int)dirty;
 }
@@ -314,7 +197,7 @@ void PropertyPanel::drawUIImpl() {
     EditService& edit_service = editor_services_.edit();
 
     const DrawComponentCtx ctx{
-        .app = m_editor.app(),
+        .services = m_editor.app().services(),
         .edit = edit_service,
         .thumbnail = editor_services_.thumbnail(),
         .scene = &scene,
@@ -343,7 +226,7 @@ void PropertyPanel::drawUIImpl() {
     }
 
     auto create_component = [&](BuiltinComponentId cid) {
-        if (scene.storage().Has(id, cid)) {
+        if (scene.storage().has(cid, id)) {
             LOG_ERROR("object {} already has component {}",
                       name_component->name(),
                       std::to_underlying(cid));
@@ -418,6 +301,7 @@ void PropertyPanel::drawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Native Script"), native_script, [&](NativeScriptComponent& script) {
+        // @TODO: fix this
         FixedString<32>& name = script.name;
         ui::TextBox("class_name", name.data(), name.capacity(), false);
 
@@ -425,20 +309,7 @@ void PropertyPanel::drawUIImpl() {
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent& prefab) {
-        const Guid old_guid = prefab.prefabGuid();
-        const bool dirty = DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
-        const Guid new_guid = prefab.prefabGuid();
-
-        // @NOTE: can only instantiate once
-        if (old_guid.isNull() && !new_guid.isNull()) {
-            scene.instantiatePrefab(prefab, id);
-        }
-
-        if (dirty) {
-            ecs::Entity child = prefab.child();
-            TransformComponent* transform = scene.component<TransformComponent>(child);
-            transform->setTranslation(prefab.translation());
-        }
+        DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& collider) {

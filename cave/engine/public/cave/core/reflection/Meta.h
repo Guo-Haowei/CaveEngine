@@ -48,6 +48,8 @@ enum class EditorHint {
     Rotation,
     Scale,
     BitMask,
+    Variant,
+    VariantMap,
 };
 
 enum class FieldFlag : uint32_t {

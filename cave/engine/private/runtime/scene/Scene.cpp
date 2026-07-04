@@ -18,7 +18,7 @@
 #include "engine/private/runtime/script/lua/LuaScriptSystem.h"
 
 // @TODO: refactor
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -82,10 +82,10 @@ void Scene::tick(SceneTickContext& ctx) {
 
 void Scene::copy(const Scene& other) {
     ComponentId idx = 0;
-    for (auto& entry : other.storage_.GetEntries()) {
+    for (auto& entry : other.storage_.entries()) {
         if (entry.pool) {
-            storage_.Ensure(idx);
-            storage_.m_entries[idx].pool = std::move(entry.pool->Clone());
+            storage_.ensure(idx);
+            storage_.entries_[idx].pool = std::move(entry.pool->clone());
         }
         ++idx;
     }
@@ -98,10 +98,10 @@ void Scene::copy(const Scene& other) {
 std::vector<Entity> Scene::getSortedEntityArray() const {
     std::unordered_set<Entity> entity_set;
 
-    for (const auto& it : storage_.GetEntries()) {
+    for (const auto& it : storage_.entries()) {
         if (!it.pool) continue;
-        for (auto entity : it.pool->GetEntityArray()) {
-            if (has<NoSaveTag>(entity)) {
+        for (auto entity : it.pool->entityArray()) {
+            if (has<PrefabChildComponent>(entity)) {
                 continue;
             }
             entity_set.insert(entity);
@@ -115,14 +115,14 @@ std::vector<Entity> Scene::getSortedEntityArray() const {
 }
 
 void Scene::flushPendingDestroy() {
-    const size_t pending_count = count<PendingDestroy>();
+    const size_t pending_count = count<PendingDestroyComponent>();
     if (pending_count == 0) {
         return;
     }
 
     std::vector<Entity> entities;
     entities.reserve(pending_count);
-    for (auto [ent, _] : view<PendingDestroy>()) {
+    for (auto [ent, _] : view<PendingDestroyComponent>()) {
         entities.emplace_back(ent);
     }
 
@@ -146,7 +146,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     std::unordered_map<Entity, Entity> mapping;
     for (Entity raw_entity : new_entities) {
         Entity mapped = createEntity();
-        create<NoSaveTag>(mapped);
+        create<PrefabChildComponent>(mapped);
         mapping[raw_entity] = mapped;
     }
 
@@ -166,18 +166,18 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     }
 
     // remap all entities
-    for (uint16_t cid = 0; cid < (uint16_t)copy.storage_.m_entries.size(); ++cid) {
-        auto& entry = copy.storage_.m_entries[cid];
+    for (uint16_t cid = 0; cid < (uint16_t)copy.storage_.entries_.size(); ++cid) {
+        auto& entry = copy.storage_.entries_[cid];
         if (!entry.pool) continue;
-        entry.pool->Remap(mapping);
+        entry.pool->remap(mapping);
 
-        CRASH_COND(cid >= storage_.m_entries.size());
-        auto& my_entry = storage_.m_entries[cid];
+        CRASH_COND(cid >= storage_.entries_.size());
+        auto& my_entry = storage_.entries_[cid];
 
         if (!my_entry.pool) {
-            storage_.GetOrCreate(cid);
+            storage_.getOrCreate(cid);
         }
-        my_entry.pool->Merge(std::move(*entry.pool));
+        my_entry.pool->merge(std::move(*entry.pool));
     }
 
     // link instance
@@ -185,26 +185,23 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
     hier.parent_id = ent.IsValid() ? ent : root_;
 
-    TransformComponent* transform = component<TransformComponent>(mapped_root);
-    transform->setTranslation(prefab.translation());
-
     prefab.child(mapped_root);
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
-    return storage_.Has(ent, cid);
+    return storage_.has(cid, ent);
 }
 
 size_t Scene::count(ComponentId cid) const {
-    if (const ecs::IComponentPool* pool = storage_.TryGet(cid)) {
-        return pool->GetCount();
+    if (const ecs::IComponentPool* pool = storage_.tryGet(cid)) {
+        return pool->count();
     }
 
     return 0;
 }
 
 bool Scene::remove(ComponentId cid, Entity ent) {
-    return storage_.Remove(ent, cid);
+    return storage_.remove(cid, ent);
 }
 
 Entity Scene::findFirstByName(std::string_view name) const {
@@ -248,9 +245,9 @@ void Scene::removeEntity(ecs::Entity ent) {
         script->instance->onDestroy();
     }
 
-    for (auto& e : storage_.GetEntries()) {
+    for (auto& e : storage_.entries()) {
         if (e.pool) {
-            e.pool->Remove(ent);
+            e.pool->remove(ent);
         }
     }
 }
@@ -353,19 +350,186 @@ concept HasOnDeserialized = requires(T& t) {
     { t.OnDeserialized() } -> std::same_as<void>;
 };
 
+namespace {
+
+#define PREFAB_OVERRIDE_LIST               \
+    PREFAB_OVERRIDE(TransformComponent)    \
+    PREFAB_OVERRIDE(NativeScriptComponent) \
+    PREFAB_OVERRIDE(FacingComponent)
+
 template<ComponentType T>
-static void DeserializeComponent(IDeserializer& d,
-                                 const char* key,
-                                 ecs::Entity ent,
-                                 Scene& scene) {
-    if (d.TryEnterKey(key)) {
+Option<T> DeserializeComponent(IDeserializer& d,
+                               const char* key) {
+    if (d.tryEnterKey(key)) {
+        T component;
+        d.read(component);
+        d.leaveKey();
+        if constexpr (HasOnDeserialized<T>) {
+            component.OnDeserialized();
+        }
+        return Some(std::move(component));
+    }
+    return None();
+}
+
+template<ComponentType T>
+void DeserializeComponent(IDeserializer& d,
+                          const char* key,
+                          ecs::Entity ent,
+                          Scene& scene) {
+    if (d.tryEnterKey(key)) {
         T& component = scene.create<T>(ent);
-        d.Read(component);
-        d.LeaveKey();
+        d.read(component);
+        d.leaveKey();
         if constexpr (HasOnDeserialized<T>) {
             component.OnDeserialized();
         }
     }
+}
+
+template<ComponentType T>
+bool SerializeComponent(ISerializer& s,
+                        const char* name,
+                        const Scene& scene,
+                        ecs::Entity ent) {
+
+    const T* component = scene.component<T>(ent);
+    if (component) {
+        s.beginKey(name);
+        s.write(*component);
+    }
+    return true;
+}
+
+bool SerializeEntityImpl(ISerializer& s,
+                         const Scene& scene,
+                         Entity ent) {
+
+    s.beginKey("id")
+        .write(ent);
+
+#define REGISTER_COMPONENT(COMPONENT, ...) \
+    SerializeComponent<COMPONENT>(s, #COMPONENT, scene, ent);
+
+    REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+    return true;
+}
+
+bool SerializeNormalEntity(ISerializer& s,
+                           const Scene& scene,
+                           Entity ent) {
+
+    s.beginMap(false);
+    SerializeEntityImpl(s, scene, ent);
+    s.endMap();
+    return true;
+}
+
+template<ComponentType T>
+bool SerializeComponentOverride(ISerializer& s,
+                                const char* name,
+                                const Scene& prefab_scene,
+                                Entity prefab_ent,
+                                const Scene& instance_scene,
+                                Entity instance_ent) {
+    const T* prefab_component = prefab_scene.component<T>(prefab_ent);
+    const T* instance_component = instance_scene.component<T>(instance_ent);
+    if (!prefab_component || !instance_component) {
+        return true;
+    }
+
+    if (*prefab_component != *instance_component) {
+        s.beginKey(name);
+        s.write(*instance_component);
+    }
+
+    return true;
+}
+
+bool SerializePrefabDiff(ISerializer& s,
+                         const Scene& scene,
+                         const PrefabInstanceComponent& prefab) {
+    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
+    if (handle.is_none()) {
+        return false;
+    }
+
+    Entity instance_ent = prefab.child();
+    const Scene* prefab_scene = handle.unwrap_unchecked().get();
+    Entity prefab_ent = prefab_scene->root();
+
+    s.beginKey("PrefabOverride");
+    s.beginMap(false);
+
+#define PREFAB_OVERRIDE(T) SerializeComponentOverride<T>(s, #T, *prefab_scene, prefab_ent, scene, instance_ent);
+    PREFAB_OVERRIDE_LIST
+#undef PREFAB_OVERRIDE
+
+    s.endMap();
+    return true;
+}
+
+bool SerializePrefabEntity(ISerializer& s,
+                           const Scene& scene,
+                           Entity ent) {
+    const PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(ent);
+    DEV_ASSERT(prefab);
+
+    s.beginMap(false);
+    SerializeEntityImpl(s, scene, ent);
+    SerializePrefabDiff(s, scene, *prefab);
+    s.endMap();
+    return true;
+}
+
+bool SerializeEntity(ISerializer& s,
+                     const Scene& scene,
+                     Entity ent) {
+    if (scene.has<PrefabChildComponent>(ent)) {
+        return true;
+    }
+
+    if (scene.has<PrefabInstanceComponent>(ent)) {
+        return SerializePrefabEntity(s, scene, ent);
+    }
+
+    return SerializeNormalEntity(s, scene, ent);
+}
+
+}  // namespace
+
+auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
+    auto res = meta.saveToDisk(this);
+    if (!res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    // @TODO: maybe pass ISerializer next
+    YamlSerializer yaml;
+
+    auto entity_array = getSortedEntityArray();
+
+    yaml.beginMap(false)
+        .beginKey("version")
+        .write(LATEST_SCENE_VERSION)
+        .beginKey("seed")
+        .write(entity_array.back())
+        .beginKey("root")
+        .write(root_)
+        .beginKey("entities");
+
+    yaml.beginArray(false);
+
+    for (auto ent : entity_array) {
+        SerializeEntity(yaml, *this, ent);
+    }
+
+    yaml.endArray();
+
+    yaml.endMap();
+    return SaveYaml(meta.import_path, yaml);
 }
 
 auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
@@ -380,108 +544,86 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
 
     IDeserializer& d = yaml;
 
-    const int version = d.GetVersion();
+    const int version = d.version();
     DEV_ASSERT(version);
 
-    if (d.TryEnterKey("seed")) {
-        d.Read(entity_seed_);
-        d.LeaveKey();
+    if (d.tryEnterKey("seed")) {
+        d.read(entity_seed_);
+        d.leaveKey();
     }
-    if (d.TryEnterKey("root")) {
-        d.Read(root_);
-        d.LeaveKey();
+    if (d.tryEnterKey("root")) {
+        d.read(root_);
+        d.leaveKey();
     }
 
-    const bool ok = d.TryEnterKey("entities");
+    const bool ok = d.tryEnterKey("entities");
     DEV_ASSERT(ok);
 
-    const int entity_count = d.ArraySize().unwrap_or(0);
+    struct OverrideComponents {
+        Option<TransformComponent> TransformComponent;
+        Option<FacingComponent> FacingComponent;
+        Option<NativeScriptComponent> NativeScriptComponent;
+
+        bool is_some() const {
+            return TransformComponent.is_some() ||
+                   FacingComponent.is_some() ||
+                   NativeScriptComponent.is_some();
+        }
+    };
+
+    std::unordered_map<Entity, OverrideComponents> overrides_map;
+
+    const int entity_count = d.arraySize().unwrap_or(0);
     for (int i = 0; i < entity_count; ++i) {
-        DEV_ASSERT(d.TryEnterIndex(i));
-        auto keys = d.GetKeys().unwrap();
-        ecs::Entity id;
-        DEV_ASSERT(d.TryEnterKey("id"));
-        d.Read((uint32_t&)id);
-        d.LeaveKey();
+        DEV_ASSERT(d.tryEnterIndex(i));
+        auto keys = d.getKeys().unwrap();
+        ecs::Entity ent;
+        DEV_ASSERT(d.tryEnterKey("id"));
+        d.read((uint32_t&)ent);
+        d.leaveKey();
 
         // @TODO: use component registry instead of this
-#define REGISTER_COMPONENT(a, ...)                 \
-    do {                                           \
-        DeserializeComponent<a>(d, #a, id, *this); \
+#define REGISTER_COMPONENT(a, ...)                  \
+    do {                                            \
+        DeserializeComponent<a>(d, #a, ent, *this); \
     } while (0);
         REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-        d.LeaveIndex();
+        // parse overrides
+        OverrideComponents overrides;
+        if (d.tryEnterKey("PrefabOverride")) {
+#define PREFAB_OVERRIDE(T) overrides.T = DeserializeComponent<T>(d, #T);
+            PREFAB_OVERRIDE_LIST
+#undef PREFAB_OVERRIDE
+
+            d.leaveKey();
+            if (overrides.is_some()) {
+                overrides_map[ent] = overrides;
+            }
+        }
+
+        d.leaveIndex();
     }
 
-    d.LeaveKey();
+    d.leaveKey();
 
-    // @TODO: instantiate prefab
-    for (auto&& [id, prefab] : view<PrefabInstanceComponent>()) {
-        instantiatePrefab(prefab, id);
+    for (auto&& [ent, prefab] : view<PrefabInstanceComponent>()) {
+        instantiatePrefab(prefab, ent);
+    }
+
+    for (auto&& [ent, overrides] : overrides_map) {
+        const auto& prefab = *component<PrefabInstanceComponent>(ent);
+        Entity child_ent = prefab.child();
+#define PREFAB_OVERRIDE(T)                                         \
+    if (overrides.T.is_some()) {                                   \
+        *component<T>(child_ent) = overrides.T.unwrap_unchecked(); \
+    }
+        PREFAB_OVERRIDE_LIST
+#undef PREFAB_OVERRIDE
     }
 
     return Result<void>();
-}
-
-template<ComponentType T>
-static bool SerializeComponent(ISerializer& s,
-                               const char* name,
-                               ecs::Entity ent,
-                               const Scene& scene) {
-
-    const T* component = scene.component<T>(ent);
-    if (component) {
-        s.Key(name);
-        s.Write(*component);
-    }
-    return true;
-}
-
-auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
-    auto res = meta.saveToDisk(this);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    // @TODO: maybe pass ISerializer next
-    YamlSerializer yaml;
-
-    auto entity_array = getSortedEntityArray();
-
-    yaml.BeginMap(false)
-        .Key("version")
-        .Write(LATEST_SCENE_VERSION)
-        .Key("seed")
-        .Write(entity_array.back())
-        .Key("root")
-        .Write(root_)
-        .Key("entities");
-
-    yaml.BeginArray(false);
-
-    for (auto entity : entity_array) {
-        if (has<NoSaveTag>(entity)) {
-            continue;
-        }
-
-        yaml.BeginMap(false)
-            .Key("id")
-            .Write(entity);
-
-#define REGISTER_COMPONENT(COMPONENT, ...) \
-    SerializeComponent<COMPONENT>(yaml, #COMPONENT, entity, *this);
-
-        REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-
-        yaml.EndMap();
-    }
-
-    yaml.EndArray();
-    yaml.EndMap();
-    return SaveYaml(meta.import_path, yaml);
 }
 
 void Scene::onSimBegin(SceneContext& ctx) {

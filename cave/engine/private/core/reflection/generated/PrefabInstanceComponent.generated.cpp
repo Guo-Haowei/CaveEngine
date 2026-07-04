@@ -4,18 +4,16 @@
 
 #include "cave/runtime/ecs/components/PrefabInstanceComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
-#include "engine/private/serialization/yaml_include.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
 // Guid prefab_id_ (editor = Asset)
-// math::Vec3f translation_ (editor = Translation)
 
 template<>
 const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(PrefabInstanceComponent, "prefab_id", prefab_id_, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(PrefabInstanceComponent, "translation", translation_, FieldFlag::Serialize, EditorHint::Translation),
     };
 
     return s_table;

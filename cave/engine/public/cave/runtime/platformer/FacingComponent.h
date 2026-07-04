@@ -22,6 +22,14 @@ struct FacingComponent {
 
     CAVE_PROP(editor = EnumDropDown)
     Facing facing = Facing::Right;
+
+    bool operator==(const FacingComponent& rhs) const {
+        return facing == rhs.facing;
+    }
+
+    bool operator!=(const FacingComponent& rhs) const {
+        return facing != rhs.facing;
+    }
 };
 
 }  // namespace cave

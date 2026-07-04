@@ -33,7 +33,7 @@ Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>& p_f
     }
 
     char buffer[1024] = { 0 };
-    StringUtils::Sprintf(buffer, "Supported Files(%s)\n%s", filter_str.c_str(), filter_str.c_str());
+    StringUtils::sprintf(buffer, "Supported Files(%s)\n%s", filter_str.c_str(), filter_str.c_str());
     for (char* p = buffer; *p; ++p) {
         if (*p == '\n') {
             *p = '\0';
@@ -66,9 +66,9 @@ bool OpenSaveDialog(std::filesystem::path& p_inout_path) {
     char file_name[MAX_PATH]{ 0 };
     char extension[MAX_PATH]{ 0 };
     char dir[MAX_PATH]{ 0 };
-    StringUtils::Strcpy(file_name, p_inout_path.filename().replace_extension().string());
-    StringUtils::Strcpy(dir, p_inout_path.parent_path().string());
-    StringUtils::Strcpy(extension, p_inout_path.extension().string());
+    StringUtils::strcpy(file_name, p_inout_path.filename().replace_extension().string());
+    StringUtils::strcpy(dir, p_inout_path.parent_path().string());
+    StringUtils::strcpy(extension, p_inout_path.extension().string());
 
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = NULL;
