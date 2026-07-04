@@ -42,6 +42,12 @@ using namespace ::cave::math;
     COMPONENT_DECL(TileMapInstance) \
     COMPONENT_DECL(PrefabInstance)
 
+// @TODO: refactor this part
+template<typename T>
+concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
+    { t.SetResourceGuid(guid) } -> std::same_as<bool>;
+};
+
 // @TODO: make this an undoable command instead
 template<typename T>
 bool DrawAsset(const DrawComponentCtx& ctx,
@@ -62,29 +68,32 @@ bool DrawAsset(const DrawComponentCtx& ctx,
     }
 };
 
-template<typename T>
 bool DrawPropertyAuto(const FieldMetaBase* property,
-                      T* component,
+                      void* component,
                       const DrawComponentCtx& ctx) {
     switch (property->editor_hint) {
         case EditorHint::EnumDropDown:
             return property->DrawEditor(component, ui::kDefaultColumnWidth);
         case EditorHint::Toggle:
-            return DrawToggle(ctx, property, component);
+            return EditAndSubmit<bool>(
+                ctx, component, property,
+                [](const char* label, bool& value) {
+                    return ui::CheckBox(label, value);
+                });
         case EditorHint::InputInt:
-            return EditAndSubmit<T, int>(
+            return EditAndSubmit<int>(
                 ctx, component, property,
                 [](const char* label, int& value) {
                     return ui::InputInt(label, value);
                 });
         case EditorHint::InputFloat:
-            return EditAndSubmit<T, float>(
+            return EditAndSubmit<float>(
                 ctx, component, property,
                 [](const char* label, float& value) {
                     return ui::InputFloat(label, value);
                 });
         case EditorHint::BitMask: {
-            return EditAndSubmit<T, uint32_t>(
+            return EditAndSubmit<uint32_t>(
                 ctx, component, property,
                 [](const char* label, uint32_t& value) {
                     return ui::DrawBitMask32(label, value);
@@ -94,7 +103,7 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             BreakIfDebug();
             return false;
         case EditorHint::DragFloat:
-            return EditAndSubmit<T, float>(
+            return EditAndSubmit<float>(
                 ctx, component, property,
                 [&](const char* label, float& value) {
                     return ui::DragFloat(label,
@@ -104,19 +113,19 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                                          property->v_max);
                 });
         case EditorHint::Color:
-            return EditAndSubmit<T, Vec4f>(
+            return EditAndSubmit<Vec4f>(
                 ctx, component, property,
                 [](const char* label, Vec4f& value) {
                     return ui::ColorPicker4(label, value);
                 });
         case EditorHint::Translation:
-            return EditAndSubmit<T, Vec3f>(
+            return EditAndSubmit<Vec3f>(
                 ctx, component, property,
                 [](const char* label, Vec3f& value) {
                     return ui::Float3(label, value, 0.0f);
                 });
         case EditorHint::Scale:
-            return EditAndSubmit<T, Vec3f>(
+            return EditAndSubmit<Vec3f>(
                 ctx, component, property,
                 [](const char* label, Vec3f& value) {
                     return ui::Float3(label, value, 1.0f);
@@ -143,7 +152,7 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             auto cmd = std::make_unique<ChangePropertyCmd>(
                 ctx.services.sceneRegistry(),
                 ctx.entity,
-                component->GetId(),
+                ctx.cid,
                 property->id,
                 old_v,
                 new_v);
@@ -155,7 +164,7 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             return DrawAsset(ctx, property->name, guid, component);
         } break;
         case EditorHint::VariantMap: {
-            return EditAndSubmit<T, VariantMap>(
+            return EditAndSubmit<VariantMap>(
                 ctx, component, property,
                 [](const char* label, VariantMap& map) {
                     return DrawVariantMap(label, map);
@@ -167,12 +176,14 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
 }
 
 template<typename T>
-bool DrawComponentAuto(T* p_component, const DrawComponentCtx& p_ctx) {
+bool DrawComponentAuto(T* component, const DrawComponentCtx& ctx) {
     const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();
+    DrawComponentCtx ctx2 = ctx;
+    ctx2.cid = T::kId;
 
     int dirty = 0;
     for (const auto& field : meta_table) {
-        dirty |= (int)DrawPropertyAuto(field, p_component, p_ctx);
+        dirty |= (int)DrawPropertyAuto(field, component, ctx2);
     }
     return (int)dirty;
 }

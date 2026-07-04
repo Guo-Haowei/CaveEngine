@@ -9,7 +9,7 @@
 
 namespace cave {
 
-template<typename ComponentT, typename ValueT>
+template<typename ValueT>
 class ChangeObjectPropertyCmd : public EditCmdBase {
 public:
     ChangeObjectPropertyCmd(SceneRegistry& scene_reg,

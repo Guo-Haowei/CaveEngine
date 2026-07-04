@@ -26,17 +26,18 @@ struct DrawComponentCtx {
     Scene* scene;
     ecs::Entity entity;
     DocId doc_id;
+
+    ComponentId cid;
 };
 
-template<typename ComponentT, typename ValueT, typename UiFn>
+template<typename ValueT, typename UIFunc>
 bool EditAndSubmit(const DrawComponentCtx& ctx,
-                   ComponentT* component,
+                   void* component,
                    const FieldMetaBase* field,
-                   UiFn&& ui_fn) {
-
+                   UIFunc&& ui_func) {
     ValueT old_v = field->template GetData<ValueT>(component);
     ValueT new_v = old_v;
-    if (!ui_fn(field->name, new_v)) {
+    if (!ui_func(field->name, new_v)) {
         return false;
     }
 
@@ -44,16 +45,16 @@ bool EditAndSubmit(const DrawComponentCtx& ctx,
         auto cmd = std::make_unique<ChangePropertyCmd>(
             ctx.services.sceneRegistry(),
             ctx.entity,
-            component->GetId(),
+            ctx.cid,
             field->id,
             old_v,
             new_v);
         ctx.edit.submit(ctx.doc_id, std::move(cmd));
     } else {
-        auto cmd = std::make_unique<ChangeObjectPropertyCmd<ComponentT, ValueT>>(
+        auto cmd = std::make_unique<ChangeObjectPropertyCmd<ValueT>>(
             ctx.services.sceneRegistry(),
             ctx.entity,
-            component->GetId(),
+            ctx.cid,
             field->id,
             std::move(old_v),
             std::move(new_v));
@@ -62,6 +63,7 @@ bool EditAndSubmit(const DrawComponentCtx& ctx,
 
     return true;
 }
+
 // @TODO: refactor DrawComponent
 template<ComponentType T, typename UIFunction>
 static void DrawComponent(const std::string& p_name,
@@ -101,22 +103,6 @@ static void DrawComponent(const std::string& p_name,
             ImGui::TreePop();
         }
     }
-}
-
-template<typename T>
-concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
-    { t.SetResourceGuid(guid) } -> std::same_as<bool>;
-};
-
-template<typename T>
-bool DrawToggle(const DrawComponentCtx& ctx,
-                const FieldMetaBase* property,
-                T* component) {
-    return EditAndSubmit<T, bool>(
-        ctx, component, property,
-        [](const char* label, bool& value) {
-            return ui::CheckBox(label, value);
-        });
 }
 
 bool DrawAsset(const DrawComponentCtx& ctx,
