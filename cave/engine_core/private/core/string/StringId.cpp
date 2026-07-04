@@ -1,3 +1,4 @@
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/string/StringId.h"
 
 namespace cave {

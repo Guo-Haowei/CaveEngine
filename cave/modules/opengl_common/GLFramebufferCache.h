@@ -33,12 +33,12 @@ struct FboAttachmentKey {
     bool operator==(const FboAttachmentKey&) const = default;
 
     size_t Hash(size_t& p_inout) const noexcept {
-        cave::Hash::Add(p_inout, tex);
-        cave::Hash::Add(p_inout, kind);
-        cave::Hash::Add(p_inout, mip);
-        cave::Hash::Add(p_inout, first_slice);
-        cave::Hash::Add(p_inout, slice_count);
-        cave::Hash::Add(p_inout, attachment_point);
+        cave::Hash::add(p_inout, tex);
+        cave::Hash::add(p_inout, kind);
+        cave::Hash::add(p_inout, mip);
+        cave::Hash::add(p_inout, first_slice);
+        cave::Hash::add(p_inout, slice_count);
+        cave::Hash::add(p_inout, attachment_point);
         return p_inout;
     }
 };
@@ -56,8 +56,8 @@ struct FboKey {
 struct FboKeyHash {
     size_t operator()(const FboKey& p_key) const noexcept {
         size_t hash = 0;
-        cave::Hash::Add(hash, p_key.numColors);
-        cave::Hash::Add(hash, p_key.hasDepthStencil);
+        cave::Hash::add(hash, p_key.numColors);
+        cave::Hash::add(hash, p_key.hasDepthStencil);
         for (size_t i = 0; i < cave::render::kMaxColorAttachments; ++i) {
             p_key.colors[i].Hash(hash);
         }

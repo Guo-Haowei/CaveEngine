@@ -2,7 +2,10 @@
 // File: cave/core/string/StringUtils.h
 // =============================================================================
 #pragma once
+#include <cstdarg>
+#include <string>
 #include <string_view>
+#include <vector>
 
 #include "cave/core/typedefs.h"
 

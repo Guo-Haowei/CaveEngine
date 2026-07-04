@@ -14,10 +14,10 @@ class StringId {
 public:
     explicit constexpr StringId() = default;
 
-    explicit constexpr StringId(std::string_view p_str)
-        : hash_(Hash::Hash64(p_str)) {
+    explicit constexpr StringId(std::string_view sv)
+        : hash_(Hash::hash64(sv)) {
 #if USING(STRING_ID_KEEP_SOURCE)
-        debug_name_.assign(p_str);
+        debug_name_.assign(sv);
 #endif
     }
 
