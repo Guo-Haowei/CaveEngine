@@ -3,6 +3,7 @@
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"
+#include "cave/core/CoreExport.h"
 #include "cave/core/hash/Hash.h"
 #include "cave/core/containers/FixedString.h"
 
@@ -10,7 +11,10 @@
 
 namespace cave {
 
-class StringId {
+#pragma warning(push)
+#pragma warning(disable : 4251)
+
+class CAVE_CORE_API StringId {
 public:
     explicit constexpr StringId() = default;
 
@@ -47,6 +51,8 @@ private:
     FixedString<32> debug_name_;
 #endif
 };
+
+#pragma warning(pop)
 
 namespace literals {
 

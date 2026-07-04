@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "cave/core/typedefs.h"
+#include "cave/core/CoreExport.h"
 
 namespace cave {
 
@@ -19,7 +20,7 @@ namespace cave {
 #define DELIMITER_STR  "/"
 #endif
 
-class StringSplitter {
+class CAVE_CORE_API StringSplitter {
 public:
     explicit StringSplitter(const char* str) {
         fast_ = str;
@@ -44,7 +45,7 @@ private:
     const char* slow_;
 };
 
-class StringUtils {
+class CAVE_CORE_API StringUtils {
 public:
     static bool isNullOrEmpty(const char* str) {
         return !str || *str == '\0';
