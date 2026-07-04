@@ -137,13 +137,8 @@ void PIESession::endPIESession() {
     }
 }
 
-void PIESession::commitSceneChange() {
-    if (pending_change_.is_none()) {
-        return;
-    }
-
-    std::string path = std::move(pending_change_.unwrap_unchecked());
-    pending_change_ = None();
+void PIESession::commitSceneChange(std::string&& path) {
+    DEV_ASSERT(!path.empty());
 
     endPIEScene();
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/renderer/pipeline_state.h"
+#include "PipelineState.h"
 
 namespace cave {
 
@@ -65,25 +65,25 @@ static const RasterizerDesc s_rasterizer_double_sided = {
 };
 
 /// Depth stencil states
-static const DepthStencilDesc s_depthStencilDefault = {
+static const DepthStencilDesc s_default_depth_stencil = {
     .depthEnabled = true,
     .depthFunc = ComparisonFunc::LESS_EQUAL,
     .stencilEnabled = false,
 };
 
-static const DepthStencilDesc s_depthStencilDisabled = {
+static const DepthStencilDesc s_depth_stencil_off = {
     .depthEnabled = false,
-    .depthFunc = ComparisonFunc::NEVER,
+    .depthFunc = ComparisonFunc::ALWAYS,
     .stencilEnabled = false,
 };
 
-static const DepthStencilDesc s_depthReversedStencilDisabled = {
+static const DepthStencilDesc s_depth_reversed_stencil_off = {
     .depthEnabled = true,
     .depthFunc = ComparisonFunc::GREATER_EQUAL,
     .stencilEnabled = false,
 };
 
-static const DepthStencilDesc s_depthReversedStencilEnabled = {
+static const DepthStencilDesc s_depth_reversed_stencil_on = {
     .depthEnabled = true,
     .depthFunc = ComparisonFunc::GREATER_EQUAL,
     .stencilEnabled = true,
@@ -93,7 +93,7 @@ static const DepthStencilDesc s_depthReversedStencilEnabled = {
     },
 };
 
-static const DepthStencilDesc s_depthStencilSkybox = {
+static const DepthStencilDesc s_skybox_depth_stencil = {
     .depthEnabled = false,
     .depthFunc = ComparisonFunc::ALWAYS,
     .stencilEnabled = true,
@@ -102,7 +102,7 @@ static const DepthStencilDesc s_depthStencilSkybox = {
     },
 };
 
-static const DepthStencilDesc s_depthReversedStencilEnabledHighlight = {
+static const DepthStencilDesc s_depth_reversed_stencil_on_highlight = {
     .depthEnabled = false,
     .depthFunc = ComparisonFunc::ALWAYS,
     .stencilEnabled = true,
@@ -112,7 +112,7 @@ static const DepthStencilDesc s_depthReversedStencilEnabledHighlight = {
 };
 
 /// Blend states
-static const BlendDesc s_blendStateDefault = {};
+static const BlendDesc s_default_blend_state = {};
 
 static const BlendDesc s_transparent = {
     .renderTargets = {
@@ -124,7 +124,7 @@ static const BlendDesc s_transparent = {
         } }
 };
 
-static const BlendDesc s_blendStateDisable = {
+static const BlendDesc s_blend_state_off = {
     .renderTargets = {
         { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
         { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },

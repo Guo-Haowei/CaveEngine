@@ -151,11 +151,11 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     return shader_id;
 }
 
-auto OpenGlPipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc &p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &p_desc) -> Result<std::shared_ptr<PipelineState>> {
     return CreatePipelineImpl(p_desc);
 }
 
-auto OpenGlPipelineStateManager::CreateComputePipeline(const PipelineStateDesc &p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &p_desc) -> Result<std::shared_ptr<PipelineState>> {
     return CreatePipelineImpl(p_desc);
 }
 

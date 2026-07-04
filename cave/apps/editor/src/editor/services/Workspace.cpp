@@ -243,7 +243,7 @@ void Workspace::onAssetChanged(const Guid&, std::span<const Guid> affected) {
         if (auto it = guid_to_tab_.find(guid); it != guid_to_tab_.end()) {
             const TabId tab_id = it->second;
             if (auto tab = dynamic_cast<ViewTabBase*>(resolve(tab_id))) {
-                tab->requestReload();
+                tab->requestSceneReload();
             }
         }
     }

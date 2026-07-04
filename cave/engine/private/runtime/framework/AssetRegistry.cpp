@@ -174,7 +174,10 @@ bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) {
     }
 
     ++entry->revision;
-    LOG_OK("Asset '{}' saved. revision={}", entry->metadata.import_path, entry->revision);
+    LOG_OK(LogChannel::Asset,
+           "Asset '{}' saved. revision={}",
+           entry->metadata.import_path,
+           entry->revision);
     return true;
 }
 

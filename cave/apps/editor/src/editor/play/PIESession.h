@@ -38,8 +38,6 @@ public:
     SceneId getPIESceneId() const { return pie_scene_; }
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
-    void commitSceneChange() override;
-    void commitSceneReload() override {}
 
     DebugId debugId() const override { return debug_id_; }
 
@@ -49,6 +47,9 @@ private:
     SceneContext makeSceneContext(Scene& scene);
     Scene* beginPIEScene(Scene* asset_scene);
     void endPIEScene();
+
+    void commitSceneChange(std::string&& path) override;
+    void commitSceneReload() override {}
 
     EngineServices& services_;
     const DebugId debug_id_;

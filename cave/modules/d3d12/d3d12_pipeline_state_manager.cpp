@@ -17,7 +17,7 @@ D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* p_device) no
     m_defines.push_back({ nullptr, nullptr });
 }
 
-auto D3d12PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
 
     auto pipeline_state = std::make_shared<D3d12PipelineState>(p_desc);
@@ -41,7 +41,7 @@ auto D3d12PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p
     return pipeline_state;
 }
 
-auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
 
     auto pipeline_state = std::make_shared<D3d12PipelineState>(p_desc);
@@ -64,32 +64,32 @@ auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     }
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> elements;
-    elements.reserve(p_desc.inputLayoutDesc->elements.size());
-    for (const auto& ele : p_desc.inputLayoutDesc->elements) {
+    elements.reserve(p_desc.input_layout_desc->elements.size());
+    for (const auto& ele : p_desc.input_layout_desc->elements) {
         D3D12_INPUT_ELEMENT_DESC ildesc;
-        ildesc.SemanticName = ele.semanticName.c_str();
-        ildesc.SemanticIndex = ele.semanticIndex;
+        ildesc.SemanticName = ele.semantic_name.c_str();
+        ildesc.SemanticIndex = ele.semantic_index;
         ildesc.Format = d3d::Convert(ele.format);
-        ildesc.InputSlot = ele.inputSlot;
-        ildesc.AlignedByteOffset = ele.alignedByteOffset;
-        ildesc.InputSlotClass = d3d::Convert(ele.inputSlotClass);
-        ildesc.InstanceDataStepRate = ele.instanceDataStepRate;
+        ildesc.InputSlot = ele.input_slot;
+        ildesc.AlignedByteOffset = ele.aligned_byte_offset;
+        ildesc.InputSlotClass = d3d::Convert(ele.input_slot_class);
+        ildesc.InstanceDataStepRate = ele.instance_data_step_rate;
         elements.push_back(ildesc);
     }
     DEV_ASSERT(elements.size());
 
     D3D12_RASTERIZER_DESC rasterizer_desc{};
-    rasterizer_desc.FillMode = d3d::Convert(p_desc.rasterizerDesc->fillMode);
-    rasterizer_desc.CullMode = d3d::Convert(p_desc.rasterizerDesc->cullMode);
-    rasterizer_desc.FrontCounterClockwise = p_desc.rasterizerDesc->frontCounterClockwise;
-    rasterizer_desc.DepthBias = p_desc.rasterizerDesc->depthBias;
-    rasterizer_desc.SlopeScaledDepthBias = p_desc.rasterizerDesc->slopeScaledDepthBias;
-    rasterizer_desc.DepthClipEnable = p_desc.rasterizerDesc->depthClipEnable;
+    rasterizer_desc.FillMode = d3d::Convert(p_desc.rasterizer_desc->fillMode);
+    rasterizer_desc.CullMode = d3d::Convert(p_desc.rasterizer_desc->cullMode);
+    rasterizer_desc.FrontCounterClockwise = p_desc.rasterizer_desc->frontCounterClockwise;
+    rasterizer_desc.DepthBias = p_desc.rasterizer_desc->depthBias;
+    rasterizer_desc.SlopeScaledDepthBias = p_desc.rasterizer_desc->slopeScaledDepthBias;
+    rasterizer_desc.DepthClipEnable = p_desc.rasterizer_desc->depthClipEnable;
     // rasterizer_desc.ScissorEnable = p_desc.rasterizerDesc->scissorEnable;
-    rasterizer_desc.MultisampleEnable = p_desc.rasterizerDesc->multisampleEnable;
-    rasterizer_desc.AntialiasedLineEnable = p_desc.rasterizerDesc->antialiasedLineEnable;
+    rasterizer_desc.MultisampleEnable = p_desc.rasterizer_desc->multisampleEnable;
+    rasterizer_desc.AntialiasedLineEnable = p_desc.rasterizer_desc->antialiasedLineEnable;
 
-    D3D12_DEPTH_STENCIL_DESC depth_stencil_desc = d3d::Convert(p_desc.depthStencilDesc);
+    D3D12_DEPTH_STENCIL_DESC depth_stencil_desc = d3d::Convert(p_desc.depth_stencil_desc);
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc = {};
     pso_desc.pRootSignature = graphics_manager->GetRootSignature();
@@ -97,19 +97,19 @@ auto D3d12PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     if (ps_blob) {
         pso_desc.PS = CD3DX12_SHADER_BYTECODE(ps_blob.Get());
     }
-    pso_desc.BlendState = d3d::Convert(p_desc.blendDesc);
+    pso_desc.BlendState = d3d::Convert(p_desc.blend_desc);
     pso_desc.SampleMask = UINT_MAX;
     pso_desc.RasterizerState = rasterizer_desc;
     pso_desc.DepthStencilState = depth_stencil_desc;
     pso_desc.InputLayout = { elements.data(), (uint32_t)elements.size() };
-    pso_desc.PrimitiveTopologyType = d3d::ConvertToType(p_desc.primitiveTopology);
+    pso_desc.PrimitiveTopologyType = d3d::ConvertToType(p_desc.primitive_topology);
     pso_desc.SampleDesc.Count = 1;
 
-    pso_desc.NumRenderTargets = p_desc.numRenderTargets;
-    for (uint32_t index = 0; index < p_desc.numRenderTargets; ++index) {
-        pso_desc.RTVFormats[index] = d3d::Convert(p_desc.rtvFormats[index]);
+    pso_desc.NumRenderTargets = p_desc.num_render_targets;
+    for (uint32_t index = 0; index < p_desc.num_render_targets; ++index) {
+        pso_desc.RTVFormats[index] = d3d::Convert(p_desc.rtv_formats[index]);
     }
-    pso_desc.DSVFormat = d3d::Convert(p_desc.dsvFormat);
+    pso_desc.DSVFormat = d3d::Convert(p_desc.dsv_format);
 
     ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(m_device)->GetDevice();
     D3D_FAIL_V(device->CreateGraphicsPipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), nullptr);

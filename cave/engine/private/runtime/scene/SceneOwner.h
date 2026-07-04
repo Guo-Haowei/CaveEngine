@@ -15,20 +15,19 @@ public:
     virtual ~SceneOwner() = default;
 
     virtual void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) = 0;
-    virtual void commitSceneChange() = 0;
-    virtual void commitSceneReload() = 0;
 
-    void requestSceneChange(std::string scene) override {
-        pending_change_ = Some(std::move(scene));
-    }
+    void requestSceneChange(std::string path) override;
+    void requestSceneReload();
 
-    void requestReload() {
-        pending_reload_ = true;
-    }
+    void flushSceneCommands();
 
 protected:
+    virtual void commitSceneChange(std::string&& path) = 0;
+    virtual void commitSceneReload() = 0;
+
+private:
     Option<std::string> pending_change_;
-    bool pending_reload_;
+    bool pending_reload_ = false;
 };
 
 }  // namespace cave

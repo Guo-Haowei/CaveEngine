@@ -531,7 +531,7 @@ void PropertyPanel::drawUIImpl() {
             auto& materials = p_render.GetMaterialInstances();
             auto name = std::format("mat_{}", materials.size());
             auto mat_id = EntityFactory::CreateNameEntity(scene, name);
-            scene.Create<MaterialComponent>(mat_id);
+            scene.create<MaterialComponent>(mat_id);
             p_render.AddMaterial(mat_id);
 #endif
         }

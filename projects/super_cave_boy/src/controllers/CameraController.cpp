@@ -74,7 +74,7 @@ void CameraController::followTarget(cave::SceneContext& ctx, float dt) {
 
     Vec2f xy = ClampCameraToTileMap(new_pos.xy, bound.min(), bound.max(), camera->orthoHeight(), camera->aspect());
 
-    camera_transform->setTranslation(Vec3f{ xy, new_pos.z });
+    camera_transform->setTranslation(Vec3f{ xy, camera_pos.z });
 }
 
 }  // namespace super_cave_boy

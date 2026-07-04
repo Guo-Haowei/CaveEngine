@@ -53,14 +53,14 @@ CommonOpenGLGraphicsManager::~CommonOpenGLGraphicsManager() = default;
 void CommonOpenGLGraphicsManager::FinalizeImpl() {
     m_fbo_cache.reset();
 
-    m_pipelineStateManager->Finalize();
+    m_pipelineStateManager->finalize();
 }
 
 void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
-    auto pipeline = reinterpret_cast<OpenGlPipelineState*>(m_pipelineStateManager->Find(p_name));
+    auto pipeline = reinterpret_cast<OpenGlPipelineState*>(m_pipelineStateManager->findPSO(p_name));
 
-    if (pipeline->desc.rasterizerDesc) {
-        const auto cull_mode = pipeline->desc.rasterizerDesc->cullMode;
+    if (pipeline->desc.rasterizer_desc) {
+        const auto cull_mode = pipeline->desc.rasterizer_desc->cullMode;
         if (cull_mode != m_stateCache.cullMode) {
             switch (cull_mode) {
                 case cave::CullMode::NONE:
@@ -85,16 +85,16 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
             m_stateCache.cullMode = cull_mode;
         }
 
-        const bool front_counter_clockwise = pipeline->desc.rasterizerDesc->frontCounterClockwise;
+        const bool front_counter_clockwise = pipeline->desc.rasterizer_desc->frontCounterClockwise;
         if (front_counter_clockwise != m_stateCache.frontCounterClockwise) {
             glFrontFace(front_counter_clockwise ? GL_CCW : GL_CW);
             m_stateCache.frontCounterClockwise = front_counter_clockwise;
         }
     }
 
-    if (pipeline->desc.depthStencilDesc) {
+    if (pipeline->desc.depth_stencil_desc) {
         {
-            const bool enable_depth_test = pipeline->desc.depthStencilDesc->depthEnabled;
+            const bool enable_depth_test = pipeline->desc.depth_stencil_desc->depthEnabled;
             if (enable_depth_test != m_stateCache.enableDepthTest) {
                 if (enable_depth_test) {
                     glEnable(GL_DEPTH_TEST);
@@ -105,7 +105,7 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
             }
 
             if (enable_depth_test) {
-                const auto func = pipeline->desc.depthStencilDesc->depthFunc;
+                const auto func = pipeline->desc.depth_stencil_desc->depthFunc;
                 if (func != m_stateCache.depthFunc) {
                     glDepthFunc(gl::Convert(func));
                     m_stateCache.depthFunc = func;
@@ -113,7 +113,7 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
             }
         }
         {
-            const bool enable_stencil_test = pipeline->desc.depthStencilDesc->stencilEnabled;
+            const bool enable_stencil_test = pipeline->desc.depth_stencil_desc->stencilEnabled;
             if (enable_stencil_test != m_stateCache.enableStencilTest) {
                 if (enable_stencil_test) {
                     glEnable(GL_STENCIL_TEST);
@@ -124,7 +124,7 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
             }
 
             if (enable_stencil_test) {
-                const auto& face = pipeline->desc.depthStencilDesc->frontFace;
+                const auto& face = pipeline->desc.depth_stencil_desc->frontFace;
                 const auto stencil_func = gl::Convert(face.stencilFunc);
                 const auto fail_op = gl::Convert(face.stencilFailOp);
                 const auto zfail_op = gl::Convert(face.stencilDepthFailOp);
@@ -135,11 +135,11 @@ void CommonOpenGLGraphicsManager::SetPipelineStateImpl(PipelineStateName p_name)
             }
         }
     }
-    if (auto blend_desc = pipeline->desc.blendDesc; blend_desc) {
+    if (auto blend_desc = pipeline->desc.blend_desc; blend_desc) {
         SetBlendState(*blend_desc, nullptr, 0);
     }
 
-    m_stateCache.topology = gl::Convert(pipeline->desc.primitiveTopology);
+    m_stateCache.topology = gl::Convert(pipeline->desc.primitive_topology);
 
     glUseProgram(pipeline->programId);
 }

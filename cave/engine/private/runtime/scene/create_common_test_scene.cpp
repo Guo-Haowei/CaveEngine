@@ -107,7 +107,7 @@ Scene* CreatePhysicsTestScene() {
         Vector3f ground_scale(5.0f, 0.1f, 5.0f);
         auto ground = EntityFactory::CreateCubeEntity(*scene, "ground_left", material_id, ground_scale);
         scene->AttachChild(ground, world);
-        scene->Create<RigidBodyComponent>(ground)
+        scene->create<RigidBodyComponent>(ground)
             .InitCube(ground_scale)
             .InitGhost();
 
@@ -119,7 +119,7 @@ Scene* CreatePhysicsTestScene() {
         Vector3f ground_scale(5.0f, 0.1f, 5.0f);
         auto ground = EntityFactory::CreateCubeEntity(*scene, "ground_right", material_id, ground_scale);
         scene->AttachChild(ground, world);
-        scene->Create<RigidBodyComponent>(ground)
+        scene->create<RigidBodyComponent>(ground)
             .InitCube(ground_scale)
             .InitGhost();
 
@@ -157,11 +157,11 @@ Scene* CreatePhysicsTestScene() {
         ecs::Entity id;
         if (t % 2) {
             id = EntityFactory::CreateCubeEntity(*scene, std::format("Cube_{}", t), material_id, scale, Translate(translate));
-            scene->Create<RigidBodyComponent>(id).InitCube(scale);
+            scene->create<RigidBodyComponent>(id).InitCube(scale);
         } else {
             const float radius = 0.25f;
             id = EntityFactory::CreateSphereEntity(*scene, std::format("Sphere_{}", t), material_id, radius, Translate(translate));
-            scene->Create<RigidBodyComponent>(id).InitSphere(radius);
+            scene->create<RigidBodyComponent>(id).InitSphere(radius);
         }
         scene->AttachChild(id, world);
     }

@@ -178,12 +178,6 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
 }
 
 void ViewTabBase::commitSceneReload() {
-    if (!pending_reload_) {
-        return;
-    }
-
-    pending_reload_ = false;
-
     DocId doc_id = docId();
     IDocument* doc = editor_services_.document().resolve(doc_id);
     if (!doc) {

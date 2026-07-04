@@ -20,7 +20,7 @@ D3d11PipelineStateManager::D3d11PipelineStateManager(IRenderDevice* p_device) no
     m_defines.push_back({ nullptr, nullptr });
 }
 
-auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(m_device);
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
@@ -56,18 +56,18 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
         D3D_FAIL_V_MSG(hr, nullptr, "failed to create pixel shader");
     }
 
-    if (p_desc.inputLayoutDesc) {
+    if (p_desc.input_layout_desc) {
         std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
-        elements.reserve(p_desc.inputLayoutDesc->elements.size());
-        for (const auto& ele : p_desc.inputLayoutDesc->elements) {
+        elements.reserve(p_desc.input_layout_desc->elements.size());
+        for (const auto& ele : p_desc.input_layout_desc->elements) {
             D3D11_INPUT_ELEMENT_DESC desc;
-            desc.SemanticName = ele.semanticName.c_str();
-            desc.SemanticIndex = ele.semanticIndex;
+            desc.SemanticName = ele.semantic_name.c_str();
+            desc.SemanticIndex = ele.semantic_index;
             desc.Format = d3d::Convert(ele.format);
-            desc.InputSlot = ele.inputSlot;
-            desc.AlignedByteOffset = ele.alignedByteOffset;
-            desc.InputSlotClass = d3d::Convert(ele.inputSlotClass);
-            desc.InstanceDataStepRate = ele.instanceDataStepRate;
+            desc.InputSlot = ele.input_slot;
+            desc.AlignedByteOffset = ele.aligned_byte_offset;
+            desc.InputSlotClass = d3d::Convert(ele.input_slot_class);
+            desc.InstanceDataStepRate = ele.instance_data_step_rate;
             elements.emplace_back(desc);
         }
         DEV_ASSERT(elements.size());
@@ -76,46 +76,46 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
         D3D_FAIL_V_MSG(hr, nullptr, "failed to create input layout");
     }
 
-    if (DEV_VERIFY(p_desc.rasterizerDesc)) {
+    if (DEV_VERIFY(p_desc.rasterizer_desc)) {
         ComPtr<ID3D11RasterizerState> state;
 
-        auto it = m_rasterizerStates.find(p_desc.rasterizerDesc);
+        auto it = m_rasterizerStates.find(p_desc.rasterizer_desc);
         if (it == m_rasterizerStates.end()) {
             D3D11_RASTERIZER_DESC desc{};
-            desc.FillMode = d3d::Convert(p_desc.rasterizerDesc->fillMode);
-            desc.CullMode = d3d::Convert(p_desc.rasterizerDesc->cullMode);
-            desc.FrontCounterClockwise = p_desc.rasterizerDesc->frontCounterClockwise;
+            desc.FillMode = d3d::Convert(p_desc.rasterizer_desc->fillMode);
+            desc.CullMode = d3d::Convert(p_desc.rasterizer_desc->cullMode);
+            desc.FrontCounterClockwise = p_desc.rasterizer_desc->frontCounterClockwise;
             hr = device->CreateRasterizerState(&desc, state.GetAddressOf());
             D3D_FAIL_V_MSG(hr, nullptr, "failed to create rasterizer state");
-            m_rasterizerStates[p_desc.rasterizerDesc] = state;
+            m_rasterizerStates[p_desc.rasterizer_desc] = state;
         } else {
             state = it->second;
         }
         DEV_ASSERT(state);
         pipeline_state->rasterizerState = state;
     }
-    if (DEV_VERIFY(p_desc.depthStencilDesc)) {
+    if (DEV_VERIFY(p_desc.depth_stencil_desc)) {
         ComPtr<ID3D11DepthStencilState> state;
 
-        auto it = m_depthStencilStates.find(p_desc.depthStencilDesc);
+        auto it = m_depthStencilStates.find(p_desc.depth_stencil_desc);
         if (it == m_depthStencilStates.end()) {
-            D3D11_DEPTH_STENCIL_DESC desc = d3d::Convert(p_desc.depthStencilDesc);
+            D3D11_DEPTH_STENCIL_DESC desc = d3d::Convert(p_desc.depth_stencil_desc);
             D3D_FAIL_V(device->CreateDepthStencilState(&desc, state.GetAddressOf()), nullptr);
-            m_depthStencilStates[p_desc.depthStencilDesc] = state;
+            m_depthStencilStates[p_desc.depth_stencil_desc] = state;
         } else {
             state = it->second.Get();
         }
         DEV_ASSERT(state);
         pipeline_state->depthStencilState = state;
     }
-    if (DEV_VERIFY(p_desc.blendDesc)) {
+    if (DEV_VERIFY(p_desc.blend_desc)) {
         ComPtr<ID3D11BlendState> state;
 
-        auto it = m_blendStates.find(p_desc.blendDesc);
+        auto it = m_blendStates.find(p_desc.blend_desc);
         if (it == m_blendStates.end()) {
-            D3D11_BLEND_DESC desc = d3d::Convert(p_desc.blendDesc);
+            D3D11_BLEND_DESC desc = d3d::Convert(p_desc.blend_desc);
             D3D_FAIL_V(device->CreateBlendState(&desc, state.GetAddressOf()), nullptr);
-            m_blendStates[p_desc.blendDesc] = state;
+            m_blendStates[p_desc.blend_desc] = state;
         } else {
             state = it->second.Get();
         }
@@ -126,7 +126,7 @@ auto D3d11PipelineStateManager::CreateGraphicsPipeline(const PipelineStateDesc& 
     return pipeline_state;
 }
 
-auto D3d11PipelineStateManager::CreateComputePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d11PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(RenderDevice::singletonPtr());
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);

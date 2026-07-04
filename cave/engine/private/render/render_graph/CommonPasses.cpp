@@ -216,8 +216,8 @@ void RenderGraphBuilderExt::AddVoxelizationPass() {
     SamplerDesc sampler(MinFilter::LINEAR_MIPMAP_LINEAR, MagFilter::POINT, AddressMode::BORDER);
 
     auto& pass = AddPass(RG_PASS_VOXELIZATION);
-    pass.Create(RG_RES_VOXEL_LIGHTING, { desc, sampler })
-        .Create(RG_RES_VOXEL_NORMAL, { desc, sampler })
+    pass.create(RG_RES_VOXEL_LIGHTING, { desc, sampler })
+        .create(RG_RES_VOXEL_NORMAL, { desc, sampler })
         .Read(ResourceAccess::SRV, RG_RES_SHADOW_MAP)
         //.Read(ResourceAccess::SRV, RG_RES_LTC1)
         //.Read(ResourceAccess::SRV, RG_RES_LTC2)
@@ -248,7 +248,7 @@ void RenderGraphBuilderExt::AddBloomPass() {
                                                     w, h);
 
         auto res_name = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
-        setup_pass.Create(res_name, { texture_desc, sampler });
+        setup_pass.create(res_name, { texture_desc, sampler });
     }
 
     auto bloom_res = std::format(RG_RES_BLOOM_PREFIX "{}x{}", width, height);
