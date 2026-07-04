@@ -33,6 +33,11 @@ entities:
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
       translation: [3, 4.5, 0]
+    PrefabOverride:
+      TransformComponent:
+        translation: [3, 4.5, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
   - id: 6
     NameComponent:
       name: game_camera
@@ -52,6 +57,8 @@ entities:
       ortho_height: 10
     NativeScriptComponent:
       name: CameraController
+      params:
+        {}
   - id: 9
     NameComponent:
       name: exit
@@ -64,3 +71,8 @@ entities:
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
       translation: [16.5, 2.5, 0]
+    PrefabOverride:
+      TransformComponent:
+        translation: [16.5, 2.5, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]

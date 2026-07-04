@@ -72,6 +72,16 @@ public:
     bool dirty() const { return flags_ & DirtyFlag; }
     void setDirty(bool dirty = true);
 
+    bool operator==(const TransformComponent& rhs) const {
+        return translation() == rhs.translation() &&
+               rotation() == rhs.rotation() &&
+               scale() == rhs.scale();
+    }
+
+    bool operator!=(const TransformComponent& rhs) const {
+        return !(this->operator==(rhs));
+    }
+
     void OnDeserialized() { flags_ |= DirtyFlag; }
 };
 

@@ -182,15 +182,20 @@ bool AssetRegistry::saveAssetHelper(const std::shared_ptr<AssetEntry>& entry) {
 }
 
 bool AssetRegistry::saveAsset(const Guid& guid) {
-    std::lock_guard lock(registry_mutex_);
+    std::shared_ptr<AssetEntry> entry;
+    {
+        std::lock_guard lock(registry_mutex_);
 
-    auto it = guid_map_.find(guid);
-    if (it == guid_map_.end()) {
-        LOG_ERROR("Asset '{}' not found", guid.toString());
-        return false;
+        auto it = guid_map_.find(guid);
+        if (it == guid_map_.end()) {
+            LOG_ERROR("Asset '{}' not found", guid.toString());
+            return false;
+        }
+
+        entry = it->second;
     }
 
-    return saveAssetHelper(it->second);
+    return saveAssetHelper(entry);
 }
 
 std::shared_ptr<AssetEntry> AssetRegistry::entry(const Guid& guid) {

@@ -7,12 +7,12 @@
 
 namespace cave {
 
-struct NoSaveTag {
-    CAVE_COMPONENT(NoSaveTag)
+struct PrefabChildComponent {
+    CAVE_COMPONENT(PrefabChildComponent)
 };
 
-struct PendingDestroy {
-    CAVE_COMPONENT(PendingDestroy)
+struct PendingDestroyComponent {
+    CAVE_COMPONENT(PendingDestroyComponent)
 };
 
 class NameComponent {

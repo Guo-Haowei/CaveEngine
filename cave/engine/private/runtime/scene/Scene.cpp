@@ -101,7 +101,7 @@ std::vector<Entity> Scene::getSortedEntityArray() const {
     for (const auto& it : storage_.entries()) {
         if (!it.pool) continue;
         for (auto entity : it.pool->entityArray()) {
-            if (has<NoSaveTag>(entity)) {
+            if (has<PrefabChildComponent>(entity)) {
                 continue;
             }
             entity_set.insert(entity);
@@ -115,14 +115,14 @@ std::vector<Entity> Scene::getSortedEntityArray() const {
 }
 
 void Scene::flushPendingDestroy() {
-    const size_t pending_count = count<PendingDestroy>();
+    const size_t pending_count = count<PendingDestroyComponent>();
     if (pending_count == 0) {
         return;
     }
 
     std::vector<Entity> entities;
     entities.reserve(pending_count);
-    for (auto [ent, _] : view<PendingDestroy>()) {
+    for (auto [ent, _] : view<PendingDestroyComponent>()) {
         entities.emplace_back(ent);
     }
 
@@ -146,7 +146,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     std::unordered_map<Entity, Entity> mapping;
     for (Entity raw_entity : new_entities) {
         Entity mapped = createEntity();
-        create<NoSaveTag>(mapped);
+        create<PrefabChildComponent>(mapped);
         mapping[raw_entity] = mapped;
     }
 
@@ -425,11 +425,13 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     return Result<void>();
 }
 
+namespace {
+
 template<ComponentType T>
-static bool SerializeComponent(ISerializer& s,
-                               const char* name,
-                               ecs::Entity ent,
-                               const Scene& scene) {
+bool SerializeComponent(ISerializer& s,
+                        const char* name,
+                        const Scene& scene,
+                        ecs::Entity ent) {
 
     const T* component = scene.component<T>(ent);
     if (component) {
@@ -438,6 +440,106 @@ static bool SerializeComponent(ISerializer& s,
     }
     return true;
 }
+
+bool SerializeEntityImpl(ISerializer& s,
+                         const Scene& scene,
+                         Entity ent) {
+
+    s.beginKey("id")
+        .write(ent);
+
+#define REGISTER_COMPONENT(COMPONENT, ...) \
+    SerializeComponent<COMPONENT>(s, #COMPONENT, scene, ent);
+
+    REGISTER_COMPONENT_SERIALIZED_LIST
+#undef REGISTER_COMPONENT
+
+    return true;
+}
+
+bool SerializeNormalEntity(ISerializer& s,
+                           const Scene& scene,
+                           Entity ent) {
+
+    s.beginMap(false);
+    SerializeEntityImpl(s, scene, ent);
+    s.endMap();
+    return true;
+}
+
+template<ComponentType T>
+static bool SerializeComponentOverride(ISerializer& s,
+                                       const char* name,
+                                       const Scene& prefab_scene,
+                                       Entity prefab_ent,
+                                       const Scene& instance_scene,
+                                       Entity instance_ent) {
+    const T* prefab_component = prefab_scene.component<T>(prefab_ent);
+    const T* instance_component = instance_scene.component<T>(instance_ent);
+
+    if (!prefab_component && !instance_component) {
+        return true;
+    }
+
+    if (!(*prefab_component == *instance_component)) {
+        s.beginKey(name);
+        s.write(*instance_component);
+    }
+
+    return true;
+}
+
+bool SerializePrefabDiff(ISerializer& s,
+                         const Scene& scene,
+                         const PrefabInstanceComponent& prefab) {
+    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid()); 
+    if (handle.is_none()) {
+        return false;
+    }
+
+    Entity instance_ent = prefab.child();
+    const Scene* prefab_scene = handle.unwrap_unchecked().get();
+    Entity prefab_ent = prefab_scene->root();
+
+    s.beginKey("PrefabOverride");
+    s.beginMap(false);
+
+#define OVERRIDE(T) SerializeComponentOverride<T>(s, #T, *prefab_scene, prefab_ent, scene, instance_ent);
+    OVERRIDE(TransformComponent);
+#undef OVERRIDE
+
+    s.endMap();
+    return true;
+}
+
+bool SerializePrefabEntity(ISerializer& s,
+                           const Scene& scene,
+                           Entity ent) {
+    const PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(ent);
+    DEV_ASSERT(prefab);
+
+    s.beginMap(false);
+    SerializeEntityImpl(s, scene, ent);
+    SerializePrefabDiff(s, scene, *prefab);
+    s.endMap();
+    return true;
+}
+
+bool SerializeEntity(ISerializer& s,
+                     const Scene& scene,
+                     Entity ent) {
+    if (scene.has<PrefabChildComponent>(ent)) {
+        return true;
+    }
+
+    if (scene.has<PrefabInstanceComponent>(ent)) {
+        return SerializePrefabEntity(s, scene, ent);
+    }
+
+    return SerializeNormalEntity(s, scene, ent);
+}
+
+}  // namespace
 
 auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     auto res = meta.saveToDisk(this);
@@ -461,25 +563,12 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
 
     yaml.beginArray(false);
 
-    for (auto entity : entity_array) {
-        if (has<NoSaveTag>(entity)) {
-            continue;
-        }
-
-        yaml.beginMap(false)
-            .beginKey("id")
-            .write(entity);
-
-#define REGISTER_COMPONENT(COMPONENT, ...) \
-    SerializeComponent<COMPONENT>(yaml, #COMPONENT, entity, *this);
-
-        REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-
-        yaml.endMap();
+    for (auto ent : entity_array) {
+        SerializeEntity(yaml, *this, ent);
     }
 
     yaml.endArray();
+
     yaml.endMap();
     return SaveYaml(meta.import_path, yaml);
 }

@@ -29,7 +29,7 @@ Entity SceneQuery::findChildByName(std::string_view name, Entity ent) const {
 }
 
 void SceneQuery::queueDestroy(ecs::Entity ent) {
-    scene_.create<PendingDestroy>(ent);
+    scene_.create<PendingDestroyComponent>(ent);
 }
 
 void* SceneQuery::component(ComponentId cid, Entity ent) {
