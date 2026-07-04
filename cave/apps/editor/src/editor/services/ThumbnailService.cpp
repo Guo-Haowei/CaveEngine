@@ -17,34 +17,34 @@ namespace cave {
 
 ThumbnailService::ThumbnailService(EngineServices& services) noexcept
     : view_manager_(services.viewManager())
-    , m_scene_reg(services.sceneRegistry())
-    , m_render_device(services.renderDevice())
-    , m_builder(services) {
+    , scene_reg_(services.sceneRegistry())
+    , render_device_(services.renderDevice())
+    , builder_(services) {
 }
 
-uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
-    auto [it, inserted] = m_cache.try_emplace(p_key);
+uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
+    auto [it, inserted] = cache_.try_emplace(key);
     if (!inserted) {
         ThumbnailRecord& rec = it->second;
-        rec.last_used_frame = m_frame_index;
+        rec.last_used_frame = frame_index_;
         if (rec.state == ThumbnailState::Ready) {
             return rec.gpu_handle;
         }
         return 0;
     }
 
-    const uint32_t w = p_key.size;
-    const uint32_t h = p_key.size;
+    const uint32_t w = key.size;
+    const uint32_t h = key.size;
 
     PreviewBuildRequest req = {
-        .guid = p_key.guid,
+        .guid = key.guid,
         .options = {
             .width = w,
             .height = h,
         },
     };
 
-    PreviewBuildResult res = m_builder.build(req);
+    PreviewBuildResult res = builder_.build(req);
     if (res.status != PreviewBuildStatus::Ok) {
         return 0;
     }
@@ -61,7 +61,7 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .miscFlags = RESOURCE_MISC_NONE,
     };
-    auto tex = m_render_device.CreateTexture(
+    auto tex = render_device_.CreateTexture(
         tex_desc,
         PointClampSampler());
 
@@ -78,30 +78,30 @@ uint64_t ThumbnailService::GetOrRequest(const ThumbnailKey& p_key) {
         },
         .state = ThumbnailState::Missing,
         .gpu_handle = tex->GetHandle(),
-        .last_used_frame = m_frame_index,
+        .last_used_frame = frame_index_,
         .submitted_frame = 0,
         .generation = 1,
     };
 
-    m_pending.emplace_back(PendingRequest{ p_key, rec.generation });
+    pending_.emplace_back(PendingRequest{ key, rec.generation });
     return 0;
 }
 
-void ThumbnailService::Tick(const FrameTime& p_time, const BusyInfo& p_info) {
-    ProcessCompletions();
-    m_frame_index = p_time.frame_index;
-    SubmitRequests(p_info);
+void ThumbnailService::tick(const FrameTime& time, const BusyInfo& info) {
+    processCompletions();
+    frame_index_ = time.frame_index;
+    submitRequests(info);
 }
 
-static int ComputeBudget(const BusyInfo& p_info) {
-    unused(p_info);
+static int ComputeBudget(const BusyInfo& info) {
+    unused(info);
     return 1;
 }
 
-void ThumbnailService::ProcessCompletions() {
-    for (const ThumbnailKey& key : m_inflight) {
-        auto it = m_cache.find(key);
-        if (it == m_cache.end()) continue;
+void ThumbnailService::processCompletions() {
+    for (const ThumbnailKey& key : inflight_) {
+        auto it = cache_.find(key);
+        if (it == cache_.end()) continue;
 
         ThumbnailRecord& rec = it->second;
         if (rec.state != ThumbnailState::Pending) continue;
@@ -110,28 +110,28 @@ void ThumbnailService::ProcessCompletions() {
         {
             rec.state = ThumbnailState::Ready;
             view_manager_.destroyView(rec.view_desc.view_id);
-            m_scene_reg.destroyScene(rec.view_desc.scene_id);
+            scene_reg_.destroyScene(rec.view_desc.scene_id);
         }
     }
 
-    m_inflight.clear();
+    inflight_.clear();
 }
 
-void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
+void ThumbnailService::submitRequests(const BusyInfo& info) {
     CAVE_PROFILE_EVENT();
 
-    const int budget = ComputeBudget(p_info);
-    if (budget <= 0 || m_pending.empty()) {
+    const int budget = ComputeBudget(info);
+    if (budget <= 0 || pending_.empty()) {
         return;
     }
 
     int submitted = 0;
-    while (!m_pending.empty() && submitted < budget) {
-        const PendingRequest pending = m_pending.front();
-        m_pending.pop_front();
+    while (!pending_.empty() && submitted < budget) {
+        const PendingRequest pending = pending_.front();
+        pending_.pop_front();
 
-        auto it = m_cache.find(pending.key);
-        if (it == m_cache.end()) continue;
+        auto it = cache_.find(pending.key);
+        if (it == cache_.end()) continue;
 
         ThumbnailRecord& rec = it->second;
 
@@ -147,9 +147,9 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
 
         // save record
         rec.state = ThumbnailState::Pending;
-        rec.submitted_frame = m_frame_index;
+        rec.submitted_frame = frame_index_;
 
-        m_inflight.push_back(pending.key);
+        inflight_.push_back(pending.key);
         ++submitted;
 
 #if USING(USE_LOG)
@@ -160,8 +160,8 @@ void ThumbnailService::SubmitRequests(const BusyInfo& p_info) {
     }
 }
 
-void ThumbnailService::invalidate(const Guid& p_guid) {
-    unused(p_guid);
+void ThumbnailService::invalidate(const Guid& guid) {
+    unused(guid);
 }
 
 }  // namespace cave

@@ -21,6 +21,7 @@ _cache
 *.hdr
 user/
 project/
+.cave/
 
 # MacOS
 .DS_Store

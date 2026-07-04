@@ -115,7 +115,7 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
                     .guid = handle.guid(),
                     .size = kThumbnailSize,
                 };
-                const uint64_t texture = thumbnail.GetOrRequest(key);
+                const uint64_t texture = thumbnail.getOrRequest(key);
                 ui::CenteredImage(texture, kThumbnailSize, kThumbnailSize, kThumbnailSize, false);
             } break;
             default:

@@ -10,6 +10,7 @@ public:
     ContentBrowser(EditorState& editor);
 
     void onAttach() override;
+    void onDetach() override;
 
     const char* windowId() const override;
 

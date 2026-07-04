@@ -137,6 +137,10 @@ void EditorState::onExit() {
 
     ImNodes::DestroyContext();
 
+    for (auto& panel : m_panels) {
+        panel->onDetach();
+    }
+
     pie_.stop();
 }
 
@@ -144,7 +148,7 @@ void EditorState::tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
 
     BusyInfo info;
-    thumbnail_->Tick(p_time, info);
+    thumbnail_->tick(p_time, info);
 
     if (IsPlaying()) {
         pie_.tick(p_time);

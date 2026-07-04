@@ -13,6 +13,10 @@ void RunDebugRenderSystem(const Scene* scene, IDebugDrawService& debug_draw) {
     if (!scene) {
         return;
     }
+    // @HACK: don't want to render debug draw
+    if (scene) {
+        return;
+    }
 
     auto view = scene->view<ColliderComponent, TransformComponent>();
     for (const auto& [id, collider, transform] : view) {

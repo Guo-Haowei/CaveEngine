@@ -17,10 +17,13 @@
 #include "editor/tile_map/TileMapEditor.h"
 #include "editor/tile_map/TileSetEditor.h"
 
-// @TODO: delete
+// @TODO: refactor
 #include "editor/panels/SceneViewTab.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
+
+namespace fs = std::filesystem;
 
 Workspace::Workspace(EditorState& editor)
     : editor_(editor)
@@ -30,12 +33,17 @@ Workspace::Workspace(EditorState& editor)
     app_services_.inputService().addConsumer(this);
     app_services_.intentDispatcher().addHandler<OpenDocIntent>(this);
     app_services_.intentDispatcher().addHandler<CloseDocIntent>(this);
+
+    ProjectManager& project_mgr = app_services_.projectManager();
+    loadWorkspaceState(project_mgr.projectRoot());
 }
 
 Workspace::~Workspace() {
     app_services_.inputService().removeConsumer(this);
     app_services_.intentDispatcher().removeHandler<OpenDocIntent>(this);
     app_services_.intentDispatcher().removeHandler<CloseDocIntent>(this);
+
+    saveWorkspaceState();
 }
 
 void Workspace::tick() {
@@ -246,6 +254,85 @@ void Workspace::onAssetChanged(const Guid&, std::span<const Guid> affected) {
                 tab->requestSceneReload();
             }
         }
+    }
+}
+
+namespace {
+
+fs::path WorkspaceFilePath(std::string_view project_root) {
+    DEV_ASSERT(!project_root.empty());
+    return fs::path{ project_root } / ".cave" / "workspace.yaml";
+}
+
+bool EnsureParentDirExists(const fs::path& file_path) {
+    std::error_code ec;
+    fs::create_directories(file_path.parent_path(), ec);
+
+    if (ec) {
+        LOG_ERROR("Failed to create directory '{}': {}",
+                  file_path.parent_path().string(),
+                  ec.message());
+        return false;
+    }
+
+    return true;
+}
+
+}  // namespace
+
+bool Workspace::loadWorkspaceState(std::string_view project_root) {
+    if (project_root.empty()) {
+        return false;
+    }
+
+    const fs::path path = WorkspaceFilePath(project_root);
+
+    if (!fs::exists(path)) {
+        return true;
+    }
+
+    YAML::Node root;
+    if (auto res = LoadYaml(path.string(), root); !res) {
+        LOG_ERROR(LogChannel::FS, "{}", ToString(res.error()));
+        return false;
+    }
+
+    YamlDeserializer yaml;
+    yaml.Initialize(root);
+    IDeserializer& d = yaml;
+
+    if (d.tryEnterKey("content_browser")) {
+        if (d.tryEnterKey("current_path")) {
+            d.read(workspace_state_.content_browser.current_path);
+            d.leaveKey();
+        }
+        d.leaveKey();
+    }
+
+    return true;
+}
+
+void Workspace::saveWorkspaceState() {
+    ProjectManager& project_mgr = app_services_.projectManager();
+    const fs::path path = WorkspaceFilePath(project_mgr.projectRoot());
+
+    if (!EnsureParentDirExists(path)) {
+        return;
+    }
+
+    YamlSerializer yaml;
+    yaml.beginMap(false);
+
+    yaml.beginKey("content_browser")
+        .beginMap(false)
+        .beginKey("current_path")
+        .write(workspace_state_.content_browser.current_path)
+        .endMap();
+
+    yaml.endMap();
+
+    if (auto res = SaveYaml(path.string(), yaml); !res) {
+        LOG_ERROR(LogChannel::FS, "{}", ToString(res.error()));
     }
 }
 

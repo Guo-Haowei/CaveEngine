@@ -18,10 +18,10 @@ ProjectManager::ProjectManager(VFS& vfs,
 }
 
 void ProjectManager::loadProject(const ProjectInfo& project) {
-    DEV_ASSERT(!project.path.empty());
+    DEV_ASSERT(!project.project_root.empty());
     DEV_ASSERT_MSG(!vfs_.HasMount("@res"), "resource folder already mounted");
 
-    fs::path resource_folder = fs::path(project.path) / "resources";
+    fs::path resource_folder = fs::path(project.project_root) / "resources";
     vfs_.Mount("@res", resource_folder);
 
     LOG_INFO(LogChannel::Asset, "+ @{}", resource_folder.string());
@@ -29,6 +29,13 @@ void ProjectManager::loadProject(const ProjectInfo& project) {
 
     project_ = Some(project);
     renderer_.setMode(project.is_2d);
+}
+
+std::string ProjectManager::projectRoot() const {
+    if (project_.is_none()) {
+        return "";
+    }
+    return project_.unwrap_unchecked().project_root;
 }
 
 }  // namespace cave

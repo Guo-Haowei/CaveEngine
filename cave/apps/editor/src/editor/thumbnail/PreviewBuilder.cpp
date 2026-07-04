@@ -77,8 +77,6 @@ PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
 
 PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
                                               const PreviewOptions& options) const {
-    unused(options);
-
     const Scene* source_scene = handle.get<Scene>();
     DEV_ASSERT(source_scene);
     const AssetMetaData* meta = handle.meta();
@@ -87,15 +85,27 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
     scene->copy(*source_scene);
 
-    for (auto [id, cam] : scene->view<CameraComponent>()) {
-        cam.setAspect(1.0f);
+    // @TODO: better camera
+    CameraSource camera_source;
+    if (scene->count<CameraComponent>()) {
+        for (auto [id, cam] : scene->view<CameraComponent>()) {
+            cam.setAspect(1.0f);
+        }
+        scene->update(0.0f);
+        camera_source = CameraSource::FirstCamera();
+    } else {
+        Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
+        CameraComponent camera{};
+        camera.setAspect((float)options.width / (float)options.height);
+        camera.update(transform);
+        camera.setFovy(options.fov_y_deg);
+        camera_source = CameraSource::External(camera);
     }
-    scene->update(0.0f);
 
     return {
         .status = PreviewBuildStatus::Ok,
         .scene_id = scene_reg_.registerScene(std::move(scene)),
-        .camera = CameraSource::FirstCamera(),
+        .camera = camera_source,
     };
 }
 

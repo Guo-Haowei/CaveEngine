@@ -21,6 +21,14 @@ struct PreviewScene {
     Scene* scene{ nullptr };
 };
 
+struct ContentBrowserState {
+    std::string current_path = "@res://";
+};
+
+struct WorkspaceState {
+    ContentBrowserState content_browser;
+};
+
 class Workspace final : protected GenIdRegistry<Tab>,
                         public IInputConsumer,
                         public IIntentHandler {
@@ -51,12 +59,16 @@ public:
 
     void onAssetChanged(const Guid& changed, std::span<const Guid> affected);
 
+    WorkspaceState& workspaceState() { return workspace_state_; }
+    const WorkspaceState& workspaceState() const { return workspace_state_; }
+
 private:
     void openOrFocusDoc(DocId doc_id);
-
+    void drawTabs();
     bool closeDoc(DocId doc_id);
 
-    void drawTabs();
+    bool loadWorkspaceState(std::string_view path);
+    void saveWorkspaceState();
 
     EditorState& editor_;
     EngineServices& app_services_;
@@ -68,6 +80,8 @@ private:
 
     std::unordered_map<DocId, TabId> doc_to_tab_;
     std::unordered_map<Guid, TabId> guid_to_tab_;
+
+    WorkspaceState workspace_state_;
 };
 
 }  // namespace cave

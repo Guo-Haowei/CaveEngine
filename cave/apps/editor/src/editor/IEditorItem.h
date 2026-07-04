@@ -19,6 +19,8 @@ public:
     virtual ~IEditorItem() = default;
 
     virtual void onAttach() {}
+    virtual void onDetach() {}
+
     virtual void drawUI() = 0;
 
 protected:
