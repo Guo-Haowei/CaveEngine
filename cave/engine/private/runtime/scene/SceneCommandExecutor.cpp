@@ -47,7 +47,7 @@ bool SceneCommandExecutor::ChangeProperty(Entity p_ent,
 
     const FieldMetaBase* field = meta->Find(p_pid);
     if (!field) {
-        LOG_WARN("Can't find '{}.{}' for ent {}", meta->name, p_pid.DebugName(), p_ent.GetId());
+        LOG_WARN("Can't find '{}.{}' for ent {}", meta->name, p_pid.debugName(), p_ent.GetId());
         return false;
     }
 

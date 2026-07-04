@@ -175,8 +175,8 @@ void ShortcutService::initShortcuts() {
     // @TODO: compile time
     for (ShortcutDesc& shortcut : shortcuts_) {
         StringSplitter split(shortcut.shortcut);
-        while (split.CanAdvance()) {
-            std::string_view sv = split.Advance('+');
+        while (split.canAdvance()) {
+            std::string_view sv = split.advance('+');
             if (sv == "Ctrl") {
                 shortcut.ctrl = true;
             } else if (sv == "Shift") {

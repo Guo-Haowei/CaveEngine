@@ -41,7 +41,7 @@ auto BootLoadPipeline::requestProject(const std::filesystem::path& project_path)
         if (entry.is_regular_file()) {
             std::string virtual_path = asset_manager_.resolvePath(entry.path());
 
-            auto ext = StringUtils::Extension(virtual_path);
+            auto ext = StringUtils::extension(virtual_path);
             if (ext == ".meta") {
                 virtual_path.resize(virtual_path.size() - 5);  // remove '.meta'
                 resources[virtual_path].has_meta = true;

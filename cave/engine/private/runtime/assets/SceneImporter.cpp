@@ -20,7 +20,7 @@ SceneImporter::SceneImporter(const std::filesystem::path& p_source_path,
                              const std::filesystem::path& p_dest_dir)
     : AssetImporter(p_source_path, p_dest_dir) {
 
-    m_file_name = StringUtils::RemoveExtension(m_source_path.filename().string());
+    m_file_name = StringUtils::removeExtension(m_source_path.filename().string());
 
     m_base_path = fs::path(m_source_path).remove_filename().string();
 

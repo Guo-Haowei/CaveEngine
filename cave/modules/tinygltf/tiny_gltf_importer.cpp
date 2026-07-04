@@ -77,7 +77,7 @@ Result<void> TinyGltfImporter::Import() {
     loader.SetImageLoader(tinygltf::DummyLoadImage, nullptr);
     loader.SetImageWriter(tinygltf::DummyWriteImage, nullptr);
 
-    std::string_view extension = StringUtils::Extension(source_path);
+    std::string_view extension = StringUtils::extension(source_path);
 
     bool ret = false;
     if (extension == ".gltf") {

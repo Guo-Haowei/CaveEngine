@@ -31,7 +31,7 @@ bool TextBox(const char* label,
              float text_box_width) {
 
     char buffer[256]{};
-    StringUtils::Strcpy(buffer, std::string_view(buf_ptr, buf_size));
+    StringUtils::strcpy(buffer, std::string_view(buf_ptr, buf_size));
 
     if (label) {
         ImGui::Columns(2);
@@ -54,7 +54,7 @@ bool TextBox(const char* label,
                                   sizeof(buffer) - 1,
                                   flags);
     if (dirty) {
-        StringUtils::Strcpy(buf_ptr, buf_size, buffer, sizeof(buffer) - 1);
+        StringUtils::strcpy(buf_ptr, buf_size, buffer, sizeof(buffer) - 1);
     }
 
     ImGui::Columns(1);

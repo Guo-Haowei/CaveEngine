@@ -14,7 +14,7 @@ Console::Console(IApplication& p_app) noexcept
 
 void Console::SubmitLine(std::string_view p_line) {
     if (p_line.empty()) return;
-    std::vector<std::string_view> tokens = StringUtils::Tokenize(p_line);
+    std::vector<std::string_view> tokens = StringUtils::tokenize(p_line);
     if (tokens.empty()) return;
 
     std::span<const CommandDesc> cmds = m_reg.allCommands();

@@ -15,43 +15,43 @@ public:
     explicit constexpr StringId() = default;
 
     explicit constexpr StringId(std::string_view p_str)
-        : m_hash(Hash::Hash64(p_str)) {
+        : hash_(Hash::Hash64(p_str)) {
 #if USING(STRING_ID_KEEP_SOURCE)
-        m_debug.assign(p_str);
+        debug_name_.assign(p_str);
 #endif
     }
 
-    constexpr auto operator<=>(const StringId& p_other) const {
-        return m_hash <=> p_other.m_hash;
+    constexpr auto operator<=>(const StringId& rhs) const {
+        return hash_ <=> rhs.hash_;
     }
 
 #if USING(STRING_ID_KEEP_SOURCE)
-    std::string_view DebugName() const { return m_debug.view(); }
+    std::string_view debugName() const { return debug_name_.view(); }
 
     bool operator==(const StringId& p_other) const;
 #else
-    std::string_view DebugName() const { return ""; }
+    std::string_view debugName() const { return ""; }
 
-    constexpr bool operator==(const StringId& p_other) const {
-        return m_hash == p_other.m_hash;
+    constexpr bool operator==(const StringId& rhs) const {
+        return hash_ == rhs.hash_;
     }
 #endif
 
-    constexpr uint64_t GetHash() const {
-        return m_hash;
+    constexpr uint64_t hash() const {
+        return hash_;
     }
 
 private:
-    uint64_t m_hash{ 0 };
+    uint64_t hash_{ 0 };
 #if USING(STRING_ID_KEEP_SOURCE)
-    FixedString<32> m_debug;
+    FixedString<32> debug_name_;
 #endif
 };
 
 namespace literals {
 
-constexpr StringId operator"" _sid(const char* p_str, std::size_t p_len) {
-    return StringId{ std::string_view{ p_str, p_len } };
+constexpr StringId operator"" _sid(const char* str, std::size_t len) {
+    return StringId{ std::string_view{ str, len } };
 }
 
 }  // namespace literals
@@ -61,8 +61,8 @@ constexpr StringId operator"" _sid(const char* p_str, std::size_t p_len) {
 namespace std {
 template<>
 struct hash<::cave::StringId> {
-    size_t operator()(const ::cave::StringId& p_str_id) const noexcept {
-        return p_str_id.GetHash();
+    size_t operator()(const ::cave::StringId& str_id) const noexcept {
+        return str_id.hash();
     }
 };
 

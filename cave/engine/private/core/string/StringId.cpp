@@ -3,16 +3,16 @@
 namespace cave {
 
 #if USING(STRING_ID_KEEP_SOURCE)
-bool StringId::operator==(const StringId& p_other) const {
-    if (p_other.m_hash != m_hash) {
+bool StringId::operator==(const StringId& rhs) const {
+    if (rhs.hash_ != hash_) {
         return false;
     }
 
-    if (p_other.m_debug != m_debug) {
+    if (rhs.debug_name_ != debug_name_) {
         LOG_FATAL("StringId:: hash '{}' collision detected - '{}' and '{}'",
-                  m_hash,
-                  m_debug.view(),
-                  p_other.m_debug.view());
+                  hash_,
+                  debug_name_.view(),
+                  rhs.debug_name_.view());
         return false;
     }
     return true;

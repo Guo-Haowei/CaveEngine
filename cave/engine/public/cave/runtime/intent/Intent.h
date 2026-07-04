@@ -34,6 +34,6 @@ concept IntentType =
 public:                                                                \
     inline static constexpr ::cave::IntentTypeId TypeId{ STR };        \
     ::cave::IntentTypeId GetTypeId() const override { return TypeId; } \
-    std::string_view GetDebugName() const override { return TypeId.DebugName(); }
+    std::string_view GetDebugName() const override { return TypeId.debugName(); }
 
 }  // namespace cave

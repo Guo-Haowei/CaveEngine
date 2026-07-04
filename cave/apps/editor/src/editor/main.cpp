@@ -84,9 +84,9 @@ private:
 };
 
 IApplication* CreateApp() {
-    std::string_view root = StringUtils::BasePath(__FILE__);
-    root = StringUtils::BasePath(root);
-    root = StringUtils::BasePath(root);
+    std::string_view root = StringUtils::basePath(__FILE__);
+    root = StringUtils::basePath(root);
+    root = StringUtils::basePath(root);
 
     // @TODO: virtual fs and mount
     auto user_path = fs::path{ root } / "user";

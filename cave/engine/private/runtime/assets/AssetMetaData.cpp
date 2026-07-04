@@ -43,7 +43,7 @@ Result<void> AssetMetaData::saveToDisk(const IAsset* asset) const {
 
     std::string asset_name = name;
     if (asset_name.empty()) {
-        asset_name = StringUtils::FileName(import_path.c_str(), '/');
+        asset_name = StringUtils::fileName(import_path.c_str(), '/');
     }
 
     if (asset) {
@@ -56,7 +56,7 @@ Result<void> AssetMetaData::saveToDisk(const IAsset* asset) const {
 }
 
 auto AssetMetaData::CreateMeta(std::string_view path) -> Option<AssetMetaData> {
-    auto extension = StringUtils::Extension(path);
+    auto extension = StringUtils::extension(path);
 
     // @TODO: [SCRUM-222] refactor this part
     AssetType type = AssetType::Blob;

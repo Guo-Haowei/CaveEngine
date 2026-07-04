@@ -48,7 +48,7 @@ void DvarCache::deserialize(std::string_view path) {
     reader->ReadBuffer(buffer.data(), size);
     reader->Close();
 
-    std::vector<std::string_view> commands = StringUtils::Tokenize(buffer);
+    std::vector<std::string_view> commands = StringUtils::tokenize(buffer);
     DvarParser parser(commands, DvarParser::Source::Cache);
     if (!parser.Parse()) {
         LOG_ERROR(LogChannel::Dvar, "Error: {}", parser.GetError());

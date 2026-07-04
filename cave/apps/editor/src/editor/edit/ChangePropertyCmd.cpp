@@ -44,7 +44,7 @@ bool ChangePropertyCmd::apply(IDocument& p_doc) {
                                        m_pid,
                                        m_new.data(),
                                        (uint32_t)m_new.size());
-    DEBUG_PRINT("Do: changed '{}' of entity {}", m_pid.DebugName(), ent_.GetId());
+    DEBUG_PRINT("Do: changed '{}' of entity {}", m_pid.debugName(), ent_.GetId());
     return res;
 }
 
@@ -60,7 +60,7 @@ bool ChangePropertyCmd::undo(IDocument& p_doc) {
                                        m_pid,
                                        m_old.data(),
                                        (uint32_t)m_old.size());
-    DEBUG_PRINT("Undo: changed '{}' of entity {}", m_pid.DebugName(), ent_.GetId());
+    DEBUG_PRINT("Undo: changed '{}' of entity {}", m_pid.debugName(), ent_.GetId());
     return res;
 }
 
