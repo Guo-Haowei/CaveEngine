@@ -53,7 +53,7 @@ bool IsChild(const ContentEntry* node1, const ContentEntry* node2) {
 
 Option<AssetHandle> DragDropTarget(AssetType mask) {
     if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAsset)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
             DEV_ASSERT(data.kind == DragKind::Asset);
             auto handle = AssetRegistry::singleton().findByGuid(data.guid, mask);
@@ -72,10 +72,10 @@ void DragDropSourceContentEntry(const ContentEntry& source) {
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
             if (source.is_dir) {
                 DragPayload payload = MakePayloadFolder(source);
-                SetPayload(PAYLOAD_FOLDER, payload);
+                SetPayload(kPayloadFolder, payload);
             } else {
                 DragPayload payload = MakePayloadAsset(source);
-                SetPayload(PAYLOAD_ASSET, payload);
+                SetPayload(kPayloadAsset, payload);
             }
             ImGui::Text("%s", source.virtual_path.c_str());
             ImGui::EndDragDropSource();
@@ -91,11 +91,11 @@ void DragDropTargetFolder(const ContentEntry& target,
     }
 
     if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAsset)) {
             // @TODO: move assets, need to move meta as well
         }
 
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_FOLDER)) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadFolder)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
             auto it = lut.find(std::string(data.path));
             DEV_ASSERT(it != lut.end());

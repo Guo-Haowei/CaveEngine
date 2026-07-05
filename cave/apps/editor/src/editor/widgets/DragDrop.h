@@ -5,9 +5,9 @@
 
 namespace cave {
 
-inline constexpr const char* PAYLOAD_FOLDER = "CAVE/Folder";
-inline constexpr const char* PAYLOAD_ASSET = "CAVE/Asset";
-inline constexpr const char* PAYLOAD_SCENE_NODE = "CAVE/SceneNode";
+inline constexpr const char* kPayloadFolder = "CAVE/Folder";
+inline constexpr const char* kPayloadAsset = "CAVE/Asset";
+inline constexpr const char* kPayloadSceneNode = "CAVE/SceneNode";
 
 class AssetHandle;
 struct ContentEntry;

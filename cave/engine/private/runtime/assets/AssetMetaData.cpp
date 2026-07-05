@@ -9,9 +9,9 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
-auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
+auto AssetMetaData::loadMeta(std::string_view path) -> Result<AssetMetaData> {
     YAML::Node root;
-    if (auto res = LoadYaml(p_path, root); !res) {
+    if (auto res = LoadYaml(path, root); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -22,7 +22,7 @@ auto AssetMetaData::LoadMeta(std::string_view p_path) -> Result<AssetMetaData> {
     d.read(meta);
 
     // meta sys path
-    std::string sys_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, p_path);
+    std::string sys_path = FileAccess::FixPath(FileAccess::ACCESS_RESOURCE, path);
     if (meta.source_created_time.empty()) {
         meta.source_created_time = std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now());
     }
@@ -55,7 +55,7 @@ Result<void> AssetMetaData::saveToDisk(const IAsset* asset) const {
     return SaveYaml(meta_path, yaml);
 }
 
-auto AssetMetaData::CreateMeta(std::string_view path) -> Option<AssetMetaData> {
+auto AssetMetaData::createMeta(std::string_view path) -> Option<AssetMetaData> {
     auto extension = StringUtils::extension(path);
 
     // @TODO: [SCRUM-222] refactor this part

@@ -244,14 +244,18 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     const bool show_editor = DVAR_GET_BOOL(show_editor);
     if (show_editor) {
         ImGuizmo::DrawAxes(proj_view);
-
-        // const float size = 240.f;
-        // ImGuizmo::ViewManipulate((float*)&view_matrix[0].x,
-        //                          10.0f,
-        //                          ImVec2(m_rect.x, m_rect.y),
-        //                          ImVec2(size, size),
-        //                          IM_COL32(64, 64, 64, 96));
     }
+}
+
+void SceneViewTab::onAssetDropped(AssetHandle&& handle) {
+    IAsset* asset = handle.get();
+    if (Scene* scene = dynamic_cast<Scene*>(asset)) {
+        __debugbreak();
+        return;
+    }
+
+    const AssetMetaData* meta = handle.meta();
+    LOG_ERROR(LogChannel::Asset, "asset {} not accepted", meta->name);
 }
 
 Scene* SceneViewTab::getResolvedScene() {

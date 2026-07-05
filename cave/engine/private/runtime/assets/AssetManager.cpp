@@ -119,7 +119,7 @@ Result<Guid> AssetManager::createAsset(AssetType type,
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create instance '{}'", short_path);
     }
 
-    auto _meta = AssetMetaData::CreateMeta(short_path);
+    auto _meta = AssetMetaData::createMeta(short_path);
     if (_meta.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create meta '{}'", short_path);
     }

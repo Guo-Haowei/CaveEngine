@@ -46,7 +46,7 @@ Option<Guid> Guid::parse(const char* start, size_t length) {
             return None();
         }
 
-        guid.data_[buffer_index++] = (high << 4) | (low);
+        guid.m_data[buffer_index++] = (high << 4) | (low);
         i += 2;
     } while (i < length);
 
@@ -55,7 +55,7 @@ Option<Guid> Guid::parse(const char* start, size_t length) {
 
 std::string Guid::toString() const {
     char buf[64];
-    const uint8_t* data = data_.data();
+    const uint8_t* data = m_data.data();
     std::snprintf(buf, sizeof(buf),
                   "%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X%02X%02X",
                   data[0], data[1], data[2], data[3],

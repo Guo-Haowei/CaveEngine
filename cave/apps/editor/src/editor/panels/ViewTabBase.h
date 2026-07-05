@@ -1,5 +1,6 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
+#include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "editor/camera/CameraController.h"
@@ -36,6 +37,7 @@ public:
 private:
     void commitSceneChange(std::string&&) override {}
     void commitSceneReload() override;
+    virtual void onAssetDropped(AssetHandle&&) {}
 
 protected:
     void submitView(bool support_pie);

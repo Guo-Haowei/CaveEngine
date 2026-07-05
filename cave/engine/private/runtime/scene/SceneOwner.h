@@ -27,8 +27,8 @@ protected:
     virtual void commitSceneReload() = 0;
 
 private:
-    Option<std::string> pending_change_;
-    bool pending_reload_ = false;
+    Option<std::string> m_pending_change;
+    bool m_pending_reload = false;
 };
 
 }  // namespace cave

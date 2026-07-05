@@ -27,11 +27,13 @@ public:
 
     DebugId debugId() const override { return m_debug_id; }
 
-protected:
+private:
     void submitView();
 
     void drawUIImpl() override;
     void drawGizmo(const math::FloatRect& rect);
+
+    void onAssetDropped(AssetHandle&& handle) override;
 
     Scene* getResolvedScene();
 

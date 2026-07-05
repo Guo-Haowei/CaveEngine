@@ -6,6 +6,7 @@
 #include "editor/services/DocumentService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
+#include "editor/widgets/DragDrop.h"
 
 // @TODO: remove
 #include "editor/EditorState.h"
@@ -195,13 +196,9 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
             break;
     }
 
-    // @TODO: drop target
     ImGui::Dummy({ rect.w, rect.h });
-    // ImGui::InvisibleButton("###DropTarget", size);
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CAVE/Asset")) {
-        }
-        ImGui::EndDragDropTarget();
+    if (auto handle_ = DragDropTarget(AssetType::Scene); handle_.is_some()) {
+        onAssetDropped(std::move(handle_.unwrap_unchecked()));
     }
 }
 

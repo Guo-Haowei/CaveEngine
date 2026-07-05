@@ -7,7 +7,7 @@ EditorWindow::EditorWindow(EditorState& editor)
 
 void EditorWindow::drawUI() {
     resetState();
-    if (ImGui::Begin(windowId(), nullptr, flags_)) {
+    if (ImGui::Begin(windowId(), nullptr, m_window_flags)) {
         updateState();
         drawUIImpl();
     }
@@ -15,14 +15,14 @@ void EditorWindow::drawUI() {
 }
 
 void EditorWindow::resetState() {
-    state_ = {};
+    m_window_state = {};
 }
 
 void EditorWindow::updateState() {
-    state_.open = true;
-    state_.visible = !ImGui::IsWindowCollapsed();
-    state_.focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
-    state_.hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+    m_window_state.open = true;
+    m_window_state.visible = !ImGui::IsWindowCollapsed();
+    m_window_state.focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    m_window_state.hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
     // ImVec2 pos = ImGui::GetWindowPos();
     // ImVec2 size = ImGui::GetWindowSize();

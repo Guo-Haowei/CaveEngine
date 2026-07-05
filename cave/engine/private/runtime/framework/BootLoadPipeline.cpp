@@ -57,7 +57,7 @@ auto BootLoadPipeline::requestProject(const std::filesystem::path& project_path)
     for (const auto& [key, value] : resources) {
         auto meta_path = std::format("{}.meta", key);
         if (value.has_meta) {
-            auto res = AssetMetaData::LoadMeta(meta_path);
+            auto res = AssetMetaData::loadMeta(meta_path);
             if (!res) {
                 return CAVE_ERROR(res.error());
             }
@@ -74,7 +74,7 @@ auto BootLoadPipeline::requestProject(const std::filesystem::path& project_path)
         }
 
         DEV_ASSERT(value.has_source);
-        auto meta = AssetMetaData::CreateMeta(key);
+        auto meta = AssetMetaData::createMeta(key);
         if (meta.is_none()) {
             // LOG_WARN("file '{}' not supported", key);
             continue;
