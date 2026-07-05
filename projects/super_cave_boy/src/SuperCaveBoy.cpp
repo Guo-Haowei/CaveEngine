@@ -25,13 +25,4 @@ void SuperCaveBoy::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<BatController>("BatController");
 }
 
-void SuperCaveBoy::onGameBegin(IHostServices&) {
-}
-
-void SuperCaveBoy::onGameEnd(IHostServices&) {
-}
-
-void SuperCaveBoy::tick(IHostServices&, const FrameTime&) {
-}
-
 }  // namespace super_cave_boy

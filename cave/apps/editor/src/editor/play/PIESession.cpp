@@ -98,12 +98,12 @@ void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
     Scene* pie_scene = beginPIEScene(scene_reg.resolve(scene_id));
     if (DEV_VERIFY(pie_scene)) {
         if (m_game_module) {
-            // @BUG: host still points to old scene, after scene change
-            // this is dangerous, but it's fine for now
-            // because we are going to remove PIEHostServices entirely.
+            unused(view_id);
+#if 0
             m_host = std::make_unique<PIEHostServices>(m_engine_services, *pie_scene, view_id);
             m_game_module->onGameBegin(*m_host);
             m_host->flushSceneCommands();
+#endif
         }
 
         m_running = true;
@@ -112,18 +112,9 @@ void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
 
 void PIESession::endPIESession() {
     m_engine_services.sceneScheduler().remove(this);
-
-    if (!m_pie_scene.isValid()) {
-        return;
-    }
-
     m_running = false;
 
     endPIEScene();
-
-    if (m_game_module && m_host) {
-        m_game_module->onGameEnd(*m_host);
-    }
 }
 
 void PIESession::commitSceneChange(std::string&& path) {
@@ -150,17 +141,7 @@ void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) 
     out_requests.push_back({ SceneTickMode::Simulation, m_pie_scene, *this });
 }
 
-void PIESession::tick(const FrameTime& time) {
-    if (!m_running || !m_game_module) {
-        return;
-    }
-
-    SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
-    Scene* scene = scene_reg.resolve(m_pie_scene);
-    if (!scene) return;
-
-    m_game_module->tick(*m_host, time);
-    m_host->flushSceneCommands();
+void PIESession::tick(const FrameTime&) {
 }
 
 }  // namespace cave

@@ -6,8 +6,6 @@
 #include "cave/game/GameModuleHandle.h"
 #include "cave/runtime/framework/EngineServices.h"
 
-#include "editor/play/PIEHostServices.h"
-
 // @TODO: refactor
 #include "engine/private/runtime/scene/SceneOwner.h"
 
@@ -60,8 +58,6 @@ private:
 
     GameModuleHandle m_game_module_handle;
     IGameModule* m_game_module{};
-
-    std::unique_ptr<PIEHostServices> m_host;
 
     SceneId m_pie_scene{};
 };

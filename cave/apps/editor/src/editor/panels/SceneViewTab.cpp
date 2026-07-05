@@ -5,6 +5,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/input/KeyState.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
 
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"

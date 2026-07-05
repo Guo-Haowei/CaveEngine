@@ -11,11 +11,6 @@ public:
     ~SuperCaveBoy();
 
     void registerNativeScripts(cave::NativeScriptRegistry& registry) override;
-
-    void onGameBegin(cave::IHostServices& host) override;
-    void onGameEnd(cave::IHostServices& host) override;
-
-    void tick(cave::IHostServices& host, const cave::FrameTime& time) override;
 };
 
 }  // namespace super_cave_boy

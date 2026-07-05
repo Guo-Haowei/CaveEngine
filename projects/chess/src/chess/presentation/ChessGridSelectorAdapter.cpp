@@ -185,8 +185,7 @@ void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
 
 void ChessGridSelectorAdapter::tick(SceneContext& ctx) {
     const IGameInput& input = ctx.engine_services.gameInput();
-    // @TODO: fix ChessGridSelectorAdapter::tick
-    // tickPointer(ctx, input);
+    tickPointer(ctx, input);
     tickKeyboard(input);
 }
 

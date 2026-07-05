@@ -25,15 +25,6 @@ void ChessGameModule::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<BoardController>("BoardController");
 }
 
-void ChessGameModule::onGameBegin(IHostServices&) {
-}
-
-void ChessGameModule::onGameEnd(IHostServices&) {
-}
-
-void ChessGameModule::tick(IHostServices&, const FrameTime&) {
-}
-
 // @TODO: extract it,
 // because other than starting pos,
 // it can be used for any pos, for example, for puzzle mode
