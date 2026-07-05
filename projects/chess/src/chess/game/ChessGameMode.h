@@ -8,34 +8,29 @@
 
 namespace chess {
 
-using cave::DebugId;
-using cave::FrameTime;
-using cave::IHostServices;
-
 class IChessGameState;
 
 class ChessGameMode final : public cave::IGameMode,
                             public cave::IIntentHandler {
 public:
-    ChessGameMode(IHostServices& host);
+    ChessGameMode(cave::SceneContext& ctx);
     ~ChessGameMode();
 
-    void onEnter(IHostServices& host) final;
-    void onExit(IHostServices& host) final;
-    void tick(IHostServices& host, const FrameTime& time) final;
+    void onEnter(cave::SceneContext& ctx) final;
+    void onExit() final;
+    void tick(cave::SceneContext& ctx, float dt) final;
 
     bool handleIntent(cave::Intent& intent) override;
 
-    DebugId debugId() const override { return debug_id_; }
+    cave::DebugId debugId() const override { return m_debug_id; }
 
 private:
-    void commitStateChange(std::unique_ptr<IChessGameState>&& new_state);
+    void commitStateChange(cave::SceneContext& ctx, std::unique_ptr<IChessGameState>&& new_state);
 
-    IHostServices& host_;
-    cave::IntentDispatcher& intent_;
-    const DebugId debug_id_;
+    cave::IntentDispatcher& m_intent_bus;
+    const cave::DebugId m_debug_id;
 
-    std::unique_ptr<IChessGameState> state_;
+    std::unique_ptr<IChessGameState> m_state;
 };
 
 }  // namespace chess

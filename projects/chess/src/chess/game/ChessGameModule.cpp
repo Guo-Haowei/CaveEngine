@@ -1,6 +1,5 @@
 #include "ChessGameModule.h"
 
-#include "cave/core/diagnostics/ILogSink.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
@@ -8,6 +7,7 @@
 
 #include "chess/core/Bitboard.h"
 #include "chess/core/Piece.h"
+#include "chess/game/BoardController.h"
 #include "chess/game/ChessGameMode.h"
 #include "chess/presentation/ChessViewFactory.h"
 
@@ -22,18 +22,17 @@ using cave::ecs::Entity;
 ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
-void ChessGameModule::onGameBegin(IHostServices& host) {
-    game_ = std::make_unique<ChessGameMode>(host);
-    game_->onEnter(host);
+void ChessGameModule::registerNativeScripts(NativeScriptRegistry& registry) {
+    registry.registerScript<BoardController>("BoardController");
 }
 
-void ChessGameModule::onGameEnd(IHostServices& host) {
-    game_->onExit(host);
-    game_.reset();
+void ChessGameModule::onGameBegin(IHostServices&) {
 }
 
-void ChessGameModule::tick(IHostServices& host, const FrameTime& time) {
-    game_->tick(host, time);
+void ChessGameModule::onGameEnd(IHostServices&) {
+}
+
+void ChessGameModule::tick(IHostServices&, const FrameTime&) {
 }
 
 // @TODO: extract it,

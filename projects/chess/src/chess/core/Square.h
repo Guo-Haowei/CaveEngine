@@ -115,7 +115,7 @@ private:
     uint8_t index_;
 };
 
-Square enpassantCapturedSquare(Square from, Square to);
+Square EnpassantCapturedSquare(Square from, Square to);
 
 }  // namespace chess::core
 

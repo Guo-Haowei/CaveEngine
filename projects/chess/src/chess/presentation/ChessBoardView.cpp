@@ -1,8 +1,9 @@
 #include "ChessBoardView.h"
 
-#include "cave/game/IHostServices.h"
-#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "chess/presentation/ChessUtils.h"
 
@@ -11,23 +12,16 @@ namespace chess {
 using namespace ::cave;
 using namespace ::chess::core;
 
-ChessBoardView::ChessBoardView(IHostServices& host) noexcept
-    : host_(host)
-    , writer_(host.sceneWriter()) {
-}
-
-void ChessBoardView::initialize() {
-    auto& query = host_.sceneQuery();
+void ChessBoardView::initialize(SceneQuery& query) {
     selector_ = query.findFirstByName("grid_selector");
 
-    // tiles
     for (uint8_t i = 0; i < 64; ++i) {
         const char* name = Square(i).uci();
         tiles_[i] = query.findFirstByName(name);
     }
 }
 
-void ChessBoardView::drawBoard() {
+void ChessBoardView::drawBoard(SceneQuery& query) {
     for (uint8_t i = 0; i < 64; ++i) {
         const Square sq(i);
         bool visible = highlights_.Test(sq);
@@ -35,17 +29,17 @@ void ChessBoardView::drawBoard() {
             visible = false;
         }
         const ecs::Entity tile = tiles_[i];
-        writer_.setProperty(tile,
-                            cave::MeshRendererComponent_Id,
-                            kVisibility,
-                            visible);
+
+        auto renderer = query.component<MeshRendererComponent>(tile);
+        if (DEV_VERIFY(renderer)) {
+            renderer->SetVisible(visible);
+        }
     }
 
-    Vec3f position = squareToVec(hovered_square_);
-    writer_.setProperty(selector_,
-                        cave::TransformComponent_Id,
-                        kTranslationId,
-                        position);
+    auto transform = query.component<TransformComponent>(selector_);
+    if (DEV_VERIFY(transform)) {
+        transform->setTranslation(squareToVec(hovered_square_));
+    }
 }
 
 }  // namespace chess

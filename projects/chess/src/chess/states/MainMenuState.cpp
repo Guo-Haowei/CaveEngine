@@ -11,6 +11,7 @@ namespace chess {
 
 using namespace cave;
 
+#if 0
 void MainMenuState::OnEnter(cave::IHostServices&) {
 }
 
@@ -32,5 +33,6 @@ void MainMenuState::Tick(cave::IHostServices& host, const cave::FrameTime&) {
     }
     ui.endView();
 }
+#endif
 
 }  // namespace chess

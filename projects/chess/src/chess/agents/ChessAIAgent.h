@@ -13,7 +13,7 @@ public:
         , client_(client) {
     }
 
-    void tick(cave::IHostServices& host) override;
+    void tick(cave::SceneContext& ctx) override;
 
 private:
     ChessGameClient& client_;

@@ -2,6 +2,7 @@
 
 #include <random>
 
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
 #include "chess/core/MoveGen.h"
@@ -15,9 +16,9 @@ using core::Move;
 using core::MoveGen;
 using core::Position;
 
-void ChessAIAgent::tick(cave::IHostServices& host) {
+void ChessAIAgent::tick(cave::SceneContext& ctx) {
     const Position& replica = client_.replica();
-    const bool my_turn = replica.SideToMove() == side();
+    const bool my_turn = replica.sideToMove() == side();
     if (!my_turn) {
         return;
     }
@@ -34,7 +35,8 @@ void ChessAIAgent::tick(cave::IHostServices& host) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        host.intentDispatcher().queue<ChessMoveIntent>(side(), move);
+        auto& intent_bus = ctx.engine_services.intentDispatcher();
+        intent_bus.queue<ChessMoveIntent>(side(), move);
     }
 }
 

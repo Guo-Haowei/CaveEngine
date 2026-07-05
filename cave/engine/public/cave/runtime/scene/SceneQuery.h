@@ -48,6 +48,10 @@ public:
 
     void queueDestroy(ecs::Entity ent);
 
+    void* addComponent(ComponentId cid, ecs::Entity ent);
+    template<ComponentType T>
+    T* addComponent(ecs::Entity ent) { return (T*)addComponent(T::kId, ent); }
+
     void* component(ComponentId cid, ecs::Entity ent);
     const void* component(ComponentId cid, ecs::Entity ent) const;
     template<ComponentType T>

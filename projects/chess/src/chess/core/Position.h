@@ -56,7 +56,7 @@ public:
 
     Position() = default;
 
-    Color SideToMove() const { return m_side_to_move; }
+    Color sideToMove() const { return m_side_to_move; }
 
     static Position Startpos();
     static std::expected<Position, FenError> FromFen(std::string_view p_fen);

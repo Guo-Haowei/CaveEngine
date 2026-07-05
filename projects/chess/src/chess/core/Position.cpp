@@ -192,7 +192,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     const MoveType move_type = p_move.type();
 
     assert((src_piece != Piece::Null) && "No piece found on 'from' square");
-    assert((SideToMove() == my_color) && "Trying to move a piece of the wrong color");
+    assert((sideToMove() == my_color) && "Trying to move a piece of the wrong color");
 
     // check if the move will change the castling rights
     const CastlingRight castling = UpdateCastling(m_state.castling, src_sq, dst_sq, src_piece, dst_piece);
@@ -215,7 +215,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
     m_state.captured_piece = dst_piece;
     p_undo = m_state;  // save old state as undo state
 
-    assert(m_state.occupancies[SideToMove()].Test(src_sq));
+    assert(m_state.occupancies[sideToMove()].Test(src_sq));
 
     MovePiece(m_board[src_piece], src_sq, dst_sq);
 
@@ -241,7 +241,7 @@ bool Position::MakeMove(Move p_move, UndoState& p_undo) {
         } break;
         case MoveType::Enpassant: {
             assert(src_piece_type == PieceType::Pawn);
-            m_board[their_pawn].Unset(enpassantCapturedSquare(src_sq, dst_sq));
+            m_board[their_pawn].Unset(EnpassantCapturedSquare(src_sq, dst_sq));
         } break;
         case MoveType::Promotion: {
             assert(src_piece_type == PieceType::Pawn);
@@ -299,7 +299,7 @@ bool Position::UnmakeMove(Move p_move, UndoState& p_undo) {
             MovePiece(m_board[rook], rook_sq, src_sq2);
         } break;
         case MoveType::Enpassant: {
-            m_board[their_pawn].Set(enpassantCapturedSquare(src_sq, dst_sq));
+            m_board[their_pawn].Set(EnpassantCapturedSquare(src_sq, dst_sq));
         } break;
         case MoveType::Promotion: {
             const Piece promotion = BuildPiece(p_move.promo().unwrap(), my_color);

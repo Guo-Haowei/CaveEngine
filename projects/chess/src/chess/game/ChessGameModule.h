@@ -12,15 +12,12 @@ public:
     ChessGameModule();
     ~ChessGameModule();
 
-    // @TODO: move these to ChessGameMode,
-    // ChessGameModule should only be responsible for DLL loading
+    void registerNativeScripts(cave::NativeScriptRegistry& registry) override;
+
     void onGameBegin(cave::IHostServices& host) override;
     void onGameEnd(cave::IHostServices& host) override;
 
     void tick(cave::IHostServices& host, const cave::FrameTime& time) override;
-
-private:
-    std::unique_ptr<ChessGameMode> game_;
 };
 
 }  // namespace chess

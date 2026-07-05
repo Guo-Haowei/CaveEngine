@@ -3,13 +3,9 @@
 #include <vector>
 
 #include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 #include "chess/core/Position.h"
-
-// clang-format off
-namespace cave { class IHostServices; }
-namespace cave { class SceneCommandWriter; }
-// clang-format on
 
 namespace chess {
 
@@ -24,27 +20,31 @@ class ChessPieceView {
     };
 
 public:
-    ChessPieceView(cave::IHostServices& host) noexcept;
+    void initialize(cave::SceneQuery& query);
 
-    void initialize();
+    void redrawPieces(cave::SceneQuery& query,
+                      const core::Position& position);
 
-    void redrawPieces(const core::Position& position);
+    void spawnPiece(cave::SceneQuery& query,
+                    core::Piece piece,
+                    core::Square square);
 
-    void spawnPiece(core::Piece piece, core::Square square);
-    void removePiece(core::Square square);
+    void removePiece(cave::SceneQuery& query,
+                     core::Square square);
 
-    void movePiece(core::Square from, core::Square to);
+    void movePiece(cave::SceneQuery& query,
+                   core::Square from,
+                   core::Square to);
 
-    void applyMove(const core::Position& position, core::Move mv);
+    void applyMove(cave::SceneQuery& query,
+                   const core::Position& position,
+                   core::Move mv);
 
 private:
-    Entity entityAt(core::Square square) const { return board_[square.index()]; }
+    Entity entityAt(core::Square square) const { return m_board[square.index()]; }
 
-    cave::IHostServices& host_;
-    cave::SceneCommandWriter& writer_;
-
-    std::array<Entity, 64> board_;
-    std::array<Entry, core::kPieceMax> piece_pool_;
+    std::array<Entity, 64> m_board;
+    std::array<Entry, core::kPieceMax> m_piece_pool;
 };
 
 }  // namespace chess

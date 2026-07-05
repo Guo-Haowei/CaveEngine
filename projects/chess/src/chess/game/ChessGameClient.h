@@ -4,16 +4,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 
-#include "chess/core/Position.h"
 #include "chess/presentation/ChessBoardView.h"
 #include "chess/presentation/ChessPieceView.h"
-
-// clang-format off
-namespace cave { class IHostServices; }
-// clang-format on
 
 namespace chess {
 
@@ -22,46 +18,43 @@ class ChessMatchAuthority;
 
 class ChessGameClient : public cave::IIntentHandler {
 public:
-    ChessGameClient(cave::IHostServices& host,
+    ChessGameClient(cave::IntentDispatcher& intent_bus,
                     ChessGameSession& session,
                     ChessMatchAuthority& auth);
     ~ChessGameClient();
 
-    void onBoot();
+    void onBoot(cave::SceneQuery& query);
 
-    void present();
+    void present(cave::SceneQuery& query);
 
     std::span<const core::Move> legalMoves(core::Square square) const;
 
-    const core::Position& replica() const { return replica_; }
+    const core::Position& replica() const { return m_replica; }
 
     bool handleIntent(cave::Intent& intent) override;
 
-    cave::DebugId debugId() const override { return debug_id_; }
+    cave::DebugId debugId() const override { return m_debug_id; }
 
-    ChessBoardView& board_view() { return board_view_; }
+    ChessBoardView& board_view() { return m_board_view; }
 
 private:
-    void onMoveCommitted(core::Move move);
-    void onMoveRejected(core::Move move);
+    void onMoveCommitted(cave::SceneQuery& query, core::Move move);
+    void onMoveRejected(cave::SceneQuery& query, core::Move move);
 
     void onPositionChange();
 
     void resetBoard();
 
-    ChessMatchAuthority& auth_;
-    ChessGameSession& session_;
+    cave::IntentDispatcher& m_intent_bus;
+    ChessMatchAuthority& m_auth;
+    ChessGameSession& m_session;
+    const cave::DebugId m_debug_id;
 
-    ChessBoardView board_view_;
-    ChessPieceView piece_view_;
+    ChessBoardView m_board_view;
+    ChessPieceView m_piece_view;
 
-    core::Position replica_;
-
-    cave::IHostServices& host_;
-    cave::IntentDispatcher& intent_dispatcher_;
-    const cave::DebugId debug_id_;
-
-    std::unordered_map<core::Square, std::vector<core::Move>> move_cache_;
+    core::Position m_replica;
+    std::unordered_map<core::Square, std::vector<core::Move>> m_move_cache;
 };
 
 }  // namespace chess

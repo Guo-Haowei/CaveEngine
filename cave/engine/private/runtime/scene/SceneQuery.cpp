@@ -32,6 +32,10 @@ void SceneQuery::queueDestroy(ecs::Entity ent) {
     scene_.create<PendingDestroyComponent>(ent);
 }
 
+void* SceneQuery::addComponent(ComponentId cid, ecs::Entity ent) {
+    return scene_.storage().createRaw(cid, ent);
+}
+
 void* SceneQuery::component(ComponentId cid, Entity ent) {
     scene_.systems()->get(SceneSystemId::TileWorld);
 

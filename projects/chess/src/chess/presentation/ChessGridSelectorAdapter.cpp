@@ -7,6 +7,7 @@
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/view/ViewQuery.h"
@@ -24,14 +25,14 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 
-ChessGridSelectorAdapter::ChessGridSelectorAdapter(IHostServices& host,
+ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneContext& ctx,
                                                    ChessGameClient& game,
                                                    ChessBoardView& board_view) noexcept
-    : m_host_(host)
+    : m_intent_bus(ctx.engine_services.intentDispatcher())
     , m_client(game)
     , m_board_view(board_view) {
 
-    m_camera_id = m_host_.sceneQuery().findFirstByName("game_camera");
+    m_camera_id = ctx.query.findFirstByName("game_camera");
     assert(m_camera_id.IsValid());
 }
 
@@ -73,7 +74,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
     m_board_view.setHighlight({});
 
     const Position& pos = m_client.replica();
-    const Color id = pos.SideToMove();
+    const Color id = pos.sideToMove();
 
     if (LocalHumanAgent* agent = m_get_player_func(id)) {
         const Square from = Square::fromFileRank((uint8_t)sx, (uint8_t)sy);
@@ -89,7 +90,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
         }
         assert(move.isValid());
 
-        m_host_.intentDispatcher().queue<ChessMoveIntent>(id, move);
+        m_intent_bus.queue<ChessMoveIntent>(id, move);
     }
 }
 
@@ -104,13 +105,15 @@ void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
     (void)dy;
 }
 
-void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
+void ChessGridSelectorAdapter::tickPointer(SceneContext& ctx, const IGameInput& input) {
     const PointerState& pointer = input.pointerState();
 
     // @TODO: project ray
-    const DisplayService& display = m_host_.displayService();
+    const DisplayService& display = ctx.engine_services.displayService();
 
-    const ViewRecord* view = m_host_.viewQuery().resolve(m_host_.viewId());
+    ViewQuery query(ctx.engine_services.viewManager());
+    // const ViewRecord* view = query.resolve(m_host_.viewId());
+    const ViewRecord* view = nullptr;
     if (!view) {
         return;
     }
@@ -122,7 +125,7 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
 
     Vec2f ndc = view->screenToNDC(pos_os);
 
-    auto camera = (const CameraComponent*)m_host_.sceneQuery().component(CameraComponent_Id, m_camera_id);
+    auto camera = ctx.query.component<CameraComponent>(m_camera_id);
     assert(camera);
 
     Ray ray = Ray::unproject(camera->projectionViewMatrix(), ndc);
@@ -181,9 +184,9 @@ void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
     }
 }
 
-void ChessGridSelectorAdapter::tick() {
-    const IGameInput& input = m_host_.gameInput();
-    tickPointer(input);
+void ChessGridSelectorAdapter::tick(SceneContext& ctx) {
+    const IGameInput& input = ctx.engine_services.gameInput();
+    // tickPointer(ctx, input);
     tickKeyboard(input);
 }
 

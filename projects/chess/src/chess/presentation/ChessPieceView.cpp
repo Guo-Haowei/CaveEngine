@@ -1,9 +1,10 @@
 #include "ChessPieceView.h"
 
 #include "cave/core/error/ErrorMacros.h"
-#include "cave/game/IHostServices.h"
-#include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformAnimationComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "chess/presentation/ChessUtils.h"
 
@@ -34,18 +35,11 @@ ecs::Entity ChessPieceView::Entry::getAndAdvance() {
     return pool[cursor++];
 }
 
-ChessPieceView::ChessPieceView(IHostServices& host) noexcept
-    : host_(host)
-    , writer_(host.sceneWriter()) {
-}
-
-void ChessPieceView::initialize() {
-    auto& query = host_.sceneQuery();
-
+void ChessPieceView::initialize(SceneQuery& query) {
     auto add_piece = [&](Piece type, std::string_view name) {
         const uint8_t idx = std::to_underlying(type);
 
-        Entry& entry = piece_pool_[idx];
+        Entry& entry = m_piece_pool[idx];
 
         for (int i = 1;; ++i) {
             Entity id = query.findFirstByName(std::format("{}_{}", name, i));
@@ -70,90 +64,111 @@ void ChessPieceView::initialize() {
     add_piece(Piece::BK, "black_king");
 }
 
-void ChessPieceView::redrawPieces(const Position& position) {
+void ChessPieceView::redrawPieces(SceneQuery& query,
+                                  const Position& position) {
     for (uint8_t p = 0; p < kPieceMax; ++p) {
         const Piece piece = static_cast<Piece>(p);
         const Bitboard bb = position.Bitboard(piece);
 
-        auto& entry = piece_pool_[p];
+        auto& entry = m_piece_pool[p];
 
         for (Square sq : bb.Squares()) {
-            spawnPiece(piece, sq);
+            spawnPiece(query, piece, sq);
         }
 
         // set the reset of the pieces invisible
         for (uint8_t i = entry.cursor; i < entry.pool.size(); ++i) {
             Entity e = entry.pool[i];
-            writer_.setProperty(e, MeshRendererComponent_Id, kVisibility, false);
-            writer_.setProperty(e, MeshRendererComponent_Id, kCastShadow, false);
+            auto renderer = query.component<MeshRendererComponent>(e);
+            if (DEV_VERIFY(renderer)) {
+                renderer->SetVisible(false);
+                renderer->SetCastShadow(false);
+            }
         }
     }
 }
 
-void ChessPieceView::spawnPiece(Piece piece, Square square) {
-    auto& entry = piece_pool_[std::to_underlying(piece)];
+void ChessPieceView::spawnPiece(SceneQuery& query,
+                                Piece piece,
+                                Square square) {
+    auto& entry = m_piece_pool[std::to_underlying(piece)];
     DEV_ASSERT(entry.cursor < entry.pool.size());
     Entity ent = entry.getAndAdvance();
 
     Vec3f translation = squareToVec(square);
 
-    writer_.setProperty(ent, TransformComponent_Id, kTranslationId, translation);
-    writer_.setProperty(ent, MeshRendererComponent_Id, kVisibility, true);
-    writer_.setProperty(ent, MeshRendererComponent_Id, kCastShadow, true);
-
-    board_[square.index()] = ent;
-}
-
-void ChessPieceView::removePiece(core::Square square) {
-    const Entity e = board_[square.index()];
-    board_[square.index()] = Entity::Null();
-
-    writer_.setProperty(e, MeshRendererComponent_Id, kVisibility, false);
-    writer_.setProperty(e, MeshRendererComponent_Id, kCastShadow, false);
-}
-
-void ChessPieceView::movePiece(Square from, Square to) {
-    Entity ent = board_[from.index()];
-    DEV_ASSERT(ent.IsValid());
-
-    board_[from.index()] = Entity::Null();
-    board_[to.index()] = ent;
-
-    constexpr auto cid = TransformAnimationComponent_Id;
-    writer_.addComponent(ent, cid);
-    writer_.setProperty(ent, cid, "begin"_sid, squareToVec(from));
-    writer_.setProperty(ent, cid, "end"_sid, squareToVec(to));
-    writer_.setProperty(ent, cid, "duration"_sid, 0.25f);
-    writer_.setProperty(ent, cid, "playing"_sid, true);
-    writer_.setProperty(ent, cid, "destroy_on_finish"_sid, true);
-}
-
-void ChessPieceView::applyMove(const Position& position, Move move) {
-    const Square from = move.from();
-    const Square to = move.to();
-    const Color stm = position.SideToMove();
-
-    if (ecs::Entity captured_piece = entityAt(to); captured_piece.IsValid()) {
-        removePiece(to);
+    auto renderer = query.component<MeshRendererComponent>(ent);
+    if (DEV_VERIFY(renderer)) {
+        renderer->SetVisible(true);
+        renderer->SetCastShadow(true);
+    }
+    auto transform = query.component<TransformComponent>(ent);
+    if (DEV_VERIFY(transform)) {
+        transform->setTranslation(translation);
     }
 
-    movePiece(from, to);
+    m_board[square.index()] = ent;
+}
+
+void ChessPieceView::removePiece(SceneQuery& query,
+                                 Square square) {
+    const Entity ent = m_board[square.index()];
+    m_board[square.index()] = Entity::Null();
+
+    auto renderer = query.component<MeshRendererComponent>(ent);
+    if (DEV_VERIFY(renderer)) {
+        renderer->SetVisible(false);
+        renderer->SetCastShadow(false);
+    }
+}
+
+void ChessPieceView::movePiece(SceneQuery& query,
+                               Square from,
+                               Square to) {
+    Entity ent = m_board[from.index()];
+    DEV_ASSERT(ent.IsValid());
+
+    m_board[from.index()] = Entity::Null();
+    m_board[to.index()] = ent;
+
+    auto anim = query.addComponent<TransformAnimationComponent>(ent);
+    if (DEV_VERIFY(anim)) {
+        anim->begin = squareToVec(from);
+        anim->end = squareToVec(to);
+        anim->duration = 0.25f;
+        anim->playing = true;
+        anim->destroy_on_finish = true;
+    }
+}
+
+void ChessPieceView::applyMove(SceneQuery& query,
+                               const Position& position,
+                               Move move) {
+    const Square from = move.from();
+    const Square to = move.to();
+    const Color stm = position.sideToMove();
+
+    if (ecs::Entity captured_piece = entityAt(to); captured_piece.IsValid()) {
+        removePiece(query, to);
+    }
+
+    movePiece(query, from, to);
 
     switch (move.type()) {
         case MoveType::Normal:
             break;
         case MoveType::Castling: {
             const auto [rook_from, rook_to] = castleRookMove(from, to);
-            movePiece(rook_from, rook_to);
+            movePiece(query, rook_from, rook_to);
         } break;
         case MoveType::Enpassant: {
-            removePiece(enpassantCapturedSquare(from, to));
+            removePiece(query, EnpassantCapturedSquare(from, to));
         } break;
         case MoveType::Promotion: {
-            removePiece(to);  // remove pawn
+            removePiece(query, to);  // remove pawn
             const PieceType promo_type = move.promo().unwrap();
             const Piece promoted = BuildPiece(promo_type, stm);
-            spawnPiece(promoted, to);
+            spawnPiece(query, promoted, to);
         } break;
     }
 }

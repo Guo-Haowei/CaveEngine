@@ -6,15 +6,15 @@
 
 namespace cave {
 
-class IHostServices;
+struct SceneContext;
 
 class IGameMode {
 public:
     virtual ~IGameMode() = default;
 
-    virtual void onEnter(IHostServices& host) = 0;
-    virtual void onExit(IHostServices& host) = 0;
-    virtual void tick(IHostServices& host, const FrameTime& time) = 0;
+    virtual void onEnter(SceneContext& host) = 0;
+    virtual void onExit() = 0;
+    virtual void tick(SceneContext& host, float dt) = 0;
 };
 
 }  // namespace cave
