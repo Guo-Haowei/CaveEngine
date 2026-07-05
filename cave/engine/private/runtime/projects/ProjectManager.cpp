@@ -24,7 +24,6 @@ void ProjectManager::loadProject(const ProjectInfo& project) {
     fs::path resource_folder = fs::path(project.project_root) / "resources";
     vfs_.Mount("@res", resource_folder);
 
-    LOG_INFO(LogChannel::Asset, "+ @{}", resource_folder.string());
     boot_load_pipeline_.requestProject(resource_folder);
 
     project_ = Some(project);

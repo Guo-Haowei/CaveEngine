@@ -47,22 +47,25 @@ Workspace::~Workspace() {
 
 void Workspace::restoreProjectWorkspace() {
     ProjectManager& project_mgr = m_engine_services.projectManager();
+    DocumentService& document = m_editor_services.document();
+
     loadWorkspaceState(project_mgr.projectRoot());
 
-    // open documents
-    Option<DocId> active_doc_id;
+    Option<OpenDocDesc> active_doc;
     for (const TabState& tab : m_workspace_state.tabs) {
         if (auto handle = m_engine_services.assetRegistry().findByGuid(tab.guid); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
-            DocId doc_id = m_editor_services.document().openDoc({ handle_.guid(), handle_.meta()->type });
-            if (tab.active) {
-                active_doc_id = Some(doc_id);
+            OpenDocDesc desc{ handle_.guid(), handle_.meta()->type };
+            if (tab.active && active_doc.is_none()) {
+                active_doc = Some(desc);
+                continue;
             }
+            document.openDoc(desc);
         }
     }
 
-    if (active_doc_id.is_some()) {
-        requestOpen(active_doc_id.unwrap_unchecked());
+    if (active_doc.is_some()) {
+        document.openDoc(active_doc.unwrap_unchecked());
     }
 }
 
