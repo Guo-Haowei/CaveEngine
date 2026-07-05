@@ -50,18 +50,19 @@ void Workspace::restoreProjectWorkspace() {
     loadWorkspaceState(project_mgr.projectRoot());
 
     // open documents
-    Option<DocId> doc_id;
+    Option<DocId> active_doc_id;
     for (const TabState& tab : m_workspace_state.tabs) {
         if (auto handle = m_engine_services.assetRegistry().findByGuid(tab.guid); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
+            DocId doc_id = m_editor_services.document().openDoc({ handle_.guid(), handle_.meta()->type });
             if (tab.active) {
-                doc_id = Some(m_editor_services.document().openDoc({ handle_.guid(), handle_.meta()->type }));
+                active_doc_id = Some(doc_id);
             }
         }
     }
 
-    if (doc_id.is_some()) {
-        requestOpen(doc_id.unwrap_unchecked());
+    if (active_doc_id.is_some()) {
+        requestOpen(active_doc_id.unwrap_unchecked());
     }
 }
 
