@@ -57,6 +57,7 @@ SceneContext PIESession::makeSceneContext(Scene& scene) {
         .scene = scene,
         .scene_transition = *this,
         .query = SceneQuery(scene),
+        .view_id = {},
         .engine_services = m_engine_services,
     };
 }
@@ -98,14 +99,6 @@ void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
     Scene* pie_scene = beginPIEScene(scene_reg.resolve(scene_id));
     if (DEV_VERIFY(pie_scene)) {
-        if (m_game_module) {
-#if 0
-            m_host = std::make_unique<PIEHostServices>(m_engine_services, *pie_scene, view_id);
-            m_game_module->onGameBegin(*m_host);
-            m_host->flushSceneCommands();
-#endif
-        }
-
         m_running = true;
     }
 }
