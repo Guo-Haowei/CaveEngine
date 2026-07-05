@@ -25,6 +25,7 @@ enum class CloseDecision {
 };
 
 struct TabState {
+    bool active;
     Guid guid;
     Option<CameraComponent> camera;
     Option<TransformComponent> transform;

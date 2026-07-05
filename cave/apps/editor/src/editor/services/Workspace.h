@@ -48,8 +48,8 @@ public:
     void requestOpen(DocId doc_id);
     void requestClose(DocId doc_id);
 
-    TabId focusedTabId() const { return focused_tab_; }
-    Tab* focusedTab() { return resolve(focused_tab_); }
+    TabId focusedTabId() const { return m_focused_tab; }
+    Tab* focusedTab() { return resolve(m_focused_tab); }
 
     DocId focusedDoc();
 
@@ -61,12 +61,12 @@ public:
 
     void onEvents(const InputFrame& input) override;
     int priority() const override { return 10; }
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
     void onAssetChanged(const Guid& changed, std::span<const Guid> affected);
 
-    WorkspaceState& workspaceState() { return workspace_state_; }
-    const WorkspaceState& workspaceState() const { return workspace_state_; }
+    WorkspaceState& workspaceState() { return m_workspace_state; }
+    const WorkspaceState& workspaceState() const { return m_workspace_state; }
 
     void restoreProjectWorkspace();
 
@@ -80,17 +80,17 @@ private:
     void saveWorkspaceState();
 
     EditorState& editor_;
-    EngineServices& engine_services_;
-    EditorServices& editor_services_;
-    const DebugId debug_id_;
+    EngineServices& m_engine_services;
+    EditorServices& m_editor_services;
+    const DebugId m_debug_id;
 
-    TabId focused_tab_{};
-    TabId request_focus_{};
+    TabId m_focused_tab{};
+    TabId m_request_focus{};
 
-    std::unordered_map<DocId, TabId> doc_to_tab_;
-    std::unordered_map<Guid, TabId> guid_to_tab_;
+    std::unordered_map<DocId, TabId> m_doc_to_tab;
+    std::unordered_map<Guid, TabId> m_guid_to_tab;
 
-    WorkspaceState workspace_state_;
+    WorkspaceState m_workspace_state;
 };
 
 }  // namespace cave
