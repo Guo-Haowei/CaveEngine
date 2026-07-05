@@ -1,4 +1,5 @@
 #pragma once
+
 #include "EnemyControllerBase.h"
 
 #include "Utility.h"
@@ -35,7 +36,7 @@ private:
 private:
     SpiderState m_state = SpiderState::Idle;
 
-    math::Vec2f m_detect_range{ 5, 5 };
+    cave::math::Vec2f m_detect_range{ 5, 5 };
 
     CountdownTimer m_wait_timer{ 1.0f };
 

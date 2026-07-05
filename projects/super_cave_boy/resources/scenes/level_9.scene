@@ -1,5 +1,5 @@
 version: 19
-seed: 75
+seed: 92
 root: 1
 entities:
   - id: 1
@@ -158,7 +158,7 @@ entities:
         scale: [1, 1, 1]
   - id: 75
     NameComponent:
-      name: exit
+      name: exit-01
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
@@ -170,5 +170,21 @@ entities:
     PrefabOverride:
       TransformComponent:
         translation: [34.5, 2.5, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 92
+    NameComponent:
+      name: entrance-01
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
+    PrefabOverride:
+      TransformComponent:
+        translation: [3, 3.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]

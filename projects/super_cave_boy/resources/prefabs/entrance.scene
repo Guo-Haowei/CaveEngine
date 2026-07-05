@@ -1,0 +1,29 @@
+version: 19
+seed: 2
+root: 1
+entities:
+  - id: 1
+    NameComponent:
+      name: entrance
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: sprite
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0.25, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1.5, 1.5, 1]
+    SpriteRendererComponent:
+      image_id: 900112E5-AECA-0049-A2A2B565F78CCA67
+      tint_color: [1, 1, 1, 1]
+      rect:
+        min: [0, 1]
+        max: [1, 0]
+      flip_x: false
+      flip_y: false
+      z_index: -1
