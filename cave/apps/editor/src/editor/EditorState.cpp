@@ -53,19 +53,29 @@ EditorState::EditorState(IApplication& app)
     EngineServices& app_services = app.services();
 
     // services
-    document_ = std::make_unique<DocumentService>(app_services,
-                                                  services_);
-    edit_ = std::make_unique<EditService>(app_services,
-                                          services_);
-    picking_ = std::make_unique<PickingService>(app_services,
-                                                services_);
+    document_ = std::make_unique<DocumentService>(app_services, services_);
+    services_.document_ = document_.get();
+
+    edit_ = std::make_unique<EditService>(app_services, services_);
+    services_.edit_ = edit_.get();
+
+    picking_ = std::make_unique<PickingService>(app_services, services_);
+    services_.picking_ = picking_.get();
+
     thumbnail_ = std::make_unique<ThumbnailService>(app_services);
-    icon_cache_ = std::make_unique<IconCache>(app_services.assetRegistry(),
-                                              app_services.assetManager());
+    services_.thumbnail_ = thumbnail_.get();
+
+    icon_cache_ = std::make_unique<IconCache>(app_services.assetRegistry(), app_services.assetManager());
+    services_.icon_cache_ = icon_cache_.get();
 
     selection_ = std::make_unique<SelectionService>(*this);
+    services_.selection_ = selection_.get();
+
     shortcut_ = std::make_unique<ShortcutService>(*this);
+    services_.shortcut_ = shortcut_.get();
+
     workspace_ = std::make_unique<Workspace>(*this);
+    services_.workspace_ = workspace_.get();
 
     // panels
     content_browser_ = std::make_shared<ContentBrowser>(*this);
@@ -74,15 +84,6 @@ EditorState::EditorState(IApplication& app)
     file_system_panel_ = std::make_shared<FileSystemPanel>(*this);
     asset_inspector_ = std::make_shared<AssetInspector>(*this,
                                                         services_);
-
-    services_.document_ = document_.get();
-    services_.edit_ = edit_.get();
-    services_.icon_cache_ = icon_cache_.get();
-    services_.picking_ = picking_.get();
-    services_.selection_ = selection_.get();
-    services_.shortcut_ = shortcut_.get();
-    services_.thumbnail_ = thumbnail_.get();
-    services_.workspace_ = workspace_.get();
 
     addPanel(log_panel_);
     addPanel(asset_inspector_);
@@ -93,6 +94,8 @@ EditorState::EditorState(IApplication& app)
     addPanel(file_system_panel_);
 
     static_cast<EditorAssetManager&>(app_services.assetManager()).setEditorServices(&services_);
+
+    workspace_->restoreProjectWorkspace();
 }
 
 EditorState::~EditorState() {
@@ -109,7 +112,7 @@ void EditorState::onEnter(const StateRequest& request) {
     }
 
     SceneId edit_scene{};
-    if (!request.arg1.empty()) {
+    if (request.arg1.empty()) {
         if (auto handle = app_.services().assetRegistry().findByPath(request.arg1); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
             DocId doc_id = document_->openDoc({ handle_.guid(), handle_.meta()->type });

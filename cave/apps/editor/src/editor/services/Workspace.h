@@ -64,6 +64,8 @@ public:
     WorkspaceState& workspaceState() { return workspace_state_; }
     const WorkspaceState& workspaceState() const { return workspace_state_; }
 
+    void restoreProjectWorkspace();
+
 private:
     void openOrFocusDoc(DocId doc_id);
     void drawTabs();
@@ -74,7 +76,7 @@ private:
     void saveWorkspaceState();
 
     EditorState& editor_;
-    EngineServices& app_services_;
+    EngineServices& engine_services_;
     EditorServices& editor_services_;
     const DebugId debug_id_;
 

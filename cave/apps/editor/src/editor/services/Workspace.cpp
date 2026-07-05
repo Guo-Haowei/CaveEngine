@@ -20,6 +20,7 @@
 // @TODO: refactor
 #include "editor/panels/SceneViewTab.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 
@@ -27,24 +28,35 @@ namespace fs = std::filesystem;
 
 Workspace::Workspace(EditorState& editor)
     : editor_(editor)
-    , app_services_(editor.app().services())
+    , engine_services_(editor.app().services())
     , editor_services_(editor.services())
     , debug_id_(MakeDebugId(this)) {
-    app_services_.inputService().addConsumer(this);
-    app_services_.intentDispatcher().addHandler<OpenDocIntent>(this);
-    app_services_.intentDispatcher().addHandler<CloseDocIntent>(this);
-
-    ProjectManager& project_mgr = app_services_.projectManager();
-    loadWorkspaceState(project_mgr.projectRoot());
+    engine_services_.inputService().addConsumer(this);
+    engine_services_.intentDispatcher().addHandler<OpenDocIntent>(this);
+    engine_services_.intentDispatcher().addHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
-    app_services_.inputService().removeConsumer(this);
-    app_services_.intentDispatcher().removeHandler<OpenDocIntent>(this);
-    app_services_.intentDispatcher().removeHandler<CloseDocIntent>(this);
+    engine_services_.inputService().removeConsumer(this);
+    engine_services_.intentDispatcher().removeHandler<OpenDocIntent>(this);
+    engine_services_.intentDispatcher().removeHandler<CloseDocIntent>(this);
 
     refreshTabStates();
     saveWorkspaceState();
+}
+
+void Workspace::restoreProjectWorkspace() {
+    ProjectManager& project_mgr = engine_services_.projectManager();
+    loadWorkspaceState(project_mgr.projectRoot());
+
+    // open documents
+    for (const TabState& tab : workspace_state_.tabs) {
+        if (auto handle = engine_services_.assetRegistry().findByGuid(tab.guid); handle.is_some()) {
+            AssetHandle handle_ = handle.unwrap_unchecked();
+            DocId doc_id = editor_services_.document().openDoc({ handle_.guid(), handle_.meta()->type });
+            unused(doc_id);
+        }
+    }
 }
 
 void Workspace::tick() {
@@ -67,17 +79,17 @@ PreviewScene Workspace::focusedPreviewScene() {
     ret.doc_id = focusedDoc();
     if (IDocument* doc = editor_services_.document().resolve(ret.doc_id)) {
         ret.scene_id = doc->previewScene();
-        ret.scene = app_services_.sceneRegistry().resolve(ret.scene_id);
+        ret.scene = engine_services_.sceneRegistry().resolve(ret.scene_id);
     }
     return ret;
 }
 
 void Workspace::requestOpen(DocId doc_id) {
-    app_services_.intentDispatcher().queue<OpenDocIntent>(doc_id);
+    engine_services_.intentDispatcher().queue<OpenDocIntent>(doc_id);
 }
 
 void Workspace::requestClose(DocId doc_id) {
-    app_services_.intentDispatcher().queue<CloseDocIntent>(doc_id);
+    engine_services_.intentDispatcher().queue<CloseDocIntent>(doc_id);
 }
 
 void Workspace::drawTabs() {
@@ -157,7 +169,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         return;
     }
 
-    ProjectManager& project_mgr = app_services_.projectManager();
+    ProjectManager& project_mgr = engine_services_.projectManager();
     const ViewDimension dim = project_mgr.project().is_2d ? ViewDimension::Dim2 : ViewDimension::Dim3;
 
     std::unique_ptr<Tab> tab;
@@ -367,7 +379,7 @@ bool Workspace::loadWorkspaceState(std::string_view project_root) {
 }
 
 void Workspace::saveWorkspaceState() {
-    ProjectManager& project_mgr = app_services_.projectManager();
+    ProjectManager& project_mgr = engine_services_.projectManager();
     const fs::path path = WorkspaceFilePath(project_mgr.projectRoot());
 
     if (!EnsureParentDirExists(path)) {
