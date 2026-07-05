@@ -137,7 +137,7 @@ void ShortcutService::initShortcuts() {
         "Start Debugging",
         "F5",
         // @TODO: move RequestModeSwitch away from editor
-        [this]() { editor_.RequestModeSwitch(); },
+        [this]() { editor_.requestModeSwitch(); },
         []() { return true; },
     };
 

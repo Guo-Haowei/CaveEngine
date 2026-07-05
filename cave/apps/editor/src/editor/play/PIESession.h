@@ -6,9 +6,10 @@
 #include "cave/game/GameModuleHandle.h"
 #include "cave/runtime/framework/EngineServices.h"
 
-#include "engine/private/runtime/scene/SceneScheduler.h"
-
 #include "editor/play/PIEHostServices.h"
+
+// @TODO: refactor
+#include "engine/private/runtime/scene/SceneOwner.h"
 
 namespace cave {
 
@@ -34,12 +35,12 @@ public:
 
     void tick(const FrameTime& time);
 
-    bool running() const { return running_; }
-    SceneId getPIESceneId() const { return pie_scene_; }
+    bool running() const { return m_running; }
+    SceneId getPIESceneId() const { return m_pie_scene; }
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
 
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     bool ensureGameModuleLoaded();
@@ -51,19 +52,19 @@ private:
     void commitSceneChange(std::string&& path) override;
     void commitSceneReload() override {}
 
-    EngineServices& services_;
-    const DebugId debug_id_;
+    EngineServices& m_engine_services;
+    const DebugId m_debug_id;
 
-    bool running_{ false };
+    bool m_running{ false };
 
-    PIEStartDesc start_desc_{};
+    PIEStartDesc m_start_desc{};
 
-    GameModuleHandle game_module_handle_;
-    IGameModule* game_module_{ nullptr };
+    GameModuleHandle m_game_module_handle;
+    IGameModule* m_game_module{};
 
-    std::unique_ptr<PIEHostServices> host_;
+    std::unique_ptr<PIEHostServices> m_host;
 
-    SceneId pie_scene_{};
+    SceneId m_pie_scene{};
 };
 
 }  // namespace cave

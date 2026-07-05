@@ -82,8 +82,7 @@ EditorState::EditorState(IApplication& app)
     menu_bar_ = std::make_shared<MenuBar>(*this);
     log_panel_ = std::make_shared<LogPanel>(*this);
     file_system_panel_ = std::make_shared<FileSystemPanel>(*this);
-    asset_inspector_ = std::make_shared<AssetInspector>(*this,
-                                                        services_);
+    asset_inspector_ = std::make_shared<AssetInspector>(*this);
 
     addPanel(log_panel_);
     addPanel(asset_inspector_);
@@ -99,7 +98,7 @@ EditorState::EditorState(IApplication& app)
 }
 
 EditorState::~EditorState() {
-    m_panels.clear();
+    panels_.clear();
 }
 
 void EditorState::onEnter(const StateRequest& request) {
@@ -107,12 +106,13 @@ void EditorState::onEnter(const StateRequest& request) {
 
     ImNodes::CreateContext();
 
-    for (auto& panel : m_panels) {
+    for (auto& panel : panels_) {
         panel->onAttach();
     }
 
+    // @TODO: get rid of this part
     SceneId edit_scene{};
-    if (request.arg1.empty()) {
+    if (!request.arg1.empty()) {
         if (auto handle = app_.services().assetRegistry().findByPath(request.arg1); handle.is_some()) {
             AssetHandle handle_ = handle.unwrap_unchecked();
             DocId doc_id = document_->openDoc({ handle_.guid(), handle_.meta()->type });
@@ -134,13 +134,13 @@ void EditorState::onEnter(const StateRequest& request) {
 void EditorState::onExit() {
     CAVE_PROFILE_EVENT();
 
-    if (IsPlaying()) {
+    if (isPlaying()) {
         LOG_INFO("@TODO: stop game module");
     }
 
     ImNodes::DestroyContext();
 
-    for (auto& panel : m_panels) {
+    for (auto& panel : panels_) {
         panel->onDetach();
     }
 
@@ -153,7 +153,7 @@ void EditorState::tick(const FrameTime& p_time) {
     BusyInfo info;
     thumbnail_->tick(p_time, info);
 
-    if (IsPlaying()) {
+    if (isPlaying()) {
         pie_.tick(p_time);
     }
 
@@ -164,7 +164,7 @@ void EditorState::tick(const FrameTime& p_time) {
     imgui_manager->BeginFrame();
 
     dockSpace();
-    for (auto& panel : m_panels) {
+    for (auto& panel : panels_) {
         panel->drawUI();
     }
 
@@ -175,7 +175,7 @@ void EditorState::tick(const FrameTime& p_time) {
     commitModeSwitch();
 }
 
-void EditorState::RequestModeSwitch() {
+void EditorState::requestModeSwitch() {
     switch_mode_requested_ = true;
 }
 
@@ -208,7 +208,7 @@ void EditorState::commitModeSwitch() {
 }
 
 void EditorState::addPanel(std::shared_ptr<IEditorItem> p_panel) {
-    m_panels.emplace_back(std::move(p_panel));
+    panels_.emplace_back(std::move(p_panel));
 }
 
 void EditorState::dockSpace() {

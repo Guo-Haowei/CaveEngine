@@ -1,3 +1,4 @@
+#pragma once
 #include "cave/runtime/scene/ISceneTransitionRequests.h"
 
 namespace cave {

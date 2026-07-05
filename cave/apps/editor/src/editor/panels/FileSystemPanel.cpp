@@ -29,7 +29,7 @@ const char* FileSystemPanel::windowId() const {
 }
 
 void FileSystemPanel::onAttach() {
-    root_ = engine_services_.vfs().GetMount("@res");
+    root_ = m_engine_services.vfs().GetMount("@res");
 }
 
 void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
@@ -57,7 +57,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
         if (ui::TextBox(nullptr, buffer.data(), (uint32_t)buffer.size())) {
             fs::path to_path = renaming_.parent_path();
             to_path = to_path / buffer.c_str();
-            engine_services_.assetManager().renameAssetOrFolder(renaming_, to_path);
+            m_engine_services.assetManager().renameAssetOrFolder(renaming_, to_path);
             renaming_ = "";
         }
         if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(0)) {
@@ -69,7 +69,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
         const bool hovered = ImGui::IsItemHovered();
 
         if (ImGui::BeginPopupContextItem()) {
-            ShowPopup(entry, editor_services_.document(), [&]() {
+            ShowPopup(entry, m_editor_services.document(), [&]() {
                 renaming_ = entry.sys_path;
             });
             ImGui::EndPopup();
@@ -82,7 +82,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
         DragDropTargetFolder(entry, asset_manager.folderLut());
 
         if (hovered) {
-            ShowAssetToolTip(editor_services_.thumbnail(), entry);
+            ShowAssetToolTip(m_editor_services.thumbnail(), entry);
         }
     }
 

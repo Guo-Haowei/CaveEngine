@@ -8,6 +8,8 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+namespace {
+
 struct DragPayload {
     DragKind kind;
     ecs::Entity entity;
@@ -16,34 +18,45 @@ struct DragPayload {
     char path[256]{ 0 };
 };
 
-static DragPayload MakePayloadFolder(const ContentEntry& p_entry) {
+DragPayload MakePayloadFolder(const ContentEntry& entry) {
     DragPayload payload;
     payload.kind = DragKind::Folder,
     strncpy(payload.path,
-            p_entry.sys_path.string().c_str(),
+            entry.sys_path.string().c_str(),
             sizeof(payload.path) - 1);
 
     return payload;
 }
 
-static DragPayload MakePayloadAsset(const ContentEntry& p_entry) {
+DragPayload MakePayloadAsset(const ContentEntry& entry) {
     DragPayload payload;
     payload.kind = DragKind::Asset;
-    payload.type = p_entry.type;
-    payload.guid = p_entry.handle.guid();
+    payload.type = entry.type;
+    payload.guid = entry.handle.guid();
     strncpy(payload.path,
-            p_entry.sys_path.string().c_str(),
+            entry.sys_path.string().c_str(),
             sizeof(payload.path) - 1);
 
     return payload;
 }
 
-Option<AssetHandle> DragDropTarget(AssetType p_mask) {
+bool IsChild(const ContentEntry* node1, const ContentEntry* node2) {
+    for (const ContentEntry* cursor = node1; cursor; cursor = cursor->parent) {
+        if (cursor == node2) {
+            return true;
+        }
+    }
+    return false;
+}
+
+}  // namespace
+
+Option<AssetHandle> DragDropTarget(AssetType mask) {
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_ASSET)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
             DEV_ASSERT(data.kind == DragKind::Asset);
-            auto handle = AssetRegistry::singleton().findByGuid(data.guid, p_mask);
+            auto handle = AssetRegistry::singleton().findByGuid(data.guid, mask);
             if (handle.is_some()) {
                 return Some(handle.unwrap_unchecked());
             }
@@ -54,35 +67,26 @@ Option<AssetHandle> DragDropTarget(AssetType p_mask) {
     return None();
 }
 
-static bool IsChild(const ContentEntry* p_node1, const ContentEntry* p_node2) {
-    for (const ContentEntry* cursor = p_node1; cursor; cursor = cursor->parent) {
-        if (cursor == p_node2) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void DragDropSourceContentEntry(const ContentEntry& p_source) {
-    if (p_source.virtual_path != "@res://") {
+void DragDropSourceContentEntry(const ContentEntry& source) {
+    if (source.virtual_path != "@res://") {
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-            if (p_source.is_dir) {
-                DragPayload payload = MakePayloadFolder(p_source);
+            if (source.is_dir) {
+                DragPayload payload = MakePayloadFolder(source);
                 SetPayload(PAYLOAD_FOLDER, payload);
             } else {
-                DragPayload payload = MakePayloadAsset(p_source);
+                DragPayload payload = MakePayloadAsset(source);
                 SetPayload(PAYLOAD_ASSET, payload);
             }
-            ImGui::Text("%s", p_source.virtual_path.c_str());
+            ImGui::Text("%s", source.virtual_path.c_str());
             ImGui::EndDragDropSource();
         }
     }
 }
 
-void DragDropTargetFolder(const ContentEntry& p_target,
-                          const std::unordered_map<std::string, const ContentEntry*>& p_lut) {
+void DragDropTargetFolder(const ContentEntry& target,
+                          const std::unordered_map<std::string, const ContentEntry*>& lut) {
 
-    if (!p_target.is_dir) {
+    if (!target.is_dir) {
         return;
     }
 
@@ -93,15 +97,15 @@ void DragDropTargetFolder(const ContentEntry& p_target,
 
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_FOLDER)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
-            auto it = p_lut.find(std::string(data.path));
-            DEV_ASSERT(it != p_lut.end());
+            auto it = lut.find(std::string(data.path));
+            DEV_ASSERT(it != lut.end());
             const ContentEntry* moved = it->second;
-            const bool is_child = IsChild(&p_target, moved);
+            const bool is_child = IsChild(&target, moved);
             if (is_child) {
-                LOG_ERROR("can't move '{}' to '{}'", moved->virtual_path, p_target.virtual_path);
+                LOG_ERROR("can't move '{}' to '{}'", moved->virtual_path, target.virtual_path);
             } else {
                 fs::path old_path = moved->sys_path;
-                fs::path new_path = p_target.sys_path / moved->file_name;
+                fs::path new_path = target.sys_path / moved->file_name;
                 fs::rename(old_path, new_path);
             }
         }

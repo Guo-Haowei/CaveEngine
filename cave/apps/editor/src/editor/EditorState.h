@@ -36,8 +36,8 @@ public:
 
     Option<StateRequest> popRequest() override { return None(); }
 
-    void RequestModeSwitch();
-    bool IsPlaying() const { return mode_ == Mode::Playing; }
+    void requestModeSwitch();
+    bool isPlaying() const { return mode_ == Mode::Playing; }
 
 #if USING(DEBUG_BUILD)
     DebugId debugId() const override { return debug_id_; }
@@ -80,7 +80,7 @@ private:
     std::shared_ptr<MenuBar> menu_bar_;
 
     EditorServices services_;
-    std::vector<std::shared_ptr<IEditorItem>> m_panels;
+    std::vector<std::shared_ptr<IEditorItem>> panels_;
     const DebugId debug_id_;
 };
 

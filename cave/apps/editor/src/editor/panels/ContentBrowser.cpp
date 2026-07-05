@@ -75,10 +75,10 @@ const char* ContentBrowser::windowId() const {
 }
 
 void ContentBrowser::onAttach() {
-    std::string_view current_path = editor_services_.workspace().workspaceState().content_browser.current_path;
+    std::string_view current_path = m_editor_services.workspace().workspaceState().content_browser.current_path;
     current_path_ = SplitVirtualPath(current_path);
 
-    IconCache& icons = editor_services_.iconCache();
+    IconCache& icons = m_editor_services.iconCache();
     folder_iamge_ = icons.GetIconHandle(IconName::Folder);
     fallback_iamge_ = icons.GetIconHandle(IconName::Meta);
     thumbnail_lut_[".scene"] = icons.GetIconHandle(IconName::Scene);
@@ -91,7 +91,7 @@ void ContentBrowser::onAttach() {
 }
 
 void ContentBrowser::onDetach() {
-    editor_services_.workspace().workspaceState().content_browser.current_path = JoinVirtualPath(current_path_);
+    m_editor_services.workspace().workspaceState().content_browser.current_path = JoinVirtualPath(current_path_);
 }
 
 void ContentBrowser::drawUIImpl() {
@@ -190,7 +190,7 @@ void ContentBrowser::drawContentBrowser() {
 
     constexpr uint32_t thumbnail_size = 256;
 
-    ThumbnailService& thumbnail = editor_services_.thumbnail();
+    ThumbnailService& thumbnail = m_editor_services.thumbnail();
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
         if (p_entry.is_dir) return folder_iamge_;
         const AssetMetaData* meta = p_entry.handle.meta();
@@ -222,7 +222,7 @@ void ContentBrowser::drawContentBrowser() {
                                                 node->file_name.data(),
                                                 math::Vec2f(thumbnail_size));
         if (ImGui::BeginPopupContextItem()) {
-            ShowPopup(*node, editor_services_.document(), []() {
+            ShowPopup(*node, m_editor_services.document(), []() {
                 LOG_WARN("TODO: rename");
             });
             ImGui::EndPopup();

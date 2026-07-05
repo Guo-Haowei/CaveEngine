@@ -12,7 +12,7 @@
 namespace cave {
 
 void MenuBar::drawUI() {
-    const auto& shortcuts = editor_services_.shortcut().getShortcuts();
+    const auto& shortcuts = m_editor_services.shortcut().getShortcuts();
     auto build_menu_item = [&](Shortcut p_index) {
         const auto& it = shortcuts[std ::to_underlying(p_index)];
         const bool enabled = it.enabled_func ? it.enabled_func() : true;

@@ -4,13 +4,15 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
-#include "engine/private/ui/inputs.h"
 #include "editor/services/IconCache.h"
+#include "editor/services/EditorServices.h"
 
 // @TODO: refactor
+#include "engine/private/ui/inputs.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -46,19 +48,19 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorState& editor,
                                              DocId doc_id,
                                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
-    , debug_id_(MakeDebugId(this)) {
+    , m_debug_id(MakeDebugId(this)) {
 
     // @TODO:
     // ICON_FA_FORWARD;
     // ICON_FA_BACKWARD;
-    play_button_ = { ICON_FA_PLAY, "Play animation",
-                     [this]() {
-                         last_req_ = Request::Play;
-                     } };
-    pause_button_ = { ICON_FA_PAUSE, "Pause animation",
+    m_play_button = { ICON_FA_PLAY, "Play animation",
                       [this]() {
-                          last_req_ = Request::Pause;
+                          m_last_req = Request::Play;
                       } };
+    m_pause_button = { ICON_FA_PAUSE, "Pause animation",
+                       [this]() {
+                           m_last_req = Request::Pause;
+                       } };
 }
 
 void SpriteAnimationEditor::onCreate() {
@@ -74,7 +76,7 @@ void SpriteAnimationEditor::submitView() {
 }
 
 void SpriteAnimationEditor::drawUIImpl() {
-    ViewRecord* view = view_manager_.resolve(view_id_);
+    ViewRecord* view = m_view_manager.resolve(m_view_id);
     DEV_ASSERT(view);
 
     updateRect(view->display_rect_os);
@@ -89,7 +91,7 @@ void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
 
     auto image_handle = sprite_animation->imageHandle();
 
-    IconCache& icons = editor_services_.iconCache();
+    IconCache& icons = m_editor_services.iconCache();
 
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Animation")) {
@@ -100,7 +102,7 @@ void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
     }
 
     ImGui::Separator();
-    sprite_selector_.EditSprite(nullptr, nullptr);
+    m_sprite_selector.EditSprite(nullptr, nullptr);
 
     if (ImageAsset* image = image_handle.get()) {
         ImGui::Separator();
@@ -121,18 +123,19 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
     const auto& button_active = colors[ImGuiCol_ButtonActive];
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
-    selected_clip_.resize(128);
-    ui::TextBox("name", selected_clip_.data(), (uint32_t)selected_clip_.size(), true);
+    m_selected_clip.resize(128);
+    ui::TextBox("name", m_selected_clip.data(), (uint32_t)m_selected_clip.size(), true);
 
     ImGui::SameLine();
 
     if (ImGui::Button(ICON_FA_SQUARE_PLUS "  Add Animation")) {
-        const auto [w, h] = sprite_selector_.GetDim();
+        const auto [w, h] = m_sprite_selector.GetDim();
         const float inv_w = 1.0f / w;
         const float inv_h = 1.0f / h;
-        const auto& frame_indices = sprite_selector_.GetSelections();
+        const auto& frame_indices = m_sprite_selector.GetSelections();
         std::vector<Box2> frames;
         frames.reserve(frame_indices.size());
+        // @TODO: refactor this part
         for (const auto [x, y] : frame_indices) {
 #if 0
             const float u0 = (x + 0) * inv_w;
@@ -149,10 +152,10 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
             frames.push_back({ { u0, v0 }, { u1, v1 } });
         }
 
-        if (!selected_clip_.empty() && !frames.empty()) {
-            anim.addClip(std::move(selected_clip_), std::move(frames));
-            selected_clip_.clear();
-            sprite_selector_.ClearSelections();
+        if (!m_selected_clip.empty() && !frames.empty()) {
+            anim.addClip(std::move(m_selected_clip), std::move(frames));
+            m_selected_clip.clear();
+            m_sprite_selector.ClearSelections();
         }
     }
 
@@ -166,7 +169,7 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
 
     ImGui::Dummy(ImVec2(8, 8));
 
-    sprite_selector_.SelectSprite(image_asset, nullptr, nullptr);
+    m_sprite_selector.SelectSprite(image_asset, nullptr, nullptr);
 
     ImGui::PopStyleVar(2);
 
@@ -207,7 +210,7 @@ std::string SpriteAnimationEditor::selectAnimation(SpriteAnimationAsset& anim,
 }
 void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& doc) {
     SceneId scene_id = doc.previewScene();
-    Scene* scene = engine_services_.sceneRegistry().resolve(scene_id);
+    Scene* scene = m_engine_services.sceneRegistry().resolve(scene_id);
     DEV_ASSERT(scene);
 
     auto ent = scene->findFirstByName("animation");
@@ -226,22 +229,22 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     ImGui::NextColumn();
 
     std::vector<const ToolBarButtonDesc*> buttons = {
-        animator->playing() ? &pause_button_ : &play_button_
+        animator->playing() ? &m_pause_button : &m_play_button
     };
 
     DrawToolBar(buttons);
 
-    if (last_req_ == Request::Play) {
+    if (m_last_req == Request::Play) {
         animator->playing(true);
-        last_req_ = Request::None;
-    } else if (last_req_ == Request::Pause) {
+        m_last_req = Request::None;
+    } else if (m_last_req == Request::Pause) {
         animator->playing(false);
-        last_req_ = Request::None;
+        m_last_req = Request::None;
     }
 
     ImGui::Columns(1);
 
-    // time line
+    // @TODO: time line
     if (const SpriteAnimationClip* clip = anim.tryGetClip(animator->currentClip())) {
         float playback = animator->playbackTimer();
         if (ImGui::SliderFloat("timeline", &playback, 0.0f, clip->totalDuration())) {

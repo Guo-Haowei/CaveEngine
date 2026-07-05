@@ -18,16 +18,16 @@ enum class DragKind : uint32_t {
     SceneNode,
 };
 
-Option<AssetHandle> DragDropTarget(AssetType p_mask);
+Option<AssetHandle> DragDropTarget(AssetType mask);
 
 template<class T>
-inline void SetPayload(const char* p_type, const T& pay_load) {
-    ImGui::SetDragDropPayload(p_type, &pay_load, sizeof(T), ImGuiCond_Once);
+inline void SetPayload(const char* type, const T& pay_load) {
+    ImGui::SetDragDropPayload(type, &pay_load, sizeof(T), ImGuiCond_Once);
 }
 
-void DragDropSourceContentEntry(const ContentEntry& p_source);
+void DragDropSourceContentEntry(const ContentEntry& source);
 
-void DragDropTargetFolder(const ContentEntry& p_target,
-                          const std::unordered_map<std::string, const ContentEntry*>& p_lut);
+void DragDropTargetFolder(const ContentEntry& target,
+                          const std::unordered_map<std::string, const ContentEntry*>& lut);
 
 }  // namespace cave

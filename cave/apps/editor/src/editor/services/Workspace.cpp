@@ -127,7 +127,7 @@ bool Workspace::handleIntent(Intent& intent) {
 }
 
 void Workspace::onEvents(const InputFrame& input) {
-    if (editor_.IsPlaying()) {
+    if (editor_.isPlaying()) {
         return;
     }
 

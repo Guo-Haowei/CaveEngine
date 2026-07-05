@@ -12,7 +12,7 @@ namespace cave {
 
 Tab::Tab(EditorState& editor, DocId doc_id)
     : EditorWindow(editor)
-    , doc_id_(doc_id) {}
+    , m_doc_id(doc_id) {}
 
 // @TODO: move to Dialog Service
 CloseDecision AskCloseUnsaved(const char* title) {
@@ -33,8 +33,8 @@ CloseDecision AskCloseUnsaved(const char* title) {
 }
 
 void Tab::drawUI() {
-    EditService& edit = editor_services_.edit();
-    if (const bool dirty = edit.isDirty(doc_id_)) {
+    EditService& edit = m_editor_services.edit();
+    if (const bool dirty = edit.isDirty(m_doc_id)) {
         flags_ |= ImGuiWindowFlags_UnsavedDocument;
     } else {
         flags_ &= ~ImGuiWindowFlags_UnsavedDocument;
@@ -49,7 +49,7 @@ void Tab::drawUI() {
     ImGui::End();
 
     if (!open) {
-        const bool dirty = edit.isDirty(doc_id_);
+        const bool dirty = edit.isDirty(m_doc_id);
         bool should_save = false;
         if (dirty) {
             switch (AskCloseUnsaved("Warning")) {
@@ -64,22 +64,22 @@ void Tab::drawUI() {
             }
         }
         if (should_save) {
-            edit.save(doc_id_);
+            edit.save(m_doc_id);
         }
 
-        editor_services_.workspace().requestClose(doc_id_);
+        m_editor_services.workspace().requestClose(m_doc_id);
     }
 }
 
 const char* Tab::windowId() const {
-    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    IDocument* doc = m_editor_services.document().resolve(m_doc_id);
     DEV_ASSERT(doc);
     AssetHandle handle = doc->rawHandle();
     const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
 
-    window_id_ = std::format("{}###WorkspaceTab{}", meta->name, tab_id_.index);
-    return window_id_.c_str();
+    m_window_id = std::format("{}###WorkspaceTab{}", meta->name, m_tab_id.index);
+    return m_window_id.c_str();
 }
 
 void Tab::onCreate() {
@@ -89,7 +89,7 @@ void Tab::onDestroy() {
 }
 
 bool Tab::tabState(TabState& out) const {
-    const IDocument* doc = editor_services_.document().resolve(doc_id_);
+    const IDocument* doc = m_editor_services.document().resolve(m_doc_id);
     DEV_ASSERT(doc);
     if (!doc) return false;
     out.guid = doc->guid();

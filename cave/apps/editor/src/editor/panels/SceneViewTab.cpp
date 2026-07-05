@@ -35,18 +35,19 @@ SceneViewTab::SceneViewTab(EditorState& editor,
                            SceneId scene_id,
                            ViewDimension dim)
     : ViewTabBase(editor, doc_id, scene_id, dim)
-    , debug_id_(MakeDebugId(this))
-    , button_displays_{ ICON_FA_PLAY, ICON_FA_PAUSE }
-    , button_tooltips_{ "Run Project", "Pause Project" } {
+    , m_editor(editor)
+    , m_debug_id(MakeDebugId(this))
+    , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
+    , m_button_tooltips{ "Run Project", "Pause Project" } {
 
-    play_button_ = {
+    m_play_button = {
         ICON_FA_PLAY,
         "Run Project",
         [this]() {
-            m_editor.RequestModeSwitch();
-            button_index_ = 1 - button_index_;
-            play_button_.display = button_displays_[button_index_];
-            play_button_.tooltip = button_tooltips_[button_index_];
+            m_editor.requestModeSwitch();
+            m_button_index = 1 - m_button_index;
+            m_play_button.display = m_button_displays[m_button_index];
+            m_play_button.tooltip = m_button_tooltips[m_button_index];
         }
     };
 }
@@ -59,28 +60,28 @@ void SceneViewTab::submitView() {
 void SceneViewTab::onCreate() {
     ViewTabBase::onCreate();
 
-    editor_services_.picking().addConsumer(this);
+    m_editor_services.picking().addConsumer(this);
 }
 
 void SceneViewTab::onDestroy() {
     ViewTabBase::onDestroy();
 
-    editor_services_.picking().removeConsumer(this);
+    m_editor_services.picking().removeConsumer(this);
 }
 
 Option<PickData> SceneViewTab::getPickData(const Vec2f& point_os) {
     if (!isVisible()) return None();
 
-    const ViewRecord* view = view_manager_.resolve(view_id_);
+    const ViewRecord* view = m_view_manager.resolve(m_view_id);
     if (!view->display_rect_os.Contains(point_os.x, point_os.y)) {
         return None();
     }
 
     return Some(PickData{
-        .proj_view = camera_.projectionViewMatrix(),
+        .proj_view = m_camera.projectionViewMatrix(),
         .cursor_ndc = view->screenToNDC(point_os),
-        .scene_id = preview_scene_id_,
-        .doc_id = doc_id_,
+        .scene_id = m_preview_scene_id,
+        .doc_id = m_doc_id,
     });
 }
 
@@ -89,7 +90,7 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    if (m_editor.IsPlaying()) {
+    if (m_editor.isPlaying()) {
         return;
     }
 
@@ -103,15 +104,15 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
             case InputEventType::ButtonDown: {
                 switch (static_cast<Key>(e.code)) {
                     case Key::Z: {
-                        gizmo_action_ = GizmoAction::Translate;
+                        m_gizmo_action = GizmoAction::Translate;
                         e.consumed = true;
                     } break;
                     case Key::X: {
-                        gizmo_action_ = GizmoAction::Rotate;
+                        m_gizmo_action = GizmoAction::Rotate;
                         e.consumed = true;
                     } break;
                     case Key::C: {
-                        gizmo_action_ = GizmoAction::Scale;
+                        m_gizmo_action = GizmoAction::Scale;
                         e.consumed = true;
                     } break;
                     default:
@@ -128,22 +129,22 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    const KeyState& st = engine_services_.inputService().keyState();
+    const KeyState& st = m_engine_services.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return;
     }
 
-    camera_controller_->update(input);
+    m_camera_controller->update(input);
 }
 
 void SceneViewTab::drawUIImpl() {
-    ViewRecord* view = view_manager_.resolve(view_id_);
+    ViewRecord* view = m_view_manager.resolve(m_view_id);
     DEV_ASSERT(view);
 
     updateRect(view->display_rect_os);
     drawMainView(view->display_rect_os);
 
-    if (!m_editor.IsPlaying()) {
+    if (!m_editor.isPlaying()) {
         drawGizmo(view->display_rect_os);
     }
 
@@ -153,12 +154,12 @@ void SceneViewTab::drawUIImpl() {
 // @TODO: instead of asking for image, provide an image to renderer
 // @TODO: move this to gizmo
 void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
-    DEV_ASSERT(!camera_.dirty());
+    DEV_ASSERT(!m_camera.dirty());
     DocId doc_id = docId();
 
-    const Mat4f& view_matrix = camera_.viewMatrix();
-    const Mat4f& proj_matrix = camera_.projectionMatrix();
-    const Mat4f& proj_view = camera_.projectionViewMatrix();
+    const Mat4f& view_matrix = m_camera.viewMatrix();
+    const Mat4f& proj_matrix = m_camera.projectionMatrix();
+    const Mat4f& proj_view = m_camera.projectionViewMatrix();
 
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
@@ -166,13 +167,13 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(rect.x, rect.y, rect.w, rect.h);
 
-    SelectionKey selection = editor_services_.selection().Primary(doc_id_);
+    SelectionKey selection = m_editor_services.selection().Primary(m_doc_id);
     ecs::Entity id = selection.entity;
 
     Scene* scene = getResolvedScene();
     TransformComponent* transform_component = scene->component<TransformComponent>(id);
 
-    EditService& edit_service = editor_services_.edit();
+    EditService& edit_service = m_editor_services.edit();
 
     auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
         if (transform_component) {
@@ -192,7 +193,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                 math::Decompose(before, scale_1, rot_1, pos_1);
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
-                SceneRegistry& scene_reg = engine_services_.sceneRegistry();
+                SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
                 if (p_operation & ImGuizmo::TRANSLATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
@@ -225,7 +226,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
         }
     };
 
-    switch (gizmo_action_) {
+    switch (m_gizmo_action) {
         case GizmoAction::Translate:
             draw_gizmo(ImGuizmo::TRANSLATE);
             break;
@@ -254,7 +255,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 }
 
 Scene* SceneViewTab::getResolvedScene() {
-    return engine_services_.sceneRegistry().resolve(preview_scene_id_);
+    return m_engine_services.sceneRegistry().resolve(m_preview_scene_id);
 }
 
 }  // namespace cave

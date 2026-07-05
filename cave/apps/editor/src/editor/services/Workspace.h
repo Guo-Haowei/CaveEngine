@@ -1,10 +1,14 @@
 #pragma once
-#include "cave/runtime/intent/IIntentHandler.h"
+#include <span>
 
-#include "engine/private/core/ids/GenIdRegistry.h"
+#include "cave/core/ids/SceneId.h"
+#include "cave/runtime/intent/IIntentHandler.h"
 
 #include "editor/document/DocId.h"
 #include "editor/panels/Tab.h"
+
+// @TODO: fix
+#include "engine/private/core/ids/GenIdRegistry.h"
 
 namespace cave {
 
@@ -13,6 +17,7 @@ struct EditorServices;
 
 class EditorState;
 class Guid;
+class Scene;
 
 struct PreviewScene {
     DocId doc_id{};
@@ -44,7 +49,6 @@ public:
     void requestClose(DocId doc_id);
 
     TabId focusedTabId() const { return focused_tab_; }
-
     Tab* focusedTab() { return resolve(focused_tab_); }
 
     DocId focusedDoc();

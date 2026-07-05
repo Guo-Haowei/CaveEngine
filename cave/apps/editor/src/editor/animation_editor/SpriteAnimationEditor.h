@@ -21,7 +21,7 @@ public:
     void onCreate() override;
     void onDestroy() override;
 
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void drawUIImpl() override;
@@ -33,19 +33,19 @@ private:
 
     void submitView();
 
-    const DebugId debug_id_;
+    const DebugId m_debug_id;
 
-    std::string selected_clip_;
-    SpriteSelector sprite_selector_{ SpriteSelector::SelectionMode::Multi };
+    std::string m_selected_clip;
+    SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Multi };
 
-    ToolBarButtonDesc play_button_;
-    ToolBarButtonDesc pause_button_;
+    ToolBarButtonDesc m_play_button;
+    ToolBarButtonDesc m_pause_button;
 
     enum class Request {
         None,
         Play,
         Pause,
-    } last_req_{ Request::None };
+    } m_last_req{ Request::None };
 };
 
 }  // namespace cave

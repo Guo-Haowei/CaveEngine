@@ -15,69 +15,69 @@
 namespace cave {
 
 PIESession::PIESession(EngineServices& services)
-    : services_(services)
-    , debug_id_(MakeDebugId(this)) {
+    : m_engine_services(services)
+    , m_debug_id(MakeDebugId(this)) {
 }
 
 bool PIESession::ensureGameModuleLoaded() {
-    if (game_module_) {
+    if (m_game_module) {
         return true;
     }
 
-    if (!game_module_handle_.loadFromDll(start_desc_.game_dll.c_str(), services_.nativeScripts())) {
+    if (!m_game_module_handle.loadFromDll(m_start_desc.game_dll.c_str(), m_engine_services.nativeScripts())) {
         return false;
     }
 
-    game_module_ = game_module_handle_.get();
+    m_game_module = m_game_module_handle.get();
 
-    return game_module_ != nullptr;
+    return m_game_module != nullptr;
 }
 
 bool PIESession::start(PIEStartDesc start_desc) {
-    DEV_ASSERT(running_ == false);
+    DEV_ASSERT(m_running == false);
 
-    start_desc_ = std::move(start_desc);
+    m_start_desc = std::move(start_desc);
 
     if (!ensureGameModuleLoaded()) return false;
 
-    Scene* scene = services_.sceneRegistry().resolve(start_desc_.edit_scene);
+    Scene* scene = m_engine_services.sceneRegistry().resolve(m_start_desc.edit_scene);
     if (!scene) return false;
 
-    if (game_module_) {
-        PIEHostServices host(services_, *scene, {});
+    if (m_game_module) {
+        PIEHostServices host(m_engine_services, *scene, {});
 
-        game_module_->onModuleLoaded(host);
+        m_game_module->onModuleLoaded(host);
         host.flushSceneCommands();
     }
     return true;
 }
 
 void PIESession::stop() {
-    if (running_) {
+    if (m_running) {
         endPIESession();
-        running_ = false;
+        m_running = false;
     }
 
-    game_module_handle_.unload();
-    game_module_ = nullptr;
+    m_game_module_handle.unload();
+    m_game_module = nullptr;
 }
 
 SceneContext PIESession::makeSceneContext(Scene& scene) {
     return SceneContext{
-        .native_scripts = services_.nativeScripts(),
+        .native_scripts = m_engine_services.nativeScripts(),
         .scene = scene,
         .scene_transition = *this,
         .query = SceneQuery(scene),
-        .engine_services = services_,
+        .engine_services = m_engine_services,
     };
 }
 
 Scene* PIESession::beginPIEScene(Scene* asset_scene) {
     DEV_ASSERT(asset_scene);
-    SceneRegistry& scene_reg = services_.sceneRegistry();
-    pie_scene_ = scene_reg.cloneScene(*asset_scene);
+    SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
+    m_pie_scene = scene_reg.cloneScene(*asset_scene);
 
-    Scene* scene = scene_reg.resolve(pie_scene_);
+    Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
         SceneContext ctx = makeSceneContext(*scene);
         scene->onSimBegin(ctx);
@@ -86,54 +86,54 @@ Scene* PIESession::beginPIEScene(Scene* asset_scene) {
 }
 
 void PIESession::endPIEScene() {
-    if (!pie_scene_.isValid()) {
+    if (!m_pie_scene.isValid()) {
         return;
     }
 
-    SceneRegistry& scene_reg = services_.sceneRegistry();
-    Scene* scene = scene_reg.resolve(pie_scene_);
+    SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
+    Scene* scene = scene_reg.resolve(m_pie_scene);
 
     if (DEV_VERIFY(scene)) {
         SceneContext ctx = makeSceneContext(*scene);
         scene->onSimEnd(ctx);
-        scene_reg.destroyScene(pie_scene_);
+        scene_reg.destroyScene(m_pie_scene);
     }
 
-    pie_scene_ = {};
+    m_pie_scene = {};
 }
 
 void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
-    services_.sceneScheduler().add(this);
+    m_engine_services.sceneScheduler().add(this);
 
-    SceneRegistry& scene_reg = services_.sceneRegistry();
+    SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
     Scene* pie_scene = beginPIEScene(scene_reg.resolve(scene_id));
     if (DEV_VERIFY(pie_scene)) {
-        if (game_module_) {
+        if (m_game_module) {
             // @BUG: host still points to old scene, after scene change
             // this is dangerous, but it's fine for now
             // because we are going to remove PIEHostServices entirely.
-            host_ = std::make_unique<PIEHostServices>(services_, *pie_scene, view_id);
-            game_module_->onGameBegin(*host_);
-            host_->flushSceneCommands();
+            m_host = std::make_unique<PIEHostServices>(m_engine_services, *pie_scene, view_id);
+            m_game_module->onGameBegin(*m_host);
+            m_host->flushSceneCommands();
         }
 
-        running_ = true;
+        m_running = true;
     }
 }
 
 void PIESession::endPIESession() {
-    services_.sceneScheduler().remove(this);
+    m_engine_services.sceneScheduler().remove(this);
 
-    if (!pie_scene_.isValid()) {
+    if (!m_pie_scene.isValid()) {
         return;
     }
 
-    running_ = false;
+    m_running = false;
 
     endPIEScene();
 
-    if (game_module_ && host_) {
-        game_module_->onGameEnd(*host_);
+    if (m_game_module && m_host) {
+        m_game_module->onGameEnd(*m_host);
     }
 }
 
@@ -142,7 +142,7 @@ void PIESession::commitSceneChange(std::string&& path) {
 
     endPIEScene();
 
-    auto handle = services_.assetRegistry().findByPath<Scene>(path);
+    auto handle = m_engine_services.assetRegistry().findByPath<Scene>(path);
     if (handle.is_none()) {
         LOG_ERROR(LogChannel::Asset, "Failed to find asset '{}'", path);
         return;
@@ -158,20 +158,20 @@ void PIESession::commitSceneChange(std::string&& path) {
 }
 
 void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
-    out_requests.push_back({ SceneTickMode::Simulation, pie_scene_, *this });
+    out_requests.push_back({ SceneTickMode::Simulation, m_pie_scene, *this });
 }
 
 void PIESession::tick(const FrameTime& time) {
-    if (!running_ || !game_module_) {
+    if (!m_running || !m_game_module) {
         return;
     }
 
-    SceneRegistry& scene_reg = services_.sceneRegistry();
-    Scene* scene = scene_reg.resolve(pie_scene_);
+    SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
+    Scene* scene = scene_reg.resolve(m_pie_scene);
     if (!scene) return;
 
-    game_module_->tick(*host_, time);
-    host_->flushSceneCommands();
+    m_game_module->tick(*m_host, time);
+    m_host->flushSceneCommands();
 }
 
 }  // namespace cave

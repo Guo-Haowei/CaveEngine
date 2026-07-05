@@ -61,7 +61,6 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
 
         const ImageAsset* image = handle.Get();
 
-        auto checkerboard = m_editor.context.checkerboard;
         DEV_ASSERT(checkerboard && checkerboard->gpu_texture);
 
         ImGui::Text("%s texture: ", EnumTraits<TextureSlot>::ToString(static_cast<TextureSlot>(i)).data());
