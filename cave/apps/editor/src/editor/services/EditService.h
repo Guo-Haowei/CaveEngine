@@ -34,15 +34,15 @@ public:
 
     bool handleIntent(Intent& intent) override;
 
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     IDocument* resolve(DocId doc_id);
     const IDocument* resolve(DocId doc_id) const;
 
-    EngineServices& app_services_;
-    EditorServices& editor_services_;
-    const DebugId debug_id_;
+    EngineServices& m_app_services;
+    EditorServices& m_editor_services;
+    const DebugId m_debug_id;
 };
 
 }  // namespace cave

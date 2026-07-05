@@ -19,16 +19,16 @@ SceneCommandExecutor::SceneCommandExecutor(Scene& p_scene) noexcept
     , m_reg(engine::GetComponentRegistry()) {
 }
 
-void SceneCommandExecutor::AddComponent(Entity ent, ComponentId cid) {
+void SceneCommandExecutor::addComponent(Entity ent, ComponentId cid) {
     m_scene.storage().createRaw(cid, ent);
     return;
 }
 
-bool SceneCommandExecutor::RemoveComponent(Entity ent, ComponentId cid) {
+bool SceneCommandExecutor::removeComponent(Entity ent, ComponentId cid) {
     return m_scene.storage().remove(cid, ent);
 }
 
-bool SceneCommandExecutor::ChangeProperty(Entity ent,
+bool SceneCommandExecutor::changeProperty(Entity ent,
                                           ComponentId cid,
                                           const PropertyId& pid,
                                           const void* data,

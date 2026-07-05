@@ -1,6 +1,8 @@
 #pragma once
 #include "EnemyControllerBase.h"
 
+#include "Utility.h"
+
 namespace super_cave_boy {
 
 enum class SpiderState {
@@ -31,22 +33,18 @@ private:
     void updateAnimation(cave::SceneQuery& query);
 
 private:
-    SpiderState state_ = SpiderState::Idle;
+    SpiderState m_state = SpiderState::Idle;
 
-    float wait_timer_ = 0.0f;
+    math::Vec2f m_detect_range{ 5, 5 };
 
-    float detect_range_x_ = 5.0f;
-    float detect_above_ = 3.0f;
-    float detect_below_ = 1.0f;
+    CountdownTimer m_wait_timer{ 1.0f };
 
-    float attack_range_x_ = 6.0f;
+    float m_attack_range_x = 6.0f;
 
-    float jump_y_speed_ = 14.0f;
-    float min_jump_x_speed_ = 4.0f;
-    float max_jump_x_speed_ = 12.0f;
-    float jump_x_distance_scale_ = 0.35f;
-
-    float wait_duration_ = 1.0f;
+    float m_jump_y_speed = 14.0f;
+    float m_min_jump_x_speed = 4.0f;
+    float m_max_jump_x_speed = 12.0f;
+    float m_jump_x_distance_scale = 0.35f;
 };
 
 }  // namespace super_cave_boy

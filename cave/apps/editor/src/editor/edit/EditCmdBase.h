@@ -23,10 +23,11 @@ public:
 
 protected:
     Scene* resolveScene(SceneId scene_id) const;
-    ecs::Entity ent_;
+
+    ecs::Entity m_ent;
 
 private:
-    SceneRegistry& scene_reg_;
+    SceneRegistry& m_scene_reg;
 };
 
 }  // namespace cave

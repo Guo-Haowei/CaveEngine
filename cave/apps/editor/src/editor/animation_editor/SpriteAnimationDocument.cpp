@@ -19,17 +19,17 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     : DocumentBase(services, guid) {
 
     SceneCommandWriter cb(services.assetRegistry());
-    Entity root = cb.CreateRootObject();
+    Entity root = cb.rootObject();
 
-    Entity ent = cb.CreateTransformObject("animation");
-    cb.AttachChild(ent, root);
-    cb.AddComponent(ent, SpriteRendererComponent_Id);
-    cb.AddComponent(ent, SpriteAnimatorComponent_Id);
+    Entity ent = cb.transformObject("animation");
+    cb.attachChild(ent, root);
+    cb.addComponent(ent, SpriteRendererComponent_Id);
+    cb.addComponent(ent, SpriteAnimatorComponent_Id);
 
     auto scene = std::make_unique<Scene>(std::format("preview-animation-{}", guid.toString()));
 
     SceneCommandExecutor executor(*scene);
-    EntityMap map(cb.GetAllocationCount());
+    EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->setRoot(map.Resolve(root));
     scene->update(0.0f);

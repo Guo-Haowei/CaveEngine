@@ -44,7 +44,7 @@ private:
         Scene* scene = resolveScene(scene_id);
         if (!scene) return false;
 
-        void* component = scene->storage().getRaw(cid_, ent_);
+        void* component = scene->storage().getRaw(cid_, m_ent);
         if (!component) return false;
 
         const auto& reg = engine::GetComponentRegistry();

@@ -60,91 +60,89 @@ class SceneCommandBuffer {
 public:
     explicit SceneCommandBuffer() = default;
 
-    void Reset() {
+    void reset() {
         m_next_entity = kSceneCmdTmpBase;
         m_bytes.clear();
     }
 
-    ecs::Entity CreateEntity();
+    ecs::Entity createEntity();
+    void destroyEntity(ecs::Entity ent);
 
-    void DestroyEntity(ecs::Entity p_ent);
+    void addComponent(ecs::Entity ent, BuiltinComponentId cid);
+    void removeComponent(ecs::Entity ent, BuiltinComponentId cid);
 
-    void AddComponent(ecs::Entity p_ent, BuiltinComponentId p_cid);
-
-    void RemoveComponent(ecs::Entity p_ent, BuiltinComponentId p_cid);
-
-    void SetProperty(ecs::Entity p_ent,
-                     BuiltinComponentId p_cid,
-                     const PropertyId& p_pid,
-                     const ecs::Entity& p_value);
+    void setProperty(ecs::Entity ent,
+                     BuiltinComponentId cid,
+                     const PropertyId& pid,
+                     const ecs::Entity& value);
 
     template<size_t N>
-    void SetProperty(ecs::Entity p_ent,
-                     BuiltinComponentId p_cid,
-                     const PropertyId& p_pid,
-                     const FixedStack<ecs::Entity, N>& p_value) {
-        WritePropertyRecord(SceneCmd_Op::AssignProperty,
-                            p_ent,
-                            p_cid,
-                            p_pid,
-                            &p_value,
-                            sizeof(p_value),
+    void setProperty(ecs::Entity ent,
+                     BuiltinComponentId cid,
+                     const PropertyId& pid,
+                     const FixedStack<ecs::Entity, N>& value) {
+        writePropertyRecord(SceneCmd_Op::AssignProperty,
+                            ent,
+                            cid,
+                            pid,
+                            &value,
+                            sizeof(value),
                             SceneCmd_PropType::Entity,
-                            static_cast<uint32_t>(p_value.size()));
+                            static_cast<uint32_t>(value.size()));
     }
 
     template<typename T>
-    void SetProperty(ecs::Entity p_ent,
-                     BuiltinComponentId p_cid,
-                     const PropertyId& p_pid,
-                     const T& p_value) {
+    void setProperty(ecs::Entity ent,
+                     BuiltinComponentId cid,
+                     const PropertyId& pid,
+                     const T& value) {
         static_assert(std::is_trivially_copyable_v<T>);
-        WritePropertyRecord(SceneCmd_Op::AssignProperty,
-                            p_ent,
-                            p_cid,
-                            p_pid,
-                            &p_value,
-                            sizeof(p_value),
+        writePropertyRecord(SceneCmd_Op::AssignProperty,
+                            ent,
+                            cid,
+                            pid,
+                            &value,
+                            sizeof(value),
                             SceneCmd_PropType::PlainData);
     }
 
-    const uint8_t* Data() const { return m_bytes.data(); }
-    const size_t Size() const { return m_bytes.size(); }
+    const uint8_t* bytes() const { return m_bytes.data(); }
+    const size_t byteSize() const { return m_bytes.size(); }
 
-    uint32_t GetAllocationCount() const noexcept { return m_next_entity - kSceneCmdTmpBase; }
+    uint32_t allocationCount() const noexcept { return m_next_entity - kSceneCmdTmpBase; }
 
 private:
-    ecs::Entity AllocateTempEntity() noexcept { return ecs::Entity(m_next_entity++); }
+    ecs::Entity allocateTempEntity() noexcept { return ecs::Entity(m_next_entity++); }
 
-    void WriteEntityRecord(SceneCmd_Op p_op, ecs::Entity p_ent);
+    void writeEntityRecord(SceneCmd_Op op, ecs::Entity ent);
 
-    void WriteComponentRecord(SceneCmd_Op p_op,
-                              ecs::Entity p_ent,
-                              BuiltinComponentId p_cid);
+    void writeComponentRecord(SceneCmd_Op op,
+                              ecs::Entity ent,
+                              BuiltinComponentId cid);
 
-    void WritePropertyRecord(SceneCmd_Op p_op,
-                             ecs::Entity p_ent,
-                             BuiltinComponentId p_cid,
-                             PropertyId p_pid,
-                             const void* p_data,
-                             uint32_t p_data_size,
-                             SceneCmd_PropType p_ptype,
-                             uint32_t p_ele_count);
+    void writePropertyRecord(SceneCmd_Op op,
+                             ecs::Entity ent,
+                             BuiltinComponentId cid,
+                             PropertyId pid,
+                             const void* data,
+                             uint32_t data_size,
+                             SceneCmd_PropType ptype,
+                             uint32_t ele_count);
 
-    void WritePropertyRecord(SceneCmd_Op p_op,
-                             ecs::Entity p_ent,
-                             BuiltinComponentId p_cid,
-                             PropertyId p_pid,
-                             const void* p_data,
-                             uint32_t p_data_size,
-                             SceneCmd_PropType p_ptype) {
-        WritePropertyRecord(p_op,
-                            p_ent,
-                            p_cid,
-                            p_pid,
-                            p_data,
-                            p_data_size,
-                            p_ptype,
+    void writePropertyRecord(SceneCmd_Op op,
+                             ecs::Entity ent,
+                             BuiltinComponentId cid,
+                             PropertyId pid,
+                             const void* data,
+                             uint32_t data_size,
+                             SceneCmd_PropType ptype) {
+        writePropertyRecord(op,
+                            ent,
+                            cid,
+                            pid,
+                            data,
+                            data_size,
+                            ptype,
                             1);
     }
 

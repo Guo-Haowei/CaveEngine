@@ -15,21 +15,21 @@ SceneCommandExecutor_Undo::SceneCommandExecutor_Undo(SceneRegistry& p_scene_reg)
 
 SceneCommandExecutor_Undo::~SceneCommandExecutor_Undo() = default;
 
-void SceneCommandExecutor_Undo::AddComponent(Entity p_ent, ComponentId p_cid) {
+void SceneCommandExecutor_Undo::addComponent(Entity p_ent, ComponentId p_cid) {
     auto cmd = std::make_unique<AddComponentCmd>(m_scene_reg,
                                                  p_ent,
                                                  p_cid);
     m_cmd->AddCommand(std::move(cmd));
 }
 
-bool SceneCommandExecutor_Undo::RemoveComponent(Entity p_ent, ComponentId p_cid) {
+bool SceneCommandExecutor_Undo::removeComponent(Entity p_ent, ComponentId p_cid) {
     unused(p_ent);
     unused(p_cid);
     CRASH_NOW_MSG("not implemented");
     return false;
 }
 
-bool SceneCommandExecutor_Undo::ChangeProperty(Entity p_ent,
+bool SceneCommandExecutor_Undo::changeProperty(Entity p_ent,
                                                ComponentId p_cid,
                                                const PropertyId& p_pid,
                                                const void* p_data,

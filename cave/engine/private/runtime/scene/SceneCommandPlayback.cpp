@@ -30,17 +30,17 @@ void EntityMap::SetRemap(Entity p_temp, Entity p_real) {
     m_remap[index] = p_real;
 }
 
-void SceneCommandPlayback::Play(SceneCommandBuffer& p_cb,
-                                ISceneCommandExecutor& p_exe,
-                                const Context& p_ctx) {
-    const uint8_t* p = p_cb.Data();
+void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,
+                                ISceneCommandExecutor& executor,
+                                const Context& ctx) {
+    const uint8_t* p = cmd_buffer.bytes();
     if (p == nullptr) {
         return;
     }
 
-    const uint8_t* end = p + p_cb.Size();
+    const uint8_t* end = p + cmd_buffer.byteSize();
 
-    auto& map = p_ctx.map;
+    auto& map = ctx.map;
 
     while (p < end) {
         const SceneCmd_Header* header = reinterpret_cast<const SceneCmd_Header*>(p);
@@ -49,7 +49,7 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& p_cb,
         switch (header->op) {
             case SceneCmd_Op::CreateEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
-                Entity real = p_ctx.scene.createEntity();
+                Entity real = ctx.scene.createEntity();
                 map.SetRemap(e, real);
             } break;
             case SceneCmd_Op::DestroyEntity: {
@@ -58,11 +58,11 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& p_cb,
             } break;
             case SceneCmd_Op::AddComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
-                p_exe.AddComponent(map.Resolve(payload->ent), payload->cid);
+                executor.addComponent(map.Resolve(payload->ent), payload->cid);
             } break;
             case SceneCmd_Op::RemoveComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
-                p_exe.RemoveComponent(map.Resolve(payload->ent), payload->cid);
+                executor.removeComponent(map.Resolve(payload->ent), payload->cid);
             } break;
             case SceneCmd_Op::AssignProperty: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadProperty*>(payload_raw);
@@ -85,11 +85,11 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& p_cb,
                 }
 
                 // @TODO: generate Undoable Command ChangeProperty
-                p_exe.ChangeProperty(map.Resolve(payload->ent),
-                                     payload->cid,
-                                     payload->pid,
-                                     data,
-                                     payload->data_size);
+                executor.changeProperty(map.Resolve(payload->ent),
+                                        payload->cid,
+                                        payload->pid,
+                                        data,
+                                        payload->data_size);
             } break;
             default: {
                 CRASH_NOW_MSG("Invalid opcode");

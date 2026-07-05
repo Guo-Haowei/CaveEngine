@@ -11,11 +11,11 @@ public:
     explicit SceneCommandExecutor(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept;
     explicit SceneCommandExecutor(Scene& p_scene) noexcept;
 
-    void AddComponent(ecs::Entity p_ent, ComponentId p_id) override;
+    void addComponent(ecs::Entity p_ent, ComponentId p_id) override;
 
-    bool RemoveComponent(ecs::Entity p_ent, ComponentId p_id) override;
+    bool removeComponent(ecs::Entity p_ent, ComponentId p_id) override;
 
-    bool ChangeProperty(ecs::Entity p_ent,
+    bool changeProperty(ecs::Entity p_ent,
                         ComponentId p_cid,
                         const PropertyId& p_pid,
                         const void* p_data,

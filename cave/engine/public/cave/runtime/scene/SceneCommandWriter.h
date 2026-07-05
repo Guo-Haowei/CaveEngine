@@ -23,59 +23,67 @@ class SceneCommandWriter : public SceneCommandBuffer {
     using Vector4f = math::Vec4f;
 
 public:
-    explicit SceneCommandWriter(AssetRegistry& p_reg) noexcept
-        : m_asset_reg(p_reg) {
+    explicit SceneCommandWriter(AssetRegistry& reg) noexcept
+        : m_asset_reg(reg) {
     }
 
-    Entity CreateRootObject(std::string_view p_name = "root");
-    Entity CreateNameObject(std::string_view p_name);
+    void attachChild(Entity child, Entity parent);
 
-    Entity CreateTransformObject(std::string_view p_name);
+    Entity rootObject(std::string_view name = "root");
+    Entity nameObject(std::string_view name);
 
-    void AttachChild(Entity p_child, Entity p_parent);
+    Entity prefabObject(std::string_view name, const Guid& guid = Guid::null());
 
-    Entity CreatePointLightObject(std::string_view p_name,
-                                  const Vector3f& p_position = Vector3f(0.0f, 1.0f, 0.0f),
-                                  const Vector3f& p_color = Vector3f(1.0f),
-                                  float p_emissive = 5.0f);
+    Entity transformObject(std::string_view name);
 
-    Entity CreateAreaLightObject(std::string_view p_name,
-                                 const Vector3f& p_color = Vector3f(1),
-                                 float p_emissive = 5.0f);
+    Entity pointLightObject(std::string_view name,
+                            const Vector3f& position = Vector3f(0.0f, 1.0f, 0.0f),
+                            const Vector3f& color = Vector3f(1.0f),
+                            float emissive = 5.0f);
 
-    Entity CreateInfiniteLightObject(std::string_view p_name,
-                                     const Vector3f& p_color = Vector3f(1),
-                                     float p_emissive = 5.0f);
+    Entity areaLightObject(std::string_view name,
+                           const Vector3f& color = Vector3f(1),
+                           float emissive = 5.0f);
 
-    Entity CreateMeshObject(const std::string& p_mesh_path,
-                            std::string_view p_name,
-                            const MaterialContext& p_mat_ctx);
+    Entity infiniteLightObject(std::string_view name,
+                               const Vector3f& color = Vector3f(1),
+                               float emissive = 5.0f);
 
-    Entity CreateMeshObject(const std::string& p_mesh_path,
-                            std::string_view p_name,
-                            const std::string& p_mat_path);
+    Entity meshObject(const std::string& mesh_path,
+                      std::string_view name,
+                      const MaterialContext& mat_ctx);
 
-    Entity CreatePlaneObject(std::string_view p_name,
-                             const MaterialContext& p_mat_ctx = {});
+    Entity meshObject(const std::string& mesh_path,
+                      std::string_view name,
+                      const std::string& mat_path);
 
-    Entity CreateCubeObject(std::string_view p_name,
-                            const MaterialContext& p_mat_ctx = {});
+    Entity planeObject(std::string_view name, const MaterialContext& mat_ctx = {}) {
+        return meshObject("@persist://meshes/plane", name, mat_ctx);
+    }
 
-    Entity CreateSphereObject(std::string_view p_name,
-                              const MaterialContext& p_mat_ctx = {});
+    Entity cubeObject(std::string_view name, const MaterialContext& mat_ctx = {}) {
+        return meshObject("@persist://meshes/cube", name, mat_ctx);
+    }
 
-    Entity CreateCylinderObject(std::string_view p_name,
-                                const MaterialContext& p_mat_ctx = {});
+    Entity sphereObject(std::string_view name, const MaterialContext& mat_ctx = {}) {
+        return meshObject("@persist://meshes/sphere", name, mat_ctx);
+    }
 
-    Entity CreateConeObject(std::string_view p_name,
-                            const MaterialContext& p_mat_ctx = {});
+    Entity cylinderObject(std::string_view name, const MaterialContext& mat_ctx = {}) {
+        return meshObject("@persist://meshes/cylinder", name, mat_ctx);
+    }
 
-    Entity CreateTorusObject(std::string_view p_name,
-                             const MaterialContext& p_mat_ctx = {});
+    Entity coneObject(std::string_view name, const MaterialContext& mat_ctx = {}) {
+        return meshObject("@persist://meshes/cone", name, mat_ctx);
+    }
 
-    Entity CreateTileMapObject(std::string_view p_name);
+    Entity torusObject(std::string_view name, const MaterialContext& mat_ctx = {}) {
+        return meshObject("@persist://meshes/torus", name, mat_ctx);
+    }
 
-    void SetNoSave(bool p_value) { m_no_save = p_value; }
+    Entity tileMapObject(std::string_view name);
+
+    void setNoSave(bool value) { m_no_save = value; }
 
 private:
     AssetRegistry& m_asset_reg;

@@ -47,8 +47,8 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
 void BatController::onUpdate(cave::SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
-    if (!player_.IsValid()) {
-        player_ = findPlayer(query);
+    if (!m_player.IsValid()) {
+        m_player = findPlayer(query);
     }
 
     switch (state_) {
@@ -65,7 +65,7 @@ void BatController::onUpdate(cave::SceneContext& ctx, float dt) {
 
 void BatController::updateIdle(SceneQuery& query) {
     auto transform = query.component<TransformComponent>(entity());
-    auto player_transform = query.component<TransformComponent>(player_);
+    auto player_transform = query.component<TransformComponent>(m_player);
 
     DEV_ASSERT(transform && player_transform);
 
@@ -75,7 +75,7 @@ void BatController::updateIdle(SceneQuery& query) {
     if (canSeePlayer(bat_pos, player_pos)) {
         state_ = BatState::Move;
 
-        if (auto animator = query.component<SpriteAnimatorComponent>(animator_)) {
+        if (auto animator = query.component<SpriteAnimatorComponent>(m_animator)) {
             animator->currentClip("fly");
         }
     }
@@ -85,7 +85,7 @@ void BatController::updateMove(SceneQuery& query, float) {
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
-    auto player_transform = query.component<TransformComponent>(player_);
+    auto player_transform = query.component<TransformComponent>(m_player);
 
     const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
 
@@ -116,7 +116,7 @@ void BatController::updateMove(SceneQuery& query, float) {
 }
 
 void BatController::updateAnimation(SceneQuery& query) {
-    auto animator = query.component<SpriteAnimatorComponent>(animator_);
+    auto animator = query.component<SpriteAnimatorComponent>(m_animator);
 
     if (!animator) {
         return;

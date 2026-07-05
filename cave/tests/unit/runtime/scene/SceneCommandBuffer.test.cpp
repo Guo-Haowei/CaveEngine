@@ -15,22 +15,22 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
 
     Scene scene("test");
 
-    Entity e1 = cb.CreateEntity();
-    Entity e2 = cb.CreateEntity();
+    Entity e1 = cb.createEntity();
+    Entity e2 = cb.createEntity();
 
-    cb.AddComponent(e1, NameComponent_Id);
-    cb.SetProperty(e1, NameComponent_Id, "name"_sid, FixedString<64>("e1"));
+    cb.addComponent(e1, NameComponent_Id);
+    cb.setProperty(e1, NameComponent_Id, "name"_sid, FixedString<64>("e1"));
 
-    cb.AddComponent(e2, NameComponent_Id);
-    cb.AddComponent(e2, HierarchyComponent_Id);
+    cb.addComponent(e2, NameComponent_Id);
+    cb.addComponent(e2, HierarchyComponent_Id);
 
-    cb.SetProperty(e2, NameComponent_Id, "name"_sid, FixedString<64>("e2"));
-    cb.SetProperty(e2, HierarchyComponent_Id, "parent_id"_sid, e1);
+    cb.setProperty(e2, NameComponent_Id, "name"_sid, FixedString<64>("e2"));
+    cb.setProperty(e2, HierarchyComponent_Id, "parent_id"_sid, e1);
 
     ComponentRegistry reg = ComponentRegistry::Builtin();
 
     SceneCommandExecutor executor(scene, reg);
-    EntityMap map(cb.GetAllocationCount());
+    EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, scene });
 
     Entity r1 = map.Resolve(e1);

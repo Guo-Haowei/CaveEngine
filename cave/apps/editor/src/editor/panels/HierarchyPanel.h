@@ -14,9 +14,7 @@ public:
     HierarchyPanel(EditorState& editor)
         : EditorWindow(editor) {}
 
-    const char* windowId() const override {
-        return "Hierarchy";
-    }
+    const char* windowId() const override { return "Hierarchy"; }
 
 protected:
     void drawUIImpl() override;

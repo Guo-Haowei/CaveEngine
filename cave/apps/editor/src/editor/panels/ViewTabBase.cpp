@@ -197,7 +197,7 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     }
 
     ImGui::Dummy({ rect.w, rect.h });
-    if (auto handle_ = DragDropTarget(AssetType::Scene); handle_.is_some()) {
+    if (auto handle_ = DragDropTarget(AssetType::All); handle_.is_some()) {
         onAssetDropped(std::move(handle_.unwrap_unchecked()));
     }
 }

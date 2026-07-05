@@ -14,17 +14,17 @@ class PrefabInstanceComponent {
 
 private:
     CAVE_PROP(editor = Asset)
-    Guid prefab_id_;
+    Guid m_prefab_id;
 
     // Non-serialzed
-    ecs::Entity child_;
+    ecs::Entity m_instance;
 
 public:
-    ecs::Entity child() const { return child_; }
-    void child(ecs::Entity ent) { child_ = ent; }
+    const Guid& prefabGuid() const { return m_prefab_id; }
+    void setPrefabGuid(const Guid& guid) { m_prefab_id = guid; }
 
-    const Guid& prefabGuid() const { return prefab_id_; }
-    bool SetResourceGuid(const Guid& guid);
+    ecs::Entity instance() const { return m_instance; }
+    void setInstance(ecs::Entity ent) { m_instance = ent; }
 };
 
 }  // namespace cave

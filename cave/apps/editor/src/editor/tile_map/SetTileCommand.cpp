@@ -26,7 +26,7 @@ bool SetTileCommand::setTile(IDocument& doc, Option<TileId> tile) {
 bool SetTileCommand::canCoalesceWith(const IEditCmd* cmd) const {
     if (auto other = dynamic_cast<const SetTileCommand*>(cmd); other) {
         bool ok = index_ == other->index_;
-        ok = ok && ent_ == other->ent_;
+        ok = ok && m_ent == other->m_ent;
         ok = ok && old_tile_ == other->old_tile_;
         ok = ok && new_tile_ == other->new_tile_;
         return ok;

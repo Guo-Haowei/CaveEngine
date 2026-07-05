@@ -51,11 +51,11 @@ IUIRuntime& PIEHostServices::ui() {
 
 void PIEHostServices::flushSceneCommands() {
     SceneCommandBuffer& cb = sceneWriter();
-    if (cb.Data()) {
+    if (cb.bytes()) {
         SceneCommandExecutor executor(scene_);
-        EntityMap map(cb.GetAllocationCount());
+        EntityMap map(cb.allocationCount());
         SceneCommandPlayback::Play(cb, executor, { map, scene_ });
-        cb.Reset();
+        cb.reset();
     }
 }
 

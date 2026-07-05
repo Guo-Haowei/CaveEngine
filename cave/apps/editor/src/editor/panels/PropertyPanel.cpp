@@ -42,12 +42,6 @@ using namespace ::cave::math;
     COMPONENT_DECL(TileMapInstance) \
     COMPONENT_DECL(PrefabInstance)
 
-// @TODO: refactor this part
-template<typename T>
-concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
-    { t.SetResourceGuid(guid) } -> std::same_as<bool>;
-};
-
 bool DrawPropertyAuto(const FieldMetaBase* property,
                       void* component,
                       const DrawComponentCtx& ctx) {

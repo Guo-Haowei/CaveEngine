@@ -7,56 +7,56 @@ namespace cave {
 
 using ecs::Entity;
 
-Entity SceneCommandBuffer::CreateEntity() {
-    Entity e = AllocateTempEntity();
-    WriteEntityRecord(SceneCmd_Op::CreateEntity, e);
+Entity SceneCommandBuffer::createEntity() {
+    Entity e = allocateTempEntity();
+    writeEntityRecord(SceneCmd_Op::CreateEntity, e);
     return e;
 }
 
-void SceneCommandBuffer::DestroyEntity(Entity p_ent) {
-    WriteEntityRecord(SceneCmd_Op::DestroyEntity, p_ent);
+void SceneCommandBuffer::destroyEntity(Entity ent) {
+    writeEntityRecord(SceneCmd_Op::DestroyEntity, ent);
 }
 
-void SceneCommandBuffer::AddComponent(Entity p_ent, BuiltinComponentId p_cid) {
-    WriteComponentRecord(SceneCmd_Op::AddComponent, p_ent, p_cid);
+void SceneCommandBuffer::addComponent(Entity ent, BuiltinComponentId cid) {
+    writeComponentRecord(SceneCmd_Op::AddComponent, ent, cid);
 }
 
-void SceneCommandBuffer::RemoveComponent(Entity p_ent, BuiltinComponentId p_cid) {
-    WriteComponentRecord(SceneCmd_Op::RemoveComponent, p_ent, p_cid);
+void SceneCommandBuffer::removeComponent(Entity ent, BuiltinComponentId cid) {
+    writeComponentRecord(SceneCmd_Op::RemoveComponent, ent, cid);
 }
 
-void SceneCommandBuffer::SetProperty(Entity p_ent,
-                                     BuiltinComponentId p_cid,
-                                     const PropertyId& p_pid,
-                                     const Entity& p_value) {
-    WritePropertyRecord(SceneCmd_Op::AssignProperty,
-                        p_ent,
-                        p_cid,
-                        p_pid,
-                        &p_value,
+void SceneCommandBuffer::setProperty(Entity ent,
+                                     BuiltinComponentId cid,
+                                     const PropertyId& pid,
+                                     const Entity& value) {
+    writePropertyRecord(SceneCmd_Op::AssignProperty,
+                        ent,
+                        cid,
+                        pid,
+                        &value,
                         sizeof(Entity),
                         SceneCmd_PropType::Entity);
 }
 
-void SceneCommandBuffer::WriteEntityRecord(SceneCmd_Op p_op, Entity p_ent) {
+void SceneCommandBuffer::writeEntityRecord(SceneCmd_Op op, Entity ent) {
     SceneCmd_Header header{
-        .op = p_op,
+        .op = op,
         .flags = 0,
-        .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(p_ent)),
+        .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(ent)),
     };
 
     const size_t old = m_bytes.size();
     m_bytes.resize(old + header.size);
 
     std::memcpy(m_bytes.data() + old, &header, sizeof(header));
-    std::memcpy(m_bytes.data() + old + sizeof(header), &p_ent, sizeof(p_ent));
+    std::memcpy(m_bytes.data() + old + sizeof(header), &ent, sizeof(ent));
 }
 
-void SceneCommandBuffer::WriteComponentRecord(SceneCmd_Op p_op,
-                                              Entity p_ent,
-                                              BuiltinComponentId p_cid) {
+void SceneCommandBuffer::writeComponentRecord(SceneCmd_Op op,
+                                              Entity ent,
+                                              BuiltinComponentId cid) {
     SceneCmd_Header header{
-        .op = p_op,
+        .op = op,
         .flags = 0,
         .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(SceneCmd_PayloadComponent)),
     };
@@ -68,23 +68,23 @@ void SceneCommandBuffer::WriteComponentRecord(SceneCmd_Op p_op,
     std::memcpy(out, &header, sizeof(header));
     out += sizeof(header);
 
-    SceneCmd_PayloadComponent payload{ p_ent, p_cid };
+    SceneCmd_PayloadComponent payload{ ent, cid };
     std::memcpy(out, &payload, sizeof(payload));
 }
 
-void SceneCommandBuffer::WritePropertyRecord(SceneCmd_Op p_op,
-                                             Entity p_ent,
-                                             BuiltinComponentId p_cid,
-                                             PropertyId p_pid,
-                                             const void* p_data,
-                                             uint32_t p_data_size,
-                                             SceneCmd_PropType p_ptype,
-                                             uint32_t p_ele_count) {
+void SceneCommandBuffer::writePropertyRecord(SceneCmd_Op op,
+                                             Entity ent,
+                                             BuiltinComponentId cid,
+                                             PropertyId pid,
+                                             const void* data,
+                                             uint32_t data_size,
+                                             SceneCmd_PropType prop_type,
+                                             uint32_t element_count) {
 
     SceneCmd_Header header{
-        .op = p_op,
+        .op = op,
         .flags = 0,
-        .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(SceneCmd_PayloadProperty) + p_data_size),
+        .size = uint16_t(sizeof(SceneCmd_Header) + sizeof(SceneCmd_PayloadProperty) + data_size),
     };
 
     const size_t old = m_bytes.size();
@@ -95,17 +95,17 @@ void SceneCommandBuffer::WritePropertyRecord(SceneCmd_Op p_op,
     out += sizeof(header);
 
     SceneCmd_PayloadProperty payload{
-        .ent = p_ent,
-        .cid = p_cid,
-        .ptype = p_ptype,
-        .pid = p_pid,
-        .data_size = p_data_size,
-        .ele_count = p_ele_count,
+        .ent = ent,
+        .cid = cid,
+        .ptype = prop_type,
+        .pid = pid,
+        .data_size = data_size,
+        .ele_count = element_count,
     };
     std::memcpy(out, &payload, sizeof(payload));
 
     out += sizeof(payload);
-    std::memcpy(out, p_data, p_data_size);
+    std::memcpy(out, data, data_size);
 }
 
 }  // namespace cave

@@ -34,15 +34,15 @@ ecs::Entity ChessViewFactory::createTile(Square square, const TileInitInfo& info
 
     Vec3f offset((float)rank, 0.05f, (float)file);
 
-    Entity ent = writer_.CreateCubeObject(info.name ? info.name : square.uci(), { nullptr, info.color });
-    writer_.SetProperty(ent, TransformComponent_Id, kScaleId, scale);
-    writer_.SetProperty(ent, TransformComponent_Id, kTranslationId, offset);
+    Entity ent = writer_.cubeObject(info.name ? info.name : square.uci(), { nullptr, info.color });
+    writer_.setProperty(ent, TransformComponent_Id, kScaleId, scale);
+    writer_.setProperty(ent, TransformComponent_Id, kTranslationId, offset);
 
-    writer_.SetProperty(ent, MeshRendererComponent_Id, kVisibility, visible_);
-    writer_.SetProperty(ent, MeshRendererComponent_Id, kCastShadow, false);
-    writer_.SetProperty(ent, MeshRendererComponent_Id, kTransparency, true);
+    writer_.setProperty(ent, MeshRendererComponent_Id, kVisibility, visible_);
+    writer_.setProperty(ent, MeshRendererComponent_Id, kCastShadow, false);
+    writer_.setProperty(ent, MeshRendererComponent_Id, kTransparency, true);
 
-    writer_.AttachChild(ent, info.parent);
+    writer_.attachChild(ent, info.parent);
     return ent;
 }
 
@@ -59,7 +59,7 @@ ecs::Entity ChessViewFactory::createPiece(Square square, Piece piece) {
 
     auto name = std::format("{}_{}_{}", color, piece_name, id);
 
-    Entity ent = writer_.CreateMeshObject(
+    Entity ent = writer_.meshObject(
         std::format("@res://models/{}.mesh", piece_name),
         name,
         materials_[std::to_underlying(piece_color)]);
@@ -68,15 +68,15 @@ ecs::Entity ChessViewFactory::createPiece(Square square, Piece piece) {
     Vec3f translation(rank, 0, file);
     constexpr Vec3f scale = Vec3f(9);
 
-    writer_.SetProperty(ent, TransformComponent_Id, kScaleId, scale);
-    writer_.SetProperty(ent, TransformComponent_Id, kTranslationId, translation);
+    writer_.setProperty(ent, TransformComponent_Id, kScaleId, scale);
+    writer_.setProperty(ent, TransformComponent_Id, kTranslationId, translation);
     if (piece_color == Color::Black) {
-        writer_.SetProperty(ent, TransformComponent_Id, kRotationId, Vec4f::UnitY);
+        writer_.setProperty(ent, TransformComponent_Id, kRotationId, Vec4f::UnitY);
     }
-    writer_.SetProperty(ent, MeshRendererComponent_Id, kVisibility, visible_);
-    writer_.SetProperty(ent, MeshRendererComponent_Id, kCastShadow, visible_);
+    writer_.setProperty(ent, MeshRendererComponent_Id, kVisibility, visible_);
+    writer_.setProperty(ent, MeshRendererComponent_Id, kCastShadow, visible_);
 
-    writer_.AttachChild(ent, parent_);
+    writer_.attachChild(ent, parent_);
     return ent;
 }
 

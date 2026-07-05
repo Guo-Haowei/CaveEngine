@@ -23,16 +23,16 @@ TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
 
 std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
     SceneCommandWriter cb(asset_reg_);
-    Entity root = cb.CreateRootObject();
+    Entity root = cb.rootObject();
 
-    Entity ent = cb.CreateTileMapObject("tilemap");
-    cb.AttachChild(ent, root);
-    cb.SetProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid());
+    Entity ent = cb.tileMapObject("tilemap");
+    cb.attachChild(ent, root);
+    cb.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid());
 
     auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid().toString()));
 
     SceneCommandExecutor executor(*scene);
-    EntityMap map(cb.GetAllocationCount());
+    EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->setRoot(map.Resolve(root));
     scene->update(0.0f);

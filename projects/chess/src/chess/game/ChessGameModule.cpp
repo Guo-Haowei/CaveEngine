@@ -69,13 +69,13 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
     DEV_ASSERT(offset_node.IsValid());
 
     SceneCommandWriter& writer = host.sceneWriter();
-    writer.SetNoSave(true);
+    writer.setNoSave(true);
 
-    Entity piece_parent = writer.CreateTransformObject("pieces");
-    Entity tile_parent = writer.CreateTransformObject("tiles");
+    Entity piece_parent = writer.transformObject("pieces");
+    Entity tile_parent = writer.transformObject("tiles");
 
-    writer.AttachChild(piece_parent, offset_node);
-    writer.AttachChild(tile_parent, offset_node);
+    writer.attachChild(piece_parent, offset_node);
+    writer.attachChild(tile_parent, offset_node);
 
     chess::ChessViewFactory factory(writer, piece_parent);
 

@@ -17,8 +17,8 @@ protected:
 
     Entity findPlayer(cave::SceneQuery& query) const;
 
-    Entity player_{};
-    Entity animator_{};
+    Entity m_player{};
+    Entity m_animator{};
 };
 
 }  // namespace super_cave_boy

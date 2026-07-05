@@ -16,7 +16,7 @@ bool AddComponentCmd::apply(IDocument& doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
         if (Scene* scene = resolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
-            executor.AddComponent(ent_, cid_);
+            executor.addComponent(m_ent, cid_);
             return true;
         }
     }
@@ -27,7 +27,7 @@ bool AddComponentCmd::undo(IDocument& doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
         if (Scene* scene = resolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
-            executor.RemoveComponent(ent_, cid_);
+            executor.removeComponent(m_ent, cid_);
             return true;
         }
     }

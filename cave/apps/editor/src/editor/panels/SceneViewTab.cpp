@@ -24,11 +24,9 @@
 
 namespace cave {
 
-using namespace cave::literals;
-using math::Mat4f;
-using math::Vec2f;
-using math::Vec3f;
-using math::Vec4f;
+using namespace ::cave::literals;
+using namespace ::cave::math;
+using ecs::Entity;
 
 SceneViewTab::SceneViewTab(EditorState& editor,
                            DocId doc_id,
@@ -249,8 +247,12 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 
 void SceneViewTab::onAssetDropped(AssetHandle&& handle) {
     IAsset* asset = handle.get();
-    if (Scene* scene = dynamic_cast<Scene*>(asset)) {
-        __debugbreak();
+    if (Scene* prefab_scene = dynamic_cast<Scene*>(asset)) {
+        Scene* scene = getResolvedScene();
+        m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
+            Entity prefb = writer.prefabObject("prefab", handle.guid());
+            writer.attachChild(prefb, scene->root());
+        });
         return;
     }
 

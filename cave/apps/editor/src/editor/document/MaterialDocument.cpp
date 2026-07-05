@@ -20,22 +20,22 @@ MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
     SceneCommandWriter cb(services.assetRegistry());
-    Entity root = cb.CreateRootObject();
+    Entity root = cb.rootObject();
 
     if constexpr (1) {
-        Entity light = cb.CreatePointLightObject("point_light", math::Vec3f(0, 3, 1));
-        cb.AttachChild(light, root);
+        Entity light = cb.pointLightObject("point_light", math::Vec3f(0, 3, 1));
+        cb.attachChild(light, root);
     }
 
     if constexpr (1) {
-        Entity sphere = cb.CreateSphereObject("sphere", { &guid });
-        cb.AttachChild(sphere, root);
+        Entity sphere = cb.sphereObject("sphere", { &guid });
+        cb.attachChild(sphere, root);
     }
 
     auto scene = std::make_unique<Scene>(std::format("preview-material-{}", guid.toString()));
 
     SceneCommandExecutor executor(*scene);
-    EntityMap map(cb.GetAllocationCount());
+    EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->setRoot(map.Resolve(root));
     scene->update(0.0f);

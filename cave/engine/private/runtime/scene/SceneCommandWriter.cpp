@@ -13,164 +13,149 @@ namespace cave {
 using namespace cave::literals;
 using ecs::Entity;
 
-Entity SceneCommandWriter::CreateNameObject(std::string_view p_name) {
-    Entity e = CreateEntity();
-    AddComponent(e, NameComponent_Id);
+Entity SceneCommandWriter::nameObject(std::string_view name) {
+    Entity e = createEntity();
+    addComponent(e, NameComponent_Id);
     if (m_no_save) {
-        AddComponent(e, PrefabChildComponent_Id);
+        addComponent(e, PrefabChildComponent_Id);
     }
-    SetProperty(e, NameComponent_Id, "name"_sid, FixedString<64>(p_name));
+    setProperty(e, NameComponent_Id, "name"_sid, FixedString<64>(name));
     return e;
 }
 
-Entity SceneCommandWriter::CreateRootObject(std::string_view p_name) {
-    Entity e = CreateNameObject(p_name);
-    AddComponent(e, TransformComponent_Id);
+Entity SceneCommandWriter::rootObject(std::string_view name) {
+    Entity e = nameObject(name);
+    addComponent(e, TransformComponent_Id);
     return e;
 }
 
-Entity SceneCommandWriter::CreateTransformObject(std::string_view p_name) {
-    Entity e = CreateNameObject(p_name);
-    AddComponent(e, TransformComponent_Id);
-    AddComponent(e, HierarchyComponent_Id);
+Entity SceneCommandWriter::prefabObject(std::string_view name, const Guid& guid) {
+    Entity e = transformObject(name);
+    addComponent(e, PrefabInstanceComponent_Id);
+    if (!guid.isNull()) {
+        setProperty(e, PrefabInstanceComponent_Id, "prefab_id"_sid, guid);
+    }
     return e;
 }
 
-void SceneCommandWriter::AttachChild(ecs::Entity p_child, ecs::Entity p_parent) {
-    DEV_ASSERT(p_child.IsValid() && p_parent.IsValid());
-    SetProperty(p_child, HierarchyComponent_Id, "parent_id"_sid, p_parent);
+Entity SceneCommandWriter::transformObject(std::string_view name) {
+    Entity e = nameObject(name);
+    addComponent(e, TransformComponent_Id);
+    addComponent(e, HierarchyComponent_Id);
+    return e;
 }
 
-Entity SceneCommandWriter::CreatePointLightObject(
-    std::string_view p_name,
-    const Vector3f& p_position,
-    const Vector3f& p_color,
-    float p_emissive) {
+void SceneCommandWriter::attachChild(ecs::Entity child, ecs::Entity parent) {
+    DEV_ASSERT(child.IsValid() && parent.IsValid());
+    setProperty(child, HierarchyComponent_Id, "parent_id"_sid, parent);
+}
+
+Entity SceneCommandWriter::pointLightObject(
+    std::string_view name,
+    const Vector3f& position,
+    const Vector3f& color,
+    float emissive) {
     SceneCommandBuffer cb;
 
-    Entity e = CreateTransformObject(p_name);
-    AddComponent(e, LightComponent_Id);
-    AddComponent(e, MaterialComponent_Id);
+    Entity e = transformObject(name);
+    addComponent(e, LightComponent_Id);
+    addComponent(e, MaterialComponent_Id);
 
-    SetProperty(e, TransformComponent_Id, "translation"_sid, p_position);
+    setProperty(e, TransformComponent_Id, "translation"_sid, position);
 
-    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Point);
-    SetProperty(e, LightComponent_Id, "atten_constant"_sid, 1.0f);
-    SetProperty(e, LightComponent_Id, "atten_linear"_sid, 0.2f);
-    SetProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.05f);
+    setProperty(e, LightComponent_Id, "type"_sid, LightType::Point);
+    setProperty(e, LightComponent_Id, "atten_constant"_sid, 1.0f);
+    setProperty(e, LightComponent_Id, "atten_linear"_sid, 0.2f);
+    setProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.05f);
 
-    SetProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(p_color, 1.0f));
-    SetProperty(e, MaterialComponent_Id, "emissive"_sid, p_emissive);
-
-    return e;
-}
-
-Entity SceneCommandWriter::CreateInfiniteLightObject(std::string_view p_name,
-                                                     const Vector3f& p_color,
-                                                     float p_emissive) {
-    Entity e = CreateTransformObject(p_name);
-    AddComponent(e, LightComponent_Id);
-    AddComponent(e, MaterialComponent_Id);
-
-    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
-    SetProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(p_color, 1.0f));
-    SetProperty(e, MaterialComponent_Id, "emissive"_sid, p_emissive);
+    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(color, 1.0f));
+    setProperty(e, MaterialComponent_Id, "emissive"_sid, emissive);
 
     return e;
 }
 
-Entity SceneCommandWriter::CreateAreaLightObject(std::string_view p_name,
-                                                 const Vector3f& p_color,
-                                                 float p_emissive) {
-    Entity e = CreateTransformObject(p_name);
-    AddComponent(e, MeshRendererComponent_Id);
-    AddComponent(e, LightComponent_Id);
-    AddComponent(e, MaterialComponent_Id);
+Entity SceneCommandWriter::infiniteLightObject(std::string_view name,
+                                               const Vector3f& color,
+                                               float emissive) {
+    Entity e = transformObject(name);
+    addComponent(e, LightComponent_Id);
+    addComponent(e, MaterialComponent_Id);
 
-    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Area);
-    SetProperty(e, LightComponent_Id, "atten_constant"_sid, 1.0f);
-    SetProperty(e, LightComponent_Id, "atten_linear"_sid, 0.09f);
-    SetProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.032f);
+    setProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
+    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(color, 1.0f));
+    setProperty(e, MaterialComponent_Id, "emissive"_sid, emissive);
 
-    SetProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
-    SetProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(p_color, 1.0f));
-    SetProperty(e, MaterialComponent_Id, "emissive"_sid, p_emissive);
+    return e;
+}
+
+Entity SceneCommandWriter::areaLightObject(std::string_view name,
+                                           const Vector3f& color,
+                                           float emissive) {
+    Entity e = transformObject(name);
+    addComponent(e, MeshRendererComponent_Id);
+    addComponent(e, LightComponent_Id);
+    addComponent(e, MaterialComponent_Id);
+
+    setProperty(e, LightComponent_Id, "type"_sid, LightType::Area);
+    setProperty(e, LightComponent_Id, "atten_constant"_sid, 1.0f);
+    setProperty(e, LightComponent_Id, "atten_linear"_sid, 0.09f);
+    setProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.032f);
+
+    setProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
+    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(color, 1.0f));
+    setProperty(e, MaterialComponent_Id, "emissive"_sid, emissive);
 
     auto handle = m_asset_reg.findByPath<MeshAsset>("@persist://meshes/plane").unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ e };
-    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
-    SetProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
+    setProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
+    setProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
 
     return e;
 }
 
-Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
-                                            std::string_view p_name,
-                                            const MaterialContext& p_mat_ctx) {
-    Entity e = CreateTransformObject(p_name);
+Entity SceneCommandWriter::meshObject(const std::string& mesh_path,
+                                      std::string_view name,
+                                      const MaterialContext& mat_ctx) {
+    Entity e = transformObject(name);
 
-    AddComponent(e, MeshRendererComponent_Id);
+    addComponent(e, MeshRendererComponent_Id);
 
-    Entity mat = CreateNameObject(std::format("{}:mat", p_name));
+    Entity mat = nameObject(std::format("{}:mat", name));
     {
-        AddComponent(mat, MaterialComponent_Id);
-        if (p_mat_ctx.guid) {
-            SetProperty(mat, MaterialComponent_Id, "material_id"_sid, *p_mat_ctx.guid);
+        addComponent(mat, MaterialComponent_Id);
+        if (mat_ctx.guid) {
+            setProperty(mat, MaterialComponent_Id, "material_id"_sid, *mat_ctx.guid);
         }
-        if (p_mat_ctx.base_color != Vector4f::One) {
-            SetProperty(mat, MaterialComponent_Id, "base_color"_sid, p_mat_ctx.base_color);
+        if (mat_ctx.base_color != Vector4f::One) {
+            setProperty(mat, MaterialComponent_Id, "base_color"_sid, mat_ctx.base_color);
         }
     }
 
-    auto handle = m_asset_reg.findByPath<MeshAsset>(p_mesh_path).unwrap();
+    auto handle = m_asset_reg.findByPath<MeshAsset>(mesh_path).unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ mat };
-    SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
-    SetProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
+    setProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
+    setProperty(e, MeshRendererComponent_Id, "materials"_sid, materials);
 
     return e;
 }
 
-Entity SceneCommandWriter::CreateMeshObject(const std::string& p_mesh_path,
-                                            std::string_view p_name,
-                                            const std::string& p_mat_path) {
-    auto handle = m_asset_reg.findByPath<MaterialAsset>(p_mat_path);
+Entity SceneCommandWriter::meshObject(const std::string& mesh_path,
+                                      std::string_view name,
+                                      const std::string& mat_path) {
+    auto handle = m_asset_reg.findByPath<MaterialAsset>(mat_path);
     if (handle.is_some()) {
         const Guid guid = handle.unwrap_unchecked().guid();
-        return CreateMeshObject(p_mesh_path, p_name, { &guid });
+        return meshObject(mesh_path, name, { &guid });
     }
 
-    return CreateMeshObject(p_mesh_path, p_name, MaterialContext{ nullptr });
+    return meshObject(mesh_path, name, MaterialContext{ nullptr });
 }
 
-Entity SceneCommandWriter::CreatePlaneObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
-    return CreateMeshObject("@persist://meshes/plane", p_name, p_mat_ctx);
-}
-
-Entity SceneCommandWriter::CreateCubeObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
-    return CreateMeshObject("@persist://meshes/cube", p_name, p_mat_ctx);
-}
-
-Entity SceneCommandWriter::CreateSphereObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
-    return CreateMeshObject("@persist://meshes/sphere", p_name, p_mat_ctx);
-}
-
-Entity SceneCommandWriter::CreateCylinderObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
-    return CreateMeshObject("@persist://meshes/cylinder", p_name, p_mat_ctx);
-}
-
-Entity SceneCommandWriter::CreateConeObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
-    return CreateMeshObject("@persist://meshes/cone", p_name, p_mat_ctx);
-}
-
-Entity SceneCommandWriter::CreateTorusObject(std::string_view p_name, const MaterialContext& p_mat_ctx) {
-    return CreateMeshObject("@persist://meshes/torus", p_name, p_mat_ctx);
-}
-
-Entity SceneCommandWriter::CreateTileMapObject(std::string_view p_name) {
-    Entity e = CreateTransformObject(p_name);
-    AddComponent(e, TileMapInstanceComponent_Id);
+Entity SceneCommandWriter::tileMapObject(std::string_view name) {
+    Entity e = transformObject(name);
+    addComponent(e, TileMapInstanceComponent_Id);
     return e;
 }
 
