@@ -19,7 +19,7 @@ public:
     Option<StateRequest> popRequest() override;
 
 #if USING(DEBUG_BUILD)
-    DebugId debugId() const { return debug_id_; }
+    DebugId debugId() const { return m_debug_id; }
 #endif
 
 private:
@@ -30,13 +30,13 @@ private:
     void drawRecentProjects();
     void drawSideBar();
 
-    ProjectManager& project_manager_;
-    std::vector<ProjectInfo> project_list_{};
+    ProjectManager& m_project_manager;
+    const DebugId m_debug_id;
 
-    bool request_fired_{ false };
-    Option<StateRequest> request_{};
+    std::vector<ProjectInfo> m_project_list{};
 
-    const DebugId debug_id_;
+    bool m_request_fired{ false };
+    Option<StateRequest> m_request{};
 };
 
 }  // namespace cave

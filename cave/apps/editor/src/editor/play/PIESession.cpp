@@ -38,18 +38,7 @@ bool PIESession::start(PIEStartDesc start_desc) {
 
     m_start_desc = std::move(start_desc);
 
-    if (!ensureGameModuleLoaded()) return false;
-
-    Scene* scene = m_engine_services.sceneRegistry().resolve(m_start_desc.edit_scene);
-    if (!scene) return false;
-
-    if (m_game_module) {
-        PIEHostServices host(m_engine_services, *scene, {});
-
-        m_game_module->onModuleLoaded(host);
-        host.flushSceneCommands();
-    }
-    return true;
+    return ensureGameModuleLoaded();
 }
 
 void PIESession::stop() {

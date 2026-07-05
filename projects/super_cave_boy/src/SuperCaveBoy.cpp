@@ -26,15 +26,6 @@ void SuperCaveBoy::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<BatController>("BatController");
 }
 
-void SuperCaveBoy::onModuleLoaded(IHostServices& host) {
-    LOG_OK(LogChannel::Game, "SuperCaveBoy Loaded");
-
-    unused(host);
-}
-
-void SuperCaveBoy::onModuleUnloaded(IHostServices&) {
-}
-
 void SuperCaveBoy::onGameBegin(IHostServices& host) {
     unused(host);
 }

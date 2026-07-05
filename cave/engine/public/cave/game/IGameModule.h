@@ -22,9 +22,6 @@ public:
 
     virtual void registerNativeScripts(NativeScriptRegistry&) {}
 
-    virtual void onModuleLoaded(IHostServices& host) = 0;
-    virtual void onModuleUnloaded(IHostServices& host) = 0;
-
     virtual void onGameBegin(IHostServices& host) = 0;
     virtual void onGameEnd(IHostServices& host) = 0;
 

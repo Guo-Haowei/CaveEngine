@@ -22,16 +22,6 @@ using cave::ecs::Entity;
 ChessGameModule::ChessGameModule() = default;
 ChessGameModule::~ChessGameModule() = default;
 
-void ChessGameModule::onModuleLoaded(IHostServices& host) {
-    LOG_OK(LogChannel::Game, "ChessClient Loaded");
-
-    // @TODO: move it to present layer
-    spawnObjects(host);
-}
-
-void ChessGameModule::onModuleUnloaded(IHostServices&) {
-}
-
 void ChessGameModule::onGameBegin(IHostServices& host) {
     game_ = std::make_unique<ChessGameMode>(host);
     game_->onEnter(host);
@@ -49,6 +39,7 @@ void ChessGameModule::tick(IHostServices& host, const FrameTime& time) {
 // @TODO: extract it,
 // because other than starting pos,
 // it can be used for any pos, for example, for puzzle mode
+#if 0
 void ChessGameModule::spawnObjects(IHostServices& host) {
     // @TODO: use FEN instead
     constexpr std::array<std::array<Piece, 8>, 8> kInitialBoard = { {
@@ -126,5 +117,6 @@ void ChessGameModule::spawnObjects(IHostServices& host) {
                                       });
     }
 }
+#endif
 
 }  // namespace chess

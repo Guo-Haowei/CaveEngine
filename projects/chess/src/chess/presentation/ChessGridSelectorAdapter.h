@@ -39,25 +39,25 @@ public:
     void tick();
 
     void setController(cave::GridSelectController* controller) {
-        controller_ = controller;
+        m_controller = controller;
     }
 
     void setPlayerCb(GetPlayerFunc&& func) {
-        get_player_cb_ = std::move(func);
+        m_get_player_func = std::move(func);
     }
 
 private:
     void tickPointer(const cave::IGameInput& input);
     void tickKeyboard(const cave::IGameInput& input);
 
-    cave::IHostServices& host_;
-    cave::GridSelectController* controller_{};
-    Entity camera_id_;
+    cave::IHostServices& m_host_;
+    cave::GridSelectController* m_controller{};
+    Entity m_camera_id;
 
-    ChessGameClient& client_;
-    ChessBoardView& board_view_;
+    ChessGameClient& m_client;
+    ChessBoardView& m_board_view;
 
-    GetPlayerFunc get_player_cb_;
+    GetPlayerFunc m_get_player_func;
 };
 
 }  // namespace chess

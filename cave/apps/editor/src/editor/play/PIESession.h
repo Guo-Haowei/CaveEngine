@@ -19,7 +19,6 @@ class Scene;
 struct PIEStartDesc {
     std::string game_dll;
     std::string game_id;
-    SceneId edit_scene;
 };
 
 class PIESession : public NonCopyable,

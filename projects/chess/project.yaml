@@ -1,3 +1,2 @@
 name: chess
-start_scene: "@res://chess.scene"
 thumbnail: "@res://thumbnail.png"

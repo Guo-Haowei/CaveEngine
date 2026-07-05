@@ -110,23 +110,10 @@ void EditorState::onEnter(const StateRequest& request) {
         panel->onAttach();
     }
 
-    // @TODO: get rid of this part
-    SceneId edit_scene{};
-    if (!request.arg1.empty()) {
-        if (auto handle = app_.services().assetRegistry().findByPath(request.arg1); handle.is_some()) {
-            AssetHandle handle_ = handle.unwrap_unchecked();
-            DocId doc_id = document_->openDoc({ handle_.guid(), handle_.meta()->type });
-            if (IDocument* doc = document_->resolve(doc_id)) {
-                edit_scene = doc->previewScene();
-            }
-        }
-    }
-
     // load pie
     PIEStartDesc desc{};
     desc.game_id = request.arg0;
     desc.game_dll = std::format("{}.dll", desc.game_id);
-    desc.edit_scene = edit_scene;
 
     pie_.start(std::move(desc));
 }

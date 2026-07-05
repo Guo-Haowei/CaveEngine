@@ -12,9 +12,6 @@ public:
 
     void registerNativeScripts(cave::NativeScriptRegistry& registry) override;
 
-    void onModuleLoaded(cave::IHostServices& host) override;
-    void onModuleUnloaded(cave::IHostServices& host) override;
-
     void onGameBegin(cave::IHostServices& host) override;
     void onGameEnd(cave::IHostServices& host) override;
 
