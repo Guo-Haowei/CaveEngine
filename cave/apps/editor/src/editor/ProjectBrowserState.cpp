@@ -33,6 +33,7 @@ ProjectBrowserState::ProjectBrowserState(IApplication& app)
 }
 
 void ProjectBrowserState::onEnter(const StateRequest&) {
+    // @TODO: fix this string
     project_list_ = scanProjects(fs::path(ROOT_FOLDER) / "projects");
 }
 
@@ -63,14 +64,14 @@ void ProjectBrowserState::drawRecentProjects() {
         if (hovered) {
             ImGui::BeginTooltip();
             ImGui::Text("version: %d", project.version);
-            ImGui::Text("path: %s", project.path.c_str());
+            ImGui::Text("path: %s", project.project_root.c_str());
             ImGui::Text("start_scene: %s", project.start_scene.c_str());
             ImGui::EndTooltip();
         }
 
         if (clicked && !request_fired_) {
             selectProject(project);
-            DVAR_SET_STRING(last_opened_project, project.path);
+            DVAR_SET_STRING(last_opened_project, project.project_root);
         }
     }
 
@@ -93,7 +94,7 @@ void ProjectBrowserState::selectProject(std::string_view path) {
         return;
     }
     for (const ProjectInfo& project : project_list_) {
-        if (project.path == path) {
+        if (project.project_root == path) {
             selectProject(project);
             break;
         }
@@ -245,7 +246,7 @@ auto scanProjects(const std::filesystem::path& root) -> std::vector<ProjectInfo>
                 continue;
             }
 
-            info.path = std::move(path);
+            info.project_root = std::move(path);
 
             projects.emplace_back(std::move(info));
         }

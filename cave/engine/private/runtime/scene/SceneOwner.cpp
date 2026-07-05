@@ -3,21 +3,21 @@
 namespace cave {
 
 void SceneOwner::requestSceneChange(std::string path) {
-    pending_change_ = Some(std::move(path));
+    m_pending_change = Some(std::move(path));
 }
 
 void SceneOwner::requestSceneReload() {
-    pending_reload_ = true;
+    m_pending_reload = true;
 }
 
 void SceneOwner::flushSceneCommands() {
-    if (pending_reload_) {
-        pending_reload_ = false;
+    if (m_pending_reload) {
+        m_pending_reload = false;
         commitSceneReload();
     }
-    if (pending_change_.is_some()) {
-        std::string path = pending_change_.unwrap_unchecked();
-        pending_change_ = None();
+    if (m_pending_change.is_some()) {
+        std::string path = m_pending_change.unwrap_unchecked();
+        m_pending_change = None();
         if (!path.empty()) {
             commitSceneChange(std::move(path));
         }

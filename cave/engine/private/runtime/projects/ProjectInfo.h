@@ -3,7 +3,7 @@
 namespace cave {
 
 struct ProjectInfo {
-    std::string path;
+    std::string project_root;
 
     // parsed from manifest
     bool is_2d = false;

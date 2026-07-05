@@ -19,7 +19,7 @@ namespace cave {
 bool DeleteObjectCmd::apply(IDocument& doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
         if (Scene* scene = resolveScene(scene_doc->previewScene())) {
-            scene->removeEntity(ent_);
+            scene->removeEntity(m_ent);
             return true;
         }
     }
@@ -34,7 +34,7 @@ bool DeleteObjectCmd::undo(IDocument&) {
 bool CloneObjectCmd::apply(IDocument& doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
         if (Scene* scene = resolveScene(scene_doc->previewScene())) {
-            scene->duplicateEntity(ent_);
+            scene->duplicateEntity(m_ent);
             return true;
         }
     }

@@ -132,6 +132,10 @@ void Scene::flushPendingDestroy() {
 }
 
 void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
+    if (prefab.instance().IsValid()) {
+        removeEntity(prefab.instance());
+    }
+
     auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
     if (handle.is_none()) {
         return;
@@ -185,7 +189,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
     hier.parent_id = ent.IsValid() ? ent : root_;
 
-    prefab.child(mapped_root);
+    prefab.setInstance(mapped_root);
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
@@ -456,7 +460,7 @@ bool SerializePrefabDiff(ISerializer& s,
         return false;
     }
 
-    Entity instance_ent = prefab.child();
+    Entity instance_ent = prefab.instance();
     const Scene* prefab_scene = handle.unwrap_unchecked().get();
     Entity prefab_ent = prefab_scene->root();
 
@@ -614,7 +618,7 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
 
     for (auto&& [ent, overrides] : overrides_map) {
         const auto& prefab = *component<PrefabInstanceComponent>(ent);
-        Entity child_ent = prefab.child();
+        Entity child_ent = prefab.instance();
 #define PREFAB_OVERRIDE(T)                                         \
     if (overrides.T.is_some()) {                                   \
         *component<T>(child_ent) = overrides.T.unwrap_unchecked(); \

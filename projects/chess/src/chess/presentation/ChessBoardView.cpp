@@ -35,14 +35,14 @@ void ChessBoardView::drawBoard() {
             visible = false;
         }
         const ecs::Entity tile = tiles_[i];
-        writer_.SetProperty(tile,
+        writer_.setProperty(tile,
                             cave::MeshRendererComponent_Id,
                             kVisibility,
                             visible);
     }
 
     Vec3f position = squareToVec(hovered_square_);
-    writer_.SetProperty(selector_,
+    writer_.setProperty(selector_,
                         cave::TransformComponent_Id,
                         kTranslationId,
                         position);

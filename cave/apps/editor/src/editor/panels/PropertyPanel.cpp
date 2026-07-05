@@ -42,12 +42,6 @@ using namespace ::cave::math;
     COMPONENT_DECL(TileMapInstance) \
     COMPONENT_DECL(PrefabInstance)
 
-// @TODO: refactor this part
-template<typename T>
-concept HasSetResourceGuid = requires(T& t, const Guid& guid) {
-    { t.SetResourceGuid(guid) } -> std::same_as<bool>;
-};
-
 bool DrawPropertyAuto(const FieldMetaBase* property,
                       void* component,
                       const DrawComponentCtx& ctx) {
@@ -174,12 +168,12 @@ bool DrawComponentAuto(T* component, const DrawComponentCtx& ctx) {
 void PropertyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
-    PreviewScene preview = editor_services_.workspace().focusedPreviewScene();
+    PreviewScene preview = m_editor_services.workspace().focusedPreviewScene();
     if (!preview.scene) {
         return;
     }
 
-    SelectionKey selection = editor_services_.selection().Primary(preview.doc_id);
+    SelectionKey selection = m_editor_services.selection().Primary(preview.doc_id);
 
     ecs::Entity id = selection.entity;
     if (!id.IsValid()) {
@@ -194,12 +188,12 @@ void PropertyPanel::drawUIImpl() {
         return;
     }
 
-    EditService& edit_service = editor_services_.edit();
+    EditService& edit_service = m_editor_services.edit();
 
     const DrawComponentCtx ctx{
-        .services = m_editor.app().services(),
+        .services = m_engine_services,
         .edit = edit_service,
-        .thumbnail = editor_services_.thumbnail(),
+        .thumbnail = m_editor_services.thumbnail(),
         .scene = &scene,
         .entity = id,
         .doc_id = doc_id,
@@ -209,7 +203,7 @@ void PropertyPanel::drawUIImpl() {
         FixedString<64> name = name_component->nameRef();
         if (ui::TextBox("Name", name.data(), name.capacity())) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
-                engine_services_.sceneRegistry(),
+                m_engine_services.sceneRegistry(),
                 id,
                 NameComponent_Id,
                 "name"_sid,
@@ -233,7 +227,7 @@ void PropertyPanel::drawUIImpl() {
             return;
         }
         auto cmd = std::make_unique<AddComponentCmd>(
-            engine_services_.sceneRegistry(),
+            m_engine_services.sceneRegistry(),
             id,
             cid);
         edit_service.submit(doc_id, std::move(cmd));

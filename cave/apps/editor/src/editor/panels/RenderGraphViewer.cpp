@@ -111,6 +111,7 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
 }
 
 void RenderGraphViewer::drawUIImpl() {
+#if 0
     render::CompiledGraph* graph = nullptr;
     if (!graph) return;
 
@@ -134,6 +135,7 @@ void RenderGraphViewer::drawUIImpl() {
     ImNodes::EndNodeEditor();
 
     m_firstFrame = false;
+#endif
 }
 
 }  // namespace cave

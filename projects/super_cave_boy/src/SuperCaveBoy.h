@@ -24,7 +24,6 @@ public:
 }  // namespace super_cave_boy
 
 extern "C" {
-
 CAVE_API cave::IGameModule* CreateGameModule() {
     return new ::super_cave_boy::SuperCaveBoy();
 }

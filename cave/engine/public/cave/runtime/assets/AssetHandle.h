@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/assets/AssetHandle.h
+// =============================================================================
 #pragma once
 #include "cave/core/ids/Guid.h"
 #include "cave/runtime/assets/IAsset.h"
@@ -21,12 +24,12 @@ public:
     AssetHandle() {}
 
     AssetHandle(const Guid& guid, std::shared_ptr<AssetEntry> entry)
-        : guid_(guid)
-        , entry_(std::move(entry)) {}
+        : m_guid(guid)
+        , m_asset_entry(std::move(entry)) {}
 
     void Invalidate() {
-        guid_ = Guid::null();
-        entry_.reset();
+        m_guid = Guid::null();
+        m_asset_entry.reset();
     }
 
     bool isReady() const;
@@ -50,7 +53,7 @@ public:
         return dynamic_cast<T*>(get());
     }
 
-    const Guid& guid() const { return guid_; }
+    const Guid& guid() const { return m_guid; }
 
     AssetMetaData* meta();
     const AssetMetaData* meta() const;
@@ -61,8 +64,8 @@ public:
                                      AssetHandle& out_handle);
 
 private:
-    Guid guid_;
-    std::weak_ptr<AssetEntry> entry_;
+    Guid m_guid;
+    std::weak_ptr<AssetEntry> m_asset_entry;
 };
 
 template<typename T>

@@ -65,11 +65,7 @@ bool TileMapEditor::canHandleInput(const InputFrame& input) {
         return false;
     }
 
-    if (m_editor.IsPlaying()) {
-        return false;
-    }
-
-    const KeyState& st = engine_services_.inputService().keyState();
+    const KeyState& st = m_engine_services.inputService().keyState();
     if (st.anyAltDown() || st.anyCtrlDown() || st.anyShiftDown()) {
         return false;
     }
@@ -125,7 +121,7 @@ bool TileMapEditor::updateEditMode(const InputFrame& input) {
 }
 
 void TileMapEditor::updateTileCoord() {
-    Vec2f point_os = cursor_ + engine_services_.displayService().windowPos();
+    Vec2f point_os = cursor_ + m_engine_services.displayService().windowPos();
     auto res = pointToTile(point_os);
     if (res.is_none()) {
         return;
@@ -135,11 +131,11 @@ void TileMapEditor::updateTileCoord() {
 
     Vec2f min{ coord_.x, coord_.y };
     Vec2f max{ coord_.x + 1, coord_.y + 1 };
-    engine_services_.debugDraw().addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
+    m_engine_services.debugDraw().addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
 }
 
 void TileMapEditor::applayEditorTool() {
-    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    IDocument* doc = m_editor_services.document().resolve(m_doc_id);
     DEV_ASSERT(doc);
 
     TileMapAsset* tile_map = doc->handle<TileMapAsset>().get();
@@ -174,12 +170,12 @@ void TileMapEditor::applayEditorTool() {
         return;  // no op if the tiles are the same
     }
 
-    auto cmd = std::make_unique<SetTileCommand>(engine_services_.sceneRegistry(),
+    auto cmd = std::make_unique<SetTileCommand>(m_engine_services.sceneRegistry(),
                                                 ecs::Entity::Null(),
                                                 coord_,
                                                 old_tile,
                                                 new_tile);
-    editor_services_.edit().submit(doc_id_, std::move(cmd));
+    m_editor_services.edit().submit(m_doc_id, std::move(cmd));
 }
 
 void TileMapEditor::onInputEvents(const InputFrame& input) {
@@ -187,7 +183,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    camera_controller_->update(input);
+    m_camera_controller->update(input);
 
     const bool should_apply_edit = updateEditMode(input);
     updateTileCoord();
@@ -198,7 +194,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
 
 void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
 
-    const Mat4f& proj_view = camera_.projectionViewMatrix();
+    const Mat4f& proj_view = m_camera.projectionViewMatrix();
 
     ImGuizmo::SetOrthographic(true);
     ImGuizmo::BeginFrame();
@@ -209,7 +205,7 @@ void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
 }
 
 void TileMapEditor::drawUIImpl() {
-    ViewRecord* view = view_manager_.resolve(view_id_);
+    ViewRecord* view = m_view_manager.resolve(m_view_id);
     DEV_ASSERT(view);
 
     updateRect(view->display_rect_os);
@@ -299,7 +295,7 @@ void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
             }
 
             Vec2f region_size(128, 128);
-            IconCache& icons = editor_services_.iconCache();
+            IconCache& icons = m_editor_services.iconCache();
             ui::CenteredImage(image, region_size, icons.GetIconHandle(IconName::Checkerboard));
 
             if (ImGui::IsItemClicked()) {
@@ -330,14 +326,14 @@ void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
 Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {
     if (!isVisible()) return None();
 
-    const ViewRecord* view = view_manager_.resolve(view_id_);
+    const ViewRecord* view = m_view_manager.resolve(m_view_id);
     if (!view->display_rect_os.Contains(point_os.x, point_os.y)) {
         return None();
     }
 
     Vec2f ndc = view->screenToNDC(point_os);
 
-    Mat4f pv_inv = glm::inverse(camera_.projectionViewMatrix());
+    Mat4f pv_inv = glm::inverse(m_camera.projectionViewMatrix());
 
     Vec4f pos = pv_inv * Vec4f(ndc, 0.0f, 1.0f);
     pos /= pos.w;

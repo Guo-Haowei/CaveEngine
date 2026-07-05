@@ -25,26 +25,28 @@ public:
 
     void onInputEvents(const InputFrame& input) override;
 
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
-protected:
+private:
     void submitView();
 
     void drawUIImpl() override;
     void drawGizmo(const math::FloatRect& rect);
 
+    void onAssetDropped(AssetHandle&& handle) override;
+
     Scene* getResolvedScene();
 
-    const DebugId debug_id_;
+    EditorState& m_editor;
+    const DebugId m_debug_id;
 
-    GizmoAction gizmo_action_{ GizmoAction::Translate };
+    GizmoAction m_gizmo_action{ GizmoAction::Translate };
 
-    std::array<const char*, 2> button_displays_;
-    std::array<const char*, 2> button_tooltips_;
+    std::array<const char*, 2> m_button_displays;
+    std::array<const char*, 2> m_button_tooltips;
 
-    ToolBarButtonDesc play_button_;
-
-    int button_index_{ 0 };
+    ToolBarButtonDesc m_play_button;
+    int m_button_index{ 0 };
 };
 
 }  // namespace cave

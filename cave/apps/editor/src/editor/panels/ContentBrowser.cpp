@@ -2,12 +2,14 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "cave/core/string/StringUtils.h"
 #include "cave/core/diagnostics/Profiler.h"
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/ThumbnailService.h"
+#include "editor/services/Workspace.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
@@ -20,9 +22,52 @@
 
 namespace cave {
 
+namespace {
+
+std::vector<std::string> SplitVirtualPath(std::string_view path) {
+    std::vector<std::string> out;
+
+    constexpr std::string_view kRoot = "@res://";
+    out.push_back(std::string(kRoot));
+    if (path.empty() || path == kRoot) {
+        return out;
+    }
+
+    DEV_ASSERT(path.starts_with(kRoot));
+
+    std::string s(path.data() + kRoot.size());
+
+    StringSplitter split(s.data());
+    while (split.canAdvance()) {
+        std::string_view part = split.advance('/');
+        out.push_back(std::string(part));
+    }
+
+    return out;
+}
+
+std::string JoinVirtualPath(const std::vector<std::string>& path) {
+    if (path.empty()) {
+        return "@res://";
+    }
+
+    std::string out = path[0];
+
+    for (size_t i = 1; i < path.size(); ++i) {
+        if (!out.ends_with('/')) {
+            out += '/';
+        }
+
+        out += path[i];
+    }
+
+    return out;
+}
+
+}  // namespace
+
 ContentBrowser::ContentBrowser(EditorState& editor)
     : EditorWindow(editor) {
-    current_path_ = { "@res://" };
 }
 
 const char* ContentBrowser::windowId() const {
@@ -30,7 +75,10 @@ const char* ContentBrowser::windowId() const {
 }
 
 void ContentBrowser::onAttach() {
-    IconCache& icons = editor_services_.iconCache();
+    std::string_view current_path = m_editor_services.workspace().workspaceState().content_browser.current_path;
+    current_path_ = SplitVirtualPath(current_path);
+
+    IconCache& icons = m_editor_services.iconCache();
     folder_iamge_ = icons.GetIconHandle(IconName::Folder);
     fallback_iamge_ = icons.GetIconHandle(IconName::Meta);
     thumbnail_lut_[".scene"] = icons.GetIconHandle(IconName::Scene);
@@ -40,6 +88,10 @@ void ContentBrowser::onAttach() {
     thumbnail_lut_[".tileset"] = icons.GetIconHandle(IconName::TileSet);
 
     DEV_ASSERT(folder_iamge_ && fallback_iamge_);
+}
+
+void ContentBrowser::onDetach() {
+    m_editor_services.workspace().workspaceState().content_browser.current_path = JoinVirtualPath(current_path_);
 }
 
 void ContentBrowser::drawUIImpl() {
@@ -94,6 +146,7 @@ const ContentEntry* ContentBrowser::navigate(const ContentEntry* p_node,
 }
 
 void ContentBrowser::drawContentBrowser() {
+#if 0
     std::vector<ToolBarButtonDesc> descs = {
         { ICON_FA_FOLDER_CLOSED, "Placeholder",
           []() {
@@ -112,10 +165,9 @@ void ContentBrowser::drawContentBrowser() {
     }
 
     DrawToolBar(d);
+#endif
 
     drawBreadcrumb();
-
-    // thumbnails
 
     // @TODO: reuse this part
     ImVec2 window_size = ImGui::GetContentRegionAvail();
@@ -138,7 +190,7 @@ void ContentBrowser::drawContentBrowser() {
 
     constexpr uint32_t thumbnail_size = 256;
 
-    ThumbnailService& thumbnail = editor_services_.thumbnail();
+    ThumbnailService& thumbnail = m_editor_services.thumbnail();
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
         if (p_entry.is_dir) return folder_iamge_;
         const AssetMetaData* meta = p_entry.handle.meta();
@@ -154,7 +206,7 @@ void ContentBrowser::drawContentBrowser() {
                 .guid = p_entry.handle.guid(),
                 .size = thumbnail_size,
             };
-            if (uint64_t handle = thumbnail.GetOrRequest(key)) {
+            if (uint64_t handle = thumbnail.getOrRequest(key)) {
                 return handle;
             }
         }
@@ -170,7 +222,7 @@ void ContentBrowser::drawContentBrowser() {
                                                 node->file_name.data(),
                                                 math::Vec2f(thumbnail_size));
         if (ImGui::BeginPopupContextItem()) {
-            ShowPopup(*node, editor_services_.document(), []() {
+            ShowPopup(*node, m_editor_services.document(), []() {
                 LOG_WARN("TODO: rename");
             });
             ImGui::EndPopup();

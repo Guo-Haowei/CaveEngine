@@ -84,8 +84,8 @@ void ChessPieceView::redrawPieces(const Position& position) {
         // set the reset of the pieces invisible
         for (uint8_t i = entry.cursor; i < entry.pool.size(); ++i) {
             Entity e = entry.pool[i];
-            writer_.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
-            writer_.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
+            writer_.setProperty(e, MeshRendererComponent_Id, kVisibility, false);
+            writer_.setProperty(e, MeshRendererComponent_Id, kCastShadow, false);
         }
     }
 }
@@ -97,9 +97,9 @@ void ChessPieceView::spawnPiece(Piece piece, Square square) {
 
     Vec3f translation = squareToVec(square);
 
-    writer_.SetProperty(ent, TransformComponent_Id, kTranslationId, translation);
-    writer_.SetProperty(ent, MeshRendererComponent_Id, kVisibility, true);
-    writer_.SetProperty(ent, MeshRendererComponent_Id, kCastShadow, true);
+    writer_.setProperty(ent, TransformComponent_Id, kTranslationId, translation);
+    writer_.setProperty(ent, MeshRendererComponent_Id, kVisibility, true);
+    writer_.setProperty(ent, MeshRendererComponent_Id, kCastShadow, true);
 
     board_[square.index()] = ent;
 }
@@ -108,8 +108,8 @@ void ChessPieceView::removePiece(core::Square square) {
     const Entity e = board_[square.index()];
     board_[square.index()] = Entity::Null();
 
-    writer_.SetProperty(e, MeshRendererComponent_Id, kVisibility, false);
-    writer_.SetProperty(e, MeshRendererComponent_Id, kCastShadow, false);
+    writer_.setProperty(e, MeshRendererComponent_Id, kVisibility, false);
+    writer_.setProperty(e, MeshRendererComponent_Id, kCastShadow, false);
 }
 
 void ChessPieceView::movePiece(Square from, Square to) {
@@ -120,12 +120,12 @@ void ChessPieceView::movePiece(Square from, Square to) {
     board_[to.index()] = ent;
 
     constexpr auto cid = TransformAnimationComponent_Id;
-    writer_.AddComponent(ent, cid);
-    writer_.SetProperty(ent, cid, "begin"_sid, squareToVec(from));
-    writer_.SetProperty(ent, cid, "end"_sid, squareToVec(to));
-    writer_.SetProperty(ent, cid, "duration"_sid, 0.25f);
-    writer_.SetProperty(ent, cid, "playing"_sid, true);
-    writer_.SetProperty(ent, cid, "destroy_on_finish"_sid, true);
+    writer_.addComponent(ent, cid);
+    writer_.setProperty(ent, cid, "begin"_sid, squareToVec(from));
+    writer_.setProperty(ent, cid, "end"_sid, squareToVec(to));
+    writer_.setProperty(ent, cid, "duration"_sid, 0.25f);
+    writer_.setProperty(ent, cid, "playing"_sid, true);
+    writer_.setProperty(ent, cid, "destroy_on_finish"_sid, true);
 }
 
 void ChessPieceView::applyMove(const Position& position, Move move) {

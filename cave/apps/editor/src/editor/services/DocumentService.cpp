@@ -31,7 +31,7 @@ DocId DocumentService::openDoc(const OpenDocDesc& desc) {
     if (auto it = guid_to_doc_.find(desc.guid); it != guid_to_doc_.end()) {
         doc_id = it->second;
     } else {
-        auto doc = CreateDoc(app_services_, desc);
+        auto doc = CreateDoc(engine_services_, desc);
         doc_id = Base::create(std::move(doc));
         guid_to_doc_[desc.guid] = doc_id;
     }

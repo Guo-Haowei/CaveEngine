@@ -75,16 +75,14 @@ bool CheckWallGrab(
 }  // namespace
 
 void PlayerController::onCreate(cave::SceneContext& ctx) {
-    animator_ = ctx.query.findChildByName("animator_node", entity());
+    m_animator = ctx.query.findChildByName("animator_node", entity());
 }
 
 void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
-    hurt_timer_.tick(dt);
+    m_hurt_timer.tick(dt);
 
-    if (health_ <= 0) {
-        // Later: revive/request respawn
-        // Revive();
-    }
+    // if (health_ <= 0) {
+    // }
 
     const IGameInput& input = ctx.engine_services.gameInput();
     SceneQuery& query = ctx.query;
@@ -94,7 +92,7 @@ void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
     auto vel = query.component<VelocityComponent>(entity());
     auto motor = query.component<MotorComponent>(entity());
     auto contact = query.component<ContactComponent>(entity());
-    auto animator = query.component<SpriteAnimatorComponent>(animator_);
+    auto animator = query.component<SpriteAnimatorComponent>(m_animator);
 
     DEV_ASSERT(transform && collider && vel && motor && contact && animator);
 
@@ -111,10 +109,10 @@ void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
         input.isPressed("ui_left"_sid);
 
     // Contact is from previous MotorSystem frame.
-    taking_jump_ = contact->hit_down;
+    m_taking_jump_ = contact->hit_down;
 
     if (contact->hit_down) {
-        grabbing_ = false;
+        m_grabbing_ = false;
     }
 
     // Jump can cancel grab.
@@ -123,7 +121,7 @@ void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
     }
 
     // If currently grabbing, freeze player and skip normal movement.
-    if (grabbing_) {
+    if (m_grabbing_) {
         move_x = 0;
 
         vel->linear.x = 0.0f;
@@ -144,7 +142,7 @@ void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
     //
     // Must happen after normal velocity is known, but before MotorSystem.
     // MotorSystem will run after this script update.
-    const bool airborne = !taking_jump_;
+    const bool airborne = !m_taking_jump_;
     const bool falling = vel->linear.y < 0.0f;
 
     if (airborne && falling) {
@@ -154,8 +152,8 @@ void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
         const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
         DEV_ASSERT(tile_world);
         if (CheckWallGrab(body, predicted_dy, *tile_world)) {
-            grabbing_ = true;
-            taking_jump_ = false;
+            m_grabbing_ = true;
+            m_taking_jump_ = false;
 
             vel->linear.x = 0.0f;
             vel->linear.y = 0.0f;
@@ -169,7 +167,7 @@ void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
 }
 
 void PlayerController::updateAnimation(SpriteAnimatorComponent& animator) {
-    switch (state_) {
+    switch (m_state) {
         case PlayerState::Idle: {
             animator.currentClip("idle");
         } break;
@@ -194,45 +192,45 @@ void PlayerController::updateAnimation(SpriteAnimatorComponent& animator) {
 
 void PlayerController::updatePlayerState(VelocityComponent& vel) {
     if (hurt()) {
-        state_ = PlayerState::Hurt;
+        m_state = PlayerState::Hurt;
         return;
     }
 
-    if (grabbing_) {
-        state_ = PlayerState::Grab;
+    if (m_grabbing_) {
+        m_state = PlayerState::Grab;
         return;
     }
 
-    if (!taking_jump_) {
-        state_ = PlayerState::Air;
+    if (!m_taking_jump_) {
+        m_state = PlayerState::Air;
         return;
     }
 
     if (vel.linear.x != 0.0f) {
-        state_ = PlayerState::Walk;
+        m_state = PlayerState::Walk;
         return;
     }
 
-    state_ = PlayerState::Idle;
+    m_state = PlayerState::Idle;
 }
 
 void PlayerController::tryJump(VelocityComponent& vel,
                                MotorComponent& motor) {
-    if (grabbing_) {
+    if (m_grabbing_) {
         vel.linear.y = kPlayerWallJumpForce;
 
-        taking_jump_ = false;
-        grabbing_ = false;
+        m_taking_jump_ = false;
+        m_grabbing_ = false;
 
         motor.affected_by_gravity = true;
         return;
     }
 
-    if (taking_jump_) {
+    if (m_taking_jump_) {
         vel.linear.y = kPlayerJumpForce;
 
-        taking_jump_ = false;
-        grabbing_ = false;
+        m_taking_jump_ = false;
+        m_grabbing_ = false;
 
         motor.affected_by_gravity = true;
         return;
@@ -242,21 +240,21 @@ void PlayerController::tryJump(VelocityComponent& vel,
 void PlayerController::takeDamage(VelocityComponent& vel,
                                   MotorComponent& motor,
                                   const PlayerHurtInfo& info) {
-    if (hurt_timer_.active()) {
+    if (m_hurt_timer.active()) {
         return;
     }
 
-    health_ -= info.damage;
+    // health_ -= info.damage;
 
-    hurt_timer_.start();
+    m_hurt_timer.start();
 
     vel.linear.x = info.knockback.x;
     vel.linear.y = info.knockback.y;
 
     motor.affected_by_gravity = true;
 
-    grabbing_ = false;
-    taking_jump_ = false;
+    m_grabbing_ = false;
+    m_taking_jump_ = false;
 
     // @TODO: play sound
 }
@@ -267,8 +265,8 @@ void PlayerController::bounceFromEnemy(VelocityComponent& vel,
     vel.linear.y = bounce_speed;
     motor.affected_by_gravity = true;
 
-    grabbing_ = false;
-    taking_jump_ = false;
+    m_grabbing_ = false;
+    m_taking_jump_ = false;
 }
 
 }  // namespace super_cave_boy

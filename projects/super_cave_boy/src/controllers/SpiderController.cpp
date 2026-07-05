@@ -32,11 +32,11 @@ void SpiderController::onCreate(SceneContext& ctx) {
 void SpiderController::onUpdate(SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
-    if (!player_.IsValid()) {
-        player_ = findPlayer(query);
+    if (!m_player.IsValid()) {
+        m_player = findPlayer(query);
     }
 
-    switch (state_) {
+    switch (m_state) {
         case SpiderState::Idle:
             updateIdle(query, dt);
             break;
@@ -55,44 +55,38 @@ void SpiderController::onUpdate(SceneContext& ctx, float dt) {
 }
 
 void SpiderController::changeState(SpiderState state) {
-    if (state_ == state) {
+    if (m_state == state) {
         return;
     }
 
-    state_ = state;
+    m_state = state;
 
-    if (state_ == SpiderState::Wait) {
-        wait_timer_ = wait_duration_;
+    if (m_state == SpiderState::Wait) {
+        m_wait_timer.start();
     }
 }
 
 bool SpiderController::canAttackPlayer(const Vec2f& spider_pos,
                                        const Vec2f& player_pos) const {
     const float dx = std::abs(player_pos.x - spider_pos.x);
-    const float dy = player_pos.y - spider_pos.y;
+    const float dy = std::abs(player_pos.y - spider_pos.y);
 
-    const bool close_x = dx <= detect_range_x_;
-
-    // Y-up convention:
-    // allow player somewhat above spider and somewhat below spider.
-    const bool valid_y =
-        dy <= detect_above_ &&
-        dy >= -detect_below_;
-
-    return close_x && valid_y;
+    const bool close_x = dx <= m_detect_range.x;
+    const bool close_y = dy <= m_detect_range.y;
+    return close_x && close_y;
 }
 
 float SpiderController::computeJumpXSpeed(float distance_x) const {
-    const float speed = distance_x * jump_x_distance_scale_ + min_jump_x_speed_;
-    return std::clamp(speed, min_jump_x_speed_, max_jump_x_speed_);
+    const float speed = distance_x * m_jump_x_distance_scale + m_min_jump_x_speed;
+    return std::clamp(speed, m_min_jump_x_speed, m_max_jump_x_speed);
 }
 
 void SpiderController::updateIdle(SceneQuery& query, float) {
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
 
-    auto player_transform = query.component<TransformComponent>(player_);
-    auto player_collider = query.component<ColliderComponent>(player_);
+    auto player_transform = query.component<TransformComponent>(m_player);
+    auto player_collider = query.component<ColliderComponent>(m_player);
 
     DEV_ASSERT(transform && collider && player_transform && player_collider);
 
@@ -109,8 +103,8 @@ void SpiderController::enterAttack(SceneQuery& query) {
     auto collider = query.component<ColliderComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
 
-    auto player_transform = query.component<TransformComponent>(player_);
-    auto player_collider = query.component<ColliderComponent>(player_);
+    auto player_transform = query.component<TransformComponent>(m_player);
+    auto player_collider = query.component<ColliderComponent>(m_player);
 
     DEV_ASSERT(transform && collider && vel && player_transform && player_collider);
 
@@ -120,7 +114,7 @@ void SpiderController::enterAttack(SceneQuery& query) {
     const float dx = player_pos.x - spider_pos.x;
     const float abs_dx = std::abs(dx);
 
-    if (abs_dx > attack_range_x_) {
+    if (abs_dx > m_attack_range_x) {
         changeState(SpiderState::Idle);
         return;
     }
@@ -128,7 +122,7 @@ void SpiderController::enterAttack(SceneQuery& query) {
     const float dir_x = dx >= 0.0f ? 1.0f : -1.0f;
 
     vel->linear.x = dir_x * computeJumpXSpeed(abs_dx);
-    vel->linear.y = jump_y_speed_;
+    vel->linear.y = m_jump_y_speed;
 
     changeState(SpiderState::Air);
 }
@@ -146,22 +140,20 @@ void SpiderController::updateAir(SceneQuery& query, float) {
 }
 
 void SpiderController::updateWait(float dt) {
-    wait_timer_ -= dt;
-
-    if (wait_timer_ <= 0.0f) {
-        wait_timer_ = 0.0f;
+    m_wait_timer.tick(dt);
+    if (m_wait_timer.finished()) {
         changeState(SpiderState::Idle);
     }
 }
 
 void SpiderController::updateAnimation(SceneQuery& query) {
-    auto animator = query.component<SpriteAnimatorComponent>(animator_);
+    auto animator = query.component<SpriteAnimatorComponent>(m_animator);
 
     if (!animator) {
         return;
     }
 
-    switch (state_) {
+    switch (m_state) {
         case SpiderState::Idle: {
             animator->currentClip("idle");
         } break;

@@ -29,7 +29,7 @@ class DocumentService : protected GenIdRegistry<IDocument> {
 public:
     DocumentService(EngineServices& app_services,
                     EditorServices& editor_services) noexcept
-        : app_services_(app_services)
+        : engine_services_(app_services)
         , editor_services_(editor_services) {}
 
     DocId openDoc(const OpenDocDesc& desc);
@@ -45,7 +45,7 @@ public:
     bool save(const Guid& guid);
 
 private:
-    EngineServices& app_services_;
+    EngineServices& engine_services_;
     EditorServices& editor_services_;
 
     std::unordered_map<Guid, DocId> guid_to_doc_;

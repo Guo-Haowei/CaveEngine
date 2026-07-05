@@ -10,19 +10,19 @@ class SceneRegistry;
 
 class SceneCommandExecutor_Undo final : public ISceneCommandExecutor {
 public:
-    explicit SceneCommandExecutor_Undo(SceneRegistry& p_scene_reg) noexcept;
+    explicit SceneCommandExecutor_Undo(SceneRegistry& scene_reg) noexcept;
 
     ~SceneCommandExecutor_Undo();
 
-    void AddComponent(ecs::Entity p_ent, ComponentId p_cid) override;
+    void addComponent(ecs::Entity ent, ComponentId cid) override;
 
-    bool RemoveComponent(ecs::Entity p_ent, ComponentId p_cid) override;
+    bool removeComponent(ecs::Entity ent, ComponentId cid) override;
 
-    bool ChangeProperty(ecs::Entity p_ent,
-                        ComponentId p_cid,
-                        const PropertyId& p_pid,
-                        const void* p_data,
-                        uint32_t p_data_size) override;
+    bool changeProperty(ecs::Entity ent,
+                        ComponentId cid,
+                        const PropertyId& pid,
+                        const void* data,
+                        uint32_t data_size) override;
 
     std::unique_ptr<IEditCmd> MoveCommand();
 

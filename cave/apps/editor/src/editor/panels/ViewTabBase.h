@@ -1,12 +1,14 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
+#include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/view/ViewDesc.h"
 
+#include "editor/camera/CameraController.h"
 #include "editor/document/SceneDocument.h"
 #include "editor/panels/Tab.h"
 
 // @TODO: refactor
-#include "editor/camera/CameraController.h"
+#include "engine/private/runtime/scene/SceneOwner.h"
 
 namespace cave {
 
@@ -30,27 +32,31 @@ public:
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
 
-    ViewId viewId() const override { return view_id_; }
+    ViewId viewId() const override { return m_view_id; }
 
 private:
     void commitSceneChange(std::string&&) override {}
     void commitSceneReload() override;
+    virtual void onAssetDropped(AssetHandle&&) {}
 
 protected:
     void submitView(bool support_pie);
     void drawMainView(const math::FloatRect& rect);
     void updateRect(math::FloatRect& out_rect);
 
-    ViewManager& view_manager_;
-    const ViewDimension dim_;
-    SceneId preview_scene_id_;
+    bool tabState(TabState& out) const override;
+
+    EditorState& m_editor;
+    ViewManager& m_view_manager;
+    const ViewDimension m_dim;
+    SceneId m_preview_scene_id;
 
     // @TODO: refactor
-    std::unique_ptr<ICameraController> camera_controller_;
-    CameraComponent camera_;
-    TransformComponent camera_transform_;
-    GpuTextureId texture_;
-    ViewId view_id_;
+    std::unique_ptr<ICameraController> m_camera_controller;
+    CameraComponent m_camera;
+    TransformComponent m_camera_transform;
+    GpuTextureId m_texture;
+    ViewId m_view_id;
 };
 
 }  // namespace cave

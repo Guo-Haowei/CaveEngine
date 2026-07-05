@@ -10,8 +10,7 @@ class IDocument;
 
 class AssetInspector : public EditorWindow {
 public:
-    AssetInspector(EditorState& editor,
-                   EditorServices& editor_services);
+    AssetInspector(EditorState& editor);
 
     const char* windowId() const override {
         return "Asset Inspector";
@@ -21,8 +20,6 @@ public:
 
 protected:
     void drawUIImpl() override;
-
-    EditorServices& editor_services_;
 };
 
 }  // namespace cave

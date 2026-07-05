@@ -33,18 +33,18 @@ public:
 
     bool isNull() const { return *this == Guid{}; }
 
-    bool operator==(const Guid& rhs) const { return data_ == rhs.data_; }
-    bool operator!=(const Guid& rhs) const { return data_ != rhs.data_; }
+    bool operator==(const Guid& rhs) const { return m_data == rhs.m_data; }
+    bool operator!=(const Guid& rhs) const { return m_data != rhs.m_data; }
     std::strong_ordering operator<=>(const Guid& rhs) const noexcept {
-        return data_ <=> rhs.data_;
+        return m_data <=> rhs.m_data;
     }
 
-    const uint8_t* data() const { return data_.data(); };
+    const uint8_t* data() const { return m_data.data(); };
 
     std::string toString() const;
 
 private:
-    std::array<uint8_t, kSize> data_{};
+    std::array<uint8_t, kSize> m_data{};
 };
 
 }  // namespace cave

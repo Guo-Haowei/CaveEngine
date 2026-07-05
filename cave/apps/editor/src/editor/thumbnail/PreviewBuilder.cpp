@@ -77,8 +77,6 @@ PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
 
 PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
                                               const PreviewOptions& options) const {
-    unused(options);
-
     const Scene* source_scene = handle.get<Scene>();
     DEV_ASSERT(source_scene);
     const AssetMetaData* meta = handle.meta();
@@ -87,15 +85,27 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
     scene->copy(*source_scene);
 
-    for (auto [id, cam] : scene->view<CameraComponent>()) {
-        cam.setAspect(1.0f);
+    // @TODO: better camera
+    CameraSource camera_source;
+    if (scene->count<CameraComponent>()) {
+        for (auto [id, cam] : scene->view<CameraComponent>()) {
+            cam.setAspect(1.0f);
+        }
+        scene->update(0.0f);
+        camera_source = CameraSource::FirstCamera();
+    } else {
+        Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
+        CameraComponent camera{};
+        camera.setAspect((float)options.width / (float)options.height);
+        camera.update(transform);
+        camera.setFovy(options.fov_y_deg);
+        camera_source = CameraSource::External(camera);
     }
-    scene->update(0.0f);
 
     return {
         .status = PreviewBuildStatus::Ok,
         .scene_id = scene_reg_.registerScene(std::move(scene)),
-        .camera = CameraSource::FirstCamera(),
+        .camera = camera_source,
     };
 }
 
@@ -103,17 +113,17 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
                                                  const PreviewOptions& options) const {
 
     SceneCommandWriter cb(asset_reg_);
-    Entity root = cb.CreateRootObject();
+    Entity root = cb.rootObject();
 
     if constexpr (1) {
-        Entity light = cb.CreatePointLightObject("light", math::Vec3f(0, 3, 1));
-        cb.AttachChild(light, root);
+        Entity light = cb.pointLightObject("light", math::Vec3f(0, 3, 1));
+        cb.attachChild(light, root);
     }
 
     if constexpr (1) {
         Guid guid = handle.guid();
-        Entity sphere = cb.CreateSphereObject("sphere", { &guid });
-        cb.AttachChild(sphere, root);
+        Entity sphere = cb.sphereObject("sphere", { &guid });
+        cb.attachChild(sphere, root);
     }
 
     const AssetMetaData* meta = handle.meta();
@@ -121,7 +131,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
     SceneCommandExecutor executor(*scene);
-    EntityMap map(cb.GetAllocationCount());
+    EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));
@@ -144,21 +154,21 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
 PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const PreviewOptions& options) const {
 
     SceneCommandWriter cb(asset_reg_);
-    Entity root = cb.CreateRootObject();
+    Entity root = cb.rootObject();
 
     const MeshAsset* mesh = handle.get<MeshAsset>();
     DEV_ASSERT(mesh);
 
     if constexpr (1) {
-        Entity light = cb.CreatePointLightObject("light", math::Vec3f(0, 3, 1));
-        cb.AttachChild(light, root);
+        Entity light = cb.pointLightObject("light", math::Vec3f(0, 3, 1));
+        cb.attachChild(light, root);
     }
 
     if constexpr (1) {
-        Entity e = cb.CreateTransformObject("mesh");
-        cb.AddComponent(e, MeshRendererComponent_Id);
-        cb.SetProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
-        cb.AttachChild(e, root);
+        Entity e = cb.transformObject("mesh");
+        cb.addComponent(e, MeshRendererComponent_Id);
+        cb.setProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
+        cb.attachChild(e, root);
     }
 
     const AssetMetaData* meta = handle.meta();
@@ -166,7 +176,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
 
     SceneCommandExecutor executor(*scene);
-    EntityMap map(cb.GetAllocationCount());
+    EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));

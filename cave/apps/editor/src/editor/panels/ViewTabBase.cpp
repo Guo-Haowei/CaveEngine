@@ -1,35 +1,56 @@
 #include "ViewTabBase.h"
 
-#include "engine/private/runtime/view/ViewManager.h"
+#include "cave/runtime/framework/EngineServices.h"
 
+#include "editor/services/EditorServices.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
+#include "editor/widgets/DragDrop.h"
 
 // @TODO: remove
-#include "engine/private/renderer/sampler.h"
+#include "editor/EditorState.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
+#include "engine/private/runtime/view/ViewManager.h"
+
 #include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/renderer/sampler.h"
 
 namespace cave {
 
 using namespace ::cave::math;
 
+namespace {
+
 #if 1
-static constexpr uint32_t kTextureWidth = 1920;
-static constexpr uint32_t kTextureHeight = 1080;
+constexpr uint32_t kTextureWidth = 1920;
+constexpr uint32_t kTextureHeight = 1080;
 #else
-static constexpr uint32_t kTextureWidth = 640;
-static constexpr uint32_t kTextureHeight = 480;
+constexpr uint32_t kTextureWidth = 640;
+constexpr uint32_t kTextureHeight = 480;
 #endif
+
+// @TODO: refactor
+void FitAspect(float aspect, float& w, float& h) {
+    if (aspect * h > w) {
+        h = w / aspect;
+    } else {
+        w = h * aspect;
+    }
+}
+
+}  // namespace
 
 ViewTabBase::ViewTabBase(EditorState& editor,
                          DocId doc_id,
                          SceneId scene_id,
                          ViewDimension dim)
     : Tab(editor, doc_id)
-    , view_manager_(engine_services_.viewManager())
-    , dim_(dim)
-    , preview_scene_id_(scene_id) {
+    , m_editor(editor)
+    , m_view_manager(m_engine_services.viewManager())
+    , m_dim(dim)
+    , m_preview_scene_id(scene_id) {
 
     // @TODO: move it to somewhere else
     GpuTextureDesc desc{
@@ -44,47 +65,64 @@ ViewTabBase::ViewTabBase(EditorState& editor,
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .miscFlags = RESOURCE_MISC_NONE,
     };
-    texture_ = m_editor.app().services().renderDevice().CreateTexture(
+    m_texture = m_engine_services.renderDevice().CreateTexture(
         desc,
         PointClampSampler());
 }
 
 void ViewTabBase::onCreate() {
-    camera_.setAspect((float)kTextureWidth / (float)kTextureHeight);
-    camera_.setDirty();
-    switch (dim_) {
+    m_camera.setAspect((float)kTextureWidth / (float)kTextureHeight);
+    m_camera.setDirty();
+    switch (m_dim) {
         case ViewDimension::Dim2: {
-            camera_.setProjectionType(ProjectionType::Orthographic);
-            camera_transform_.translate(Vec3f(0, 0, 4));
-            camera_controller_ = std::make_unique<CameraController2DEditor>(camera_, camera_transform_);
+            m_camera.setProjectionType(ProjectionType::Orthographic);
+            m_camera_transform.translate(Vec3f(0, 0, 4));
+            m_camera_controller = std::make_unique<CameraController2DEditor>(m_camera, m_camera_transform);
         } break;
         case ViewDimension::Dim3: {
-            camera_transform_.translate(Vec3f(0, 4, 8));
-            camera_controller_ = std::make_unique<CameraControllerFPS>(camera_, camera_transform_);
+            m_camera_transform.translate(Vec3f(0, 4, 8));
+            m_camera_controller = std::make_unique<CameraControllerFPS>(m_camera, m_camera_transform);
         } break;
     }
 
-    camera_transform_.updateTransform();
-    camera_.update(camera_transform_.worldMatrix());
+    IDocument* doc = m_editor_services.document().resolve(m_doc_id);
+    if (DEV_VERIFY(doc)) {
+        const Guid guid = doc->guid();
+        auto& tabs = m_editor_services.workspace().workspaceState().tabs;
 
-    view_id_ = view_manager_.createView(
+        auto it = std::find_if(tabs.begin(), tabs.end(),
+                               [&guid](const TabState& tab) {
+                                   return tab.guid == guid;
+                               });
+
+        if (it != tabs.end()) {
+            TabState& tab = *it;
+            m_camera = tab.camera.unwrap_or(m_camera);
+            m_camera_transform = tab.transform.unwrap_or(m_camera_transform);
+        }
+    }
+
+    m_camera_transform.updateTransform();
+    m_camera.update(m_camera_transform.worldMatrix());
+
+    m_view_id = m_view_manager.createView(
         "SceneView",
         { 0, 0, kTextureWidth, kTextureHeight });
 
-    engine_services_.sceneScheduler().add(this);
+    m_engine_services.sceneScheduler().add(this);
 }
 
 void ViewTabBase::onDestroy() {
-    view_manager_.destroyView(view_id_);
+    m_view_manager.destroyView(m_view_id);
 
-    engine_services_.sceneScheduler().remove(this);
+    m_engine_services.sceneScheduler().remove(this);
 }
 
 void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
-    if (!m_editor.IsPlaying()) {
+    if (!m_editor.isPlaying()) {
         out_requests.push_back(SceneTickRequest{
             SceneTickMode::Editor,
-            preview_scene_id_,
+            m_preview_scene_id,
             *this,
         });
     }
@@ -93,31 +131,22 @@ void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests)
 void ViewTabBase::submitView(bool support_pie) {
     using namespace render;
     ViewDesc view;
-    view.view_id = view_id_;
+    view.view_id = m_view_id;
     view.viewport_px = { 0, 0, kTextureWidth, kTextureHeight };
-    if (support_pie && m_editor.IsPlaying()) {
+    if (support_pie && m_editor.isPlaying()) {
         view.scene_id = m_editor.PIE().getPIESceneId();
         view.camera_source = CameraSource::FirstCamera();
     } else {
-        view.scene_id = preview_scene_id_;
-        view.camera_source = CameraSource::External(camera_);
+        view.scene_id = m_preview_scene_id;
+        view.camera_source = CameraSource::External(m_camera);
 
-        SelectionKey key = editor_services_.selection().Primary(doc_id_);
-        if (key.scene == preview_scene_id_ && key.entity.IsValid()) {
+        SelectionKey key = m_editor_services.selection().Primary(m_doc_id);
+        if (key.scene == m_preview_scene_id && key.entity.IsValid()) {
             view.highlight.entities.insert(key.entity);
         }
     }
-    view.output = texture_;
-    view_manager_.submit(view);
-}
-
-// @TODO: refactor
-static void fitAspect(float aspect, float& w, float& h) {
-    if (aspect * h > w) {
-        h = w / aspect;
-    } else {
-        w = h * aspect;
-    }
+    view.output = m_texture;
+    m_view_manager.submit(view);
 }
 
 void ViewTabBase::updateRect(math::FloatRect& out_rect) {
@@ -128,8 +157,8 @@ void ViewTabBase::updateRect(math::FloatRect& out_rect) {
         size.x -= 2 * cursor_pos.x;
         size.y -= 1.2f * cursor_pos.y;
 
-        const float aspect = camera_.aspect();
-        fitAspect(aspect, size.x, size.y);
+        const float aspect = m_camera.aspect();
+        FitAspect(aspect, size.x, size.y);
     }
 
     out_rect = math::FloatRect::FromMinMax(
@@ -146,7 +175,7 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     const ImVec2 max{ rect.Right(), rect.Bottom() };
 
     // @TODO: move it somewhere else
-    uint64_t handle = texture_->GetHandle();
+    uint64_t handle = m_texture->GetHandle();
     // add image for drawing
     switch (m_editor.app().backend()) {
         case Backend::Direct3D11:
@@ -167,24 +196,30 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
             break;
     }
 
-    // @TODO: drop target
     ImGui::Dummy({ rect.w, rect.h });
-    // ImGui::InvisibleButton("###DropTarget", size);
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CAVE/Asset")) {
-        }
-        ImGui::EndDragDropTarget();
+    if (auto handle_ = DragDropTarget(AssetType::All); handle_.is_some()) {
+        onAssetDropped(std::move(handle_.unwrap_unchecked()));
     }
 }
 
 void ViewTabBase::commitSceneReload() {
     DocId doc_id = docId();
-    IDocument* doc = editor_services_.document().resolve(doc_id);
+    IDocument* doc = m_editor_services.document().resolve(doc_id);
     if (!doc) {
         return;
     }
 
     doc->reloadPreviewScene();
+}
+
+bool ViewTabBase::tabState(TabState& out) const {
+    if (!Tab::tabState(out)) {
+        return false;
+    }
+
+    out.camera = Some(m_camera);
+    out.transform = Some(m_camera_transform);
+    return true;
 }
 
 }  // namespace cave

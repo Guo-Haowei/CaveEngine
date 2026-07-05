@@ -39,12 +39,12 @@ bool ChangePropertyCmd::apply(IDocument& doc) {
     if (!scene) return false;
 
     SceneCommandExecutor executor(*scene);
-    bool res = executor.ChangeProperty(ent_,
+    bool res = executor.changeProperty(m_ent,
                                        cid_,
                                        pid_,
                                        new_.data(),
                                        (uint32_t)new_.size());
-    DEBUG_PRINT("Do: changed '{}' of entity {}", pid_.debugName(), ent_.GetId());
+    DEBUG_PRINT("Do: changed '{}' of entity {}", pid_.debugName(), m_ent.GetId());
     return res;
 }
 
@@ -55,18 +55,18 @@ bool ChangePropertyCmd::undo(IDocument& doc) {
     if (!scene) return false;
 
     SceneCommandExecutor executor(*scene);
-    bool res = executor.ChangeProperty(ent_,
+    bool res = executor.changeProperty(m_ent,
                                        cid_,
                                        pid_,
                                        old_.data(),
                                        (uint32_t)old_.size());
-    DEBUG_PRINT("Undo: changed '{}' of entity {}", pid_.debugName(), ent_.GetId());
+    DEBUG_PRINT("Undo: changed '{}' of entity {}", pid_.debugName(), m_ent.GetId());
     return res;
 }
 
 bool ChangePropertyCmd::canCoalesceWith(const IEditCmd* edit_cmd) const {
     if (const Self* cmd = dynamic_cast<const Self*>(edit_cmd)) {
-        return cmd->ent_ == cmd->ent_ &&
+        return cmd->m_ent == cmd->m_ent &&
                cid_ == cmd->cid_ &&
                pid_ == cmd->pid_;
     }

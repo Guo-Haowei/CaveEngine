@@ -48,14 +48,14 @@ void SnakeController::onCreate(SceneContext& ctx) {
     // @TODO: prefab override
     switch (facing->facing) {
         case Facing::Left: {
-            facing_x_ = -1;
+            m_facing_x = -1;
         } break;
         case Facing::Right: {
-            facing_x_ = 1;
+            m_facing_x = 1;
         } break;
         default: {
             LOG_ERROR("Invalid facing value {}", EnumTraits<Facing>::ToString(facing->facing));
-            facing_x_ = -1;
+            m_facing_x = -1;
         } break;
     }
 }
@@ -74,11 +74,11 @@ void SnakeController::onUpdate(cave::SceneContext& ctx, float dt) {
 
     const Box2 body = ComputeWorldAABB(*transform, *collider);
 
-    if (ShouldTurnAround(body, facing_x_, *tile_world)) {
-        facing_x_ = -facing_x_;
+    if (ShouldTurnAround(body, m_facing_x, *tile_world)) {
+        m_facing_x = -m_facing_x;
     }
 
-    vel->linear.x = static_cast<float>(facing_x_) * kSnakeSpeed;
+    vel->linear.x = static_cast<float>(m_facing_x) * kSnakeSpeed;
 
     const float dx = vel->linear.x * dt;
 

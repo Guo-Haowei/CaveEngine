@@ -6,32 +6,32 @@
 namespace cave {
 
 bool AssetHandle::isReady() const {
-    auto entry = entry_.lock();
+    auto entry = m_asset_entry.lock();
     return entry && entry->status == AssetStatus::Loaded;
 }
 
 IAsset* AssetHandle::get() const {
-    if (auto entry = entry_.lock(); entry) {
+    if (auto entry = m_asset_entry.lock(); entry) {
         return entry->asset.get();
     }
     return nullptr;
 }
 
 [[nodiscard]] AssetRef AssetHandle::wait() const {
-    auto entry = entry_.lock();
+    auto entry = m_asset_entry.lock();
     DEV_ASSERT(entry);
     return entry->wait();
 }
 
 AssetMetaData* AssetHandle::meta() {
-    if (auto entry = entry_.lock(); entry) {
+    if (auto entry = m_asset_entry.lock(); entry) {
         return &entry->metadata;
     }
     return nullptr;
 }
 
 const AssetMetaData* AssetHandle::meta() const {
-    if (auto entry = entry_.lock(); entry) {
+    if (auto entry = m_asset_entry.lock(); entry) {
         return &entry->metadata;
     }
     return nullptr;

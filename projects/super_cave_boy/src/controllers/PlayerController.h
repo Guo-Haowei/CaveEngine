@@ -45,20 +45,17 @@ private:
 
     void tryJump(cave::VelocityComponent& vel,
                  cave::MotorComponent& motor);
-    bool hurt() const { return hurt_timer_.active(); }
+    bool hurt() const { return m_hurt_timer.active(); }
 
-    PlayerState state_ = PlayerState::Air;
-    CountdownTimer hurt_timer_{ kPlayerHurtCountDown };
+    PlayerState m_state = PlayerState::Air;
+    CountdownTimer m_hurt_timer{ kPlayerHurtCountDown };
 
-    Entity animator_;
+    Entity m_animator;
 
     // @TODO: clean up
-    bool taking_jump_ = false;
-    bool landed_ = false;
-    bool grabbing_ = false;
-
-    int health_ = 3;
-    int sapphire_ = 0;
+    bool m_taking_jump_ = false;
+    bool m_landed_ = false;
+    bool m_grabbing_ = false;
 };
 
 }  // namespace super_cave_boy

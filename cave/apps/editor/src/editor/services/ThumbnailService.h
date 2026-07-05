@@ -46,26 +46,26 @@ class ThumbnailService {
 public:
     explicit ThumbnailService(EngineServices& services) noexcept;
 
-    uint64_t GetOrRequest(const ThumbnailKey& p_key);
+    uint64_t getOrRequest(const ThumbnailKey& key);
 
-    void Tick(const FrameTime& p_time, const BusyInfo& p_info);
+    void tick(const FrameTime& time, const BusyInfo& info);
 
-    void invalidate(const Guid& p_guid);
+    void invalidate(const Guid& guid);
 
 private:
-    void ProcessCompletions();
-    void SubmitRequests(const BusyInfo& p_info);
+    void processCompletions();
+    void submitRequests(const BusyInfo& info);
 
     ViewManager& view_manager_;
-    SceneRegistry& m_scene_reg;
-    render::IRenderDevice& m_render_device;
-    PreviewBuilder m_builder;
+    SceneRegistry& scene_reg_;
+    render::IRenderDevice& render_device_;
+    PreviewBuilder builder_;
 
-    uint64_t m_frame_index{};
+    uint64_t frame_index_{};
 
-    std::list<PendingRequest> m_pending;
-    std::list<ThumbnailKey> m_inflight;
-    std::unordered_map<ThumbnailKey, ThumbnailRecord> m_cache;
+    std::list<PendingRequest> pending_;
+    std::list<ThumbnailKey> inflight_;
+    std::unordered_map<ThumbnailKey, ThumbnailRecord> cache_;
 };
 
 }  // namespace cave

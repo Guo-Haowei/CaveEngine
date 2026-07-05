@@ -26,6 +26,8 @@ public:
 
     const ProjectInfo& project() const { return project_.unwrap(); }
 
+    std::string projectRoot() const;
+
     // @TODO: better snapshot
     TaskSnapshot snapshot() const { return boot_load_pipeline_.rootSnapshot(); }
 

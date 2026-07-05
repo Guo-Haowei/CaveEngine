@@ -40,13 +40,11 @@ struct AssetMetaData {
     CAVE_PROP()
     mutable std::map<std::string, std::string> import_settings;
 
-    /// Load meta from a .meta file
-    [[nodiscard]] static auto LoadMeta(std::string_view p_path) -> Result<AssetMetaData>;
+    [[nodiscard]] static auto loadMeta(std::string_view path) -> Result<AssetMetaData>;
 
-    /// Create meta based on asset file
-    [[nodiscard]] static auto CreateMeta(std::string_view p_path) -> Option<AssetMetaData>;
+    [[nodiscard]] static auto createMeta(std::string_view path) -> Option<AssetMetaData>;
 
-    [[nodiscard]] Result<void> saveToDisk(const IAsset* p_asset) const;
+    [[nodiscard]] Result<void> saveToDisk(const IAsset* asset) const;
 };
 
 }  // namespace cave

@@ -21,9 +21,12 @@
 #include "editor/widgets/DragDrop.h"
 
 namespace cave {
-using ecs::Entity;
+
+using ::cave::ecs::Entity;
 
 #define POPUP_NAME_ID "SCENE_PANEL_POPUP"
+
+namespace {
 
 // @TODO: build the scene tree and attach to scene
 // @TODO: on scene change instead of build every frame
@@ -57,58 +60,57 @@ private:
     SelectionService& m_selection;
 };
 
-static bool TreeNodeHelper(Scene& p_scene,
-                           Entity p_id,
-                           ImGuiTreeNodeFlags p_flags,
-                           std::function<void()> p_on_left_click,
-                           std::function<void()> p_on_right_click) {
-
-    const NameComponent* name_component = p_scene.component<NameComponent>(p_id);
+bool TreeNodeHelper(Scene& scene,
+                    Entity ent,
+                    ImGuiTreeNodeFlags tree_flags,
+                    std::function<void()> on_left_click,
+                    std::function<void()> on_right_click) {
+    const NameComponent* name_component = scene.component<NameComponent>(ent);
     std::string_view name = name_component->name();
     if (name.empty()) {
         name = "Untitled";
     }
 
     const char* icon = ICON_FA_FOLDER;
-    if (p_flags & ImGuiTreeNodeFlags_Leaf) {
+    if (tree_flags & ImGuiTreeNodeFlags_Leaf) {
         icon = ICON_FA_SQUARE_SHARE_NODES;
     }
-    auto node_name = std::format("##{}", p_id.GetId());
+    auto node_name = std::format("##{}", ent.GetId());
     auto tag = std::format("{} {}{}", icon, name, node_name);
 
-    p_flags |= ImGuiTreeNodeFlags_NoTreePushOnOpen;
+    tree_flags |= ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-    const bool expanded = ImGui::TreeNodeEx(node_name.c_str(), p_flags);
+    const bool expanded = ImGui::TreeNodeEx(node_name.c_str(), tree_flags);
     ImGui::SameLine();
 
     ImGui::Selectable(tag.c_str());
     if (ImGui::IsItemHovered()) {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            if (p_on_left_click) {
-                p_on_left_click();
+            if (on_left_click) {
+                on_left_click();
             }
         } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-            if (p_on_right_click) {
-                p_on_right_click();
+            if (on_right_click) {
+                on_right_click();
             }
         }
     }
 
     // @TODO: refactor to use DragDrop.h interface
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-        SetPayload(PAYLOAD_SCENE_NODE, p_id);
+        SetPayload(kPayloadSceneNode, ent);
         ImGui::Text("entity '%s'", name.data());
         ImGui::EndDragDropSource();
     }
 
     if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(PAYLOAD_SCENE_NODE)) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadSceneNode)) {
             Entity child_id = *reinterpret_cast<Entity*>(payload->Data);
-            if (child_id != p_id) {
-                p_scene.attachChild(child_id, p_id);
+            if (child_id != ent) {
+                scene.attachChild(child_id, ent);
 
                 if constexpr (true) {  // @TODO: log macro
-                    const NameComponent* child_name = p_scene.component<NameComponent>(child_id);
+                    const NameComponent* child_name = scene.component<NameComponent>(child_id);
                     DEV_ASSERT(child_name);
                     LOG_TRACE("moved '{}' under '{}'", child_name->name(), name);
                 }
@@ -120,20 +122,22 @@ static bool TreeNodeHelper(Scene& p_scene,
     return expanded;
 }
 
+}  // namespace
+
 // @TODO: make it an widget
-void HierarchyCreator::DrawNode(HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flags) {
-    DEV_ASSERT(p_hier);
-    Entity current_id = p_hier->entity;
+void HierarchyCreator::DrawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_flags) {
+    DEV_ASSERT(hier);
+    Entity current_id = hier->entity;
 
     SelectionKey selection = m_selection.Primary(m_preview.doc_id);
 
-    p_flags |= p_hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
-    p_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
+    tree_flags |= hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
+    tree_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
 
     const bool expanded = TreeNodeHelper(
         *m_preview.scene,
         current_id,
-        p_flags,
+        tree_flags,
         [this, current_id]() {
             SelectionKey selection;
             selection.kind = SelectionKind::Entity;
@@ -158,20 +162,20 @@ void HierarchyCreator::DrawNode(HierarchyNode* p_hier, ImGuiTreeNodeFlags p_flag
         float indentWidth = 8.f;
         ImGui::Indent(indentWidth);
 
-        for (auto& child : p_hier->children) {
+        for (auto& child : hier->children) {
             DrawNode(child);
         }
         ImGui::Unindent(indentWidth);
     }
 }
 
-bool HierarchyCreator::Build(const Scene& p_scene) {
-    const size_t hierarchy_count = p_scene.count<HierarchyComponent>();
+bool HierarchyCreator::Build(const Scene& scene) {
+    const size_t hierarchy_count = scene.count<HierarchyComponent>();
     if (hierarchy_count == 0) {
         return false;
     }
 
-    for (auto [self_id, hier] : p_scene.view<HierarchyComponent>()) {
+    for (auto [self_id, hier] : scene.view<HierarchyComponent>()) {
         auto find_or_create = [this](ecs::Entity id) {
             auto it = m_nodes.find(id);
             if (it == m_nodes.end()) {
@@ -209,24 +213,24 @@ bool HierarchyCreator::Build(const Scene& p_scene) {
 
 void HierarchyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
-    PreviewScene preview = editor_services_.workspace().focusedPreviewScene();
+    PreviewScene preview = m_editor_services.workspace().focusedPreviewScene();
     if (preview.scene) {
-        HierarchyCreator creator(preview, editor_services_.selection());
+        HierarchyCreator creator(preview, m_editor_services.selection());
         drawPopup(preview);
         creator.Update();
     }
 }
 
-void HierarchyPanel::drawPopup(const PreviewScene& p_ctx) {
+void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
-        SelectionKey selection = editor_services_.selection().Primary(p_ctx.doc_id);
-        DEV_ASSERT(selection.doc == p_ctx.doc_id);
+        SelectionKey selection = m_editor_services.selection().Primary(preview_scene.doc_id);
+        DEV_ASSERT(selection.doc == preview_scene.doc_id);
         ecs::Entity selected = selection.entity;
 
-        ecs::Entity parent = selected.IsValid() ? selected : p_ctx.scene->root();
+        ecs::Entity parent = selected.IsValid() ? selected : preview_scene.scene->root();
 
         if (ImGui::BeginMenu("Add")) {
-            openAddEntityPopupImpl(p_ctx.doc_id, parent);
+            openAddEntityPopupImpl(preview_scene.doc_id, parent);
             ImGui::EndMenu();
         }
 
@@ -240,9 +244,9 @@ void HierarchyPanel::drawPopup(const PreviewScene& p_ctx) {
         if (ImGui::MenuItem("Delete")) {
             if (selected.IsValid()) {
                 auto cmd = std::make_unique<DeleteObjectCmd>(
-                    engine_services_.sceneRegistry(),
+                    m_engine_services.sceneRegistry(),
                     selected);
-                editor_services_.edit().submit(p_ctx.doc_id, std::move(cmd));
+                m_editor_services.edit().submit(preview_scene.doc_id, std::move(cmd));
             }
         }
         ImGui::EndPopup();
@@ -251,31 +255,32 @@ void HierarchyPanel::drawPopup(const PreviewScene& p_ctx) {
 
 // clang-format off
 #define OBJECT_LIST                      \
-    DEFINE_OBJECT(InfiniteLight,  false) \
-    DEFINE_OBJECT(PointLight,     false) \
-    DEFINE_OBJECT(AreaLight,      true ) \
-    DEFINE_OBJECT(Transform,      false) \
-    DEFINE_OBJECT(Plane,          false) \
-    DEFINE_OBJECT(Cube,           false) \
-    DEFINE_OBJECT(Sphere,         false) \
-    DEFINE_OBJECT(Cylinder,       false) \
-    DEFINE_OBJECT(Cone,           false) \
-    DEFINE_OBJECT(Torus,          true )
+    DEFINE_OBJECT(transform,      true)  \
+    DEFINE_OBJECT(prefab,         true)  \
+    DEFINE_OBJECT(infiniteLight,  false) \
+    DEFINE_OBJECT(pointLight,     false) \
+    DEFINE_OBJECT(areaLight,      true ) \
+    DEFINE_OBJECT(plane,          false) \
+    DEFINE_OBJECT(cube,           false) \
+    DEFINE_OBJECT(sphere,         false) \
+    DEFINE_OBJECT(cylinder,       false) \
+    DEFINE_OBJECT(cone,           false) \
+    DEFINE_OBJECT(torus,          true )
 // clang-format on
 
-void HierarchyPanel::openAddEntityPopupImpl(DocId p_doc_id, ecs::Entity p_parent) {
-    DEV_ASSERT(p_parent.IsValid());
+void HierarchyPanel::openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent) {
+    DEV_ASSERT(parent.IsValid());
 
-    using CreateFunc = Entity (*)(SceneCommandWriter& p_cb, std::string_view p_name);
-    auto add_object = [&](const char* p_name, bool p_separator, CreateFunc p_func) {
-        if (ImGui::MenuItem(p_name)) {
-            editor_services_.edit().submit(p_doc_id, [&](SceneCommandWriter& cb) {
-                Entity temp = p_func(cb, p_name);
-                cb.AttachChild(temp, p_parent);
+    using CreateFunc = Entity (*)(SceneCommandWriter&, std::string_view);
+    auto add_object = [&](const char* name, bool separate, CreateFunc&& create_func) {
+        if (ImGui::MenuItem(name)) {
+            m_editor_services.edit().submit(doc_id, [&](SceneCommandWriter& writer) {
+                Entity temp = create_func(writer, name);
+                writer.attachChild(temp, parent);
             });
         }
 
-        if (p_separator) {
+        if (separate) {
             ImGui::Separator();
         }
     };
@@ -283,7 +288,7 @@ void HierarchyPanel::openAddEntityPopupImpl(DocId p_doc_id, ecs::Entity p_parent
 #define DEFINE_OBJECT(NAME, SEP) add_object( \
     #NAME,                                   \
     SEP,                                     \
-    [](SceneCommandWriter& p_cb, std::string_view p_name) { return p_cb.Create##NAME##Object(p_name); });
+    [](SceneCommandWriter& writer, std::string_view name) { return writer.NAME##Object(name); });
     OBJECT_LIST
 #undef DEFINE_OBJECT
 }

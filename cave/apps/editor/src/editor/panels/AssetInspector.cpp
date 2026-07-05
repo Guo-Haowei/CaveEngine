@@ -1,5 +1,6 @@
 #include "AssetInspector.h"
 
+#include "editor/services/EditorServices.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/Workspace.h"
 
@@ -7,23 +8,22 @@ namespace cave {
 
 using namespace ::cave::math;
 
-AssetInspector::AssetInspector(EditorState& editor,
-                               EditorServices& editor_services)
-    : EditorWindow(editor)
-    , editor_services_(editor_services) {
+AssetInspector::AssetInspector(EditorState& editor)
+    : EditorWindow(editor) {
 }
 
 void AssetInspector::onAttach() {
 }
 
 void AssetInspector::drawUIImpl() {
-    DocId doc_id = editor_services_.workspace().focusedDoc();
-    IDocument* doc = editor_services_.document().resolve(doc_id);
+    Workspace& workspace = m_editor_services.workspace();
+    DocId doc_id = workspace.focusedDoc();
+    IDocument* doc = m_editor_services.document().resolve(doc_id);
     if (doc == nullptr) {
         return;
     }
 
-    if (Tab* tab = editor_services_.workspace().focusedTab()) {
+    if (Tab* tab = workspace.focusedTab()) {
         tab->drawAssetInspector(*doc);
     }
 }

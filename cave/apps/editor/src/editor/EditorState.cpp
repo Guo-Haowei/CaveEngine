@@ -53,36 +53,36 @@ EditorState::EditorState(IApplication& app)
     EngineServices& app_services = app.services();
 
     // services
-    document_ = std::make_unique<DocumentService>(app_services,
-                                                  services_);
-    edit_ = std::make_unique<EditService>(app_services,
-                                          services_);
-    picking_ = std::make_unique<PickingService>(app_services,
-                                                services_);
+    document_ = std::make_unique<DocumentService>(app_services, services_);
+    services_.document_ = document_.get();
+
+    edit_ = std::make_unique<EditService>(app_services, services_);
+    services_.edit_ = edit_.get();
+
+    picking_ = std::make_unique<PickingService>(app_services, services_);
+    services_.picking_ = picking_.get();
+
     thumbnail_ = std::make_unique<ThumbnailService>(app_services);
-    icon_cache_ = std::make_unique<IconCache>(app_services.assetRegistry(),
-                                              app_services.assetManager());
+    services_.thumbnail_ = thumbnail_.get();
+
+    icon_cache_ = std::make_unique<IconCache>(app_services.assetRegistry(), app_services.assetManager());
+    services_.icon_cache_ = icon_cache_.get();
 
     selection_ = std::make_unique<SelectionService>(*this);
+    services_.selection_ = selection_.get();
+
     shortcut_ = std::make_unique<ShortcutService>(*this);
+    services_.shortcut_ = shortcut_.get();
+
     workspace_ = std::make_unique<Workspace>(*this);
+    services_.workspace_ = workspace_.get();
 
     // panels
     content_browser_ = std::make_shared<ContentBrowser>(*this);
     menu_bar_ = std::make_shared<MenuBar>(*this);
     log_panel_ = std::make_shared<LogPanel>(*this);
     file_system_panel_ = std::make_shared<FileSystemPanel>(*this);
-    asset_inspector_ = std::make_shared<AssetInspector>(*this,
-                                                        services_);
-
-    services_.document_ = document_.get();
-    services_.edit_ = edit_.get();
-    services_.icon_cache_ = icon_cache_.get();
-    services_.picking_ = picking_.get();
-    services_.selection_ = selection_.get();
-    services_.shortcut_ = shortcut_.get();
-    services_.thumbnail_ = thumbnail_.get();
-    services_.workspace_ = workspace_.get();
+    asset_inspector_ = std::make_shared<AssetInspector>(*this);
 
     addPanel(log_panel_);
     addPanel(asset_inspector_);
@@ -93,10 +93,12 @@ EditorState::EditorState(IApplication& app)
     addPanel(file_system_panel_);
 
     static_cast<EditorAssetManager&>(app_services.assetManager()).setEditorServices(&services_);
+
+    workspace_->restoreProjectWorkspace();
 }
 
 EditorState::~EditorState() {
-    m_panels.clear();
+    panels_.clear();
 }
 
 void EditorState::onEnter(const StateRequest& request) {
@@ -104,10 +106,11 @@ void EditorState::onEnter(const StateRequest& request) {
 
     ImNodes::CreateContext();
 
-    for (auto& panel : m_panels) {
+    for (auto& panel : panels_) {
         panel->onAttach();
     }
 
+    // @TODO: get rid of this part
     SceneId edit_scene{};
     if (!request.arg1.empty()) {
         if (auto handle = app_.services().assetRegistry().findByPath(request.arg1); handle.is_some()) {
@@ -131,11 +134,15 @@ void EditorState::onEnter(const StateRequest& request) {
 void EditorState::onExit() {
     CAVE_PROFILE_EVENT();
 
-    if (IsPlaying()) {
+    if (isPlaying()) {
         LOG_INFO("@TODO: stop game module");
     }
 
     ImNodes::DestroyContext();
+
+    for (auto& panel : panels_) {
+        panel->onDetach();
+    }
 
     pie_.stop();
 }
@@ -144,9 +151,9 @@ void EditorState::tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
 
     BusyInfo info;
-    thumbnail_->Tick(p_time, info);
+    thumbnail_->tick(p_time, info);
 
-    if (IsPlaying()) {
+    if (isPlaying()) {
         pie_.tick(p_time);
     }
 
@@ -157,7 +164,7 @@ void EditorState::tick(const FrameTime& p_time) {
     imgui_manager->BeginFrame();
 
     dockSpace();
-    for (auto& panel : m_panels) {
+    for (auto& panel : panels_) {
         panel->drawUI();
     }
 
@@ -168,7 +175,7 @@ void EditorState::tick(const FrameTime& p_time) {
     commitModeSwitch();
 }
 
-void EditorState::RequestModeSwitch() {
+void EditorState::requestModeSwitch() {
     switch_mode_requested_ = true;
 }
 
@@ -201,7 +208,7 @@ void EditorState::commitModeSwitch() {
 }
 
 void EditorState::addPanel(std::shared_ptr<IEditorItem> p_panel) {
-    m_panels.emplace_back(std::move(p_panel));
+    panels_.emplace_back(std::move(p_panel));
 }
 
 void EditorState::dockSpace() {

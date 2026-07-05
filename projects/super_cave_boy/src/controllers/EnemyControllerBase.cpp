@@ -49,8 +49,8 @@ bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
 }  // namespace
 
 void EnemyControllerBase::onCreate(SceneContext& ctx) {
-    player_ = findPlayer(ctx.query);
-    animator_ = ctx.query.findChildByName("animator_node", entity());
+    m_player = findPlayer(ctx.query);
+    m_animator = ctx.query.findChildByName("animator_node", entity());
 }
 
 void EnemyControllerBase::onDestroy() {

@@ -19,25 +19,25 @@ namespace cave {
 
 EditService::EditService(EngineServices& app_services,
                          EditorServices& editor_services)
-    : app_services_(app_services)
-    , editor_services_(editor_services)
-    , debug_id_(MakeDebugId(this)) {
-    app_services_.intentDispatcher().addHandler<EditIntent>(this);
+    : m_app_services(app_services)
+    , m_editor_services(editor_services)
+    , m_debug_id(MakeDebugId(this)) {
+    m_app_services.intentDispatcher().addHandler<EditIntent>(this);
 }
 
 EditService::~EditService() {
-    app_services_.intentDispatcher().removeHandler<EditIntent>(this);
+    m_app_services.intentDispatcher().removeHandler<EditIntent>(this);
 }
 
 void EditService::submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd) {
-    app_services_.intentDispatcher().queue<EditIntent>(doc_id, std::move(cmd));
+    m_app_services.intentDispatcher().queue<EditIntent>(doc_id, std::move(cmd));
 }
 
 void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
-    SceneRegistry& scene_reg = app_services_.sceneRegistry();
+    SceneRegistry& scene_reg = m_app_services.sceneRegistry();
 
     Scene* scene = nullptr;
-    if (IDocument* doc = editor_services_.document().resolve(doc_id)) {
+    if (IDocument* doc = m_editor_services.document().resolve(doc_id)) {
         SceneId scene_id = doc->previewScene();
         scene = scene_reg.resolve(scene_id);
     }
@@ -46,10 +46,10 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
         return;
     }
 
-    SceneCommandWriter cb(app_services_.assetRegistry());
+    SceneCommandWriter cb(m_app_services.assetRegistry());
     func(cb);
 
-    EntityMap map(cb.GetAllocationCount());
+    EntityMap map(cb.allocationCount());
     SceneCommandExecutor_Undo executor(scene_reg);
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
@@ -114,11 +114,11 @@ bool EditService::handleIntent(Intent& intent) {
 }
 
 IDocument* EditService::resolve(DocId doc_id) {
-    return editor_services_.document().resolve(doc_id);
+    return m_editor_services.document().resolve(doc_id);
 }
 
 const IDocument* EditService::resolve(DocId doc_id) const {
-    return editor_services_.document().resolve(doc_id);
+    return m_editor_services.document().resolve(doc_id);
 }
 
 }  // namespace cave
