@@ -55,7 +55,7 @@ struct QuitContext {
 class IApplication : public NonCopyable {
 public:
     IApplication(const AppSpec& spec)
-        : spec_(spec) {
+        : m_app_spec(spec) {
     }
 
     virtual ~IApplication();
@@ -67,10 +67,10 @@ public:
 
     virtual AppStateId stateId() const = 0;
 
-    EngineServices& services() { return services_; }
+    EngineServices& services() { return m_engine_services; }
 
-    const AppSpec& specification() const { return spec_; }
-    rhi::Backend backend() const { return spec_.backend; }
+    const AppSpec& specification() const { return m_app_spec; }
+    rhi::Backend backend() const { return m_app_spec.backend; }
 
     static void run(IApplication* app);
 
@@ -79,25 +79,25 @@ public:
     bool isRuntime() const { return appType() == AppType::Runtime; }
 
     // @TODO: clean up
-    ImguiManager* imguiManager() { return imgui_manager_; }
+    ImguiManager* imguiManager() { return m_imgui_manager; }
 
-    CommandRegistry& commandRegistry() { return *cmd_reg_; }
-    Console& console() { return *console_; }
+    CommandRegistry& commandRegistry() { return *m_cmd_reg_; }
+    Console& console() { return *m_console; }
     virtual EventQueue& eventQueue() = 0;
 
 protected:
     virtual bool mainLoop() = 0;
 
-    AppSpec spec_;
+    AppSpec m_app_spec;
 
     // @TODO: move the following to services
     // also need subsystems
-    ImguiManager* imgui_manager_{};
+    ImguiManager* m_imgui_manager{};
 
-    cave::CommandRegistry* cmd_reg_{};
-    cave::Console* console_{};
+    cave::CommandRegistry* m_cmd_reg_{};
+    cave::Console* m_console{};
 
-    EngineServices services_;
+    EngineServices m_engine_services;
 };
 
 }  // namespace cave

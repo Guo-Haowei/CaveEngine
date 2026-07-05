@@ -27,7 +27,7 @@ using namespace ::chess::core;
 ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneContext& ctx,
                                                    ChessGameClient& game,
                                                    ChessBoardView& board_view) noexcept
-    : m_intent_bus(ctx.engine_services.intentDispatcher())
+    : m_intent_bus(ctx.engine_services.intentBus())
     , m_client(game)
     , m_board_view(board_view) {
 
@@ -111,8 +111,7 @@ void ChessGridSelectorAdapter::tickPointer(SceneContext& ctx, const IGameInput& 
     const DisplayService& display = ctx.engine_services.displayService();
 
     ViewQuery query(ctx.engine_services.viewManager());
-    // const ViewRecord* view = query.resolve(m_host_.viewId());
-    const ViewRecord* view = nullptr;
+    const ViewRecord* view = query.resolve(ctx.view_id);
     if (!view) {
         return;
     }

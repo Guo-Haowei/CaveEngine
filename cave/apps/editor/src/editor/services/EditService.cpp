@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
@@ -22,15 +22,15 @@ EditService::EditService(EngineServices& app_services,
     : m_app_services(app_services)
     , m_editor_services(editor_services)
     , m_debug_id(MakeDebugId(this)) {
-    m_app_services.intentDispatcher().addHandler<EditIntent>(this);
+    m_app_services.intentBus().addHandler<EditIntent>(this);
 }
 
 EditService::~EditService() {
-    m_app_services.intentDispatcher().removeHandler<EditIntent>(this);
+    m_app_services.intentBus().removeHandler<EditIntent>(this);
 }
 
 void EditService::submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd) {
-    m_app_services.intentDispatcher().queue<EditIntent>(doc_id, std::move(cmd));
+    m_app_services.intentBus().queue<EditIntent>(doc_id, std::move(cmd));
 }
 
 void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {

@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/input/KeyState.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/input/InputService.h"
@@ -23,17 +23,17 @@ ShortcutService::ShortcutService(EditorState& editor)
     , debug_id_(MakeDebugId(this)) {
 
     app_services_.inputService().addConsumer(this);
-    app_services_.intentDispatcher().addHandler<SaveIntent>(this);
-    app_services_.intentDispatcher().addHandler<UndoIntent>(this);
-    app_services_.intentDispatcher().addHandler<RedoIntent>(this);
+    app_services_.intentBus().addHandler<SaveIntent>(this);
+    app_services_.intentBus().addHandler<UndoIntent>(this);
+    app_services_.intentBus().addHandler<RedoIntent>(this);
 
     initShortcuts();
 }
 
 ShortcutService::~ShortcutService() {
-    app_services_.intentDispatcher().removeHandler<SaveIntent>(this);
-    app_services_.intentDispatcher().removeHandler<UndoIntent>(this);
-    app_services_.intentDispatcher().removeHandler<RedoIntent>(this);
+    app_services_.intentBus().removeHandler<SaveIntent>(this);
+    app_services_.intentBus().removeHandler<UndoIntent>(this);
+    app_services_.intentBus().removeHandler<RedoIntent>(this);
     app_services_.inputService().removeConsumer(this);
 }
 
@@ -92,14 +92,14 @@ void ShortcutService::initShortcuts() {
         "Save As..",
         "Ctrl+Shift+S",
         [active_document, this]() {
-            app_services_.intentDispatcher().queue<SaveIntent>(active_document());
+            app_services_.intentBus().queue<SaveIntent>(active_document());
         },
     };
     shortcuts_[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [active_document, this]() {
-            app_services_.intentDispatcher().queue<SaveIntent>(active_document());
+            app_services_.intentBus().queue<SaveIntent>(active_document());
         },
     };
 
@@ -117,7 +117,7 @@ void ShortcutService::initShortcuts() {
         "Ctrl+Shift+Z",
         [active_document, this]() {
             if (editor_services_.edit().canRedo(active_document()))
-                app_services_.intentDispatcher().queue<RedoIntent>(active_document());
+                app_services_.intentBus().queue<RedoIntent>(active_document());
         },
         [active_document, this]() { return editor_services_.edit().canRedo(active_document()); },
     };
@@ -127,7 +127,7 @@ void ShortcutService::initShortcuts() {
         "Ctrl+Z",
         [active_document, this]() {
             if (editor_services_.edit().canUndo(active_document()))
-                app_services_.intentDispatcher().queue<UndoIntent>(active_document());
+                app_services_.intentBus().queue<UndoIntent>(active_document());
         },
         [active_document, this]() { return editor_services_.edit().canUndo(active_document()); },
     };

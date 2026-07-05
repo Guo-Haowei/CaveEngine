@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #if USING(DEBUG_BUILD)
 #include "cave/core/diagnostics/CommandRegistry.h"
@@ -21,9 +21,9 @@
 
 namespace cave {
 
-IntentDispatcher::IntentDispatcher() = default;
+IntentBus::IntentBus() = default;
 
-bool IntentDispatcher::addHandler(IntentTypeId type_id, IIntentHandler* handler) {
+bool IntentBus::addHandler(IntentTypeId type_id, IIntentHandler* handler) {
     DEV_ASSERT(handler);
 
     auto [it, inserted] = handlers_.try_emplace(type_id);
@@ -48,7 +48,7 @@ bool IntentDispatcher::addHandler(IntentTypeId type_id, IIntentHandler* handler)
     return true;
 }
 
-bool IntentDispatcher::removeHandler(IntentTypeId type_id, IIntentHandler* handler) {
+bool IntentBus::removeHandler(IntentTypeId type_id, IIntentHandler* handler) {
     auto it = handlers_.find(type_id);
     if (it == handlers_.end()) {
         return false;
@@ -65,7 +65,7 @@ bool IntentDispatcher::removeHandler(IntentTypeId type_id, IIntentHandler* handl
     return true;
 }
 
-void IntentDispatcher::flush() {
+void IntentBus::flush() {
     if (pending_.empty()) {
         return;
     }
@@ -78,10 +78,10 @@ void IntentDispatcher::flush() {
     }
 }
 
-void IntentDispatcher::dispatchOne(Intent& intent) {
+void IntentBus::dispatchOne(Intent& intent) {
     auto it = handlers_.find(intent.GetTypeId());
     if (it == handlers_.end()) {
-        LOG_WARN(LogChannel::Intent, "IntentDispatcher::DispatchOne: no handlers found for intent '{}'", intent.GetDebugName());
+        LOG_WARN(LogChannel::Intent, "IntentBus::DispatchOne: no handlers found for intent '{}'", intent.GetDebugName());
         return;
     }
 
@@ -89,7 +89,7 @@ void IntentDispatcher::dispatchOne(Intent& intent) {
         if (DEV_VERIFY(handler)) {
             if (!handler->handleIntent(intent)) [[unlikely]] {
                 LOG_ERROR(LogChannel::Intent,
-                          "IntentDispatcher: handler '{}' cant handle '{}'",
+                          "IntentBus: handler '{}' cant handle '{}'",
                           handler->debugId().type,
                           intent.GetDebugName());
                 continue;
@@ -104,7 +104,7 @@ void IntentDispatcher::dispatchOne(Intent& intent) {
 }
 
 #if USING(USE_COMMAND)
-bool IntentDispatcher::Cmd_dump(CommandContext& ctx, const CommandArgs&) {
+bool IntentBus::Cmd_dump(CommandContext& ctx, const CommandArgs&) {
     std::string msg;
     msg.reserve(512);
     msg.append("Registered Intent:");

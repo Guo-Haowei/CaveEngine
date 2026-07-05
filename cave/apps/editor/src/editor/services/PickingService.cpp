@@ -4,7 +4,7 @@
 #include "cave/core/math/Ray.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/EngineServices.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "engine/private/runtime/scene/SceneQueryService.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -26,15 +26,15 @@ PickingService::PickingService(EngineServices& app_services,
     , editor_services_(editor_services)
     , debug_id_(MakeDebugId(this)) {
 
-    app_services_.intentDispatcher().addHandler<PickIntent>(this);
+    app_services_.intentBus().addHandler<PickIntent>(this);
 }
 
 PickingService::~PickingService() {
-    app_services_.intentDispatcher().removeHandler<PickIntent>(this);
+    app_services_.intentBus().removeHandler<PickIntent>(this);
 }
 
 void PickingService::pick(math::Vec2f point_win) {
-    app_services_.intentDispatcher().queue<PickIntent>(point_win);
+    app_services_.intentBus().queue<PickIntent>(point_win);
 }
 
 void PickingService::raycast(const PickData& pick_data) {

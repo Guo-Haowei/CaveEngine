@@ -42,11 +42,11 @@ namespace fs = std::filesystem;
 
 Application::Application(const AppSpec& spec, AppType type)
     : IApplication(spec)
-    , type_(type)
-    , state_machine_(*this) {
+    , m_app_type(type)
+    , m_state_machine(*this) {
 
     // @TODO: refactor this select work directory
-    vfs_.Mount("@user", fs::path(spec_.userFolder));
+    m_vfs.Mount("@user", fs::path(m_app_spec.userFolder));
 }
 
 IApplication::~IApplication() = default;
@@ -55,7 +55,7 @@ Application::~Application() = default;
 void Application::registerModule(IService* p_module) {
     DEV_ASSERT(p_module);
     p_module->SetApp(this);
-    subsystems_.push_back(p_module);
+    m_subsystems.push_back(p_module);
 }
 
 Result<ImguiManager*> Application::createImguiManager() {
@@ -64,75 +64,75 @@ Result<ImguiManager*> Application::createImguiManager() {
 
 auto Application::setupModules() -> Result<void> {
     // @TODO: clean up
-    cmd_reg_ = new cave::CommandRegistry();
-    console_ = new cave::Console(*this);
+    m_cmd_reg_ = new cave::CommandRegistry();
+    m_console = new cave::Console(*this);
 
-    asset_manager_ = CreateAssetService();
-    asset_registry_ = new AssetRegistry();
-    render_device_ = CreateRenderDevice(spec_.backend);
-    display_service_ = CreateDisplayService();
-    input_service_ = new InputService(game_input_);
-    game_input_.setPointer(input_service_->pointers());
-    task_manager_ = new TaskManager();
+    m_asset_manager = CreateAssetService();
+    m_asset_registry = new AssetRegistry();
+    m_render_device = CreateRenderDevice(m_app_spec.backend);
+    m_display_service = CreateDisplayService();
+    m_input_service = new InputService(m_game_input);
+    m_game_input.setPointer(m_input_service->pointers());
+    m_task_manager = new TaskManager();
 
     // @TODO: dependency injection?
-    renderer_ = std::make_unique<render::Renderer>(*render_device_, debug_draw_);
+    m_renderer = std::make_unique<render::Renderer>(*m_render_device, m_debug_draw);
 
-    scene_scheduler_ = std::make_unique<SceneScheduler>(services_);
+    m_scene_scheduler = std::make_unique<SceneScheduler>(m_engine_services);
 
-    scene_query_ = std::make_unique<SceneQueryService>(scene_registry_);
+    m_scene_query = std::make_unique<SceneQueryService>(m_scene_registry);
 
-    view_manager_ = std::make_unique<ViewManager>(scene_registry_,
-                                                  render_device_->backend() == rhi::Backend::OpenGL);
+    m_view_manager = std::make_unique<ViewManager>(m_scene_registry,
+                                                   m_render_device->backend() == rhi::Backend::OpenGL);
 
-    project_manager_ = std::make_unique<ProjectManager>(vfs_,
-                                                        *task_manager_,
-                                                        *asset_manager_,
-                                                        *asset_registry_,
-                                                        *renderer_);
-    ui_ = std::make_unique<UIRuntime>(*view_manager_);
+    m_project_manager = std::make_unique<ProjectManager>(m_vfs,
+                                                         *m_task_manager,
+                                                         *m_asset_manager,
+                                                         *m_asset_registry,
+                                                         *m_renderer);
+    m_ui = std::make_unique<UIRuntime>(*m_view_manager);
 
     // setup app services
-    services_.asset_manager_ = asset_manager_;
-    services_.asset_registry_ = asset_registry_;
-    services_.debug_draw_ = &debug_draw_;
-    services_.display_service_ = display_service_;
-    services_.game_input_ = &game_input_;
-    services_.input_service_ = input_service_;
-    services_.intent_dispatcher_ = &intent_dispatcher_;
-    services_.native_scripts_ = &native_scripts_;
-    services_.project_manager_ = project_manager_.get();
-    services_.render_device_ = render_device_;
-    services_.renderer_ = renderer_.get();
-    services_.scene_query_ = scene_query_.get();
-    services_.scene_registry_ = &scene_registry_;
-    services_.scene_scheduler_ = scene_scheduler_.get();
-    services_.task_manager_ = task_manager_;
-    services_.ui_ = ui_.get();
-    services_.view_manager_ = view_manager_.get();
-    services_.vfs_ = &vfs_;
+    m_engine_services.asset_manager_ = m_asset_manager;
+    m_engine_services.asset_registry_ = m_asset_registry;
+    m_engine_services.debug_draw_ = &m_debug_draw;
+    m_engine_services.display_service_ = m_display_service;
+    m_engine_services.game_input_ = &m_game_input;
+    m_engine_services.input_service_ = m_input_service;
+    m_engine_services.intent_bus_ = &m_intent_bus;
+    m_engine_services.native_scripts_ = &m_native_scripts;
+    m_engine_services.project_manager_ = m_project_manager.get();
+    m_engine_services.render_device_ = m_render_device;
+    m_engine_services.renderer_ = m_renderer.get();
+    m_engine_services.scene_query_ = m_scene_query.get();
+    m_engine_services.scene_registry_ = &m_scene_registry;
+    m_engine_services.scene_scheduler_ = m_scene_scheduler.get();
+    m_engine_services.task_manager_ = m_task_manager;
+    m_engine_services.ui_ = m_ui.get();
+    m_engine_services.view_manager_ = m_view_manager.get();
+    m_engine_services.vfs_ = &m_vfs;
 
     // register subsystems
-    registerModule(task_manager_);
-    registerModule(asset_manager_);
-    registerModule(asset_registry_);
-    registerModule(input_service_);
-    registerModule(display_service_);
-    registerModule(render_device_);
+    registerModule(m_task_manager);
+    registerModule(m_asset_manager);
+    registerModule(m_asset_registry);
+    registerModule(m_input_service);
+    registerModule(m_display_service);
+    registerModule(m_render_device);
 
-    if (spec_.enableImgui) {
+    if (m_app_spec.enableImgui) {
         auto res = createImguiManager();
         if (!res) {
             return CAVE_ERROR(res.error());
         }
-        imgui_manager_ = *res;
-        registerModule(imgui_manager_);
+        m_imgui_manager = *res;
+        registerModule(m_imgui_manager);
     }
 
-    event_queue_.RegisterListener(render_device_);
+    m_event_queue.RegisterListener(m_render_device);
 
     // @TODO: move to registerCommands
-    RegisterCommands(*cmd_reg_);
+    RegisterCommands(*m_cmd_reg_);
     return Result<void>();
 }
 
@@ -148,10 +148,10 @@ auto Application::initialize() -> Result<void> {
         std::string_view backend = DVAR_GET_STRING(gfx_backend);
         if (!backend.empty()) {
             do {
-#define BACKEND_DECLARE(ENUM, STR, DVAR)    \
-    if (backend == #DVAR) {                 \
-        spec_.backend = rhi::Backend::ENUM; \
-        break;                              \
+#define BACKEND_DECLARE(ENUM, STR, DVAR)         \
+    if (backend == #DVAR) {                      \
+        m_app_spec.backend = rhi::Backend::ENUM; \
+        break;                                   \
     }
                 BACKEND_LIST
 #undef BACKEND_DECLARE
@@ -164,28 +164,28 @@ auto Application::initialize() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
-    for (IService* module : subsystems_) {
-        stopwatch_.Restart();
+    for (IService* module : m_subsystems) {
+        m_stopwatch.Restart();
         if (auto res = module->Initialize(); !res) {
             LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
             return CAVE_ERROR(res.error());
         }
-        stopwatch_.Stop();
-        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), stopwatch_.Elapsed().ToString());
+        m_stopwatch.Stop();
+        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
     }
 
-    stopwatch_.Restart();
+    m_stopwatch.Restart();
     return Result<void>();
 }
 
 void Application::finalize() {
-    state_machine_.shutdown();
+    m_state_machine.shutdown();
 
     // @TODO: move it to request shutdown
     thread::RequestShutdown();
 
-    for (int index = (int)subsystems_.size() - 1; index >= 0; --index) {
-        IService* module = subsystems_[index];
+    for (int index = (int)m_subsystems.size() - 1; index >= 0; --index) {
+        IService* module = m_subsystems[index];
         module->Finalize();
         LOG_TRACE(LogChannel::App, "-{}", module->GetName());
         // @TODO: use smart pointer
@@ -194,7 +194,7 @@ void Application::finalize() {
 }
 
 float Application::updateTime() {
-    const Nanoseconds elapsed = stopwatch_.Restart();
+    const Nanoseconds elapsed = m_stopwatch.Restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
     return math::min(elapsed_sec, 0.5f);
@@ -206,39 +206,39 @@ bool Application::mainLoop() {
 
     OS::singleton().logger().flush();
 
-    display_service_->beginFrame();
-    if (display_service_->shouldClose()) {
+    m_display_service->beginFrame();
+    if (m_display_service->shouldClose()) {
         return false;
     }
 
-    task_manager_->TickMainThread();
+    m_task_manager->TickMainThread();
 
     FrameTime time{
         .dt = updateTime(),
-        .frame_index = frame_counter_++,
+        .frame_index = m_frame_counter++,
     };
 
-    input_service_->tick(time);
+    m_input_service->tick(time);
 
-    scene_scheduler_->flushSceneCommands();
-    ui_->beginFrame(input_service_->getUIInput());
+    m_scene_scheduler->flushSceneCommands();
+    m_ui->beginFrame(m_input_service->getUIInput());
 
-    asset_manager_->update();
+    m_asset_manager->update();
 
     // layer should set active scene
     // update layers from back to front
-    view_manager_->beginFrame();
+    m_view_manager->beginFrame();
 
-    state_machine_.tick(time);
-    intent_dispatcher_.flush();
+    m_state_machine.tick(time);
+    m_intent_bus.flush();
 
     // update scene after ImGui, physics and script updates
-    scene_scheduler_->tick(time);
+    m_scene_scheduler->tick(time);
 
-    ui_->endFrame();
+    m_ui->endFrame();
 
-    std::span<const ResolvedView> views = view_manager_->endFrame();
-    renderer_->tick(time, views, ui_->takeDrawData());
+    std::span<const ResolvedView> views = m_view_manager->endFrame();
+    m_renderer->tick(time, views, m_ui->takeDrawData());
 
     return true;
 }
@@ -261,7 +261,7 @@ void IApplication::run(IApplication* p_app) {
 }
 
 AppStateId Application::stateId() const {
-    return state_machine_.stateId();
+    return m_state_machine.stateId();
 }
 
 }  // namespace cave

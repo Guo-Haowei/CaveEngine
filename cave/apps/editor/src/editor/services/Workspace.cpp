@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/input/KeyCode.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
@@ -32,14 +32,14 @@ Workspace::Workspace(EditorState& editor)
     , m_editor_services(editor.services())
     , m_debug_id(MakeDebugId(this)) {
     m_engine_services.inputService().addConsumer(this);
-    m_engine_services.intentDispatcher().addHandler<OpenDocIntent>(this);
-    m_engine_services.intentDispatcher().addHandler<CloseDocIntent>(this);
+    m_engine_services.intentBus().addHandler<OpenDocIntent>(this);
+    m_engine_services.intentBus().addHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
     m_engine_services.inputService().removeConsumer(this);
-    m_engine_services.intentDispatcher().removeHandler<OpenDocIntent>(this);
-    m_engine_services.intentDispatcher().removeHandler<CloseDocIntent>(this);
+    m_engine_services.intentBus().removeHandler<OpenDocIntent>(this);
+    m_engine_services.intentBus().removeHandler<CloseDocIntent>(this);
 
     refreshTabStates();
     saveWorkspaceState();
@@ -95,11 +95,11 @@ PreviewScene Workspace::focusedPreviewScene() {
 }
 
 void Workspace::requestOpen(DocId doc_id) {
-    m_engine_services.intentDispatcher().queue<OpenDocIntent>(doc_id);
+    m_engine_services.intentBus().queue<OpenDocIntent>(doc_id);
 }
 
 void Workspace::requestClose(DocId doc_id) {
-    m_engine_services.intentDispatcher().queue<CloseDocIntent>(doc_id);
+    m_engine_services.intentBus().queue<CloseDocIntent>(doc_id);
 }
 
 void Workspace::drawTabs() {

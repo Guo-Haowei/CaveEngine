@@ -60,6 +60,7 @@ private:
     IGameModule* m_game_module{};
 
     SceneId m_pie_scene{};
+    ViewId m_view_id;
 };
 
 }  // namespace cave

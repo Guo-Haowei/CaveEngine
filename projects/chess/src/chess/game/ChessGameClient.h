@@ -6,7 +6,7 @@
 
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/intent/IIntentHandler.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "chess/presentation/ChessBoardView.h"
 #include "chess/presentation/ChessPieceView.h"
@@ -18,7 +18,7 @@ class ChessMatchAuthority;
 
 class ChessGameClient : public cave::IIntentHandler {
 public:
-    ChessGameClient(cave::IntentDispatcher& intent_bus,
+    ChessGameClient(cave::IntentBus& intent_bus,
                     cave::Scene& scene,
                     ChessGameSession& session,
                     ChessMatchAuthority& auth);
@@ -46,7 +46,7 @@ private:
 
     void resetBoard();
 
-    cave::IntentDispatcher& m_intent_bus;
+    cave::IntentBus& m_intent_bus;
     cave::SceneQuery m_query;
 
     ChessMatchAuthority& m_auth;

@@ -3,7 +3,7 @@
 #include <random>
 
 #include "cave/runtime/framework/EngineServices.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "chess/core/MoveGen.h"
 #include "chess/game/ChessGameClient.h"
@@ -35,7 +35,7 @@ void ChessAIAgent::tick(cave::SceneContext& ctx) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        auto& intent_bus = ctx.engine_services.intentDispatcher();
+        auto& intent_bus = ctx.engine_services.intentBus();
         intent_bus.queue<ChessMoveIntent>(side(), move);
     }
 }

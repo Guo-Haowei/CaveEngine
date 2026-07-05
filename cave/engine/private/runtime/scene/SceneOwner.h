@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/ids/ViewId.h"
 #include "cave/runtime/scene/ISceneTransitionRequests.h"
 
 namespace cave {
@@ -8,6 +9,7 @@ class SceneOwner;
 struct SceneTickRequest {
     SceneTickMode mode;
     SceneId scene_id;
+    ViewId view_id;
     SceneOwner& owner;
 };
 

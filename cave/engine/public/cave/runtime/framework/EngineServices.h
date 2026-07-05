@@ -16,7 +16,7 @@ class IAssetManager;
 class IDebugDrawService;
 class IGameInput;
 class InputService;
-class IntentDispatcher;
+class IntentBus;
 class IUIRuntime;
 class NativeScriptRegistry;
 class ProjectManager;
@@ -34,7 +34,7 @@ struct EngineServices {
     IDebugDrawService* debug_draw_{};
     IGameInput* game_input_{};
     InputService* input_service_{};
-    IntentDispatcher* intent_dispatcher_{};
+    IntentBus* intent_bus_{};
     IUIRuntime* ui_{};
     NativeScriptRegistry* native_scripts_{};
     ProjectManager* project_manager_{};
@@ -54,7 +54,7 @@ struct EngineServices {
     IDebugDrawService& debugDraw() { return *debug_draw_; }
     IGameInput& gameInput() { return *game_input_; }
     InputService& inputService() { return *input_service_; }
-    IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
+    IntentBus& intentBus() { return *intent_bus_; }
     NativeScriptRegistry& nativeScripts() { return *native_scripts_; }
     ProjectManager& projectManager() { return *project_manager_; }
     SceneQueryService& sceneQuery() { return *scene_query_; }

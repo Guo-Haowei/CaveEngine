@@ -18,7 +18,7 @@ namespace chess {
 using namespace cave;
 
 ChessGameMode::ChessGameMode(SceneContext& ctx)
-    : m_intent_bus(ctx.engine_services.intentDispatcher())
+    : m_intent_bus(ctx.engine_services.intentBus())
     , m_debug_id(MakeDebugId(this)) {
     m_intent_bus.addHandler<ChessStateIntent>(this);
 }

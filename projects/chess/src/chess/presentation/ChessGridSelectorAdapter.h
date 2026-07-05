@@ -3,7 +3,7 @@
 #include <span>
 
 #include "cave/runtime/ecs/Entity.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/scene/SceneContext.h"
 
 #include "chess/agents/IPlayerAgent.h"
@@ -50,7 +50,7 @@ private:
     void tickPointer(cave::SceneContext& ctx, const cave::IGameInput& input);
     void tickKeyboard(const cave::IGameInput& input);
 
-    cave::IntentDispatcher& m_intent_bus;
+    cave::IntentBus& m_intent_bus;
 
     ChessGameClient& m_client;
     ChessBoardView& m_board_view;

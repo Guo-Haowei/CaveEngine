@@ -3,7 +3,7 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/input/IGameInput.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
@@ -44,7 +44,7 @@ void ChessGameSession::tick(SceneContext& ctx) {
         return;
     }
 
-    ctx.engine_services.intentDispatcher().flush();
+    ctx.engine_services.intentBus().flush();
 
     // update client visual
     m_client->present();
@@ -88,7 +88,7 @@ void ChessGameSession::tickGameOver(SceneContext& ctx) {
     LOG_INFO(LogChannel::Game, "Game Over!");
 
     // auto state = std::make_unique<GameOverState>();
-    // host_.intentDispatcher().queue<ChessStateIntent>(std::move(state));
+    // host_.intentBus().queue<ChessStateIntent>(std::move(state));
 }
 
 bool ChessGameSession::isAnimating(SceneContext& ctx) const {
@@ -114,7 +114,7 @@ void ChessGameSession::onEnterBoot(SceneContext& ctx) {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
 
-    auto& intent_bus = ctx.engine_services.intentDispatcher();
+    auto& intent_bus = ctx.engine_services.intentBus();
     m_auth = std::make_unique<ChessMatchAuthority>(intent_bus);
     m_client = std::make_unique<ChessGameClient>(intent_bus,
                                                  ctx.scene,

@@ -2,6 +2,7 @@
 // File: cave/runtime/scene/SceneContext.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/ViewId.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
 namespace cave {
@@ -16,6 +17,7 @@ struct SceneContext {
     Scene& scene;
     ISceneTransitionRequests& scene_transition;
     SceneQuery query;
+    ViewId view_id;
 
     // @TODO: do not expose all services
     EngineServices& engine_services;

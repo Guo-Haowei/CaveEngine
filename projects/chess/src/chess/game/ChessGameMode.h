@@ -4,7 +4,7 @@
 
 #include "cave/game/IGameMode.h"
 #include "cave/runtime/intent/IIntentHandler.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 namespace chess {
 
@@ -27,7 +27,7 @@ public:
 private:
     void commitStateChange(cave::SceneContext& ctx, std::unique_ptr<IChessGameState>&& new_state);
 
-    cave::IntentDispatcher& m_intent_bus;
+    cave::IntentBus& m_intent_bus;
     const cave::DebugId m_debug_id;
 
     std::unique_ptr<IChessGameState> m_state;

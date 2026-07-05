@@ -1,5 +1,5 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 namespace cave {
 
@@ -20,8 +20,8 @@ private:
     const DebugId m_debug_id;
 };
 
-TEST(IntentDispatcher, can_only_add_intent_handler_once_per_intent) {
-    IntentDispatcher dispatcher;
+TEST(IntentBus, can_only_add_intent_handler_once_per_intent) {
+    IntentBus dispatcher;
     TestIntentHandler handler;
 
     bool ok = dispatcher.addHandler("test"_sid, &handler);
@@ -34,8 +34,8 @@ TEST(IntentDispatcher, can_only_add_intent_handler_once_per_intent) {
     EXPECT_FALSE(ok);
 }
 
-TEST(IntentDispatcher, can_add_different_handlers_to_same_intent) {
-    IntentDispatcher dispatcher;
+TEST(IntentBus, can_add_different_handlers_to_same_intent) {
+    IntentBus dispatcher;
     TestIntentHandler handler1;
     TestIntentHandler handler2;
 

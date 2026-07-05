@@ -2,7 +2,7 @@
 #include "cave/core/base/NonCopyable.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 
 #include "engine/private/runtime/display/DebugDrawService.h"
@@ -34,9 +34,9 @@ public:
         return QuitVote::Allow;
     }
 
-    EventQueue& eventQueue() override { return event_queue_; }
+    EventQueue& eventQueue() override { return m_event_queue; }
 
-    AppType appType() const override { return type_; }
+    AppType appType() const override { return m_app_type; }
 
 protected:
     [[nodiscard]] auto setupModules() -> Result<void>;
@@ -50,35 +50,35 @@ protected:
 
     void registerModule(IService* module);
 
-    const AppType type_;
-    uint64_t frame_counter_{};
-    AppStateMachine state_machine_;
-    Stopwatch stopwatch_;
+    const AppType m_app_type;
+    uint64_t m_frame_counter{};
+    AppStateMachine m_state_machine;
+    Stopwatch m_stopwatch;
 
-    EventQueue event_queue_;
-    std::vector<IService*> subsystems_;
+    EventQueue m_event_queue;
+    std::vector<IService*> m_subsystems;
 
-    DebugDrawService debug_draw_;
-    IntentDispatcher intent_dispatcher_;
-    VFS vfs_;
-    SceneRegistry scene_registry_;
-    NativeScriptRegistry native_scripts_;
+    DebugDrawService m_debug_draw;
+    IntentBus m_intent_bus;
+    VFS m_vfs;
+    SceneRegistry m_scene_registry;
+    NativeScriptRegistry m_native_scripts;
 
-    std::unique_ptr<ProjectManager> project_manager_;
-    std::unique_ptr<SceneQueryService> scene_query_;
-    std::unique_ptr<SceneScheduler> scene_scheduler_;
-    std::unique_ptr<ViewManager> view_manager_;
-    std::unique_ptr<UIRuntime> ui_;
-    std::unique_ptr<render::Renderer> renderer_;
+    std::unique_ptr<ProjectManager> m_project_manager;
+    std::unique_ptr<SceneQueryService> m_scene_query;
+    std::unique_ptr<SceneScheduler> m_scene_scheduler;
+    std::unique_ptr<ViewManager> m_view_manager;
+    std::unique_ptr<UIRuntime> m_ui;
+    std::unique_ptr<render::Renderer> m_renderer;
 
     // @TODO: do not use raw pointers
-    DisplayService* display_service_{};
-    InputService* input_service_{};
-    GameInput game_input_;
-    TaskManager* task_manager_{};
-    AssetRegistry* asset_registry_{};
-    IAssetManager* asset_manager_{};
-    render::IRenderDevice* render_device_{};
+    DisplayService* m_display_service{};
+    InputService* m_input_service{};
+    GameInput m_game_input;
+    TaskManager* m_task_manager{};
+    AssetRegistry* m_asset_registry{};
+    IAssetManager* m_asset_manager{};
+    render::IRenderDevice* m_render_device{};
 };
 
 }  // namespace cave

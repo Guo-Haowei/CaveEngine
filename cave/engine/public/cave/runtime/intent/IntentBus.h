@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/framework/intent/IntentDispatcher.h
+// File: cave/framework/intent/IntentBus.h
 // =============================================================================
 #pragma once
 #include <memory>
@@ -15,9 +15,9 @@ namespace cave {
 struct CommandArgs;
 struct CommandContext;
 
-class IntentDispatcher {
+class IntentBus {
 public:
-    IntentDispatcher();
+    IntentBus();
 
     bool addHandler(IntentTypeId type_id, IIntentHandler* handler);
     bool removeHandler(IntentTypeId type_id, IIntentHandler* handler);

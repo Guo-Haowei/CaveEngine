@@ -10,7 +10,7 @@ namespace chess {
 using namespace ::cave;
 using namespace ::chess::core;
 
-ChessMatchAuthority::ChessMatchAuthority(IntentDispatcher& intent_bus)
+ChessMatchAuthority::ChessMatchAuthority(IntentBus& intent_bus)
     : m_intent_bus(intent_bus)
     , m_debug_id(MakeDebugId(this)) {
     m_intent_bus.addHandler<ChessMoveIntent>(this);

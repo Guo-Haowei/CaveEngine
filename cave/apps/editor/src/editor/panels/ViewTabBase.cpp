@@ -123,6 +123,7 @@ void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests)
         out_requests.push_back(SceneTickRequest{
             SceneTickMode::Editor,
             m_preview_scene_id,
+            m_view_id,
             *this,
         });
     }

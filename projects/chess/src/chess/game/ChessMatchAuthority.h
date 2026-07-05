@@ -2,7 +2,7 @@
 #include <deque>
 
 #include "cave/runtime/intent/IIntentHandler.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "chess/agents/IPlayerAgent.h"
 #include "chess/core/Position.h"
@@ -13,7 +13,7 @@ class ChessMatchAuthority : public cave::IIntentHandler {
     using Color = core::Color;
 
 public:
-    ChessMatchAuthority(cave::IntentDispatcher& intent_bus);
+    ChessMatchAuthority(cave::IntentBus& intent_bus);
     ~ChessMatchAuthority();
 
     bool gameOver() const { return m_game_over; }
@@ -30,7 +30,7 @@ private:
     void offerDraw(Color side);
     void resign(Color side);
 
-    cave::IntentDispatcher& m_intent_bus;
+    cave::IntentBus& m_intent_bus;
     const cave::DebugId m_debug_id;
 
     core::Position m_pos;

@@ -93,12 +93,12 @@ void PIESession::endPIEScene() {
 
 void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
     m_engine_services.sceneScheduler().add(this);
+    m_view_id = view_id;
 
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
     Scene* pie_scene = beginPIEScene(scene_reg.resolve(scene_id));
     if (DEV_VERIFY(pie_scene)) {
         if (m_game_module) {
-            unused(view_id);
 #if 0
             m_host = std::make_unique<PIEHostServices>(m_engine_services, *pie_scene, view_id);
             m_game_module->onGameBegin(*m_host);
@@ -138,7 +138,10 @@ void PIESession::commitSceneChange(std::string&& path) {
 }
 
 void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
-    out_requests.push_back({ SceneTickMode::Simulation, m_pie_scene, *this });
+    out_requests.push_back({ SceneTickMode::Simulation,
+                             m_pie_scene,
+                             m_view_id,
+                             *this });
 }
 
 void PIESession::tick(const FrameTime&) {

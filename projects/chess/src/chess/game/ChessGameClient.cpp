@@ -15,7 +15,7 @@ using namespace ::cave;
 using namespace ::cave::literals;
 using namespace ::chess::core;
 
-ChessGameClient::ChessGameClient(IntentDispatcher& intent_bus,
+ChessGameClient::ChessGameClient(IntentBus& intent_bus,
                                  cave::Scene& scene,
                                  ChessGameSession& session,
                                  ChessMatchAuthority& auth)
