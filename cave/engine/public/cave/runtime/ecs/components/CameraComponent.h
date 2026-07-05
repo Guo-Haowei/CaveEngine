@@ -29,7 +29,7 @@ private:
     uint32_t flags_ = DirtyFlag;
 
     CAVE_PROP(editor = EnumDropDown)
-    ProjectionType projection_;
+    ProjectionType projection_ = ProjectionType::Perspective;
 
     CAVE_PROP(editor = DragFloat, min = 1, max = 179)
     float fovy_ = kDefaultFovy;
