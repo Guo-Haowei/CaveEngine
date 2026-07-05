@@ -132,6 +132,10 @@ void Scene::flushPendingDestroy() {
 }
 
 void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
+    if (prefab.child().IsValid()) {
+        removeEntity(prefab.child());
+    }
+
     auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
     if (handle.is_none()) {
         return;
