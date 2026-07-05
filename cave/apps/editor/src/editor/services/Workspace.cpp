@@ -43,6 +43,7 @@ Workspace::~Workspace() {
     app_services_.intentDispatcher().removeHandler<OpenDocIntent>(this);
     app_services_.intentDispatcher().removeHandler<CloseDocIntent>(this);
 
+    refreshTabStates();
     saveWorkspaceState();
 }
 
@@ -280,6 +281,25 @@ bool EnsureParentDirExists(const fs::path& file_path) {
 
 }  // namespace
 
+void Workspace::refreshTabStates() {
+    auto& tabs = workspace_state_.tabs;
+    tabs.clear();
+    tabs.reserve(slots_.size());
+    for (size_t i = 0; i < slots_.size(); ++i) {
+        const Tab* tab = slots_[i].storage.get();
+        if (!tab) continue;
+        const DocId doc_id = tab->docId();
+        const IDocument* doc = editor_services_.document().resolve(doc_id);
+        if (!doc) continue;
+        doc->guid();
+
+        TabState tab_state;
+        if (tab->tabState(tab_state)) {
+            tabs.emplace_back(std::move(tab_state));
+        }
+    }
+}
+
 bool Workspace::loadWorkspaceState(std::string_view project_root) {
     if (project_root.empty()) {
         return false;
@@ -309,6 +329,40 @@ bool Workspace::loadWorkspaceState(std::string_view project_root) {
         d.leaveKey();
     }
 
+    workspace_state_.tabs.clear();
+    if (d.tryEnterKey("tabs")) {
+        const int size = d.arraySize().unwrap_or(0);
+        for (int i = 0; i < size; ++i) {
+            if (d.tryEnterIndex(i)) {
+                workspace_state_.tabs.resize(workspace_state_.tabs.size() + 1);
+                auto& tab_state = workspace_state_.tabs.back();
+                if (d.tryEnterKey("guid")) {
+                    d.read(tab_state.guid);
+                    d.leaveKey();
+                }
+
+                TransformComponent transform;
+                if (d.tryEnterKey("transform")) {
+                    if (d.read(transform)) {
+                        tab_state.transform = Some(transform);
+                    }
+                    d.leaveKey();
+                }
+
+                CameraComponent camera;
+                if (d.tryEnterKey("camera")) {
+                    if (d.read(camera)) {
+                        tab_state.camera = Some(camera);
+                    }
+                    d.leaveKey();
+                }
+
+                d.leaveIndex();
+            }
+        }
+        d.leaveKey();
+    }
+
     return true;
 }
 
@@ -328,6 +382,24 @@ void Workspace::saveWorkspaceState() {
         .beginKey("current_path")
         .write(workspace_state_.content_browser.current_path)
         .endMap();
+
+    if (!workspace_state_.tabs.empty()) {
+        yaml.beginKey("tabs")
+            .beginArray(false);
+        for (const auto& tab : workspace_state_.tabs) {
+            yaml.beginMap(false)
+                .beginKey("guid")
+                .write(tab.guid);
+            if (tab.camera.is_some()) {
+                yaml.beginKey("camera").write(tab.camera.unwrap_unchecked());
+            }
+            if (tab.transform.is_some()) {
+                yaml.beginKey("transform").write(tab.transform.unwrap_unchecked());
+            }
+            yaml.endMap();
+        }
+        yaml.endArray();
+    }
 
     yaml.endMap();
 

@@ -4,6 +4,7 @@
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: remove
 #include "engine/private/renderer/sampler.h"
@@ -62,6 +63,23 @@ void ViewTabBase::onCreate() {
             camera_transform_.translate(Vec3f(0, 4, 8));
             camera_controller_ = std::make_unique<CameraControllerFPS>(camera_, camera_transform_);
         } break;
+    }
+
+    IDocument* doc = editor_services_.document().resolve(doc_id_);
+    if (DEV_VERIFY(doc)) {
+        const Guid guid = doc->guid();
+        auto& tabs = editor_services_.workspace().workspaceState().tabs;
+
+        auto it = std::find_if(tabs.begin(), tabs.end(),
+                               [&guid](const TabState& tab) {
+                                   return tab.guid == guid;
+                               });
+
+        if (it != tabs.end()) {
+            TabState& tab = *it;
+            camera_ = tab.camera.unwrap_or(camera_);
+            camera_transform_ = tab.transform.unwrap_or(camera_transform_);
+        }
     }
 
     camera_transform_.updateTransform();
@@ -185,6 +203,16 @@ void ViewTabBase::commitSceneReload() {
     }
 
     doc->reloadPreviewScene();
+}
+
+bool ViewTabBase::tabState(TabState& out) const {
+    if (!Tab::tabState(out)) {
+        return false;
+    }
+
+    out.camera = Some(camera_);
+    out.transform = Some(camera_transform_);
+    return true;
 }
 
 }  // namespace cave

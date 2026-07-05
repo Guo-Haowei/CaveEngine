@@ -6,3 +6,11 @@
 #include <Windows.h>
 #include <commdlg.h>
 #endif
+
+#ifdef near
+#undef near
+#endif
+
+#ifdef far
+#undef far
+#endif

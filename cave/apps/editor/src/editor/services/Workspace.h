@@ -27,6 +27,8 @@ struct ContentBrowserState {
 
 struct WorkspaceState {
     ContentBrowserState content_browser;
+
+    std::vector<TabState> tabs;
 };
 
 class Workspace final : protected GenIdRegistry<Tab>,
@@ -67,6 +69,7 @@ private:
     void drawTabs();
     bool closeDoc(DocId doc_id);
 
+    void refreshTabStates();
     bool loadWorkspaceState(std::string_view path);
     void saveWorkspaceState();
 

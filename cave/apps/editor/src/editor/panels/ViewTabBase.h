@@ -41,6 +41,8 @@ protected:
     void drawMainView(const math::FloatRect& rect);
     void updateRect(math::FloatRect& out_rect);
 
+    bool tabState(TabState& out) const override;
+
     ViewManager& view_manager_;
     const ViewDimension dim_;
     SceneId preview_scene_id_;

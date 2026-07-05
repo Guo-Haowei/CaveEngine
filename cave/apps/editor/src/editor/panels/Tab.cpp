@@ -88,4 +88,14 @@ void Tab::onCreate() {
 void Tab::onDestroy() {
 }
 
+bool Tab::tabState(TabState& out) const {
+    const IDocument* doc = editor_services_.document().resolve(doc_id_);
+    DEV_ASSERT(doc);
+    if (!doc) return false;
+    out.guid = doc->guid();
+    out.camera = None();
+    out.transform = None();
+    return true;
+}
+
 }  // namespace cave

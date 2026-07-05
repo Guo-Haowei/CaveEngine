@@ -1,5 +1,7 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
+#include "cave/runtime/ecs/components/CameraComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/input/IInputConsumer.h"
 
 #include "engine/private/runtime/scene/SceneScheduler.h"
@@ -14,13 +16,18 @@ namespace cave {
 
 class Tab;
 
-// @TODO: move it to somewhere else
 using TabId = GenId<Tab>;
 
 enum class CloseDecision {
     Save,
     Discard,
     Cancel,
+};
+
+struct TabState {
+    Guid guid;
+    Option<CameraComponent> camera;
+    Option<TransformComponent> transform;
 };
 
 class Tab : public EditorWindow {
@@ -39,6 +46,8 @@ public:
 
     virtual void onInputEvents(const InputFrame&) {}
 
+    virtual bool tabState(TabState& out) const;
+
     DocId docId() const { return doc_id_; }
     virtual ViewId viewId() const { return ViewId{}; }
 
@@ -47,8 +56,6 @@ public:
 
 protected:
     void drawUIImpl() override {}
-
-    // virtual const std::vector<const ToolBarButtonDesc*> GetToolBarButtons() const;
 
     DocId doc_id_;
     TabId tab_id_;
