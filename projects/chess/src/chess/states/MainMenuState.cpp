@@ -1,6 +1,5 @@
 #include "MainMenuState.h"
 
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 #include "cave/runtime/intent/IntentDispatcher.h"
 

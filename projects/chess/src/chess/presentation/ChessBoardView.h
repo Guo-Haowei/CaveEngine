@@ -12,25 +12,30 @@ class ChessBoardView {
     using Entity = ::cave::ecs::Entity;
 
 public:
-    void initialize(cave::SceneQuery& query);
+    ChessBoardView(cave::SceneQuery& query)
+        : m_query(query) {}
 
-    void drawBoard(cave::SceneQuery& query);
+    void initialize();
+
+    void drawBoard();
 
     void setHighlight(core::Bitboard bitboard) {
-        highlights_ = bitboard;
+        m_highlights = bitboard;
     }
 
     void setHovered(core::Square square) {
-        hovered_square_ = square;
+        m_hovered_square = square;
     }
 
 private:
-    core::Square hovered_square_{ 0 };
+    cave::SceneQuery& m_query;
 
-    Entity selector_;
+    core::Square m_hovered_square{ 0 };
 
-    core::Bitboard highlights_{};
-    std::array<Entity, 64> tiles_;
+    Entity m_selector;
+
+    core::Bitboard m_highlights{};
+    std::array<Entity, 64> m_tiles;
 };
 
 }  // namespace chess

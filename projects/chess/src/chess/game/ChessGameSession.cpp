@@ -47,7 +47,7 @@ void ChessGameSession::tick(SceneContext& ctx) {
     ctx.engine_services.intentDispatcher().flush();
 
     // update client visual
-    m_client->present(ctx.query);
+    m_client->present();
 
     // @TODO: refactor this part
     if (m_selector) {
@@ -116,7 +116,10 @@ void ChessGameSession::onEnterBoot(SceneContext& ctx) {
 
     auto& intent_bus = ctx.engine_services.intentDispatcher();
     m_auth = std::make_unique<ChessMatchAuthority>(intent_bus);
-    m_client = std::make_unique<ChessGameClient>(intent_bus, *this, *m_auth);
+    m_client = std::make_unique<ChessGameClient>(intent_bus,
+                                                 ctx.scene,
+                                                 *this,
+                                                 *m_auth);
 
     const PlayerKind white = config.white.kind;
     const PlayerKind black = config.black.kind;
@@ -151,7 +154,7 @@ void ChessGameSession::onEnterBoot(SceneContext& ctx) {
         });
     }
 
-    m_client->onBoot(ctx.query);
+    m_client->onBoot();
 }
 
 #if USING(DEBUG_BUILD)

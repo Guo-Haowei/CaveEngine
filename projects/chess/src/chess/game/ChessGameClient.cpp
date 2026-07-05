@@ -6,7 +6,6 @@
 #include "chess/core/MoveGen.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
@@ -17,11 +16,15 @@ using namespace ::cave::literals;
 using namespace ::chess::core;
 
 ChessGameClient::ChessGameClient(IntentDispatcher& intent_bus,
+                                 cave::Scene& scene,
                                  ChessGameSession& session,
                                  ChessMatchAuthority& auth)
     : m_intent_bus(intent_bus)
+    , m_query(scene)
     , m_auth(auth)
     , m_session(session)
+    , m_board_view(m_query)
+    , m_piece_view(m_query)
     , m_debug_id(MakeDebugId(this)) {
 
     m_intent_bus.addHandler<AuthMoveCommitted>(this);
@@ -42,23 +45,23 @@ void ChessGameClient::resetBoard() {
     onPositionChange();
 }
 
-void ChessGameClient::onBoot(SceneQuery& query) {
-    m_board_view.initialize(query);
-    m_piece_view.initialize(query);
+void ChessGameClient::onBoot() {
+    m_board_view.initialize();
+    m_piece_view.initialize();
 
     resetBoard();
 
-    m_piece_view.redrawPieces(query, m_replica);
+    m_piece_view.redrawPieces(m_replica);
 }
 
 bool ChessGameClient::handleIntent(Intent& intent) {
     if (auto move_commited = dynamic_cast<AuthMoveCommitted*>(&intent)) {
-        // onMoveCommitted(move_commited->move());
+        onMoveCommitted(move_commited->move());
         return true;
     }
 
     if (auto move_rejected = dynamic_cast<AuthMoveRejected*>(&intent)) {
-        // onMoveRejected(move_rejected->move());
+        onMoveRejected(move_rejected->move());
         return true;
     }
 
@@ -69,8 +72,8 @@ bool ChessGameClient::handleIntent(Intent& intent) {
     return false;
 }
 
-void ChessGameClient::onMoveCommitted(SceneQuery& query, Move move) {
-    m_piece_view.applyMove(query, m_replica, move);
+void ChessGameClient::onMoveCommitted(Move move) {
+    m_piece_view.applyMove(m_replica, move);
 
     UndoState undo;
     m_replica.MakeMove(move, undo);
@@ -79,12 +82,12 @@ void ChessGameClient::onMoveCommitted(SceneQuery& query, Move move) {
     m_session.setPhase(SessionPhase::ResolvingMove);
 }
 
-void ChessGameClient::onMoveRejected(SceneQuery&, Move) {
+void ChessGameClient::onMoveRejected(Move) {
     LOG_INFO(LogChannel::Game, "Invalid move!");
 }
 
-void ChessGameClient::present(SceneQuery& query) {
-    m_board_view.drawBoard(query);
+void ChessGameClient::present() {
+    m_board_view.drawBoard();
 }
 
 void ChessGameClient::onPositionChange() {

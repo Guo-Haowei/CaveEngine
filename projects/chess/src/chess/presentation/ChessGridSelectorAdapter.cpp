@@ -3,7 +3,6 @@
 #include <cassert>
 
 #include "cave/core/math/Plane.h"
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
@@ -186,6 +185,7 @@ void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
 
 void ChessGridSelectorAdapter::tick(SceneContext& ctx) {
     const IGameInput& input = ctx.engine_services.gameInput();
+    // @TODO: fix ChessGridSelectorAdapter::tick
     // tickPointer(ctx, input);
     tickKeyboard(input);
 }

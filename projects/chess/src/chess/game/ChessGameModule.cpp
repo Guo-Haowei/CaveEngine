@@ -1,7 +1,6 @@
 #include "ChessGameModule.h"
 
 #include "cave/core/error/ErrorMacros.h"
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneQuery.h"
 

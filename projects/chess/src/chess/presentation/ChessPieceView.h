@@ -20,28 +20,25 @@ class ChessPieceView {
     };
 
 public:
-    void initialize(cave::SceneQuery& query);
+    ChessPieceView(cave::SceneQuery& query)
+        : m_query(query) {}
 
-    void redrawPieces(cave::SceneQuery& query,
-                      const core::Position& position);
+    void initialize();
 
-    void spawnPiece(cave::SceneQuery& query,
-                    core::Piece piece,
-                    core::Square square);
+    void redrawPieces(const core::Position& position);
 
-    void removePiece(cave::SceneQuery& query,
-                     core::Square square);
+    void spawnPiece(core::Piece piece, core::Square square);
 
-    void movePiece(cave::SceneQuery& query,
-                   core::Square from,
-                   core::Square to);
+    void removePiece(core::Square square);
 
-    void applyMove(cave::SceneQuery& query,
-                   const core::Position& position,
-                   core::Move mv);
+    void movePiece(core::Square from, core::Square to);
+
+    void applyMove(const core::Position& position, core::Move mv);
 
 private:
     Entity entityAt(core::Square square) const { return m_board[square.index()]; }
+
+    cave::SceneQuery& m_query;
 
     std::array<Entity, 64> m_board;
     std::array<Entry, core::kPieceMax> m_piece_pool;

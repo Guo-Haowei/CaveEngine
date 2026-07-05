@@ -28,7 +28,6 @@ ChessGameMode::~ChessGameMode() {
 }
 
 void ChessGameMode::onEnter(SceneContext& ctx) {
-    DEV_ASSERT(0);
     m_state = std::make_unique<GameplayState>();
     m_state->onEnter(ctx);
 }

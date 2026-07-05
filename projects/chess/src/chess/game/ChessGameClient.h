@@ -19,13 +19,14 @@ class ChessMatchAuthority;
 class ChessGameClient : public cave::IIntentHandler {
 public:
     ChessGameClient(cave::IntentDispatcher& intent_bus,
+                    cave::Scene& scene,
                     ChessGameSession& session,
                     ChessMatchAuthority& auth);
     ~ChessGameClient();
 
-    void onBoot(cave::SceneQuery& query);
+    void onBoot();
 
-    void present(cave::SceneQuery& query);
+    void present();
 
     std::span<const core::Move> legalMoves(core::Square square) const;
 
@@ -38,20 +39,23 @@ public:
     ChessBoardView& board_view() { return m_board_view; }
 
 private:
-    void onMoveCommitted(cave::SceneQuery& query, core::Move move);
-    void onMoveRejected(cave::SceneQuery& query, core::Move move);
+    void onMoveCommitted(core::Move move);
+    void onMoveRejected(core::Move move);
 
     void onPositionChange();
 
     void resetBoard();
 
     cave::IntentDispatcher& m_intent_bus;
+    cave::SceneQuery m_query;
+
     ChessMatchAuthority& m_auth;
     ChessGameSession& m_session;
-    const cave::DebugId m_debug_id;
 
     ChessBoardView m_board_view;
     ChessPieceView m_piece_view;
+
+    const cave::DebugId m_debug_id;
 
     core::Position m_replica;
     std::unordered_map<core::Square, std::vector<core::Move>> m_move_cache;

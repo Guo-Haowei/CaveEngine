@@ -12,33 +12,33 @@ namespace chess {
 using namespace ::cave;
 using namespace ::chess::core;
 
-void ChessBoardView::initialize(SceneQuery& query) {
-    selector_ = query.findFirstByName("grid_selector");
+void ChessBoardView::initialize() {
+    m_selector = m_query.findFirstByName("grid_selector");
 
     for (uint8_t i = 0; i < 64; ++i) {
         const char* name = Square(i).uci();
-        tiles_[i] = query.findFirstByName(name);
+        m_tiles[i] = m_query.findFirstByName(name);
     }
 }
 
-void ChessBoardView::drawBoard(SceneQuery& query) {
+void ChessBoardView::drawBoard() {
     for (uint8_t i = 0; i < 64; ++i) {
         const Square sq(i);
-        bool visible = highlights_.Test(sq);
-        if (sq == hovered_square_) {
+        bool visible = m_highlights.Test(sq);
+        if (sq == m_hovered_square) {
             visible = false;
         }
-        const ecs::Entity tile = tiles_[i];
+        const ecs::Entity tile = m_tiles[i];
 
-        auto renderer = query.component<MeshRendererComponent>(tile);
+        auto renderer = m_query.component<MeshRendererComponent>(tile);
         if (DEV_VERIFY(renderer)) {
             renderer->SetVisible(visible);
         }
     }
 
-    auto transform = query.component<TransformComponent>(selector_);
+    auto transform = m_query.component<TransformComponent>(m_selector);
     if (DEV_VERIFY(transform)) {
-        transform->setTranslation(squareToVec(hovered_square_));
+        transform->setTranslation(squareToVec(m_hovered_square));
     }
 }
 

@@ -22,4 +22,3 @@ void BoardController::onUpdate(SceneContext& ctx, float dt) {
 }
 
 }  // namespace chess
-
