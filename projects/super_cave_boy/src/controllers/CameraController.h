@@ -16,7 +16,7 @@ public:
 private:
     void followTarget(cave::SceneContext& ctx, float dt);
 
-    Entity target_;
+    Entity m_target;
 };
 
 }  // namespace super_cave_boy

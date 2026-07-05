@@ -21,15 +21,12 @@ private:
     void updateAnimation(cave::SceneQuery& query);
 
 private:
-    BatState state_ = BatState::Idle;
+    BatState m_state = BatState::Idle;
 
-    float speed_ = 2.0f;
-    float close_speed_ = 3.0f;
-
-    float detect_range_x_ = 5.f;
-    float detect_range_y_ = 4.5f;
-
-    float align_epsilon_ = 0.08f;
+    cave::math::Vec2f m_detect_range{ 5, 5 };
+    float m_speed = 2.0f;
+    float m_close_speed = 3.0f;
+    float m_align_epsilon = 0.08f;
 };
 
 }  // namespace super_cave_boy

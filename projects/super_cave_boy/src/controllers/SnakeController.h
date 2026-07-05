@@ -9,7 +9,7 @@ public:
     void onUpdate(cave::SceneContext& ctx, float dt) override;
 
 private:
-    int facing_x_;
+    int m_facing_x;
 };
 
 }  // namespace super_cave_boy

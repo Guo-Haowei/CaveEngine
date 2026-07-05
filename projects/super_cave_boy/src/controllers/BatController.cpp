@@ -15,7 +15,7 @@ using ::cave::ecs::Entity;
 
 namespace {
 
-inline float SignWithDeadZone(float value, float eps) {
+float SignWithDeadZone(float value, float eps) {
     if (value > eps) {
         return 1.0f;
     }
@@ -38,8 +38,8 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
     const float dx = std::abs(player_pos.x - bat_pos.x);
     const float dy = std::abs(player_pos.y - bat_pos.y);
 
-    const bool close_x = dx <= detect_range_x_;
-    const bool valid_y = dy <= detect_range_y_;
+    const bool close_x = dx <= m_detect_range.x;
+    const bool valid_y = dy <= m_detect_range.y;
 
     return close_x && valid_y;
 }
@@ -51,7 +51,7 @@ void BatController::onUpdate(cave::SceneContext& ctx, float dt) {
         m_player = findPlayer(query);
     }
 
-    switch (state_) {
+    switch (m_state) {
         case BatState::Idle: {
             updateIdle(query);
         } break;
@@ -73,7 +73,7 @@ void BatController::updateIdle(SceneQuery& query) {
     const Vec2f player_pos = player_transform->translation().xy;
 
     if (canSeePlayer(bat_pos, player_pos)) {
-        state_ = BatState::Move;
+        m_state = BatState::Move;
 
         if (auto animator = query.component<SpriteAnimatorComponent>(m_animator)) {
             animator->currentClip("fly");
@@ -97,18 +97,18 @@ void BatController::updateMove(SceneQuery& query, float) {
     const float diff_x = bat_pos.x - player_pos.x;
     const float diff_y = bat_pos.y - player_pos.y;
 
-    const float xsign = SignWithDeadZone(diff_x, align_epsilon_);
-    const float ysign = SignWithDeadZone(diff_y, align_epsilon_);
+    const float xsign = SignWithDeadZone(diff_x, m_align_epsilon);
+    const float ysign = SignWithDeadZone(diff_y, m_align_epsilon);
 
     Vec2f desired_dir{
         -xsign,
         -ysign,
     };
 
-    float speed = speed_;
+    float speed = m_speed;
 
     if (desired_dir.x == 0.0f || desired_dir.y == 0.0f) {
-        speed = close_speed_;
+        speed = m_close_speed;
     }
 
     vel->linear.x = desired_dir.x * speed;
@@ -122,7 +122,7 @@ void BatController::updateAnimation(SceneQuery& query) {
         return;
     }
 
-    switch (state_) {
+    switch (m_state) {
         case BatState::Idle:
             animator->currentClip("idle");
             break;

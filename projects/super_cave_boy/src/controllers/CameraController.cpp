@@ -44,7 +44,7 @@ Vec2f ClampCameraToTileMap(Vec2f camera_pos,
 }  // namespace
 
 void CameraController::onCreate(SceneContext& ctx) {
-    target_ = ctx.query.findFirstByName("player");
+    m_target = ctx.query.findFirstByName("player");
 }
 
 void CameraController::onUpdate(SceneContext& ctx, float dt) {
@@ -52,7 +52,7 @@ void CameraController::onUpdate(SceneContext& ctx, float dt) {
 }
 
 void CameraController::followTarget(cave::SceneContext& ctx, float dt) {
-    if (!entity().IsValid() || !target_.IsValid()) {
+    if (!entity().IsValid() || !m_target.IsValid()) {
         return;
     }
 
@@ -60,7 +60,7 @@ void CameraController::followTarget(cave::SceneContext& ctx, float dt) {
     speed = math::max(speed, 0.0f);
     SceneQuery& query = ctx.query;
 
-    auto target_transform = query.component<TransformComponent>(target_);
+    auto target_transform = query.component<TransformComponent>(m_target);
     auto camera_transform = query.component<TransformComponent>(entity());
     auto camera = query.component<CameraComponent>(entity());
 
