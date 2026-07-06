@@ -23,6 +23,7 @@
 #include "editor/services/ThumbnailService.h"
 #include "editor/services/Workspace.h"
 
+#include "editor/play/PIESession.h"
 #include "editor/EditorAssetManager.h"
 
 // @TODO: refactor
@@ -47,7 +48,7 @@ using ecs::Entity;
 
 EditorState::EditorState(IApplication& app)
     : AppState(app)
-    , m_pie(app.services())
+    , m_pie(std::make_unique<PIESession>(app.services()))
     , m_debug_id(MakeDebugId(this)) {
 
     EngineServices& app_services = app.services();
@@ -136,7 +137,7 @@ void EditorState::tick(const FrameTime& p_time) {
     m_thumbnail->tick(p_time, info);
 
     if (isPlaying()) {
-        m_pie.tick(p_time);
+        m_pie->tick(p_time);
     }
 
     ImguiManager* imgui_manager = m_app.imguiManager();
@@ -172,10 +173,10 @@ void EditorState::commitModeSwitch() {
     switch (old_mode) {
         case EditorState::Mode::Editing: {
             PreviewScene preview = m_workspace->focusedPreviewScene();
-            m_pie.beginPIESession(preview.scene_id, preview.view_id);
+            m_pie->beginPIESession(preview.guid, preview.view_id);
         } break;
         case EditorState::Mode::Playing: {
-            m_pie.endPIESession();
+            m_pie->endPIESession();
         } break;
     }
 

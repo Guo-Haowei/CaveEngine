@@ -33,11 +33,10 @@ SceneContext PIESession::makeSceneContext(Scene& scene) {
     };
 }
 
-void PIESession::beginPIEScene(Scene* asset_scene) {
-    DEV_ASSERT(asset_scene);
+void PIESession::beginPIEScene(const Scene& asset_scene) {
     DEV_ASSERT(!m_pie_scene.isValid());
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
-    m_pie_scene = scene_reg.cloneScene(*asset_scene);
+    m_pie_scene = scene_reg.cloneScene(asset_scene);
 
     Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
@@ -63,19 +62,28 @@ void PIESession::endPIEScene() {
     m_pie_scene = {};
 }
 
-void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
+void PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
     m_engine_services.sceneScheduler().add(this);
     m_view_id = view_id;
 
-    SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
-    beginPIEScene(scene_reg.resolve(scene_id));
+    auto& asset_reg = m_engine_services.assetRegistry();
+    if (auto handle = asset_reg.findByGuid<Scene>(guid); handle.is_some()) {
+        if (const Scene* asset_scene = handle.unwrap_unchecked().get()) {
+            beginPIEScene(*asset_scene);
+            return;
+        }
+    }
+
+    LOG_ERROR(LogChannel::Asset, "failed to start PIE scene {}", guid.toString());
 }
 
 void PIESession::endPIESession() {
     m_engine_services.sceneScheduler().remove(this);
     m_view_id = {};
 
-    endPIEScene();
+    if (m_pie_scene.isValid()) {
+        endPIEScene();
+    }
 }
 
 void PIESession::commitSceneChange(std::string&& path) {
@@ -95,7 +103,7 @@ void PIESession::commitSceneChange(std::string&& path) {
         return;
     }
 
-    beginPIEScene(asset_scene);
+    beginPIEScene(*asset_scene);
 }
 
 void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {

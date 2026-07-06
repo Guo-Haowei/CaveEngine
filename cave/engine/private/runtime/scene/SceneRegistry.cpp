@@ -14,7 +14,7 @@
 
 #define DEBUG_SCENE_REG IN_USE
 #if USING(DEBUG_SCENE_REG)
-#define DEBUG_PRINT(...) LOG_INFO(__VA_ARGS__)
+#define DEBUG_PRINT(...) LOG_INFO(cave::LogChannel::Scene, __VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
@@ -110,14 +110,13 @@ SceneId SceneRegistry::Impl::registerScene(std::unique_ptr<Scene>&& scene) {
     std::string_view sv = scene->name();
     SceneId id = Base::create(std::move(scene));
 
-    DEBUG_PRINT("SceneRegistry::Register: registered {} {}", sv, id.toString());
+    DEBUG_PRINT("registered {} {}", sv, id.toString());
 
     return id;
 }
 
 bool SceneRegistry::Impl::replaceScene(SceneId id, std::unique_ptr<Scene>&& scene) {
-    // @TODO: post update
-    DEBUG_PRINT("SceneRegistry::Register: registered {} {}", scene->name(), id.toString());
+    DEBUG_PRINT("replaced {} {}", scene->name(), id.toString());
 
     return Base::replace(id, std::move(scene));
 }
@@ -125,7 +124,10 @@ bool SceneRegistry::Impl::replaceScene(SceneId id, std::unique_ptr<Scene>&& scen
 SceneId SceneRegistry::Impl::cloneScene(const Scene& scene) {
     auto copy = std::make_unique<Scene>(std::string(scene.name()));
     copy->copy(scene);
-    return registerScene(std::move(copy));
+
+    SceneId id = registerScene(std::move(copy));
+    DEBUG_PRINT("clone {} {}", scene.name(), id.toString());
+    return id;
 }
 
 SceneId SceneRegistry::Impl::cloneScene(SceneId scene_id) {
@@ -151,14 +153,14 @@ bool SceneRegistry::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs&) {
     std::string msg;
     msg.reserve(512);
     msg.append("Scene Registry:\n");
-    for (int i = 0; i < slots_.size(); ++i) {
-        const auto& slot = slots_[i];
+    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
+        const auto& slot = m_slots[idx];
         if (!slot.storage) continue;
 
-        msg.append(std::format(" -- name: {}, id: {},{}\n",
+        SceneId id = { idx, slot.gen };
+        msg.append(std::format(" -- name: {}, {}\n",
                                slot.storage->name(),
-                               i,
-                               slot.gen));
+                               id.toString()));
     }
 
     ctx.log.Info(LogChannel::Console, std::move(msg));

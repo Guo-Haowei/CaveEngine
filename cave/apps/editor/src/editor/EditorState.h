@@ -6,7 +6,6 @@
 #include "engine/private/runtime/framework/AppState.h"
 
 #include "editor/document/DocId.h"
-#include "editor/play/PIESession.h"
 #include "editor/services/EditorServices.h"
 
 namespace cave {
@@ -19,6 +18,7 @@ class ContentBrowser;
 class FileSystemPanel;
 class LogPanel;
 class MenuBar;
+class PIESession;
 
 class EditorState final : public AppState {
     enum class Mode : uint8_t {
@@ -48,7 +48,7 @@ public:
 
     EditorServices& services() { return m_editor_services; }
 
-    PIESession& PIE() { return m_pie; }
+    PIESession& PIE() { return *m_pie; }
 
 private:
     void dockSpace();
@@ -63,7 +63,7 @@ private:
     Mode m_mode{ Mode::Editing };
     bool m_switch_mode_requested{ false };
 
-    PIESession m_pie;
+    std::unique_ptr<PIESession> m_pie;
 
     // @TODO: move to EditorServices
     std::unique_ptr<DocumentService> m_document;

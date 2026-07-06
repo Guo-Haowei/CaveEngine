@@ -7,6 +7,7 @@
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
 #include "editor/widgets/DragDrop.h"
+#include "editor/play/PIESession.h"
 
 // @TODO: remove
 #include "editor/EditorState.h"

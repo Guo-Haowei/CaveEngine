@@ -10,6 +10,7 @@
 
 namespace cave {
 
+class Guid;
 class IGameModule;
 class Scene;
 
@@ -19,7 +20,7 @@ public:
     explicit PIESession(EngineServices& services);
     ~PIESession();
 
-    void beginPIESession(SceneId scene_id, ViewId view_id);
+    void beginPIESession(const Guid& scene_guid, ViewId view_id);
     void endPIESession();
 
     void tick(const FrameTime& time);
@@ -33,7 +34,7 @@ public:
 
 private:
     SceneContext makeSceneContext(Scene& scene);
-    void beginPIEScene(Scene* asset_scene);
+    void beginPIEScene(const Scene& asset_scene);
     void endPIEScene();
 
     void commitSceneChange(std::string&& path) override;

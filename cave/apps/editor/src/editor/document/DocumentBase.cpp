@@ -151,7 +151,7 @@ void DocumentBase::reloadPreviewScene() {
         old_scene->end();
     }
 
-    LOG_INFO(LogChannel::Asset, "reload scene {}", ToString(m_preview_scene));
+    LOG_INFO(LogChannel::Asset, "reload scene {}", m_preview_scene.toString());
     m_scene_reg.replaceScene(m_preview_scene, std::move(new_scene));
 }
 

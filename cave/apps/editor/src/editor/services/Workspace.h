@@ -1,6 +1,7 @@
 #pragma once
 #include <span>
 
+#include "cave/core/ids/Guid.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/runtime/intent/IIntentHandler.h"
 
@@ -16,12 +17,12 @@ struct EngineServices;
 struct EditorServices;
 
 class EditorState;
-class Guid;
 class Scene;
 
 struct PreviewScene {
     DocId doc_id{};
     ViewId view_id{};
+    Guid guid;
     SceneId scene_id{};
     Scene* scene{ nullptr };
 };
