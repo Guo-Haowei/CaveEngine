@@ -25,7 +25,16 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         .scene_ctx = ctx,
     });
 
-    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
+    if (auto handle = m_asset_reg.findByGuid<Scene>(guid)) {
+        const AssetMetaData* meta = handle.unwrap_unchecked().meta();
+
+        m_preview_scene = m_scene_reg.registerScene(
+            {
+                .source = SceneSource::Editor,
+                .debug_name = meta->name,
+            },
+            std::move(scene));
+    }
 }
 
 SceneDocument::~SceneDocument() {
@@ -35,7 +44,7 @@ SceneDocument::~SceneDocument() {
 }
 
 bool SceneDocument::save() {
-    Scene* source = handle_.get<Scene>();
+    Scene* source = m_handle.get<Scene>();
     Scene* tmp = m_scene_reg.resolve(m_preview_scene);
     source->copy(*tmp);
     return DocumentBase::save();
@@ -47,8 +56,8 @@ bool SceneDocument::saveAs(std::string_view p_new_path) {
 }
 
 std::unique_ptr<Scene> SceneDocument::createPreviewScene() const {
-    auto scene = std::make_unique<Scene>(std::format("preview-scene-{}", guid().toString()));
-    scene->copy(*handle_.get<Scene>());
+    auto scene = std::make_unique<Scene>();
+    scene->copy(*m_handle.get<Scene>());
     return scene;
 }
 

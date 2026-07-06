@@ -34,7 +34,7 @@ bool MaterialComponent::SetResourceGuid(const Guid& p_guid) {
 }
 
 void MaterialComponent::OnDeserialized() {
-    if (auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id); handle.is_some()) {
+    if (auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id)) {
         m_material_handle = handle.unwrap_unchecked();
         OnDeserializedHelper(m_material_handle, false);
     }

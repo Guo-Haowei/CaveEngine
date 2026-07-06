@@ -24,8 +24,8 @@ DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
     , m_scene_reg(services.sceneRegistry())
     , m_guid(guid) {
 
-    handle_ = m_asset_reg.findByGuid(guid).unwrap();
-    asset_ = handle_.wait();
+    m_handle = m_asset_reg.findByGuid(guid).unwrap();
+    m_asset = m_handle.wait();
 }
 
 bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
@@ -151,7 +151,6 @@ void DocumentBase::reloadPreviewScene() {
         old_scene->end();
     }
 
-    LOG_INFO(LogChannel::Asset, "reload scene {}", m_preview_scene.toString());
     m_scene_reg.replaceScene(m_preview_scene, std::move(new_scene));
 }
 

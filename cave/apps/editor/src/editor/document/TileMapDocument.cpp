@@ -18,7 +18,13 @@ TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
     auto scene = createPreviewScene();
-    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
+
+    m_preview_scene = m_scene_reg.registerScene(
+        {
+            .source = SceneSource::Editor,
+            .debug_name = m_handle.meta()->name,
+        },
+        std::move(scene));
 }
 
 std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
@@ -29,7 +35,7 @@ std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
     cb.attachChild(ent, root);
     cb.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid());
 
-    auto scene = std::make_unique<Scene>(std::format("preview-tile-map-{}", guid().toString()));
+    auto scene = std::make_unique<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());

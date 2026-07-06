@@ -32,7 +32,7 @@ MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
         cb.attachChild(sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>(std::format("preview-material-{}", guid.toString()));
+    auto scene = std::make_unique<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
@@ -40,7 +40,12 @@ MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
     scene->setRoot(map.Resolve(root));
     scene->update(0.0f);
 
-    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
+    m_preview_scene = m_scene_reg.registerScene(
+        {
+            .source = SceneSource::Editor,
+            .debug_name = m_handle.meta()->name,
+        },
+        std::move(scene));
 }
 
 }  // namespace cave

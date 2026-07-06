@@ -1,4 +1,9 @@
 #pragma once
+#include <memory>
+#include <string>
+#include <string_view>
+
+#include "cave/core/error/ErrorMacros.h"
 #include "cave/core/ids/GenId.h"
 
 namespace cave {
@@ -57,6 +62,13 @@ public:
             return false;
         }
         return slot.storage != nullptr;
+    }
+
+    std::string_view debugName(IdT id) const {
+        if (DEV_VERIFY(id.index < m_slots.size())) {
+            return m_slots[id.index].debug_name;
+        }
+        return "";
     }
 
 protected:

@@ -7,18 +7,30 @@ namespace cave {
 class Scene;
 class IApplication;
 
+enum class SceneSource : uint8_t {
+    Asset,
+    Editor,
+    Runtime,
+    Thumbnail,
+};
+
+struct SceneDesc {
+    SceneSource source;
+    std::string debug_name;
+};
+
 class SceneRegistry {
 public:
     SceneRegistry();
     ~SceneRegistry();
 
-    SceneId createScene(std::string name);
+    SceneId createScene(SceneDesc desc);
+    SceneId registerScene(SceneDesc desc, std::unique_ptr<Scene>&& scene);
 
-    SceneId registerScene(std::unique_ptr<Scene>&& scene);
     bool replaceScene(SceneId id, std::unique_ptr<Scene>&& scene);
 
-    SceneId cloneScene(SceneId scene_id);
-    SceneId cloneScene(const Scene& scene);
+    SceneId cloneScene(SceneDesc desc, SceneId scene_id);
+    SceneId cloneScene(SceneDesc desc, const Scene& scene);
 
     void destroyScene(SceneId scene_id);
 

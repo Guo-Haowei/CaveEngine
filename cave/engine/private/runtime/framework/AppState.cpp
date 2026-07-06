@@ -20,7 +20,7 @@ void AppStateMachine::shutdown() {
 void AppStateMachine::tick(const FrameTime& p_time) {
     m_app_state->tick(p_time);
 
-    if (auto req = m_app_state->popRequest(); req.is_some()) {
+    if (auto req = m_app_state->popRequest()) {
         switchTo(req.unwrap_unchecked());
     }
 }

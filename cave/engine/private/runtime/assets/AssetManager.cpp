@@ -62,7 +62,7 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
         case AssetType::Scene: {
-            auto scene = std::make_shared<Scene>("");
+            auto scene = std::make_shared<Scene>();
             if (create) {
                 auto root = scene->createEntity();
                 scene->create(TransformComponent_Id, root);

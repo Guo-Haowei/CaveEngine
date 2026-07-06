@@ -78,13 +78,12 @@ void SceneRuntime::update(SceneTickContext& ctx) {
 }
 // ---------------------------------------------
 
-Scene::Scene(std::string name, ecs::ComponentRegistry& reg) noexcept
-    : m_name(std::move(name))
-    , m_component_registry(reg) {
+Scene::Scene(ecs::ComponentRegistry& reg) noexcept
+    : m_component_registry(reg) {
 }
 
-Scene::Scene(std::string name) noexcept
-    : Scene(std::move(name), engine::GetComponentRegistry()) {
+Scene::Scene() noexcept
+    : Scene(engine::GetComponentRegistry()) {
 }
 
 Scene::~Scene() = default;
@@ -235,7 +234,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
 
     const Scene* source = handle.unwrap_unchecked().get();
     DEV_ASSERT(source);
-    Scene copy("prefab");
+    Scene copy;
     copy.copy(*source);
 
     auto new_entities = copy.getSortedEntityArray();

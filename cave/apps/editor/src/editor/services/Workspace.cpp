@@ -53,7 +53,7 @@ void Workspace::restoreProjectWorkspace() {
 
     Option<OpenDocDesc> active_doc;
     for (const TabState& tab : m_workspace_state.tabs) {
-        if (auto handle = m_engine_services.assetRegistry().findByGuid(tab.guid); handle.is_some()) {
+        if (auto handle = m_engine_services.assetRegistry().findByGuid(tab.guid)) {
             AssetHandle handle_ = handle.unwrap_unchecked();
             OpenDocDesc desc{ handle_.guid(), handle_.meta()->type };
             if (tab.active && active_doc.is_none()) {

@@ -39,13 +39,13 @@ public:
     virtual void redoLabels(std::vector<std::string>& out, int max_items) const = 0;
 
     AssetHandle rawHandle() const {
-        return handle_;
+        return m_handle;
     }
 
     template<typename T>
     Handle<T> handle() const {
         static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        AssetHandle copy = handle_;
+        AssetHandle copy = m_handle;
         return Handle<T>(std::move(copy));
     }
 
@@ -58,8 +58,8 @@ public:
     virtual void reloadPreviewScene() = 0;
 
 protected:
-    AssetHandle handle_;
-    AssetRef asset_;
+    AssetHandle m_handle;
+    AssetRef m_asset;
 };
 
 }  // namespace cave

@@ -13,6 +13,7 @@ namespace cave {
 class Guid;
 class IGameModule;
 class Scene;
+struct SceneDesc;
 
 class PIESession : public NonCopyable,
                    public SceneOwner {
@@ -34,7 +35,7 @@ public:
 
 private:
     SceneContext makeSceneContext(Scene& scene);
-    void beginPIEScene(const Scene& asset_scene);
+    void beginPIEScene(SceneDesc&& desc, const Scene& asset_scene);
     void endPIEScene();
 
     void commitSceneChange(std::string&& path) override;

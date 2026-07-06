@@ -35,8 +35,8 @@ class Scene final : public NonCopyable, public IAsset {
 public:
     static constexpr const char* EXTENSION = ".scene";
 
-    explicit Scene(std::string name, ecs::ComponentRegistry& reg) noexcept;
-    explicit Scene(std::string name) noexcept;
+    explicit Scene(ecs::ComponentRegistry& reg) noexcept;
+    explicit Scene() noexcept;
     ~Scene() override;
 
     void* create(ComponentId cid, ecs::Entity ent) {
@@ -126,8 +126,6 @@ public:
 
     void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::Null());
 
-    std::string_view name() const { return m_name; }
-
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
@@ -157,7 +155,6 @@ private:
     void flushPendingDestroy();
 
     ecs::ComponentRegistry& m_component_registry;
-    std::string m_name;
     ecs::ComponentStorage m_storage;
 
     uint32_t m_entity_seed{ 0 };

@@ -110,7 +110,7 @@ void RegisterCommands::asset(CommandRegistry& cmd_reg) {
 
             std::string_view asset_str = args.tokens[1];
             Option<AssetHandle> handle;
-            if (auto guid = Guid::parse(asset_str); guid.is_some()) {
+            if (auto guid = Guid::parse(asset_str)) {
                 handle = asset_reg.findByGuid(guid.unwrap_unchecked());
             } else {
                 handle = asset_reg.findByPath(std::string(asset_str));

@@ -1,6 +1,7 @@
 #include "PIESession.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/core/string/StringUtils.h"
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneContext.h"
@@ -33,10 +34,10 @@ SceneContext PIESession::makeSceneContext(Scene& scene) {
     };
 }
 
-void PIESession::beginPIEScene(const Scene& asset_scene) {
+void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
     DEV_ASSERT(!m_pie_scene.isValid());
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
-    m_pie_scene = scene_reg.cloneScene(asset_scene);
+    m_pie_scene = scene_reg.cloneScene(std::move(desc), asset_scene);
 
     Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
@@ -67,9 +68,14 @@ void PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
     m_view_id = view_id;
 
     auto& asset_reg = m_engine_services.assetRegistry();
-    if (auto handle = asset_reg.findByGuid<Scene>(guid); handle.is_some()) {
+    if (auto handle = asset_reg.findByGuid<Scene>(guid)) {
         if (const Scene* asset_scene = handle.unwrap_unchecked().get()) {
-            beginPIEScene(*asset_scene);
+            beginPIEScene(
+                {
+                    .source = SceneSource::Runtime,
+                    .debug_name = handle.unwrap_unchecked().meta()->name,
+                },
+                *asset_scene);
             return;
         }
     }
@@ -103,7 +109,12 @@ void PIESession::commitSceneChange(std::string&& path) {
         return;
     }
 
-    beginPIEScene(*asset_scene);
+    beginPIEScene(
+        {
+            .source = SceneSource::Runtime,
+            .debug_name = std::string(StringUtils::fileName(path)),
+        },
+        *asset_scene);
 }
 
 void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {

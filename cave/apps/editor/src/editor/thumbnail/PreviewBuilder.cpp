@@ -98,7 +98,7 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
 
-    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
+    auto scene = std::make_unique<Scene>();
     scene->copy(*source_scene);
 
     // @TODO: better camera
@@ -122,7 +122,12 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = m_scene_reg.registerScene(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(
+            {
+                .source = SceneSource::Thumbnail,
+                .debug_name = meta->name,
+            },
+            std::move(scene)),
         .camera = camera_source,
     };
 }
@@ -146,7 +151,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
 
     const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
-    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
+    auto scene = std::make_unique<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
@@ -164,7 +169,12 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = m_scene_reg.registerScene(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(
+            {
+                .source = SceneSource::Thumbnail,
+                .debug_name = meta->name,
+            },
+            std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }
@@ -190,7 +200,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
 
     const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
-    auto scene = std::make_unique<Scene>(std::format("{}-thumbnail", meta->name));
+    auto scene = std::make_unique<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
@@ -203,7 +213,12 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = m_scene_reg.registerScene(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(
+            {
+                .source = SceneSource::Thumbnail,
+                .debug_name = meta->name,
+            },
+            std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }

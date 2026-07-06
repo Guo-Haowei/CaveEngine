@@ -26,18 +26,24 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     cb.addComponent(ent, SpriteRendererComponent_Id);
     cb.addComponent(ent, SpriteAnimatorComponent_Id);
 
-    auto scene = std::make_unique<Scene>(std::format("preview-animation-{}", guid.toString()));
+    auto scene = std::make_unique<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->setRoot(map.Resolve(root));
-    scene->update(0.0f);
 
     SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(map.Resolve(ent));
     animator->SetResourceGuid(guid);
 
-    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
+    scene->update(0.0f);
+
+    m_preview_scene = m_scene_reg.registerScene(
+        {
+            .source = SceneSource::Editor,
+            .debug_name = m_handle.meta()->name,
+        },
+        std::move(scene));
 }
 
 }  // namespace cave
