@@ -171,8 +171,6 @@ void Scene::end() {
 void Scene::tick(SceneTickContext ctx) {
     if (m_runtime) {
         m_runtime->update(ctx);
-    } else {
-        LOG_WARN("did you call begin");
     }
 
     update(ctx.dt);
