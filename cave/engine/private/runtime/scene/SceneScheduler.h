@@ -3,6 +3,7 @@
 
 namespace cave {
 
+struct EngineServices;
 struct FrameTime;
 class SceneRegistry;
 

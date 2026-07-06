@@ -84,7 +84,7 @@ void PlayerController::update(cave::SceneContext& ctx, float dt) {
     // if (health_ <= 0) {
     // }
 
-    const IGameInput& input = ctx.engine_services.gameInput();
+    const IGameInput& input = ctx.services.gameInput();
     SceneQuery& query = ctx.query;
 
     auto transform = query.component<TransformComponent>(entity());

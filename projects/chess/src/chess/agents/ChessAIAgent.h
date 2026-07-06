@@ -13,7 +13,7 @@ public:
         , client_(client) {
     }
 
-    void tick(cave::SceneContext& ctx) override;
+    void tick(cave::IntentBus& intent_bus) override;
 
 private:
     ChessGameClient& client_;

@@ -28,7 +28,7 @@ SceneContext PIESession::makeSceneContext(Scene& scene) {
     return SceneContext{
         .scene = scene,
         .query = SceneQuery(scene),
-        .engine_services = m_engine_services,
+        .services = m_engine_services,
         .view_id = {},
         .scene_transition = this,
     };

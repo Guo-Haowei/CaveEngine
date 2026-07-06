@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
 #include "chess/game/ChessGameMode.h"
@@ -20,6 +21,7 @@ public:
     void update(cave::SceneContext& ctx, float dt) override;
 
 private:
+    cave::IntentBus m_intent_bus;
     std::unique_ptr<ChessGameMode> m_game;
 };
 

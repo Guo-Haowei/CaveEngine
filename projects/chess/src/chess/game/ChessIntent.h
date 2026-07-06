@@ -14,69 +14,64 @@ public:
     ChessStateIntent(std::unique_ptr<IChessGameState> state);
     ~ChessStateIntent();
 
-#if USING(DEBUG_BUILD)
     std::string debugString() const override;
-#endif
 
-    std::unique_ptr<IChessGameState> state_;
+    std::unique_ptr<IChessGameState> m_state;
 
 private:
-#if USING(DEBUG_BUILD)
-    const std::string debug_name_;
-#endif
+    const std::string m_debug_name;
 };
 
-class ChessMoveIntent : public cave::Intent {
+class MoveIntentBase : public cave::Intent {
+public:
+    MoveIntentBase(core::Color side, core::Move move) noexcept
+        : m_side(side)
+        , m_move(move) {}
+
+    core::Color side() const { return m_side; };
+    core::Move move() const { return m_move; }
+
+    std::string debugString() const override;
+
+private:
+    core::Color m_side;
+    core::Move m_move;
+};
+
+class ChessMoveIntent : public MoveIntentBase {
 public:
     CAVE_DECLARE_INTENT("move.submitted");
 
-    ChessMoveIntent(core::Color side, core::Move move) noexcept
-        : side_(side)
-        , move_(move) {}
-
-    core::Color side() const { return side_; };
-    core::Move move() const { return move_; }
-
-#if USING(DEBUG_BUILD)
-    std::string debugString() const override;
-#endif
-
-private:
-    core::Color side_;
-    core::Move move_;
+    using MoveIntentBase::MoveIntentBase;
 };
 
-class AuthMoveCommitted : public ChessMoveIntent {
+class AuthMoveCommitted : public MoveIntentBase {
 public:
     CAVE_DECLARE_INTENT("move.accepted");
 
-    using ChessMoveIntent::ChessMoveIntent;
+    using MoveIntentBase::MoveIntentBase;
 
 #if USING(DEBUG_BUILD)
     std::string debugString() const override;
 #endif
 };
 
-class AuthMoveRejected : public ChessMoveIntent {
+class AuthMoveRejected : public MoveIntentBase {
 public:
     CAVE_DECLARE_INTENT("move.rejected");
 
-    using ChessMoveIntent::ChessMoveIntent;
+    using MoveIntentBase::MoveIntentBase;
 
-#if USING(DEBUG_BUILD)
     std::string debugString() const override;
-#endif
 };
 
-class AuthGameOver : public ChessMoveIntent {
+class AuthGameOver : public MoveIntentBase {
 public:
     CAVE_DECLARE_INTENT("game.over");
 
-    using ChessMoveIntent::ChessMoveIntent;
+    using MoveIntentBase::MoveIntentBase;
 
-#if USING(DEBUG_BUILD)
     std::string debugString() const override;
-#endif
 };
 
 }  // namespace chess

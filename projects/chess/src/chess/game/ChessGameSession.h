@@ -50,7 +50,7 @@ struct MatchConfig {
 
 class ChessGameSession {
 public:
-    explicit ChessGameSession() noexcept;
+    explicit ChessGameSession(cave::IntentBus& intent_bus) noexcept;
     ~ChessGameSession();
 
     void tick(cave::SceneContext& ctx);
@@ -68,6 +68,8 @@ private:
     void tickGameOver(cave::SceneContext& ctx);
 
     bool isAnimating(cave::SceneContext& ctx) const;
+
+    cave::IntentBus& m_intent_bus;
 
     SessionPhase m_phase{ SessionPhase::AwaitPlayerInput };
 

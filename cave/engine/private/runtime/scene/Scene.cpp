@@ -56,7 +56,7 @@ private:
 
 void SceneRuntime::start(SceneContext& ctx) {
     if ((int)(m_features & SceneFeature::NativeScript)) {
-        m_systems.add<NativeScriptSystem>(ctx.engine_services.nativeScripts());
+        m_systems.add<NativeScriptSystem>(ctx.services.nativeScripts());
         auto native_scripts = m_systems.get<NativeScriptSystem>();
         native_scripts->alwaysRun(ctx);
     }

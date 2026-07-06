@@ -140,7 +140,7 @@ void DocumentBase::reloadPreviewScene() {
         .scene_ctx = {
             .scene = *new_scene,
             .query = SceneQuery(*new_scene),
-            .engine_services = m_engine_services,
+            .services = m_engine_services,
         },
     };
 

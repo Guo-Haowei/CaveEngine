@@ -16,7 +16,7 @@ using core::Move;
 using core::MoveGen;
 using core::Position;
 
-void ChessAIAgent::tick(cave::SceneContext& ctx) {
+void ChessAIAgent::tick(cave::IntentBus& intent_bus) {
     const Position& replica = client_.replica();
     const bool my_turn = replica.sideToMove() == side();
     if (!my_turn) {
@@ -35,7 +35,6 @@ void ChessAIAgent::tick(cave::SceneContext& ctx) {
         assert(idx < count);
         const Move move = moves[idx];
 
-        auto& intent_bus = ctx.engine_services.intentBus();
         intent_bus.queue<ChessMoveIntent>(side(), move);
     }
 }

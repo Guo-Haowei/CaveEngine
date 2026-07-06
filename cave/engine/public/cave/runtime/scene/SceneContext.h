@@ -7,7 +7,7 @@
 
 namespace cave {
 
-struct EngineServices;
+struct RuntimeServices;
 class Scene;
 class NativeScriptRegistry;
 class ISceneTransitionRequests;
@@ -15,7 +15,7 @@ class ISceneTransitionRequests;
 struct SceneContext {
     Scene& scene;
     SceneQuery query;
-    EngineServices& engine_services;
+    RuntimeServices& services;
 
     ViewId view_id;
     ISceneTransitionRequests* scene_transition{};

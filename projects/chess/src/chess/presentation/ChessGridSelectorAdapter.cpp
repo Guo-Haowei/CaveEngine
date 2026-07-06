@@ -27,7 +27,7 @@ using namespace ::chess::core;
 ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneContext& ctx,
                                                    ChessGameClient& game,
                                                    ChessBoardView& board_view) noexcept
-    : m_intent_bus(ctx.engine_services.intentBus())
+    : m_intent_bus(game.intentBus())
     , m_client(game)
     , m_board_view(board_view) {
 
@@ -87,7 +87,7 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
                 break;
             }
         }
-        assert(move.isValid());
+        DEV_ASSERT(move.isValid());
 
         m_intent_bus.queue<ChessMoveIntent>(id, move);
     }
@@ -108,9 +108,9 @@ void ChessGridSelectorAdapter::tickPointer(SceneContext& ctx, const IGameInput& 
     const PointerState& pointer = input.pointerState();
 
     // @TODO: project ray
-    const DisplayService& display = ctx.engine_services.displayService();
+    const DisplayService& display = ctx.services.displayService();
 
-    ViewQuery query(ctx.engine_services.viewManager());
+    ViewQuery query(ctx.services.viewManager());
     const ViewRecord* view = query.resolve(ctx.view_id);
     if (!view) {
         return;
@@ -183,7 +183,7 @@ void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
 }
 
 void ChessGridSelectorAdapter::tick(SceneContext& ctx) {
-    const IGameInput& input = ctx.engine_services.gameInput();
+    const IGameInput& input = ctx.services.gameInput();
     tickPointer(ctx, input);
     tickKeyboard(input);
 }

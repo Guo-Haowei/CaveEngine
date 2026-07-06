@@ -67,7 +67,7 @@ SceneTickContext PreviewBuilder::makeSceneContext(Scene& scene) const {
     SceneContext ctx = {
         .scene = scene,
         .query = SceneQuery(scene),
-        .engine_services = m_engine_services,
+        .services = m_engine_services,
     };
 
     return {

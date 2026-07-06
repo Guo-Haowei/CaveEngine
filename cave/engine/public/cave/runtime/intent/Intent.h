@@ -15,8 +15,8 @@ class Intent {
 public:
     virtual ~Intent() = default;
 
-    virtual IntentTypeId GetTypeId() const = 0;
-    virtual std::string_view GetDebugName() const = 0;
+    virtual IntentTypeId typeId() const = 0;
+    virtual std::string_view debugName() const = 0;
 
 #if USING(DEBUG_BUILD)
     virtual std::string debugString() const { return ""; }
@@ -30,10 +30,10 @@ concept IntentType =
         { T::TypeId } -> std::convertible_to<IntentTypeId>;
     };
 
-#define CAVE_DECLARE_INTENT(STR)                                       \
-public:                                                                \
-    inline static constexpr ::cave::IntentTypeId TypeId{ STR };        \
-    ::cave::IntentTypeId GetTypeId() const override { return TypeId; } \
-    std::string_view GetDebugName() const override { return TypeId.debugName(); }
+#define CAVE_DECLARE_INTENT(STR)                                    \
+public:                                                             \
+    inline static constexpr ::cave::IntentTypeId TypeId{ STR };     \
+    ::cave::IntentTypeId typeId() const override { return TypeId; } \
+    std::string_view debugName() const override { return TypeId.debugName(); }
 
 }  // namespace cave

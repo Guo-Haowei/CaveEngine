@@ -5,22 +5,18 @@
 namespace chess {
 
 ChessStateIntent::ChessStateIntent(std::unique_ptr<IChessGameState> state)
-    : state_(std::move(state))
-#if USING(DEBUG_BUILD)
-    , debug_name_(state_->debugName())
-#endif
-{
+    : m_state(std::move(state))
+    , m_debug_name(m_state->debugName()) {
 }
 
 ChessStateIntent::~ChessStateIntent() = default;
 
-#if USING(DEBUG_BUILD)
 std::string ChessStateIntent::debugString() const {
-    return std::format("->{}", debug_name_);
+    return std::format("->{}", m_debug_name);
 }
 
-std::string ChessMoveIntent::debugString() const {
-    return std::format("p={} mv={}", std::to_underlying(side_), move_.uci());
+std::string MoveIntentBase::debugString() const {
+    return std::format("p={} mv={}", std::to_underlying(m_side), m_move.uci());
 }
 
 std::string AuthMoveCommitted::debugString() const {
@@ -34,6 +30,5 @@ std::string AuthMoveRejected::debugString() const {
 std::string AuthGameOver::debugString() const {
     return "";
 }
-#endif
 
 }  // namespace chess

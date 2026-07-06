@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/scene/SceneContext.h"
+#include "cave/runtime/intent/IntentBus.h"
 #include "chess/game/ChessTypes.h"
 
 namespace chess {
@@ -11,7 +11,7 @@ public:
 
     virtual ~IPlayerAgent() = default;
 
-    virtual void tick(cave::SceneContext& ctx) = 0;
+    virtual void tick(cave::IntentBus& intent_bus) = 0;
 
     core::Color side() const { return m_side; }
 

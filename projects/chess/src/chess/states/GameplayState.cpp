@@ -6,12 +6,14 @@ namespace chess {
 
 using namespace ::cave;
 
-GameplayState::GameplayState() noexcept = default;
+GameplayState::GameplayState(IntentBus& intent_bus) noexcept
+    : IChessGameState(intent_bus) {
+}
 
 GameplayState::~GameplayState() = default;
 
 void GameplayState::onEnter(SceneContext& ctx) {
-    session_ = std::make_unique<ChessGameSession>();
+    session_ = std::make_unique<ChessGameSession>(m_intent_bus);
     session_->onEnterBoot(ctx);
 }
 

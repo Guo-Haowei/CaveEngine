@@ -24,8 +24,8 @@ using cave::math::Vec2i;
 using core::Color;
 using core::Square;
 
-ChessGameSession::ChessGameSession() noexcept
-    : m_phase(SessionPhase::AwaitPlayerInput) {}
+ChessGameSession::ChessGameSession(IntentBus& intent_bus) noexcept
+    : m_intent_bus(intent_bus) {}
 
 ChessGameSession::~ChessGameSession() = default;
 
@@ -44,16 +44,18 @@ void ChessGameSession::tick(SceneContext& ctx) {
         return;
     }
 
-    ctx.engine_services.intentBus().flush();
+    m_intent_bus.flush();
 
     // update client visual
     m_client->present();
+
+    // m_intent_bus.flush();
 
     // @TODO: refactor this part
     if (m_selector) {
         Vec2i focused = m_selector->focus();
         Square square = Square::fromFileRank((uint8_t)focused.x, (uint8_t)focused.y);
-        m_client->board_view().setHovered(square);
+        m_client->boardView().setHovered(square);
     }
 }
 
@@ -65,7 +67,7 @@ void ChessGameSession::tickAwaitPlayerInput(SceneContext& ctx) {
 
     // poll player intents
     auto side = m_auth->sideToMove();
-    m_agents[std::to_underlying(side)]->tick(ctx);
+    m_agents[std::to_underlying(side)]->tick(m_intent_bus);
 }
 
 void ChessGameSession::tickResolvingMove(SceneContext&) {
@@ -114,9 +116,8 @@ void ChessGameSession::onEnterBoot(SceneContext& ctx) {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
 
-    auto& intent_bus = ctx.engine_services.intentBus();
-    m_auth = std::make_unique<ChessMatchAuthority>(intent_bus);
-    m_client = std::make_unique<ChessGameClient>(intent_bus,
+    m_auth = std::make_unique<ChessMatchAuthority>(m_intent_bus);
+    m_client = std::make_unique<ChessGameClient>(m_intent_bus,
                                                  ctx.scene,
                                                  *this,
                                                  *m_auth);
@@ -132,7 +133,7 @@ void ChessGameSession::onEnterBoot(SceneContext& ctx) {
         m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
             ctx,
             *m_client,
-            m_client->board_view());
+            m_client->boardView());
 
         cave::GridSelectController::Callbacks cbs = {
             .can_select = [this](int x, int y) { return m_grid_adapter->canSelect(x, y); },

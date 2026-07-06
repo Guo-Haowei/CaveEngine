@@ -17,8 +17,8 @@ namespace chess {
 
 using namespace cave;
 
-ChessGameMode::ChessGameMode(SceneContext& ctx)
-    : m_intent_bus(ctx.engine_services.intentBus())
+ChessGameMode::ChessGameMode(IntentBus& intent_bus)
+    : m_intent_bus(intent_bus)
     , m_debug_id(MakeDebugId(this)) {
     m_intent_bus.addHandler<ChessStateIntent>(this);
 }
@@ -28,7 +28,7 @@ ChessGameMode::~ChessGameMode() {
 }
 
 void ChessGameMode::onEnter(SceneContext& ctx) {
-    m_state = std::make_unique<GameplayState>();
+    m_state = std::make_unique<GameplayState>(m_intent_bus);
     m_state->onEnter(ctx);
 }
 
@@ -43,7 +43,7 @@ void ChessGameMode::tick(SceneContext& ctx, float dt) {
 
 bool ChessGameMode::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<ChessStateIntent*>(&p_intent)) {
-        // commitStateChange(std::move(intent->state_));
+        // commitStateChange(std::move(intent->m_state));
         return true;
     }
 

@@ -17,7 +17,7 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
     SceneContext ctx = {
         .scene = *scene,
         .query = SceneQuery(*scene),
-        .engine_services = services,
+        .services = services,
     };
     scene->begin({
         .domain = SceneTickDomain::Editor,

@@ -36,7 +36,9 @@ public:
 
     cave::DebugId debugId() const override { return m_debug_id; }
 
-    ChessBoardView& board_view() { return m_board_view; }
+    ChessBoardView& boardView() { return m_board_view; }
+
+    cave::IntentBus& intentBus() { return m_intent_bus; }
 
 private:
     void onMoveCommitted(core::Move move);

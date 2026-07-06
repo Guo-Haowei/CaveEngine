@@ -162,7 +162,7 @@ Result<void> LuaScriptSystem::loadMetaTable(SceneContext& ctx,
                                             const Guid& guid,
                                             const char* class_name,
                                             ObjectFunctions& meta) {
-    auto& asset_reg = ctx.engine_services.assetRegistry();
+    auto& asset_reg = ctx.services.assetRegistry();
     auto _handle = asset_reg.findByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.toString());

@@ -25,7 +25,7 @@ void NativeScriptSystem::ensureBound(SceneContext& ctx,
         return;
     }
 
-    NativeScript* script = ctx.engine_services.nativeScripts().create(component.name);
+    NativeScript* script = ctx.services.nativeScripts().create(component.name);
     if (!script) {
         LOG_ERROR(LogChannel::Script, "Failed to create native script '{}'", component.name.c_str());
         return;
@@ -60,7 +60,7 @@ void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
 void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
     auto& scene = ctx.scene;
 
-    SceneCommandWriter writer(ctx.engine_services.assetRegistry());
+    SceneCommandWriter writer(ctx.services.assetRegistry());
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
         ensureBound(ctx, ent, script);

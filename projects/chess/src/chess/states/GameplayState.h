@@ -9,8 +9,8 @@ class ChessGameSession;
 
 class GameplayState final : public IChessGameState {
 public:
-    GameplayState() noexcept;
-    ~GameplayState();
+    GameplayState(cave::IntentBus& intent_bus) noexcept;
+    ~GameplayState() override;
 
     void onEnter(cave::SceneContext& ctx) override;
     void onExit() override;

@@ -67,7 +67,7 @@ void SceneScheduler::tick(const FrameTime& time) {
                 .scene_ctx = {
                     .scene = *scene,
                     .query = SceneQuery(*scene),
-                    .engine_services = m_engine_services,
+                    .services = m_engine_services,
                     .view_id = req.view_id,
                     .scene_transition = &req.owner,
                 },

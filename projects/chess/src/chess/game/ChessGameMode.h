@@ -13,7 +13,7 @@ class IChessGameState;
 class ChessGameMode final : public cave::IGameMode,
                             public cave::IIntentHandler {
 public:
-    ChessGameMode(cave::SceneContext& ctx);
+    ChessGameMode(cave::IntentBus& intent_bus);
     ~ChessGameMode();
 
     void onEnter(cave::SceneContext& ctx) final;

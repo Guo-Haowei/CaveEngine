@@ -100,7 +100,7 @@ void BoardController::alwaysRun(SceneContext& ctx, SceneCommandWriter& writer) {
 }
 
 void BoardController::start(SceneContext& ctx) {
-    m_game = std::make_unique<ChessGameMode>(ctx);
+    m_game = std::make_unique<ChessGameMode>(m_intent_bus);
     m_game->onEnter(ctx);
 }
 
