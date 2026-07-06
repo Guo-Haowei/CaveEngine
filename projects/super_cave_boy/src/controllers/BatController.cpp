@@ -44,7 +44,7 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
     return close_x && valid_y;
 }
 
-void BatController::onUpdate(cave::SceneContext& ctx, float dt) {
+void BatController::update(cave::SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
     if (!m_player.IsValid()) {

@@ -38,7 +38,10 @@ MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->setRoot(map.Resolve(root));
+#pragma warning(push)
+#pragma warning(disable : 4996)
     scene->update(0.0f);
+#pragma warning(pop)
 
     preview_scene_ = scene_reg_.registerScene(std::move(scene));
 }

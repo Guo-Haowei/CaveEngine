@@ -43,11 +43,11 @@ Vec2f ClampCameraToTileMap(Vec2f camera_pos,
 
 }  // namespace
 
-void CameraController::onCreate(SceneContext& ctx) {
+void CameraController::start(SceneContext& ctx) {
     m_target = ctx.query.findFirstByName("player");
 }
 
-void CameraController::onUpdate(SceneContext& ctx, float dt) {
+void CameraController::update(SceneContext& ctx, float dt) {
     followTarget(ctx, dt);
 }
 

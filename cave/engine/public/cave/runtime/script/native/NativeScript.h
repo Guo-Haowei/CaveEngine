@@ -9,15 +9,17 @@
 namespace cave {
 
 struct SceneContext;
+class SceneCommandWriter;
 
 class NativeScript {
 public:
     virtual ~NativeScript() = default;
 
-    virtual void onCreate(SceneContext&) {}
-    virtual void onDestroy() {}
+    virtual void alwaysRun(SceneContext&, SceneCommandWriter&) {}
+    virtual void start(SceneContext&) {}
+    virtual void destroy() {}
 
-    virtual void onUpdate(SceneContext&, float) {}
+    virtual void update(SceneContext&, float) {}
 
     virtual void onBodyEntered(SceneContext&, ecs::Entity) {}
     virtual void onBodyOverlapping(SceneContext&, ecs::Entity) {}

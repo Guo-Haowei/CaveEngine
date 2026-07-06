@@ -51,11 +51,11 @@ private:
 };
 
 void SceneRuntime::start(SceneContext& ctx) {
+
     if ((int)(m_features & SceneFeature::NativeScript)) {
         m_systems.add<NativeScriptSystem>(ctx.native_scripts);
-        auto system = m_systems.get<NativeScriptSystem>();
-        DEV_ASSERT(system);
-        // @TODO: always run
+        auto native_scripts = m_systems.get<NativeScriptSystem>();
+        native_scripts->alwaysRun(ctx);
     }
     if ((int)(m_features & SceneFeature::Motor)) {
         m_systems.add<MotorSystem>();
@@ -127,7 +127,7 @@ const SystemManager* Scene::systems() const {
     return m_runtime ? &m_runtime->m_systems : nullptr;
 }
 
-void Scene::begin(SceneTickContext& ctx) {
+void Scene::begin(SceneTickContext ctx) {
     if (m_runtime) {
         LOG_ERROR(LogChannel::Scene, "onSimBegin already called");
         return;
@@ -145,6 +145,11 @@ void Scene::begin(SceneTickContext& ctx) {
 
     m_runtime = std::make_unique<SceneRuntime>(features);
     m_runtime->start(ctx.scene_ctx);
+
+#pragma warning(push)
+#pragma warning(disable : 4996)
+    update(0.0f);
+#pragma warning(pop)
 }
 
 void Scene::end() {
@@ -153,12 +158,15 @@ void Scene::end() {
     }
 }
 
-void Scene::tick(SceneTickContext& ctx) {
+void Scene::tick(SceneTickContext ctx) {
     if (m_runtime) {
         m_runtime->update(ctx);
     }
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
     update(ctx.dt);
+#pragma warning(pop)
 }
 
 void Scene::copy(const Scene& other) {
@@ -327,7 +335,7 @@ void Scene::removeEntity(ecs::Entity ent) {
 
     NativeScriptComponent* script = component<NativeScriptComponent>(ent);
     if (script && script->instance) {
-        script->instance->onDestroy();
+        script->instance->destroy();
     }
 
     for (auto& e : m_storage.entries()) {

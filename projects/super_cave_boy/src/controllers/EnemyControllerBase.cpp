@@ -48,12 +48,12 @@ bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
 
 }  // namespace
 
-void EnemyControllerBase::onCreate(SceneContext& ctx) {
+void EnemyControllerBase::start(SceneContext& ctx) {
     m_player = findPlayer(ctx.query);
     m_animator = ctx.query.findChildByName("animator_node", entity());
 }
 
-void EnemyControllerBase::onDestroy() {
+void EnemyControllerBase::destroy() {
 }
 
 void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity player) {

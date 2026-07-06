@@ -19,6 +19,7 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using ecs::Entity;
 
+// @TODO: refactor
 static CameraComponent FitAABBToCamera(const math::AABB& aabb,
                                        const PreviewOptions& options,
                                        float padding = 1.15f) {
@@ -55,14 +56,33 @@ static CameraComponent FitAABBToCamera(const math::AABB& aabb,
     return camera;
 }
 
-PreviewBuilder::PreviewBuilder(EngineServices& services) noexcept
-    : asset_reg_(services.assetRegistry())
-    , scene_reg_(services.sceneRegistry()) {}
+PreviewBuilder::PreviewBuilder(EngineServices& engine_services) noexcept
+    : m_asset_reg(engine_services.assetRegistry())
+    , m_scene_reg(engine_services.sceneRegistry())
+    , m_engine_services(engine_services) {}
 
 PreviewBuilder::~PreviewBuilder() = default;
 
+SceneTickContext PreviewBuilder::makeSceneContext(Scene& scene) const {
+    SceneContext ctx = {
+        .native_scripts = m_engine_services.nativeScripts(),
+        .scene = scene,
+        // @TODO: fix this
+        .scene_transition = *(ISceneTransitionRequests*)(nullptr),
+        .query = SceneQuery(scene),
+        .view_id = {},
+        .engine_services = m_engine_services,
+    };
+
+    return {
+        .domain = SceneTickDomain::Editor,
+        .dt = 0.0f,
+        .scene_ctx = ctx,
+    };
+}
+
 PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
-    AssetHandle handle = asset_reg_.findByGuid(req.guid).unwrap();
+    AssetHandle handle = m_asset_reg.findByGuid(req.guid).unwrap();
     switch (handle.meta()->type) {
         case AssetType::Scene:
             return buildScene(handle, req.options);
@@ -91,7 +111,7 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
         for (auto [id, cam] : scene->view<CameraComponent>()) {
             cam.setAspect(1.0f);
         }
-        scene->update(0.0f);
+
         camera_source = CameraSource::FirstCamera();
     } else {
         Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
@@ -102,9 +122,13 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
         camera_source = CameraSource::External(camera);
     }
 
+    SceneTickContext ctx = makeSceneContext(*scene);
+    scene->begin(ctx);
+    scene->tick(ctx);
+
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_reg_.registerScene(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(std::move(scene)),
         .camera = camera_source,
     };
 }
@@ -112,7 +136,7 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
 PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
                                                  const PreviewOptions& options) const {
 
-    SceneCommandWriter cb(asset_reg_);
+    SceneCommandWriter cb(m_asset_reg);
     Entity root = cb.rootObject();
 
     if constexpr (1) {
@@ -135,7 +159,10 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));
+#pragma warning(push)
+#pragma warning(disable : 4996)
     scene->update(0.0f);
+#pragma warning(pop)
 
     Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
 
@@ -146,14 +173,13 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_reg_.registerScene(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }
 
 PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const PreviewOptions& options) const {
-
-    SceneCommandWriter cb(asset_reg_);
+    SceneCommandWriter cb(m_asset_reg);
     Entity root = cb.rootObject();
 
     const MeshAsset* mesh = handle.get<MeshAsset>();
@@ -180,13 +206,16 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));
+#pragma warning(push)
+#pragma warning(disable : 4996)
     scene->update(0.0f);
+#pragma warning(pop)
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);
 
     return {
         .status = PreviewBuildStatus::Ok,
-        .scene_id = scene_reg_.registerScene(std::move(scene)),
+        .scene_id = m_scene_reg.registerScene(std::move(scene)),
         .camera = CameraSource::External(camera),
     };
 }

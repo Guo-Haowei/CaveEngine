@@ -1,8 +1,13 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneCommandPlayback.h"
+#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 
 namespace cave {
 
@@ -13,9 +18,9 @@ NativeScriptSystem::NativeScriptSystem(NativeScriptRegistry& script_registry)
     , m_debug_id(MakeDebugId(this)) {
 }
 
-void NativeScriptSystem::ensureCreated(SceneContext& ctx,
-                                       Entity entity,
-                                       NativeScriptComponent& component) {
+void NativeScriptSystem::ensureBound(SceneContext& ctx,
+                                     Entity entity,
+                                     NativeScriptComponent& component) {
     if (component.created) {
         return;
     }
@@ -32,8 +37,8 @@ void NativeScriptSystem::ensureCreated(SceneContext& ctx,
 
     component.instance = script;
     component.instance->bind(entity, component.params);
-    component.instance->onCreate(ctx);
     component.created = true;
+    component.always_run_called = false;
     component.pending_reload = false;
 
     ++m_num_instance;
@@ -47,7 +52,7 @@ void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
     }
 
     if (component.created) {
-        component.instance->onDestroy();
+        component.instance->destroy();
     }
 
     component.instance->unbind();
@@ -69,25 +74,50 @@ void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
     }
 
     destroyScript(ctx.native_scripts, component);
-    ensureCreated(ctx, entity, component);
+    ensureBound(ctx, entity, component);
+}
+
+void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
+    auto& scene = ctx.scene;
+
+    SceneCommandWriter writer(ctx.engine_services.assetRegistry());
+
+    for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
+        reloadIfNeeded(ctx, ent, script);
+        ensureBound(ctx, ent, script);
+
+        if (script.instance && !script.always_run_called) {
+            script.instance->alwaysRun(ctx, writer);
+            script.always_run_called = true;
+        }
+    }
+
+    SceneCommandExecutor executor(scene);
+    EntityMap map(writer.allocationCount());
+    SceneCommandPlayback::Play(writer, executor, { map, scene });
+}
+
+void NativeScriptSystem::start(SceneContext& ctx) {
+    for (auto [ent, script] : ctx.scene.view<NativeScriptComponent>()) {
+        if (script.instance) {
+            script.instance->start(ctx);
+        }
+    }
 }
 
 void NativeScriptSystem::update(SceneTickContext& ctx) {
     auto& scene = ctx.scene_ctx.scene;
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        reloadIfNeeded(ctx.scene_ctx, ent, script);
-        ensureCreated(ctx.scene_ctx, ent, script);
-
         if (script.instance) {
-            script.instance->onUpdate(ctx.scene_ctx, ctx.dt);
+            script.instance->update(ctx.scene_ctx, ctx.dt);
         }
     }
 }
 
 void NativeScriptSystem::clear() {
     if (m_num_instance) {
-        LOG_WARN(LogChannel::Script, "memory leak!");
+        LOG_WARN(LogChannel::Script, "{} scripts memory leaked", m_num_instance);
     }
 #if 0
     auto& scene = ctx.scene;

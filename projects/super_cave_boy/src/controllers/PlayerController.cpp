@@ -74,11 +74,11 @@ bool CheckWallGrab(
 
 }  // namespace
 
-void PlayerController::onCreate(cave::SceneContext& ctx) {
+void PlayerController::start(cave::SceneContext& ctx) {
     m_animator = ctx.query.findChildByName("animator_node", entity());
 }
 
-void PlayerController::onUpdate(cave::SceneContext& ctx, float dt) {
+void PlayerController::update(cave::SceneContext& ctx, float dt) {
     m_hurt_timer.tick(dt);
 
     // if (health_ <= 0) {

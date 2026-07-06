@@ -35,7 +35,10 @@ std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
     scene->setRoot(map.Resolve(root));
+#pragma warning(push)
+#pragma warning(disable : 4996)
     scene->update(0.0f);
+#pragma warning(pop)
 
     return scene;
 }

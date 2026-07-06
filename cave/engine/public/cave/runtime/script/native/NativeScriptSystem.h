@@ -18,11 +18,12 @@ public:
     void destroyScript(NativeScriptRegistry& script_registry,
                        NativeScriptComponent& component);
 
+    void alwaysRun(SceneContext& ctx);
+
 private:
     void clear();
 
-    void start(SceneContext&) override {}
-
+    void start(SceneContext& ctx) override;
     void update(SceneTickContext& ctx) override;
 
     DebugId debugId() const override { return m_debug_id; }
@@ -31,9 +32,9 @@ private:
         return SceneTickDomain::Simulate | SceneTickDomain::Editor;
     }
 
-    void ensureCreated(SceneContext& ctx,
-                       ecs::Entity entity,
-                       NativeScriptComponent& component);
+    void ensureBound(SceneContext& ctx,
+                     ecs::Entity entity,
+                     NativeScriptComponent& component);
     void reloadIfNeeded(SceneContext& ctx,
                         ecs::Entity entity,
                         NativeScriptComponent& component);

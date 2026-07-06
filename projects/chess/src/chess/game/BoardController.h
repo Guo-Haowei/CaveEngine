@@ -12,10 +12,12 @@ public:
     BoardController();
     ~BoardController() override;
 
-    void onCreate(cave::SceneContext& ctx) override;
-    void onDestroy() override;
+    void alwaysRun(cave::SceneContext& ctx,
+                   cave::SceneCommandWriter& writer) override;
+    void start(cave::SceneContext& ctx) override;
+    void destroy() override;
 
-    void onUpdate(cave::SceneContext& ctx, float dt) override;
+    void update(cave::SceneContext& ctx, float dt) override;
 
 private:
     std::unique_ptr<ChessGameMode> m_game;

@@ -19,7 +19,7 @@ DEFINE_ENUM_BITWISE_OPERATIONS(SceneTickDomain)
 struct SceneTickContext {
     SceneTickDomain domain;
     float dt;
-    SceneContext& scene_ctx;
+    SceneContext scene_ctx;
 };
 
 }  // namespace cave

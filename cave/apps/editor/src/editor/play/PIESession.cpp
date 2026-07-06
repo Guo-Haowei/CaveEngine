@@ -69,15 +69,11 @@ Scene* PIESession::beginPIEScene(Scene* asset_scene) {
 
     Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
-        SceneContext scene_ctx = makeSceneContext(*scene);
-
-        SceneTickContext ctx = {
+        scene->begin(SceneTickContext{
             .domain = SceneTickDomain::Simulate,
             .dt = 0.0f,
-            .scene_ctx = scene_ctx,
-        };
-
-        scene->begin(ctx);
+            .scene_ctx = makeSceneContext(*scene),
+        });
     }
     return scene;
 }

@@ -114,8 +114,12 @@ public:
     void attachChild(ecs::Entity child, ecs::Entity parent);
     void attachChild(ecs::Entity child) { attachChild(child, m_root); }
 
+    void begin(SceneTickContext ctx);
+    void end();
+
+    void tick(SceneTickContext ctx);
+    [[deprecated]]
     void update(float dt);
-    void tick(SceneTickContext& ctx);
 
     void copy(const Scene& other);
 
@@ -124,9 +128,6 @@ public:
     void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::Null());
 
     std::string_view name() const { return m_name; }
-
-    void begin(SceneTickContext& ctx);
-    void end();
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;

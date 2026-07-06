@@ -4,6 +4,7 @@
 #include "cave/core/ids/SceneId.h"
 
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/scene/SceneTickContext.h"
 
 namespace cave {
 
@@ -35,7 +36,7 @@ struct PreviewBuildResult {
 
 class PreviewBuilder {
 public:
-    explicit PreviewBuilder(EngineServices& app) noexcept;
+    explicit PreviewBuilder(EngineServices& engine_services) noexcept;
     ~PreviewBuilder();
 
     PreviewBuildResult build(const PreviewBuildRequest& req) const;
@@ -45,8 +46,11 @@ private:
     PreviewBuildResult buildMesh(const AssetHandle& handle, const PreviewOptions& options) const;
     PreviewBuildResult buildScene(const AssetHandle& handle, const PreviewOptions& options) const;
 
-    AssetRegistry& asset_reg_;
-    SceneRegistry& scene_reg_;
+    SceneTickContext makeSceneContext(Scene& scene) const;
+
+    AssetRegistry& m_asset_reg;
+    SceneRegistry& m_scene_reg;
+    EngineServices& m_engine_services;
 };
 
 }  // namespace cave

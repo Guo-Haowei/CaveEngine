@@ -24,12 +24,12 @@ Vec2f GetAABBCenter(const TransformComponent& transform,
 
 }  // namespace
 
-void SpiderController::onCreate(SceneContext& ctx) {
-    EnemyControllerBase::onCreate(ctx);
+void SpiderController::start(SceneContext& ctx) {
+    EnemyControllerBase::start(ctx);
     changeState(SpiderState::Idle);
 }
 
-void SpiderController::onUpdate(SceneContext& ctx, float dt) {
+void SpiderController::update(SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
     if (!m_player.IsValid()) {
