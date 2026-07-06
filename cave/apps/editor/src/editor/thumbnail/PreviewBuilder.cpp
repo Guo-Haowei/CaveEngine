@@ -2,7 +2,7 @@
 
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
-#include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
@@ -122,9 +122,7 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
         camera_source = CameraSource::External(camera);
     }
 
-    SceneTickContext ctx = makeSceneContext(*scene);
-    scene->begin(ctx);
-    scene->tick(ctx);
+    scene->begin(makeSceneContext(*scene));
 
     return {
         .status = PreviewBuildStatus::Ok,

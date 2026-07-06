@@ -42,7 +42,7 @@ private:
     NativeScriptRegistry& m_script_registry;
     const DebugId m_debug_id;
 
-    int m_num_instance{};
+    std::unordered_map<NativeScript*, FixedString<32>> m_scripts;
 };
 
 }  // namespace cave

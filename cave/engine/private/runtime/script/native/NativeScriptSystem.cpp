@@ -41,7 +41,7 @@ void NativeScriptSystem::ensureBound(SceneContext& ctx,
     component.always_run_called = false;
     component.pending_reload = false;
 
-    ++m_num_instance;
+    m_scripts.insert(std::make_pair(script, component.name));
 }
 
 void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
@@ -59,11 +59,11 @@ void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
 
     script_registry.destroy(component.name, component.instance);
 
+    m_scripts.erase(component.instance);
+
     component.instance = nullptr;
     component.created = false;
     component.pending_reload = false;
-
-    --m_num_instance;
 }
 
 void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
@@ -116,16 +116,9 @@ void NativeScriptSystem::update(SceneTickContext& ctx) {
 }
 
 void NativeScriptSystem::clear() {
-    if (m_num_instance) {
-        LOG_WARN(LogChannel::Script, "{} scripts memory leaked", m_num_instance);
+    for (auto [instance, id] : m_scripts) {
+        m_script_registry.destroy(id, instance);
     }
-#if 0
-    auto& scene = ctx.scene;
-
-    for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        destroyScript(m_native_scripts, script);
-    }
-#endif
 }
 
 }  // namespace cave

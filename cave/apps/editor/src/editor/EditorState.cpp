@@ -93,8 +93,6 @@ EditorState::EditorState(IApplication& app)
     addPanel(file_system_panel_);
 
     static_cast<EditorAssetManager&>(app_services.assetManager()).setEditorServices(&services_);
-
-    workspace_->restoreProjectWorkspace();
 }
 
 EditorState::~EditorState() {
@@ -116,6 +114,8 @@ void EditorState::onEnter(const StateRequest& request) {
     desc.game_dll = std::format("{}.dll", desc.game_id);
 
     pie_.start(std::move(desc));
+
+    workspace_->restoreProjectWorkspace();
 }
 
 void EditorState::onExit() {

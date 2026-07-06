@@ -51,7 +51,6 @@ private:
 };
 
 void SceneRuntime::start(SceneContext& ctx) {
-
     if ((int)(m_features & SceneFeature::NativeScript)) {
         m_systems.add<NativeScriptSystem>(ctx.native_scripts);
         auto native_scripts = m_systems.get<NativeScriptSystem>();
@@ -161,6 +160,8 @@ void Scene::end() {
 void Scene::tick(SceneTickContext ctx) {
     if (m_runtime) {
         m_runtime->update(ctx);
+    } else {
+        LOG_WARN("did you call begin");
     }
 
 #pragma warning(push)
