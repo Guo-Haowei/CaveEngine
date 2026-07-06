@@ -120,13 +120,13 @@ ViewId ViewManager::createView(std::string_view debug_name,
     view->debug_name = debug_name;
     view->viewport_fb = viewport_px;
     const ViewId id = Base::create(std::move(view));
-    LOG_TRACE(LogChannel::View, "+{} id=({},{})", debug_name, id.index, id.gen);
+    LOG_TRACE(LogChannel::View, "+{} {}", debug_name, id.toString());
     return id;
 }
 
 void ViewManager::destroyView(ViewId view_id) {
     Base::destroy(view_id);
-    LOG_TRACE(LogChannel::View, "-View id=({},{})", view_id.index, view_id.gen);
+    LOG_TRACE(LogChannel::View, "-View {}", view_id.toString());
 }
 
 }  // namespace cave

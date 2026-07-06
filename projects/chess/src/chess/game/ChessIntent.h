@@ -15,7 +15,7 @@ public:
     ~ChessStateIntent();
 
 #if USING(DEBUG_BUILD)
-    std::string DebugString() const override;
+    std::string debugString() const override;
 #endif
 
     std::unique_ptr<IChessGameState> state_;
@@ -38,7 +38,7 @@ public:
     core::Move move() const { return move_; }
 
 #if USING(DEBUG_BUILD)
-    std::string DebugString() const override;
+    std::string debugString() const override;
 #endif
 
 private:
@@ -53,7 +53,7 @@ public:
     using ChessMoveIntent::ChessMoveIntent;
 
 #if USING(DEBUG_BUILD)
-    std::string DebugString() const override;
+    std::string debugString() const override;
 #endif
 };
 
@@ -64,7 +64,7 @@ public:
     using ChessMoveIntent::ChessMoveIntent;
 
 #if USING(DEBUG_BUILD)
-    std::string DebugString() const override;
+    std::string debugString() const override;
 #endif
 };
 
@@ -75,7 +75,7 @@ public:
     using ChessMoveIntent::ChessMoveIntent;
 
 #if USING(DEBUG_BUILD)
-    std::string DebugString() const override;
+    std::string debugString() const override;
 #endif
 };
 

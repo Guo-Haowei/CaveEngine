@@ -3,6 +3,8 @@
 // =============================================================================
 #pragma once
 #include <cstdint>
+#include <format>
+#include <string>
 #include <type_traits>
 
 namespace cave {
@@ -27,6 +29,10 @@ struct GenId {
 
     bool operator!=(const GenId<Tag>& rhs) const {
         return index != rhs.index || gen != rhs.gen;
+    }
+
+    std::string toString() const {
+        return std::format("id=({},{})", index, gen);
     }
 };
 

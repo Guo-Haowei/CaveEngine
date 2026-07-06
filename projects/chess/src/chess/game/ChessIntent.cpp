@@ -15,23 +15,23 @@ ChessStateIntent::ChessStateIntent(std::unique_ptr<IChessGameState> state)
 ChessStateIntent::~ChessStateIntent() = default;
 
 #if USING(DEBUG_BUILD)
-std::string ChessStateIntent::DebugString() const {
+std::string ChessStateIntent::debugString() const {
     return std::format("->{}", debug_name_);
 }
 
-std::string ChessMoveIntent::DebugString() const {
+std::string ChessMoveIntent::debugString() const {
     return std::format("p={} mv={}", std::to_underlying(side_), move_.uci());
 }
 
-std::string AuthMoveCommitted::DebugString() const {
+std::string AuthMoveCommitted::debugString() const {
     return "";
 }
 
-std::string AuthMoveRejected::DebugString() const {
+std::string AuthMoveRejected::debugString() const {
     return "";
 }
 
-std::string AuthGameOver::DebugString() const {
+std::string AuthGameOver::debugString() const {
     return "";
 }
 #endif

@@ -97,7 +97,7 @@ void IntentBus::dispatchOne(Intent& intent) {
 
             TRACE_INTENT("{} {} [{}]",
                          intent.GetDebugName(),
-                         intent.DebugString(),
+                         intent.debugString(),
                          handler->debugId().type);
         }
     }

@@ -33,8 +33,9 @@ SceneContext PIESession::makeSceneContext(Scene& scene) {
     };
 }
 
-Scene* PIESession::beginPIEScene(Scene* asset_scene) {
+void PIESession::beginPIEScene(Scene* asset_scene) {
     DEV_ASSERT(asset_scene);
+    DEV_ASSERT(!m_pie_scene.isValid());
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
     m_pie_scene = scene_reg.cloneScene(*asset_scene);
 
@@ -46,13 +47,10 @@ Scene* PIESession::beginPIEScene(Scene* asset_scene) {
             .scene_ctx = makeSceneContext(*scene),
         });
     }
-    return scene;
 }
 
 void PIESession::endPIEScene() {
-    if (!m_pie_scene.isValid()) {
-        return;
-    }
+    DEV_ASSERT(m_pie_scene.isValid());
 
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
     Scene* scene = scene_reg.resolve(m_pie_scene);
@@ -75,6 +73,7 @@ void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
 
 void PIESession::endPIESession() {
     m_engine_services.sceneScheduler().remove(this);
+    m_view_id = {};
 
     endPIEScene();
 }

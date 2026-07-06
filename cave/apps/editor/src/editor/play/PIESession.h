@@ -33,7 +33,7 @@ public:
 
 private:
     SceneContext makeSceneContext(Scene& scene);
-    Scene* beginPIEScene(Scene* asset_scene);
+    void beginPIEScene(Scene* asset_scene);
     void endPIEScene();
 
     void commitSceneChange(std::string&& path) override;

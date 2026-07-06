@@ -19,7 +19,7 @@ public:
     virtual std::string_view GetDebugName() const = 0;
 
 #if USING(DEBUG_BUILD)
-    virtual std::string DebugString() const { return ""; }
+    virtual std::string debugString() const { return ""; }
 #endif
 };
 
