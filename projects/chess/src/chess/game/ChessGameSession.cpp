@@ -49,7 +49,7 @@ void ChessGameSession::tick(SceneContext& ctx) {
     // update client visual
     m_client->present();
 
-    // m_intent_bus.flush();
+    m_intent_bus.flush();
 
     // @TODO: refactor this part
     if (m_selector) {
