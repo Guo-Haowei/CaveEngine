@@ -141,6 +141,8 @@ public:
     ecs::Entity root() const { return m_root; }
     void setRoot(ecs::Entity root) { m_root = root; }
 
+    void setSeed(uint32_t seed) { m_entity_seed = seed; }
+
     auto loadFromDisk(const AssetMetaData&) -> Result<void> override;
     auto saveToDisk(const AssetMetaData&) const -> Result<void> override;
     virtual std::vector<Guid> dependencies() const override;
@@ -150,8 +152,9 @@ public:
     // @TODO: deprecate
     std::atomic<uint32_t> dirtyFlags_{ SCENE_DIRTY_NONE };
 
-private:
     std::vector<ecs::Entity> getSortedEntityArray() const;
+
+private:
     void flushPendingDestroy();
 
     ecs::ComponentRegistry& m_component_registry;

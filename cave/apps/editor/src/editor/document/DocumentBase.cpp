@@ -145,6 +145,7 @@ void DocumentBase::reloadPreviewScene() {
     };
 
     new_scene->begin(ctx);
+    new_scene->end();
 
     Scene* old_scene = m_scene_reg.resolve(m_preview_scene);
     if (DEV_VERIFY(old_scene)) {

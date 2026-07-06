@@ -2,7 +2,9 @@
 // File: cave/runtime/scene/SceneQuery.h
 // =============================================================================
 #pragma once
+#include <string>
 #include <string_view>
+
 #include "cave/core/math/Ray.h"
 #include "cave/core/math/Vector.h"
 #include "cave/runtime/ecs/Entity.h"
@@ -35,7 +37,7 @@ struct RaycastFilter {
 class SceneQuery {
 public:
     explicit SceneQuery(Scene& scene) noexcept
-        : scene_(scene) {}
+        : m_scene(scene) {}
 
     ISceneSystem* system(SceneSystemId id);
     template<typename T>
@@ -63,8 +65,10 @@ public:
 
     RayHit raycast(math::Ray& ray, const RaycastFilter& filter) const;
 
+    std::string debugString() const;
+
 private:
-    Scene& scene_;
+    Scene& m_scene;
 };
 
 }  // namespace cave

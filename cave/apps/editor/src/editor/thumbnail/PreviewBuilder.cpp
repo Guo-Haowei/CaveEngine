@@ -119,6 +119,7 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     }
 
     scene->begin(makeSceneContext(*scene));
+    scene->end();
 
     return {
         .status = PreviewBuildStatus::Ok,

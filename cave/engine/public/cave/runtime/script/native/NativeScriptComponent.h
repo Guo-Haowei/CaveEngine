@@ -21,8 +21,6 @@ struct NativeScriptComponent {
 
     // Non-Serialized
     NativeScript* instance = nullptr;
-    bool created = false;
-    bool pending_reload = false;
     bool always_run_called = false;
 
     bool operator==(const NativeScriptComponent& rhs) const {

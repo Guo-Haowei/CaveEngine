@@ -21,10 +21,6 @@ NativeScriptSystem::NativeScriptSystem(NativeScriptRegistry& script_registry)
 void NativeScriptSystem::ensureBound(SceneContext& ctx,
                                      Entity entity,
                                      NativeScriptComponent& component) {
-    if (component.created) {
-        return;
-    }
-
     if (component.name.empty()) {
         return;
     }
@@ -37,9 +33,7 @@ void NativeScriptSystem::ensureBound(SceneContext& ctx,
 
     component.instance = script;
     component.instance->bind(entity, component.params);
-    component.created = true;
     component.always_run_called = false;
-    component.pending_reload = false;
 
     m_scripts.insert(std::make_pair(script, component.name));
 }
@@ -47,11 +41,10 @@ void NativeScriptSystem::ensureBound(SceneContext& ctx,
 void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
                                        NativeScriptComponent& component) {
     if (!component.instance) {
-        component.created = false;
         return;
     }
 
-    if (component.created) {
+    if (component.instance) {
         component.instance->destroy();
     }
 
@@ -62,19 +55,6 @@ void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
     m_scripts.erase(component.instance);
 
     component.instance = nullptr;
-    component.created = false;
-    component.pending_reload = false;
-}
-
-void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
-                                        Entity entity,
-                                        NativeScriptComponent& component) {
-    if (!component.pending_reload) {
-        return;
-    }
-
-    destroyScript(ctx.engine_services.nativeScripts(), component);
-    ensureBound(ctx, entity, component);
 }
 
 void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
@@ -83,7 +63,6 @@ void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
     SceneCommandWriter writer(ctx.engine_services.assetRegistry());
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        reloadIfNeeded(ctx, ent, script);
         ensureBound(ctx, ent, script);
 
         if (script.instance && !script.always_run_called) {

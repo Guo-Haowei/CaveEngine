@@ -313,8 +313,8 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
     return asset;
 }
 
-AssetRef AssetManager::reloadAsset(const Guid& guid) {
-    return loadAssetSyncHelper(guid);
+void AssetManager::reloadAsset(const Guid& guid) {
+    loadAssetSyncHelper(guid);
 }
 
 AssetRef AssetManager::loadAssetSyncHelper(const Guid& guid) {

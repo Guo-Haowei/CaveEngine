@@ -27,7 +27,7 @@ public:
         : m_guid(guid)
         , m_asset_entry(std::move(entry)) {}
 
-    void Invalidate() {
+    void invalidate() {
         m_guid = Guid::null();
         m_asset_entry.reset();
     }
@@ -73,7 +73,7 @@ class Handle : private AssetHandle {
 public:
     using AssetHandle::AssetHandle;
     using AssetHandle::guid;
-    using AssetHandle::Invalidate;
+    using AssetHandle::invalidate;
     using AssetHandle::isReady;
     using AssetHandle::meta;
 

@@ -135,7 +135,7 @@ SceneId SceneRegistry::Impl::registerScene(SceneDesc&& desc, std::unique_ptr<Sce
 }
 
 bool SceneRegistry::Impl::replaceScene(SceneId id, std::unique_ptr<Scene>&& scene) {
-    DEBUG_PRINT("={} {}", debugName(id), id.toString());
+    DEBUG_PRINT("~{} {}", debugName(id), id.toString());
 
     return Base::replace(id, std::move(scene));
 }

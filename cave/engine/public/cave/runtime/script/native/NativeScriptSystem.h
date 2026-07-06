@@ -33,9 +33,6 @@ private:
     void ensureBound(SceneContext& ctx,
                      ecs::Entity entity,
                      NativeScriptComponent& component);
-    void reloadIfNeeded(SceneContext& ctx,
-                        ecs::Entity entity,
-                        NativeScriptComponent& component);
 
     NativeScriptRegistry& m_script_registry;
     const DebugId m_debug_id;

@@ -13,7 +13,7 @@ using namespace ecs;
 TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     SceneCommandBuffer cb;
 
-    Scene scene("test");
+    Scene scene;
 
     Entity e1 = cb.createEntity();
     Entity e2 = cb.createEntity();
