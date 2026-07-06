@@ -64,6 +64,7 @@ private:
 protected:
     void undoLimit(size_t limit) { m_undo_limit = limit; }
 
+    EngineServices& m_engine_services;
     AssetRegistry& m_asset_reg;
     EditorAssetManager& m_asset_mgr;
     SceneRegistry& m_scene_reg;

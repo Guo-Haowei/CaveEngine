@@ -25,12 +25,11 @@ PIESession::~PIESession() {
 
 SceneContext PIESession::makeSceneContext(Scene& scene) {
     return SceneContext{
-        .native_scripts = m_engine_services.nativeScripts(),
         .scene = scene,
-        .scene_transition = *this,
         .query = SceneQuery(scene),
-        .view_id = {},
         .engine_services = m_engine_services,
+        .view_id = {},
+        .scene_transition = this,
     };
 }
 

@@ -18,7 +18,8 @@
 namespace cave {
 
 DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
-    : m_asset_reg(services.assetRegistry())
+    : m_engine_services(services)
+    , m_asset_reg(services.assetRegistry())
     , m_asset_mgr(static_cast<EditorAssetManager&>(services.assetManager()))
     , m_scene_reg(services.sceneRegistry())
     , m_guid(guid) {
@@ -133,8 +134,23 @@ void DocumentBase::reloadPreviewScene() {
         return;
     }
 
-    // @TODO: call begin and end
-    LOG_WARN("TODO: properly load and unload");
+    SceneTickContext ctx = {
+        .domain = SceneTickDomain::Editor,
+        .dt = 0.0f,
+        .scene_ctx = {
+            .scene = *new_scene,
+            .query = SceneQuery(*new_scene),
+            .engine_services = m_engine_services,
+        },
+    };
+
+    new_scene->begin(ctx);
+
+    Scene* old_scene = m_scene_reg.resolve(m_preview_scene);
+    if (DEV_VERIFY(old_scene)) {
+        old_scene->end();
+    }
+
     m_scene_reg.replaceScene(m_preview_scene, std::move(new_scene));
 }
 

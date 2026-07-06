@@ -9,7 +9,7 @@ class SceneRegistry;
 class SceneScheduler {
 public:
     SceneScheduler(EngineServices& services) noexcept
-        : services_(services) {
+        : m_engine_services(services) {
     }
 
     bool add(SceneOwner* owner);
@@ -19,9 +19,9 @@ public:
     void tick(const FrameTime& time);
 
 private:
-    EngineServices& services_;
+    EngineServices& m_engine_services;
 
-    std::vector<SceneOwner*> owners_;
+    std::vector<SceneOwner*> m_owners;
 };
 
 }  // namespace cave

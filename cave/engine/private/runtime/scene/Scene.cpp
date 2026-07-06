@@ -2,6 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/threading/JobSystem.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
@@ -54,7 +55,7 @@ private:
 
 void SceneRuntime::start(SceneContext& ctx) {
     if ((int)(m_features & SceneFeature::NativeScript)) {
-        m_systems.add<NativeScriptSystem>(ctx.native_scripts);
+        m_systems.add<NativeScriptSystem>(ctx.engine_services.nativeScripts());
         auto native_scripts = m_systems.get<NativeScriptSystem>();
         native_scripts->alwaysRun(ctx);
     }
@@ -151,10 +152,7 @@ void Scene::begin(SceneTickContext ctx) {
     m_runtime = std::make_unique<SceneRuntime>(features);
     m_runtime->start(ctx.scene_ctx);
 
-#pragma warning(push)
-#pragma warning(disable : 4996)
     update(0.0f);
-#pragma warning(pop)
 }
 
 void Scene::end() {
@@ -171,10 +169,7 @@ void Scene::tick(SceneTickContext ctx) {
         LOG_WARN("did you call begin");
     }
 
-#pragma warning(push)
-#pragma warning(disable : 4996)
     update(ctx.dt);
-#pragma warning(pop)
 }
 
 void Scene::copy(const Scene& other) {

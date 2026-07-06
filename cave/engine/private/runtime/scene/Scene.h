@@ -118,7 +118,6 @@ public:
     void end();
 
     void tick(SceneTickContext ctx);
-    [[deprecated]]
     void update(float dt);
 
     void copy(const Scene& other);

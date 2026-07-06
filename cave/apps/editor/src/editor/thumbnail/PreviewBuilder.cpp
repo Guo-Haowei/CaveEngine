@@ -65,12 +65,8 @@ PreviewBuilder::~PreviewBuilder() = default;
 
 SceneTickContext PreviewBuilder::makeSceneContext(Scene& scene) const {
     SceneContext ctx = {
-        .native_scripts = m_engine_services.nativeScripts(),
         .scene = scene,
-        // @TODO: fix this
-        .scene_transition = *(ISceneTransitionRequests*)(nullptr),
         .query = SceneQuery(scene),
-        .view_id = {},
         .engine_services = m_engine_services,
     };
 
@@ -157,10 +153,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));
-#pragma warning(push)
-#pragma warning(disable : 4996)
     scene->update(0.0f);
-#pragma warning(pop)
 
     Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
 
@@ -204,10 +197,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
     scene->setRoot(map.Resolve(root));
-#pragma warning(push)
-#pragma warning(disable : 4996)
     scene->update(0.0f);
-#pragma warning(pop)
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);
 

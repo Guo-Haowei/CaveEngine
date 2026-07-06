@@ -13,14 +13,12 @@ class NativeScriptRegistry;
 class ISceneTransitionRequests;
 
 struct SceneContext {
-    NativeScriptRegistry& native_scripts;
     Scene& scene;
-    ISceneTransitionRequests& scene_transition;
     SceneQuery query;
-    ViewId view_id;
-
-    // @TODO: do not expose all services
     EngineServices& engine_services;
+
+    ViewId view_id;
+    ISceneTransitionRequests* scene_transition{};
 };
 
 }  // namespace cave

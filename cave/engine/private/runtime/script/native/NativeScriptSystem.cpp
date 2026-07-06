@@ -29,7 +29,7 @@ void NativeScriptSystem::ensureBound(SceneContext& ctx,
         return;
     }
 
-    NativeScript* script = ctx.native_scripts.create(component.name);
+    NativeScript* script = ctx.engine_services.nativeScripts().create(component.name);
     if (!script) {
         LOG_ERROR(LogChannel::Script, "Failed to create native script '{}'", component.name.c_str());
         return;
@@ -73,7 +73,7 @@ void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
         return;
     }
 
-    destroyScript(ctx.native_scripts, component);
+    destroyScript(ctx.engine_services.nativeScripts(), component);
     ensureBound(ctx, entity, component);
 }
 

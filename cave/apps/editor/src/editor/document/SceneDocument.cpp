@@ -15,11 +15,8 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
     auto scene = createPreviewScene();
 
     SceneContext ctx = {
-        .native_scripts = services.nativeScripts(),
         .scene = *scene,
-        .scene_transition = *(ISceneTransitionRequests*)(nullptr),
         .query = SceneQuery(*scene),
-        .view_id = {},
         .engine_services = services,
     };
     scene->begin({

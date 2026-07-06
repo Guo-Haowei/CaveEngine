@@ -13,10 +13,10 @@ bool SceneScheduler::add(SceneOwner* owner) {
     DEV_ASSERT(owner);
     if (!owner) return false;
 
-    auto it = std::ranges::find(owners_, owner);
-    if (it != owners_.end()) return false;
+    auto it = std::ranges::find(m_owners, owner);
+    if (it != m_owners.end()) return false;
 
-    owners_.push_back(owner);
+    m_owners.push_back(owner);
 
 #if USING(USE_LOG)
     const DebugId id = owner->debugId();
@@ -28,12 +28,12 @@ bool SceneScheduler::add(SceneOwner* owner) {
 bool SceneScheduler::remove(SceneOwner* owner) {
     DEV_ASSERT(owner);
 
-    auto it = std::ranges::find(owners_, owner);
-    if (it == owners_.end()) {
+    auto it = std::ranges::find(m_owners, owner);
+    if (it == m_owners.end()) {
         return false;
     }
 
-    owners_.erase(it);
+    m_owners.erase(it);
 
 #if USING(USE_LOG)
     const DebugId id = owner->debugId();
@@ -43,7 +43,7 @@ bool SceneScheduler::remove(SceneOwner* owner) {
 }
 
 void SceneScheduler::flushSceneCommands() {
-    for (SceneOwner* owner : owners_) {
+    for (SceneOwner* owner : m_owners) {
         if (owner) {
             owner->flushSceneCommands();
         }
@@ -52,22 +52,21 @@ void SceneScheduler::flushSceneCommands() {
 
 void SceneScheduler::tick(const FrameTime& time) {
     std::vector<SceneTickRequest> requests;
-    for (SceneOwner* owner : owners_) {
+    for (SceneOwner* owner : m_owners) {
         if (owner) {
             owner->collectSceneTicks(requests);
         }
     }
 
-    SceneRegistry& scene_registry = services_.sceneRegistry();
+    SceneRegistry& scene_registry = m_engine_services.sceneRegistry();
     for (const SceneTickRequest& req : requests) {
         if (Scene* scene = scene_registry.resolve(req.scene_id)) {
             SceneContext ctx = {
-                .native_scripts = services_.nativeScripts(),
                 .scene = *scene,
-                .scene_transition = req.owner,
                 .query = SceneQuery(*scene),
+                .engine_services = m_engine_services,
                 .view_id = req.view_id,
-                .engine_services = services_,
+                .scene_transition = &req.owner,
             };
 
             SceneTickContext tickCtx = {
