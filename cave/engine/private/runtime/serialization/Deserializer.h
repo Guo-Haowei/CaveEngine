@@ -116,7 +116,7 @@ public:
 
     template<StringKeyMap T>
     bool read(T& map) {
-        if (auto _keys = getKeys(); _keys.is_some()) {
+        if (auto _keys = getKeys()) {
             for (const auto& key : _keys.unwrap_unchecked()) {
                 if (tryEnterKey(key.c_str())) {
                     read(map[key]);
@@ -132,7 +132,7 @@ public:
 
     template<IntegralKeyMap T>
     bool read(T& map) {
-        if (auto _keys = getKeys(); _keys.is_some()) {
+        if (auto _keys = getKeys()) {
             for (const auto& key : _keys.unwrap_unchecked()) {
                 tryEnterKey(key.c_str());
                 const auto val = static_cast<typename MapTraits<T>::key_type>(std::stoll(key));

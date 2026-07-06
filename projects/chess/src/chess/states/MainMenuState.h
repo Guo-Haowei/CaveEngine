@@ -3,6 +3,7 @@
 
 namespace chess {
 
+#if 0
 class MainMenuState final : public IChessGameState {
 public:
     void OnEnter(cave::IHostServices& p_host) override;
@@ -13,5 +14,6 @@ public:
     const char* debugName() const override { return "MainMenu"; }
 #endif
 };
+#endif
 
 }  // namespace chess

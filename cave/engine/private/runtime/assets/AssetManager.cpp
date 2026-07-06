@@ -62,7 +62,7 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
         case AssetType::Scene: {
-            auto scene = std::make_shared<Scene>("");
+            auto scene = std::make_shared<Scene>();
             if (create) {
                 auto root = scene->createEntity();
                 scene->create(TransformComponent_Id, root);
@@ -313,8 +313,8 @@ AssetRef AssetManager::loadAssetSync(const Guid& guid) {
     return asset;
 }
 
-AssetRef AssetManager::reloadAsset(const Guid& guid) {
-    return loadAssetSyncHelper(guid);
+void AssetManager::reloadAsset(const Guid& guid) {
+    loadAssetSyncHelper(guid);
 }
 
 AssetRef AssetManager::loadAssetSyncHelper(const Guid& guid) {

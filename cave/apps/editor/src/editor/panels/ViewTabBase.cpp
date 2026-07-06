@@ -7,6 +7,7 @@
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
 #include "editor/widgets/DragDrop.h"
+#include "editor/play/PIESession.h"
 
 // @TODO: remove
 #include "editor/EditorState.h"
@@ -121,8 +122,9 @@ void ViewTabBase::onDestroy() {
 void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
     if (!m_editor.isPlaying()) {
         out_requests.push_back(SceneTickRequest{
-            SceneTickMode::Editor,
+            SceneTickDomain::Editor,
             m_preview_scene_id,
+            m_view_id,
             *this,
         });
     }
@@ -197,7 +199,7 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     }
 
     ImGui::Dummy({ rect.w, rect.h });
-    if (auto handle_ = DragDropTarget(AssetType::All); handle_.is_some()) {
+    if (auto handle_ = DragDropTarget(AssetType::All)) {
         onAssetDropped(std::move(handle_.unwrap_unchecked()));
     }
 }

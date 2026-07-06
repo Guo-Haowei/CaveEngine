@@ -9,13 +9,13 @@ class ChessGameSession;
 
 class GameplayState final : public IChessGameState {
 public:
-    GameplayState() noexcept;
-    ~GameplayState();
+    GameplayState(cave::IntentBus& intent_bus) noexcept;
+    ~GameplayState() override;
 
-    void OnEnter(cave::IHostServices& p_host) override;
-    void OnExit(cave::IHostServices& p_host) override;
+    void onEnter(cave::SceneContext& ctx) override;
+    void onExit() override;
 
-    void Tick(cave::IHostServices& p_host, const cave::FrameTime& p_time) override;
+    void tick(cave::SceneContext& ctx, float dt) override;
 
 #if USING(DEBUG_BUILD)
     const char* debugName() const override { return "GamePlay"; }

@@ -304,7 +304,7 @@ void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
 
             // @TODO: make an asset drop region
             // accept same type of assets, show tooltips, etc
-            if (auto _handle = DragDropTarget(AssetType::TileSet); _handle.is_some()) {
+            if (auto _handle = DragDropTarget(AssetType::TileSet)) {
                 layer.tileSetGuid(_handle.unwrap_unchecked().guid());
             }
         }

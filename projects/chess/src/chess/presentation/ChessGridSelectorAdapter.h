@@ -3,7 +3,8 @@
 #include <span>
 
 #include "cave/runtime/ecs/Entity.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
+#include "cave/runtime/scene/SceneContext.h"
 
 #include "chess/agents/IPlayerAgent.h"
 #include "chess/core/Move.h"
@@ -11,7 +12,6 @@
 // clang-format off
 namespace cave { class GridSelectController; }
 namespace cave { class IGameInput; }
-namespace cave { class IHostServices; }
 // clang-format on
 
 namespace chess {
@@ -25,7 +25,7 @@ class ChessGridSelectorAdapter {
     using GetPlayerFunc = std::function<LocalHumanAgent*(core::Color)>;
 
 public:
-    ChessGridSelectorAdapter(cave::IHostServices& host,
+    ChessGridSelectorAdapter(cave::SceneContext& ctx,
                              ChessGameClient& game,
                              ChessBoardView& board_view) noexcept;
 
@@ -36,28 +36,28 @@ public:
     void onCancel();
     void onInvalid(int sx, int sy, int dx, int dy);
 
-    void tick();
+    void tick(cave::SceneContext& ctx);
 
     void setController(cave::GridSelectController* controller) {
-        controller_ = controller;
+        m_controller = controller;
     }
 
     void setPlayerCb(GetPlayerFunc&& func) {
-        get_player_cb_ = std::move(func);
+        m_get_player_func = std::move(func);
     }
 
 private:
-    void tickPointer(const cave::IGameInput& input);
+    void tickPointer(cave::SceneContext& ctx, const cave::IGameInput& input);
     void tickKeyboard(const cave::IGameInput& input);
 
-    cave::IHostServices& host_;
-    cave::GridSelectController* controller_{};
-    Entity camera_id_;
+    cave::IntentBus& m_intent_bus;
 
-    ChessGameClient& client_;
-    ChessBoardView& board_view_;
+    ChessGameClient& m_client;
+    ChessBoardView& m_board_view;
 
-    GetPlayerFunc get_player_cb_;
+    cave::GridSelectController* m_controller{};
+    Entity m_camera_id;
+    GetPlayerFunc m_get_player_func;
 };
 
 }  // namespace chess

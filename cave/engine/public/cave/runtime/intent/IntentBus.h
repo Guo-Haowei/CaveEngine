@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/framework/intent/IntentDispatcher.h
+// File: cave/framework/intent/IntentBus.h
 // =============================================================================
 #pragma once
 #include <memory>
@@ -15,9 +15,9 @@ namespace cave {
 struct CommandArgs;
 struct CommandContext;
 
-class IntentDispatcher {
+class IntentBus {
 public:
-    IntentDispatcher();
+    IntentBus();
 
     bool addHandler(IntentTypeId type_id, IIntentHandler* handler);
     bool removeHandler(IntentTypeId type_id, IIntentHandler* handler);
@@ -37,7 +37,7 @@ public:
         auto intent = std::make_unique<T>(std::forward<Args>(args)...);
         T& ref = *intent;
 
-        pending_.emplace_back(std::move(intent));
+        m_pending.emplace_back(std::move(intent));
         return ref;
     }
 
@@ -50,8 +50,8 @@ public:
 private:
     void dispatchOne(Intent& intent);
 
-    std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> handlers_;
-    std::vector<std::unique_ptr<Intent>> pending_;
+    std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
+    std::vector<std::unique_ptr<Intent>> m_pending;
 };
 
 }  // namespace cave

@@ -18,7 +18,7 @@ namespace cave {
 
 // @TODO: refactor
 class PrefabInstanceComponent;
-
+class SceneRuntime;
 class SystemManager;
 
 enum SceneDirtyFlags : uint32_t {
@@ -35,27 +35,27 @@ class Scene final : public NonCopyable, public IAsset {
 public:
     static constexpr const char* EXTENSION = ".scene";
 
-    explicit Scene(std::string name, ecs::ComponentRegistry& reg) noexcept;
-    explicit Scene(std::string name) noexcept;
+    explicit Scene(ecs::ComponentRegistry& reg) noexcept;
+    explicit Scene() noexcept;
     ~Scene() override;
 
     void* create(ComponentId cid, ecs::Entity ent) {
-        return storage_.createRaw(cid, ent);
+        return m_storage.createRaw(cid, ent);
     }
 
     template<ComponentType T>
     T& create(ecs::Entity ent) {
-        return *((T*)storage_.createRaw(T::kId, ent));
+        return *((T*)m_storage.createRaw(T::kId, ent));
     }
 
     template<ComponentType T>
     T* component(ecs::Entity ent) {
-        return (T*)storage_.getRaw(T::kId, ent);
+        return (T*)m_storage.getRaw(T::kId, ent);
     }
 
     template<ComponentType T>
     const T* component(ecs::Entity ent) const {
-        return (const T*)storage_.getRaw(T::kId, ent);
+        return (const T*)m_storage.getRaw(T::kId, ent);
     }
 
     bool has(ComponentId cid, ecs::Entity ent) const;
@@ -72,7 +72,7 @@ public:
     // @TODO: remove depracated
     template<ComponentType T>
     [[deprecated]] T& getComponentByIndex(size_t idx) {
-        if (auto* pool = (ecs::ComponentPool<T>*)storage_.tryGet(T::kId)) {
+        if (auto* pool = (ecs::ComponentPool<T>*)m_storage.tryGet(T::kId)) {
             return pool->componentArray()[idx];
         }
 
@@ -81,7 +81,7 @@ public:
 
     template<ComponentType T>
     [[deprecated]] ecs::Entity getEntityByIndex(size_t idx) {
-        if (ecs::IComponentPool* pool = storage_.tryGet(T::kId)) {
+        if (ecs::IComponentPool* pool = m_storage.tryGet(T::kId)) {
             return pool->entityArray()[idx];
         }
 
@@ -90,12 +90,12 @@ public:
 
     template<ComponentType T>
     ecs::ComponentPool<T>* get() {
-        return (ecs::ComponentPool<T>*)storage_.tryGet(T::kId);
+        return (ecs::ComponentPool<T>*)m_storage.tryGet(T::kId);
     }
 
     template<ComponentType T>
     const ecs::ComponentPool<T>* get() const {
-        return (const ecs::ComponentPool<T>*)storage_.tryGet(T::kId);
+        return (const ecs::ComponentPool<T>*)m_storage.tryGet(T::kId);
     }
 
     template<class... Cs>
@@ -108,14 +108,17 @@ public:
         return ecs::ConstView<Cs...>(get<Cs>()...);
     }
 
-    ecs::Entity createEntity() { return ecs::Entity(++entity_seed_); }
+    ecs::Entity createEntity() { return ecs::Entity(++m_entity_seed); }
     void removeEntity(ecs::Entity ent);
 
     void attachChild(ecs::Entity child, ecs::Entity parent);
-    void attachChild(ecs::Entity child) { attachChild(child, root_); }
+    void attachChild(ecs::Entity child) { attachChild(child, m_root); }
 
+    void begin(SceneTickContext ctx);
+    void end();
+
+    void tick(SceneTickContext ctx);
     void update(float dt);
-    void tick(SceneTickContext& ctx);
 
     void copy(const Scene& other);
 
@@ -123,22 +126,22 @@ public:
 
     void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::Null());
 
-    std::string_view name() const { return name_; }
-
-    void onSimBegin(SceneContext& ctx);
-    void onSimEnd(SceneContext& ctx);
-
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
-    ecs::ComponentStorage& storage() noexcept { return storage_; }
-    const ecs::ComponentStorage& storage() const noexcept { return storage_; }
-    SystemManager* systems() { return systems_.get(); }
-    const SystemManager* systems() const { return systems_.get(); }
-    const math::AABB& bound() const { return bound_; }
-    void setBound(const math::AABB& bound) { bound_ = bound; }
-    ecs::Entity root() const { return root_; }
-    void setRoot(ecs::Entity root) { root_ = root; }
+    ecs::ComponentStorage& storage() noexcept { return m_storage; }
+    const ecs::ComponentStorage& storage() const noexcept { return m_storage; }
+
+    SystemManager* systems();
+    const SystemManager* systems() const;
+
+    const math::AABB& bound() const { return m_world_bound; }
+    void setBound(const math::AABB& bound) { m_world_bound = bound; }
+
+    ecs::Entity root() const { return m_root; }
+    void setRoot(ecs::Entity root) { m_root = root; }
+
+    void setSeed(uint32_t seed) { m_entity_seed = seed; }
 
     auto loadFromDisk(const AssetMetaData&) -> Result<void> override;
     auto saveToDisk(const AssetMetaData&) const -> Result<void> override;
@@ -149,24 +152,19 @@ public:
     // @TODO: deprecate
     std::atomic<uint32_t> dirtyFlags_{ SCENE_DIRTY_NONE };
 
-private:
-    void simulate(SceneTickContext& ctx);
-
     std::vector<ecs::Entity> getSortedEntityArray() const;
+
+private:
     void flushPendingDestroy();
 
-    ecs::ComponentRegistry& component_registry_;
-    std::string name_;
-    ecs::ComponentStorage storage_;
+    ecs::ComponentRegistry& m_component_registry;
+    ecs::ComponentStorage m_storage;
 
-    uint32_t entity_seed_{ 0 };
-    ecs::Entity root_;
-    math::AABB bound_;
+    uint32_t m_entity_seed{ 0 };
+    ecs::Entity m_root;
+    math::AABB m_world_bound;
 
-    std::unique_ptr<SystemManager> systems_;
-
-    friend class AssimpImporter;
-    friend class TinyGltfImporter;
+    std::unique_ptr<SceneRuntime> m_runtime;
 };
 
 }  // namespace cave

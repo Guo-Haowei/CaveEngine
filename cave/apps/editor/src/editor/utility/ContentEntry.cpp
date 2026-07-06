@@ -64,7 +64,7 @@ auto BuildFolderTree(const fs::path& sys_path,
                 node->thumbnail = node->handle;
             } else {
                 std::string thumbnail_path = std::format("@res://_cache/{}@256x256.png", meta->guid.ToString());
-                if (auto _handle = AssetRegistry::singleton().findByPath<ImageAsset>(thumbnail_path); _handle.is_some()) {
+                if (auto _handle = AssetRegistry::singleton().findByPath<ImageAsset>(thumbnail_path)) {
                     node->thumbnail = _handle.unwrap_unchecked();
                 }
             }
@@ -166,7 +166,7 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
                 ".fbx",
             };
 
-            if (auto path = os::OpenFileDialog(filter); path.is_some()) {
+            if (auto path = os::OpenFileDialog(filter)) {
                 fs::path dest = p_node.sys_path;
                 IAssetManager::singleton().submitImportScene({ path.unwrap_unchecked(), dest });
             }

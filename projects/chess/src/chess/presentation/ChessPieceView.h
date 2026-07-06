@@ -3,13 +3,9 @@
 #include <vector>
 
 #include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 #include "chess/core/Position.h"
-
-// clang-format off
-namespace cave { class IHostServices; }
-namespace cave { class SceneCommandWriter; }
-// clang-format on
 
 namespace chess {
 
@@ -24,13 +20,15 @@ class ChessPieceView {
     };
 
 public:
-    ChessPieceView(cave::IHostServices& host) noexcept;
+    ChessPieceView(cave::SceneQuery& query)
+        : m_query(query) {}
 
     void initialize();
 
     void redrawPieces(const core::Position& position);
 
     void spawnPiece(core::Piece piece, core::Square square);
+
     void removePiece(core::Square square);
 
     void movePiece(core::Square from, core::Square to);
@@ -38,13 +36,12 @@ public:
     void applyMove(const core::Position& position, core::Move mv);
 
 private:
-    Entity entityAt(core::Square square) const { return board_[square.index()]; }
+    Entity entityAt(core::Square square) const { return m_board[square.index()]; }
 
-    cave::IHostServices& host_;
-    cave::SceneCommandWriter& writer_;
+    cave::SceneQuery& m_query;
 
-    std::array<Entity, 64> board_;
-    std::array<Entry, core::kPieceMax> piece_pool_;
+    std::array<Entity, 64> m_board;
+    std::array<Entry, core::kPieceMax> m_piece_pool;
 };
 
 }  // namespace chess

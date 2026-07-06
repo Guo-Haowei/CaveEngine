@@ -1,7 +1,6 @@
 #include "SuperCaveBoy.h"
 
 #include "cave/core/diagnostics/Log.h"
-#include "cave/game/IHostServices.h"
 
 #include "controllers/BatController.h"
 #include "controllers/CameraController.h"
@@ -24,28 +23,6 @@ void SuperCaveBoy::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<SpiderController>("SpiderController");
     registry.registerScript<SnakeController>("SnakeController");
     registry.registerScript<BatController>("BatController");
-}
-
-void SuperCaveBoy::onModuleLoaded(IHostServices& host) {
-    LOG_OK(LogChannel::Game, "SuperCaveBoy Loaded");
-
-    unused(host);
-}
-
-void SuperCaveBoy::onModuleUnloaded(IHostServices&) {
-}
-
-void SuperCaveBoy::onGameBegin(IHostServices& host) {
-    unused(host);
-}
-
-void SuperCaveBoy::onGameEnd(IHostServices& host) {
-    unused(host);
-}
-
-void SuperCaveBoy::tick(IHostServices& host, const FrameTime& time) {
-    unused(host);
-    unused(time);
 }
 
 }  // namespace super_cave_boy

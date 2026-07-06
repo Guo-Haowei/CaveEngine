@@ -1,5 +1,6 @@
 #include "BatController.h"
 
+#include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
@@ -44,7 +45,7 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
     return close_x && valid_y;
 }
 
-void BatController::onUpdate(cave::SceneContext& ctx, float dt) {
+void BatController::update(cave::SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
     if (!m_player.IsValid()) {
@@ -82,14 +83,15 @@ void BatController::updateIdle(SceneQuery& query) {
 }
 
 void BatController::updateMove(SceneQuery& query, float) {
+    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+    DEV_ASSERT(tile_world);
+
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
     auto player_transform = query.component<TransformComponent>(m_player);
 
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
-
-    DEV_ASSERT(transform && collider && vel && player_transform && tile_world);
+    DEV_ASSERT(transform && collider && vel && player_transform);
 
     const Vec2f bat_pos = transform->translation().xy;
     const Vec2f player_pos = player_transform->translation().xy;

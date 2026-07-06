@@ -78,6 +78,10 @@ public:
         return m_opt != value;
     }
 
+    explicit operator bool() const {
+        return is_some();
+    }
+
 private:
     std::optional<T> m_opt;
 };

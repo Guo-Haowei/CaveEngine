@@ -4,24 +4,25 @@
 
 namespace chess {
 
-GameplayState::GameplayState() noexcept = default;
+using namespace ::cave;
+
+GameplayState::GameplayState(IntentBus& intent_bus) noexcept
+    : IChessGameState(intent_bus) {
+}
 
 GameplayState::~GameplayState() = default;
 
-void GameplayState::OnEnter(cave::IHostServices& p_host) {
-    session_ = std::make_unique<ChessGameSession>(p_host);
-    session_->onEnterBoot();
+void GameplayState::onEnter(SceneContext& ctx) {
+    session_ = std::make_unique<ChessGameSession>(m_intent_bus);
+    session_->onEnterBoot(ctx);
 }
 
-void GameplayState::OnExit(cave::IHostServices& p_host) {
-    unused(p_host);
-
+void GameplayState::onExit() {
     session_.reset();
 }
 
-void GameplayState::Tick(cave::IHostServices&, const cave::FrameTime&) {
-
-    session_->tick();
+void GameplayState::tick(SceneContext& ctx, float) {
+    session_->tick(ctx);
 }
 
 }  // namespace chess

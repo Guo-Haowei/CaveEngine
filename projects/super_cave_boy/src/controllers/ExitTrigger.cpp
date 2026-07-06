@@ -23,7 +23,9 @@ void ExitTrigger::onBodyEntered(SceneContext& ctx, Entity player) {
     auto it = params().find("level");
     if (it != params().end()) {
         std::string_view level = it->second.asString();
-        ctx.scene_transition.requestSceneChange(std::format("@res://scenes/{}.scene", level));
+        if (DEV_VERIFY(ctx.scene_transition)) {
+            ctx.scene_transition->requestSceneChange(std::format("@res://scenes/{}.scene", level));
+        }
     }
 }
 

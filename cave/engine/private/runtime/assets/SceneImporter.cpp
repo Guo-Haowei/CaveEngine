@@ -50,7 +50,7 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
     fs::path image_path = m_dest_dir / name;
 
     std::string virtual_path = IAssetManager::singleton().resolvePath(image_path);
-    if (auto res = AssetRegistry::singleton().findByPath<ImageAsset>(virtual_path); res.is_some()) {
+    if (auto res = AssetRegistry::singleton().findByPath<ImageAsset>(virtual_path)) {
         return res.unwrap_unchecked().guid();
     }
 

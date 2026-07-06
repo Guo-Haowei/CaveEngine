@@ -28,13 +28,13 @@ static auto scanProjects(const std::filesystem::path& root) -> std::vector<Proje
 
 ProjectBrowserState::ProjectBrowserState(IApplication& app)
     : AppState(app)
-    , project_manager_(app.services().projectManager())
-    , debug_id_(MakeDebugId(this)) {
+    , m_project_manager(app.services().projectManager())
+    , m_debug_id(MakeDebugId(this)) {
 }
 
 void ProjectBrowserState::onEnter(const StateRequest&) {
     // @TODO: fix this string
-    project_list_ = scanProjects(fs::path(ROOT_FOLDER) / "projects");
+    m_project_list = scanProjects(fs::path(ROOT_FOLDER) / "projects");
 }
 
 void ProjectBrowserState::onExit() {
@@ -55,7 +55,7 @@ void ProjectBrowserState::drawRecentProjects() {
     std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage("scene@256x256.png");
     GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
-    for (const ProjectInfo& project : project_list_) {
+    for (const ProjectInfo& project : m_project_list) {
         auto [hovered, clicked] = ui::AssetCard(texture ? texture->GetHandle() : 0,
                                                 project.name.c_str(),
                                                 thumbnail_size);
@@ -65,11 +65,10 @@ void ProjectBrowserState::drawRecentProjects() {
             ImGui::BeginTooltip();
             ImGui::Text("version: %d", project.version);
             ImGui::Text("path: %s", project.project_root.c_str());
-            ImGui::Text("start_scene: %s", project.start_scene.c_str());
             ImGui::EndTooltip();
         }
 
-        if (clicked && !request_fired_) {
+        if (clicked && !m_request_fired) {
             selectProject(project);
             DVAR_SET_STRING(last_opened_project, project.project_root);
         }
@@ -79,21 +78,20 @@ void ProjectBrowserState::drawRecentProjects() {
 }
 
 void ProjectBrowserState::selectProject(const ProjectInfo& project) {
-    DEV_ASSERT(!request_fired_);
-    request_ = Some(StateRequest{
+    DEV_ASSERT(!m_request_fired);
+    m_request = Some(StateRequest{
         .next = AppStateId::Editor,
         .arg0 = project.name,
-        .arg1 = project.start_scene,
     });
-    project_manager_.loadProject(project);
-    request_fired_ = true;
+    m_project_manager.loadProject(project);
+    m_request_fired = true;
 }
 
 void ProjectBrowserState::selectProject(std::string_view path) {
-    if (request_fired_) {
+    if (m_request_fired) {
         return;
     }
-    for (const ProjectInfo& project : project_list_) {
+    for (const ProjectInfo& project : m_project_list) {
         if (project.project_root == path) {
             selectProject(project);
             break;
@@ -124,7 +122,7 @@ void ProjectBrowserState::tick(const FrameTime&) {
         selectProject(DVAR_GET_STRING(last_opened_project));
     }
 
-    if (ImguiManager* imgui_manager = app_.imguiManager()) {
+    if (ImguiManager* imgui_manager = m_app.imguiManager()) {
         imgui_manager->BeginFrame();
 
         ui::DockSpace({ "DockSpaceRoot",
@@ -143,8 +141,8 @@ void ProjectBrowserState::tick(const FrameTime&) {
         ImGui::End();
 
         if (ImGui::Begin("Project Location")) {
-            if (request_fired_) {
-                TaskSnapshot root = project_manager_.snapshot();
+            if (m_request_fired) {
+                TaskSnapshot root = m_project_manager.snapshot();
 
                 if (root.indeterminate) {
                     ImGui::ProgressBar(-1.0f, ImVec2(-1.0f, 0.0f));
@@ -171,22 +169,22 @@ void ProjectBrowserState::drawSideBar() {
     const char* ptr2 = strchr(ptr1, ']');
     ptr2 = ptr2 ? (ptr2 + 1) : ptr1;
 
-    TaskSnapshot root = project_manager_.snapshot();
+    TaskSnapshot root = m_project_manager.snapshot();
 
     ImGui::Text("[%d%%] %s", static_cast<int>(root.progress01 * 100), ptr2);
 }
 
 Option<StateRequest> ProjectBrowserState::popRequest() {
-    if (!request_fired_) {
+    if (!m_request_fired) {
         return None();
     }
 
-    if (app_.services().taskManager().HasPendingWork()) {
+    if (m_app.services().taskManager().HasPendingWork()) {
         return None();
     }
 
-    auto request = request_;
-    request_ = None();
+    auto request = m_request;
+    m_request = None();
     return request;
 }
 
@@ -214,7 +212,6 @@ static bool parseProject(const std::filesystem::path& path, ProjectInfo& out_inf
     }
 
     tryReadYaml(node, "name", out_info.name);
-    tryReadYaml(node, "start_scene", out_info.start_scene);
     tryReadYaml(node, "thumbnail", out_info.thumbnail);
     tryReadYaml(node, "is_2d", out_info.is_2d);
     return true;

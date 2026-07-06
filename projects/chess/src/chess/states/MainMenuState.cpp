@@ -1,8 +1,7 @@
 #include "MainMenuState.h"
 
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/framework/IUIRuntime.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "chess/game/ChessIntent.h"
 #include "chess/states/GameplayState.h"
@@ -11,6 +10,7 @@ namespace chess {
 
 using namespace cave;
 
+#if 0
 void MainMenuState::OnEnter(cave::IHostServices&) {
 }
 
@@ -22,7 +22,7 @@ void MainMenuState::Tick(cave::IHostServices& host, const cave::FrameTime&) {
     const float offset_y = 200.0f;
     if (ui.button(1, { offset_x, offset_y, 400, 100 })) {
         auto gameplay = std::make_unique<GameplayState>();
-        host.intentDispatcher().queue<ChessStateIntent>(std::move(gameplay));
+        host.intentBus().queue<ChessStateIntent>(std::move(gameplay));
     }
     if (ui.button(2, { offset_x, offset_y + 200, 400, 100 })) {
         LOG_OK(LogChannel::Game, "UI Button 2 clicked");
@@ -32,5 +32,6 @@ void MainMenuState::Tick(cave::IHostServices& host, const cave::FrameTime&) {
     }
     ui.endView();
 }
+#endif
 
 }  // namespace chess

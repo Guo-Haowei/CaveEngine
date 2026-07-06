@@ -1,6 +1,6 @@
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/runtime/framework/EngineServices.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/core/variant/DvarParser.h"
@@ -79,7 +79,7 @@ void RegisterCommands::intent(CommandRegistry& cmd_reg) {
         .help = "List all registered intent handlers.",
         .usage = "intent.dump",
         .fn = [](CommandContext& ctx, const CommandArgs& args) {
-            return ctx.services.intentDispatcher().Cmd_dump(ctx, args);
+            return ctx.services.intentBus().Cmd_dump(ctx, args);
         },
     });
 }
@@ -110,7 +110,7 @@ void RegisterCommands::asset(CommandRegistry& cmd_reg) {
 
             std::string_view asset_str = args.tokens[1];
             Option<AssetHandle> handle;
-            if (auto guid = Guid::parse(asset_str); guid.is_some()) {
+            if (auto guid = Guid::parse(asset_str)) {
                 handle = asset_reg.findByGuid(guid.unwrap_unchecked());
             } else {
                 handle = asset_reg.findByPath(std::string(asset_str));

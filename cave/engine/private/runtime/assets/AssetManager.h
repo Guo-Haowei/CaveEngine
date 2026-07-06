@@ -27,6 +27,9 @@ public:
 
     uint64_t submitImportScene(const SceneImportRequest& request) override;
 
+    void reloadAsset(const Guid& guid) override;
+
+    // @TODO: get rid of this
     EngineServices& services();
 
     // @TODO: deprecate
@@ -34,7 +37,6 @@ public:
 
     // @TODO: deprecate
     AssetRef loadAssetSync(const Guid& guid) override;
-    AssetRef reloadAsset(const Guid& guid) override;
 
 protected:
     AssetRef loadAssetSyncHelper(const Guid& guid);

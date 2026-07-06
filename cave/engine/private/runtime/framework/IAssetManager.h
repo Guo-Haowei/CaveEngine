@@ -40,12 +40,13 @@ public:
 
     virtual uint64_t submitImportScene(const SceneImportRequest& request) = 0;
 
+    virtual void reloadAsset(const Guid& guid) = 0;
+
     // @TODO: deprecate
     virtual std::string resolvePath(const std::filesystem::path& path) = 0;
 
     // @TODO: deprecate
     virtual AssetRef loadAssetSync(const Guid& guid) = 0;
-    virtual AssetRef reloadAsset(const Guid& guid) = 0;
 
     // @TODO: remove this
     virtual std::shared_ptr<ImageAsset> findImage(const std::string&) { return nullptr; }

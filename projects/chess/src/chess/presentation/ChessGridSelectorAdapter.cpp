@@ -3,10 +3,10 @@
 #include <cassert>
 
 #include "cave/core/math/Plane.h"
-#include "cave/game/IHostServices.h"
 #include "cave/runtime/controller/GridSelectController.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/view/ViewQuery.h"
@@ -24,39 +24,39 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 
-ChessGridSelectorAdapter::ChessGridSelectorAdapter(IHostServices& host,
+ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneContext& ctx,
                                                    ChessGameClient& game,
                                                    ChessBoardView& board_view) noexcept
-    : host_(host)
-    , client_(game)
-    , board_view_(board_view) {
+    : m_intent_bus(game.intentBus())
+    , m_client(game)
+    , m_board_view(board_view) {
 
-    camera_id_ = host_.sceneQuery().findFirstByName("game_camera");
-    assert(camera_id_.IsValid());
+    m_camera_id = ctx.query.findFirstByName("game_camera");
+    assert(m_camera_id.IsValid());
 }
 
 bool ChessGridSelectorAdapter::canSelect(int x, int y) {
     const Square sq = Square::fromFileRank((uint8_t)x, (uint8_t)y);
-    std::span<const Move> moves = client_.legalMoves(sq);
+    std::span<const Move> moves = m_client.legalMoves(sq);
 
     return !moves.empty();
 }
 
 void ChessGridSelectorAdapter::onSelect(int x, int y) {
     const Square sq = Square::fromFileRank((uint8_t)x, (uint8_t)y);
-    std::span<const Move> moves = client_.legalMoves(sq);
+    std::span<const Move> moves = m_client.legalMoves(sq);
 
     core::Bitboard bb;
     for (Move mv : moves) {
         bb.Set(mv.to());
     }
-    board_view_.setHighlight(bb);
+    m_board_view.setHighlight(bb);
 }
 
 bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
     const Square sq = Square::fromFileRank((uint8_t)sx, (uint8_t)sy);
 
-    std::span<const Move> moves = client_.legalMoves(sq);
+    std::span<const Move> moves = m_client.legalMoves(sq);
     for (Move mv : moves) {
         const auto [from_file, from_rank] = mv.from().fileRank();
         const auto [to_file, to_rank] = mv.to().fileRank();
@@ -70,16 +70,16 @@ bool ChessGridSelectorAdapter::canDrop(int sx, int sy, int dx, int dy) {
 }
 
 void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
-    board_view_.setHighlight({});
+    m_board_view.setHighlight({});
 
-    const Position& pos = client_.replica();
-    const Color id = pos.SideToMove();
+    const Position& pos = m_client.replica();
+    const Color id = pos.sideToMove();
 
-    if (LocalHumanAgent* agent = get_player_cb_(id)) {
+    if (LocalHumanAgent* agent = m_get_player_func(id)) {
         const Square from = Square::fromFileRank((uint8_t)sx, (uint8_t)sy);
         const Square to = Square::fromFileRank((uint8_t)dx, (uint8_t)dy);
 
-        std::span<const Move> moves = client_.legalMoves(from);
+        std::span<const Move> moves = m_client.legalMoves(from);
         Move move = Move::null();
         for (Move mv : moves) {
             if (mv.to() == to) {
@@ -87,14 +87,14 @@ void ChessGridSelectorAdapter::onDrop(int sx, int sy, int dx, int dy) {
                 break;
             }
         }
-        assert(move.isValid());
+        DEV_ASSERT(move.isValid());
 
-        host_.intentDispatcher().queue<ChessMoveIntent>(id, move);
+        m_intent_bus.queue<ChessMoveIntent>(id, move);
     }
 }
 
 void ChessGridSelectorAdapter::onCancel() {
-    board_view_.setHighlight({});
+    m_board_view.setHighlight({});
 }
 
 void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
@@ -102,16 +102,16 @@ void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
     (void)sy;
     (void)dx;
     (void)dy;
-    LOG_ERROR("can't select/drop");
 }
 
-void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
+void ChessGridSelectorAdapter::tickPointer(SceneContext& ctx, const IGameInput& input) {
     const PointerState& pointer = input.pointerState();
 
     // @TODO: project ray
-    const DisplayService& display = host_.displayService();
+    const DisplayService& display = ctx.services.displayService();
 
-    const ViewRecord* view = host_.viewQuery().resolve(host_.viewId());
+    ViewQuery query(ctx.services.viewManager());
+    const ViewRecord* view = query.resolve(ctx.view_id);
     if (!view) {
         return;
     }
@@ -123,7 +123,7 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
 
     Vec2f ndc = view->screenToNDC(pos_os);
 
-    auto camera = (const CameraComponent*)host_.sceneQuery().component(CameraComponent_Id, camera_id_);
+    auto camera = ctx.query.component<CameraComponent>(m_camera_id);
     assert(camera);
 
     Ray ray = Ray::unproject(camera->projectionViewMatrix(), ndc);
@@ -138,53 +138,53 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
 
     const int file = (int)std::roundf(p.z);
     const int rank = (int)std::roundf(p.x);
-    controller_->focus(file, rank);
+    m_controller->focus(file, rank);
     if (input.isJustPressed("ui_accept"_sid)) {
-        controller_->confirm();
+        m_controller->confirm();
     }
     if (input.isJustPressed("ui_back"_sid)) {
-        controller_->cancel();
+        m_controller->cancel();
     }
 }
 
 void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
     if (input.isJustPressed("ui_right"_sid)) {
-        controller_->moveFocus(1, 0);
+        m_controller->moveFocus(1, 0);
     }
     if (input.isJustPressed("ui_left"_sid)) {
-        controller_->moveFocus(-1, 0);
+        m_controller->moveFocus(-1, 0);
     }
     if (input.isJustPressed("ui_up"_sid)) {
-        controller_->moveFocus(0, 1);
+        m_controller->moveFocus(0, 1);
     }
     if (input.isJustPressed("ui_down"_sid)) {
-        controller_->moveFocus(0, -1);
+        m_controller->moveFocus(0, -1);
     }
     if (input.isJustPressed("ui_accept"_sid)) {
-        controller_->confirm();
+        m_controller->confirm();
     }
     if (input.isJustPressed("ui_back"_sid)) {
-        controller_->cancel();
+        m_controller->cancel();
     }
 
     const float dx = input.getStrength("ui_axis_x"_sid);
     const float dy = input.getStrength("ui_axis_y"_sid);
     if (dx > 0.5f) {
-        controller_->moveFocus(1, 0);
+        m_controller->moveFocus(1, 0);
     } else if (dx < -0.5f) {
-        controller_->moveFocus(-1, 0);
+        m_controller->moveFocus(-1, 0);
     }
 
     if (dy > 0.5f) {
-        controller_->moveFocus(0, 1);
+        m_controller->moveFocus(0, 1);
     } else if (dy < -0.5f) {
-        controller_->moveFocus(0, -1);
+        m_controller->moveFocus(0, -1);
     }
 }
 
-void ChessGridSelectorAdapter::tick() {
-    const IGameInput& input = host_.gameInput();
-    tickPointer(input);
+void ChessGridSelectorAdapter::tick(SceneContext& ctx) {
+    const IGameInput& input = ctx.services.gameInput();
+    tickPointer(ctx, input);
     tickKeyboard(input);
 }
 

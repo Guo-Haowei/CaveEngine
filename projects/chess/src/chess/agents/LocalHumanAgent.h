@@ -7,7 +7,7 @@ class LocalHumanAgent final : public IPlayerAgent {
 public:
     using IPlayerAgent::IPlayerAgent;
 
-    void tick(cave::IHostServices& host) override;
+    void tick(cave::IntentBus& intent_bus) override;
 };
 
 }  // namespace chess

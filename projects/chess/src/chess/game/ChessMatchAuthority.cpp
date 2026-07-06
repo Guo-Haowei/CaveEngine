@@ -10,18 +10,18 @@ namespace chess {
 using namespace ::cave;
 using namespace ::chess::core;
 
-ChessMatchAuthority::ChessMatchAuthority(IHostServices& host)
-    : intent_dispatcher(host.intentDispatcher())
-    , debug_id_(MakeDebugId(this)) {
-    intent_dispatcher.addHandler<ChessMoveIntent>(this);
-    pos_ = Position::Startpos();
+ChessMatchAuthority::ChessMatchAuthority(IntentBus& intent_bus)
+    : m_intent_bus(intent_bus)
+    , m_debug_id(MakeDebugId(this)) {
+    m_intent_bus.addHandler<ChessMoveIntent>(this);
+    m_pos = Position::Startpos();
 }
 
 ChessMatchAuthority::~ChessMatchAuthority() {
-    intent_dispatcher.removeHandler<ChessMoveIntent>(this);
+    m_intent_bus.removeHandler<ChessMoveIntent>(this);
 }
 
-bool ChessMatchAuthority::handleIntent(cave::Intent& intent) {
+bool ChessMatchAuthority::handleIntent(Intent& intent) {
     if (auto move_intent = dynamic_cast<ChessMoveIntent*>(&intent)) {
         tryCommitMove(move_intent->side(), move_intent->move());
         return true;
@@ -31,26 +31,26 @@ bool ChessMatchAuthority::handleIntent(cave::Intent& intent) {
 }
 
 bool ChessMatchAuthority::tryCommitMove(Color side, Move move) {
-    if (pos_.SideToMove() != side) {
+    if (m_pos.sideToMove() != side) {
         return false;
     }
 
     core::UndoState undo;
-    Position copy = pos_;
+    Position copy = m_pos;
     const bool ok = copy.MakeMove(move, undo);
     if (!ok) {
-        intent_dispatcher.queue<AuthMoveRejected>(side, move);
+        m_intent_bus.queue<AuthMoveRejected>(side, move);
         return false;
     }
 
-    pos_ = copy;
-    intent_dispatcher.queue<AuthMoveCommitted>(side, move);
+    m_pos = copy;
+    m_intent_bus.queue<AuthMoveCommitted>(side, move);
 
     // @TODO: figure out if draw or not
-    const MoveList moves = MoveGen::LegalMove(pos_);
+    const MoveList moves = MoveGen::LegalMove(m_pos);
     if (moves.empty()) {
-        game_over_ = true;
-        intent_dispatcher.queue<AuthGameOver>(side, move);
+        m_game_over = true;
+        m_intent_bus.queue<AuthGameOver>(side, move);
     }
 
     return true;

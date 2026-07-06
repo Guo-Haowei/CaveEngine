@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/input/KeyCode.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
@@ -32,14 +32,14 @@ Workspace::Workspace(EditorState& editor)
     , m_editor_services(editor.services())
     , m_debug_id(MakeDebugId(this)) {
     m_engine_services.inputService().addConsumer(this);
-    m_engine_services.intentDispatcher().addHandler<OpenDocIntent>(this);
-    m_engine_services.intentDispatcher().addHandler<CloseDocIntent>(this);
+    m_engine_services.intentBus().addHandler<OpenDocIntent>(this);
+    m_engine_services.intentBus().addHandler<CloseDocIntent>(this);
 }
 
 Workspace::~Workspace() {
     m_engine_services.inputService().removeConsumer(this);
-    m_engine_services.intentDispatcher().removeHandler<OpenDocIntent>(this);
-    m_engine_services.intentDispatcher().removeHandler<CloseDocIntent>(this);
+    m_engine_services.intentBus().removeHandler<OpenDocIntent>(this);
+    m_engine_services.intentBus().removeHandler<CloseDocIntent>(this);
 
     refreshTabStates();
     saveWorkspaceState();
@@ -53,7 +53,7 @@ void Workspace::restoreProjectWorkspace() {
 
     Option<OpenDocDesc> active_doc;
     for (const TabState& tab : m_workspace_state.tabs) {
-        if (auto handle = m_engine_services.assetRegistry().findByGuid(tab.guid); handle.is_some()) {
+        if (auto handle = m_engine_services.assetRegistry().findByGuid(tab.guid)) {
             AssetHandle handle_ = handle.unwrap_unchecked();
             OpenDocDesc desc{ handle_.guid(), handle_.meta()->type };
             if (tab.active && active_doc.is_none()) {
@@ -86,25 +86,25 @@ PreviewScene Workspace::focusedPreviewScene() {
         ret.doc_id = tab->docId();
         ret.view_id = tab->viewId();
     }
-    ret.doc_id = focusedDoc();
     if (IDocument* doc = m_editor_services.document().resolve(ret.doc_id)) {
         ret.scene_id = doc->previewScene();
         ret.scene = m_engine_services.sceneRegistry().resolve(ret.scene_id);
+        ret.guid = doc->guid();
     }
     return ret;
 }
 
 void Workspace::requestOpen(DocId doc_id) {
-    m_engine_services.intentDispatcher().queue<OpenDocIntent>(doc_id);
+    m_engine_services.intentBus().queue<OpenDocIntent>(doc_id);
 }
 
 void Workspace::requestClose(DocId doc_id) {
-    m_engine_services.intentDispatcher().queue<CloseDocIntent>(doc_id);
+    m_engine_services.intentBus().queue<CloseDocIntent>(doc_id);
 }
 
 void Workspace::drawTabs() {
-    for (uint32_t idx = 0; idx < slots_.size(); ++idx) {
-        auto& slot = slots_[idx];
+    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
+        auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
             TabId current_id = tab.tabId();
@@ -141,8 +141,8 @@ void Workspace::onEvents(const InputFrame& input) {
         return;
     }
 
-    for (size_t i = 0; i < slots_.size(); ++i) {
-        Tab* tab = slots_[i].storage.get();
+    for (size_t i = 0; i < m_slots.size(); ++i) {
+        Tab* tab = m_slots[i].storage.get();
         if (tab && tab->isHovered()) {
             tab->onInputEvents(input);
             break;
@@ -207,7 +207,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
 
     const TabId tab_id = create(std::move(tab));
 
-    Tab* tab_raw = (slots_[tab_id.index].storage).get();
+    Tab* tab_raw = (m_slots[tab_id.index].storage).get();
     tab_raw->tabId(tab_id);
     tab_raw->onCreate();
     m_request_focus = tab_id;
@@ -239,8 +239,8 @@ extern CloseDecision AskCloseUnsaved(const char* title);
 
 bool Workspace::onCloseRequested() {
     std::vector<DocId> unsaved;
-    for (uint32_t idx = 0; idx < slots_.size(); ++idx) {
-        auto& slot = slots_[idx];
+    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
+        auto& slot = m_slots[idx];
         if (slot.storage) {
             Tab& tab = *slot.storage;
             DocId doc = tab.docId();
@@ -306,9 +306,9 @@ bool EnsureParentDirExists(const fs::path& file_path) {
 void Workspace::refreshTabStates() {
     auto& tabs = m_workspace_state.tabs;
     tabs.clear();
-    tabs.reserve(slots_.size());
-    for (uint32_t i = 0; i < (uint32_t)slots_.size(); ++i) {
-        const Tab* tab = slots_[i].storage.get();
+    tabs.reserve(m_slots.size());
+    for (uint32_t i = 0; i < (uint32_t)m_slots.size(); ++i) {
+        const Tab* tab = m_slots[i].storage.get();
         if (!tab) continue;
         const DocId doc_id = tab->docId();
         const IDocument* doc = m_editor_services.document().resolve(doc_id);

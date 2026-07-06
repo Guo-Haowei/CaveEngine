@@ -4,39 +4,39 @@ namespace cave {
 
 void AppStateMachine::initialize(AppStateId p_initial_state) {
     StateRequest req{ p_initial_state };
-    state_ = createState(app_, req.next);
-    state_->onEnter(req);
+    m_app_state = createState(m_app, req.next);
+    m_app_state->onEnter(req);
 
-    state_id_ = p_initial_state;
+    m_state_id = p_initial_state;
 }
 
 void AppStateMachine::shutdown() {
-    if (DEV_VERIFY(state_)) {
-        state_->onExit();
-        state_.reset();
+    if (DEV_VERIFY(m_app_state)) {
+        m_app_state->onExit();
+        m_app_state.reset();
     }
 }
 
 void AppStateMachine::tick(const FrameTime& p_time) {
-    state_->tick(p_time);
+    m_app_state->tick(p_time);
 
-    if (auto req = state_->popRequest(); req.is_some()) {
+    if (auto req = m_app_state->popRequest()) {
         switchTo(req.unwrap_unchecked());
     }
 }
 
 void AppStateMachine::switchTo(const StateRequest& p_request) {
 #if USING(DEBUG_BUILD)
-    std::string_view old_state = state_->debugId().type;
+    std::string_view old_state = m_app_state->debugId().type;
 #endif
 
-    state_->onExit();
-    state_ = createState(app_, p_request.next);
+    m_app_state->onExit();
+    m_app_state = createState(m_app, p_request.next);
 
-    LOG_INFO(LogChannel::App, "State {} -> {}", old_state, state_->debugId().type);
+    LOG_INFO(LogChannel::App, "State {} -> {}", old_state, m_app_state->debugId().type);
 
-    state_->onEnter(p_request);
-    state_id_ = p_request.next;
+    m_app_state->onEnter(p_request);
+    m_state_id = p_request.next;
 }
 
 void AppStateMachine::registerCreateFunc(AppStateId p_state_id, CreateFunc p_func) {

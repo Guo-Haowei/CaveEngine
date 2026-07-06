@@ -9,9 +9,9 @@ class CameraController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 public:
-    void onCreate(cave::SceneContext& ctx) override;
+    void start(cave::SceneContext& ctx) override;
 
-    void onUpdate(cave::SceneContext& ctx, float dt) override;
+    void update(cave::SceneContext& ctx, float dt) override;
 
 private:
     void followTarget(cave::SceneContext& ctx, float dt);

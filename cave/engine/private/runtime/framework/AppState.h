@@ -23,7 +23,7 @@ struct StateRequest {
 class AppState {
 public:
     AppState(IApplication& app)
-        : app_(app) {}
+        : m_app(app) {}
 
     virtual ~AppState() = default;
 
@@ -39,10 +39,10 @@ public:
     virtual DebugId debugId() const = 0;
 #endif
 
-    IApplication& app() { return app_; }
+    IApplication& app() { return m_app; }
 
 protected:
-    IApplication& app_;
+    IApplication& m_app;
 };
 
 class AppStateMachine {
@@ -50,7 +50,7 @@ public:
     using CreateFunc = std::unique_ptr<AppState> (*)(IApplication&);
 
     AppStateMachine(IApplication& app)
-        : app_(app) {}
+        : m_app(app) {}
 
     void initialize(AppStateId initial_state);
 
@@ -58,9 +58,9 @@ public:
 
     void tick(const FrameTime& time);
 
-    AppStateId stateId() const { return state_id_; }
+    AppStateId stateId() const { return m_state_id; }
 
-    AppState* appState() const { return state_.get(); }
+    AppState* appState() const { return m_app_state.get(); }
 
     static void registerCreateFunc(AppStateId state_id, CreateFunc func);
 
@@ -72,9 +72,9 @@ private:
 
     inline static CreateFunc s_create_funcs[std::to_underlying(AppStateId::Count)];
 
-    IApplication& app_;
-    std::unique_ptr<AppState> state_;
-    AppStateId state_id_;
+    IApplication& m_app;
+    std::unique_ptr<AppState> m_app_state;
+    AppStateId m_state_id;
 };
 
 }  // namespace cave

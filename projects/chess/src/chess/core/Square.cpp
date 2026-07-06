@@ -45,7 +45,7 @@ const char* Square::uci() const {
     return kSquareLookUp[index_];
 }
 
-Square enpassantCapturedSquare(Square from, Square to) {
+Square EnpassantCapturedSquare(Square from, Square to) {
     return Square::fromFileRank(to.file(), from.rank());
 }
 

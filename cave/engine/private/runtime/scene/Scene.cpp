@@ -2,6 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/threading/JobSystem.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
@@ -10,6 +11,7 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/Engine.h"
+#include "engine/private/runtime/scene/SceneSerializer.h"
 #include "engine/private/runtime/scene/SystemManager.h"
 #include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/EcsSystems.h"
@@ -25,13 +27,64 @@ namespace cave {
 using namespace ::cave::math;
 using ecs::Entity;
 
-Scene::Scene(std::string name, ecs::ComponentRegistry& reg) noexcept
-    : name_(std::move(name))
-    , component_registry_(reg) {
+//---------------- scene runtime --------------
+enum class SceneFeature : uint32_t {
+    NativeScript = 1,
+    Motor = 2,
+    TileWorld = 3,
+    All = NativeScript | Motor | TileWorld,
+};
+
+DEFINE_ENUM_BITWISE_OPERATIONS(SceneFeature);
+
+class SceneRuntime {
+public:
+    SceneRuntime(SceneFeature features)
+        : m_features(features) {}
+
+    void start(SceneContext& ctx);
+    void shutdown();
+
+    void update(SceneTickContext& ctx);
+
+private:
+    const SceneFeature m_features;
+    SystemManager m_systems;
+
+    friend class Scene;
+};
+
+void SceneRuntime::start(SceneContext& ctx) {
+    if ((int)(m_features & SceneFeature::NativeScript)) {
+        m_systems.add<NativeScriptSystem>(ctx.services.nativeScripts());
+        auto native_scripts = m_systems.get<NativeScriptSystem>();
+        native_scripts->alwaysRun(ctx);
+    }
+    if ((int)(m_features & SceneFeature::Motor)) {
+        m_systems.add<MotorSystem>();
+    }
+    if ((int)(m_features & SceneFeature::TileWorld)) {
+        m_systems.add<TileWorldSystem>();
+    }
+
+    m_systems.start(ctx);
 }
 
-Scene::Scene(std::string name) noexcept
-    : Scene(std::move(name), engine::GetComponentRegistry()) {
+void SceneRuntime::shutdown() {
+    m_systems.shutdown();
+}
+
+void SceneRuntime::update(SceneTickContext& ctx) {
+    m_systems.update(ctx);
+}
+// ---------------------------------------------
+
+Scene::Scene(ecs::ComponentRegistry& reg) noexcept
+    : m_component_registry(reg) {
+}
+
+Scene::Scene() noexcept
+    : Scene(engine::GetComponentRegistry()) {
 }
 
 Scene::~Scene() = default;
@@ -72,9 +125,52 @@ void Scene::update(float dt) {
     flushPendingDestroy();
 }
 
-void Scene::tick(SceneTickContext& ctx) {
-    if (ctx.mode == SceneTickMode::Simulation) {
-        simulate(ctx);
+SystemManager* Scene::systems() {
+    return m_runtime ? &m_runtime->m_systems : nullptr;
+}
+
+const SystemManager* Scene::systems() const {
+    return m_runtime ? &m_runtime->m_systems : nullptr;
+}
+
+void Scene::begin(SceneTickContext ctx) {
+    if (m_runtime) {
+        LOG_ERROR(LogChannel::Scene, "onSimBegin already called");
+        return;
+    }
+
+    SceneFeature features = SceneFeature::NativeScript;
+    if (ctx.domain == SceneTickDomain::Simulate) {
+        if (count<MotorComponent>()) {
+            features |= SceneFeature::Motor;
+        }
+        if (count<TileMapInstanceComponent>()) {
+            features |= SceneFeature::TileWorld;
+        }
+    }
+
+    m_runtime = std::make_unique<SceneRuntime>(features);
+    m_runtime->start(ctx.scene_ctx);
+
+    update(0.0f);
+}
+
+void Scene::end() {
+    if (m_runtime) {
+        m_runtime->shutdown();
+        m_runtime.reset();
+    }
+
+    // @TODO: not sure if this is the best way to clean up
+    for (auto [ent, script] : view<NativeScriptComponent>()) {
+        script.instance = nullptr;
+        script.always_run_called = false;
+    }
+}
+
+void Scene::tick(SceneTickContext ctx) {
+    if (m_runtime) {
+        m_runtime->update(ctx);
     }
 
     update(ctx.dt);
@@ -82,23 +178,23 @@ void Scene::tick(SceneTickContext& ctx) {
 
 void Scene::copy(const Scene& other) {
     ComponentId idx = 0;
-    for (auto& entry : other.storage_.entries()) {
+    for (auto& entry : other.m_storage.entries()) {
         if (entry.pool) {
-            storage_.ensure(idx);
-            storage_.entries_[idx].pool = std::move(entry.pool->clone());
+            m_storage.ensure(idx);
+            m_storage.entries_[idx].pool = std::move(entry.pool->clone());
         }
         ++idx;
     }
 
-    root_ = other.root_;
-    bound_ = other.bound_;
-    entity_seed_ = other.entity_seed_;
+    m_root = other.m_root;
+    m_world_bound = other.m_world_bound;
+    m_entity_seed = other.m_entity_seed;
 }
 
 std::vector<Entity> Scene::getSortedEntityArray() const {
     std::unordered_set<Entity> entity_set;
 
-    for (const auto& it : storage_.entries()) {
+    for (const auto& it : m_storage.entries()) {
         if (!it.pool) continue;
         for (auto entity : it.pool->entityArray()) {
             if (has<PrefabChildComponent>(entity)) {
@@ -143,7 +239,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
 
     const Scene* source = handle.unwrap_unchecked().get();
     DEV_ASSERT(source);
-    Scene copy("prefab");
+    Scene copy;
     copy.copy(*source);
 
     auto new_entities = copy.getSortedEntityArray();
@@ -169,35 +265,43 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
         CRASH_NOW_MSG("remap skin and skeleton");
     }
 
-    // remap all entities
-    for (uint16_t cid = 0; cid < (uint16_t)copy.storage_.entries_.size(); ++cid) {
-        auto& entry = copy.storage_.entries_[cid];
+    // clear script instances if needed
+    for (auto [id, script] : copy.view<NativeScriptComponent>()) {
+        if (script.instance) {
+            script.instance = nullptr;
+            script.always_run_called = false;
+        }
+    }
+
+    // merge components
+    for (uint16_t cid = 0; cid < (uint16_t)copy.m_storage.entries_.size(); ++cid) {
+        auto& entry = copy.m_storage.entries_[cid];
         if (!entry.pool) continue;
         entry.pool->remap(mapping);
 
-        CRASH_COND(cid >= storage_.entries_.size());
-        auto& my_entry = storage_.entries_[cid];
+        CRASH_COND(cid >= m_storage.entries_.size());
+        auto& my_entry = m_storage.entries_[cid];
 
         if (!my_entry.pool) {
-            storage_.getOrCreate(cid);
+            m_storage.getOrCreate(cid);
         }
         my_entry.pool->merge(std::move(*entry.pool));
     }
 
     // link instance
-    Entity mapped_root = mapping[copy.root_];
+    Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
-    hier.parent_id = ent.IsValid() ? ent : root_;
+    hier.parent_id = ent.IsValid() ? ent : m_root;
 
     prefab.setInstance(mapped_root);
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
-    return storage_.has(cid, ent);
+    return m_storage.has(cid, ent);
 }
 
 size_t Scene::count(ComponentId cid) const {
-    if (const ecs::IComponentPool* pool = storage_.tryGet(cid)) {
+    if (const ecs::IComponentPool* pool = m_storage.tryGet(cid)) {
         return pool->count();
     }
 
@@ -205,7 +309,7 @@ size_t Scene::count(ComponentId cid) const {
 }
 
 bool Scene::remove(ComponentId cid, Entity ent) {
-    return storage_.remove(cid, ent);
+    return m_storage.remove(cid, ent);
 }
 
 Entity Scene::findFirstByName(std::string_view name) const {
@@ -246,10 +350,10 @@ void Scene::removeEntity(ecs::Entity ent) {
 
     NativeScriptComponent* script = component<NativeScriptComponent>(ent);
     if (script && script->instance) {
-        script->instance->onDestroy();
+        script->instance->destroy();
     }
 
-    for (auto& e : storage_.entries()) {
+    for (auto& e : m_storage.entries()) {
         if (e.pool) {
             e.pool->remove(ent);
         }
@@ -324,215 +428,14 @@ std::vector<Guid> Scene::dependencies() const {
     return dependencies;
 }
 
-// LATEST_SCENE_VERSION history
-// version 1: initial version
-// version 2: don't serialize scene.m_bound
-// version 3: light component atten
-// version 4: light component flags
-// version 5: add validation
-// version 6: add collider component
-// version 7: add enabled to material
-// version 8: add particle emitter
-// version 9: add ParticleEmitterComponent.gravity
-// version 10: add ForceFieldComponent
-// version 11: add ScriptFieldComponent
-// version 12: add CameraComponent
-// version 13: add SoftBodyComponent
-// version 14: modify RigidBodyComponent
-// version 15: add predefined shadow region to lights
-// version 16: change scene binary representation
-// version 17: remove armature.flags
-// version 18: change RigidBodyComponent
-// version 19: serialize scene.m_physicsMode
-static constexpr uint32_t LATEST_SCENE_VERSION = 19;
-static constexpr char SCENE_MAGIC[] = "xBScene";
-static constexpr char SCENE_GUARD_MESSAGE[] = "Should see this message";
-static constexpr uint64_t HAS_NEXT_FLAG = 6368519827137030510;
-
-template<typename T>
-concept HasOnDeserialized = requires(T& t) {
-    { t.OnDeserialized() } -> std::same_as<void>;
-};
-
-namespace {
-
-#define PREFAB_OVERRIDE_LIST               \
-    PREFAB_OVERRIDE(TransformComponent)    \
-    PREFAB_OVERRIDE(NativeScriptComponent) \
-    PREFAB_OVERRIDE(FacingComponent)
-
-template<ComponentType T>
-Option<T> DeserializeComponent(IDeserializer& d,
-                               const char* key) {
-    if (d.tryEnterKey(key)) {
-        T component;
-        d.read(component);
-        d.leaveKey();
-        if constexpr (HasOnDeserialized<T>) {
-            component.OnDeserialized();
-        }
-        return Some(std::move(component));
-    }
-    return None();
-}
-
-template<ComponentType T>
-void DeserializeComponent(IDeserializer& d,
-                          const char* key,
-                          ecs::Entity ent,
-                          Scene& scene) {
-    if (d.tryEnterKey(key)) {
-        T& component = scene.create<T>(ent);
-        d.read(component);
-        d.leaveKey();
-        if constexpr (HasOnDeserialized<T>) {
-            component.OnDeserialized();
-        }
-    }
-}
-
-template<ComponentType T>
-bool SerializeComponent(ISerializer& s,
-                        const char* name,
-                        const Scene& scene,
-                        ecs::Entity ent) {
-
-    const T* component = scene.component<T>(ent);
-    if (component) {
-        s.beginKey(name);
-        s.write(*component);
-    }
-    return true;
-}
-
-bool SerializeEntityImpl(ISerializer& s,
-                         const Scene& scene,
-                         Entity ent) {
-
-    s.beginKey("id")
-        .write(ent);
-
-#define REGISTER_COMPONENT(COMPONENT, ...) \
-    SerializeComponent<COMPONENT>(s, #COMPONENT, scene, ent);
-
-    REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-
-    return true;
-}
-
-bool SerializeNormalEntity(ISerializer& s,
-                           const Scene& scene,
-                           Entity ent) {
-
-    s.beginMap(false);
-    SerializeEntityImpl(s, scene, ent);
-    s.endMap();
-    return true;
-}
-
-template<ComponentType T>
-bool SerializeComponentOverride(ISerializer& s,
-                                const char* name,
-                                const Scene& prefab_scene,
-                                Entity prefab_ent,
-                                const Scene& instance_scene,
-                                Entity instance_ent) {
-    const T* prefab_component = prefab_scene.component<T>(prefab_ent);
-    const T* instance_component = instance_scene.component<T>(instance_ent);
-    if (!prefab_component || !instance_component) {
-        return true;
-    }
-
-    if (*prefab_component != *instance_component) {
-        s.beginKey(name);
-        s.write(*instance_component);
-    }
-
-    return true;
-}
-
-bool SerializePrefabDiff(ISerializer& s,
-                         const Scene& scene,
-                         const PrefabInstanceComponent& prefab) {
-    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
-    if (handle.is_none()) {
-        return false;
-    }
-
-    Entity instance_ent = prefab.instance();
-    const Scene* prefab_scene = handle.unwrap_unchecked().get();
-    Entity prefab_ent = prefab_scene->root();
-
-    s.beginKey("PrefabOverride");
-    s.beginMap(false);
-
-#define PREFAB_OVERRIDE(T) SerializeComponentOverride<T>(s, #T, *prefab_scene, prefab_ent, scene, instance_ent);
-    PREFAB_OVERRIDE_LIST
-#undef PREFAB_OVERRIDE
-
-    s.endMap();
-    return true;
-}
-
-bool SerializePrefabEntity(ISerializer& s,
-                           const Scene& scene,
-                           Entity ent) {
-    const PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(ent);
-    DEV_ASSERT(prefab);
-
-    s.beginMap(false);
-    SerializeEntityImpl(s, scene, ent);
-    SerializePrefabDiff(s, scene, *prefab);
-    s.endMap();
-    return true;
-}
-
-bool SerializeEntity(ISerializer& s,
-                     const Scene& scene,
-                     Entity ent) {
-    if (scene.has<PrefabChildComponent>(ent)) {
-        return true;
-    }
-
-    if (scene.has<PrefabInstanceComponent>(ent)) {
-        return SerializePrefabEntity(s, scene, ent);
-    }
-
-    return SerializeNormalEntity(s, scene, ent);
-}
-
-}  // namespace
-
 auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     auto res = meta.saveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
 
-    // @TODO: maybe pass ISerializer next
     YamlSerializer yaml;
-
-    auto entity_array = getSortedEntityArray();
-
-    yaml.beginMap(false)
-        .beginKey("version")
-        .write(LATEST_SCENE_VERSION)
-        .beginKey("seed")
-        .write(entity_array.back())
-        .beginKey("root")
-        .write(root_)
-        .beginKey("entities");
-
-    yaml.beginArray(false);
-
-    for (auto ent : entity_array) {
-        SerializeEntity(yaml, *this, ent);
-    }
-
-    yaml.endArray();
-
-    yaml.endMap();
+    SerializeScene(yaml, *this, AssetRegistry::singletonPtr(), true);
     return SaveYaml(meta.import_path, yaml);
 }
 
@@ -545,118 +448,8 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
 
     YamlDeserializer yaml;
     yaml.Initialize(root);
-
-    IDeserializer& d = yaml;
-
-    const int version = d.version();
-    DEV_ASSERT(version);
-
-    if (d.tryEnterKey("seed")) {
-        d.read(entity_seed_);
-        d.leaveKey();
-    }
-    if (d.tryEnterKey("root")) {
-        d.read(root_);
-        d.leaveKey();
-    }
-
-    const bool ok = d.tryEnterKey("entities");
-    DEV_ASSERT(ok);
-
-    struct OverrideComponents {
-        Option<TransformComponent> TransformComponent;
-        Option<FacingComponent> FacingComponent;
-        Option<NativeScriptComponent> NativeScriptComponent;
-
-        bool is_some() const {
-            return TransformComponent.is_some() ||
-                   FacingComponent.is_some() ||
-                   NativeScriptComponent.is_some();
-        }
-    };
-
-    std::unordered_map<Entity, OverrideComponents> overrides_map;
-
-    const int entity_count = d.arraySize().unwrap_or(0);
-    for (int i = 0; i < entity_count; ++i) {
-        DEV_ASSERT(d.tryEnterIndex(i));
-        auto keys = d.getKeys().unwrap();
-        ecs::Entity ent;
-        DEV_ASSERT(d.tryEnterKey("id"));
-        d.read((uint32_t&)ent);
-        d.leaveKey();
-
-        // @TODO: use component registry instead of this
-#define REGISTER_COMPONENT(a, ...)                  \
-    do {                                            \
-        DeserializeComponent<a>(d, #a, ent, *this); \
-    } while (0);
-        REGISTER_COMPONENT_SERIALIZED_LIST
-#undef REGISTER_COMPONENT
-
-        // parse overrides
-        OverrideComponents overrides;
-        if (d.tryEnterKey("PrefabOverride")) {
-#define PREFAB_OVERRIDE(T) overrides.T = DeserializeComponent<T>(d, #T);
-            PREFAB_OVERRIDE_LIST
-#undef PREFAB_OVERRIDE
-
-            d.leaveKey();
-            if (overrides.is_some()) {
-                overrides_map[ent] = overrides;
-            }
-        }
-
-        d.leaveIndex();
-    }
-
-    d.leaveKey();
-
-    for (auto&& [ent, prefab] : view<PrefabInstanceComponent>()) {
-        instantiatePrefab(prefab, ent);
-    }
-
-    for (auto&& [ent, overrides] : overrides_map) {
-        const auto& prefab = *component<PrefabInstanceComponent>(ent);
-        Entity child_ent = prefab.instance();
-#define PREFAB_OVERRIDE(T)                                         \
-    if (overrides.T.is_some()) {                                   \
-        *component<T>(child_ent) = overrides.T.unwrap_unchecked(); \
-    }
-        PREFAB_OVERRIDE_LIST
-#undef PREFAB_OVERRIDE
-    }
-
+    DeserializeScene(yaml, *this);
     return Result<void>();
-}
-
-void Scene::onSimBegin(SceneContext& ctx) {
-    systems_ = std::make_unique<SystemManager>();
-
-    if (count<NativeScriptComponent>()) {
-        systems_->add<NativeScriptSystem>();
-    }
-    if (count<LuaScriptComponent>()) {
-        systems_->add<LuaScriptSystem>();
-    }
-    if (count<TileMapInstanceComponent>()) {
-        systems_->add<TileWorldSystem>();
-    }
-    if (count<MotorComponent>()) {
-        systems_->add<MotorSystem>();
-    }
-
-    systems_->onSceneCreate(ctx);
-}
-
-void Scene::onSimEnd(SceneContext& ctx) {
-    systems_->onSceneDestroy(ctx);
-
-    systems_.reset();
-}
-
-void Scene::simulate(SceneTickContext& ctx) {
-    systems_->update(ctx);
 }
 
 }  // namespace cave

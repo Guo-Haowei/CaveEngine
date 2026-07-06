@@ -16,37 +16,32 @@ class IAssetManager;
 class IDebugDrawService;
 class IGameInput;
 class InputService;
-class IntentDispatcher;
+class IntentBus;
 class IUIRuntime;
 class NativeScriptRegistry;
 class ProjectManager;
 class SceneRegistry;
 class SceneScheduler;
-class SceneQueryService;
 class TaskManager;
 class VFS;
 class ViewManager;
 
-struct EngineServices {
+class GameModuleHandle;
+
+struct RuntimeServices {
     AssetRegistry* asset_registry_{};
     DisplayService* display_service_{};
     IAssetManager* asset_manager_{};
     IDebugDrawService* debug_draw_{};
     IGameInput* game_input_{};
     InputService* input_service_{};
-    IntentDispatcher* intent_dispatcher_{};
     IUIRuntime* ui_{};
     NativeScriptRegistry* native_scripts_{};
     ProjectManager* project_manager_{};
-    SceneQueryService* scene_query_{};
     SceneRegistry* scene_registry_{};
     SceneScheduler* scene_scheduler_{};
     TaskManager* task_manager_{};
     ViewManager* view_manager_{};
-    VFS* vfs_{};
-
-    render::IRenderDevice* render_device_{};
-    render::Renderer* renderer_{};
 
     AssetRegistry& assetRegistry() { return *asset_registry_; }
     DisplayService& displayService() { return *display_service_; }
@@ -54,16 +49,26 @@ struct EngineServices {
     IDebugDrawService& debugDraw() { return *debug_draw_; }
     IGameInput& gameInput() { return *game_input_; }
     InputService& inputService() { return *input_service_; }
-    IntentDispatcher& intentDispatcher() { return *intent_dispatcher_; }
     NativeScriptRegistry& nativeScripts() { return *native_scripts_; }
     ProjectManager& projectManager() { return *project_manager_; }
-    SceneQueryService& sceneQuery() { return *scene_query_; }
     SceneRegistry& sceneRegistry() { return *scene_registry_; }
     SceneScheduler& sceneScheduler() { return *scene_scheduler_; }
     TaskManager& taskManager() { return *task_manager_; }
     IUIRuntime& ui() { return *ui_; }
-    VFS& vfs() { return *vfs_; }
     ViewManager& viewManager() { return *view_manager_; }
+};
+
+struct EngineServices : public RuntimeServices {
+    IntentBus* intent_bus_{};
+    VFS* vfs_{};
+    GameModuleHandle* game_module_{};
+
+    render::IRenderDevice* render_device_{};
+    render::Renderer* renderer_{};
+
+    IntentBus& intentBus() { return *intent_bus_; }
+    VFS& vfs() { return *vfs_; }
+    GameModuleHandle& gameModule() { return *game_module_; }
 
     render::Renderer& renderer() { return *renderer_; };
     render::IRenderDevice& renderDevice() { return *render_device_; };

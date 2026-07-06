@@ -2,7 +2,7 @@
 #include <deque>
 
 #include "cave/runtime/intent/IIntentHandler.h"
-#include "cave/runtime/intent/IntentDispatcher.h"
+#include "cave/runtime/intent/IntentBus.h"
 
 #include "chess/agents/IPlayerAgent.h"
 #include "chess/core/Position.h"
@@ -13,16 +13,16 @@ class ChessMatchAuthority : public cave::IIntentHandler {
     using Color = core::Color;
 
 public:
-    ChessMatchAuthority(cave::IHostServices& host);
+    ChessMatchAuthority(cave::IntentBus& intent_bus);
     ~ChessMatchAuthority();
 
-    bool gameOver() const { return game_over_; }
+    bool gameOver() const { return m_game_over; }
 
     bool handleIntent(cave::Intent& intent) override;
 
-    cave::DebugId debugId() const override { return debug_id_; }
+    cave::DebugId debugId() const override { return m_debug_id; }
 
-    Color sideToMove() const { return pos_.SideToMove(); }
+    Color sideToMove() const { return m_pos.sideToMove(); }
 
 private:
     bool tryCommitMove(Color side, core::Move move);
@@ -30,12 +30,11 @@ private:
     void offerDraw(Color side);
     void resign(Color side);
 
-    core::Position pos_;
+    cave::IntentBus& m_intent_bus;
+    const cave::DebugId m_debug_id;
 
-    bool game_over_{ false };
-
-    cave::IntentDispatcher& intent_dispatcher;
-    const cave::DebugId debug_id_;
+    core::Position m_pos;
+    bool m_game_over{ false };
 };
 
 }  // namespace chess

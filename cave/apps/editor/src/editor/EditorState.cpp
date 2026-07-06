@@ -23,6 +23,7 @@
 #include "editor/services/ThumbnailService.h"
 #include "editor/services/Workspace.h"
 
+#include "editor/play/PIESession.h"
 #include "editor/EditorAssetManager.h"
 
 // @TODO: refactor
@@ -38,7 +39,7 @@
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/ui/layout.h"
 
-// #include "editor/edit/EditObjectCmd.h"
+#include "cave/game/GameModuleHandle.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {
@@ -47,58 +48,56 @@ using ecs::Entity;
 
 EditorState::EditorState(IApplication& app)
     : AppState(app)
-    , pie_(app.services())
-    , debug_id_(MakeDebugId(this)) {
+    , m_pie(std::make_unique<PIESession>(app.services()))
+    , m_debug_id(MakeDebugId(this)) {
 
     EngineServices& app_services = app.services();
 
     // services
-    document_ = std::make_unique<DocumentService>(app_services, services_);
-    services_.document_ = document_.get();
+    m_document = std::make_unique<DocumentService>(app_services, m_editor_services);
+    m_editor_services.document_ = m_document.get();
 
-    edit_ = std::make_unique<EditService>(app_services, services_);
-    services_.edit_ = edit_.get();
+    m_edit = std::make_unique<EditService>(app_services, m_editor_services);
+    m_editor_services.edit_ = m_edit.get();
 
-    picking_ = std::make_unique<PickingService>(app_services, services_);
-    services_.picking_ = picking_.get();
+    m_picking = std::make_unique<PickingService>(app_services, m_editor_services);
+    m_editor_services.picking_ = m_picking.get();
 
-    thumbnail_ = std::make_unique<ThumbnailService>(app_services);
-    services_.thumbnail_ = thumbnail_.get();
+    m_thumbnail = std::make_unique<ThumbnailService>(app_services);
+    m_editor_services.thumbnail_ = m_thumbnail.get();
 
-    icon_cache_ = std::make_unique<IconCache>(app_services.assetRegistry(), app_services.assetManager());
-    services_.icon_cache_ = icon_cache_.get();
+    m_icon_cache = std::make_unique<IconCache>(app_services.assetRegistry(), app_services.assetManager());
+    m_editor_services.icon_cache_ = m_icon_cache.get();
 
-    selection_ = std::make_unique<SelectionService>(*this);
-    services_.selection_ = selection_.get();
+    m_selection = std::make_unique<SelectionService>(*this);
+    m_editor_services.selection_ = m_selection.get();
 
-    shortcut_ = std::make_unique<ShortcutService>(*this);
-    services_.shortcut_ = shortcut_.get();
+    m_shortcut = std::make_unique<ShortcutService>(*this);
+    m_editor_services.shortcut_ = m_shortcut.get();
 
-    workspace_ = std::make_unique<Workspace>(*this);
-    services_.workspace_ = workspace_.get();
+    m_workspace = std::make_unique<Workspace>(*this);
+    m_editor_services.workspace_ = m_workspace.get();
 
     // panels
-    content_browser_ = std::make_shared<ContentBrowser>(*this);
-    menu_bar_ = std::make_shared<MenuBar>(*this);
-    log_panel_ = std::make_shared<LogPanel>(*this);
-    file_system_panel_ = std::make_shared<FileSystemPanel>(*this);
-    asset_inspector_ = std::make_shared<AssetInspector>(*this);
+    m_content_browser = std::make_shared<ContentBrowser>(*this);
+    m_menu_bar = std::make_shared<MenuBar>(*this);
+    m_log_panel = std::make_shared<LogPanel>(*this);
+    m_file_system_panel = std::make_shared<FileSystemPanel>(*this);
+    m_asset_inspector = std::make_shared<AssetInspector>(*this);
 
-    addPanel(log_panel_);
-    addPanel(asset_inspector_);
+    addPanel(m_log_panel);
+    addPanel(m_asset_inspector);
     addPanel(std::make_shared<RendererPanel>(*this));
     addPanel(std::make_shared<HierarchyPanel>(*this));
     addPanel(std::make_shared<PropertyPanel>(*this));
-    addPanel(content_browser_);
-    addPanel(file_system_panel_);
+    addPanel(m_content_browser);
+    addPanel(m_file_system_panel);
 
-    static_cast<EditorAssetManager&>(app_services.assetManager()).setEditorServices(&services_);
-
-    workspace_->restoreProjectWorkspace();
+    static_cast<EditorAssetManager&>(app_services.assetManager()).setEditorServices(&m_editor_services);
 }
 
 EditorState::~EditorState() {
-    panels_.clear();
+    m_panels.clear();
 }
 
 void EditorState::onEnter(const StateRequest& request) {
@@ -106,29 +105,15 @@ void EditorState::onEnter(const StateRequest& request) {
 
     ImNodes::CreateContext();
 
-    for (auto& panel : panels_) {
+    for (auto& panel : m_panels) {
         panel->onAttach();
     }
 
-    // @TODO: get rid of this part
-    SceneId edit_scene{};
-    if (!request.arg1.empty()) {
-        if (auto handle = app_.services().assetRegistry().findByPath(request.arg1); handle.is_some()) {
-            AssetHandle handle_ = handle.unwrap_unchecked();
-            DocId doc_id = document_->openDoc({ handle_.guid(), handle_.meta()->type });
-            if (IDocument* doc = document_->resolve(doc_id)) {
-                edit_scene = doc->previewScene();
-            }
-        }
-    }
-
     // load pie
-    PIEStartDesc desc{};
-    desc.game_id = request.arg0;
-    desc.game_dll = std::format("{}.dll", desc.game_id);
-    desc.edit_scene = edit_scene;
+    auto game_dll = std::format("{}.dll", request.arg0);
+    ensureGameModuleLoaded(game_dll.c_str());
 
-    pie_.start(std::move(desc));
+    m_workspace->restoreProjectWorkspace();
 }
 
 void EditorState::onExit() {
@@ -140,35 +125,33 @@ void EditorState::onExit() {
 
     ImNodes::DestroyContext();
 
-    for (auto& panel : panels_) {
+    for (auto& panel : m_panels) {
         panel->onDetach();
     }
-
-    pie_.stop();
 }
 
 void EditorState::tick(const FrameTime& p_time) {
     CAVE_PROFILE_EVENT();
 
     BusyInfo info;
-    thumbnail_->tick(p_time, info);
+    m_thumbnail->tick(p_time, info);
 
     if (isPlaying()) {
-        pie_.tick(p_time);
+        m_pie->tick(p_time);
     }
 
-    ImguiManager* imgui_manager = app_.imguiManager();
+    ImguiManager* imgui_manager = m_app.imguiManager();
     DEV_ASSERT(imgui_manager);
 
     // @TODO: refactor this
     imgui_manager->BeginFrame();
 
     dockSpace();
-    for (auto& panel : panels_) {
+    for (auto& panel : m_panels) {
         panel->drawUI();
     }
 
-    workspace_->tick();
+    m_workspace->tick();
 
     ImGui::Render();
 
@@ -176,24 +159,24 @@ void EditorState::tick(const FrameTime& p_time) {
 }
 
 void EditorState::requestModeSwitch() {
-    switch_mode_requested_ = true;
+    m_switch_mode_requested = true;
 }
 
 void EditorState::commitModeSwitch() {
-    if (!switch_mode_requested_) {
+    if (!m_switch_mode_requested) {
         return;
     }
 
-    const EditorState::Mode old_mode = mode_;
-    mode_ = flipMode(mode_);
+    const EditorState::Mode old_mode = m_mode;
+    m_mode = flipMode(m_mode);
 
     switch (old_mode) {
         case EditorState::Mode::Editing: {
-            PreviewScene preview = workspace_->focusedPreviewScene();
-            pie_.beginPIESession(preview.scene_id, preview.view_id);
+            PreviewScene preview = m_workspace->focusedPreviewScene();
+            m_pie->beginPIESession(preview.guid, preview.view_id);
         } break;
         case EditorState::Mode::Playing: {
-            pie_.endPIESession();
+            m_pie->endPIESession();
         } break;
     }
 
@@ -201,14 +184,14 @@ void EditorState::commitModeSwitch() {
     constexpr const char* names[2] = { "Editing", "PIE" };
     LOG_INFO(LogChannel::Editor, "State {} -> {}",
              names[std::to_underlying(old_mode)],
-             names[std::to_underlying(mode_)]);
+             names[std::to_underlying(m_mode)]);
 #endif
 
-    switch_mode_requested_ = false;
+    m_switch_mode_requested = false;
 }
 
 void EditorState::addPanel(std::shared_ptr<IEditorItem> p_panel) {
-    panels_.emplace_back(std::move(p_panel));
+    m_panels.emplace_back(std::move(p_panel));
 }
 
 void EditorState::dockSpace() {
@@ -216,7 +199,7 @@ void EditorState::dockSpace() {
 
     ui::DockSpace({
         "DockSpace Demo",
-        [this]() { menu_bar_->drawUI(); },
+        [this]() { m_menu_bar->drawUI(); },
         [this]() {
             CompositeLogger& logger = OS::singleton().logger();
             const uint32_t error_count = static_cast<uint32_t>(logger.errorLogs().size());
@@ -236,6 +219,16 @@ void EditorState::dockSpace() {
     });
 
     return;
+}
+
+// @TODO: refactor
+bool EditorState::ensureGameModuleLoaded(const char* path) {
+    auto& game_module = m_app.services().gameModule();
+    if (!game_module.loadFromDll(path, m_app.services().nativeScripts())) {
+        return false;
+    }
+
+    return game_module.get() != nullptr;
 }
 
 }  // namespace cave

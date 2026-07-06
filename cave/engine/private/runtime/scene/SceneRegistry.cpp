@@ -12,9 +12,9 @@
         DEV_ASSERT(::cave::thread::IsMainThread()); \
     } while (0)
 
-#define DEBUG_SCENE_REG NOT_IN_USE
+#define DEBUG_SCENE_REG IN_USE
 #if USING(DEBUG_SCENE_REG)
-#define DEBUG_PRINT(...) LOG_VERBOSE(__VA_ARGS__)
+#define DEBUG_PRINT(...) LOG_INFO(cave::LogChannel::Scene, __VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
@@ -28,19 +28,38 @@ class Scene;
 struct CommandArgs;
 struct CommandContext;
 
+namespace {
+
+std::string_view ToString(SceneSource source) {
+    switch (source) {
+        case SceneSource::Asset:
+            return "Asset";
+        case SceneSource::Editor:
+            return "Editor";
+        case SceneSource::Runtime:
+            return "Runtime";
+        case SceneSource::Thumbnail:
+            return "Thumbnail";
+    }
+
+    return "???";
+}
+
+}  // namespace
+
 class SceneRegistry::Impl : protected GenIdRegistry<Scene> {
     using Base = GenIdRegistry<Scene>;
 
 public:
-    SceneId createScene(std::string name);
+    SceneId createScene(SceneDesc&& desc);
 
-    SceneId registerScene(std::unique_ptr<Scene>&& scene);
+    SceneId registerScene(SceneDesc&& desc, std::unique_ptr<Scene>&& scene);
     bool replaceScene(SceneId id, std::unique_ptr<Scene>&& scene);
 
-    SceneId cloneScene(SceneId scene_id);
-    SceneId cloneScene(const Scene& scene);
+    SceneId cloneScene(SceneDesc&& desc, SceneId scene_id);
+    SceneId cloneScene(SceneDesc&& desc, const Scene& scene);
 
-    void destroyScene(SceneId scene_id);
+    void destroyScene(SceneId id);
 
     Scene* resolve(SceneId scene_id) {
         return Base::resolve(scene_id);
@@ -60,105 +79,103 @@ public:
 };
 
 SceneRegistry::SceneRegistry()
-    : impl_(std::make_unique<Impl>()) {
+    : m_impl(std::make_unique<Impl>()) {
 }
 
 SceneRegistry::~SceneRegistry() = default;
 
-SceneId SceneRegistry::createScene(std::string name) {
-    return impl_->createScene(std::move(name));
+SceneId SceneRegistry::createScene(SceneDesc desc) {
+    return m_impl->createScene(std::move(desc));
 }
 
-SceneId SceneRegistry::registerScene(std::unique_ptr<Scene>&& scene) {
-    return impl_->registerScene(std::move(scene));
+SceneId SceneRegistry::registerScene(SceneDesc desc, std::unique_ptr<Scene>&& scene) {
+    return m_impl->registerScene(std::move(desc), std::move(scene));
 }
 
 bool SceneRegistry::replaceScene(SceneId id, std::unique_ptr<Scene>&& scene) {
-    return impl_->replaceScene(id, std::move(scene));
+    return m_impl->replaceScene(id, std::move(scene));
 }
 
-SceneId SceneRegistry::cloneScene(SceneId scene_id) {
-    return impl_->cloneScene(scene_id);
+SceneId SceneRegistry::cloneScene(SceneDesc desc, SceneId scene_id) {
+    return m_impl->cloneScene(std::move(desc), scene_id);
 }
 
-SceneId SceneRegistry::cloneScene(const Scene& scene) {
-    return impl_->cloneScene(scene);
+SceneId SceneRegistry::cloneScene(SceneDesc desc, const Scene& scene) {
+    return m_impl->cloneScene(std::move(desc), scene);
 }
 
 void SceneRegistry::destroyScene(SceneId scene_id) {
-    impl_->destroyScene(scene_id);
+    m_impl->destroyScene(scene_id);
 }
 
 Scene* SceneRegistry::resolve(SceneId scene_id) {
-    return impl_->resolve(scene_id);
+    return m_impl->resolve(scene_id);
 }
 
 const Scene* SceneRegistry::resolve(SceneId scene_id) const {
-    return impl_->resolve(scene_id);
+    return m_impl->resolve(scene_id);
 }
 
 bool SceneRegistry::isAlive(SceneId scene_id) const {
-    return impl_->isAlive(scene_id);
+    return m_impl->isAlive(scene_id);
 }
 
-SceneId SceneRegistry::Impl::createScene(std::string name) {
+SceneId SceneRegistry::Impl::createScene(SceneDesc&& desc) {
     ASSERT_GAME_THREAD();
-    return registerScene(std::make_unique<Scene>(std::move(name)));
+
+    return registerScene(std::move(desc), std::make_unique<Scene>());
 }
 
-SceneId SceneRegistry::Impl::registerScene(std::unique_ptr<Scene>&& scene) {
-    // @TODO: post update
+SceneId SceneRegistry::Impl::registerScene(SceneDesc&& desc, std::unique_ptr<Scene>&& scene) {
     SceneId id = Base::create(std::move(scene));
+    m_slots[id.index].debug_name = std::move(desc.debug_name);
 
-    DEBUG_PRINT("SceneRegistry::Register: registered {} ({},{})", scene->name());
-
+    DEBUG_PRINT("+{} {} source={}", debugName(id), id.toString(), ToString(desc.source));
     return id;
 }
 
 bool SceneRegistry::Impl::replaceScene(SceneId id, std::unique_ptr<Scene>&& scene) {
-    // @TODO: post update
-    DEBUG_PRINT("SceneRegistry::Register: registered {} ({},{})", scene->name());
+    DEBUG_PRINT("~{} {}", debugName(id), id.toString());
 
     return Base::replace(id, std::move(scene));
 }
 
-SceneId SceneRegistry::Impl::cloneScene(const Scene& scene) {
-    auto copy = std::make_unique<Scene>(std::string(scene.name()));
+SceneId SceneRegistry::Impl::cloneScene(SceneDesc&& desc, const Scene& scene) {
+    auto copy = std::make_unique<Scene>();
     copy->copy(scene);
-    return registerScene(std::move(copy));
+
+    SceneId id = registerScene(std::move(desc), std::move(copy));
+    return id;
 }
 
-SceneId SceneRegistry::Impl::cloneScene(SceneId scene_id) {
+SceneId SceneRegistry::Impl::cloneScene(SceneDesc&& desc, SceneId scene_id) {
     const Scene* scene = Base::resolve(scene_id);
     if (!scene) return {};
-    return cloneScene(*scene);
+    return cloneScene(std::move(desc), *scene);
 }
 
-void SceneRegistry::Impl::destroyScene(SceneId scene_id) {
-    // @TODO: clean up scene
-    DEBUG_PRINT("SceneRegistry::Destroy: destroy {} ({},{})",
-                m_descs[scene_id.index].debug_name,
-                p_id.index, p_id.gen);
-    Base::destroy(scene_id);
+void SceneRegistry::Impl::destroyScene(SceneId id) {
+    DEBUG_PRINT("-{} {}", debugName(id), id.toString());
+    Base::destroy(id);
 }
 
 #if USING(USE_COMMAND)
 bool SceneRegistry::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
-    return impl_->Cmd_dump(ctx, args);
+    return m_impl->Cmd_dump(ctx, args);
 }
 
 bool SceneRegistry::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs&) {
     std::string msg;
     msg.reserve(512);
     msg.append("Scene Registry:\n");
-    for (int i = 0; i < slots_.size(); ++i) {
-        const auto& slot = slots_[i];
+    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
+        const auto& slot = m_slots[idx];
         if (!slot.storage) continue;
 
-        msg.append(std::format(" -- name: {}, id: {},{}\n",
-                               slot.storage->name(),
-                               i,
-                               slot.gen));
+        SceneId id = { idx, slot.gen };
+        msg.append(std::format(" -- name: {}, {}\n",
+                               debugName(id),
+                               id.toString()));
     }
 
     ctx.log.Info(LogChannel::Console, std::move(msg));

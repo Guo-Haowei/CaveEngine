@@ -9,18 +9,18 @@ namespace cave {
 class BaseDocIntent : public Intent {
 public:
     BaseDocIntent(DocId doc_id)
-        : doc_id_(doc_id) {}
+        : m_doc_id(doc_id) {}
 
-    DocId doc_id() const { return doc_id_; }
+    DocId doc_id() const { return m_doc_id; }
 
 #if USING(DEBUG_BUILD)
-    std::string DebugString() const override {
-        return std::format("id=({},{})", doc_id_.index, doc_id_.gen);
+    std::string debugString() const override {
+        return m_doc_id.toString();
     }
 #endif
 
 protected:
-    DocId doc_id_;
+    DocId m_doc_id;
 };
 
 class OpenDocIntent : public BaseDocIntent {
@@ -80,7 +80,7 @@ public:
     math::Vec2f pointer() const { return pointer_; }
 
 #if USING(DEBUG_BUILD)
-    std::string DebugString() const override {
+    std::string debugString() const override {
         return std::format("p=({},{})", pointer_.x, pointer_.y);
     }
 #endif

@@ -81,13 +81,13 @@ int CreateInstance(const ObjectFunctions& meta, lua_State* L, Args&&... args) {
 }  // namespace
 
 LuaScriptSystem::LuaScriptSystem()
-    : debug_id_(MakeDebugId(this)) {
+    : m_debug_id(MakeDebugId(this)) {
 }
 
-void LuaScriptSystem::onAttach(SceneContext& ctx) {
+void LuaScriptSystem::start(SceneContext& ctx) {
     Scene& scene = ctx.scene;
 
-    state_ = nullptr;
+    m_state = nullptr;
 
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -123,16 +123,16 @@ void LuaScriptSystem::onAttach(SceneContext& ctx) {
         }
     }
 
-    state_ = L;
+    m_state = L;
     return;
 }
 
-void LuaScriptSystem::onDetach(SceneContext&) {
-    meta_lookup_.clear();
+void LuaScriptSystem::clear() {
+    m_meta_lookup.clear();
 
-    if (state_) {
-        lua_close(state_);
-        state_ = nullptr;
+    if (m_state) {
+        lua_close(m_state);
+        m_state = nullptr;
     }
 }
 
@@ -140,7 +140,7 @@ void LuaScriptSystem::update(SceneTickContext& ctx) {
     CAVE_PROFILE_EVENT();
 
     Scene& scene = ctx.scene_ctx.scene;
-    lua_State* L = state_;
+    lua_State* L = m_state;
 
     if (DEV_VERIFY(L)) {
         const lua_Number timestep = ctx.dt;
@@ -162,7 +162,7 @@ Result<void> LuaScriptSystem::loadMetaTable(SceneContext& ctx,
                                             const Guid& guid,
                                             const char* class_name,
                                             ObjectFunctions& meta) {
-    auto& asset_reg = ctx.engine_services.assetRegistry();
+    auto& asset_reg = ctx.services.assetRegistry();
     auto _handle = asset_reg.findByGuid<BlobAsset>(guid);
     if (_handle.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "asset '{}' not found", guid.toString());
@@ -198,8 +198,8 @@ ObjectFunctions LuaScriptSystem::findOrAdd(SceneContext& ctx,
                                            lua_State* L,
                                            const Guid& guid,
                                            const char* class_name) {
-    auto it = meta_lookup_.find(guid);
-    if (it != meta_lookup_.end()) {
+    auto it = m_meta_lookup.find(guid);
+    if (it != m_meta_lookup.end()) {
         return it->second;
     }
 
@@ -207,7 +207,7 @@ ObjectFunctions LuaScriptSystem::findOrAdd(SceneContext& ctx,
     if (auto res = loadMetaTable(ctx, L, guid, class_name, meta); !res) {
         LOG_ERROR("{}", ToString(res.error()));
     } else {
-        meta_lookup_[guid] = meta;
+        m_meta_lookup[guid] = meta;
     }
 
     return meta;

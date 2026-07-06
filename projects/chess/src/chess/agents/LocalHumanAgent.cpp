@@ -2,7 +2,7 @@
 
 namespace chess {
 
-void LocalHumanAgent::tick(cave::IHostServices&) {
+void LocalHumanAgent::tick(cave::IntentBus&) {
     // @TODO: move grid here?
 }
 

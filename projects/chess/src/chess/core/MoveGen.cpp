@@ -438,7 +438,7 @@ static void KingMoves(Color p_color,
 MoveList MoveGen::PseudoMove(const Position& p_pos) {
     MoveList moves;
 
-    const Color color = p_pos.SideToMove();
+    const Color color = p_pos.sideToMove();
     const Square king_sq = p_pos.GetKing(color);
 
     // generate king moves first
@@ -500,7 +500,7 @@ void MoveGen::PseudoFromSquare(const Position& p_pos,
                                PieceType p_checker_type) {
     constexpr MoveMaskType MV_TYPE = MoveMaskType::Move;
 
-    const Color color = p_pos.SideToMove();
+    const Color color = p_pos.sideToMove();
     const Bitboard friendly = p_pos.m_state.occupancies[color];
     const Bitboard enemy = p_pos.m_state.occupancies[FlipColor(color)];
     const PieceType piece_type = GetType(p_piece);

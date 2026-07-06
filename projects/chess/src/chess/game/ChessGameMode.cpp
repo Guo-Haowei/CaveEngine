@@ -6,60 +6,62 @@
 #include "cave/core/diagnostics/ILogSink.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/typedefs.h"
-#include "cave/game/IHostServices.h"
+#include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/scene/SceneContext.h"
 
 #include "chess/game/ChessGameSession.h"
 #include "chess/game/ChessIntent.h"
-#include "chess/states/MainMenuState.h"
+#include "chess/states/GameplayState.h"
 
 namespace chess {
 
 using namespace cave;
 
-ChessGameMode::ChessGameMode(IHostServices& p_host)
-    : host_(p_host)
-    , intent_(p_host.intentDispatcher())
-    , debug_id_(MakeDebugId(this)) {
-    intent_.addHandler<ChessStateIntent>(this);
+ChessGameMode::ChessGameMode(IntentBus& intent_bus)
+    : m_intent_bus(intent_bus)
+    , m_debug_id(MakeDebugId(this)) {
+    m_intent_bus.addHandler<ChessStateIntent>(this);
 }
 
 ChessGameMode::~ChessGameMode() {
-    intent_.removeHandler<ChessStateIntent>(this);
+    m_intent_bus.removeHandler<ChessStateIntent>(this);
 }
 
-void ChessGameMode::onEnter(IHostServices& p_host) {
-    state_ = std::make_unique<MainMenuState>();
-    state_->OnEnter(p_host);
+void ChessGameMode::onEnter(SceneContext& ctx) {
+    m_state = std::make_unique<GameplayState>(m_intent_bus);
+    m_state->onEnter(ctx);
 }
 
-void ChessGameMode::onExit(IHostServices& p_host) {
-    unused(p_host);
+void ChessGameMode::onExit() {
 }
 
-void ChessGameMode::tick(IHostServices& p_host, const FrameTime& p_time) {
-    if (DEV_VERIFY(state_)) {
-        state_->Tick(p_host, p_time);
+void ChessGameMode::tick(SceneContext& ctx, float dt) {
+    if (DEV_VERIFY(m_state)) {
+        m_state->tick(ctx, dt);
     }
 }
 
-bool ChessGameMode::handleIntent(cave::Intent& p_intent) {
+bool ChessGameMode::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<ChessStateIntent*>(&p_intent)) {
-        commitStateChange(std::move(intent->state_));
+        // commitStateChange(std::move(intent->m_state));
         return true;
     }
 
     return false;
 }
 
-void ChessGameMode::commitStateChange(std::unique_ptr<IChessGameState>&& new_state) {
+void ChessGameMode::commitStateChange(SceneContext& ctx,
+                                      std::unique_ptr<IChessGameState>&& new_state) {
     DEV_ASSERT(new_state != nullptr);
+    unused(ctx);
+    unused(new_state);
 
-    if (state_) {
-        state_->OnExit(host_);
-    }
+    // if (m_state) {
+    //     m_state->OnExit(ctx);
+    // }
 
-    state_ = std::move(new_state);
-    state_->OnEnter(host_);
+    // m_state = std::move(new_state);
+    // m_state->OnEnter(ctx);
 }
 
 }  // namespace chess

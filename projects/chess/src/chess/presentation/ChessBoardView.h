@@ -1,13 +1,10 @@
 #pragma once
 #include <array>
+
 #include "cave/runtime/ecs/Entity.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 #include "chess/core/Position.h"
-
-// clang-format off
-namespace cave { class IHostServices; }
-namespace cave { class SceneCommandWriter; }
-// clang-format on
 
 namespace chess {
 
@@ -15,30 +12,30 @@ class ChessBoardView {
     using Entity = ::cave::ecs::Entity;
 
 public:
-    ChessBoardView(cave::IHostServices& host) noexcept;
+    ChessBoardView(cave::SceneQuery& query)
+        : m_query(query) {}
 
     void initialize();
 
     void drawBoard();
 
     void setHighlight(core::Bitboard bitboard) {
-        highlights_ = bitboard;
+        m_highlights = bitboard;
     }
 
     void setHovered(core::Square square) {
-        hovered_square_ = square;
+        m_hovered_square = square;
     }
 
 private:
-    cave::IHostServices& host_;
-    cave::SceneCommandWriter& writer_;
+    cave::SceneQuery& m_query;
 
-    core::Square hovered_square_{ 0 };
+    core::Square m_hovered_square{ 0 };
 
-    Entity selector_;
+    Entity m_selector;
 
-    core::Bitboard highlights_{};
-    std::array<Entity, 64> tiles_;
+    core::Bitboard m_highlights{};
+    std::array<Entity, 64> m_tiles;
 };
 
 }  // namespace chess

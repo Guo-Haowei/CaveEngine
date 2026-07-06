@@ -1,8 +1,9 @@
 #include "ChessBoardView.h"
 
-#include "cave/game/IHostServices.h"
-#include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "chess/presentation/ChessUtils.h"
 
@@ -11,41 +12,34 @@ namespace chess {
 using namespace ::cave;
 using namespace ::chess::core;
 
-ChessBoardView::ChessBoardView(IHostServices& host) noexcept
-    : host_(host)
-    , writer_(host.sceneWriter()) {
-}
-
 void ChessBoardView::initialize() {
-    auto& query = host_.sceneQuery();
-    selector_ = query.findFirstByName("grid_selector");
+    m_selector = m_query.findFirstByName("grid_selector");
 
-    // tiles
     for (uint8_t i = 0; i < 64; ++i) {
         const char* name = Square(i).uci();
-        tiles_[i] = query.findFirstByName(name);
+        m_tiles[i] = m_query.findFirstByName(name);
     }
 }
 
 void ChessBoardView::drawBoard() {
     for (uint8_t i = 0; i < 64; ++i) {
         const Square sq(i);
-        bool visible = highlights_.Test(sq);
-        if (sq == hovered_square_) {
+        bool visible = m_highlights.Test(sq);
+        if (sq == m_hovered_square) {
             visible = false;
         }
-        const ecs::Entity tile = tiles_[i];
-        writer_.setProperty(tile,
-                            cave::MeshRendererComponent_Id,
-                            kVisibility,
-                            visible);
+        const ecs::Entity tile = m_tiles[i];
+
+        auto renderer = m_query.component<MeshRendererComponent>(tile);
+        if (DEV_VERIFY(renderer)) {
+            renderer->SetVisible(visible);
+        }
     }
 
-    Vec3f position = squareToVec(hovered_square_);
-    writer_.setProperty(selector_,
-                        cave::TransformComponent_Id,
-                        kTranslationId,
-                        position);
+    auto transform = m_query.component<TransformComponent>(m_selector);
+    if (DEV_VERIFY(transform)) {
+        transform->setTranslation(squareToVec(m_hovered_square));
+    }
 }
 
 }  // namespace chess

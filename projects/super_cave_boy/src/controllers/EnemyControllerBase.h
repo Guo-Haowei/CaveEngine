@@ -10,8 +10,8 @@ class EnemyControllerBase : public cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 protected:
-    void onCreate(cave::SceneContext& ctx) override;
-    void onDestroy() override;
+    void start(cave::SceneContext& ctx) override;
+    void destroy() override;
 
     void onBodyOverlapping(cave::SceneContext& ctx, Entity player) override;
 

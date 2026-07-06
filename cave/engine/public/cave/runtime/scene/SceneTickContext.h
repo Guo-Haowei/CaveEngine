@@ -3,19 +3,23 @@
 // =============================================================================
 #pragma once
 #include <cstdint>
+
+#include "cave/core/typedefs.h"
 #include "cave/runtime/scene/SceneContext.h"
 
 namespace cave {
 
-enum class SceneTickMode : uint8_t {
-    Editor,
-    Simulation,
+enum class SceneTickDomain : uint32_t {
+    Editor = 1,
+    Simulate = 2,
 };
 
+DEFINE_ENUM_BITWISE_OPERATIONS(SceneTickDomain)
+
 struct SceneTickContext {
-    SceneTickMode mode;
+    SceneTickDomain domain;
     float dt;
-    SceneContext& scene_ctx;
+    SceneContext scene_ctx;
 };
 
 }  // namespace cave

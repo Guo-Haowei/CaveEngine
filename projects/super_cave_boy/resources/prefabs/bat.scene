@@ -28,6 +28,8 @@ entities:
       linear: [0, 0, 0]
     NativeScriptComponent:
       name: BatController
+      params:
+        {}
     FacingComponent:
       facing: right
   - id: 2

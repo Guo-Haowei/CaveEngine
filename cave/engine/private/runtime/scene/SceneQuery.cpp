@@ -5,6 +5,7 @@
 
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneSerializer.h"
 #include "engine/private/runtime/scene/SystemManager.h"
 
 namespace cave {
@@ -13,37 +14,39 @@ using namespace math;
 using ecs::Entity;
 
 ISceneSystem* SceneQuery::system(SceneSystemId id) {
-    if (scene_.systems() == nullptr) {
+    if (m_scene.systems() == nullptr) {
         return nullptr;
     }
 
-    return scene_.systems()->get(id);
+    return m_scene.systems()->get(id);
 }
 
 Entity SceneQuery::findFirstByName(std::string_view name) const {
-    return scene_.findFirstByName(name);
+    return m_scene.findFirstByName(name);
 }
 
 Entity SceneQuery::findChildByName(std::string_view name, Entity ent) const {
-    return scene_.findChildByName(name, ent);
+    return m_scene.findChildByName(name, ent);
 }
 
 void SceneQuery::queueDestroy(ecs::Entity ent) {
-    scene_.create<PendingDestroyComponent>(ent);
+    m_scene.create<PendingDestroyComponent>(ent);
+}
+
+void* SceneQuery::addComponent(ComponentId cid, ecs::Entity ent) {
+    return m_scene.storage().createRaw(cid, ent);
 }
 
 void* SceneQuery::component(ComponentId cid, Entity ent) {
-    scene_.systems()->get(SceneSystemId::TileWorld);
-
-    return scene_.storage().getRaw(cid, ent);
+    return m_scene.storage().getRaw(cid, ent);
 }
 
 const void* SceneQuery::component(ComponentId cid, Entity ent) const {
-    return scene_.storage().getRaw(cid, ent);
+    return m_scene.storage().getRaw(cid, ent);
 }
 
 size_t SceneQuery::componentCount(ComponentId cid) const {
-    return scene_.count(cid);
+    return m_scene.count(cid);
 }
 
 static bool RaycastHelper(Ray& ray,
@@ -71,9 +74,8 @@ static bool RaycastHelper(Ray& ray,
 }
 
 RayHit SceneQuery::raycast(math::Ray& ray, const RaycastFilter&) const {
-
     RayHit res{};
-    for (auto [entity, mesh, transform] : scene_.view<MeshRendererComponent, TransformComponent>()) {
+    for (auto [entity, mesh, transform] : m_scene.view<MeshRendererComponent, TransformComponent>()) {
         MeshAsset* mesh_asset = mesh.GetMeshHandle().get();
         if (!mesh_asset) continue;
         if (!RaycastHelper(ray, *mesh_asset, transform)) continue;
@@ -83,6 +85,10 @@ RayHit SceneQuery::raycast(math::Ray& ray, const RaycastFilter&) const {
     }
 
     return res;
+}
+
+std::string SceneQuery::debugString() const {
+    return ToString(m_scene);
 }
 
 }  // namespace cave

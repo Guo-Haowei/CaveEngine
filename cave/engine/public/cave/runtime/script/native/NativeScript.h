@@ -9,42 +9,44 @@
 namespace cave {
 
 struct SceneContext;
+class SceneCommandWriter;
 
 class NativeScript {
 public:
     virtual ~NativeScript() = default;
 
-    virtual void onCreate(SceneContext&) {}
-    virtual void onDestroy() {}
+    virtual void alwaysRun(SceneContext&, SceneCommandWriter&) {}
+    virtual void start(SceneContext&) {}
+    virtual void destroy() {}
 
-    virtual void onUpdate(SceneContext&, float) {}
+    virtual void update(SceneContext&, float) {}
 
     virtual void onBodyEntered(SceneContext&, ecs::Entity) {}
     virtual void onBodyOverlapping(SceneContext&, ecs::Entity) {}
     virtual void onBodyExited(SceneContext&, ecs::Entity) {}
 
-    ecs::Entity entity() const { return entity_; }
+    ecs::Entity entity() const { return m_entity; }
 
     const VariantMap& params() const {
-        return params_;
+        return m_params;
     }
 
 private:
     friend class NativeScriptSystem;
 
     void bind(ecs::Entity entity, const VariantMap& params) {
-        entity_ = entity;
-        params_ = params;
+        m_entity = entity;
+        m_params = params;
     }
 
     void unbind() {
-        entity_ = ecs::Entity::Null();
-        params_.clear();
+        m_entity = ecs::Entity::Null();
+        m_params.clear();
     }
 
 private:
-    ecs::Entity entity_{};
-    VariantMap params_{};
+    ecs::Entity m_entity{};
+    VariantMap m_params{};
 };
 
 }  // namespace cave

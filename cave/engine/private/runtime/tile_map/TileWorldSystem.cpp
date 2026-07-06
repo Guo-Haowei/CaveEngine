@@ -37,14 +37,10 @@ inline TileRange GetTileRangeFromAABB(const Box2& aabb, float tile_size) {
 }  // namespace
 
 TileWorldSystem::TileWorldSystem()
-    : debug_id_(MakeDebugId(this)) {}
+    : m_debug_id(MakeDebugId(this)) {}
 
-void TileWorldSystem::onAttach(SceneContext& ctx) {
+void TileWorldSystem::start(SceneContext& ctx) {
     rebuildCollision(ctx);
-}
-
-void TileWorldSystem::onDetach(SceneContext&) {
-    rigid_tiles_.chunks().clear();
 }
 
 TileCoord TileWorldSystem::worldToTile(Vec2f world_pos, float tile_size) {
@@ -87,7 +83,7 @@ std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) co
 }
 
 void TileWorldSystem::rebuildCollision(SceneContext& ctx) {
-    world_bound_.invalidate();
+    m_world_bound.invalidate();
 
     auto view = ctx.scene.view<TileMapInstanceComponent, TransformComponent>();
     for (auto [ent, instance, transform] : view) {
@@ -122,16 +118,16 @@ void TileWorldSystem::rebuildCollision(SceneContext& ctx) {
                     TileCoord coord;
                     coord.x = chunk_coord.x * kTileChunkSize + (int16_t)offset.x + x;
                     coord.y = chunk_coord.y * kTileChunkSize + (int16_t)offset.y + y;
-                    rigid_tiles_.addTile(coord, tile_id);
+                    m_rigid_tiles.addTile(coord, tile_id);
 
-                    world_bound_.expandToInclude(Vec2f{ coord.x, coord.y });
+                    m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
                 }
             }
         }
     }
 
-    if (world_bound_.isValid()) {
-        world_bound_.setMinMax(world_bound_.min(), world_bound_.max() + Vec2f::One);
+    if (m_world_bound.isValid()) {
+        m_world_bound.setMinMax(m_world_bound.min(), m_world_bound.max() + Vec2f::One);
     }
 }
 
