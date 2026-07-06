@@ -36,19 +36,13 @@ class ISceneSystem {
 public:
     virtual ~ISceneSystem() = default;
 
-    void attach(SceneContext& ctx) { onAttach(ctx); }
-    void detach(SceneContext& ctx) { onDetach(ctx); }
+    virtual void start(SceneContext&) = 0;
+    virtual void update(SceneTickContext&) = 0;
 
-    virtual void fixedUpdate(SceneTickContext&) {}
-    virtual void update(SceneTickContext&) {}
-    virtual void lateUpdate(SceneTickContext&) {}
+    virtual SceneTickDomain domain() const = 0;
 
     virtual SceneSystemId systemId() const = 0;
     virtual DebugId debugId() const = 0;
-
-protected:
-    virtual void onAttach(SceneContext&) {}
-    virtual void onDetach(SceneContext&) {}
 };
 
 template<typename T>

@@ -53,44 +53,22 @@ const ISceneSystem* SystemManager::get(SceneSystemId id) const {
     return lookup_[ToIndex(id)];
 }
 
-void SystemManager::onSceneCreate(SceneContext& ctx) {
+void SystemManager::start(SceneContext& ctx) {
     DEV_ASSERT(!scene_created_);
 
     for (auto& system : systems_) {
         LOG_TRACE(LogChannel::Scene, "+{}", system->debugId().type);
-        system->attach(ctx);
+        system->start(ctx);
     }
 
     scene_created_ = true;
 }
 
-void SystemManager::onSceneDestroy(SceneContext& ctx) {
-    if (!scene_created_) {
-        return;
-    }
-
-    for (auto it = systems_.rbegin(); it != systems_.rend(); ++it) {
-        (*it)->detach(ctx);
-    }
-
-    scene_created_ = false;
-}
-
-void SystemManager::fixedUpdate(SceneTickContext& ctx) {
-    for (auto& system : systems_) {
-        system->fixedUpdate(ctx);
-    }
-}
-
 void SystemManager::update(SceneTickContext& ctx) {
     for (auto& system : systems_) {
-        system->update(ctx);
-    }
-}
-
-void SystemManager::lateUpdate(SceneTickContext& ctx) {
-    for (auto& system : systems_) {
-        system->lateUpdate(ctx);
+        if (static_cast<int>(system->domain() & ctx.domain)) {
+            system->update(ctx);
+        }
     }
 }
 

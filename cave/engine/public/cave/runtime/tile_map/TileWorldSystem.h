@@ -20,31 +20,33 @@ class TileWorldSystem final : public ISceneSystem {
 public:
     TileWorldSystem();
 
-    const ChunkedTileData& rigidTiles() const { return rigid_tiles_; }
-
-    DebugId debugId() const override { return debug_id_; }
+    const ChunkedTileData& rigidTiles() const { return m_rigid_tiles; }
 
     bool isSolid(TileCoord coord) const {
-        return rigid_tiles_.tileAt(coord).is_some();
+        return m_rigid_tiles.tileAt(coord).is_some();
     }
 
     std::vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
 
-    const math::Box2 worldBound() const { return world_bound_; }
+    const math::Box2 worldBound() const { return m_world_bound; }
 
     static TileCoord worldToTile(math::Vec2f world_pos, float tile_size = 1.0f);
 
-protected:
-    void onAttach(SceneContext& ctx) override;
-    void onDetach(SceneContext& ctx) override;
-
 private:
+    void update(SceneTickContext&) override {}
+
+    void start(SceneContext& ctx) override;
+
+    DebugId debugId() const override { return m_debug_id; }
+
+    SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
+
     void rebuildCollision(SceneContext& ctx);
 
-    const DebugId debug_id_;
+    const DebugId m_debug_id;
 
-    ChunkedTileData rigid_tiles_;
-    math::Box2 world_bound_;
+    ChunkedTileData m_rigid_tiles;
+    math::Box2 m_world_bound;
 };
 
 }  // namespace cave

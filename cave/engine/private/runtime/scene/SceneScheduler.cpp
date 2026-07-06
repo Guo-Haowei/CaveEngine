@@ -71,7 +71,7 @@ void SceneScheduler::tick(const FrameTime& time) {
             };
 
             SceneTickContext tickCtx = {
-                .mode = req.mode,
+                .domain = req.mode,
                 .dt = time.dt,
                 .scene_ctx = ctx,
             };

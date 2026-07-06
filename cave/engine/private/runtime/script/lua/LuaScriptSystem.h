@@ -28,14 +28,19 @@ class LuaScriptSystem final : public ISceneSystem {
 
 public:
     LuaScriptSystem();
+    ~LuaScriptSystem() override { clear(); }
+
+private:
+    void clear();
 
     void update(SceneTickContext& ctx) override;
+    DebugId debugId() const override { return m_debug_id; }
 
-    DebugId debugId() const override { return debug_id_; }
+    void start(SceneContext& ctx) override;
 
-protected:
-    void onAttach(SceneContext& ctx) override;
-    void onDetach(SceneContext& ctx) override;
+    SceneTickDomain domain() const override {
+        return SceneTickDomain::Simulate | SceneTickDomain::Editor;
+    }
 
     ObjectFunctions findOrAdd(SceneContext& ctx,
                               lua_State* L,
@@ -48,9 +53,9 @@ protected:
                                const char* class_name,
                                ObjectFunctions& meta);
 
-    const DebugId debug_id_;
-    std::map<Guid, ObjectFunctions> meta_lookup_;
-    lua_State* state_{ nullptr };
+    const DebugId m_debug_id;
+    std::map<Guid, ObjectFunctions> m_meta_lookup;
+    lua_State* m_state{ nullptr };
 };
 
 }  // namespace cave

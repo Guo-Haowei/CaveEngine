@@ -7,7 +7,7 @@ namespace cave {
 class SceneOwner;
 
 struct SceneTickRequest {
-    SceneTickMode mode;
+    SceneTickDomain mode;
     SceneId scene_id;
     ViewId view_id;
     SceneOwner& owner;

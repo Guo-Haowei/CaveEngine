@@ -8,8 +8,9 @@ namespace cave {
 
 using namespace ::cave::ecs;
 
-NativeScriptSystem::NativeScriptSystem()
-    : debug_id_(MakeDebugId(this)) {
+NativeScriptSystem::NativeScriptSystem(NativeScriptRegistry& script_registry)
+    : m_script_registry(script_registry)
+    , m_debug_id(MakeDebugId(this)) {
 }
 
 void NativeScriptSystem::ensureCreated(SceneContext& ctx,
@@ -34,6 +35,8 @@ void NativeScriptSystem::ensureCreated(SceneContext& ctx,
     component.instance->onCreate(ctx);
     component.created = true;
     component.pending_reload = false;
+
+    ++m_num_instance;
 }
 
 void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
@@ -54,6 +57,8 @@ void NativeScriptSystem::destroyScript(NativeScriptRegistry& script_registry,
     component.instance = nullptr;
     component.created = false;
     component.pending_reload = false;
+
+    --m_num_instance;
 }
 
 void NativeScriptSystem::reloadIfNeeded(SceneContext& ctx,
@@ -80,12 +85,17 @@ void NativeScriptSystem::update(SceneTickContext& ctx) {
     }
 }
 
-void NativeScriptSystem::onDetach(SceneContext& ctx) {
+void NativeScriptSystem::clear() {
+    if (m_num_instance) {
+        LOG_WARN(LogChannel::Script, "memory leak!");
+    }
+#if 0
     auto& scene = ctx.scene;
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        destroyScript(ctx.native_scripts, script);
+        destroyScript(m_native_scripts, script);
     }
+#endif
 }
 
 }  // namespace cave

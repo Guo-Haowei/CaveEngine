@@ -121,7 +121,7 @@ void ViewTabBase::onDestroy() {
 void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
     if (!m_editor.isPlaying()) {
         out_requests.push_back(SceneTickRequest{
-            SceneTickMode::Editor,
+            SceneTickDomain::Editor,
             m_preview_scene_id,
             m_view_id,
             *this,

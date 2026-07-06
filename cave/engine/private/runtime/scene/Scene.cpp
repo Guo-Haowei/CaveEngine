@@ -25,9 +25,56 @@ namespace cave {
 using namespace ::cave::math;
 using ecs::Entity;
 
+//---------------- scene runtime --------------
+enum class SceneFeature : uint32_t {
+    NativeScript = 1,
+    Motor = 2,
+    TileWorld = 3,
+    All = NativeScript | Motor | TileWorld,
+};
+
+DEFINE_ENUM_BITWISE_OPERATIONS(SceneFeature);
+
+class SceneRuntime {
+public:
+    SceneRuntime(SceneFeature features)
+        : m_features(features) {}
+
+    void start(SceneContext& ctx);
+    void update(SceneTickContext& ctx);
+
+private:
+    const SceneFeature m_features;
+    SystemManager m_systems;
+
+    friend class Scene;
+};
+
+void SceneRuntime::start(SceneContext& ctx) {
+    if ((int)(m_features & SceneFeature::NativeScript)) {
+        m_systems.add<NativeScriptSystem>(ctx.native_scripts);
+        auto system = m_systems.get<NativeScriptSystem>();
+        DEV_ASSERT(system);
+        // @TODO: always run
+    }
+    if ((int)(m_features & SceneFeature::Motor)) {
+        m_systems.add<MotorSystem>();
+    }
+    if ((int)(m_features & SceneFeature::TileWorld)) {
+        m_systems.add<TileWorldSystem>();
+    }
+
+    m_systems.start(ctx);
+}
+
+void SceneRuntime::update(SceneTickContext& ctx) {
+    m_systems.update(ctx);
+}
+// ---------------------------------------------
+
 Scene::Scene(std::string name, ecs::ComponentRegistry& reg) noexcept
-    : name_(std::move(name))
-    , component_registry_(reg) {
+    : m_name(std::move(name))
+    , m_component_registry(reg) {
 }
 
 Scene::Scene(std::string name) noexcept
@@ -72,9 +119,43 @@ void Scene::update(float dt) {
     flushPendingDestroy();
 }
 
+SystemManager* Scene::systems() {
+    return m_runtime ? &m_runtime->m_systems : nullptr;
+}
+
+const SystemManager* Scene::systems() const {
+    return m_runtime ? &m_runtime->m_systems : nullptr;
+}
+
+void Scene::begin(SceneTickContext& ctx) {
+    if (m_runtime) {
+        LOG_ERROR(LogChannel::Scene, "onSimBegin already called");
+        return;
+    }
+
+    SceneFeature features = SceneFeature::NativeScript;
+    if (ctx.domain == SceneTickDomain::Simulate) {
+        if (count<MotorComponent>()) {
+            features |= SceneFeature::Motor;
+        }
+        if (count<TileMapInstanceComponent>()) {
+            features |= SceneFeature::TileWorld;
+        }
+    }
+
+    m_runtime = std::make_unique<SceneRuntime>(features);
+    m_runtime->start(ctx.scene_ctx);
+}
+
+void Scene::end() {
+    if (m_runtime) {
+        m_runtime.reset();
+    }
+}
+
 void Scene::tick(SceneTickContext& ctx) {
-    if (ctx.mode == SceneTickMode::Simulation) {
-        simulate(ctx);
+    if (m_runtime) {
+        m_runtime->update(ctx);
     }
 
     update(ctx.dt);
@@ -82,23 +163,23 @@ void Scene::tick(SceneTickContext& ctx) {
 
 void Scene::copy(const Scene& other) {
     ComponentId idx = 0;
-    for (auto& entry : other.storage_.entries()) {
+    for (auto& entry : other.m_storage.entries()) {
         if (entry.pool) {
-            storage_.ensure(idx);
-            storage_.entries_[idx].pool = std::move(entry.pool->clone());
+            m_storage.ensure(idx);
+            m_storage.entries_[idx].pool = std::move(entry.pool->clone());
         }
         ++idx;
     }
 
-    root_ = other.root_;
-    bound_ = other.bound_;
-    entity_seed_ = other.entity_seed_;
+    m_root = other.m_root;
+    m_world_bound = other.m_world_bound;
+    m_entity_seed = other.m_entity_seed;
 }
 
 std::vector<Entity> Scene::getSortedEntityArray() const {
     std::unordered_set<Entity> entity_set;
 
-    for (const auto& it : storage_.entries()) {
+    for (const auto& it : m_storage.entries()) {
         if (!it.pool) continue;
         for (auto entity : it.pool->entityArray()) {
             if (has<PrefabChildComponent>(entity)) {
@@ -170,34 +251,34 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     }
 
     // remap all entities
-    for (uint16_t cid = 0; cid < (uint16_t)copy.storage_.entries_.size(); ++cid) {
-        auto& entry = copy.storage_.entries_[cid];
+    for (uint16_t cid = 0; cid < (uint16_t)copy.m_storage.entries_.size(); ++cid) {
+        auto& entry = copy.m_storage.entries_[cid];
         if (!entry.pool) continue;
         entry.pool->remap(mapping);
 
-        CRASH_COND(cid >= storage_.entries_.size());
-        auto& my_entry = storage_.entries_[cid];
+        CRASH_COND(cid >= m_storage.entries_.size());
+        auto& my_entry = m_storage.entries_[cid];
 
         if (!my_entry.pool) {
-            storage_.getOrCreate(cid);
+            m_storage.getOrCreate(cid);
         }
         my_entry.pool->merge(std::move(*entry.pool));
     }
 
     // link instance
-    Entity mapped_root = mapping[copy.root_];
+    Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
-    hier.parent_id = ent.IsValid() ? ent : root_;
+    hier.parent_id = ent.IsValid() ? ent : m_root;
 
     prefab.setInstance(mapped_root);
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
-    return storage_.has(cid, ent);
+    return m_storage.has(cid, ent);
 }
 
 size_t Scene::count(ComponentId cid) const {
-    if (const ecs::IComponentPool* pool = storage_.tryGet(cid)) {
+    if (const ecs::IComponentPool* pool = m_storage.tryGet(cid)) {
         return pool->count();
     }
 
@@ -205,7 +286,7 @@ size_t Scene::count(ComponentId cid) const {
 }
 
 bool Scene::remove(ComponentId cid, Entity ent) {
-    return storage_.remove(cid, ent);
+    return m_storage.remove(cid, ent);
 }
 
 Entity Scene::findFirstByName(std::string_view name) const {
@@ -249,7 +330,7 @@ void Scene::removeEntity(ecs::Entity ent) {
         script->instance->onDestroy();
     }
 
-    for (auto& e : storage_.entries()) {
+    for (auto& e : m_storage.entries()) {
         if (e.pool) {
             e.pool->remove(ent);
         }
@@ -521,7 +602,7 @@ auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
         .beginKey("seed")
         .write(entity_array.back())
         .beginKey("root")
-        .write(root_)
+        .write(m_root)
         .beginKey("entities");
 
     yaml.beginArray(false);
@@ -552,11 +633,11 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     DEV_ASSERT(version);
 
     if (d.tryEnterKey("seed")) {
-        d.read(entity_seed_);
+        d.read(m_entity_seed);
         d.leaveKey();
     }
     if (d.tryEnterKey("root")) {
-        d.read(root_);
+        d.read(m_root);
         d.leaveKey();
     }
 
@@ -628,35 +709,6 @@ auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     }
 
     return Result<void>();
-}
-
-void Scene::onSimBegin(SceneContext& ctx) {
-    systems_ = std::make_unique<SystemManager>();
-
-    if (count<NativeScriptComponent>()) {
-        systems_->add<NativeScriptSystem>();
-    }
-    if (count<LuaScriptComponent>()) {
-        systems_->add<LuaScriptSystem>();
-    }
-    if (count<TileMapInstanceComponent>()) {
-        systems_->add<TileWorldSystem>();
-    }
-    if (count<MotorComponent>()) {
-        systems_->add<MotorSystem>();
-    }
-
-    systems_->onSceneCreate(ctx);
-}
-
-void Scene::onSimEnd(SceneContext& ctx) {
-    systems_->onSceneDestroy(ctx);
-
-    systems_.reset();
-}
-
-void Scene::simulate(SceneTickContext& ctx) {
-    systems_->update(ctx);
 }
 
 }  // namespace cave

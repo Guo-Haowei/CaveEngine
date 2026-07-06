@@ -218,8 +218,8 @@ private:
 };
 
 MotorSystem::MotorSystem()
-    : debug_id_(MakeDebugId(this))
-    , collision_(std::make_unique<CollisionSystem>()) {
+    : m_debug_id(MakeDebugId(this))
+    , m_collision(std::make_unique<CollisionSystem>()) {
 }
 
 MotorSystem::~MotorSystem() = default;
@@ -352,7 +352,7 @@ void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
 
 void MotorSystem::update(SceneTickContext& ctx) {
     runTileWorldCollision(ctx);
-    collision_->runCollisionPair(ctx);
+    m_collision->runCollisionPair(ctx);
 }
 
 void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,

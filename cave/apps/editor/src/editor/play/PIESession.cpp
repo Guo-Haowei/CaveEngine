@@ -69,8 +69,15 @@ Scene* PIESession::beginPIEScene(Scene* asset_scene) {
 
     Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
-        SceneContext ctx = makeSceneContext(*scene);
-        scene->onSimBegin(ctx);
+        SceneContext scene_ctx = makeSceneContext(*scene);
+
+        SceneTickContext ctx = {
+            .domain = SceneTickDomain::Simulate,
+            .dt = 0.0f,
+            .scene_ctx = scene_ctx,
+        };
+
+        scene->begin(ctx);
     }
     return scene;
 }
@@ -84,8 +91,7 @@ void PIESession::endPIEScene() {
     Scene* scene = scene_reg.resolve(m_pie_scene);
 
     if (DEV_VERIFY(scene)) {
-        SceneContext ctx = makeSceneContext(*scene);
-        scene->onSimEnd(ctx);
+        scene->end();
         scene_reg.destroyScene(m_pie_scene);
     }
 
@@ -131,7 +137,7 @@ void PIESession::commitSceneChange(std::string&& path) {
 }
 
 void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
-    out_requests.push_back({ SceneTickMode::Simulation,
+    out_requests.push_back({ SceneTickDomain::Simulate,
                              m_pie_scene,
                              m_view_id,
                              *this });

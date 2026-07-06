@@ -30,11 +30,14 @@ public:
     MotorSystem();
     ~MotorSystem();
 
+private:
+    void start(SceneContext&) override {}
     void update(SceneTickContext& ctx) override;
 
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
-private:
+    SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
+
     void moveKinematic2D(const TileWorldSystem& tile_world,
                          TransformComponent& transform,
                          VelocityComponent& vel,
@@ -45,9 +48,9 @@ private:
 
     void runTileWorldCollision(SceneTickContext& ctx);
 
-    const DebugId debug_id_;
+    const DebugId m_debug_id;
 
-    std::unique_ptr<CollisionSystem> collision_;
+    std::unique_ptr<CollisionSystem> m_collision;
 };
 
 }  // namespace cave

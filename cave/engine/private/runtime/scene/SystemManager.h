@@ -46,12 +46,8 @@ public:
         return get(id) != nullptr;
     }
 
-    void onSceneCreate(SceneContext& ctx);
-    void onSceneDestroy(SceneContext& ctx);
-
-    void fixedUpdate(SceneTickContext& ctx);
+    void start(SceneContext& ctx);
     void update(SceneTickContext& ctx);
-    void lateUpdate(SceneTickContext& ctx);
 
 private:
     void addImpl(std::unique_ptr<ISceneSystem>&& system);

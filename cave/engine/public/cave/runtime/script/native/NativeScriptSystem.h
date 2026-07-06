@@ -12,18 +12,25 @@ class NativeScriptSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::NativeScript)
 
 public:
-    NativeScriptSystem();
-
-    void onDetach(SceneContext& ctx) override;
-
-    void update(SceneTickContext& ctx) override;
-
-    DebugId debugId() const override { return debug_id_; }
+    NativeScriptSystem(NativeScriptRegistry& script_registry);
+    ~NativeScriptSystem() override { clear(); }
 
     void destroyScript(NativeScriptRegistry& script_registry,
                        NativeScriptComponent& component);
 
 private:
+    void clear();
+
+    void start(SceneContext&) override {}
+
+    void update(SceneTickContext& ctx) override;
+
+    DebugId debugId() const override { return m_debug_id; }
+
+    SceneTickDomain domain() const override {
+        return SceneTickDomain::Simulate | SceneTickDomain::Editor;
+    }
+
     void ensureCreated(SceneContext& ctx,
                        ecs::Entity entity,
                        NativeScriptComponent& component);
@@ -31,7 +38,10 @@ private:
                         ecs::Entity entity,
                         NativeScriptComponent& component);
 
-    const DebugId debug_id_;
+    NativeScriptRegistry& m_script_registry;
+    const DebugId m_debug_id;
+
+    int m_num_instance{};
 };
 
 }  // namespace cave
