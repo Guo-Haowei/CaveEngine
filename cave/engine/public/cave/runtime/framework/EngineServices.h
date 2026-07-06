@@ -22,10 +22,11 @@ class NativeScriptRegistry;
 class ProjectManager;
 class SceneRegistry;
 class SceneScheduler;
-class SceneQueryService;
 class TaskManager;
 class VFS;
 class ViewManager;
+
+class GameModuleHandle;
 
 struct EngineServices {
     AssetRegistry* asset_registry_{};
@@ -38,12 +39,12 @@ struct EngineServices {
     IUIRuntime* ui_{};
     NativeScriptRegistry* native_scripts_{};
     ProjectManager* project_manager_{};
-    SceneQueryService* scene_query_{};
     SceneRegistry* scene_registry_{};
     SceneScheduler* scene_scheduler_{};
     TaskManager* task_manager_{};
     ViewManager* view_manager_{};
     VFS* vfs_{};
+    GameModuleHandle* game_module_{};
 
     render::IRenderDevice* render_device_{};
     render::Renderer* renderer_{};
@@ -57,13 +58,13 @@ struct EngineServices {
     IntentBus& intentBus() { return *intent_bus_; }
     NativeScriptRegistry& nativeScripts() { return *native_scripts_; }
     ProjectManager& projectManager() { return *project_manager_; }
-    SceneQueryService& sceneQuery() { return *scene_query_; }
     SceneRegistry& sceneRegistry() { return *scene_registry_; }
     SceneScheduler& sceneScheduler() { return *scene_scheduler_; }
     TaskManager& taskManager() { return *task_manager_; }
     IUIRuntime& ui() { return *ui_; }
     VFS& vfs() { return *vfs_; }
     ViewManager& viewManager() { return *view_manager_; }
+    GameModuleHandle& gameModule() { return *game_module_; }
 
     render::Renderer& renderer() { return *renderer_; };
     render::IRenderDevice& renderDevice() { return *render_device_; };

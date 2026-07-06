@@ -41,7 +41,7 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(map.Resolve(ent));
     animator->SetResourceGuid(guid);
 
-    preview_scene_ = scene_reg_.registerScene(std::move(scene));
+    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
 }
 
 }  // namespace cave

@@ -6,7 +6,7 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/intent/IntentBus.h"
 
-#include "engine/private/runtime/scene/SceneQueryService.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/EditorIntent.h"
@@ -22,25 +22,32 @@ using math::Vec4f;
 
 PickingService::PickingService(EngineServices& app_services,
                                EditorServices& editor_services)
-    : app_services_(app_services)
-    , editor_services_(editor_services)
-    , debug_id_(MakeDebugId(this)) {
+    : m_app_services(app_services)
+    , m_editor_services(editor_services)
+    , m_debug_id(MakeDebugId(this)) {
 
-    app_services_.intentBus().addHandler<PickIntent>(this);
+    m_app_services.intentBus().addHandler<PickIntent>(this);
 }
 
 PickingService::~PickingService() {
-    app_services_.intentBus().removeHandler<PickIntent>(this);
+    m_app_services.intentBus().removeHandler<PickIntent>(this);
 }
 
 void PickingService::pick(math::Vec2f point_win) {
-    app_services_.intentBus().queue<PickIntent>(point_win);
+    m_app_services.intentBus().queue<PickIntent>(point_win);
 }
 
 void PickingService::raycast(const PickData& pick_data) {
     auto ray = math::Ray::unproject(pick_data.proj_view, pick_data.cursor_ndc);
 
-    auto result = app_services_.sceneQuery().raycast(pick_data.scene_id, ray, {});
+    Scene* scene = m_app_services.sceneRegistry().resolve(pick_data.scene_id);
+    if (!scene) {
+        return;
+    }
+
+    SceneQuery query(*scene);
+
+    auto result = query.raycast(ray, {});
 
     SelectionKey key{
         .kind = SelectionKind::Entity,
@@ -49,12 +56,12 @@ void PickingService::raycast(const PickData& pick_data) {
         .entity = result.entity,
     };
 
-    editor_services_.selection().Set(pick_data.doc_id, key);
+    m_editor_services.selection().Set(pick_data.doc_id, key);
 }
 
 bool PickingService::handleIntent(Intent& p_intent) {
     if (auto intent = dynamic_cast<PickIntent*>(&p_intent)) {
-        const Vec2f pos_screen = intent->pointer() + app_services_.displayService().windowPos();
+        const Vec2f pos_screen = intent->pointer() + m_app_services.displayService().windowPos();
 
         for (IPickConsumer* p : m_consumers) {
             DEV_ASSERT(p);

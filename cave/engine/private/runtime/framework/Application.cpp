@@ -23,6 +23,8 @@
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
+#include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
 
 // @TODO: remove
@@ -49,7 +51,6 @@ Application::Application(const AppSpec& spec, AppType type)
     m_vfs.Mount("@user", fs::path(m_app_spec.userFolder));
 }
 
-IApplication::~IApplication() = default;
 Application::~Application() = default;
 
 void Application::registerModule(IService* p_module) {
@@ -76,13 +77,13 @@ auto Application::setupModules() -> Result<void> {
     m_task_manager = new TaskManager();
 
     // @TODO: dependency injection?
+    m_scene_registry = std::make_unique<SceneRegistry>();
+
     m_renderer = std::make_unique<render::Renderer>(*m_render_device, m_debug_draw);
 
     m_scene_scheduler = std::make_unique<SceneScheduler>(m_engine_services);
 
-    m_scene_query = std::make_unique<SceneQueryService>(m_scene_registry);
-
-    m_view_manager = std::make_unique<ViewManager>(m_scene_registry,
+    m_view_manager = std::make_unique<ViewManager>(*m_scene_registry,
                                                    m_render_device->backend() == rhi::Backend::OpenGL);
 
     m_project_manager = std::make_unique<ProjectManager>(m_vfs,
@@ -90,6 +91,7 @@ auto Application::setupModules() -> Result<void> {
                                                          *m_asset_manager,
                                                          *m_asset_registry,
                                                          *m_renderer);
+
     m_ui = std::make_unique<UIRuntime>(*m_view_manager);
 
     // setup app services
@@ -104,13 +106,13 @@ auto Application::setupModules() -> Result<void> {
     m_engine_services.project_manager_ = m_project_manager.get();
     m_engine_services.render_device_ = m_render_device;
     m_engine_services.renderer_ = m_renderer.get();
-    m_engine_services.scene_query_ = m_scene_query.get();
-    m_engine_services.scene_registry_ = &m_scene_registry;
+    m_engine_services.scene_registry_ = m_scene_registry.get();
     m_engine_services.scene_scheduler_ = m_scene_scheduler.get();
     m_engine_services.task_manager_ = m_task_manager;
     m_engine_services.ui_ = m_ui.get();
     m_engine_services.view_manager_ = m_view_manager.get();
     m_engine_services.vfs_ = &m_vfs;
+    m_engine_services.game_module_ = &m_game_module_handle;
 
     // register subsystems
     registerModule(m_task_manager);
@@ -191,6 +193,9 @@ void Application::finalize() {
         // @TODO: use smart pointer
         delete module;
     }
+
+    m_scene_registry.reset();
+    m_game_module_handle.unload();
 }
 
 float Application::updateTime() {

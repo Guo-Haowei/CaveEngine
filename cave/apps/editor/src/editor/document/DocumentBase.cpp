@@ -18,24 +18,24 @@
 namespace cave {
 
 DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
-    : asset_reg_(services.assetRegistry())
-    , asset_mgr_(static_cast<EditorAssetManager&>(services.assetManager()))
-    , scene_reg_(services.sceneRegistry())
-    , guid_(guid) {
+    : m_asset_reg(services.assetRegistry())
+    , m_asset_mgr(static_cast<EditorAssetManager&>(services.assetManager()))
+    , m_scene_reg(services.sceneRegistry())
+    , m_guid(guid) {
 
-    handle_ = asset_reg_.findByGuid(guid).unwrap();
+    handle_ = m_asset_reg.findByGuid(guid).unwrap();
     asset_ = handle_.wait();
 }
 
 bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
     if (!cmd) return false;
 
-    if (!undo_.empty() /*&& coalesce != 0 && last_coalesce_ == coalesce*/) {
-        IEditCmd* last = undo_.back().get();
+    if (!m_undo.empty() /*&& coalesce != 0 && last_coalesce_ == coalesce*/) {
+        IEditCmd* last = m_undo.back().get();
         if (last && last->canCoalesceWith(cmd.get())) {
             cmd->apply(*this);
             last->coalesceFrom(std::move(cmd));
-            redo_.clear();
+            m_redo.clear();
             touchDirtyAfterEdit();
             return true;
         }
@@ -43,10 +43,10 @@ bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
 
     cmd->apply(*this);
 
-    undo_.push_back(std::move(cmd));
-    redo_.clear();
+    m_undo.push_back(std::move(cmd));
+    m_redo.clear();
 
-    last_coalesce_ = coalesce;
+    m_last_coalesce = coalesce;
     touchDirtyAfterEdit();
     trimUndoIfNeeded();
 
@@ -54,27 +54,27 @@ bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
 }
 
 bool DocumentBase::undo() {
-    if (undo_.empty()) return false;
-    auto cmd = std::move(undo_.back());
-    undo_.pop_back();
+    if (m_undo.empty()) return false;
+    auto cmd = std::move(m_undo.back());
+    m_undo.pop_back();
 
     cmd->undo(*this);
-    redo_.push_back(std::move(cmd));
+    m_redo.push_back(std::move(cmd));
 
-    last_coalesce_ = 0;
+    m_last_coalesce = 0;
     recomputeDirtyAfterHistoryMove();
     return true;
 }
 
 bool DocumentBase::redo() {
-    if (redo_.empty()) return false;
-    auto cmd = std::move(redo_.back());
-    redo_.pop_back();
+    if (m_redo.empty()) return false;
+    auto cmd = std::move(m_redo.back());
+    m_redo.pop_back();
 
     cmd->apply(*this);
-    undo_.push_back(std::move(cmd));
+    m_undo.push_back(std::move(cmd));
 
-    last_coalesce_ = 0;
+    m_last_coalesce = 0;
     recomputeDirtyAfterHistoryMove();
     return true;
 }
@@ -82,7 +82,7 @@ bool DocumentBase::redo() {
 void DocumentBase::undoLabels(std::vector<std::string>& out, int max_items) const {
     out.clear();
     int count = 0;
-    for (auto it = undo_.rbegin(); it != undo_.rend() && count < max_items; ++it, ++count) {
+    for (auto it = m_undo.rbegin(); it != m_undo.rend() && count < max_items; ++it, ++count) {
         out.emplace_back((*it)->label());
     }
 }
@@ -90,30 +90,30 @@ void DocumentBase::undoLabels(std::vector<std::string>& out, int max_items) cons
 void DocumentBase::redoLabels(std::vector<std::string>& out, int max_items) const {
     out.clear();
     int count = 0;
-    for (auto it = redo_.rbegin(); it != redo_.rend() && count < max_items; ++it, ++count) {
+    for (auto it = m_redo.rbegin(); it != m_redo.rend() && count < max_items; ++it, ++count) {
         out.emplace_back((*it)->label());
     }
 }
 
 void DocumentBase::trimUndoIfNeeded() {
-    if (undo_limit_ == 0) return;
-    while (undo_.size() > undo_limit_) {
+    if (m_undo_limit == 0) return;
+    while (m_undo.size() > m_undo_limit) {
         // If we drop history older than the save marker,
         // we must shift the marker accordingly to preserve meaning.
-        undo_.pop_front();
-        if (saved_undo_size_ > 0) {
-            saved_undo_size_ -= 1;
+        m_undo.pop_front();
+        if (m_saved_undo_size > 0) {
+            m_saved_undo_size -= 1;
         }
     }
 }
 
 bool DocumentBase::save() {
-    bool ok = asset_reg_.saveAsset(guid_);
+    bool ok = m_asset_reg.saveAsset(m_guid);
     if (ok) {
-        asset_mgr_.onAssetSaved({
+        m_asset_mgr.onAssetSaved({
             .reason = AssetChangeReason::Saved,
-            .revision = asset_reg_.revision(guid_),
-            .guid = guid_,
+            .revision = m_asset_reg.revision(m_guid),
+            .guid = m_guid,
         });
     }
     return ok;
@@ -128,12 +128,14 @@ std::unique_ptr<Scene> DocumentBase::createPreviewScene() const {
 }
 
 void DocumentBase::reloadPreviewScene() {
-    auto preview_scene = createPreviewScene();
-    if (preview_scene == nullptr) {
+    auto new_scene = createPreviewScene();
+    if (new_scene == nullptr) {
         return;
     }
 
-    scene_reg_.replaceScene(preview_scene_, std::move(preview_scene));
+    // @TODO: call begin and end
+    LOG_WARN("TODO: properly load and unload");
+    m_scene_reg.replaceScene(m_preview_scene, std::move(new_scene));
 }
 
 }  // namespace cave

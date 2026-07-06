@@ -21,14 +21,14 @@ public:
 
     bool handleIntent(Intent& intent) override;
 
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void raycast(const PickData& data);
 
-    EngineServices& app_services_;
-    EditorServices& editor_services_;
-    const DebugId debug_id_;
+    EngineServices& m_app_services;
+    EditorServices& m_editor_services;
+    const DebugId m_debug_id;
 
     std::vector<IPickConsumer*> m_consumers;
 };

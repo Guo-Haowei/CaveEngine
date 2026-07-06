@@ -17,7 +17,7 @@ bool IsValidSystemId(SceneSystemId id) {
 }  // namespace
 
 SystemManager::SystemManager() {
-    lookup_.fill(nullptr);
+    m_lookup.fill(nullptr);
 }
 
 SystemManager::~SystemManager() = default;
@@ -29,12 +29,12 @@ void SystemManager::addImpl(std::unique_ptr<ISceneSystem>&& system) {
     DEV_ASSERT(IsValidSystemId(id));
 
     const size_t index = ToIndex(id);
-    DEV_ASSERT(lookup_[index] == nullptr);
+    DEV_ASSERT(m_lookup[index] == nullptr);
 
     ISceneSystem* raw = system.get();
 
-    systems_.push_back(std::move(system));
-    lookup_[index] = raw;
+    m_systems.push_back(std::move(system));
+    m_lookup[index] = raw;
 }
 
 ISceneSystem* SystemManager::get(SceneSystemId id) {
@@ -42,7 +42,7 @@ ISceneSystem* SystemManager::get(SceneSystemId id) {
         return nullptr;
     }
 
-    return lookup_[ToIndex(id)];
+    return m_lookup[ToIndex(id)];
 }
 
 const ISceneSystem* SystemManager::get(SceneSystemId id) const {
@@ -50,22 +50,31 @@ const ISceneSystem* SystemManager::get(SceneSystemId id) const {
         return nullptr;
     }
 
-    return lookup_[ToIndex(id)];
+    return m_lookup[ToIndex(id)];
 }
 
 void SystemManager::start(SceneContext& ctx) {
-    DEV_ASSERT(!scene_created_);
+    DEV_ASSERT(!m_scene_created);
 
-    for (auto& system : systems_) {
+    for (auto& system : m_systems) {
         LOG_TRACE(LogChannel::Scene, "+{}", system->debugId().type);
         system->start(ctx);
     }
 
-    scene_created_ = true;
+    m_scene_created = true;
+}
+
+void SystemManager::shutdown() {
+    if (!m_scene_created) {
+        return;
+    }
+
+    m_systems.clear();
+    m_scene_created = false;
 }
 
 void SystemManager::update(SceneTickContext& ctx) {
-    for (auto& system : systems_) {
+    for (auto& system : m_systems) {
         if (static_cast<int>(system->domain() & ctx.domain)) {
             system->update(ctx);
         }

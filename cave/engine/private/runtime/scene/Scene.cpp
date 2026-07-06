@@ -41,6 +41,8 @@ public:
         : m_features(features) {}
 
     void start(SceneContext& ctx);
+    void shutdown();
+
     void update(SceneTickContext& ctx);
 
 private:
@@ -64,6 +66,10 @@ void SceneRuntime::start(SceneContext& ctx) {
     }
 
     m_systems.start(ctx);
+}
+
+void SceneRuntime::shutdown() {
+    m_systems.shutdown();
 }
 
 void SceneRuntime::update(SceneTickContext& ctx) {
@@ -153,6 +159,7 @@ void Scene::begin(SceneTickContext ctx) {
 
 void Scene::end() {
     if (m_runtime) {
+        m_runtime->shutdown();
         m_runtime.reset();
     }
 }

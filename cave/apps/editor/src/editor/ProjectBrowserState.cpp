@@ -122,7 +122,7 @@ void ProjectBrowserState::tick(const FrameTime&) {
         selectProject(DVAR_GET_STRING(last_opened_project));
     }
 
-    if (ImguiManager* imgui_manager = app_.imguiManager()) {
+    if (ImguiManager* imgui_manager = m_app.imguiManager()) {
         imgui_manager->BeginFrame();
 
         ui::DockSpace({ "DockSpaceRoot",
@@ -179,7 +179,7 @@ Option<StateRequest> ProjectBrowserState::popRequest() {
         return None();
     }
 
-    if (app_.services().taskManager().HasPendingWork()) {
+    if (m_app.services().taskManager().HasPendingWork()) {
         return None();
     }
 

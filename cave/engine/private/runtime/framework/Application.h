@@ -1,6 +1,7 @@
 #pragma once
 #include "cave/core/base/NonCopyable.h"
 #include "cave/core/time/Stopwatch.h"
+#include "cave/game/GameModuleHandle.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
@@ -10,9 +11,6 @@
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
 #include "engine/private/runtime/input/InputService.h"
-#include "engine/private/runtime/scene/SceneQueryService.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/ui/UIRuntime.h"
 
 namespace cave {
@@ -61,11 +59,12 @@ protected:
     DebugDrawService m_debug_draw;
     IntentBus m_intent_bus;
     VFS m_vfs;
-    SceneRegistry m_scene_registry;
     NativeScriptRegistry m_native_scripts;
+    // @TODO: module manager?
+    GameModuleHandle m_game_module_handle;
 
     std::unique_ptr<ProjectManager> m_project_manager;
-    std::unique_ptr<SceneQueryService> m_scene_query;
+    std::unique_ptr<SceneRegistry> m_scene_registry;
     std::unique_ptr<SceneScheduler> m_scene_scheduler;
     std::unique_ptr<ViewManager> m_view_manager;
     std::unique_ptr<UIRuntime> m_ui;

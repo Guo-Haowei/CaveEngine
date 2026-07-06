@@ -18,11 +18,11 @@ TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
     auto scene = createPreviewScene();
-    preview_scene_ = scene_reg_.registerScene(std::move(scene));
+    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
 }
 
 std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
-    SceneCommandWriter cb(asset_reg_);
+    SceneCommandWriter cb(m_asset_reg);
     Entity root = cb.rootObject();
 
     Entity ent = cb.tileMapObject("tilemap");

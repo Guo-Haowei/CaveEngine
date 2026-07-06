@@ -58,7 +58,7 @@ public:
         : m_app_spec(spec) {
     }
 
-    virtual ~IApplication();
+    virtual ~IApplication() = default;
 
     virtual Result<void> initialize() = 0;
     virtual void finalize() = 0;
@@ -93,10 +93,8 @@ protected:
     // @TODO: move the following to services
     // also need subsystems
     ImguiManager* m_imgui_manager{};
-
-    cave::CommandRegistry* m_cmd_reg_{};
-    cave::Console* m_console{};
-
+    CommandRegistry* m_cmd_reg_{};
+    Console* m_console{};
     EngineServices m_engine_services;
 };
 

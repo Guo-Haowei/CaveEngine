@@ -47,16 +47,18 @@ public:
     }
 
     void start(SceneContext& ctx);
+    void shutdown();
+
     void update(SceneTickContext& ctx);
 
 private:
     void addImpl(std::unique_ptr<ISceneSystem>&& system);
 
 private:
-    std::vector<std::unique_ptr<ISceneSystem>> systems_;
-    std::array<ISceneSystem*, std::to_underlying(SceneSystemId::Count)> lookup_{};
+    std::vector<std::unique_ptr<ISceneSystem>> m_systems;
+    std::array<ISceneSystem*, std::to_underlying(SceneSystemId::Count)> m_lookup{};
 
-    bool scene_created_{ false };
+    bool m_scene_created{ false };
 };
 
 }  // namespace cave

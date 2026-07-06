@@ -16,8 +16,8 @@ public:
 
     bool apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) override;
 
-    bool canUndo() const override { return !undo_.empty(); }
-    bool canRedo() const override { return !redo_.empty(); }
+    bool canUndo() const override { return !m_undo.empty(); }
+    bool canRedo() const override { return !m_redo.empty(); }
 
     bool undo() override;
 
@@ -26,11 +26,11 @@ public:
     void markSaved() override {
         // Save marker is "undo stack size at time of save".
         // If user undoes/redoes to exactly this size again => not dirty.
-        saved_undo_size_ = undo_.size();
+        m_saved_undo_size = m_undo.size();
     }
 
     bool isDirty() const override {
-        return saved_undo_size_ != undo_.size();
+        return m_saved_undo_size != m_undo.size();
     }
 
     void undoLabels(std::vector<std::string>& out, int max_items) const override;
@@ -40,10 +40,10 @@ public:
     bool save() override;
     bool saveAs(std::string_view) override;
 
-    Guid guid() const override { return guid_; }
+    Guid guid() const override { return m_guid; }
 
     SceneId previewScene() const override {
-        return preview_scene_;
+        return m_preview_scene;
     }
 
     std::unique_ptr<Scene> createPreviewScene() const override;
@@ -62,22 +62,22 @@ private:
     void trimUndoIfNeeded();
 
 protected:
-    void undoLimit(size_t limit) { undo_limit_ = limit; }
+    void undoLimit(size_t limit) { m_undo_limit = limit; }
 
-    SceneId preview_scene_{};
-    AssetRegistry& asset_reg_;
-    EditorAssetManager& asset_mgr_;
-    SceneRegistry& scene_reg_;
-    Guid guid_;
+    AssetRegistry& m_asset_reg;
+    EditorAssetManager& m_asset_mgr;
+    SceneRegistry& m_scene_reg;
+    SceneId m_preview_scene{};
+    Guid m_guid;
 
 private:
-    std::deque<std::unique_ptr<IEditCmd>> undo_;
-    std::deque<std::unique_ptr<IEditCmd>> redo_;
+    std::deque<std::unique_ptr<IEditCmd>> m_undo;
+    std::deque<std::unique_ptr<IEditCmd>> m_redo;
 
-    size_t undo_limit_ = 0;       // 0 = unlimited
-    size_t saved_undo_size_ = 0;  // save marker
+    size_t m_undo_limit = 0;       // 0 = unlimited
+    size_t m_saved_undo_size = 0;  // save marker
 
-    uint32_t last_coalesce_ = 0;
+    uint32_t m_last_coalesce = 0;
 };
 
 }  // namespace cave

@@ -28,12 +28,18 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         .scene_ctx = ctx,
     });
 
-    preview_scene_ = scene_reg_.registerScene(std::move(scene));
+    m_preview_scene = m_scene_reg.registerScene(std::move(scene));
+}
+
+SceneDocument::~SceneDocument() {
+    if (Scene* scene = m_scene_reg.resolve(m_preview_scene)) {
+        scene->end();
+    }
 }
 
 bool SceneDocument::save() {
     Scene* source = handle_.get<Scene>();
-    Scene* tmp = scene_reg_.resolve(preview_scene_);
+    Scene* tmp = m_scene_reg.resolve(m_preview_scene);
     source->copy(*tmp);
     return DocumentBase::save();
 }

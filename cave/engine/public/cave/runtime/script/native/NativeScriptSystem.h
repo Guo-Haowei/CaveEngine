@@ -28,9 +28,7 @@ private:
 
     DebugId debugId() const override { return m_debug_id; }
 
-    SceneTickDomain domain() const override {
-        return SceneTickDomain::Simulate | SceneTickDomain::Editor;
-    }
+    SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
 
     void ensureBound(SceneContext& ctx,
                      ecs::Entity entity,

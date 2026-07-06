@@ -38,9 +38,7 @@ private:
 
     void start(SceneContext& ctx) override;
 
-    SceneTickDomain domain() const override {
-        return SceneTickDomain::Simulate | SceneTickDomain::Editor;
-    }
+    SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
 
     ObjectFunctions findOrAdd(SceneContext& ctx,
                               lua_State* L,

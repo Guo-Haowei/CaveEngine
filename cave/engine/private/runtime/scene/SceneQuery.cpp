@@ -37,8 +37,6 @@ void* SceneQuery::addComponent(ComponentId cid, ecs::Entity ent) {
 }
 
 void* SceneQuery::component(ComponentId cid, Entity ent) {
-    scene_.systems()->get(SceneSystemId::TileWorld);
-
     return scene_.storage().getRaw(cid, ent);
 }
 
@@ -75,7 +73,6 @@ static bool RaycastHelper(Ray& ray,
 }
 
 RayHit SceneQuery::raycast(math::Ray& ray, const RaycastFilter&) const {
-
     RayHit res{};
     for (auto [entity, mesh, transform] : scene_.view<MeshRendererComponent, TransformComponent>()) {
         MeshAsset* mesh_asset = mesh.GetMeshHandle().get();

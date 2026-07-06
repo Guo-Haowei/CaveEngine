@@ -19,36 +19,8 @@ PIESession::PIESession(EngineServices& services)
     , m_debug_id(MakeDebugId(this)) {
 }
 
-bool PIESession::ensureGameModuleLoaded() {
-    if (m_game_module) {
-        return true;
-    }
-
-    if (!m_game_module_handle.loadFromDll(m_start_desc.game_dll.c_str(), m_engine_services.nativeScripts())) {
-        return false;
-    }
-
-    m_game_module = m_game_module_handle.get();
-
-    return m_game_module != nullptr;
-}
-
-bool PIESession::start(PIEStartDesc start_desc) {
-    DEV_ASSERT(m_running == false);
-
-    m_start_desc = std::move(start_desc);
-
-    return ensureGameModuleLoaded();
-}
-
-void PIESession::stop() {
-    if (m_running) {
-        endPIESession();
-        m_running = false;
-    }
-
-    m_game_module_handle.unload();
-    m_game_module = nullptr;
+PIESession::~PIESession() {
+    endPIESession();
 }
 
 SceneContext PIESession::makeSceneContext(Scene& scene) {
@@ -99,15 +71,11 @@ void PIESession::beginPIESession(SceneId scene_id, ViewId view_id) {
     m_view_id = view_id;
 
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
-    Scene* pie_scene = beginPIEScene(scene_reg.resolve(scene_id));
-    if (DEV_VERIFY(pie_scene)) {
-        m_running = true;
-    }
+    beginPIEScene(scene_reg.resolve(scene_id));
 }
 
 void PIESession::endPIESession() {
     m_engine_services.sceneScheduler().remove(this);
-    m_running = false;
 
     endPIEScene();
 }
