@@ -13,60 +13,60 @@ constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
 constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
 
 void UIRuntime::beginFrame(const UIInput& input) {
-    ui_input_ = input;
-    draw_data_.clear();
-    hot_ = 0;
+    m_ui_input = input;
+    m_draw_data.clear();
+    m_hot = 0;
 }
 
 void UIRuntime::endFrame() {
-    if (!ui_input_.submit_down) {
-        active_ = 0;
+    if (!m_ui_input.submit_down) {
+        m_active = 0;
     }
 
-    DEV_ASSERT(stack_ == 0);
+    DEV_ASSERT(m_stack == 0);
 }
 
 void UIRuntime::beginView(ViewId view_id) {
-    ++stack_;
-    current_view_ = view_id;
+    ++m_stack;
+    m_current_view = view_id;
 }
 
 void UIRuntime::endView() {
-    DEV_ASSERT(stack_ > 0);
-    --stack_;
+    DEV_ASSERT(m_stack > 0);
+    --m_stack;
 }
 
 bool UIRuntime::button(UIId uiid, UIRect rect) {
-    DEV_ASSERT(stack_ > 0);
+    DEV_ASSERT(m_stack > 0);
 
-    const ViewRecord* view = view_manager_.resolve(current_view_);
+    const ViewRecord* view = m_view_manager.resolve(m_current_view);
     DEV_ASSERT(view);
 
-    const Vec2f point_fb = view->screenToFrameBufferPixel(ui_input_.cursor_os);
+    const Vec2f point_fb = view->screenToFrameBufferPixel(m_ui_input.cursor_os);
 
     const bool hovered = rect.Contains(point_fb.x, point_fb.y);
     if (hovered) {
-        hot_ = uiid;
+        m_hot = uiid;
     }
 
-    if (hovered && ui_input_.submit_pressed) {
-        active_ = uiid;
+    if (hovered && m_ui_input.submit_pressed) {
+        m_active = uiid;
     }
 
     bool clicked = false;
 
-    if (active_ == uiid && ui_input_.submit_released) {
+    if (m_active == uiid && m_ui_input.submit_released) {
         clicked = hovered;
     }
 
     Color color = kButtonNormal;
-    if (active_ == uiid) {
+    if (m_active == uiid) {
         color = kButtonActive;
-    } else if (hot_ == uiid) {
+    } else if (m_hot == uiid) {
         color = kButtonHover;
     }
 
-    draw_data_.draw_lists[current_view_].addRect(rect, color);
+    m_draw_data.draw_lists[m_current_view].addRect(rect, color);
 
     return clicked;
 }

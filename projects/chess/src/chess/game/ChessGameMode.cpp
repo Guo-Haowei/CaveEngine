@@ -11,7 +11,7 @@
 
 #include "chess/game/ChessGameSession.h"
 #include "chess/game/ChessIntent.h"
-#include "chess/states/GameplayState.h"
+#include "chess/states/MainMenuState.h"
 
 namespace chess {
 
@@ -28,7 +28,7 @@ ChessGameMode::~ChessGameMode() {
 }
 
 void ChessGameMode::onEnter(SceneContext& ctx) {
-    m_state = std::make_unique<GameplayState>(m_intent_bus);
+    m_state = std::make_unique<MainMenuState>(m_intent_bus);
     m_state->onEnter(ctx);
 }
 
@@ -36,14 +36,17 @@ void ChessGameMode::onExit() {
 }
 
 void ChessGameMode::tick(SceneContext& ctx, float dt) {
+    // @HACK: replace with scene instead
+    m_ctx = &ctx;
     if (DEV_VERIFY(m_state)) {
         m_state->tick(ctx, dt);
+        m_intent_bus.flush();
     }
 }
 
-bool ChessGameMode::handleIntent(Intent& p_intent) {
-    if (auto intent = dynamic_cast<ChessStateIntent*>(&p_intent)) {
-        // commitStateChange(std::move(intent->m_state));
+bool ChessGameMode::handleIntent(Intent& intent) {
+    if (auto state_intent = dynamic_cast<ChessStateIntent*>(&intent)) {
+        commitStateChange(*m_ctx, std::move(state_intent->m_state));
         return true;
     }
 
@@ -53,15 +56,13 @@ bool ChessGameMode::handleIntent(Intent& p_intent) {
 void ChessGameMode::commitStateChange(SceneContext& ctx,
                                       std::unique_ptr<IChessGameState>&& new_state) {
     DEV_ASSERT(new_state != nullptr);
-    unused(ctx);
-    unused(new_state);
 
-    // if (m_state) {
-    //     m_state->OnExit(ctx);
-    // }
+    if (m_state) {
+        m_state->onExit();
+    }
 
-    // m_state = std::move(new_state);
-    // m_state->OnEnter(ctx);
+    m_state = std::move(new_state);
+    m_state->onEnter(ctx);
 }
 
 }  // namespace chess

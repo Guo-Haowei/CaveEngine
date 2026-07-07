@@ -1,7 +1,9 @@
 #include "MainMenuState.h"
 
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 #include "cave/runtime/intent/IntentBus.h"
+#include "cave/runtime/scene/SceneContext.h"
 
 #include "chess/game/ChessIntent.h"
 #include "chess/states/GameplayState.h"
@@ -10,19 +12,18 @@ namespace chess {
 
 using namespace cave;
 
-#if 0
-void MainMenuState::OnEnter(cave::IHostServices&) {
+void MainMenuState::onEnter(cave::SceneContext&) {
 }
 
-void MainMenuState::Tick(cave::IHostServices& host, const cave::FrameTime&) {
-    IUIRuntime& ui = host.ui();
+void MainMenuState::tick(cave::SceneContext& ctx, float) {
+    IUIRuntime& ui = ctx.services.ui();
 
-    ui.beginView(host.viewId());
+    ui.beginView(ctx.view_id);
     const float offset_x = 760.0f;
     const float offset_y = 200.0f;
     if (ui.button(1, { offset_x, offset_y, 400, 100 })) {
-        auto gameplay = std::make_unique<GameplayState>();
-        host.intentBus().queue<ChessStateIntent>(std::move(gameplay));
+        auto gameplay = std::make_unique<GameplayState>(m_intent_bus);
+        m_intent_bus.queue<ChessStateIntent>(std::move(gameplay));
     }
     if (ui.button(2, { offset_x, offset_y + 200, 400, 100 })) {
         LOG_OK(LogChannel::Game, "UI Button 2 clicked");
@@ -32,6 +33,5 @@ void MainMenuState::Tick(cave::IHostServices& host, const cave::FrameTime&) {
     }
     ui.endView();
 }
-#endif
 
 }  // namespace chess
