@@ -15,6 +15,8 @@ public:
     NativeScriptSystem(NativeScriptRegistry& script_registry);
     ~NativeScriptSystem() override;
 
+    NativeScript* resolveScript(NativeScriptId id);
+
     void destroyScript(NativeScriptComponent& component);
 
     void alwaysRun(SceneContext& ctx);
@@ -27,8 +29,7 @@ private:
 
     SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
 
-    void ensureBound(SceneContext& ctx,
-                     ecs::Entity entity,
+    void ensureBound(ecs::Entity entity,
                      NativeScriptComponent& component);
 
     std::unique_ptr<NativeScriptStorage> m_storage;

@@ -88,8 +88,7 @@ NativeScriptSystem::NativeScriptSystem(NativeScriptRegistry& script_registry)
 
 NativeScriptSystem::~NativeScriptSystem() = default;
 
-void NativeScriptSystem::ensureBound(SceneContext& ctx,
-                                     Entity entity,
+void NativeScriptSystem::ensureBound(Entity entity,
                                      NativeScriptComponent& script) {
     if (script.name.empty() || script.instance_id.valid()) {
         return;
@@ -106,6 +105,10 @@ void NativeScriptSystem::ensureBound(SceneContext& ctx,
 
     script.instance_id = instance_id;
     script.always_run_called = false;
+}
+
+NativeScript* NativeScriptSystem::resolveScript(NativeScriptId id) {
+    return m_storage->resolveScript(id);
 }
 
 void NativeScriptSystem::destroyScript(NativeScriptComponent& script) {
@@ -127,7 +130,7 @@ void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
     SceneCommandWriter writer(ctx.services.assetRegistry());
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        ensureBound(ctx, ent, script);
+        ensureBound(ent, script);
 
         NativeScript* instance = m_storage->resolveScript(script.instance_id);
         if (DEV_VERIFY(instance && !script.always_run_called)) {

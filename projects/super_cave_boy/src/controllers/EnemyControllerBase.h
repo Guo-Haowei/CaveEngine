@@ -13,7 +13,7 @@ protected:
     void start(cave::SceneContext& ctx) override;
     void destroy() override;
 
-    void onBodyOverlapping(cave::SceneContext& ctx, Entity player) override;
+    void onBodyStay(cave::SceneContext& ctx, Entity player) override;
 
     Entity findPlayer(cave::SceneQuery& query) const;
 

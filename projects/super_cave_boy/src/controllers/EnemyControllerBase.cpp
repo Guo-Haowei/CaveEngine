@@ -56,7 +56,7 @@ void EnemyControllerBase::start(SceneContext& ctx) {
 void EnemyControllerBase::destroy() {
 }
 
-void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity player) {
+void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
     SceneQuery& query = ctx.query;
 #if USING(ENABLE_ASSERT)
     auto* player_collider = query.component<ColliderComponent>(player);
@@ -64,10 +64,13 @@ void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity playe
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
 
+    CRASH_NOW();
+#if 0
     auto* player_script = query.component<NativeScriptComponent>(player);
     DEV_ASSERT(player_script && player_script->instance);
     PlayerController* controller = dynamic_cast<PlayerController*>(player_script->instance);
     DEV_ASSERT(controller);
+#endif
 
     Entity enemy = entity();
 
@@ -75,7 +78,7 @@ void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity playe
     auto* player_motor = query.component<MotorComponent>(player);
     DEV_ASSERT(player_motor && player_velocity);
     if (IsStompingEnemy(query, player, enemy)) {
-        controller->bounceFromEnemy(*player_velocity, *player_motor, kPlayerBounceSpeed);
+        // controller->bounceFromEnemy(*player_velocity, *player_motor, kPlayerBounceSpeed);
         query.queueDestroy(enemy);
         return;
     }
@@ -96,7 +99,7 @@ void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity playe
             kPlayerKnockbackY,
         },
     };
-    controller->takeDamage(*player_velocity, *player_motor, hurt_info);
+    // controller->takeDamage(*player_velocity, *player_motor, hurt_info);
 }
 
 Entity EnemyControllerBase::findPlayer(SceneQuery& query) const {
