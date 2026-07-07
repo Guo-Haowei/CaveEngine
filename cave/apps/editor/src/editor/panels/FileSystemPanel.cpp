@@ -51,10 +51,9 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
 
     if (renaming_ == entry.sys_path) {
         std::string buffer;
-        buffer.resize(256);
         ImGui::Text("%s", icon);
         ImGui::SameLine();
-        if (ui::TextBox(nullptr, buffer.data(), (uint32_t)buffer.size())) {
+        if (ui::TextBox(nullptr, buffer)) {
             fs::path to_path = renaming_.parent_path();
             to_path = to_path / buffer.c_str();
             m_engine_services.assetManager().renameAssetOrFolder(renaming_, to_path);

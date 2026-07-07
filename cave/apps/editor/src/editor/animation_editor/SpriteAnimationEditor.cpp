@@ -124,7 +124,7 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
     m_selected_clip.resize(128);
-    ui::TextBox("name", m_selected_clip.data(), (uint32_t)m_selected_clip.size(), true);
+    ui::TextBox("name", m_selected_clip);
 
     ImGui::SameLine();
 

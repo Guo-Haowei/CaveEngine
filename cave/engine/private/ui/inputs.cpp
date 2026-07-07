@@ -2,8 +2,6 @@
 
 #include <imgui/imgui_internal.h>
 
-#include "cave/core/string/StringUtils.h"
-
 namespace cave::ui {
 
 using namespace ::cave::math;
@@ -26,12 +24,8 @@ bool CheckBox(const char* name,
 bool TextBox(const char* label,
              char* buf_ptr,
              uint32_t buf_size,
-             bool enter_returns_true,
              float column_width,
              float text_box_width) {
-
-    char buffer[256]{};
-    StringUtils::strcpy(buffer, std::string_view(buf_ptr, buf_size));
 
     if (label) {
         ImGui::Columns(2);
@@ -44,20 +38,34 @@ bool TextBox(const char* label,
     }
 
     int flags = 0;
-    if (enter_returns_true) {
-        flags |= ImGuiInputTextFlags_EnterReturnsTrue;
-    }
+    // if (enter_returns_true) {
+    //     flags |= ImGuiInputTextFlags_EnterReturnsTrue;
+    // }
 
     auto tag = std::format("##{}", label ? label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
-                                  buffer,
-                                  sizeof(buffer) - 1,
+                                  buf_ptr,
+                                  buf_size,
                                   flags);
-    if (dirty) {
-        StringUtils::strcpy(buf_ptr, buf_size, buffer, sizeof(buffer) - 1);
-    }
 
     ImGui::Columns(1);
+    return dirty;
+}
+
+bool TextBox(const char* label,
+             std::string& str,
+             float column_width,
+             float text_box_width) {
+    char buf[256]{};
+    StringUtils::strcpy(buf, str.c_str());
+    const bool dirty = TextBox(label,
+                               buf,
+                               sizeof(buf),
+                               column_width,
+                               text_box_width);
+    if (dirty) {
+        str = buf;
+    }
     return dirty;
 }
 
