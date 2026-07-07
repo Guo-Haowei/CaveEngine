@@ -1,5 +1,6 @@
 #pragma once
 #include "cave/core/math/Vector.h"
+#include "cave/core/time/CountdownTimer.h"
 #include "cave/game/IGameModule.h"
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
@@ -48,7 +49,7 @@ private:
     bool hurt() const { return m_hurt_timer.active(); }
 
     PlayerState m_state = PlayerState::Air;
-    CountdownTimer m_hurt_timer{ kPlayerHurtCountDown };
+    cave::CountdownTimer m_hurt_timer{ kPlayerHurtCountDown };
 
     Entity m_animator;
 
