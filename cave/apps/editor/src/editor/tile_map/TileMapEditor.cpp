@@ -201,7 +201,7 @@ void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(rect.x, rect.y, rect.w, rect.h);
 
-    ImGuizmo::DrawGrid(proj_view, Mat4f(1.0f), 10.0f, ImGuizmo::GridPlane::XY);
+    ImGuizmo::DrawGrid(proj_view, Mat4f(1.0f), 100.0f, ImGuizmo::GridPlane::XY);
 }
 
 void TileMapEditor::drawUIImpl() {

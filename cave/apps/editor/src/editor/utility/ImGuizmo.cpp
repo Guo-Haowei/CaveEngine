@@ -2527,6 +2527,37 @@ void DrawGrid(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matr
         Z = 4,
     };
 
+    auto is_multiple_of = [](float value, float step) {
+        return fmodf(fabsf(value), step) < FLT_EPSILON;
+    };
+
+    auto grid_style = [&](float f, uint8_t mask, Dir dir) -> std::pair<ImU32, float> {
+        const bool is_axis = fabsf(f) < FLT_EPSILON;
+
+        if (is_axis) {
+            ImU32 color;
+            if ((mask & X) && (dir != X)) {
+                color = IM_COL32(0x90, 0x50, 0x50, 0xFF);
+            } else if ((mask & Y) && (dir != Y)) {
+                color = IM_COL32(0x50, 0x90, 0x50, 0xFF);
+            } else {
+                color = IM_COL32(0x50, 0x50, 0x90, 0xFF);
+            }
+
+            return { color, 2.4f };
+        }
+
+        if (is_multiple_of(f, 10.0f)) {
+            return { IM_COL32(0x90, 0x90, 0x90, 0xFF), 2.0f };
+        }
+
+        if (is_multiple_of(f, 5.0f)) {
+            return { IM_COL32(0x85, 0x85, 0x85, 0xFF), 1.4f };
+        }
+
+        return { IM_COL32(0x70, 0x70, 0x70, 0xFF), 1.0f };
+    };
+
     auto draw_grid = [&](Dir dir, uint8_t mask) {
         const bool not_x = !(dir & X);
         const bool not_y = !(dir & Y);
@@ -2557,24 +2588,7 @@ void DrawGrid(const glm::mat4& p_projection_view_matrix, const glm::mat4& p_matr
                 continue;
             }
 
-            ImU32 color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
-            color = (fmodf(fabsf(f), 10.f) < FLT_EPSILON) ? IM_COL32(0x90, 0x90, 0x90, 0xFF) : color;
-            color = (fabsf(f) < FLT_EPSILON) ? IM_COL32(0x40, 0x40, 0x40, 0xFF) : color;
-
-            if (f == 0.0f) {
-                if ((mask & X) && (dir != X)) {
-                    color = IM_COL32(0x90, 0x30, 0x30, 0xFF);
-                } else if ((mask & Y) && (dir != Y)) {
-                    color = IM_COL32(0x30, 0x90, 0x30, 0xFF);
-                } else {
-                    color = IM_COL32(0x30, 0x30, 0x90, 0xFF);
-                }
-            }
-
-            float thickness = 1.f;
-            thickness = (fmodf(fabsf(f), 10.f) < FLT_EPSILON) ? 1.5f : thickness;
-            thickness = (fabsf(f) < FLT_EPSILON) ? 2.3f : thickness;
-
+            auto [color, thickness] = grid_style(f, mask, dir);
             gContext.mDrawList->AddLine(worldToPos(point_a, view_projection), worldToPos(point_b, view_projection), color, thickness);
         }
     };
