@@ -22,7 +22,6 @@ struct NativeScriptComponent {
 
     // Non-Serialized
     NativeScriptId handle;
-    bool always_run_called = false;
 
     bool operator==(const NativeScriptComponent& rhs) const {
         return name == rhs.name && params == rhs.params;

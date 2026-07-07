@@ -99,7 +99,6 @@ void NativeScriptSystem::ensureBound(Entity entity,
         }
 
         script.handle = {};
-        script.always_run_called = false;
         LOG_WARN(LogChannel::Script, "Found stale handle '{}'", script.name.c_str());
     }
 
@@ -113,7 +112,6 @@ void NativeScriptSystem::ensureBound(Entity entity,
     instance->bind(entity, script.params);
 
     script.handle = instance_id;
-    script.always_run_called = false;
 }
 
 NativeScript* NativeScriptSystem::resolveScript(NativeScriptId id) {
@@ -130,7 +128,6 @@ void NativeScriptSystem::destroyScript(NativeScriptComponent& script) {
     }
 
     script.handle = {};
-    script.always_run_called = false;
 }
 
 void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
@@ -142,9 +139,8 @@ void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
         ensureBound(ent, script);
 
         NativeScript* instance = m_storage->resolveScript(script.handle);
-        if (DEV_VERIFY(instance && !script.always_run_called)) {
+        if (DEV_VERIFY(instance)) {
             instance->alwaysRun(ctx, writer);
-            script.always_run_called = true;
         }
     }
 
@@ -156,7 +152,6 @@ void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
 void NativeScriptSystem::start(SceneContext& ctx) {
     for (auto [ent, script] : ctx.scene.view<NativeScriptComponent>()) {
         if (NativeScript* instance = m_storage->resolveScript(script.handle)) {
-            DEV_ASSERT(script.always_run_called);
             instance->start(ctx);
         }
     }
@@ -166,7 +161,6 @@ void NativeScriptSystem::update(SceneTickContext& ctx) {
     auto& scene = ctx.scene_ctx.scene;
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
         if (NativeScript* instance = m_storage->resolveScript(script.handle)) {
-            DEV_ASSERT(script.always_run_called);
             instance->update(ctx.scene_ctx, ctx.dt);
         }
     }
