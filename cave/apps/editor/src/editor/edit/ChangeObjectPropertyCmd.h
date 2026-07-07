@@ -40,7 +40,7 @@ public:
 private:
     bool setValue(IDocument& doc, const ValueT& value) {
         SceneId scene_id = doc.previewScene();
-        if (!scene_id.isValid()) return false;
+        if (!scene_id.valid()) return false;
         Scene* scene = resolveScene(scene_id);
         if (!scene) return false;
 

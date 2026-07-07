@@ -26,7 +26,7 @@ void MeshAsset::CreateRenderData() {
             const Vec3f& point = positions[indices[i + subset.index_offset]];
             subset.local_bound.expandToInclude(reinterpret_cast<const Vec3f&>(point));
         }
-        subset.local_bound.makeValid();
+        subset.local_bound.expandIfDegenerate();
         localBound.expandToInclude(subset.local_bound);
     }
     // Attributes

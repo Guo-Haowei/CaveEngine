@@ -9,7 +9,6 @@
 #include "editor/document/DocId.h"
 #include "editor/panels/Tab.h"
 
-
 namespace cave {
 
 struct EngineServices;

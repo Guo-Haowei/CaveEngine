@@ -54,7 +54,7 @@ public:
 
     VariantType type() const { return type_; }
 
-    bool isValid() const { return type_ != VariantType::Invalid; }
+    bool valid() const { return type_ != VariantType::Invalid; }
     bool isNumeric() const;
 
     bool asBool(bool fallback = false) const;

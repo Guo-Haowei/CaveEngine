@@ -19,7 +19,7 @@ struct GenId {
     uint32_t index{};
     uint32_t gen{};
 
-    bool isValid() const {
+    bool valid() const {
         return gen != kInvalidGen;
     }
 

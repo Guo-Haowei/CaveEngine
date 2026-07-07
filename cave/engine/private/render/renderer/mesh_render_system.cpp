@@ -196,7 +196,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 // @TODO: add option to specify extent
                 // @would be nice if can add debug draw
                 AABB world_bound = light_component.GetShadowRegion();
-                if (!world_bound.isValid()) {
+                if (!world_bound.valid()) {
                     world_bound = p_scene.bound();
                 }
                 Vec3f center = world_bound.center();

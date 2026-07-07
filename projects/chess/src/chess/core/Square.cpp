@@ -42,7 +42,7 @@ const char* Square::uci() const {
         // clang-format on
     };
 
-    return kSquareLookUp[index_];
+    return kSquareLookUp[m_index];
 }
 
 Square EnpassantCapturedSquare(Square from, Square to) {

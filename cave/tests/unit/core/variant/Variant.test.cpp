@@ -8,7 +8,7 @@ TEST(Variant, default_constructed_variant_is_invalid) {
     Variant value;
 
     EXPECT_EQ(value.type(), VariantType::Invalid);
-    EXPECT_FALSE(value.isValid());
+    EXPECT_FALSE(value.valid());
     EXPECT_FALSE(value.isNumeric());
 
     EXPECT_FALSE(value.asBool());
@@ -44,7 +44,7 @@ TEST(Variant, construct_from_int) {
     Variant value(42);
 
     EXPECT_EQ(value.type(), VariantType::Int);
-    EXPECT_TRUE(value.isValid());
+    EXPECT_TRUE(value.valid());
     EXPECT_TRUE(value.isNumeric());
 
     EXPECT_TRUE(value.asBool(false));
@@ -68,7 +68,7 @@ TEST(Variant, construct_from_float) {
     Variant value(3.5f);
 
     EXPECT_EQ(value.type(), VariantType::Float);
-    EXPECT_TRUE(value.isValid());
+    EXPECT_TRUE(value.valid());
     EXPECT_TRUE(value.isNumeric());
 
     EXPECT_TRUE(value.asBool(false));
@@ -91,7 +91,7 @@ TEST(Variant, construct_from_c_string) {
     Variant value("hello");
 
     EXPECT_EQ(value.type(), VariantType::String);
-    EXPECT_TRUE(value.isValid());
+    EXPECT_TRUE(value.valid());
     EXPECT_FALSE(value.isNumeric());
 
     EXPECT_EQ(value.asString(), "hello");
@@ -131,7 +131,7 @@ TEST(Variant, construct_from_vec2f) {
     Variant value(Vec2f(1.0f, 2.0f));
 
     EXPECT_EQ(value.type(), VariantType::Vec2f);
-    EXPECT_TRUE(value.isValid());
+    EXPECT_TRUE(value.valid());
     EXPECT_FALSE(value.isNumeric());
 
     EXPECT_EQ(value.asVec2f(), Vec2f(1.0f, 2.0f));
