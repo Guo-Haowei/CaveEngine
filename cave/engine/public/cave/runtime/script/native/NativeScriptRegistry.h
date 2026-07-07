@@ -17,7 +17,7 @@ using NativeScriptCreateFn = NativeScript* (*)();
 using NativeScriptDestroyFn = void (*)(NativeScript*);
 
 struct NativeScriptInfo {
-    std::string id;  // "game.PlayerController"
+    std::string id;
 
     NativeScriptCreateFn create = nullptr;
     NativeScriptDestroyFn destroy = nullptr;

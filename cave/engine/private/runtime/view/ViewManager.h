@@ -1,11 +1,10 @@
 #pragma once
+#include "cave/core/ids/GenIdRegistry.h"
 #include "cave/core/ids/ViewId.h"
 #include "cave/runtime/view/ViewDesc.h"
 #include "cave/runtime/view/ViewRecord.h"
 
 #include "ResolvedView.h"
-
-#include "engine/private/core/ids/GenIdRegistry.h"
 
 namespace cave {
 

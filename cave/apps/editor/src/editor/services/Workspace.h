@@ -1,6 +1,7 @@
 #pragma once
 #include <span>
 
+#include "cave/core/ids/GenIdRegistry.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/runtime/intent/IIntentHandler.h"
@@ -8,8 +9,6 @@
 #include "editor/document/DocId.h"
 #include "editor/panels/Tab.h"
 
-// @TODO: fix
-#include "engine/private/core/ids/GenIdRegistry.h"
 
 namespace cave {
 

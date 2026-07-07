@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/core/ids/GenIdRegistry.h
+// =============================================================================
 #pragma once
 #include <memory>
 #include <string>
@@ -8,18 +11,18 @@
 
 namespace cave {
 
-template<typename T>
+template<typename T, typename PtrT = std::unique_ptr<T>>
 class GenIdRegistry {
     struct Slot {
         uint32_t gen{ GenId<T>::kInitialGen };
-        std::unique_ptr<T> storage{ nullptr };
+        PtrT storage{ nullptr };
         std::string debug_name;
     };
 
 public:
     using IdT = GenId<T>;
 
-    IdT create(std::unique_ptr<T>&& data) {
+    IdT create(PtrT&& data) {
         IdT id = allocate();
         Slot& slot = m_slots[id.index];
         DEV_ASSERT(slot.storage == nullptr);
@@ -34,9 +37,8 @@ public:
         free(id);
     }
 
-    bool replace(IdT id, std::unique_ptr<T>&& data) {
-        DEV_ASSERT(data != nullptr);
-        if (!isAlive(id) || !data) {
+    bool replace(IdT id, PtrT&& data) {
+        if (!data || !isAlive(id)) {
             return false;
         }
 

@@ -1,10 +1,11 @@
+#include "NativeScriptSystem.h"
+
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
-#include "cave/runtime/script/native/NativeScriptSystem.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
