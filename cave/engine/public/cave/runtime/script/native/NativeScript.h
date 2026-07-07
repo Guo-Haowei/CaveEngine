@@ -22,7 +22,7 @@ public:
     virtual void update(SceneContext&, float) {}
 
     virtual void onBodyEntered(SceneContext&, ecs::Entity) {}
-    virtual void onBodyOverlapping(SceneContext&, ecs::Entity) {}
+    virtual void onBodyStay(SceneContext&, ecs::Entity) {}
     virtual void onBodyExited(SceneContext&, ecs::Entity) {}
 
     ecs::Entity entity() const { return m_entity; }

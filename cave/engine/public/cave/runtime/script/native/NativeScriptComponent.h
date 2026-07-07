@@ -5,6 +5,7 @@
 #include "cave/core/containers/FixedString.h"
 #include "cave/core/variant/Variant.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/script/native/NativeScriptId.h"
 
 namespace cave {
 
@@ -20,8 +21,7 @@ struct NativeScriptComponent {
     VariantMap params;
 
     // Non-Serialized
-    NativeScript* instance = nullptr;
-    bool always_run_called = false;
+    NativeScriptId handle;
 
     bool operator==(const NativeScriptComponent& rhs) const {
         return name == rhs.name && params == rhs.params;

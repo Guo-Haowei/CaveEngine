@@ -46,7 +46,7 @@ public:
 
     bool operator==(const Move& rhs) const = default;
 
-    bool isValid() const { return *this != null(); }
+    bool valid() const { return *this != null(); }
 
     static Move null() {
         return Move();

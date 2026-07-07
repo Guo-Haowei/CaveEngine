@@ -11,10 +11,10 @@ public:
     };
 
     constexpr Square() noexcept
-        : index_(kInvalid) {}
+        : m_index(kInvalid) {}
 
     explicit constexpr Square(uint8_t index) noexcept
-        : index_(index) {
+        : m_index(index) {
     }
 
     static constexpr Square fromFileRank(uint8_t file, uint8_t rank) {
@@ -22,12 +22,12 @@ public:
         return Square(val);
     }
 
-    bool isValid() const { return index_ < kInvalid; }
+    bool valid() const { return m_index < kInvalid; }
 
-    constexpr uint8_t index() const { return index_; }
+    constexpr uint8_t index() const { return m_index; }
 
-    uint8_t file() const { return index_ & 7; }
-    uint8_t rank() const { return index_ >> 3; }
+    uint8_t file() const { return m_index & 7; }
+    uint8_t rank() const { return m_index >> 3; }
     auto fileRank() const -> std::tuple<uint8_t, uint8_t> {
         return std::make_tuple(file(), rank());
     }
@@ -112,7 +112,7 @@ public:
     static const Square H8;
 
 private:
-    uint8_t index_;
+    uint8_t m_index;
 };
 
 Square EnpassantCapturedSquare(Square from, Square to);

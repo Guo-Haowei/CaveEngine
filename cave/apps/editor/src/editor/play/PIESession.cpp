@@ -35,7 +35,7 @@ SceneContext PIESession::makeSceneContext(Scene& scene) {
 }
 
 void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
-    DEV_ASSERT(!m_pie_scene.isValid());
+    DEV_ASSERT(!m_pie_scene.valid());
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
     m_pie_scene = scene_reg.cloneScene(std::move(desc), asset_scene);
 
@@ -50,7 +50,7 @@ void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
 }
 
 void PIESession::endPIEScene() {
-    DEV_ASSERT(m_pie_scene.isValid());
+    DEV_ASSERT(m_pie_scene.valid());
 
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
     Scene* scene = scene_reg.resolve(m_pie_scene);
@@ -87,7 +87,7 @@ void PIESession::endPIESession() {
     m_engine_services.sceneScheduler().remove(this);
     m_view_id = {};
 
-    if (m_pie_scene.isValid()) {
+    if (m_pie_scene.valid()) {
         endPIEScene();
     }
 }

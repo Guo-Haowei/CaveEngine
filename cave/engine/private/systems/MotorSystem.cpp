@@ -5,8 +5,7 @@
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/script/native/NativeScriptComponent.h"
-#include "cave/runtime/script/native/NativeScript.h"
+#include "cave/runtime/script/native/NativeScriptSystem.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
@@ -214,7 +213,7 @@ public:
     void runCollisionPair(SceneTickContext& ctx);
 
 private:
-    TriggerCache trigger_cache_;
+    TriggerCache m_trigger_cache;
 };
 
 MotorSystem::MotorSystem()
@@ -257,9 +256,13 @@ struct ColliderProxy {
 };
 
 void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
-    Scene& scene = ctx.scene_ctx.scene;
     SceneQuery& query = ctx.scene_ctx.query;
+    NativeScriptSystem* script_system = query.system<NativeScriptSystem>();
+    if (!script_system) {
+        return;
+    }
 
+    Scene& scene = ctx.scene_ctx.scene;
     std::vector<ColliderProxy> colliders;
 
     for (auto [ent, collider, transform] : scene.view<ColliderComponent, TransformComponent>()) {
@@ -302,52 +305,49 @@ void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
         }
     }
 
+    auto resolve_script = [&query, &script_system](Entity e) -> NativeScript* {
+        auto* comp = query.component<NativeScriptComponent>(e);
+        return comp ? script_system->resolveScript(comp->handle) : nullptr;
+    };
+
+    auto fire_enter_or_stay = [&resolve_script, &ctx](bool is_trigger, Entity self, Entity other, bool was_overlapping) {
+        if (!is_trigger) return;
+
+        if (auto* instance = resolve_script(self)) {
+            if (!was_overlapping) {
+                instance->onBodyEntered(ctx.scene_ctx, other);
+            } else {
+                instance->onBodyStay(ctx.scene_ctx, other);
+            }
+        }
+    };
+
+    auto fire_exit = [&resolve_script, &ctx](bool is_trigger, Entity self, Entity other) {
+        if (!is_trigger) return;
+        if (auto* instance = resolve_script(self)) {
+            instance->onBodyExited(ctx.scene_ctx, other);
+        }
+    };
+
     for (const CollisionPair& pair : pairs) {
         cache.insert(pair);
 
-        const bool in_last_frame = trigger_cache_.find(pair) != trigger_cache_.end();
-        if (pair.a_is_trigger) {
-            auto a = query.component<NativeScriptComponent>(pair.a);
-            if (a && a->instance) {
-                a->instance->onBodyOverlapping(ctx.scene_ctx, pair.b);
-                if (!in_last_frame) {
-                    a->instance->onBodyEntered(ctx.scene_ctx, pair.b);
-                }
-            }
-        }
+        const bool in_last_frame = m_trigger_cache.find(pair) != m_trigger_cache.end();
 
-        if (pair.b_is_trigger) {
-            auto b = query.component<NativeScriptComponent>(pair.b);
-            if (b && b->instance) {
-                b->instance->onBodyOverlapping(ctx.scene_ctx, pair.a);
-                if (!in_last_frame) {
-                    b->instance->onBodyEntered(ctx.scene_ctx, pair.a);
-                }
-            }
-        }
+        fire_enter_or_stay(pair.a_is_trigger, pair.a, pair.b, in_last_frame);
+        fire_enter_or_stay(pair.b_is_trigger, pair.b, pair.a, in_last_frame);
     }
 
-    for (const CollisionPair& old_pair : trigger_cache_) {
-        if (cache.find(old_pair) != cache.end()) {
+    for (const CollisionPair& pair : m_trigger_cache) {
+        if (cache.find(pair) != cache.end()) {
             continue;
         }
 
-        if (old_pair.a_is_trigger) {
-            auto* a = query.component<NativeScriptComponent>(old_pair.a);
-            if (a && a->instance) {
-                a->instance->onBodyExited(ctx.scene_ctx, old_pair.b);
-            }
-        }
-
-        if (old_pair.b_is_trigger) {
-            auto* b = query.component<NativeScriptComponent>(old_pair.b);
-            if (b && b->instance) {
-                b->instance->onBodyExited(ctx.scene_ctx, old_pair.a);
-            }
-        }
+        fire_exit(pair.a_is_trigger, pair.a, pair.b);
+        fire_exit(pair.b_is_trigger, pair.b, pair.a);
     }
 
-    trigger_cache_ = std::move(cache);
+    m_trigger_cache = std::move(cache);
 }
 
 void MotorSystem::update(SceneTickContext& ctx) {

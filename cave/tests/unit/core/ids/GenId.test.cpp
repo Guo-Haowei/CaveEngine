@@ -7,8 +7,8 @@ using TestId = GenId<int>;
 TEST(GenId, valid_when_gen_is_not_zero) {
     TestId id1{ 2, 8 };
     TestId id2{ 2, 0 };
-    EXPECT_TRUE(id1.isValid());
-    EXPECT_FALSE(id2.isValid());
+    EXPECT_TRUE(id1.valid());
+    EXPECT_FALSE(id2.valid());
 }
 
 TEST(GenId, only_equal_when_id_and_gen_both_equal) {

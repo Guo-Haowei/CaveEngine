@@ -4,7 +4,7 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/MotorSystem.h"
-#include "cave/runtime/script/native/NativeScriptComponent.h"
+#include "cave/runtime/script/native/NativeScriptSystem.h"
 
 #include "Utility.h"
 
@@ -56,18 +56,32 @@ void EnemyControllerBase::start(SceneContext& ctx) {
 void EnemyControllerBase::destroy() {
 }
 
-void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity player) {
+void EnemyControllerBase::onBodyEntered(cave::SceneContext& ctx, Entity player) {
+    return onBodyStay(ctx, player);
+}
+
+void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
     SceneQuery& query = ctx.query;
 #if USING(ENABLE_ASSERT)
     auto* player_collider = query.component<ColliderComponent>(player);
     DEV_ASSERT(player_collider);
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
+    auto script_system = query.system<NativeScriptSystem>();
+    DEV_ASSERT(script_system);
 
     auto* player_script = query.component<NativeScriptComponent>(player);
-    DEV_ASSERT(player_script && player_script->instance);
-    PlayerController* controller = dynamic_cast<PlayerController*>(player_script->instance);
+    DEV_ASSERT(player_script);
+    if (!player_script) {
+        return;
+    }
+
+    auto* instance = script_system->resolveScript(player_script->handle);
+    PlayerController* controller = dynamic_cast<PlayerController*>(instance);
     DEV_ASSERT(controller);
+    if (!controller) {
+        return;
+    }
 
     Entity enemy = entity();
 
@@ -96,6 +110,7 @@ void EnemyControllerBase::onBodyOverlapping(SceneContext& ctx, ecs::Entity playe
             kPlayerKnockbackY,
         },
     };
+
     controller->takeDamage(*player_velocity, *player_motor, hurt_info);
 }
 

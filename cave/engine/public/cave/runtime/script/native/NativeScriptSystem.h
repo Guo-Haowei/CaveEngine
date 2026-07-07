@@ -2,27 +2,29 @@
 // File: cave/runtime/script/native/NativeScriptSystem.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/GenIdRegistry.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 #include "cave/runtime/script/native/NativeScript.h"
 #include "cave/runtime/script/native/NativeScriptComponent.h"
 
 namespace cave {
 
+class NativeScriptStorage;
+
 class NativeScriptSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::NativeScript)
 
 public:
     NativeScriptSystem(NativeScriptRegistry& script_registry);
-    ~NativeScriptSystem() override { clear(); }
+    ~NativeScriptSystem() override;
 
-    void destroyScript(NativeScriptRegistry& script_registry,
-                       NativeScriptComponent& component);
+    NativeScript* resolveScript(NativeScriptId id);
+
+    void destroyScript(NativeScriptComponent& component);
 
     void alwaysRun(SceneContext& ctx);
 
 private:
-    void clear();
-
     void start(SceneContext& ctx) override;
     void update(SceneTickContext& ctx) override;
 
@@ -30,14 +32,11 @@ private:
 
     SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
 
-    void ensureBound(SceneContext& ctx,
-                     ecs::Entity entity,
+    void ensureBound(ecs::Entity entity,
                      NativeScriptComponent& component);
 
-    NativeScriptRegistry& m_script_registry;
+    std::unique_ptr<NativeScriptStorage> m_storage;
     const DebugId m_debug_id;
-
-    std::unordered_map<NativeScript*, FixedString<32>> m_scripts;
 };
 
 }  // namespace cave

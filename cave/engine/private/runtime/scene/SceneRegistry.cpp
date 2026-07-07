@@ -1,10 +1,10 @@
 #include "SceneRegistry.h"
 
 #include "cave/core/diagnostics/ILogSink.h"
+#include "cave/core/ids/GenIdRegistry.h"
 #include "cave/core/threading/Threads.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/ids/GenIdRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #define ASSERT_GAME_THREAD()                        \

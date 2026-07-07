@@ -34,7 +34,7 @@ ChangePropertyCmd::ChangePropertyCmd(SceneRegistry& scene_reg,
 
 bool ChangePropertyCmd::apply(IDocument& doc) {
     SceneId scene_id = doc.previewScene();
-    if (!scene_id.isValid()) return false;
+    if (!scene_id.valid()) return false;
     Scene* scene = resolveScene(scene_id);
     if (!scene) return false;
 
@@ -50,7 +50,7 @@ bool ChangePropertyCmd::apply(IDocument& doc) {
 
 bool ChangePropertyCmd::undo(IDocument& doc) {
     SceneId scene_id = doc.previewScene();
-    if (!scene_id.isValid()) return false;
+    if (!scene_id.valid()) return false;
     Scene* scene = resolveScene(scene_id);
     if (!scene) return false;
 

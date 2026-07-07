@@ -126,7 +126,7 @@ void TileWorldSystem::rebuildCollision(SceneContext& ctx) {
         }
     }
 
-    if (m_world_bound.isValid()) {
+    if (m_world_bound.valid()) {
         m_world_bound.setMinMax(m_world_bound.min(), m_world_bound.max() + Vec2f::One);
     }
 }

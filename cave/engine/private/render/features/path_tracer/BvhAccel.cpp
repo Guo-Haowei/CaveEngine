@@ -69,7 +69,7 @@ BvhBuilder::BvhBuilder(const VertexList& p_vertices,
         m_aabbs[i].expandToInclude(a);
         m_aabbs[i].expandToInclude(b);
         m_aabbs[i].expandToInclude(c);
-        m_aabbs[i].makeValid();
+        m_aabbs[i].expandIfDegenerate();
     }
 }
 
@@ -94,7 +94,7 @@ AABB BvhBuilder::AABBFromTriangles(const std::vector<uint32_t>& p_indices) const
         aabb.expandToInclude(m_vertices[points.y]);
         aabb.expandToInclude(m_vertices[points.z]);
     }
-    aabb.makeValid();
+    aabb.expandIfDegenerate();
     return aabb;
 }
 
@@ -113,7 +113,7 @@ void BvhBuilder::SplitByAxis(BvhAccel* p_parent,
 }
 
 static float SurfaceArea(const Box3& p_box) {
-    if (!p_box.isValid()) return 0.0f;
+    if (!p_box.valid()) return 0.0f;
     Vec3f span = p_box.size();
     const float result = 2.0f * (span.x * span.y +
                                  span.x * span.z +
@@ -162,7 +162,7 @@ BvhAccel::Ref BvhBuilder::ConstructHelper(const BvhAccel* p_parent, const std::v
         const Vec3f& point = m_centroids.at(index);
         centroidBox.expandToInclude(point);
     }
-    centroidBox.makeValid();
+    centroidBox.expandIfDegenerate();
 
     const int axis = DominantAxis(centroidBox);
     const float tmin = centroidBox.min()[axis];
@@ -245,7 +245,7 @@ void BvhAccel::DiscoverIdx() {
 
 void BvhAccel::FillGpuBvhAccel(std::vector<GpuPtBvh>& p_out) {
     DiscoverIdx();
-    DEV_ASSERT(aabb.isValid());
+    DEV_ASSERT(aabb.valid());
 
     GpuPtBvh gpu_bvh;
     gpu_bvh.min = aabb.min();

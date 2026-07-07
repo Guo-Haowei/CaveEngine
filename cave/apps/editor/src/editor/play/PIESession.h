@@ -26,7 +26,7 @@ public:
 
     void tick(const FrameTime& time);
 
-    bool running() const { return m_pie_scene.isValid(); }
+    bool running() const { return m_pie_scene.valid(); }
     SceneId getPIESceneId() const { return m_pie_scene; }
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;

@@ -110,7 +110,7 @@ void SwGraphicsManager::ProcessFragment(OutTriangle& vs_out) {
     aabb.expandToInclude(b);
     aabb.expandToInclude(c);
     aabb.clip(screenBox);
-    bool intersect = aabb.isValid();
+    bool intersect = aabb.valid();
     // discard if not intersect
     if (!intersect) {
         return;

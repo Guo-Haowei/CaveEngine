@@ -160,12 +160,6 @@ void Scene::end() {
         m_runtime->shutdown();
         m_runtime.reset();
     }
-
-    // @TODO: not sure if this is the best way to clean up
-    for (auto [ent, script] : view<NativeScriptComponent>()) {
-        script.instance = nullptr;
-        script.always_run_called = false;
-    }
 }
 
 void Scene::tick(SceneTickContext ctx) {
@@ -265,14 +259,6 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
         CRASH_NOW_MSG("remap skin and skeleton");
     }
 
-    // clear script instances if needed
-    for (auto [id, script] : copy.view<NativeScriptComponent>()) {
-        if (script.instance) {
-            script.instance = nullptr;
-            script.always_run_called = false;
-        }
-    }
-
     // merge components
     for (uint16_t cid = 0; cid < (uint16_t)copy.m_storage.entries_.size(); ++cid) {
         auto& entry = copy.m_storage.entries_[cid];
@@ -346,11 +332,6 @@ void Scene::removeEntity(ecs::Entity ent) {
 
     for (auto child : children) {
         removeEntity(child);
-    }
-
-    NativeScriptComponent* script = component<NativeScriptComponent>(ent);
-    if (script && script->instance) {
-        script->instance->destroy();
     }
 
     for (auto& e : m_storage.entries()) {

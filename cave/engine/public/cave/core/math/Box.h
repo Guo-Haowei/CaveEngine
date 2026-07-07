@@ -17,107 +17,107 @@ class Box {
     // - Empty: any min[i] == max[i]
     // - Invalid: min/max are NaN or explicitly invalidated (we use +inf/-inf sentinel)
 public:
-    static constexpr Scalar BOX_MIN_SIZE = Scalar(0.0001);
+    static constexpr Scalar kBoxMinSize = Scalar(0.0001);
 
     constexpr Box() noexcept { invalidate(); }
 
     constexpr Box(const Vec& min, const Vec& max) noexcept
-        : min_(min), max_(max) {}
+        : m_min(min), m_max(max) {}
 
     static constexpr Self fromCenterHalfExtent(const Vec& center, const Vec& half) noexcept {
         return Self(center - half, center + half);
     }
 
-    constexpr const Vec& min() const noexcept { return min_; }
-    constexpr const Vec& max() const noexcept { return max_; }
+    constexpr const Vec& min() const noexcept { return m_min; }
+    constexpr const Vec& max() const noexcept { return m_max; }
     constexpr void setMinMax(const Vec& min, const Vec& max) noexcept {
-        min_ = min;
-        max_ = max;
+        m_min = min;
+        m_max = max;
     }
 
-    constexpr Vec center() const noexcept { return (min_ + max_) * Scalar(0.5); }
-    constexpr Vec size() const noexcept { return max_ - min_; }
-    constexpr Vec halfExtent() const noexcept { return (max_ - min_) * Scalar(0.5); }
+    constexpr Vec center() const noexcept { return (m_min + m_max) * Scalar(0.5); }
+    constexpr Vec size() const noexcept { return m_max - m_min; }
+    constexpr Vec halfExtent() const noexcept { return (m_max - m_min) * Scalar(0.5); }
 
     void invalidate() {
         constexpr Scalar inf = std::numeric_limits<Scalar>::infinity();
-        min_ = Vec(inf);
-        max_ = Vec(-inf);
+        m_min = Vec(inf);
+        m_max = Vec(-inf);
     }
 
     constexpr bool contains(const Vec& point) const noexcept {
-        if (!isValid()) return false;
-        if (point.x < min_.x || point.x > max_.x) return false;
-        if (point.y < min_.y || point.y > max_.y) return false;
+        if (!valid()) return false;
+        if (point.x < m_min.x || point.x > m_max.x) return false;
+        if (point.y < m_min.y || point.y > m_max.y) return false;
         if constexpr (N == 3)
-            if (point.z < min_.z || point.z > max_.z) return false;
+            if (point.z < m_min.z || point.z > m_max.z) return false;
         return true;
     }
 
-    bool isValid() const {
-        if (min_.x >= max_.x) return false;
-        if (min_.y >= max_.y) return false;
+    bool valid() const {
+        if (m_min.x >= m_max.x) return false;
+        if (m_min.y >= m_max.y) return false;
         if constexpr (N == 3)
-            if (min_.z >= max_.z) return false;
+            if (m_min.z >= m_max.z) return false;
         return true;
     }
 
-    void makeValid() {
-        const Vec size = max_ - min_;
+    void expandIfDegenerate() {
+        const Vec size = m_max - m_min;
         if (size.x == 0.0f) {
-            min_.x -= BOX_MIN_SIZE;
-            max_.x += BOX_MIN_SIZE;
+            m_min.x -= kBoxMinSize;
+            m_max.x += kBoxMinSize;
         }
         if (size.y == 0.0f) {
-            min_.y -= BOX_MIN_SIZE;
-            max_.y += BOX_MIN_SIZE;
+            m_min.y -= kBoxMinSize;
+            m_max.y += kBoxMinSize;
         }
         if constexpr (N > 2) {
             if (size.z == 0.0f) {
-                min_.z -= BOX_MIN_SIZE;
-                max_.z += BOX_MIN_SIZE;
+                m_min.z -= kBoxMinSize;
+                m_max.z += kBoxMinSize;
             }
         }
     }
 
     void expandToInclude(const Vec& point) {
-        min_ = math::min(min_, point);
-        max_ = math::max(max_, point);
+        m_min = math::min(m_min, point);
+        m_max = math::max(m_max, point);
     }
 
     void expandToInclude(const Self& box) {
-        min_ = math::min(min_, box.min_);
-        max_ = math::max(max_, box.max_);
+        m_min = math::min(m_min, box.m_min);
+        m_max = math::max(m_max, box.m_max);
     }
 
     void clip(const Self& box) {
-        min_ = math::max(min_, box.min_);
-        max_ = math::min(max_, box.max_);
+        m_min = math::max(m_min, box.m_min);
+        m_max = math::min(m_max, box.m_max);
     }
 
     constexpr bool intersects(const Self& other) const noexcept {
-        if (!isValid() || !other.isValid()) return false;
-        if (max_.x <= other.min_.x || min_.x >= other.max_.x) return false;
-        if (max_.y <= other.min_.y || min_.y >= other.max_.y) return false;
+        if (!valid() || !other.valid()) return false;
+        if (m_max.x <= other.m_min.x || m_min.x >= other.m_max.x) return false;
+        if (m_max.y <= other.m_min.y || m_min.y >= other.m_max.y) return false;
         if constexpr (N == 3) {
-            if (max_.z <= other.min_.z || min_.z >= other.max_.z) return false;
+            if (m_max.z <= other.m_min.z || m_min.z >= other.m_max.z) return false;
         }
         return true;
     }
 
     constexpr bool touchesOrIntersects(const Self& other) const noexcept {
-        if (!isValid() || !other.isValid()) return false;
-        if (max_.x < other.min_.x || min_.x > other.max_.x) return false;
-        if (max_.y < other.min_.y || min_.y > other.max_.y) return false;
+        if (!valid() || !other.valid()) return false;
+        if (m_max.x < other.m_min.x || m_min.x > other.m_max.x) return false;
+        if (m_max.y < other.m_min.y || m_min.y > other.m_max.y) return false;
         if constexpr (N == 3) {
-            if (max_.z < other.min_.z || min_.z > other.max_.z) return false;
+            if (m_max.z < other.m_min.z || m_min.z > other.m_max.z) return false;
         }
         return true;
     }
 
 protected:
-    Vec min_;
-    Vec max_;
+    Vec m_min;
+    Vec m_max;
 };
 
 using Box2 = Box<float, 2>;
