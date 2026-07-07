@@ -5,12 +5,10 @@
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/script/native/NativeScriptComponent.h"
-#include "cave/runtime/script/native/NativeScript.h"
+#include "cave/runtime/script/native/NativeScriptSystem.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/script/native/NativeScriptSystem.h"
 
 namespace cave {
 
@@ -309,7 +307,7 @@ void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
 
     auto resolve_script = [&query, &script_system](Entity e) -> NativeScript* {
         auto* comp = query.component<NativeScriptComponent>(e);
-        return comp ? script_system->resolveScript(comp->instance_id) : nullptr;
+        return comp ? script_system->resolveScript(comp->handle) : nullptr;
     };
 
     auto fire_enter_or_stay = [&resolve_script, &ctx](bool is_trigger, Entity self, Entity other, bool was_overlapping) {

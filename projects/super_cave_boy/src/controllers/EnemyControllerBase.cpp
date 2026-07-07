@@ -4,7 +4,7 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/MotorSystem.h"
-#include "cave/runtime/script/native/NativeScriptComponent.h"
+#include "cave/runtime/script/native/NativeScriptSystem.h"
 
 #include "Utility.h"
 
@@ -63,14 +63,21 @@ void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
     DEV_ASSERT(player_collider);
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
+    auto script_system = query.system<NativeScriptSystem>();
+    DEV_ASSERT(script_system);
 
-    CRASH_NOW();
-#if 0
     auto* player_script = query.component<NativeScriptComponent>(player);
-    DEV_ASSERT(player_script && player_script->instance);
-    PlayerController* controller = dynamic_cast<PlayerController*>(player_script->instance);
+    DEV_ASSERT(player_script);
+    if (!player_script) {
+        return;
+    }
+
+    auto* instance = script_system->resolveScript(player_script->handle);
+    PlayerController* controller = dynamic_cast<PlayerController*>(instance);
     DEV_ASSERT(controller);
-#endif
+    if (!controller) {
+        return;
+    }
 
     Entity enemy = entity();
 
@@ -78,7 +85,7 @@ void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
     auto* player_motor = query.component<MotorComponent>(player);
     DEV_ASSERT(player_motor && player_velocity);
     if (IsStompingEnemy(query, player, enemy)) {
-        // controller->bounceFromEnemy(*player_velocity, *player_motor, kPlayerBounceSpeed);
+        controller->bounceFromEnemy(*player_velocity, *player_motor, kPlayerBounceSpeed);
         query.queueDestroy(enemy);
         return;
     }
@@ -99,7 +106,8 @@ void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
             kPlayerKnockbackY,
         },
     };
-    // controller->takeDamage(*player_velocity, *player_motor, hurt_info);
+
+    controller->takeDamage(*player_velocity, *player_motor, hurt_info);
 }
 
 Entity EnemyControllerBase::findPlayer(SceneQuery& query) const {

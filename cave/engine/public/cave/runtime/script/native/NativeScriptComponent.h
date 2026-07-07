@@ -21,7 +21,7 @@ struct NativeScriptComponent {
     VariantMap params;
 
     // Non-Serialized
-    NativeScriptId instance_id;
+    NativeScriptId handle;
     bool always_run_called = false;
 
     bool operator==(const NativeScriptComponent& rhs) const {

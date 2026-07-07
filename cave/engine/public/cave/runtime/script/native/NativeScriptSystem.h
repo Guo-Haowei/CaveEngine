@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/script/native/NativeScriptSystem.h
+// =============================================================================
 #pragma once
 #include "cave/core/ids/GenIdRegistry.h"
 #include "cave/runtime/scene/ISceneSystem.h"
