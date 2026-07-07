@@ -56,6 +56,10 @@ void EnemyControllerBase::start(SceneContext& ctx) {
 void EnemyControllerBase::destroy() {
 }
 
+void EnemyControllerBase::onBodyEntered(cave::SceneContext& ctx, Entity player) {
+    return onBodyStay(ctx, player);
+}
+
 void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
     SceneQuery& query = ctx.query;
 #if USING(ENABLE_ASSERT)
