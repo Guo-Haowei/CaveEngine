@@ -37,10 +37,7 @@ bool TextBox(const char* label,
         ImGui::NextColumn();
     }
 
-    int flags = 0;
-    // if (enter_returns_true) {
-    //     flags |= ImGuiInputTextFlags_EnterReturnsTrue;
-    // }
+    int flags = ImGuiInputTextFlags_EnterReturnsTrue;
 
     auto tag = std::format("##{}", label ? label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
