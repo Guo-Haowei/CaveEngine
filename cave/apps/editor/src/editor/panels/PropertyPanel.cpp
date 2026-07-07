@@ -29,7 +29,6 @@ using namespace ::cave::math;
 // @TODO: add motor2d?
 #define COMPONENT_LIST              \
     COMPONENT_DECL(Camera)          \
-    COMPONENT_DECL(LuaScript)       \
     COMPONENT_DECL(NativeScript)    \
     COMPONENT_DECL(SpriteAnimator)  \
     COMPONENT_DECL(Collider)        \
@@ -201,7 +200,7 @@ void PropertyPanel::drawUIImpl() {
 
     {
         FixedString<64> name = name_component->nameRef();
-        if (ui::TextBox("Name", name.data(), name.capacity())) {
+        if (ui::TextBox("Name", name)) {
             auto cmd = std::make_unique<ChangePropertyCmd>(
                 m_engine_services.sceneRegistry(),
                 id,
@@ -255,7 +254,6 @@ void PropertyPanel::drawUIImpl() {
     LightComponent* light = scene.component<LightComponent>(id);
     MaterialComponent* material = scene.component<MaterialComponent>(id);
     ColliderComponent* collider = scene.component<ColliderComponent>(id);
-    LuaScriptComponent* lua_script = scene.component<LuaScriptComponent>(id);
     NativeScriptComponent* native_script = scene.component<NativeScriptComponent>(id);
     CameraComponent* camera = scene.component<CameraComponent>(id);
     PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(id);
@@ -287,17 +285,10 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Lua Script"), lua_script, [&](LuaScriptComponent& script) {
-        FixedString<32>& name = script.GetClassNameRef();
-        ui::TextBox("class_name", name.data(), name.capacity(), false);
-
-        DrawComponentAuto<LuaScriptComponent>(&script, ctx);
-    });
-
     DrawComponent(DRAW_COMPONENT_ARGS("Native Script"), native_script, [&](NativeScriptComponent& script) {
         // @TODO: fix this
         FixedString<32>& name = script.name;
-        ui::TextBox("class_name", name.data(), name.capacity(), false);
+        ui::TextBox("class_name", name);
 
         DrawComponentAuto<NativeScriptComponent>(&script, ctx);
     });

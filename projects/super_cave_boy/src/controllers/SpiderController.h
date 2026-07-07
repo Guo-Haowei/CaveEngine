@@ -1,7 +1,7 @@
 #pragma once
+#include "cave/core/time/CountdownTimer.h"
 
 #include "EnemyControllerBase.h"
-
 #include "Utility.h"
 
 namespace super_cave_boy {
@@ -38,7 +38,7 @@ private:
 
     cave::math::Vec2f m_detect_range{ 5, 5 };
 
-    CountdownTimer m_wait_timer{ 1.0f };
+    cave::CountdownTimer m_wait_timer{ 1.0f };
 
     float m_attack_range_x = 6.0f;
 

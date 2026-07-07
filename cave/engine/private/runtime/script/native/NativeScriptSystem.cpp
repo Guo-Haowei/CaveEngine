@@ -1,4 +1,5 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/core/ids/GenIdRegistry.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"

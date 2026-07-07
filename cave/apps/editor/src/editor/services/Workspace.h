@@ -7,7 +7,7 @@
 #include "cave/runtime/intent/IIntentHandler.h"
 
 #include "editor/document/DocId.h"
-#include "editor/panels/Tab.h"
+#include "editor/services/WorkspaceState.h"
 
 namespace cave {
 
@@ -25,16 +25,6 @@ struct PreviewScene {
     Scene* scene{ nullptr };
 };
 
-struct ContentBrowserState {
-    std::string current_path = "@res://";
-};
-
-struct WorkspaceState {
-    ContentBrowserState content_browser;
-
-    std::vector<TabState> tabs;
-};
-
 class Workspace final : protected GenIdRegistry<Tab>,
                         public IInputConsumer,
                         public IIntentHandler {
@@ -42,7 +32,7 @@ public:
     Workspace(EditorState& editor);
     ~Workspace();
 
-    void tick();
+    void tick(float dt);
 
     void requestOpen(DocId doc_id);
     void requestClose(DocId doc_id);
@@ -67,7 +57,7 @@ public:
     WorkspaceState& workspaceState() { return m_workspace_state; }
     const WorkspaceState& workspaceState() const { return m_workspace_state; }
 
-    void restoreProjectWorkspace();
+    void restoreTabs();
 
 private:
     void openOrFocusDoc(DocId doc_id);
@@ -75,8 +65,10 @@ private:
     bool closeDoc(DocId doc_id);
 
     void refreshTabStates();
-    bool loadWorkspaceState(std::string_view path);
-    void saveWorkspaceState();
+
+    void saveWorkspaceState(float dt);
+    bool loadWorkspaceState();
+    bool buildStateCachePath();
 
     EditorState& editor_;
     EngineServices& m_engine_services;
@@ -90,6 +82,7 @@ private:
     std::unordered_map<Guid, TabId> m_guid_to_tab;
 
     WorkspaceState m_workspace_state;
+    std::filesystem::path m_workspace_file;
 };
 
 }  // namespace cave

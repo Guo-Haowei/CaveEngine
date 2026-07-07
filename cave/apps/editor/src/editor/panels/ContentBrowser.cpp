@@ -22,15 +22,11 @@
 
 namespace cave {
 
-namespace {
-
-std::vector<std::string> SplitVirtualPath(std::string_view path) {
-    std::vector<std::string> out;
-
+void ContentBrowser::CurrentPath::splitVirtualPath(std::string_view path) {
     constexpr std::string_view kRoot = "@res://";
-    out.push_back(std::string(kRoot));
+    m_parts.push_back(std::string(kRoot));
     if (path.empty() || path == kRoot) {
-        return out;
+        return;
     }
 
     DEV_ASSERT(path.starts_with(kRoot));
@@ -40,31 +36,27 @@ std::vector<std::string> SplitVirtualPath(std::string_view path) {
     StringSplitter split(s.data());
     while (split.canAdvance()) {
         std::string_view part = split.advance('/');
-        out.push_back(std::string(part));
+        m_parts.push_back(std::string(part));
     }
-
-    return out;
 }
 
-std::string JoinVirtualPath(const std::vector<std::string>& path) {
-    if (path.empty()) {
+std::string ContentBrowser::CurrentPath::joinVirtualPath() const {
+    if (m_parts.empty()) {
         return "@res://";
     }
 
-    std::string out = path[0];
+    std::string out = m_parts[0];
 
-    for (size_t i = 1; i < path.size(); ++i) {
+    for (size_t i = 1; i < m_parts.size(); ++i) {
         if (!out.ends_with('/')) {
             out += '/';
         }
 
-        out += path[i];
+        out += m_parts[i];
     }
 
     return out;
 }
-
-}  // namespace
 
 ContentBrowser::ContentBrowser(EditorState& editor)
     : EditorWindow(editor) {
@@ -76,22 +68,27 @@ const char* ContentBrowser::windowId() const {
 
 void ContentBrowser::onAttach() {
     std::string_view current_path = m_editor_services.workspace().workspaceState().content_browser.current_path;
-    current_path_ = SplitVirtualPath(current_path);
+    m_path.splitVirtualPath(current_path);
+
+    m_path.setPropertyChangeCallback([this]() {
+        auto& state = m_editor_services.workspace().workspaceState();
+        state.content_browser.current_path = m_path.joinVirtualPath();
+        state.markDirty();
+    });
 
     IconCache& icons = m_editor_services.iconCache();
-    folder_iamge_ = icons.GetIconHandle(IconName::Folder);
-    fallback_iamge_ = icons.GetIconHandle(IconName::Meta);
-    thumbnail_lut_[".scene"] = icons.GetIconHandle(IconName::Scene);
-    thumbnail_lut_[".sprite_anim"] = icons.GetIconHandle(IconName::Anim);
-    thumbnail_lut_[".lua"] = icons.GetIconHandle(IconName::Lua);
-    thumbnail_lut_[".tilemap"] = icons.GetIconHandle(IconName::TileMap);
-    thumbnail_lut_[".tileset"] = icons.GetIconHandle(IconName::TileSet);
+    m_folder_iamge = icons.GetIconHandle(IconName::Folder);
+    m_fallback_iamge = icons.GetIconHandle(IconName::Meta);
+    m_thumbnail_lut[".scene"] = icons.GetIconHandle(IconName::Scene);
+    m_thumbnail_lut[".sprite_anim"] = icons.GetIconHandle(IconName::Anim);
+    m_thumbnail_lut[".lua"] = icons.GetIconHandle(IconName::Lua);
+    m_thumbnail_lut[".tilemap"] = icons.GetIconHandle(IconName::TileMap);
+    m_thumbnail_lut[".tileset"] = icons.GetIconHandle(IconName::TileSet);
 
-    DEV_ASSERT(folder_iamge_ && fallback_iamge_);
+    DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }
 
 void ContentBrowser::onDetach() {
-    m_editor_services.workspace().workspaceState().content_browser.current_path = JoinVirtualPath(current_path_);
 }
 
 void ContentBrowser::drawUIImpl() {
@@ -102,42 +99,42 @@ void ContentBrowser::drawUIImpl() {
 void ContentBrowser::drawBreadcrumb() {
     int clicked = -1;
 
-    const int len = static_cast<int>(current_path_.size());
+    const int len = static_cast<int>(m_path.size());
     for (int i = 0; i < len; ++i) {
         if (i != 0) {
             ImGui::SameLine(0.0f, 4.0f);
         }
 
-        if (ImGui::Button(current_path_[i].c_str())) {
+        if (ImGui::Button(m_path.at(i).c_str())) {
             clicked = i;
         }
     }
     if (clicked != -1) {
-        current_path_.resize(clicked + 1);
+        m_path.getMut().resize(clicked + 1);
+        m_path.onPropertyChange();
     }
 }
 
-const ContentEntry* ContentBrowser::navigate(const ContentEntry* p_node,
-                                             int p_cur,
-                                             int p_max) {
-    if (!p_node) {
+const ContentEntry* ContentBrowser::navigate(const ContentEntry* node,
+                                             int cur,
+                                             int max) {
+    if (!node) {
         return nullptr;
     }
 
-    DEV_ASSERT(p_cur <= p_max);
+    DEV_ASSERT(cur <= max);
 
-    const auto& current = current_path_[p_cur];
-    if (current != p_node->file_name) {
+    const auto& current = m_path.at(cur);
+    if (current != node->file_name) {
         return nullptr;
     }
 
-    if (p_cur == p_max) {
-        return p_node;
+    if (cur == max) {
+        return node;
     }
 
-    for (const auto& child : p_node->children) {
-        const ContentEntry* match = navigate(child.get(), p_cur + 1, p_max);
-        if (match) {
+    for (const auto& child : node->children) {
+        if (const ContentEntry* match = navigate(child.get(), cur + 1, max)) {
             return match;
         }
     }
@@ -146,27 +143,6 @@ const ContentEntry* ContentBrowser::navigate(const ContentEntry* p_node,
 }
 
 void ContentBrowser::drawContentBrowser() {
-#if 0
-    std::vector<ToolBarButtonDesc> descs = {
-        { ICON_FA_FOLDER_CLOSED, "Placeholder",
-          []() {
-          } },
-        { ICON_FA_FOLDER_OPEN, "Placeholder",
-          []() {
-          } },
-        { ICON_FA_FOLDER_TREE, "Placeholder",
-          []() {
-          } },
-    };
-
-    std::vector<const ToolBarButtonDesc*> d;
-    for (const auto& it : descs) {
-        d.push_back(&it);
-    }
-
-    DrawToolBar(d);
-#endif
-
     drawBreadcrumb();
 
     // @TODO: reuse this part
@@ -180,10 +156,11 @@ void ContentBrowser::drawContentBrowser() {
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
     const auto& root = asset_manager.assetRoot();
-    const int max = static_cast<int>(current_path_.size()) - 1;
+    const int max = static_cast<int>(m_path.size()) - 1;
     const ContentEntry* current = navigate(root.get(), 0, max);
     if (!current) {
-        current_path_ = { "@res://" };
+        m_path.getMut() = { "@res://" };
+        m_path.onPropertyChange();
         current = root.get();
     }
     DEV_ASSERT(current->is_dir);
@@ -192,7 +169,7 @@ void ContentBrowser::drawContentBrowser() {
 
     ThumbnailService& thumbnail = m_editor_services.thumbnail();
     auto find_texture = [&](ContentEntry& p_entry) -> uint64_t {
-        if (p_entry.is_dir) return folder_iamge_;
+        if (p_entry.is_dir) return m_folder_iamge;
         const AssetMetaData* meta = p_entry.handle.meta();
         if (meta) {
             if (meta->type == AssetType::Image) {
@@ -211,8 +188,8 @@ void ContentBrowser::drawContentBrowser() {
             }
         }
 
-        if (auto it = thumbnail_lut_.find(p_entry.extension); it != thumbnail_lut_.end()) return it->second;
-        return fallback_iamge_;
+        if (auto it = m_thumbnail_lut.find(p_entry.extension); it != m_thumbnail_lut.end()) return it->second;
+        return m_fallback_iamge;
     };
 
     for (const auto& node : current->children) {
@@ -234,7 +211,7 @@ void ContentBrowser::drawContentBrowser() {
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-                current_path_.push_back(std::string(node->file_name));
+                m_path.add(std::string(node->file_name));
             }
         } else {
             if (hovered) {

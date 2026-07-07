@@ -15,6 +15,34 @@ public:
     const char* windowId() const override;
 
 protected:
+    class CurrentPath {
+    public:
+        auto& getMut() { return m_parts; }
+
+        size_t size() const { return m_parts.size(); }
+        const auto& at(int i) const { return m_parts[i]; }
+
+        void setPropertyChangeCallback(std::function<void()>&& func) {
+            m_property_change_func = std::move(func);
+        }
+
+        void onPropertyChange() {
+            m_property_change_func();
+        }
+
+        void add(std::string part) {
+            m_parts.emplace_back(std::move(part));
+            onPropertyChange();
+        }
+
+        void splitVirtualPath(std::string_view path);
+        std::string joinVirtualPath() const;
+
+    private:
+        std::function<void()> m_property_change_func;
+        std::vector<std::string> m_parts;
+    };
+
     void drawUIImpl() override;
 
     void drawContentBrowser();
@@ -22,11 +50,10 @@ protected:
 
     const ContentEntry* navigate(const ContentEntry* node, int cur, int p_max);
 
-    std::vector<std::string> current_path_;
-
-    uint64_t folder_iamge_;
-    uint64_t fallback_iamge_;
-    std::unordered_map<std::string_view, uint64_t> thumbnail_lut_;
+    CurrentPath m_path;
+    uint64_t m_folder_iamge;
+    uint64_t m_fallback_iamge;
+    std::unordered_map<std::string_view, uint64_t> m_thumbnail_lut;
 };
 
 }  // namespace cave

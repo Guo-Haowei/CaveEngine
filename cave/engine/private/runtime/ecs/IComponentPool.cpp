@@ -2,29 +2,29 @@
 
 namespace cave::ecs {
 
-bool IComponentPool::has(Entity p_ent) const {
-    if (lookup_.empty()) {
+bool IComponentPool::has(Entity ent) const {
+    if (m_lookup.empty()) {
         return false;
     }
-    return lookup_.find(p_ent) != lookup_.end();
+    return m_lookup.find(ent) != m_lookup.end();
 }
 
-void IComponentPool::remap(const std::unordered_map<Entity, Entity>& p_map) {
+void IComponentPool::remap(const std::unordered_map<Entity, Entity>& map) {
     std::unordered_map<Entity, size_t> new_lookup;
 
-    for (Entity& entity : entity_array_) {
-        auto it = p_map.find(entity);
-        CRASH_COND_MSG(it == p_map.end(), "invalid mapping");
+    for (Entity& entity : m_entity_array) {
+        auto it = map.find(entity);
+        CRASH_COND_MSG(it == map.end(), "invalid mapping");
         entity = it->second;
     }
 
-    for (const auto& [entity, index] : lookup_) {
-        auto it = p_map.find(entity);
-        CRASH_COND_MSG(it == p_map.end(), "invalid mapping");
+    for (const auto& [entity, index] : m_lookup) {
+        auto it = map.find(entity);
+        CRASH_COND_MSG(it == map.end(), "invalid mapping");
         new_lookup[it->second] = index;
     }
 
-    lookup_ = std::move(new_lookup);
+    m_lookup = std::move(new_lookup);
 }
 
 }  // namespace cave::ecs
