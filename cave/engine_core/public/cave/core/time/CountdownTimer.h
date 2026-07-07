@@ -27,10 +27,6 @@ public:
         m_remaining = 0.0f;
     }
 
-    void reset() {
-        m_remaining = m_duration;
-    }
-
     void tick(float dt) {
         m_remaining = cave::math::max(0.0f, m_remaining - dt);
     }

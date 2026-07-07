@@ -19,7 +19,6 @@
 
 // @TODO: refactor
 #include "editor/panels/SceneViewTab.h"
-#include "engine/private/runtime/serialization/YamlInclude.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
@@ -34,23 +33,20 @@ Workspace::Workspace(EditorState& editor)
     m_engine_services.inputService().addConsumer(this);
     m_engine_services.intentBus().addHandler<OpenDocIntent>(this);
     m_engine_services.intentBus().addHandler<CloseDocIntent>(this);
+
+    if (buildStateCachePath()) {
+        loadWorkspaceState();
+    }
 }
 
 Workspace::~Workspace() {
     m_engine_services.inputService().removeConsumer(this);
     m_engine_services.intentBus().removeHandler<OpenDocIntent>(this);
     m_engine_services.intentBus().removeHandler<CloseDocIntent>(this);
-
-    refreshTabStates();
-    saveWorkspaceState();
 }
 
-void Workspace::restoreProjectWorkspace() {
-    ProjectManager& project_mgr = m_engine_services.projectManager();
+void Workspace::restoreTabs() {
     DocumentService& document = m_editor_services.document();
-
-    loadWorkspaceState(project_mgr.projectRoot());
-
     Option<OpenDocDesc> active_doc;
     for (const TabState& tab : m_workspace_state.tabs) {
         if (auto handle = m_engine_services.assetRegistry().findByGuid(tab.guid)) {
@@ -69,8 +65,11 @@ void Workspace::restoreProjectWorkspace() {
     }
 }
 
-void Workspace::tick() {
+void Workspace::tick(float dt) {
     drawTabs();
+
+    refreshTabStates();
+    saveWorkspaceState(dt);
 }
 
 DocId Workspace::focusedDoc() {
@@ -280,29 +279,6 @@ void Workspace::onAssetChanged(const Guid&, std::span<const Guid> affected) {
     }
 }
 
-namespace {
-
-fs::path WorkspaceFilePath(std::string_view project_root) {
-    DEV_ASSERT(!project_root.empty());
-    return fs::path{ project_root } / ".cave" / "workspace.yaml";
-}
-
-bool EnsureParentDirExists(const fs::path& file_path) {
-    std::error_code ec;
-    fs::create_directories(file_path.parent_path(), ec);
-
-    if (ec) {
-        LOG_ERROR("Failed to create directory '{}': {}",
-                  file_path.parent_path().string(),
-                  ec.message());
-        return false;
-    }
-
-    return true;
-}
-
-}  // namespace
-
 void Workspace::refreshTabStates() {
     auto& tabs = m_workspace_state.tabs;
     tabs.clear();
@@ -321,121 +297,36 @@ void Workspace::refreshTabStates() {
             tabs.emplace_back(std::move(tab_state));
         }
     }
+
+    // @TODO: proper dirty tracking
+    m_workspace_state.markDirty();
 }
 
-bool Workspace::loadWorkspaceState(std::string_view project_root) {
-    if (project_root.empty()) {
-        return false;
-    }
-
-    const fs::path path = WorkspaceFilePath(project_root);
-
-    if (!fs::exists(path)) {
-        return true;
-    }
-
-    YAML::Node root;
-    if (auto res = LoadYaml(path.string(), root); !res) {
-        LOG_ERROR(LogChannel::FS, "{}", ToString(res.error()));
-        return false;
-    }
-
-    YamlDeserializer yaml;
-    yaml.Initialize(root);
-    IDeserializer& d = yaml;
-
-    if (d.tryEnterKey("content_browser")) {
-        if (d.tryEnterKey("current_path")) {
-            d.read(m_workspace_state.content_browser.current_path);
-            d.leaveKey();
-        }
-        d.leaveKey();
-    }
-
-    m_workspace_state.tabs.clear();
-    if (d.tryEnterKey("tabs")) {
-        const int size = d.arraySize().unwrap_or(0);
-        for (int i = 0; i < size; ++i) {
-            if (d.tryEnterIndex(i)) {
-                m_workspace_state.tabs.resize(m_workspace_state.tabs.size() + 1);
-                auto& tab_state = m_workspace_state.tabs.back();
-                if (d.tryEnterKey("guid")) {
-                    d.read(tab_state.guid);
-                    d.leaveKey();
-                }
-
-                if (d.tryEnterKey("active")) {
-                    d.read(tab_state.active);
-                    d.leaveKey();
-                }
-
-                TransformComponent transform;
-                if (d.tryEnterKey("transform")) {
-                    if (d.read(transform)) {
-                        tab_state.transform = Some(transform);
-                    }
-                    d.leaveKey();
-                }
-
-                CameraComponent camera;
-                if (d.tryEnterKey("camera")) {
-                    if (d.read(camera)) {
-                        tab_state.camera = Some(camera);
-                    }
-                    d.leaveKey();
-                }
-
-                d.leaveIndex();
-            }
-        }
-        d.leaveKey();
+bool Workspace::buildStateCachePath() {
+    ProjectManager& project_mgr = m_engine_services.projectManager();
+    std::string project_root = project_mgr.projectRoot();
+    if (DEV_VERIFY(!project_root.empty())) {
+        m_workspace_file = fs::path{ project_root } / ".cave" / "workspace.yaml";
     }
 
     return true;
 }
 
-void Workspace::saveWorkspaceState() {
-    ProjectManager& project_mgr = m_engine_services.projectManager();
-    const fs::path path = WorkspaceFilePath(project_mgr.projectRoot());
+bool Workspace::loadWorkspaceState() {
+    if (m_workspace_file.empty()) {
+        return false;
+    }
 
-    if (!EnsureParentDirExists(path)) {
+    return m_workspace_state.load(m_workspace_file);
+}
+
+void Workspace::saveWorkspaceState(float dt) {
+    if (m_workspace_file.empty()) {
         return;
     }
 
-    YamlSerializer yaml;
-    yaml.beginMap(false);
-
-    yaml.beginKey("content_browser")
-        .beginMap(false)
-        .beginKey("current_path")
-        .write(m_workspace_state.content_browser.current_path)
-        .endMap();
-
-    if (!m_workspace_state.tabs.empty()) {
-        yaml.beginKey("tabs")
-            .beginArray(false);
-        for (const auto& tab : m_workspace_state.tabs) {
-            yaml.beginMap(false)
-                .beginKey("guid")
-                .write(tab.guid);
-            if (tab.active) {
-                yaml.beginKey("active").write(tab.active);
-            }
-            if (tab.camera.is_some()) {
-                yaml.beginKey("camera").write(tab.camera.unwrap_unchecked());
-            }
-            if (tab.transform.is_some()) {
-                yaml.beginKey("transform").write(tab.transform.unwrap_unchecked());
-            }
-            yaml.endMap();
-        }
-        yaml.endArray();
-    }
-
-    yaml.endMap();
-
-    if (auto res = SaveYaml(path.string(), yaml); !res) {
-        LOG_ERROR(LogChannel::FS, "{}", ToString(res.error()));
+    if (!m_workspace_state.save(m_workspace_file, dt)) {
+        LOG_WARN(LogChannel::FS, "failed to save '{}'", m_workspace_file.string());
     }
 }
 

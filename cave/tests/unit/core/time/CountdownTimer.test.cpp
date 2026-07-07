@@ -79,7 +79,7 @@ TEST(CountdownTimer, ResetRestartsUsingStoredDuration) {
     timer.start();
     timer.tick(0.75f);
 
-    timer.reset();
+    timer.start();
 
     EXPECT_TRUE(timer.active());
     EXPECT_EQ(timer.remaining(), 2.0f);

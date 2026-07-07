@@ -113,7 +113,7 @@ void EditorState::onEnter(const StateRequest& request) {
     auto game_dll = std::format("{}.dll", request.arg0);
     ensureGameModuleLoaded(game_dll.c_str());
 
-    m_workspace->restoreProjectWorkspace();
+    m_workspace->restoreTabs();
 }
 
 void EditorState::onExit() {
@@ -130,14 +130,14 @@ void EditorState::onExit() {
     }
 }
 
-void EditorState::tick(const FrameTime& p_time) {
+void EditorState::tick(const FrameTime& time) {
     CAVE_PROFILE_EVENT();
 
     BusyInfo info;
-    m_thumbnail->tick(p_time, info);
+    m_thumbnail->tick(time, info);
 
     if (isPlaying()) {
-        m_pie->tick(p_time);
+        m_pie->tick(time);
     }
 
     ImguiManager* imgui_manager = m_app.imguiManager();
@@ -151,7 +151,7 @@ void EditorState::tick(const FrameTime& p_time) {
         panel->drawUI();
     }
 
-    m_workspace->tick();
+    m_workspace->tick(time.dt);
 
     ImGui::Render();
 
