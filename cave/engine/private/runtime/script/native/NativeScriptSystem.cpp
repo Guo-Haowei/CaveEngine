@@ -89,8 +89,18 @@ NativeScriptSystem::~NativeScriptSystem() = default;
 
 void NativeScriptSystem::ensureBound(Entity entity,
                                      NativeScriptComponent& script) {
-    if (script.name.empty() || script.handle.valid()) {
+    if (script.name.empty()) {
         return;
+    }
+
+    if (script.handle.valid()) {
+        if (m_storage->resolveScript(script.handle)) {
+            return;
+        }
+
+        script.handle = {};
+        script.always_run_called = false;
+        LOG_WARN(LogChannel::Script, "Found stale handle '{}'", script.name.c_str());
     }
 
     NativeScriptId instance_id = m_storage->createScript(script.name);
