@@ -58,7 +58,14 @@ bool WorkspaceState::save(const std::filesystem::path& path, float dt) {
     return true;
 }
 
-bool WorkspaceState::saveImpl(const fs::path& path) {
+bool WorkspaceState::saveNow(const std::filesystem::path& path) {
+    const bool ok = saveImpl(path);
+    m_dirty = !ok;
+    m_timer.start();
+    return ok;
+}
+
+bool WorkspaceState::saveImpl(const fs::path& path) const {
     if (!EnsureParentDirExists(path)) {
         return false;
     }

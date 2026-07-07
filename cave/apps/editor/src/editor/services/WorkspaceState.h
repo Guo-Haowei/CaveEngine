@@ -17,13 +17,14 @@ public:
 
     std::vector<TabState> tabs;
 
-    bool save(const std::filesystem::path& path, float dt);
     bool load(const std::filesystem::path& path);
+    bool save(const std::filesystem::path& path, float dt);
+    bool saveNow(const std::filesystem::path& path);
 
     void markDirty();
 
 private:
-    bool saveImpl(const std::filesystem::path& path);
+    bool saveImpl(const std::filesystem::path& path) const;
 
     bool m_dirty = false;
     CountdownTimer m_timer{ 10 };

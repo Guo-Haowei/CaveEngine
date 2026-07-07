@@ -43,6 +43,8 @@ Workspace::~Workspace() {
     m_engine_services.inputService().removeConsumer(this);
     m_engine_services.intentBus().removeHandler<OpenDocIntent>(this);
     m_engine_services.intentBus().removeHandler<CloseDocIntent>(this);
+
+    m_workspace_state.saveNow(m_workspace_file);
 }
 
 void Workspace::restoreTabs() {
