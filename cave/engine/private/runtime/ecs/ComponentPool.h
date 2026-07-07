@@ -50,8 +50,8 @@ public:
     size_t count() const override { return component_array_.size(); }
 
     Option<size_t> findIndex(Entity ent) const {
-        auto it = lookup_.find(ent);
-        if (it == lookup_.end()) return None();
+        auto it = m_lookup.find(ent);
+        if (it == m_lookup.end()) return None();
         return Some(it->second);
     }
 
@@ -69,24 +69,24 @@ template<ComponentType T>
 void ComponentPool<T>::reserve(size_t p_capacity) {
     if (p_capacity) {
         component_array_.reserve(p_capacity);
-        entity_array_.reserve(p_capacity);
-        lookup_.reserve(p_capacity);
+        m_entity_array.reserve(p_capacity);
+        m_lookup.reserve(p_capacity);
     }
 }
 
 template<ComponentType T>
 void ComponentPool<T>::clear() {
     component_array_.clear();
-    entity_array_.clear();
-    lookup_.clear();
+    m_entity_array.clear();
+    m_lookup.clear();
 }
 
 template<ComponentType T>
 void ComponentPool<T>::copy(const ComponentPool<T>& p_other) {
     clear();
     component_array_ = p_other.component_array_;
-    entity_array_ = p_other.entity_array_;
-    lookup_ = p_other.lookup_;
+    m_entity_array = p_other.m_entity_array;
+    m_lookup = p_other.m_lookup;
 }
 
 template<ComponentType T>
@@ -100,14 +100,14 @@ void ComponentPool<T>::merge(ComponentPool<T>&& p_other) {
     const size_t other_count = p_other.count();
     const size_t reserved = base_count + other_count;
     component_array_.reserve(reserved);
-    entity_array_.reserve(reserved);
-    lookup_.reserve(reserved);
+    m_entity_array.reserve(reserved);
+    m_lookup.reserve(reserved);
 
     for (size_t i = 0; i < other_count; ++i) {
-        Entity entity = p_other.entity_array_[i];
+        Entity entity = p_other.m_entity_array[i];
         DEV_ASSERT(!has(entity));
-        entity_array_.push_back(entity);
-        lookup_[entity] = base_count + i;
+        m_entity_array.push_back(entity);
+        m_lookup[entity] = base_count + i;
         component_array_.push_back(std::move(p_other.component_array_[i]));
     }
 
@@ -124,13 +124,13 @@ T& ComponentPool<T>::create(Entity p_ent) {
     DEV_ASSERT(p_ent.IsValid());
 
     const size_t componentCount = component_array_.size();
-    DEV_ASSERT(lookup_.find(p_ent) == lookup_.end());
-    DEV_ASSERT(entity_array_.size() == componentCount);
-    DEV_ASSERT(lookup_.size() == componentCount);
+    DEV_ASSERT(m_lookup.find(p_ent) == m_lookup.end());
+    DEV_ASSERT(m_entity_array.size() == componentCount);
+    DEV_ASSERT(m_lookup.size() == componentCount);
 
-    lookup_[p_ent] = componentCount;
+    m_lookup[p_ent] = componentCount;
     component_array_.emplace_back();
-    entity_array_.push_back(p_ent);
+    m_entity_array.push_back(p_ent);
     return component_array_.back();
 }
 
@@ -152,13 +152,13 @@ const void* ComponentPool<T>::getRaw(Entity p_ent) const {
 
 template<ComponentType T>
 void ComponentPool<T>::remove(Entity p_ent) {
-    auto it = lookup_.find(p_ent);
-    if (it == lookup_.end()) {
+    auto it = m_lookup.find(p_ent);
+    if (it == m_lookup.end()) {
         return;
     }
 
     const size_t index = it->second;
-    DEV_ASSERT_INDEX(index, entity_array_.size());
+    DEV_ASSERT_INDEX(index, m_entity_array.size());
     const size_t last = component_array_.size() - 1;
 
     if (index != last) {
@@ -166,17 +166,17 @@ void ComponentPool<T>::remove(Entity p_ent) {
         component_array_[index] = std::move(component_array_[last]);
 
         // 2) Move last entity id into the gap
-        const Entity movedEntity = entity_array_[last];
-        entity_array_[index] = movedEntity;
+        const Entity movedEntity = m_entity_array[last];
+        m_entity_array[index] = movedEntity;
 
         // 3) Fix the moved entity's index in the lookup
-        lookup_[movedEntity] = index;
+        m_lookup[movedEntity] = index;
     }
 
     // 4) Pop the last slot and erase the removed entity from the map
     component_array_.pop_back();
-    entity_array_.pop_back();
-    lookup_.erase(it);
+    m_entity_array.pop_back();
+    m_lookup.erase(it);
 }
 
 template<ComponentType T>
@@ -193,13 +193,13 @@ const T& ComponentPool<T>::getComponentByIndex(size_t p_index) const {
 
 template<ComponentType T>
 T* ComponentPool<T>::getComponent(Entity p_ent) {
-    if (!p_ent.IsValid() || lookup_.empty()) {
+    if (!p_ent.IsValid() || m_lookup.empty()) {
         return nullptr;
     }
 
-    auto it = lookup_.find(p_ent);
+    auto it = m_lookup.find(p_ent);
 
-    if (it == lookup_.end()) {
+    if (it == m_lookup.end()) {
         return nullptr;
     }
 
@@ -208,13 +208,13 @@ T* ComponentPool<T>::getComponent(Entity p_ent) {
 
 template<ComponentType T>
 const T* ComponentPool<T>::getComponent(Entity p_ent) const {
-    if (!p_ent.IsValid() || lookup_.empty()) {
+    if (!p_ent.IsValid() || m_lookup.empty()) {
         return nullptr;
     }
 
-    auto it = lookup_.find(p_ent);
+    auto it = m_lookup.find(p_ent);
 
-    if (it == lookup_.end()) {
+    if (it == m_lookup.end()) {
         return nullptr;
     }
 

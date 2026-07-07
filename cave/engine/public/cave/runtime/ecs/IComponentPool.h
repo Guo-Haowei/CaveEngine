@@ -35,12 +35,12 @@ public:
     void remap(const std::unordered_map<Entity, Entity>& map);
 
     const std::vector<Entity>& entityArray() const {
-        return entity_array_;
+        return m_entity_array;
     }
 
 protected:
-    std::vector<Entity> entity_array_;
-    std::unordered_map<Entity, size_t> lookup_;
+    std::vector<Entity> m_entity_array;
+    std::unordered_map<Entity, size_t> m_lookup;
 };
 
 }  // namespace cave::ecs
