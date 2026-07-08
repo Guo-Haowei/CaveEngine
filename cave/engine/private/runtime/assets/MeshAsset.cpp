@@ -72,7 +72,7 @@ void MeshAsset::OnDeserialized() {
     }
 }
 
-std::vector<Guid> MeshAsset::dependencies() const {
+Vector<Guid> MeshAsset::dependencies() const {
     return {};
 }
 

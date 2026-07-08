@@ -35,7 +35,7 @@ public:
 
     virtual Result<void> saveToDisk(const AssetMetaData&) const = 0;
 
-    virtual std::vector<Guid> dependencies() const = 0;
+    virtual Vector<Guid> dependencies() const = 0;
 };
 
 using AssetRef = Ref<IAsset>;

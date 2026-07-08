@@ -70,7 +70,7 @@ void TileSetAsset::setImage(const Guid& guid) {
     updateFrames();
 }
 
-std::vector<Guid> TileSetAsset::dependencies() const {
+Vector<Guid> TileSetAsset::dependencies() const {
     return { image_guid_ };
 }
 

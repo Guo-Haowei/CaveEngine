@@ -17,6 +17,7 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/assets/PrefabAsset.h"
 #include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -44,6 +45,19 @@ using AssetCreateFunc = AssetRef (*)(void);
 
 namespace {
 
+void InitializeDefault(Scene& scene) {
+    auto root = scene.createEntity();
+    scene.create(TransformComponent_Id, root);
+    scene.create<NameComponent>(root).setName("root");
+
+    auto ent = scene.createEntity();
+    scene.create(TransformComponent_Id, ent);
+    scene.create<NameComponent>(ent).setName("untitled");
+
+    scene.setRoot(root);
+    scene.attachChild(ent);
+}
+
 AssetRef CreateAssetInstance(AssetType type, bool create) {
     // @TODO: refactor this part
     switch (type) {
@@ -62,11 +76,18 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
         case AssetType::Scene: {
-            auto scene = std::make_shared<SceneAsset>();
-            if (create) {
-                scene->initializeDefault();
+            auto asset = std::make_shared<SceneAsset>();
+            if (create && asset) {
+                InitializeDefault(asset->sceneMut());
             }
-            return scene;
+            return asset;
+        }
+        case AssetType::Prefab: {
+            auto asset = std::make_shared<PrefabAsset>();
+            if (create && asset) {
+                InitializeDefault(asset->sceneMut());
+            }
+            return asset;
         }
         default:
             return nullptr;
@@ -86,6 +107,7 @@ auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
 }
 
 }  // namespace
+
 auto AssetManager::InitializeImpl() -> Result<void> {
 #if USING(USE_IMPORTER_TINYGLTF)
     AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);

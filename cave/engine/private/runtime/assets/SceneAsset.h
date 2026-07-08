@@ -2,9 +2,9 @@
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/assets/IAsset.h"
 
-namespace cave {
+#include "engine/private/runtime/scene/Scene.h"
 
-class Scene;
+namespace cave {
 
 class SceneAsset final : public IAsset {
     CAVE_ASSET(SceneAsset, AssetType::Scene, 0)
@@ -12,8 +12,6 @@ class SceneAsset final : public IAsset {
 public:
     SceneAsset();
     ~SceneAsset() override;
-
-    void initializeDefault();
 
     Scene& sceneMut() noexcept {
         DEV_ASSERT(m_scene);
@@ -27,7 +25,7 @@ public:
 
     auto loadFromDisk(const AssetMetaData&) -> Result<void> override;
     auto saveToDisk(const AssetMetaData&) const -> Result<void> override;
-    virtual std::vector<Guid> dependencies() const override;
+    virtual Vector<Guid> dependencies() const override;
 
 private:
     Owner<Scene> m_scene;

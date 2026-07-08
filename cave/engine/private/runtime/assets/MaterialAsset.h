@@ -35,7 +35,7 @@ struct MaterialAsset : public IAsset {
     CAVE_PROP()
     std::array<Guid, std::to_underlying(TextureSlot::Count)> textures;
 
-    std::vector<Guid> dependencies() const override;
+    Vector<Guid> dependencies() const override;
 
     Result<void> saveToDisk(const AssetMetaData& p_meta) const override;
 

@@ -74,7 +74,7 @@ public:
     auto saveToDisk(const AssetMetaData& meta) const -> Result<void> override;
     auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;
 
-    std::vector<Guid> dependencies() const override;
+    Vector<Guid> dependencies() const override;
 
 private:
     void setHandle(Handle<ImageAsset>&& handle);

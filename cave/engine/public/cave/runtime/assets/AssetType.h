@@ -13,15 +13,18 @@ namespace cave {
 // clang-format off
 enum class AssetType : uint32_t {
     Unknown         = 0,
-    Image           = BIT(0),
-    Blob            = BIT(1),
-    SpriteAnimation = BIT(2),
-    TileSet         = BIT(3),
-    TileMap         = BIT(4),
-    Material        = BIT(5),
-    Mesh            = BIT(6),
-    Scene           = BIT(7),
-    All             = 0xFFFFFFFF,
+
+    Image           = 0x00000001,
+    Blob            = 0x00000002,
+    SpriteAnimation = 0x00000004,
+    TileSet         = 0x00000008,
+    TileMap         = 0x00000010,
+    Material        = 0x00000020,
+    Mesh            = 0x00000040,
+    Scene           = 0x00000080,
+    Prefab          = 0x00000100,
+
+    All             = ~uint32_t{0},
 };
 // clang-format on
 
@@ -38,18 +41,19 @@ struct EnumTraits<AssetType> {
         { AssetType::Material, "mat" },
         { AssetType::Mesh, "mesh" },
         { AssetType::Scene, "scene" },
+        { AssetType::Prefab, "prefab" },
     };
 
-    static std::string_view ToString(AssetType p_type) {
+    static std::string_view ToString(AssetType type) {
         for (size_t i = 0; i < std::size(s_mappings); ++i) {
-            if (p_type == s_mappings[i].first) return s_mappings[i].second;
+            if (type == s_mappings[i].first) return s_mappings[i].second;
         }
         return "unknown";
     }
 
-    static Option<AssetType> FromString(std::string_view p_val) {
+    static Option<AssetType> FromString(std::string_view value) {
         for (size_t i = 0; i < std::size(s_mappings); ++i) {
-            if (p_val == s_mappings[i].second) return Some(s_mappings[i].first);
+            if (value == s_mappings[i].second) return Some(s_mappings[i].first);
         }
         return None();
     }

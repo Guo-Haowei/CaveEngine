@@ -34,7 +34,7 @@ Result<void> BlobAsset::saveToDisk(const AssetMetaData& p_meta) const {
     return p_meta.saveToDisk(this);
 }
 
-std::vector<Guid> BlobAsset::dependencies() const {
+Vector<Guid> BlobAsset::dependencies() const {
     return {};
 }
 

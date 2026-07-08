@@ -44,8 +44,8 @@ public:
 
     std::vector<AssetHandle> getAssetsOfType(AssetType type) const;
 
-    std::vector<Guid> findReverseDependencies(Guid dependency) const;
-    std::vector<Guid> findReverseDependenciesTransitively(Guid dependency) const;
+    Vector<Guid> findReverseDependencies(Guid dependency) const;
+    Vector<Guid> findReverseDependenciesTransitively(Guid dependency) const;
 
     void refreshAllDependencies();
 
@@ -67,8 +67,8 @@ protected:
     std::unordered_map<std::string, Guid> path_map_;
     std::unordered_map<Guid, std::shared_ptr<AssetEntry>> guid_map_;
 
-    std::unordered_map<Guid, std::vector<Guid>> deps_;
-    std::unordered_map<Guid, std::vector<Guid>> reverse_deps_;
+    std::unordered_map<Guid, Vector<Guid>> deps_;
+    std::unordered_map<Guid, Vector<Guid>> reverse_deps_;
 };
 
 }  // namespace cave

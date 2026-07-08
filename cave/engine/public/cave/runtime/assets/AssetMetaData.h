@@ -29,7 +29,7 @@ struct AssetMetaData {
     std::string import_path;
 
     CAVE_PROP()
-    mutable std::vector<Guid> dependencies;
+    mutable Vector<Guid> dependencies;
 
     CAVE_PROP()
     std::string source_created_time;

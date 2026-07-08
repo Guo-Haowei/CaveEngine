@@ -30,7 +30,7 @@ void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
     }
 }
 
-std::vector<Guid> TileMapAsset::dependencies() const {
+Vector<Guid> TileMapAsset::dependencies() const {
     return { tile_set_id_ };
 }
 

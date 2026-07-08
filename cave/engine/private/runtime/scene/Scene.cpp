@@ -16,7 +16,7 @@
 #include "engine/private/systems/EcsSystems.h"
 
 // systems
-#include "engine/private/runtime/assets/SceneAsset.h"
+#include "engine/private/runtime/assets/PrefabAsset.h"
 #include "engine/private/runtime/script/lua/LuaScriptSystem.h"
 
 namespace cave {
@@ -224,12 +224,12 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
         removeEntity(prefab.instance());
     }
 
-    auto handle_opt = AssetRegistry::singleton().findByGuid<SceneAsset>(prefab.prefabGuid());
+    auto handle_opt = AssetRegistry::singleton().findByGuid<PrefabAsset>(prefab.prefabGuid());
     if (handle_opt.is_none()) {
         return;
     }
 
-    const SceneAsset* asset = handle_opt.unwrap_unchecked().get();
+    const PrefabAsset* asset = handle_opt.unwrap_unchecked().get();
     DEV_ASSERT(asset);
     Scene copy;
     copy.copy(asset->scene());

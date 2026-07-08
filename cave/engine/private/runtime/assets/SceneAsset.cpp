@@ -4,7 +4,6 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
-#include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneSerializer.h"
 
 namespace cave {
@@ -15,25 +14,10 @@ SceneAsset::SceneAsset()
 
 SceneAsset::~SceneAsset() = default;
 
-void SceneAsset::initializeDefault() {
-    if (DEV_VERIFY(m_scene)) {
-        auto root = m_scene->createEntity();
-        m_scene->create(TransformComponent_Id, root);
-        m_scene->create<NameComponent>(root).setName("root");
-
-        auto ent = m_scene->createEntity();
-        m_scene->create(TransformComponent_Id, ent);
-        m_scene->create<NameComponent>(ent).setName("untitled");
-
-        m_scene->setRoot(root);
-        m_scene->attachChild(ent);
-    }
-}
-
-std::vector<Guid> SceneAsset::dependencies() const {
+Vector<Guid> SceneAsset::dependencies() const {
     DEV_ASSERT(m_scene);
 
-    std::vector<Guid> dependencies;
+    Vector<Guid> dependencies;
     for (const auto& [id, material] : m_scene->view<MaterialComponent>()) {
         dependencies.push_back(material.m_material_id);
     }

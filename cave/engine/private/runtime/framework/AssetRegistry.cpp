@@ -219,7 +219,7 @@ std::vector<AssetHandle> AssetRegistry::getAssetsOfType(AssetType type) const {
     return res;
 }
 
-std::vector<Guid> AssetRegistry::findReverseDependencies(Guid dependency) const {
+Vector<Guid> AssetRegistry::findReverseDependencies(Guid dependency) const {
     std::scoped_lock lock(registry_mutex_);
 
     auto it = reverse_deps_.find(dependency);
@@ -230,11 +230,11 @@ std::vector<Guid> AssetRegistry::findReverseDependencies(Guid dependency) const 
     return it->second;
 }
 
-std::vector<Guid> AssetRegistry::findReverseDependenciesTransitively(Guid dependency) const {
+Vector<Guid> AssetRegistry::findReverseDependenciesTransitively(Guid dependency) const {
     std::scoped_lock lock(registry_mutex_);
 
-    std::vector<Guid> result;
-    std::vector<Guid> stack;
+    Vector<Guid> result;
+    Vector<Guid> stack;
     std::unordered_set<Guid> visited;
 
     stack.push_back(dependency);
@@ -287,7 +287,7 @@ void AssetRegistry::refreshDependenciesUnlocked(Guid guid) {
         }
     }
 
-    std::vector<Guid> new_deps = entry->asset ? entry->asset->dependencies()
+    Vector<Guid> new_deps = entry->asset ? entry->asset->dependencies()
                                               : entry->metadata.dependencies;
 
     new_deps.erase(
