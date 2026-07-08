@@ -17,13 +17,13 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IAsyncTask.h"
 #include "engine/private/runtime/framework/TaskContext.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/VFS.h"
-#include "engine/private/runtime/scene/Scene.h"
 
 #include "modules/tinygltf/tiny_gltf_importer.h"
 
@@ -62,18 +62,9 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
         case AssetType::Mesh:
             return std::make_shared<MeshAsset>();
         case AssetType::Scene: {
-            auto scene = std::make_shared<Scene>();
+            auto scene = std::make_shared<SceneAsset>();
             if (create) {
-                auto root = scene->createEntity();
-                scene->create(TransformComponent_Id, root);
-                scene->create<NameComponent>(root).setName("root");
-
-                auto ent = scene->createEntity();
-                scene->create(TransformComponent_Id, ent);
-                scene->create<NameComponent>(ent).setName("untitled");
-
-                scene->setRoot(root);
-                scene->attachChild(ent);
+                scene->initializeDefault();
             }
             return scene;
         }

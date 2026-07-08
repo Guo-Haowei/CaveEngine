@@ -3,8 +3,8 @@
 // =============================================================================
 #pragma once
 #include "cave/core/error/ErrorMacros.h"
-#include "cave/core/variant/Variant.h"
 #include "cave/core/ids/Entity.h"
+#include "cave/core/variant/Variant.h"
 
 namespace cave {
 

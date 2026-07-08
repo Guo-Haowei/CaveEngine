@@ -5,8 +5,8 @@
 #include <span>
 
 #include "cave/core/containers/Containers.h"
-#include "cave/runtime/ecs/ComponentDefines.h"
 #include "cave/core/ids/Entity.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave::ecs {
 

@@ -2,12 +2,12 @@
 // @TODO: refactor defines.h
 #include "defines.h"
 
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Box.h"
 #include "cave/core/math/Matrix.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
-#include "cave/core/ids/Entity.h"
 
 #include "engine/private/core/io/file_access.h"
 

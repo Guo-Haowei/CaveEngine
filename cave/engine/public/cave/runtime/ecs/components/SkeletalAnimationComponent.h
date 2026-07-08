@@ -3,9 +3,9 @@
 // =============================================================================
 #pragma once
 #include <vector>
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Matrix.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/core/ids/Entity.h"
 
 namespace cave {
 

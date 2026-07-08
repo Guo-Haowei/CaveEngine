@@ -3,6 +3,7 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneTickContext.h"
 
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -25,9 +26,10 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         .scene_ctx = ctx,
     });
 
-    if (auto handle = m_asset_reg.findByGuid<Scene>(guid)) {
-        const AssetMetaData* meta = handle.unwrap_unchecked().meta();
-
+    if (auto handle_opt = m_asset_reg.findByGuid<SceneAsset>(guid)) {
+        auto handle = handle_opt.unwrap_unchecked();
+        const AssetMetaData* meta = handle.meta();
+        DEV_ASSERT(meta);
         m_preview_scene = m_scene_reg.registerScene(
             {
                 .source = SceneSource::Editor,

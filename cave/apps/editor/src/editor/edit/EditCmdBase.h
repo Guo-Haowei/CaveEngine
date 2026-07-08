@@ -1,8 +1,8 @@
 #pragma once
 #include "IEditCmd.h"
 
-#include "cave/core/ids/SceneId.h"
 #include "cave/core/ids/Entity.h"
+#include "cave/core/ids/SceneId.h"
 
 namespace cave {
 

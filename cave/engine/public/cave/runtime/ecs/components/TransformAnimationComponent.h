@@ -2,9 +2,9 @@
 // File: cave/runtime/ecs/components/TransformAnimationComponent.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/core/ids/Entity.h"
 #include "cave/runtime/intent/Intent.h"
 
 namespace cave {

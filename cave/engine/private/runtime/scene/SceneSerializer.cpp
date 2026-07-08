@@ -1,5 +1,6 @@
 #include "SceneSerializer.h"
 
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
@@ -137,25 +138,26 @@ bool SerializeComponentOverride(ISerializer& s,
 
 bool SerializePrefabDiff(ISerializer& s,
                          const Scene& scene,
-                         const PrefabInstanceComponent& prefab,
+                         const PrefabInstanceComponent& prefab_comp,
                          AssetRegistry* asset_reg) {
     if (!asset_reg) {
         return false;
     }
 
-    auto handle = asset_reg->findByGuid<Scene>(prefab.prefabGuid());
+    auto handle = asset_reg->findByGuid<SceneAsset>(prefab_comp.prefabGuid());
     if (handle.is_none()) {
         return false;
     }
 
-    Entity instance_ent = prefab.instance();
-    const Scene* prefab_scene = handle.unwrap_unchecked().get();
-    Entity prefab_ent = prefab_scene->root();
+    Entity instance_ent = prefab_comp.instance();
+    const SceneAsset* prefab = handle.unwrap_unchecked().get();
+    DEV_ASSERT(prefab);
+    Entity prefab_root = prefab->scene().root();
 
     s.beginKey("PrefabOverride");
     s.beginMap(false);
 
-#define PREFAB_OVERRIDE(T) SerializeComponentOverride<T>(s, #T, *prefab_scene, prefab_ent, scene, instance_ent);
+#define PREFAB_OVERRIDE(T) SerializeComponentOverride<T>(s, #T, prefab->scene(), prefab_root, scene, instance_ent);
     PREFAB_OVERRIDE_LIST
 #undef PREFAB_OVERRIDE
 

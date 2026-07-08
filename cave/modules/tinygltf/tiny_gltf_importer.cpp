@@ -10,6 +10,7 @@
 
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -65,7 +66,9 @@ Result<void> TinyGltfImporter::Import() {
         return CAVE_ERROR(res.error());
     }
 
-    m_scene = std::make_shared<Scene>();
+    m_scene_asset = std::make_shared<SceneAsset>();
+
+    Scene& scene = m_scene_asset->sceneMut();
 
     tinygltf::TinyGLTF loader;
     std::string err;
@@ -100,10 +103,10 @@ Result<void> TinyGltfImporter::Import() {
         return CAVE_ERROR(ErrorCode::FAILURE, "Error: failed to import scene '{}'", source_path);
     }
 
-    ecs::Entity root = m_scene->createEntity();
-    m_scene->create<TransformComponent>(root);
-    m_scene->create<NameComponent>(root);
-    m_scene->setRoot(root);
+    ecs::Entity root = scene.createEntity();
+    scene.create<TransformComponent>(root);
+    scene.create<NameComponent>(root);
+    scene.setRoot(root);
 
     for (const tinygltf::Material& mat : m_model->materials) {
         m_materials.emplace_back(ProcessMaterial(mat));
@@ -115,10 +118,10 @@ Result<void> TinyGltfImporter::Import() {
 
     // Create skeleton
     for (const auto& skin : m_model->skins) {
-        ecs::Entity skeleton_id = m_scene->createEntity();
-        m_scene->create<NameComponent>(skeleton_id).setName(skin.name);
-        m_scene->create<TransformComponent>(skeleton_id);
-        SkeletonComponent& skeleton = m_scene->create<SkeletonComponent>(skeleton_id);
+        ecs::Entity skeleton_id = scene.createEntity();
+        scene.create<NameComponent>(skeleton_id).setName(skin.name);
+        scene.create<TransformComponent>(skeleton_id);
+        SkeletonComponent& skeleton = scene.create<SkeletonComponent>(skeleton_id);
         if (skin.inverseBindMatrices >= 0) {
             const tinygltf::Accessor& accessor = m_model->accessors[skin.inverseBindMatrices];
             const tinygltf::BufferView& buffer_view = m_model->bufferViews[accessor.bufferView];
@@ -140,7 +143,7 @@ Result<void> TinyGltfImporter::Import() {
     // Create skeleton-bone mappings:
     for (size_t skin_index = 0; skin_index < m_model->skins.size(); ++skin_index) {
         const tinygltf::Skin& skin = m_model->skins[skin_index];
-        SkeletonComponent& skeleton = m_scene->getComponentByIndex<SkeletonComponent>(skin_index);
+        SkeletonComponent& skeleton = scene.getComponentByIndex<SkeletonComponent>(skin_index);
 
         const size_t joint_count = skin.joints.size();
         skeleton.bone_collection.resize(joint_count);
@@ -505,24 +508,23 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     ecs::Entity node_id;
     auto& node = m_model->nodes[p_node_index];
 
-#if 0
-#endif
+    Scene& scene = m_scene_asset->sceneMut();
 
     if (node.mesh >= 0) {
-        ecs::Entity mesh_instance = m_scene->createEntity();
-        m_scene->create<NameComponent>(mesh_instance).setName("Node::" + node.name);
-        m_scene->create<TransformComponent>(mesh_instance);
+        ecs::Entity mesh_instance = scene.createEntity();
+        scene.create<NameComponent>(mesh_instance).setName("Node::" + node.name);
+        scene.create<TransformComponent>(mesh_instance);
 
-        MeshRendererComponent& renderer = m_scene->create<MeshRendererComponent>(mesh_instance);
+        MeshRendererComponent& renderer = scene.create<MeshRendererComponent>(mesh_instance);
         renderer.SetResourceGuid(m_meshes.at(node.mesh));
 
         const tinygltf::Mesh& mesh = m_model->meshes[node.mesh];
         for (const auto& prim : mesh.primitives) {
-            ecs::Entity material_id = m_scene->createEntity();
+            ecs::Entity material_id = scene.createEntity();
             renderer.AddMaterial(material_id);
 
             Guid material_guid = m_materials[prim.material];
-            MaterialComponent& material_instance = m_scene->create<MaterialComponent>(material_id);
+            MaterialComponent& material_instance = scene.create<MaterialComponent>(material_id);
             material_instance.SetResourceGuid(material_guid);
         }
 
@@ -530,9 +532,9 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         if (!has_skin) {
             node_id = mesh_instance;
         } else {
-            node_id = m_scene->getEntityByIndex<SkeletonComponent>(node.skin);
+            node_id = scene.getEntityByIndex<SkeletonComponent>(node.skin);
             renderer.SetSkeletonId(node_id);
-            m_scene->attachChild(mesh_instance, node_id);
+            scene.attachChild(mesh_instance, node_id);
         }
 
     } else if (node.camera >= 0) {
@@ -543,15 +545,15 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 
     // transform
     if (!node_id.valid()) {
-        node_id = m_scene->createEntity();
-        m_scene->create<TransformComponent>(node_id);
-        m_scene->create<NameComponent>(node_id).setName("Transform::" + node.name);
+        node_id = scene.createEntity();
+        scene.create<TransformComponent>(node_id);
+        scene.create<NameComponent>(node_id).setName("Transform::" + node.name);
     }
 
     auto [_, ok] = m_node_map.try_emplace(p_node_index, node_id);
     DEV_ASSERT(ok);
 
-    TransformComponent& transform = *m_scene->component<TransformComponent>(node_id);
+    TransformComponent& transform = *scene.component<TransformComponent>(node_id);
     if (!node.matrix.empty()) {
         Mat4f matrix;
         matrix[0].x = float(node.matrix.at(0));
@@ -592,7 +594,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     transform.updateTransform();
 
     if (p_parent.valid()) {
-        m_scene->attachChild(node_id, p_parent);
+        scene.attachChild(node_id, p_parent);
     }
 
     for (int child : node.children) {
@@ -602,13 +604,16 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
 
 void TinyGltfImporter::ProcessAnimation(const tinygltf::Animation& p_anim) {
     std::string tag = p_anim.name.empty() ? GenerateAnimationName() : p_anim.name;
-    auto entity = m_scene->createEntity();
-    m_scene->create<NameComponent>(entity).setName(tag);
+
+    Scene& scene = m_scene_asset->sceneMut();
+
+    auto entity = scene.createEntity();
+    scene.create<NameComponent>(entity).setName(tag);
 
     // @TODO: make animation asset instead
-    m_scene->attachChild(entity);
+    scene.attachChild(entity);
 
-    SkeletalAnimationComponent& animation = m_scene->create<SkeletalAnimationComponent>(entity);
+    SkeletalAnimationComponent& animation = scene.create<SkeletalAnimationComponent>(entity);
     auto& samplers = animation.GetSamplers();
     auto& channels = animation.GetChannels();
     samplers.resize(p_anim.samplers.size());

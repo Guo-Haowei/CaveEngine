@@ -3,8 +3,8 @@
 // =============================================================================
 #pragma once
 #include "cave/core/containers/Containers.h"
-#include "cave/runtime/ecs/ComponentRegistry.h"
 #include "cave/core/ids/Entity.h"
+#include "cave/runtime/ecs/ComponentRegistry.h"
 
 // clang-format off
 namespace cave { class Scene; }

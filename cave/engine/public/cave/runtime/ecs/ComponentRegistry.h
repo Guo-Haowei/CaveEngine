@@ -6,9 +6,9 @@
 #include <string_view>
 
 #include "cave/core/containers/Containers.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/core/ids/Entity.h"
 
 namespace cave {
 class Scene;

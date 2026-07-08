@@ -2,8 +2,8 @@
 // File: cave/runtime/scene/ISceneCommandExecutor.h
 // =============================================================================
 #pragma once
-#include "cave/runtime/ecs/ComponentDefines.h"
 #include "cave/core/ids/Entity.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 

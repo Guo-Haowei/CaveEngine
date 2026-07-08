@@ -3,9 +3,9 @@
 // =============================================================================
 #pragma once
 #include "cave/core/containers/FixedStack.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/core/ids/Entity.h"
 
 namespace cave {
 

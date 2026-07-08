@@ -2,11 +2,11 @@
 // @TODO: refactor defines.h
 #include "defines.h"
 
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Box.h"
 #include "cave/core/math/Matrix.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
-#include "cave/core/ids/Entity.h"
 
 namespace cave::math {
 class Degree;

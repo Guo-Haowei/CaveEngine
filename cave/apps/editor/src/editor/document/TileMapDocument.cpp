@@ -40,7 +40,7 @@ std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
-    scene->setRoot(map.Resolve(root));
+    scene->setRoot(map.resolve(root));
     scene->update(0.0f);
 
     return scene;

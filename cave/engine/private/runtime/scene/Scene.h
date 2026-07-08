@@ -2,7 +2,6 @@
 #include "cave/core/base/NonCopyable.h"
 #include "cave/core/math/AABB.h"
 #include "cave/core/math/Ray.h"
-#include "cave/runtime/assets/IAsset.h"
 #include "cave/runtime/ecs/ComponentStorage.h"
 #include "cave/runtime/scene/SceneTickContext.h"
 
@@ -29,15 +28,11 @@ enum SceneDirtyFlags : uint32_t {
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 
-class Scene final : public NonCopyable, public IAsset {
-    CAVE_ASSET(Scene, AssetType::Scene, 0)
-
+class Scene final : public NonCopyable {
 public:
-    static constexpr const char* EXTENSION = ".scene";
-
     explicit Scene(ecs::ComponentRegistry& reg) noexcept;
     explicit Scene() noexcept;
-    ~Scene() override;
+    ~Scene();
 
     void* create(ComponentId cid, ecs::Entity ent) {
         return m_storage.createRaw(cid, ent);
@@ -142,10 +137,6 @@ public:
     void setRoot(ecs::Entity root) { m_root = root; }
 
     void setSeed(uint32_t seed) { m_entity_seed = seed; }
-
-    auto loadFromDisk(const AssetMetaData&) -> Result<void> override;
-    auto saveToDisk(const AssetMetaData&) const -> Result<void> override;
-    virtual std::vector<Guid> dependencies() const override;
 
     // @TODO: deprecate
     SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(dirtyFlags_.load()); }

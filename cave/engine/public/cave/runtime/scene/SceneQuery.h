@@ -5,9 +5,9 @@
 #include <string>
 #include <string_view>
 
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Ray.h"
 #include "cave/core/math/Vec.h"
-#include "cave/core/ids/Entity.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {

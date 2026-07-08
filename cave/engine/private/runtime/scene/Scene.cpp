@@ -11,16 +11,13 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/Engine.h"
-#include "engine/private/runtime/scene/SceneSerializer.h"
 #include "engine/private/runtime/scene/SystemManager.h"
 #include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/EcsSystems.h"
 
 // systems
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/script/lua/LuaScriptSystem.h"
-
-// @TODO: refactor
-#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -221,20 +218,21 @@ void Scene::flushPendingDestroy() {
     }
 }
 
+// @TODO: move this somewhere else
 void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     if (prefab.instance().valid()) {
         removeEntity(prefab.instance());
     }
 
-    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
-    if (handle.is_none()) {
+    auto handle_opt = AssetRegistry::singleton().findByGuid<SceneAsset>(prefab.prefabGuid());
+    if (handle_opt.is_none()) {
         return;
     }
 
-    const Scene* source = handle.unwrap_unchecked().get();
-    DEV_ASSERT(source);
+    const SceneAsset* asset = handle_opt.unwrap_unchecked().get();
+    DEV_ASSERT(asset);
     Scene copy;
-    copy.copy(*source);
+    copy.copy(asset->scene());
 
     auto new_entities = copy.getSortedEntityArray();
     std::unordered_map<Entity, Entity> mapping;
@@ -376,61 +374,6 @@ ecs::Entity Scene::duplicateEntity(ecs::Entity ent) {
 #undef REGISTER_COMPONENT
 
     return entity;
-}
-
-std::vector<Guid> Scene::dependencies() const {
-    std::vector<Guid> dependencies;
-    for (const auto& [id, material] : view<MaterialComponent>()) {
-        dependencies.push_back(material.m_material_id);
-    }
-    for (const auto& [id, mesh_renderer] : view<MeshRendererComponent>()) {
-        dependencies.push_back(mesh_renderer.GetResourceGuid());
-    }
-    for (const auto& [id, prefab] : view<PrefabInstanceComponent>()) {
-        dependencies.push_back(prefab.prefabGuid());
-    }
-    for (const auto& [id, tile_map_renderer] : view<TileMapInstanceComponent>()) {
-        dependencies.push_back(tile_map_renderer.GetResourceGuid());
-    }
-    for (const auto& [id, animator] : view<SpriteAnimatorComponent>()) {
-        dependencies.push_back(animator.GetResourceGuid());
-    }
-
-    dependencies.erase(
-        std::remove_if(dependencies.begin(), dependencies.end(),
-                       [](Guid guid) {
-                           // @HACK: replace the last two digits to see if guid is 0
-                           uint8_t* data = const_cast<uint8_t*>(guid.data());
-                           data[15] = 0;
-                           return guid.isNull();
-                       }),
-        dependencies.end());
-
-    return dependencies;
-}
-
-auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
-    auto res = meta.saveToDisk(this);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    YamlSerializer yaml;
-    SerializeScene(yaml, *this, AssetRegistry::singletonPtr(), true);
-    return SaveYaml(meta.import_path, yaml);
-}
-
-auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
-    YAML::Node root;
-
-    if (auto res = LoadYaml(meta.import_path, root); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    YamlDeserializer yaml;
-    yaml.Initialize(root);
-    DeserializeScene(yaml, *this);
-    return Result<void>();
 }
 
 }  // namespace cave

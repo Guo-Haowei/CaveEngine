@@ -13,7 +13,7 @@ EntityMap::EntityMap(uint32_t p_reserve) {
 
 static bool IsTemp(ecs::Entity p_id) noexcept { return p_id.id() >= kSceneCmdTmpBase; }
 
-Entity EntityMap::Resolve(Entity p_ent) const noexcept {
+Entity EntityMap::resolve(Entity p_ent) const noexcept {
     if (!IsTemp(p_ent)) return p_ent;
 
     const uint32_t index = p_ent.id() - kSceneCmdTmpBase;
@@ -24,7 +24,7 @@ Entity EntityMap::Resolve(Entity p_ent) const noexcept {
     return Entity::null();
 }
 
-void EntityMap::SetRemap(Entity p_temp, Entity p_real) {
+void EntityMap::setRemap(Entity p_temp, Entity p_real) {
     const uint32_t index = p_temp.id() - kSceneCmdTmpBase;
     DEV_ASSERT(index < m_remap.size());
     m_remap[index] = p_real;
@@ -50,7 +50,7 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,
             case SceneCmd_Op::CreateEntity: {
                 const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
                 Entity real = ctx.scene.createEntity();
-                map.SetRemap(e, real);
+                map.setRemap(e, real);
             } break;
             case SceneCmd_Op::DestroyEntity: {
                 // const Entity& e = *reinterpret_cast<const Entity*>(payload_raw);
@@ -58,11 +58,11 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,
             } break;
             case SceneCmd_Op::AddComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
-                executor.addComponent(map.Resolve(payload->ent), payload->cid);
+                executor.addComponent(map.resolve(payload->ent), payload->cid);
             } break;
             case SceneCmd_Op::RemoveComponent: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadComponent*>(payload_raw);
-                executor.removeComponent(map.Resolve(payload->ent), payload->cid);
+                executor.removeComponent(map.resolve(payload->ent), payload->cid);
             } break;
             case SceneCmd_Op::AssignProperty: {
                 const auto* payload = reinterpret_cast<const SceneCmd_PayloadProperty*>(payload_raw);
@@ -76,7 +76,7 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,
                         // @HACK: cast away const to resolve entity
                         Entity* e = const_cast<Entity*>((Entity*)data);
                         for (uint32_t i = 0; i < payload->ele_count; ++i) {
-                            e[i] = map.Resolve(e[i]);
+                            e[i] = map.resolve(e[i]);
                         }
                     } break;
                     default: {
@@ -85,7 +85,7 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,
                 }
 
                 // @TODO: generate Undoable Command ChangeProperty
-                executor.changeProperty(map.Resolve(payload->ent),
+                executor.changeProperty(map.resolve(payload->ent),
                                         payload->cid,
                                         payload->pid,
                                         data,

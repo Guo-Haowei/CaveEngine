@@ -2,7 +2,6 @@
 // File: cave/runtime/scene/SceneCommandPlayback.h
 // =============================================================================
 #pragma once
-#include <vector>
 #include "cave/core/ids/Entity.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 #include "cave/runtime/scene/ISceneCommandExecutor.h"
@@ -13,14 +12,14 @@ class Scene;
 
 class EntityMap {
 public:
-    explicit EntityMap(uint32_t p_reserve);
+    explicit EntityMap(uint32_t reserve);
 
-    void SetRemap(ecs::Entity p_temp, ecs::Entity p_real);
+    void setRemap(ecs::Entity temp, ecs::Entity real);
 
-    ecs::Entity Resolve(ecs::Entity p_ent) const noexcept;
+    ecs::Entity resolve(ecs::Entity ent) const noexcept;
 
 private:
-    std::vector<ecs::Entity> m_remap;
+    Vector<ecs::Entity> m_remap;
 };
 
 struct SceneCommandPlayback {
@@ -29,9 +28,9 @@ struct SceneCommandPlayback {
         Scene& scene;
     };
 
-    static void Play(SceneCommandBuffer& p_cb,
-                     ISceneCommandExecutor& p_exe,
-                     const Context& p_ctx);
+    static void Play(SceneCommandBuffer& cb,
+                     ISceneCommandExecutor& exe,
+                     const Context& ctx);
 };
 
 }  // namespace cave
