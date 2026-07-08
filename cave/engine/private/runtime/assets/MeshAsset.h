@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/math/AABB.h"
 #include "cave/runtime/assets/AssetHandle.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 // @TODO: refactor
 namespace cave::render {

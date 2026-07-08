@@ -4,11 +4,11 @@
 #pragma once
 #include <span>
 #include <string_view>
-#include <unordered_map>
-#include <vector>
+
+#include "cave/core/containers/Containers.h"
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave {
 class Scene;
@@ -33,28 +33,28 @@ struct ComponentMeta {
     std::span<const FieldMetaBase* const> props;
     OnComponentEditedFn on_edited{ nullptr };
 
-    const FieldMetaBase* Find(const PropertyId& p_id) const;
+    const FieldMetaBase* find(const PropertyId& pid) const;
 };
 
 class ComponentRegistry {
 public:
-    void Register(const ComponentMeta& p_meta);
-    const ComponentMeta* TryGet(ComponentId p_id) const;
+    void registerMeta(const ComponentMeta& meta);
+    const ComponentMeta* tryGet(ComponentId pid) const;
 
     // For mutating on_edited only
-    ComponentMeta& GetMut(ComponentId p_id);
+    ComponentMeta& getMut(ComponentId pid);
 
-    static void Builtin(ComponentRegistry& p_out);
+    static void builtin(ComponentRegistry& out);
 
-    static ComponentRegistry Builtin() {
+    static ComponentRegistry builtin() {
         ComponentRegistry reg;
-        Builtin(reg);
+        builtin(reg);
         return reg;
     }
 
 private:
-    std::vector<ComponentMeta> m_table;
-    std::vector<uint8_t> m_present;
+    Vector<ComponentMeta> m_table;
+    Vector<uint8_t> m_present;
 };
 
 }  // namespace cave::ecs

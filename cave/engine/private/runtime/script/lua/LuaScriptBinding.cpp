@@ -166,7 +166,7 @@ bool OpenLogLib(lua_State* L) {
     lua_newtable(L);
     for (auto [id, script] : view) {
         lua_pushinteger(L, ++i);
-        lua_pushinteger(L, id.GetId());
+        lua_pushinteger(L, id.id());
         lua_settable(L, -3);
     }
 
@@ -256,7 +256,7 @@ bool OpenSceneLib(lua_State* L) {
             return p_scene->component<CameraComponent>(ecs::Entity(p_ent));
         })
         .addFunction("find_entity_by_name", [](Scene* p_scene, const char* p_name) {
-            return p_scene->findFirstByName(p_name).GetId();
+            return p_scene->findFirstByName(p_name).id();
         })
         //.addFunction("GetMeshEmitter", [](Scene* p_scene, uint32_t p_ent) {
         //    return p_scene->GetComponent<MeshEmitterComponent>(ecs::Entity(p_ent));

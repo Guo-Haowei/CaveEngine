@@ -5,7 +5,7 @@
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave {
 

@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/ecs/Entity.h
+// File: cave/core/ids/Entity.h
 // =============================================================================
 #pragma once
 #include <compare>
@@ -17,20 +17,19 @@ public:
     explicit constexpr Entity()
         : m_id(kInvalidId) {}
 
-    explicit constexpr Entity(uint32_t p_handle)
-        : m_id(p_handle) {}
+    explicit constexpr Entity(uint32_t handle)
+        : m_id(handle) {}
 
-    static constexpr Entity Null() { return Entity(); }
+    static constexpr Entity null() { return Entity(); }
 
     ~Entity() = default;
 
     std::strong_ordering operator<=>(const Entity&) const = default;
 
-    bool IsValid() const { return m_id != kInvalidId; }
+    bool valid() const { return m_id != kInvalidId; }
+    bool isNull() const { return m_id == kInvalidId; }
 
-    void MakeInvalid() { m_id = kInvalidId; }
-
-    constexpr uint32_t GetId() const { return m_id; }
+    constexpr uint32_t id() const { return m_id; }
 
 private:
     uint32_t m_id;
@@ -42,7 +41,9 @@ namespace std {
 
 template<>
 struct hash<cave::ecs::Entity> {
-    std::size_t operator()(const cave::ecs::Entity& p_ent) const { return std::hash<uint32_t>{}(p_ent.GetId()); }
+    std::size_t operator()(const cave::ecs::Entity& ent) const {
+        return std::hash<uint32_t>{}(ent.id());
+    }
 };
 
 }  // namespace std

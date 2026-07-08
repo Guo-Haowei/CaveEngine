@@ -2,7 +2,7 @@
 #include <functional>
 #include <span>
 
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/scene/SceneContext.h"
 

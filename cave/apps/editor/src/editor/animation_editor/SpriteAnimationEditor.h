@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/runtime/assets/AssetHandle.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "editor/panels/ViewTabBase.h"
 #include "editor/widgets/SpriteSelector.h"

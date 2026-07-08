@@ -175,7 +175,7 @@ void Scene::copy(const Scene& other) {
     for (auto& entry : other.m_storage.entries()) {
         if (entry.pool) {
             m_storage.ensure(idx);
-            m_storage.entries_[idx].pool = std::move(entry.pool->clone());
+            m_storage.m_entries[idx].pool = std::move(entry.pool->clone());
         }
         ++idx;
     }
@@ -222,7 +222,7 @@ void Scene::flushPendingDestroy() {
 }
 
 void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
-    if (prefab.instance().IsValid()) {
+    if (prefab.instance().valid()) {
         removeEntity(prefab.instance());
     }
 
@@ -260,13 +260,13 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     }
 
     // merge components
-    for (uint16_t cid = 0; cid < (uint16_t)copy.m_storage.entries_.size(); ++cid) {
-        auto& entry = copy.m_storage.entries_[cid];
+    for (uint16_t cid = 0; cid < (uint16_t)copy.m_storage.m_entries.size(); ++cid) {
+        auto& entry = copy.m_storage.m_entries[cid];
         if (!entry.pool) continue;
         entry.pool->remap(mapping);
 
-        CRASH_COND(cid >= m_storage.entries_.size());
-        auto& my_entry = m_storage.entries_[cid];
+        CRASH_COND(cid >= m_storage.m_entries.size());
+        auto& my_entry = m_storage.m_entries[cid];
 
         if (!my_entry.pool) {
             m_storage.getOrCreate(cid);
@@ -277,7 +277,7 @@ void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
     // link instance
     Entity mapped_root = mapping[copy.m_root];
     HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
-    hier.parent_id = ent.IsValid() ? ent : m_root;
+    hier.parent_id = ent.valid() ? ent : m_root;
 
     prefab.setInstance(mapped_root);
 }
@@ -304,7 +304,7 @@ Entity Scene::findFirstByName(std::string_view name) const {
             return entity;
         }
     }
-    return ecs::Entity::Null();
+    return ecs::Entity::null();
 }
 
 Entity Scene::findChildByName(std::string_view name, Entity ent) const {
@@ -314,12 +314,12 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
         }
     }
 
-    return ecs::Entity::Null();
+    return ecs::Entity::null();
 }
 
 void Scene::removeEntity(ecs::Entity ent) {
     // @TODO: move it to SceneCommandExecutor
-    if (!ent.IsValid()) {
+    if (!ent.valid()) {
         return;
     }
 
@@ -343,7 +343,7 @@ void Scene::removeEntity(ecs::Entity ent) {
 
 void Scene::attachChild(ecs::Entity child, ecs::Entity parent) {
     DEV_ASSERT(child != parent);
-    DEV_ASSERT(parent.IsValid());
+    DEV_ASSERT(parent.valid());
 
     // @TODO: prevent circular dependency
 
@@ -365,7 +365,7 @@ static void DuplicateComponent(Scene& scene, Entity source, Entity dest) {
 }
 
 ecs::Entity Scene::duplicateEntity(ecs::Entity ent) {
-    if (!ent.IsValid()) {
+    if (!ent.valid()) {
         return ent;
     }
 

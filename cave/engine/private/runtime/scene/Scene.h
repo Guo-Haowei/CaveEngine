@@ -85,7 +85,7 @@ public:
             return pool->entityArray()[idx];
         }
 
-        return ecs::Entity::Null();
+        return ecs::Entity::null();
     }
 
     template<ComponentType T>
@@ -124,7 +124,7 @@ public:
 
     ecs::Entity duplicateEntity(ecs::Entity ent);
 
-    void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::Null());
+    void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::null());
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
@@ -164,7 +164,7 @@ private:
     ecs::Entity m_root;
     math::AABB m_world_bound;
 
-    std::unique_ptr<SceneRuntime> m_runtime;
+    Owner<SceneRuntime> m_runtime;
 };
 
 }  // namespace cave

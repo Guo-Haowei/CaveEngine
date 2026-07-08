@@ -8,24 +8,24 @@ using ecs::Entity;
 
 EntityMap::EntityMap(uint32_t p_reserve) {
     m_remap.clear();
-    m_remap.resize(p_reserve, Entity::Null());
+    m_remap.resize(p_reserve, Entity::null());
 }
 
-static bool IsTemp(ecs::Entity p_id) noexcept { return p_id.GetId() >= kSceneCmdTmpBase; }
+static bool IsTemp(ecs::Entity p_id) noexcept { return p_id.id() >= kSceneCmdTmpBase; }
 
 Entity EntityMap::Resolve(Entity p_ent) const noexcept {
     if (!IsTemp(p_ent)) return p_ent;
 
-    const uint32_t index = p_ent.GetId() - kSceneCmdTmpBase;
+    const uint32_t index = p_ent.id() - kSceneCmdTmpBase;
     if (DEV_VERIFY(index < m_remap.size())) {
         return m_remap[index];
     }
 
-    return Entity::Null();
+    return Entity::null();
 }
 
 void EntityMap::SetRemap(Entity p_temp, Entity p_real) {
-    const uint32_t index = p_temp.GetId() - kSceneCmdTmpBase;
+    const uint32_t index = p_temp.id() - kSceneCmdTmpBase;
     DEV_ASSERT(index < m_remap.size());
     m_remap[index] = p_real;
 }

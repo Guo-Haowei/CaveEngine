@@ -171,7 +171,7 @@ void TileMapEditor::applayEditorTool() {
     }
 
     auto cmd = std::make_unique<SetTileCommand>(m_engine_services.sceneRegistry(),
-                                                ecs::Entity::Null(),
+                                                ecs::Entity::null(),
                                                 coord_,
                                                 old_tile,
                                                 new_tile);

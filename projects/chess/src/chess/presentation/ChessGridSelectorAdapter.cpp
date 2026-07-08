@@ -32,7 +32,7 @@ ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneContext& ctx,
     , m_board_view(board_view) {
 
     m_camera_id = ctx.query.findFirstByName("game_camera");
-    assert(m_camera_id.IsValid());
+    assert(m_camera_id.valid());
 }
 
 bool ChessGridSelectorAdapter::canSelect(int x, int y) {

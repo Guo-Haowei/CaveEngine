@@ -16,17 +16,17 @@ using namespace cave::literals;
 #define DEBUG_PRINT(...) ((void)0)
 #endif
 
-const FieldMetaBase* ComponentMeta::Find(const PropertyId& p_id) const {
+const FieldMetaBase* ComponentMeta::find(const PropertyId& pid) const {
     for (const FieldMetaBase* meta : props) {
-        if (meta->id == p_id) {
+        if (meta->id == pid) {
             return meta;
         }
     }
     return nullptr;
 }
 
-void ComponentRegistry::Register(const ComponentMeta& p_meta) {
-    const size_t idx = p_meta.cid;
+void ComponentRegistry::registerMeta(const ComponentMeta& meta) {
+    const size_t idx = meta.cid;
 
     if (m_table.size() <= idx) {
         m_table.resize(idx + 1);
@@ -35,25 +35,25 @@ void ComponentRegistry::Register(const ComponentMeta& p_meta) {
 
     if (m_present[idx]) {
         LOG_FATAL("ComponentRegistry::Register: component '{}'(id:{}) already registered",
-                  p_meta.name, p_meta.cid);
+                  meta.name, meta.cid);
         return;
     }
     DEV_ASSERT(m_present[idx] == 0);
-    m_table[idx] = p_meta;
+    m_table[idx] = meta;
     m_present[idx] = 1;
 
-    DEBUG_PRINT("Registered component '{}', id: {}", p_meta.name, p_meta.cid);
+    DEBUG_PRINT("Registered component '{}', id: {}", meta.name, meta.cid);
 }
 
-const ComponentMeta* ComponentRegistry::TryGet(ComponentId p_id) const {
-    const size_t idx = (size_t)p_id;
+const ComponentMeta* ComponentRegistry::tryGet(ComponentId pid) const {
+    const size_t idx = (size_t)pid;
     if (idx >= m_present.size() || m_present[idx] == 0) return nullptr;
     return &m_table[idx];
 }
 
-ComponentMeta& ComponentRegistry::GetMut(ComponentId p_id) {
-    DEV_ASSERT_INDEX(p_id, m_present.size());
-    return m_table[p_id];
+ComponentMeta& ComponentRegistry::getMut(ComponentId pid) {
+    DEV_ASSERT_INDEX(pid, m_present.size());
+    return m_table[pid];
 }
 
 namespace {
@@ -122,9 +122,9 @@ void PrefabInstance_OnEdited(Scene& scene,
         auto* c = (PrefabInstanceComponent*)scene.storage().getRaw(PrefabInstanceComponent_Id, ent);
         if (DEV_VERIFY(c)) {
             Entity child = c->instance();
-            if (child.IsValid()) {
+            if (child.valid()) {
                 scene.removeEntity(child);
-                c->setInstance(Entity::Null());
+                c->setInstance(Entity::null());
                 c->setPrefabGuid(Guid::null());
             } else {
                 scene.instantiatePrefab(*c, ent);
@@ -135,9 +135,9 @@ void PrefabInstance_OnEdited(Scene& scene,
 
 }  // namespace
 
-void ComponentRegistry::Builtin(ComponentRegistry& out) {
+void ComponentRegistry::builtin(ComponentRegistry& out) {
 #define REGISTER_COMPONENT(T, ...)              \
-    out.Register({                              \
+    out.registerMeta({                          \
         .cid = T##_Id,                          \
         .name = #T,                             \
         .size = sizeof(T),                      \
@@ -149,11 +149,11 @@ void ComponentRegistry::Builtin(ComponentRegistry& out) {
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
 
-    out.GetMut(TransformComponent_Id).on_edited = Transform_OnEdited;
-    out.GetMut(MeshRendererComponent_Id).on_edited = MeshRenderer_OnEdited;
-    out.GetMut(MaterialComponent_Id).on_edited = Materail_OnEdited;
-    out.GetMut(TileMapInstanceComponent_Id).on_edited = TileMapInstance_OnEdited;
-    out.GetMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
+    out.getMut(TransformComponent_Id).on_edited = Transform_OnEdited;
+    out.getMut(MeshRendererComponent_Id).on_edited = MeshRenderer_OnEdited;
+    out.getMut(MaterialComponent_Id).on_edited = Materail_OnEdited;
+    out.getMut(TileMapInstanceComponent_Id).on_edited = TileMapInstance_OnEdited;
+    out.getMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
 }
 
 }  // namespace cave::ecs

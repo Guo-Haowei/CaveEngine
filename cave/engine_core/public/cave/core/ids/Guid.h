@@ -5,14 +5,16 @@
 #include <array>
 #include <compare>
 #include <string>
+#include <string_view>
 
+#include "cave/core/CoreExport.h"
 #include "cave/core/Option.h"
 
 namespace cave {
 
-class Guid {
+class CAVE_CORE_API Guid {
 public:
-    static constexpr size_t kSize = 16;
+    static constexpr std::size_t kSize = 16;
 
     Guid() = default;
 
@@ -57,7 +59,7 @@ struct hash<cave::Guid> {
         std::size_t hash = 0;
         const uint8_t* data = guid.data();
         // Combine hash for each byte in the buffer
-        for (std::size_t i = 0; i < sizeof(cave::Guid); ++i) {
+        for (std::size_t i = 0; i < cave::Guid::kSize; ++i) {
             hash ^= std::hash<uint8_t>{}(data[i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         }
 

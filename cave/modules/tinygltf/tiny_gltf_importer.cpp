@@ -542,7 +542,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     // light
 
     // transform
-    if (!node_id.IsValid()) {
+    if (!node_id.valid()) {
         node_id = m_scene->createEntity();
         m_scene->create<TransformComponent>(node_id);
         m_scene->create<NameComponent>(node_id).setName("Transform::" + node.name);
@@ -591,7 +591,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
     }
     transform.updateTransform();
 
-    if (p_parent.IsValid()) {
+    if (p_parent.valid()) {
         m_scene->attachChild(node_id, p_parent);
     }
 

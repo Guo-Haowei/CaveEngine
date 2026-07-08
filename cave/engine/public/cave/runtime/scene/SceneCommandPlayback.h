@@ -3,7 +3,7 @@
 // =============================================================================
 #pragma once
 #include <vector>
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 #include "cave/runtime/scene/ISceneCommandExecutor.h"
 

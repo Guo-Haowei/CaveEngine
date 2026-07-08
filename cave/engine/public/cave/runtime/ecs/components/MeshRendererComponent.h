@@ -5,7 +5,7 @@
 #include "cave/core/containers/FixedStack.h"
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave {
 

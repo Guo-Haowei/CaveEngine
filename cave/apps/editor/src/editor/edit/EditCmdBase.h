@@ -2,7 +2,7 @@
 #include "IEditCmd.h"
 
 #include "cave/core/ids/SceneId.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave {
 

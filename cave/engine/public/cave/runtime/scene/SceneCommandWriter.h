@@ -5,7 +5,7 @@
 #include <string_view>
 #include "cave/core/math/Vec.h"
 #include "cave/core/ids/Guid.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 
 namespace cave {

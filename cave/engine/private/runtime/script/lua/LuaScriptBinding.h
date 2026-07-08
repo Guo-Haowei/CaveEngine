@@ -6,7 +6,7 @@ extern "C" {
 #include "lualib.h"
 }
 
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave {
 class Scene;

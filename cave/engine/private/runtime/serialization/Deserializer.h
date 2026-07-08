@@ -6,7 +6,7 @@
 #include "cave/core/math/Matrix.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave::math {
 class Degree;

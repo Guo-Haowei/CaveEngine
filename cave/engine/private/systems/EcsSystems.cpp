@@ -166,16 +166,15 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
     const HierarchyComponent* hierarchy = &p_scene.getComponentByIndex<HierarchyComponent>(p_index);
     ecs::Entity parent = hierarchy->parent_id;
 
-    while (parent.IsValid()) {
+    while (parent.valid()) {
         TransformComponent* parent_transform = p_scene.component<TransformComponent>(parent);
         if (DEV_VERIFY(parent_transform)) {
             world_matrix = parent_transform->localMatrix() * world_matrix;
 
             if ((hierarchy = p_scene.component<HierarchyComponent>(parent)) != nullptr) {
                 parent = hierarchy->parent_id;
-                // DEV_ASSERT(parent.IsValid() || );
             } else {
-                parent.MakeInvalid();
+                parent = ecs::Entity::null();
             }
         } else {
             break;

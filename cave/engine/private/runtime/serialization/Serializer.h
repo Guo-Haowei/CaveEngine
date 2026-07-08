@@ -7,7 +7,7 @@
 #include "cave/core/math/Matrix.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "engine/private/core/io/file_access.h"
 

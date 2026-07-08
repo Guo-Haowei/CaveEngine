@@ -4,7 +4,7 @@
 #pragma once
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/variant/Variant.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave {
 
@@ -40,7 +40,7 @@ private:
     }
 
     void unbind() {
-        m_entity = ecs::Entity::Null();
+        m_entity = ecs::Entity::null();
         m_params.clear();
     }
 

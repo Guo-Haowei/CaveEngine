@@ -1,10 +1,11 @@
 #include "cave/core/ids/Guid.h"
 
+#include "cave/core/PlatformDefines.h"
+#include "cave/core/string/StringUtils.h"
+
 #if USING(PLATFORM_WINDOWS)
 #include <objbase.h>
 #endif
-
-#include "cave/core/string/StringUtils.h"
 
 namespace cave {
 
@@ -15,7 +16,7 @@ Guid Guid::make() {
     GUID guid;
 
     ::CoCreateGuid(&guid);
-    memcpy(&result, &guid, sizeof(Guid));
+    ::memcpy(&result, &guid, sizeof(Guid));
 #else
     CRASH_NOW_MSG("DON'T CALL THIS");
 #endif

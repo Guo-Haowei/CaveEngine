@@ -4,7 +4,7 @@
 
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Box.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "engine/private/renderer/gpu_resource.h"
 

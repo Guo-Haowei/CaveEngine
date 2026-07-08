@@ -75,7 +75,7 @@ bool TreeNodeHelper(Scene& scene,
     if (tree_flags & ImGuiTreeNodeFlags_Leaf) {
         icon = ICON_FA_SQUARE_SHARE_NODES;
     }
-    auto node_name = std::format("##{}", ent.GetId());
+    auto node_name = std::format("##{}", ent.id());
     auto tag = std::format("{} {}{}", icon, name, node_name);
 
     tree_flags |= ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -227,7 +227,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
         DEV_ASSERT(selection.doc == preview_scene.doc_id);
         ecs::Entity selected = selection.entity;
 
-        ecs::Entity parent = selected.IsValid() ? selected : preview_scene.scene->root();
+        ecs::Entity parent = selected.valid() ? selected : preview_scene.scene->root();
 
         if (ImGui::BeginMenu("Add")) {
             openAddEntityPopupImpl(preview_scene.doc_id, parent);
@@ -242,7 +242,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
             LOG_WARN("TODO: fix Paste");
         }
         if (ImGui::MenuItem("Delete")) {
-            if (selected.IsValid()) {
+            if (selected.valid()) {
                 auto cmd = std::make_unique<DeleteObjectCmd>(
                     m_engine_services.sceneRegistry(),
                     selected);
@@ -269,7 +269,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
 // clang-format on
 
 void HierarchyPanel::openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent) {
-    DEV_ASSERT(parent.IsValid());
+    DEV_ASSERT(parent.valid());
 
     using CreateFunc = Entity (*)(SceneCommandWriter&, std::string_view);
     auto add_object = [&](const char* name, bool separate, CreateFunc&& create_func) {

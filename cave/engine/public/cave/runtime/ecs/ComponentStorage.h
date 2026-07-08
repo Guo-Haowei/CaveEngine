@@ -2,12 +2,13 @@
 // File: cave/runtime/ecs/ComponentStorage.h
 // =============================================================================
 #pragma once
+#include "cave/core/containers/Containers.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
-namespace cave {
-class Scene;
-}
+// clang-format off
+namespace cave { class Scene; }
+// clang-format on
 
 namespace cave::ecs {
 
@@ -18,7 +19,7 @@ class ComponentPool;
 
 class ComponentStorage {
     struct Entry {
-        std::unique_ptr<IComponentPool> pool;
+        Owner<IComponentPool> pool;
     };
 
 public:
@@ -49,7 +50,7 @@ public:
 
     bool remove(ComponentId cid, Entity ent);
 
-    std::span<const Entry> entries() const { return entries_; }
+    std::span<const Entry> entries() const { return m_entries; }
 
 private:
     ComponentStorage(ComponentStorage&) = delete;
@@ -57,7 +58,7 @@ private:
 
     void ensure(ComponentId cid);
 
-    std::vector<Entry> entries_;
+    Vector<Entry> m_entries;
 
     friend class ::cave::Scene;
 };

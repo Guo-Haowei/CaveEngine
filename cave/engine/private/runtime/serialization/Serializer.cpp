@@ -16,7 +16,7 @@ void ISerializer::checkExit(SerializerState state) {
 #endif
 
 ISerializer& ISerializer::write(const ecs::Entity& object) {
-    return write(object.GetId());
+    return write(object.id());
 }
 
 ISerializer& ISerializer::write(const math::Degree& object) {

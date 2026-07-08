@@ -99,7 +99,7 @@ static void FillPass(const RenderScene& p_rs,
         ecs::Entity skeleton_id = mesh.skeleton;
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = header.world;
-        batch_buffer.c_meshFlag = skeleton_id.IsValid();
+        batch_buffer.c_meshFlag = skeleton_id.valid();
 
         DrawItem draw{};
         const auto& highlighted = p_view.highlight.entities;
@@ -107,7 +107,7 @@ static void FillPass(const RenderScene& p_rs,
             draw.flags = STENCIL_FLAG_HIGHLIGHT;
         }
 
-        if (skeleton_id.IsValid()) {
+        if (skeleton_id.valid()) {
             const SkeletonComponent* skeleton = p_es.component<SkeletonComponent>(skeleton_id);
             if (skeleton) {
                 DEV_ASSERT(skeleton->bone_transforms.size() <= MAX_BONE_COUNT);
