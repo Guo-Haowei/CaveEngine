@@ -26,23 +26,17 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         .scene_ctx = ctx,
     });
 
-    const AssetMetaData* meta = nullptr;
-    if (auto handle_opt = m_asset_reg.findByGuid<SceneAsset>(guid)) {
-        auto handle = handle_opt.unwrap_unchecked();
-        meta = handle.meta();
-    }
-    if (auto handle_opt = m_asset_reg.findByGuid<PrefabAsset>(guid)) {
-        auto handle = handle_opt.unwrap_unchecked();
-        meta = handle.meta();
-    }
-
-    if (DEV_VERIFY(meta)) {
-        m_preview_scene = m_scene_reg.registerScene(
-            {
-                .source = SceneSource::Editor,
-                .debug_name = meta->name,
-            },
-            std::move(scene));
+    if (auto handle_opt = m_asset_reg.findByGuid(guid)) {
+        const AssetMetaData* meta = handle_opt.unwrap_unchecked().meta();
+        if (DEV_VERIFY(meta)) {
+            DEV_ASSERT(meta->type == AssetType::Scene || meta->type == AssetType::Prefab);
+            m_preview_scene = m_scene_reg.registerScene(
+                {
+                    .source = SceneSource::Editor,
+                    .debug_name = meta->name,
+                },
+                std::move(scene));
+        }
     }
 }
 
