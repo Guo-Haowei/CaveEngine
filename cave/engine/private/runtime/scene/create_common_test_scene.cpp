@@ -14,13 +14,13 @@ Scene* CreateBoxScene() {
         auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(main_camera);
         DEV_ASSERT(camera);
-        camera->SetPosition(Vector3f(0, 4, 15));
+        camera->SetPosition(Vec3f(0, 4, 15));
         camera->SetPrimary();
         scene->AttachChild(main_camera, root);
     }
     // add a light
     if constexpr (0) {
-        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vector3f(0, 0, 0));
+        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vec3f(0, 0, 0));
         scene->AttachChild(id, root);
         LightComponent* light = scene->GetComponent<LightComponent>(id);
         light->SetCastShadow();
@@ -38,11 +38,11 @@ Scene* CreateBoxScene() {
             mat->metallic = 0.3f;
             mat->roughness = 0.7f;
         } else if (p_name == "green") {
-            mat->baseColor = Vector4f(0, 1, 0, 1);
+            mat->baseColor = Vecf(0, 1, 0, 1);
             mat->metallic = 0.3f;
             mat->roughness = 0.7f;
         } else if (p_name == "red") {
-            mat->baseColor = Vector4f(1, 0, 0, 1);
+            mat->baseColor = Vecf(1, 0, 0, 1);
             mat->metallic = 0.3f;
             mat->roughness = 0.7f;
         }
@@ -56,16 +56,16 @@ Scene* CreateBoxScene() {
             Mat4f transform;
             ecs::Entity material;
         } wall_info[] = {
-            { "wall_up", Translate(Vector3f(0, s, 0)), create_material("white") },
-            { "wall_down", Translate(Vector3f(0, -s, 0)), create_material("white") },
-            { "wall_left", Rotate(Degree(+90.0f), Vector3f::UnitZ) * Translate(Vector3f(0, s, 0)), create_material("red") },
-            { "wall_right", Rotate(Degree(+90.0f), Vector3f::UnitZ) * Translate(Vector3f(0, -s, 0)), create_material("green") },
-            { "wall_back", Rotate(Degree(+90.0f), Vector3f::UnitX) * Translate(Vector3f(0, -s, 0)), create_material("white") },
+            { "wall_up", Translate(Vec3f(0, s, 0)), create_material("white") },
+            { "wall_down", Translate(Vec3f(0, -s, 0)), create_material("white") },
+            { "wall_left", Rotate(Degree(+90.0f), Vec3f::UnitZ) * Translate(Vec3f(0, s, 0)), create_material("red") },
+            { "wall_right", Rotate(Degree(+90.0f), Vec3f::UnitZ) * Translate(Vec3f(0, -s, 0)), create_material("green") },
+            { "wall_back", Rotate(Degree(+90.0f), Vec3f::UnitX) * Translate(Vec3f(0, -s, 0)), create_material("white") },
         };
 
         for (size_t i = 0; i < std::size(wall_info); ++i) {
             const auto& info = wall_info[i];
-            auto wall = EntityFactory::CreateCubeEntity(*scene, info.name, info.material, Vector3f(s, 0.2f, s), info.transform);
+            auto wall = EntityFactory::CreateCubeEntity(*scene, info.name, info.material, Vec3f(s, 0.2f, s), info.transform);
             scene->AttachChild(wall, world);
         }
     }
@@ -86,13 +86,13 @@ Scene* CreatePhysicsTestScene() {
         auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(main_camera);
         DEV_ASSERT(camera);
-        camera->SetPosition(Vector3f(0, 5, 12));
+        camera->SetPosition(Vec3f(0, 5, 12));
         camera->SetPrimary();
         scene->AttachChild(main_camera, root);
     }
     // add a light
     {
-        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vector3f(0, 5, 3));
+        auto id = EntityFactory::CreatePointLightEntity(*scene, "point_light", Vec3f(0, 5, 3));
         scene->AttachChild(id, root);
         LightComponent* light = scene->GetComponent<LightComponent>(id);
         light->SetCastShadow();
@@ -104,7 +104,7 @@ Scene* CreatePhysicsTestScene() {
     ecs::Entity material_id = EntityFactory::CreateMaterialEntity(*scene, "material");
 
     {
-        Vector3f ground_scale(5.0f, 0.1f, 5.0f);
+        Vec3f ground_scale(5.0f, 0.1f, 5.0f);
         auto ground = EntityFactory::CreateCubeEntity(*scene, "ground_left", material_id, ground_scale);
         scene->AttachChild(ground, world);
         scene->create<RigidBodyComponent>(ground)
@@ -112,11 +112,11 @@ Scene* CreatePhysicsTestScene() {
             .InitGhost();
 
         TransformComponent* transform = scene->GetComponent<TransformComponent>(ground);
-        transform->SetTranslation(Vector3f(-3.0f, 0.0f, 0.0f));
+        transform->SetTranslation(Vec3f(-3.0f, 0.0f, 0.0f));
         transform->RotateZ(-Degree(45.0f));
     }
     {
-        Vector3f ground_scale(5.0f, 0.1f, 5.0f);
+        Vec3f ground_scale(5.0f, 0.1f, 5.0f);
         auto ground = EntityFactory::CreateCubeEntity(*scene, "ground_right", material_id, ground_scale);
         scene->AttachChild(ground, world);
         scene->create<RigidBodyComponent>(ground)
@@ -124,17 +124,17 @@ Scene* CreatePhysicsTestScene() {
             .InitGhost();
 
         TransformComponent* transform = scene->GetComponent<TransformComponent>(ground);
-        transform->SetTranslation(Vector3f(3.0f, 0.0f, 0.0f));
+        transform->SetTranslation(Vec3f(3.0f, 0.0f, 0.0f));
         transform->RotateZ(Degree(45.0f));
     }
 
     {
         constexpr float s = 3.5f;
         constexpr float h = 2.0f;
-        Vector3f p0(-s, h, +s);  // top left
-        Vector3f p1(+s, h, +s);  // top right
-        Vector3f p2(+s, h, -s);  // bottom right
-        Vector3f p3(-s, h, -s);  // bottom left
+        Vec3f p0(-s, h, +s);  // top left
+        Vec3f p1(+s, h, +s);  // top right
+        Vec3f p2(+s, h, -s);  // bottom right
+        Vec3f p3(-s, h, -s);  // bottom left
 
         auto cloth = EntityFactory::CreateClothEntity(*scene, "cloth",
                                                       material_id,
@@ -149,10 +149,10 @@ Scene* CreatePhysicsTestScene() {
         const int x = (t - 1) % 7;
         const int y = (t - 1) / 7;
 
-        Vector3f translate(x - 3, 7 - y, 0);
+        Vec3f translate(x - 3, 7 - y, 0);
         translate.x += 0.1f * (Random::Float() - 0.5f);
         translate.z += 0.1f * (Random::Float() - 0.5f);
-        Vector3f scale(0.25f);
+        Vec3f scale(0.25f);
 
         ecs::Entity id;
         if (t % 2) {
@@ -180,7 +180,7 @@ Scene* CreatePbrTestScene() {
         auto main_camera = EntityFactory::CreatePerspectiveCameraEntity(*scene, "main_camera", frame_size.x, frame_size.y);
         auto camera = scene->GetComponent<CameraComponent>(main_camera);
         DEV_ASSERT(camera);
-        camera->SetPosition(Vector3f(0, 4, 10));
+        camera->SetPosition(Vec3f(0, 4, 10));
         camera->SetPrimary();
         scene->AttachChild(main_camera, root);
     }
@@ -205,7 +205,7 @@ Scene* CreatePbrTestScene() {
             material->metallic = glm::clamp(material->metallic, 0.05f, 0.95f);
             material->roughness = glm::clamp(material->roughness, 0.05f, 0.95f);
 
-            auto transform = Translate(Vector3f(x, y, 0.0f));
+            auto transform = Translate(Vec3f(x, y, 0.0f));
             auto sphere = EntityFactory::CreateSphereEntity(*scene, name, material_id, 0.5f, transform);
             scene->AttachChild(sphere, world);
         }

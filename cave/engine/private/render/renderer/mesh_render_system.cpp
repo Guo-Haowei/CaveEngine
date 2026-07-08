@@ -248,7 +248,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 if (cast_shadow && shadow_map_index != -1) {
                     light.shadow_map_index = shadow_map_index;
 
-                    Vector3f radiance(light.max_distance);
+                    Vec3f radiance(light.max_distance);
                     AABB aabb = AABB::FromCenterSize(light.position, radiance);
                     auto pass = std::make_unique<PassContext>();
                     FillPass(
@@ -394,7 +394,7 @@ static void FillMeshEmitterBuffer(const Scene& p_scene,
                 const auto& p = emitter.particles[index.v];
 
                 Mat4f translation = Translate(p.position);
-                Mat4f scale = Scale(Vector3f(p.scale));
+                Mat4f scale = Scale(Vec3f(p.scale));
                 Mat4f rotation = glm::toMat4(glm::quat(glm::vec3(p.rotation.x, p.rotation.y, p.rotation.z)));
                 gpu_buffer.c_bones[i++] = translation * rotation * scale;
             }
@@ -420,7 +420,7 @@ static void FillParticleEmitterBuffer(const Scene& p_scene,
         buffer.c_postSimIdx = post_sim_idx;
         buffer.c_elapsedTime = p_scene.m_timestep;
         buffer.c_lifeSpan = emitter.particleLifeSpan;
-        buffer.c_seeds = Vector3f(Random::Float(), Random::Float(), Random::Float());
+        buffer.c_seeds = Vec3f(Random::Float(), Random::Float(), Random::Float());
         buffer.c_emitterScale = emitter.particleScale;
         buffer.c_emitterPosition = transform->GetTranslation();
         buffer.c_particlesPerFrame = emitter.particlesPerFrame;

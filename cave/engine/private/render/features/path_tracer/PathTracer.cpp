@@ -293,13 +293,13 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
         if (light.type() == LIGHT_TYPE_INFINITE) {
             auto transform = p_scene.GetComponent<TransformComponent>(entity);
             DEV_ASSERT(transform);
-            Vector3f rotation = (transform->GetWorldMatrix() * Vector4f::UnitZ).xyz;
+            Vec3f rotation = (transform->GetWorldMatrix() * Vecf::UnitZ).xyz;
             rotation = normalize(rotation);
             float radius = 1000.0f;
 
-            Vector3f tmp;
+            Vec3f tmp;
             tmp.Set(&rotation.x);
-            Vector3f center = radius * 0.5f * tmp;
+            Vec3f center = radius * 0.5f * tmp;
 
             auto it = material_lut.find(entity);
             DEV_ASSERT(it != material_lut.end());

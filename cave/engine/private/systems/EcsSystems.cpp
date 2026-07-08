@@ -407,11 +407,11 @@ static void UpdateMeshEmitter(float p_timestep,
         DEV_ASSERT(free_index.v < p_emitter.particles.size());
         auto& p = p_emitter.particles[free_index.v];
 
-        Vector3f initial_speed{ 0 };
+        Vec3f initial_speed{ 0 };
         initial_speed.x += Random::Float(p_emitter.vxRange.x, p_emitter.vxRange.y);
         initial_speed.y += Random::Float(p_emitter.vyRange.x, p_emitter.vyRange.y);
         initial_speed.z += Random::Float(p_emitter.vzRange.x, p_emitter.vzRange.y);
-        Vector3f initial_rotation{
+        Vec3f initial_rotation{
             Random::Float(-HalfPi(), HalfPi()),
             Random::Float(-HalfPi(), HalfPi()),
             Random::Float(-HalfPi(), HalfPi()),

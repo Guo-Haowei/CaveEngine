@@ -27,7 +27,7 @@ float4 main(VS_OUTPUT_UV input)
     float3 base_color = t_GbufferBaseColorMap.Sample(s_linearMipWrapSampler, uv).rgb;
 
     const float depth = t_GbufferDepth.Sample(s_pointClampSampler, uv).r;
-    const Vector3f view_position = NdcToViewPos(float2(uv.x, 1.0f - uv.y), depth);
+    const float3 view_position = NdcToViewPos(float2(uv.x, 1.0f - uv.y), depth);
     const float4 world_position = mul(c_invCamView, float4(view_position, 1.0f));
 
     float emissive = emissive_roughness_metallic.r;

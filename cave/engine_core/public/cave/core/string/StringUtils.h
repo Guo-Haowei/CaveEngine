@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "cave/core/typedefs.h"
+#include "cave/core/containers/Containers.h"
 #include "cave/core/CoreExport.h"
 
 namespace cave {
@@ -53,7 +54,7 @@ public:
 
     static bool equal(const char* str1, const char* str2);
 
-    static void replaceFirst(std::string& string,
+    static void replaceFirst(String& string,
                              std::string_view pattern,
                              std::string_view replace);
 
@@ -78,11 +79,6 @@ public:
     template<size_t N>
     static void strcpy(char (&dst)[N], const char* src, size_t src_len) {
         StringUtils::strcpy(dst, N, src, src_len);
-    }
-
-    template<size_t N>
-    static void strcpy(char (&dst)[N], const std::string& src) {
-        StringUtils::strcpy(dst, N, src.c_str(), src.size());
     }
 
     template<size_t N>

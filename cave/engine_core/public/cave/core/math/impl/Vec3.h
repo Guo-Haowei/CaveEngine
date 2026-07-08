@@ -3,7 +3,7 @@
 // =============================================================================
 #pragma once
 #include "Swizzle.h"
-#include "VectorBase.h"
+#include "VecBase.h"
 
 namespace cave::math {
 

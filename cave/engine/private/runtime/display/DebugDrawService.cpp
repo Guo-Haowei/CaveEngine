@@ -55,18 +55,18 @@ static void AddDebugCube(FrameData& p_framedata,
     const auto& min = p_aabb.Min();
     const auto& max = p_aabb.Max();
 
-    std::vector<Vector3f> positions;
+    std::vector<Vec3f> positions;
     std::vector<uint32_t> indices;
     BoxWireFrameHelper(min, max, positions, indices);
 
     auto& context = p_framedata.drawDebugContext;
     for (const auto& i : indices) {
-        const Vector3f& pos = positions[i];
+        const Vec3f& pos = positions[i];
         if (p_transform) {
-            const auto tmp = *p_transform * Vector4f(pos, 1.0f);
-            context.positions.emplace_back(Vector3f(tmp.xyz));
+            const auto tmp = *p_transform * Vecf(pos, 1.0f);
+            context.positions.emplace_back(Vec3f(tmp.xyz));
         } else {
-            context.positions.emplace_back(Vector3f(pos));
+            context.positions.emplace_back(Vec3f(pos));
         }
         context.colors.emplace_back(p_color);
     }
