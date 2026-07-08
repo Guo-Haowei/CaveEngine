@@ -9,12 +9,8 @@ namespace cave {
 
 using namespace cave::math;
 
-void RunDebugRenderSystem(const Scene* scene, IDebugDrawService& debug_draw) {
+void RunDebugRenderSystem(const Scene* scene, ICanvas& debug_draw) {
     if (!scene) {
-        return;
-    }
-    // @HACK: don't want to render debug draw
-    if (scene) {
         return;
     }
 

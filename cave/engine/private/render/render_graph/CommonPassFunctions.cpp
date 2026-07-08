@@ -505,7 +505,7 @@ void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
     }
 
     // debug draw
-    IDebugDrawService& debug_draw = ctx.services.debugDraw();
+    ICanvas& debug_draw = ctx.services.debugDraw();
     auto mesh = DebugDrawItemsBuffer(ctx.cmd, debug_draw.items());
     debug_draw.clear();
     if (mesh) {

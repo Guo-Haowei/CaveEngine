@@ -38,7 +38,7 @@ extern void RunTileMapRenderSystem(Scene* scene, FrameData& framedata);
 
 extern void RunSpriteRenderSystem(const Scene* scene, FrameData& framedata);
 
-extern void RunDebugRenderSystem(const Scene* scene, IDebugDrawService& debug_draw);
+extern void RunDebugRenderSystem(const Scene* scene, ICanvas& debug_draw);
 
 }  // namespace cave
 
@@ -51,7 +51,7 @@ using math::Vec4f;
 
 class Renderer::Impl {
 public:
-    Impl(IRenderDevice& device, IDebugDrawService& debug_draw)
+    Impl(IRenderDevice& device, ICanvas& debug_draw)
         : device_(device)
         , debug_draw_(debug_draw)
         , transient_pool_(device)
@@ -90,7 +90,7 @@ private:
 
 private:
     IRenderDevice& device_;
-    IDebugDrawService& debug_draw_;
+    ICanvas& debug_draw_;
     RenderSceneBuilder scene_builder_;
     std::unordered_map<SceneId, RenderScene> scene_cache_;
 
@@ -109,7 +109,7 @@ private:
     std::shared_ptr<GpuMesh> ui_buffers_;
 };
 
-Renderer::Renderer(IRenderDevice& device, IDebugDrawService& debug_draw)
+Renderer::Renderer(IRenderDevice& device, ICanvas& debug_draw)
     : impl_(std::make_unique<Impl>(device, debug_draw)) {}
 
 Renderer::~Renderer() = default;

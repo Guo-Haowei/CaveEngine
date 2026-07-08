@@ -5,28 +5,35 @@
 
 namespace cave {
 
-class DebugDrawService : public IDebugDrawService {
-
+class Canvas : public ICanvas {
 public:
     void addBox2Frame(const math::Vec2f& min,
                       const math::Vec2f& max,
-                      const math::Vec4f& color,
                       float thickness,
+                      const math::Vec4f& tint,
                       const math::Mat4f* transform) override;
 
     void addBox2(const math::Vec2f& min,
                  const math::Vec2f& max,
-                 const math::Vec4f& color,
+                 const math::Vec4f& tint,
                  const math::Mat4f* transform) override;
 
-    auto items() const -> std::span<const DebugDrawItem> override {
-        return items_;
+    void addImage(GpuTexture* texture,
+                  const math::Vec2f& min,
+                  const math::Vec2f& max,
+                  const math::Vec2f& uv_min,
+                  const math::Vec2f& uv_max,
+                  const math::Vec4f& tint,
+                  const math::Mat4f* transform) override;
+
+    std::span<const PrimShape> primitives() const override {
+        return m_shapes;
     }
 
-    void clear() override { items_.clear(); }
+    void clear() override { m_shapes.clear(); }
 
 private:
-    std::vector<DebugDrawItem> items_;
+    Vector<PrimShape> m_shapes;
 };
 
 }  // namespace cave

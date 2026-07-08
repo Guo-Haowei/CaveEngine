@@ -56,7 +56,7 @@ protected:
     EventQueue m_event_queue;
     std::vector<IService*> m_subsystems;
 
-    DebugDrawService m_debug_draw;
+    Canvas m_debug_draw;
     IntentBus m_intent_bus;
     VFS m_vfs;
     NativeScriptRegistry m_native_scripts;
