@@ -7,6 +7,7 @@
 #include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
@@ -248,13 +249,17 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 
 void SceneViewTab::onAssetDropped(AssetHandle&& handle) {
     IAsset* asset = handle.get();
-    if (Scene* prefab_scene = dynamic_cast<Scene*>(asset)) {
-        Scene* scene = getResolvedScene();
-        m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
-            Entity prefb = writer.prefabObject("prefab", handle.guid());
-            writer.attachChild(prefb, scene->root());
-        });
-        return;
+    switch (asset->type()) {
+        case AssetType::Scene: {
+            Scene* scene = getResolvedScene();
+            m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
+                Entity prefb = writer.prefabObject("prefab", handle.guid());
+                writer.attachChild(prefb, scene->root());
+            });
+        } break;
+            // @TODO: prefab
+        default:
+            break;
     }
 
     const AssetMetaData* meta = handle.meta();

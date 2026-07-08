@@ -23,7 +23,7 @@ class AssetHandle {
 public:
     AssetHandle() {}
 
-    AssetHandle(const Guid& guid, std::shared_ptr<AssetEntry> entry)
+    AssetHandle(const Guid& guid, Ref<AssetEntry> entry)
         : m_guid(guid)
         , m_asset_entry(std::move(entry)) {}
 
@@ -38,8 +38,8 @@ public:
 
     [[nodiscard]] AssetRef wait() const;
 
-    template<typename T>
-    [[nodiscard]] std::shared_ptr<T> wait() const {
+    template<AssetClass T>
+    [[nodiscard]] Ref<T> wait() const {
         auto ptr = wait();
         if (!ptr) {
             return nullptr;
@@ -48,7 +48,7 @@ public:
         return std::dynamic_pointer_cast<T>(ptr);
     }
 
-    template<typename T>
+    template<AssetClass T>
     inline T* get() const {
         return dynamic_cast<T*>(get());
     }
@@ -65,7 +65,7 @@ public:
 
 private:
     Guid m_guid;
-    std::weak_ptr<AssetEntry> m_asset_entry;
+    WeakRef<AssetEntry> m_asset_entry;
 };
 
 template<typename T>
@@ -83,11 +83,13 @@ public:
     Handle(AssetHandle&& raw)
         : AssetHandle(std::move(raw)) {}
 
-    [[nodiscard]] std::shared_ptr<T> wait() const {
+    [[nodiscard]] Ref<T> wait() const {
+        static_assert(AssetClass<T>);
         return AssetHandle::wait<T>();
     }
 
     T* get() const {
+        static_assert(AssetClass<T>);
         return AssetHandle::get<T>();
     }
 

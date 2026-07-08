@@ -11,7 +11,7 @@ public:
     bool save() override;
     bool saveAs(std::string_view new_path) override;
 
-    std::unique_ptr<Scene> createPreviewScene() const override;
+    Owner<Scene> createPreviewScene() const override;
 };
 
 }  // namespace cave

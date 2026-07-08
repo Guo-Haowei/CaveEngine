@@ -8,6 +8,7 @@
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
@@ -93,13 +94,13 @@ PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
 
 PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
                                               const PreviewOptions& options) const {
-    const Scene* source_scene = handle.get<Scene>();
-    DEV_ASSERT(source_scene);
+    const SceneAsset* scene_asset = handle.get<SceneAsset>();
+    DEV_ASSERT(scene_asset);
     const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
 
     auto scene = std::make_unique<Scene>();
-    scene->copy(*source_scene);
+    scene->copy(scene_asset->scene());
 
     // @TODO: better camera
     CameraSource camera_source;

@@ -89,7 +89,7 @@ Result<void> MeshAsset::saveToDisk(const AssetMetaData& p_meta) const {
 
     // the archive is write mode, so it's safe to const cast
     auto asset = const_cast<MeshAsset&>(*this);
-    asset.SerializeBinary(archive, VERSION);
+    asset.SerializeBinary(archive, kVersion);
     return Result<void>();
 }
 
@@ -99,7 +99,7 @@ Result<void> MeshAsset::loadFromDisk(const AssetMetaData& p_meta) {
         return CAVE_ERROR(res.error());
     }
 
-    SerializeBinary(archive, VERSION);
+    SerializeBinary(archive, kVersion);
     OnDeserialized();
 
     return Result<void>();

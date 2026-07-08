@@ -46,9 +46,9 @@ SceneDocument::~SceneDocument() {
 }
 
 bool SceneDocument::save() {
-    Scene* source = m_handle.get<Scene>();
+    SceneAsset* source = m_handle.get<SceneAsset>();
     Scene* tmp = m_scene_reg.resolve(m_preview_scene);
-    source->copy(*tmp);
+    source->sceneMut().copy(*tmp);
     return DocumentBase::save();
 }
 
@@ -57,9 +57,14 @@ bool SceneDocument::saveAs(std::string_view p_new_path) {
     return false;
 }
 
-std::unique_ptr<Scene> SceneDocument::createPreviewScene() const {
+Owner<Scene> SceneDocument::createPreviewScene() const {
+    const SceneAsset* asset = m_handle.get<SceneAsset>();
+    if (!asset) {
+        return nullptr;
+    }
+
     auto scene = std::make_unique<Scene>();
-    scene->copy(*m_handle.get<Scene>());
+    scene->copy(asset->scene());
     return scene;
 }
 

@@ -16,18 +16,16 @@ public:
     Option<AssetHandle> findByGuid(const Guid& guid, AssetType type = AssetType::All);
     Option<AssetHandle> findByPath(const std::string& path, AssetType type = AssetType::All);
 
-    template<typename T>
+    template<AssetClass T>
     Option<Handle<T>> findByPath(const std::string& path) {
-        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        auto handle = findByPath(path, T::ASSET_TYPE);
+        auto handle = findByPath(path, T::kAssetType);
         if (handle.is_none()) return None();
         return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
 
-    template<typename T>
+    template<AssetClass T>
     Option<Handle<T>> findByGuid(const Guid& guid) {
-        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        auto handle = findByGuid(guid, T::ASSET_TYPE);
+        auto handle = findByGuid(guid, T::kAssetType);
         if (handle.is_none()) return None();
         return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }

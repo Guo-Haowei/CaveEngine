@@ -2,6 +2,7 @@
 // File: cave/runtime/assets/IAsset.h
 // =============================================================================
 #pragma once
+#include "cave/core/containers/Containers.h"
 #include "cave/core/error/Result.h"
 #include "cave/runtime/assets/AssetMetaData.h"
 
@@ -12,9 +13,17 @@ struct AssetMetaData;
 
 #define CAVE_ASSET(NAME, TYPE, VER)                      \
 public:                                                  \
-    static inline constexpr AssetType ASSET_TYPE = TYPE; \
-    static inline constexpr const int VERSION = VER;     \
-    AssetType type() const override { return ASSET_TYPE; }
+    static inline constexpr AssetType kAssetType = TYPE; \
+    static inline constexpr const int kVersion = VER;    \
+    AssetType type() const override { return kAssetType; }
+
+template<typename T>
+concept AssetClass = std::derived_from<T, IAsset> &&
+                     requires(const T& asset) {
+                         { T::kAssetType } -> std::convertible_to<AssetType>;
+                         { T::kVersion } -> std::convertible_to<int>;
+                         { asset.type() } -> std::same_as<AssetType>;
+                     };
 
 class IAsset {
 public:
@@ -29,6 +38,6 @@ public:
     virtual std::vector<Guid> dependencies() const = 0;
 };
 
-using AssetRef = std::shared_ptr<IAsset>;
+using AssetRef = Ref<IAsset>;
 
 }  // namespace cave
