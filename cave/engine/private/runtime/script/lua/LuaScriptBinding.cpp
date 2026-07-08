@@ -1,6 +1,6 @@
 #include "luaScriptBinding.h"
 
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/runtime/display/DisplayService.h"
 
 #include "engine/private/runtime/assets/BlobAsset.h"

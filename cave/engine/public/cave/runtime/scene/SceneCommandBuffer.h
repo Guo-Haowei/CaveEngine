@@ -4,7 +4,7 @@
 #pragma once
 #include <type_traits>
 #include <vector>
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"

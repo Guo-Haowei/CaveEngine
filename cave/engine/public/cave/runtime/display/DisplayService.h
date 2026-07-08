@@ -2,7 +2,7 @@
 // File: cave/runtime/display/DisplayService.h
 // =============================================================================
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/base/Singleton.h"
 #include "cave/rhi/Backend.h"
 #include "cave/runtime/framework/IService.h"

@@ -1,23 +1,23 @@
 // =============================================================================
-// File: cave/core/math/Vector.h
+// File: cave/core/math/Vec.h
 // =============================================================================
 #pragma once
-#include "impl/Vector2.h"
-#include "impl/Vector3.h"
-#include "impl/Vector4.h"
-#include "impl/VectorMath.h"
+#include "impl/Vec2.h"
+#include "impl/Vec3.h"
+#include "impl/Vec4.h"
+#include "impl/VecMath.h"
 
 namespace cave::math {
 
-using Vec2i = Vector<int, 2>;
-using Vec3i = Vector<int, 3>;
-using Vec4i = Vector<int, 4>;
-using Vec2u = Vector<uint32_t, 2>;
-using Vec3u = Vector<uint32_t, 3>;
-using Vec4u = Vector<uint32_t, 4>;
-using Vec2f = Vector<float, 2>;
-using Vec3f = Vector<float, 3>;
-using Vec4f = Vector<float, 4>;
+using Vec2i = Vec<int, 2>;
+using Vec3i = Vec<int, 3>;
+using Vec4i = Vec<int, 4>;
+using Vec2u = Vec<uint32_t, 2>;
+using Vec3u = Vec<uint32_t, 3>;
+using Vec4u = Vec<uint32_t, 4>;
+using Vec2f = Vec<float, 2>;
+using Vec3f = Vec<float, 3>;
+using Vec4f = Vec<float, 4>;
 
 static_assert(sizeof(Vec2i) == 8);
 static_assert(sizeof(Vec3i) == 12);

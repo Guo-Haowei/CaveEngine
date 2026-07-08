@@ -119,7 +119,7 @@ public:
     }
 
     template<typename T, int N>
-    ISerializer& write(const math::Vector<T, N>& object) {
+    ISerializer& write(const math::Vec<T, N>& object) {
         beginArray(true);
         write(object.x);
         write(object.y);

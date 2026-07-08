@@ -147,7 +147,7 @@ public:
     }
 
     template<typename T, int N>
-    bool read(math::Vector<T, N>& object) {
+    bool read(math::Vec<T, N>& object) {
         const auto size = arraySize().unwrap_or(-1);
         ERR_FAIL_COND_V_MSG(size != N, false, "expect vector");
 
@@ -162,13 +162,13 @@ public:
 
     template<typename T, int N>
     bool read(math::Box<T, N>& object) {
-        auto min = math::Vector<T, N>(std::numeric_limits<T>::infinity());
+        auto min = math::Vec<T, N>(std::numeric_limits<T>::infinity());
         if (tryEnterKey("min")) {
             read(min);
             leaveKey();
         }
 
-        auto max = math::Vector<T, N>(-std::numeric_limits<T>::infinity());
+        auto max = math::Vec<T, N>(-std::numeric_limits<T>::infinity());
         if (tryEnterKey("max")) {
             read(max);
             leaveKey();

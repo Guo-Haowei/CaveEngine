@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <functional>
 #include "cave/core/Option.h"
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 
 namespace cave {
 

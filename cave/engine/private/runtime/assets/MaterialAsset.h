@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/reflection/Reflection.h"
 
 #include "cave/runtime/assets/AssetHandle.h"

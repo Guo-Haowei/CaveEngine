@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 
 namespace super_cave_boy {

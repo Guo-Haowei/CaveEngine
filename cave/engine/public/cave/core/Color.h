@@ -2,7 +2,7 @@
 // File: cave/core/Color.h
 // =============================================================================
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 
 namespace cave {
 
@@ -15,8 +15,8 @@ enum class ColorCode : uint32_t {
     White = 0xE0E0E0,
 };
 
-class Color : public math::Vector<float, 4> {
-    using Base = math::Vector<float, 4>;
+class Color : public math::Vec<float, 4> {
+    using Base = math::Vec<float, 4>;
 
 public:
     constexpr Color()

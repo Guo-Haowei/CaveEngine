@@ -1,14 +1,14 @@
 // =============================================================================
-// File: cave/core/math/impl/VectorMath.h
+// File: cave/core/math/impl/VecMath.h
 // =============================================================================
 #pragma once
 #include <cmath>
 #include "cave/core/math/Scalar.h"
-#include "cave/core/math/impl/Vector2.h"
-#include "cave/core/math/impl/Vector3.h"
-#include "cave/core/math/impl/Vector4.h"
+#include "cave/core/math/impl/Vec2.h"
+#include "cave/core/math/impl/Vec3.h"
+#include "cave/core/math/impl/Vec4.h"
 #if USING(MATH_ENABLE_SIMD_SSE)
-#include "cave/core/math/impl/VectorMathSSE.h"
+#include "cave/core/math/impl/VecMath.h"
 #endif
 
 #if defined(min)
@@ -22,7 +22,7 @@
 namespace cave::math {
 
 template<Arithmetic T, int N>
-constexpr bool operator==(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
+constexpr bool operator==(const Vec<T, N>& lhs, const Vec<T, N>& rhs) {
     for (int i = 0; i < N; ++i) {
         if (lhs[i] != rhs[i]) {
             return false;
@@ -60,59 +60,59 @@ constexpr bool operator==(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
 
 #pragma region VECTOR_MATH_ADD
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 2> operator+(const Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator+(const Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     return { lhs.x + rhs.x, lhs.y + rhs.y };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 3> operator+(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator+(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 4> operator+(const Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator+(const Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator+(const Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator+(const Vec<T, 2>& lhs, const U& rhs) {
     return { lhs.x + rhs, lhs.y + rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator+(const Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator+(const Vec<T, 3>& lhs, const U& rhs) {
     return { lhs.x + rhs, lhs.y + rhs, lhs.z + rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator+(const Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator+(const Vec<T, 4>& lhs, const U& rhs) {
     return { lhs.x + rhs, lhs.y + rhs, lhs.z + rhs, lhs.w + rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator+(const U& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator+(const U& lhs, const Vec<T, 2>& rhs) {
     return { lhs + rhs.x, lhs + rhs.y };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator+(const U& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator+(const U& lhs, const Vec<T, 3>& rhs) {
     return { lhs + rhs.x, lhs + rhs.y, lhs + rhs.z };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator+(const U& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator+(const U& lhs, const Vec<T, 4>& rhs) {
     return { lhs + rhs.x, lhs + rhs.y, lhs + rhs.z, lhs + rhs.w };
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 2>& operator+=(Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator+=(Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     lhs.x += rhs.x;
     lhs.y += rhs.y;
     return lhs;
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 3>& operator+=(Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator+=(Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     lhs.x += rhs.x;
     lhs.y += rhs.y;
     lhs.z += rhs.z;
@@ -120,7 +120,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator+=(Vector<T, 3>& lhs, const Vector<
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 4>& operator+=(Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator+=(Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     lhs.x += rhs.x;
     lhs.y += rhs.y;
     lhs.z += rhs.z;
@@ -129,14 +129,14 @@ FORCE_INLINE constexpr Vector<T, 4>& operator+=(Vector<T, 4>& lhs, const Vector<
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2>& operator+=(Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator+=(Vec<T, 2>& lhs, const U& rhs) {
     lhs.x += rhs;
     lhs.y += rhs;
     return lhs;
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3>& operator+=(Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator+=(Vec<T, 3>& lhs, const U& rhs) {
     lhs.x += rhs;
     lhs.y += rhs;
     lhs.z += rhs;
@@ -144,7 +144,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator+=(Vector<T, 3>& lhs, const U& rhs)
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4>& operator+=(Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator+=(Vec<T, 4>& lhs, const U& rhs) {
     lhs.x += rhs;
     lhs.y += rhs;
     lhs.z += rhs;
@@ -155,59 +155,59 @@ FORCE_INLINE constexpr Vector<T, 4>& operator+=(Vector<T, 4>& lhs, const U& rhs)
 
 #pragma region VECTOR_MATH_SUB
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 2> operator-(const Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator-(const Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     return { lhs.x - rhs.x, lhs.y - rhs.y };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 3> operator-(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator-(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 4> operator-(const Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator-(const Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator-(const Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator-(const Vec<T, 2>& lhs, const U& rhs) {
     return { lhs.x - rhs, lhs.y - rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator-(const Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator-(const Vec<T, 3>& lhs, const U& rhs) {
     return { lhs.x - rhs, lhs.y - rhs, lhs.z - rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator-(const Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator-(const Vec<T, 4>& lhs, const U& rhs) {
     return { lhs.x - rhs, lhs.y - rhs, lhs.z - rhs, lhs.w - rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator-(const U& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator-(const U& lhs, const Vec<T, 2>& rhs) {
     return { lhs - rhs.x, lhs - rhs.y };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator-(const U& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator-(const U& lhs, const Vec<T, 3>& rhs) {
     return { lhs - rhs.x, lhs - rhs.y, lhs - rhs.z };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator-(const U& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator-(const U& lhs, const Vec<T, 4>& rhs) {
     return { lhs - rhs.x, lhs - rhs.y, lhs - rhs.z, lhs - rhs.w };
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 2>& operator-=(Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator-=(Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     lhs.x -= rhs.x;
     lhs.y -= rhs.y;
     return lhs;
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 3>& operator-=(Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator-=(Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     lhs.x -= rhs.x;
     lhs.y -= rhs.y;
     lhs.z -= rhs.z;
@@ -215,7 +215,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator-=(Vector<T, 3>& lhs, const Vector<
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 4>& operator-=(Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator-=(Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     lhs.x -= rhs.x;
     lhs.y -= rhs.y;
     lhs.z -= rhs.z;
@@ -224,14 +224,14 @@ FORCE_INLINE constexpr Vector<T, 4>& operator-=(Vector<T, 4>& lhs, const Vector<
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2>& operator-=(Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator-=(Vec<T, 2>& lhs, const U& rhs) {
     lhs.x -= rhs;
     lhs.y -= rhs;
     return lhs;
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3>& operator-=(Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator-=(Vec<T, 3>& lhs, const U& rhs) {
     lhs.x -= rhs;
     lhs.y -= rhs;
     lhs.z -= rhs;
@@ -239,7 +239,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator-=(Vector<T, 3>& lhs, const U& rhs)
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4>& operator-=(Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator-=(Vec<T, 4>& lhs, const U& rhs) {
     lhs.x -= rhs;
     lhs.y -= rhs;
     lhs.z -= rhs;
@@ -250,59 +250,59 @@ FORCE_INLINE constexpr Vector<T, 4>& operator-=(Vector<T, 4>& lhs, const U& rhs)
 
 #pragma region VECTOR_MATH_MUL
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 2> operator*(const Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator*(const Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     return { lhs.x * rhs.x, lhs.y * rhs.y };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 3> operator*(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator*(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 4> operator*(const Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator*(const Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator*(const Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator*(const Vec<T, 2>& lhs, const U& rhs) {
     return { lhs.x * rhs, lhs.y * rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator*(const Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator*(const Vec<T, 3>& lhs, const U& rhs) {
     return { lhs.x * rhs, lhs.y * rhs, lhs.z * rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator*(const Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator*(const Vec<T, 4>& lhs, const U& rhs) {
     return { lhs.x * rhs, lhs.y * rhs, lhs.z * rhs, lhs.w * rhs };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator*(const U& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator*(const U& lhs, const Vec<T, 2>& rhs) {
     return { lhs * rhs.x, lhs * rhs.y };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator*(const U& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator*(const U& lhs, const Vec<T, 3>& rhs) {
     return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.z };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator*(const U& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator*(const U& lhs, const Vec<T, 4>& rhs) {
     return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.z, lhs * rhs.w };
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 2>& operator*=(Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator*=(Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     lhs.x *= rhs.x;
     lhs.y *= rhs.y;
     return lhs;
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 3>& operator*=(Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator*=(Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     lhs.x *= rhs.x;
     lhs.y *= rhs.y;
     lhs.z *= rhs.z;
@@ -310,7 +310,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator*=(Vector<T, 3>& lhs, const Vector<
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 4>& operator*=(Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator*=(Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     lhs.x *= rhs.x;
     lhs.y *= rhs.y;
     lhs.z *= rhs.z;
@@ -319,14 +319,14 @@ FORCE_INLINE constexpr Vector<T, 4>& operator*=(Vector<T, 4>& lhs, const Vector<
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2>& operator*=(Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator*=(Vec<T, 2>& lhs, const U& rhs) {
     lhs.x *= rhs;
     lhs.y *= rhs;
     return lhs;
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3>& operator*=(Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator*=(Vec<T, 3>& lhs, const U& rhs) {
     lhs.x *= rhs;
     lhs.y *= rhs;
     lhs.z *= rhs;
@@ -334,7 +334,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator*=(Vector<T, 3>& lhs, const U& rhs)
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4>& operator*=(Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator*=(Vec<T, 4>& lhs, const U& rhs) {
     lhs.x *= rhs;
     lhs.y *= rhs;
     lhs.z *= rhs;
@@ -345,62 +345,62 @@ FORCE_INLINE constexpr Vector<T, 4>& operator*=(Vector<T, 4>& lhs, const U& rhs)
 
 #pragma region VECTOR_MATH_DIV
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 2> operator/(const Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator/(const Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     return { lhs.x / rhs.x, lhs.y / rhs.y };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 3> operator/(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator/(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 4> operator/(const Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator/(const Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z, lhs.w / rhs.w };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator/(const Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator/(const Vec<T, 2>& lhs, const U& rhs) {
     const U rhs_inv = static_cast<U>(1) / rhs;
     return { lhs.x * rhs_inv, lhs.y * rhs_inv };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator/(const Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator/(const Vec<T, 3>& lhs, const U& rhs) {
     const U rhs_inv = static_cast<U>(1) / rhs;
     return { lhs.x * rhs_inv, lhs.y * rhs_inv, lhs.z * rhs_inv };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator/(const Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator/(const Vec<T, 4>& lhs, const U& rhs) {
     const U rhs_inv = static_cast<U>(1) / rhs;
     return { lhs.x * rhs_inv, lhs.y * rhs_inv, lhs.z * rhs_inv, lhs.w * rhs_inv };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2> operator/(const U& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2> operator/(const U& lhs, const Vec<T, 2>& rhs) {
     return { lhs / rhs.x, lhs / rhs.y };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3> operator/(const U& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> operator/(const U& lhs, const Vec<T, 3>& rhs) {
     return { lhs / rhs.x, lhs / rhs.y, lhs / rhs.z };
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4> operator/(const U& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4> operator/(const U& lhs, const Vec<T, 4>& rhs) {
     return { lhs / rhs.x, lhs / rhs.y, lhs / rhs.z, lhs / rhs.w };
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 2>& operator/=(Vector<T, 2>& lhs, const Vector<T, 2>& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator/=(Vec<T, 2>& lhs, const Vec<T, 2>& rhs) {
     lhs.x /= rhs.x;
     lhs.y /= rhs.y;
     return lhs;
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 3>& operator/=(Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator/=(Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     lhs.x /= rhs.x;
     lhs.y /= rhs.y;
     lhs.z /= rhs.z;
@@ -408,7 +408,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator/=(Vector<T, 3>& lhs, const Vector<
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 4>& operator/=(Vector<T, 4>& lhs, const Vector<T, 4>& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator/=(Vec<T, 4>& lhs, const Vec<T, 4>& rhs) {
     lhs.x /= rhs.x;
     lhs.y /= rhs.y;
     lhs.z /= rhs.z;
@@ -417,7 +417,7 @@ FORCE_INLINE constexpr Vector<T, 4>& operator/=(Vector<T, 4>& lhs, const Vector<
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 2>& operator/=(Vector<T, 2>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 2>& operator/=(Vec<T, 2>& lhs, const U& rhs) {
     const U rhs_inv = static_cast<U>(1) / rhs;
     lhs.x *= rhs_inv;
     lhs.y *= rhs_inv;
@@ -425,7 +425,7 @@ FORCE_INLINE constexpr Vector<T, 2>& operator/=(Vector<T, 2>& lhs, const U& rhs)
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 3>& operator/=(Vector<T, 3>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 3>& operator/=(Vec<T, 3>& lhs, const U& rhs) {
     const U rhs_inv = static_cast<U>(1) / rhs;
     lhs.x *= rhs_inv;
     lhs.y *= rhs_inv;
@@ -434,7 +434,7 @@ FORCE_INLINE constexpr Vector<T, 3>& operator/=(Vector<T, 3>& lhs, const U& rhs)
 }
 
 template<Arithmetic T, Arithmetic U>
-FORCE_INLINE constexpr Vector<T, 4>& operator/=(Vector<T, 4>& lhs, const U& rhs) {
+FORCE_INLINE constexpr Vec<T, 4>& operator/=(Vec<T, 4>& lhs, const U& rhs) {
     const U rhs_inv = static_cast<U>(1) / rhs;
     lhs.x *= rhs_inv;
     lhs.y *= rhs_inv;
@@ -446,24 +446,24 @@ FORCE_INLINE constexpr Vector<T, 4>& operator/=(Vector<T, 4>& lhs, const U& rhs)
 
 #pragma region VECTOR_NEGATION
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 2> operator-(const Vector<T, 2>& v) {
+FORCE_INLINE constexpr Vec<T, 2> operator-(const Vec<T, 2>& v) {
     return { -v.x, -v.y };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 3> operator-(const Vector<T, 3>& v) {
+FORCE_INLINE constexpr Vec<T, 3> operator-(const Vec<T, 3>& v) {
     return { -v.x, -v.y, -v.z };
 }
 
 template<typename T>
-FORCE_INLINE constexpr Vector<T, 4> operator-(const Vector<T, 4>& v) {
+FORCE_INLINE constexpr Vec<T, 4> operator-(const Vec<T, 4>& v) {
     return { -v.x, -v.y, -v.z, -v.w };
 }
 #pragma endregion VECTOR_NEGATION
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> min(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
-    Vector<T, N> result;
+constexpr inline Vec<T, N> min(const Vec<T, N>& lhs, const Vec<T, N>& rhs) {
+    Vec<T, N> result;
     result.x = min(lhs.x, rhs.x);
     result.y = min(lhs.y, rhs.y);
     if constexpr (N >= 3) {
@@ -476,8 +476,8 @@ constexpr inline Vector<T, N> min(const Vector<T, N>& lhs, const Vector<T, N>& r
 }
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> max(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
-    Vector<T, N> result;
+constexpr inline Vec<T, N> max(const Vec<T, N>& lhs, const Vec<T, N>& rhs) {
+    Vec<T, N> result;
     result.x = max(lhs.x, rhs.x);
     result.y = max(lhs.y, rhs.y);
     if constexpr (N >= 3) {
@@ -490,8 +490,8 @@ constexpr inline Vector<T, N> max(const Vector<T, N>& lhs, const Vector<T, N>& r
 }
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> abs(const Vector<T, N>& lhs) {
-    Vector<T, N> result;
+constexpr inline Vec<T, N> abs(const Vec<T, N>& lhs) {
+    Vec<T, N> result;
     result.x = abs(lhs.x);
     result.y = abs(lhs.y);
     if constexpr (N >= 3) {
@@ -504,18 +504,18 @@ constexpr inline Vector<T, N> abs(const Vector<T, N>& lhs) {
 }
 
 template<Arithmetic T, int N>
-constexpr inline Vector<T, N> clamp(const Vector<T, N>& value, const Vector<T, N>& low, const Vector<T, N>& high) {
+constexpr inline Vec<T, N> clamp(const Vec<T, N>& value, const Vec<T, N>& low, const Vec<T, N>& high) {
     return max(low, min(value, high));
 }
 
 template<FloatingPoint T, int N>
-constexpr inline Vector<T, N> lerp(const Vector<T, N>& x, const Vector<T, N>& y, float s) {
+constexpr inline Vec<T, N> lerp(const Vec<T, N>& x, const Vec<T, N>& y, float s) {
     return (static_cast<T>(1) - s) * x + s * y;
 }
 
 template<Arithmetic T, int N>
-constexpr inline T dot(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
-    Vector<T, N> tmp(lhs * rhs);
+constexpr inline T dot(const Vec<T, N>& lhs, const Vec<T, N>& rhs) {
+    Vec<T, N> tmp(lhs * rhs);
     T result = tmp.x + tmp.y;
     if constexpr (N >= 3) {
         result += tmp.z;
@@ -528,19 +528,19 @@ constexpr inline T dot(const Vector<T, N>& lhs, const Vector<T, N>& rhs) {
 
 template<Arithmetic T, int N>
     requires(std::is_floating_point_v<T>)
-constexpr inline T length(const Vector<T, N>& lhs) {
+constexpr inline T length(const Vec<T, N>& lhs) {
     return std::sqrt(dot(lhs, lhs));
 }
 
 template<Arithmetic T, int N>
     requires(std::is_floating_point_v<T>)
-constexpr inline Vector<T, N> normalize(const Vector<T, N>& lhs) {
+constexpr inline Vec<T, N> normalize(const Vec<T, N>& lhs) {
     const auto inverse_length = static_cast<T>(1) / length(lhs);
     return lhs * inverse_length;
 }
 
 template<Arithmetic T>
-FORCE_INLINE constexpr Vector<T, 3> cross(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) {
+FORCE_INLINE constexpr Vec<T, 3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return {
         lhs.y * rhs.z - rhs.y * lhs.z,
         lhs.z * rhs.x - rhs.z * lhs.x,

@@ -6,7 +6,7 @@
 #include <string_view>
 
 #include "cave/core/math/Ray.h"
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 

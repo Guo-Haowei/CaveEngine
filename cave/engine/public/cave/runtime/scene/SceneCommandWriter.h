@@ -3,7 +3,7 @@
 // =============================================================================
 #pragma once
 #include <string_view>
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"

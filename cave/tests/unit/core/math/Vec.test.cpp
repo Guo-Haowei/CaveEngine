@@ -1,8 +1,8 @@
-#include "vector.test.h"
+#include "Vec.test.h"
 
 namespace cave::math {
 
-TEST(Vector, ConstructVec2) {
+TEST(Vec, ConstructVec2) {
     CHECK_VEC2(Vec2u::Zero, 0u, 0u);
     CHECK_VEC2(Vec2u::UnitX, 1u, 0u);
     CHECK_VEC2(Vec2u::UnitY, 0u, 1u);
@@ -13,7 +13,7 @@ TEST(Vector, ConstructVec2) {
     }
 }
 
-TEST(Vector, ConstructVec3) {
+TEST(Vec, ConstructVec3) {
     CHECK_VEC3(Vec3u::Zero, 0u, 0u, 0u);
     CHECK_VEC3(Vec3u::UnitX, 1u, 0u, 0u);
     CHECK_VEC3(Vec3u::UnitZ, 0u, 0u, 1u);
@@ -28,7 +28,7 @@ TEST(Vector, ConstructVec3) {
     }
 }
 
-TEST(Vector, ConstructVec4) {
+TEST(Vec, ConstructVec4) {
     CHECK_VEC4(Vec4f::Zero, 0, 0, 0, 0);
     CHECK_VEC4(Vec4f::One, 1, 1, 1, 1);
     CHECK_VEC4(Vec4f::UnitW, 0, 0, 0, 1);
@@ -47,7 +47,7 @@ TEST(Vector, ConstructVec4) {
     }
 }
 
-TEST(Vector, ConstructWithDifferentType) {
+TEST(Vec, ConstructWithDifferentType) {
     {
         int a = 1;
         int b = 2;
@@ -71,7 +71,7 @@ TEST(Vector, ConstructWithDifferentType) {
     }
 }
 
-TEST(Vector, Swizzle) {
+TEST(Vec, Swizzle) {
     Vec4f vec = Vec4f::UnitY;
     vec[2] = 1;
 

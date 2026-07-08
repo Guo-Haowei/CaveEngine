@@ -11,7 +11,7 @@ WARNING_DISABLE(4201, "-Wunused-parameter")
 #include <glm/gtx/vector_angle.hpp>
 WARNING_POP()
 
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/math/Matrix.h"
 
 namespace cave::math {

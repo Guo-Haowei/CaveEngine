@@ -1,5 +1,5 @@
 #include "cave/core/math/Ray.h"
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "engine/private/core/math/MatrixTransform.h"
 
 namespace cave::math {

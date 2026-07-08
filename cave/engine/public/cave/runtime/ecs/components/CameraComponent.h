@@ -2,7 +2,7 @@
 // File: cave/runtime/ecs/components/CameraComponent.h
 // =============================================================================
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/math/Matrix.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 

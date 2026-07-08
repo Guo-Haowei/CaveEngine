@@ -33,42 +33,42 @@ void Dvar::registerString(std::string_view key, std::string_view value) {
     registerDvar(key, this);
 }
 
-void Dvar::registerVector2f(std::string_view key, float x, float y) {
+void Dvar::registerVec2f(std::string_view key, float x, float y) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
         variant_ = Variant(Vec2f{ x, y });
     }
     registerDvar(key, this);
 }
 
-void Dvar::registerVector3f(std::string_view key, float x, float y, float z) {
+void Dvar::registerVec3f(std::string_view key, float x, float y, float z) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
         variant_ = Variant(Vec3f{ x, y, z });
     }
     registerDvar(key, this);
 }
 
-void Dvar::registerVector4f(std::string_view key, float x, float y, float z, float w) {
+void Dvar::registerVec4f(std::string_view key, float x, float y, float z, float w) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
         variant_ = Variant(Vec4f{ x, y, z, w });
     }
     registerDvar(key, this);
 }
 
-void Dvar::registerVector2i(std::string_view key, int x, int y) {
+void Dvar::registerVec2i(std::string_view key, int x, int y) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
         variant_ = Variant(Vec2i{ x, y });
     }
     registerDvar(key, this);
 }
 
-void Dvar::registerVector3i(std::string_view key, int x, int y, int z) {
+void Dvar::registerVec3i(std::string_view key, int x, int y, int z) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
         variant_ = Variant(Vec3i{ x, y, z });
     }
     registerDvar(key, this);
 }
 
-void Dvar::registerVector4i(std::string_view key, int x, int y, int z, int w) {
+void Dvar::registerVec4i(std::string_view key, int x, int y, int z, int w) {
     if (!(flags_ & DVAR_FLAG_OVERRIDDEN)) {
         variant_ = Variant(Vec4i{ x, y, z, w });
     }

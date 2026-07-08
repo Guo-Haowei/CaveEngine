@@ -1,6 +1,6 @@
 #include "SsaoFeature.h"
 
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "engine/private/render/render_graph/RenderGraph.h"

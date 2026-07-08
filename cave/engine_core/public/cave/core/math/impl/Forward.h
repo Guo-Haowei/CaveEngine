@@ -30,16 +30,16 @@ template<Arithmetic T, int N>
 struct VectorBase;
 
 template<Arithmetic T, int N>
-struct Vector;
+struct Vec;
 
 template<Arithmetic T>
-struct Vector<T, 2>;
+struct Vec<T, 2>;
 
 template<Arithmetic T>
-struct Vector<T, 3>;
+struct Vec<T, 3>;
 
 template<Arithmetic T>
-struct Vector<T, 4>;
+struct Vec<T, 4>;
 
 template<typename T, int S, int N, int A, int B, int C, int D>
 struct Swizzle;

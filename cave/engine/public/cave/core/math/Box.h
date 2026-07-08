@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 
 namespace cave::math {
 
@@ -9,7 +9,7 @@ class Box {
     static_assert(std::is_floating_point_v<T>);
 
     using Scalar = T;
-    using Vec = Vector<Scalar, N>;
+    using Vec = Vec<Scalar, N>;
     using Self = Box<Scalar, N>;
 
     // Invariant (half-open):
