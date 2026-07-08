@@ -33,8 +33,8 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, scene });
 
-    Entity r1 = map.Resolve(e1);
-    Entity r2 = map.Resolve(e2);
+    Entity r1 = map.resolve(e1);
+    Entity r2 = map.resolve(e2);
 
     const HierarchyComponent* hier2 = scene.component<HierarchyComponent>(r2);
     ASSERT_TRUE(hier2);
