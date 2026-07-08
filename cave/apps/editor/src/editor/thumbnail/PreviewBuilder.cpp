@@ -8,6 +8,7 @@
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/assets/PrefabAsset.h"
 #include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -80,27 +81,34 @@ SceneTickContext PreviewBuilder::makeSceneContext(Scene& scene) const {
 
 PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
     AssetHandle handle = m_asset_reg.findByGuid(req.guid).unwrap();
-    switch (handle.meta()->type) {
-        case AssetType::Scene:
-            return buildScene(handle, req.options);
-        case AssetType::Mesh:
-            return buildMesh(handle, req.options);
-        case AssetType::Material:
-            return buildMaterial(handle, req.options);
-        default:
-            return { PreviewBuildStatus::Error };
-    }
-}
-
-PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
-                                              const PreviewOptions& options) const {
-    const SceneAsset* scene_asset = handle.get<SceneAsset>();
-    DEV_ASSERT(scene_asset);
     const AssetMetaData* meta = handle.meta();
     DEV_ASSERT(meta);
+    switch (meta->type) {
+        case AssetType::Scene: {
+            if (const auto asset = handle.get<SceneAsset>()) {
+                return buildSceneImpl(meta, asset->scene(), req.options);
+            }
+        } break;
+        case AssetType::Prefab: {
+            if (const auto asset = handle.get<PrefabAsset>()) {
+                return buildSceneImpl(meta, asset->scene(), req.options);
+            }
+        } break;
+        case AssetType::Mesh:
+            return buildMesh(meta, handle, req.options);
+        case AssetType::Material:
+            return buildMaterial(meta, handle, req.options);
+        default:
+            break;
+    }
+    return { PreviewBuildStatus::Error };
+}
 
+PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
+                                                  const Scene& asset,
+                                                  const PreviewOptions& options) const {
     auto scene = std::make_unique<Scene>();
-    scene->copy(scene_asset->scene());
+    scene->copy(asset);
 
     // @TODO: better camera
     CameraSource camera_source;
@@ -134,7 +142,8 @@ PreviewBuildResult PreviewBuilder::buildScene(const AssetHandle& handle,
     };
 }
 
-PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
+PreviewBuildResult PreviewBuilder::buildMaterial(const AssetMetaData* meta,
+                                                 const AssetHandle& handle,
                                                  const PreviewOptions& options) const {
 
     SceneCommandWriter cb(m_asset_reg);
@@ -151,8 +160,6 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
         cb.attachChild(sphere, root);
     }
 
-    const AssetMetaData* meta = handle.meta();
-    DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>();
 
     SceneCommandExecutor executor(*scene);
@@ -181,7 +188,9 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetHandle& handle,
     };
 }
 
-PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const PreviewOptions& options) const {
+PreviewBuildResult PreviewBuilder::buildMesh(const AssetMetaData* meta,
+                                             const AssetHandle& handle,
+                                             const PreviewOptions& options) const {
     SceneCommandWriter cb(m_asset_reg);
     Entity root = cb.rootObject();
 
@@ -200,8 +209,6 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetHandle& handle, const Pr
         cb.attachChild(e, root);
     }
 
-    const AssetMetaData* meta = handle.meta();
-    DEV_ASSERT(meta);
     auto scene = std::make_unique<Scene>();
 
     SceneCommandExecutor executor(*scene);

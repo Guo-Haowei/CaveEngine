@@ -288,7 +288,7 @@ void AssetRegistry::refreshDependenciesUnlocked(Guid guid) {
     }
 
     Vector<Guid> new_deps = entry->asset ? entry->asset->dependencies()
-                                              : entry->metadata.dependencies;
+                                         : entry->metadata.dependencies;
 
     new_deps.erase(
         std::remove_if(new_deps.begin(), new_deps.end(),

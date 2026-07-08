@@ -8,33 +8,33 @@ namespace cave {
 
 class CAVE_CORE_API LogWrapper {
 public:
-    explicit LogWrapper(ILogSink& p_sink) noexcept
-        : sink_(p_sink) {}
+    explicit LogWrapper(ILogSink& sink) noexcept
+        : m_sink(sink) {}
 
-    void Trace(LogChannel p_channel, std::string&& p_message) {
-        Log(LOG_LEVEL_TRACE, p_channel, std::move(p_message));
+    void Trace(LogChannel channel, std::string&& message) {
+        Log(LOG_LEVEL_TRACE, channel, std::move(message));
     }
 
-    void Info(LogChannel p_channel, std::string&& p_message) {
-        Log(LOG_LEVEL_INFO, p_channel, std::move(p_message));
+    void Info(LogChannel channel, std::string&& message) {
+        Log(LOG_LEVEL_INFO, channel, std::move(message));
     }
 
-    void Ok(LogChannel p_channel, std::string&& p_message) {
-        Log(LOG_LEVEL_OK, p_channel, std::move(p_message));
+    void Ok(LogChannel channel, std::string&& message) {
+        Log(LOG_LEVEL_OK, channel, std::move(message));
     }
 
-    void Warn(LogChannel p_channel, std::string&& p_message) {
-        Log(LOG_LEVEL_WARN, p_channel, std::move(p_message));
+    void Warn(LogChannel channel, std::string&& message) {
+        Log(LOG_LEVEL_WARN, channel, std::move(message));
     }
 
-    void Error(LogChannel p_channel, std::string&& p_message) {
-        Log(LOG_LEVEL_ERROR, p_channel, std::move(p_message));
+    void Error(LogChannel channel, std::string&& message) {
+        Log(LOG_LEVEL_ERROR, channel, std::move(message));
     }
 
 private:
-    void Log(LogLevel p_level, LogChannel p_channel, std::string&& p_message);
+    void Log(LogLevel level, LogChannel channel, std::string&& message);
 
-    ILogSink& sink_;
+    ILogSink& m_sink;
 };
 
 }  // namespace cave

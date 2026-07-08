@@ -77,13 +77,14 @@ void ContentBrowser::onAttach() {
     });
 
     IconCache& icons = m_editor_services.iconCache();
-    m_folder_iamge = icons.GetIconHandle(IconName::Folder);
-    m_fallback_iamge = icons.GetIconHandle(IconName::Meta);
-    m_thumbnail_lut[".scene"] = icons.GetIconHandle(IconName::Scene);
-    m_thumbnail_lut[".sprite_anim"] = icons.GetIconHandle(IconName::Anim);
-    m_thumbnail_lut[".lua"] = icons.GetIconHandle(IconName::Lua);
-    m_thumbnail_lut[".tilemap"] = icons.GetIconHandle(IconName::TileMap);
-    m_thumbnail_lut[".tileset"] = icons.GetIconHandle(IconName::TileSet);
+    m_folder_iamge = icons.getIconHandle(IconName::Folder);
+    m_fallback_iamge = icons.getIconHandle(IconName::Meta);
+    m_thumbnail_lut[".scene"] = icons.getIconHandle(IconName::Scene);
+    m_thumbnail_lut[".prefab"] = icons.getIconHandle(IconName::Scene);
+    m_thumbnail_lut[".sprite_anim"] = icons.getIconHandle(IconName::Anim);
+    m_thumbnail_lut[".lua"] = icons.getIconHandle(IconName::Lua);
+    m_thumbnail_lut[".tilemap"] = icons.getIconHandle(IconName::TileMap);
+    m_thumbnail_lut[".tileset"] = icons.getIconHandle(IconName::TileSet);
 
     DEV_ASSERT(m_folder_iamge && m_fallback_iamge);
 }

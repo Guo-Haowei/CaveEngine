@@ -296,7 +296,7 @@ void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
 
             Vec2f region_size(128, 128);
             IconCache& icons = m_editor_services.iconCache();
-            ui::CenteredImage(image, region_size, icons.GetIconHandle(IconName::Checkerboard));
+            ui::CenteredImage(image, region_size, icons.getIconHandle(IconName::Checkerboard));
 
             if (ImGui::IsItemClicked()) {
                 // tool->SetActiveLayer(layer_id);

@@ -15,6 +15,8 @@ static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const Open
     switch (desc.asset_type) {
         case AssetType::Scene:
             return std::make_unique<SceneDocument>(services, desc.guid);
+        case AssetType::Prefab:
+            return std::make_unique<SceneDocument>(services, desc.guid);
         case AssetType::Material:
             return std::make_unique<MaterialDocument>(services, desc.guid);
         case AssetType::SpriteAnimation:
@@ -28,15 +30,15 @@ static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const Open
 
 DocId DocumentService::openDoc(const OpenDocDesc& desc) {
     DocId doc_id;
-    if (auto it = guid_to_doc_.find(desc.guid); it != guid_to_doc_.end()) {
+    if (auto it = m_guid_to_doc.find(desc.guid); it != m_guid_to_doc.end()) {
         doc_id = it->second;
     } else {
-        auto doc = CreateDoc(engine_services_, desc);
+        auto doc = CreateDoc(m_engine_services, desc);
         doc_id = Base::create(std::move(doc));
-        guid_to_doc_[desc.guid] = doc_id;
+        m_guid_to_doc[desc.guid] = doc_id;
     }
 
-    editor_services_.workspace().requestOpen(doc_id);
+    m_editor_services.workspace().requestOpen(doc_id);
     return doc_id;
 }
 
@@ -44,14 +46,14 @@ CloseRequestResult DocumentService::closeDoc(DocId doc_id) {
     IDocument* doc = resolve(doc_id);
     DEV_ASSERT(doc);
     auto handle = doc->rawHandle();
-    guid_to_doc_.erase(handle.guid());
+    m_guid_to_doc.erase(handle.guid());
     destroy(doc_id);
     return {};
 }
 
 bool DocumentService::save(const Guid& guid) {
-    auto it = guid_to_doc_.find(guid);
-    if (it == guid_to_doc_.end()) {
+    auto it = m_guid_to_doc.find(guid);
+    if (it == m_guid_to_doc.end()) {
         return false;
     }
 

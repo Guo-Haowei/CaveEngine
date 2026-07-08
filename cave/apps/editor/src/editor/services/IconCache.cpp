@@ -9,14 +9,14 @@ IconCache::IconCache(AssetRegistry& p_asset_reg,
                      IAssetManager& p_asset_manager)
     : m_asset_reg(p_asset_reg)
     , m_asset_manager(p_asset_manager) {
-    Init();
+    init();
 }
 
 IconCache::~IconCache() {
-    Clear();
+    clear();
 }
 
-void IconCache::Init() {
+void IconCache::init() {
     std::array<const char*, kMaxIcons> paths = {
         "@persist://textures/checkerboard",
         "folder_icon.png",
@@ -42,7 +42,7 @@ void IconCache::Init() {
     }
 }
 
-void IconCache::Clear() {
+void IconCache::clear() {
     for (auto& asset : m_cache) {
         if (asset) {
             asset.reset();
@@ -50,14 +50,14 @@ void IconCache::Clear() {
     }
 }
 
-GpuTextureId IconCache::GetIcon(IconName p_name) const {
+GpuTextureId IconCache::getIcon(IconName p_name) const {
     DEV_ASSERT_INDEX(p_name, IconName::Count);
     const auto& image = m_cache[std::to_underlying(p_name)];
     return image ? image->gpu_texture : nullptr;
 }
 
-uint64_t IconCache::GetIconHandle(IconName p_name) const {
-    auto texture = GetIcon(p_name);
+uint64_t IconCache::getIconHandle(IconName p_name) const {
+    auto texture = getIcon(p_name);
     return texture ? texture->GetHandle() : 0;
 }
 

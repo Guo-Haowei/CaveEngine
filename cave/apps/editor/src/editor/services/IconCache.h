@@ -22,15 +22,15 @@ constexpr int kMaxIcons = std::to_underlying(IconName::Count);
 
 class IconCache {
 public:
-    explicit IconCache(AssetRegistry& p_asset_reg,
-                       IAssetManager& p_asset_manager);
+    explicit IconCache(AssetRegistry& asset_reg,
+                       IAssetManager& asset_manager);
     ~IconCache();
 
-    void Init();
-    void Clear();
+    void init();
+    void clear();
 
-    GpuTextureId GetIcon(IconName p_name) const;
-    uint64_t GetIconHandle(IconName p_name) const;
+    GpuTextureId getIcon(IconName name) const;
+    uint64_t getIconHandle(IconName name) const;
 
 private:
     AssetRegistry& m_asset_reg;

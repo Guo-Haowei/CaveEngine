@@ -1,10 +1,9 @@
 #include "SceneSerializer.h"
 
-#include "engine/private/runtime/assets/SceneAsset.h"
+#include "engine/private/runtime/assets/PrefabAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
-#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
@@ -144,13 +143,13 @@ bool SerializePrefabDiff(ISerializer& s,
         return false;
     }
 
-    auto handle = asset_reg->findByGuid<SceneAsset>(prefab_comp.prefabGuid());
+    auto handle = asset_reg->findByGuid<PrefabAsset>(prefab_comp.prefabGuid());
     if (handle.is_none()) {
         return false;
     }
 
     Entity instance_ent = prefab_comp.instance();
-    const SceneAsset* prefab = handle.unwrap_unchecked().get();
+    const PrefabAsset* prefab = handle.unwrap_unchecked().get();
     DEV_ASSERT(prefab);
     Entity prefab_root = prefab->scene().root();
 

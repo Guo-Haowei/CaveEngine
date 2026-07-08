@@ -3,10 +3,10 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneTickContext.h"
 
+#include "engine/private/runtime/assets/PrefabAsset.h"
 #include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
@@ -58,14 +58,18 @@ bool SceneDocument::saveAs(std::string_view p_new_path) {
 }
 
 Owner<Scene> SceneDocument::createPreviewScene() const {
-    const SceneAsset* asset = m_handle.get<SceneAsset>();
-    if (!asset) {
-        return nullptr;
+    const Scene* scene = nullptr;
+    if (const auto scene_asset = m_handle.get<SceneAsset>()) {
+        scene = &scene_asset->scene();
+    } else if (const auto prefab_asset = m_handle.get<PrefabAsset>()) {
+        scene = &prefab_asset->scene();
     }
-
-    auto scene = std::make_unique<Scene>();
-    scene->copy(asset->scene());
-    return scene;
+    if (DEV_VERIFY(scene)) {
+        auto scene_copy = std::make_unique<Scene>();
+        scene_copy->copy(*scene);
+        return scene_copy;
+    }
+    return nullptr;
 }
 
 }  // namespace cave

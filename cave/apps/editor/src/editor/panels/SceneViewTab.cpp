@@ -171,17 +171,18 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     ecs::Entity id = selection.entity;
 
     Scene* scene = getResolvedScene();
+    DEV_ASSERT(scene);
     TransformComponent* transform_component = scene->component<TransformComponent>(id);
 
     EditService& edit_service = m_editor_services.edit();
 
-    auto draw_gizmo = [&](ImGuizmo::OPERATION p_operation) {
+    auto draw_gizmo = [&](ImGuizmo::OPERATION operation) {
         if (transform_component) {
             const Mat4f before = transform_component->localMatrix();
             Mat4f after = before;
             if (ImGuizmo::Manipulate(glm::value_ptr(view_matrix),
                                      glm::value_ptr(proj_matrix),
-                                     p_operation,
+                                     operation,
                                      // ImGuizmo::LOCAL,
                                      ImGuizmo::WORLD,
                                      glm::value_ptr(after),
@@ -194,7 +195,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                 math::Decompose(after, scale_2, rot_2, pos_2);
 
                 SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
-                if (p_operation & ImGuizmo::TRANSLATE) {
+                if (operation & ImGuizmo::TRANSLATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
                         id,
@@ -203,7 +204,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                         pos_1,
                         pos_2);
                     edit_service.submit(doc_id, std::move(cmd));
-                } else if (p_operation & ImGuizmo::ROTATE) {
+                } else if (operation & ImGuizmo::ROTATE) {
                     auto cmd = std::make_unique<ChangePropertyCmd>(
                         scene_reg,
                         id,
@@ -212,7 +213,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
                         rot_1,
                         rot_2);
                     edit_service.submit(doc_id, std::move(cmd));
-                } else if (p_operation & ImGuizmo::SCALE) {
+                } else if (operation & ImGuizmo::SCALE) {
                     auto cmd = (std::make_unique<ChangePropertyCmd>(
                         scene_reg,
                         id,
@@ -250,7 +251,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
 void SceneViewTab::onAssetDropped(AssetHandle&& handle) {
     IAsset* asset = handle.get();
     switch (asset->type()) {
-        case AssetType::Scene: {
+        case AssetType::Prefab: {
             Scene* scene = getResolvedScene();
             m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
                 Entity prefb = writer.prefabObject("prefab", handle.guid());

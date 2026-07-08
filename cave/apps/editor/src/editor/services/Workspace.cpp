@@ -183,10 +183,11 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
     ProjectManager& project_mgr = m_engine_services.projectManager();
     const ViewDimension dim = project_mgr.project().is_2d ? ViewDimension::Dim2 : ViewDimension::Dim3;
 
-    std::unique_ptr<Tab> tab;
+    Owner<Tab> tab;
     switch (meta->type) {
-        case AssetType::Scene:
-        case AssetType::Material: {
+        case AssetType::Material:
+        case AssetType::Prefab:
+        case AssetType::Scene: {
             tab = std::make_unique<SceneViewTab>(editor_,
                                                  doc_id,
                                                  doc->previewScene(),
