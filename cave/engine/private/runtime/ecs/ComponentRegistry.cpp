@@ -3,6 +3,7 @@
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneSerializer.h"
 
 namespace cave::ecs {
 
@@ -127,7 +128,7 @@ void PrefabInstance_OnEdited(Scene& scene,
                 c->setInstance(Entity::null());
                 c->setPrefabGuid(Guid::null());
             } else {
-                scene.instantiatePrefab(*c, ent);
+                InstantiatePrefab(scene, *c, ent);
             }
         }
     }

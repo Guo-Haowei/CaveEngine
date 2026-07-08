@@ -34,12 +34,12 @@ public:
     }
 
 private:
-    SceneRegistry& scene_reg_;
-    const bool is_opengl_;
+    SceneRegistry& m_scene_reg;
+    const bool m_is_opengl;
 
-    std::vector<ViewDesc> view_descs_;
-    std::vector<ResolvedView> resolved_views_;
-    bool can_submit_{ false };
+    std::vector<ViewDesc> m_view_descs;
+    std::vector<ResolvedView> m_resolved_views;
+    bool m_can_submit{ false };
 };
 
 }  // namespace cave

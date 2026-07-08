@@ -64,7 +64,7 @@ void PIESession::endPIEScene() {
     m_pie_scene = {};
 }
 
-void PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
+bool PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
     m_engine_services.sceneScheduler().add(this);
     m_view_id = view_id;
 
@@ -73,20 +73,21 @@ void PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
         auto handle = handle_opt.unwrap_unchecked();
         if (const SceneAsset* asset = handle.get()) {
             beginPIEScene({ SceneSource::Runtime, handle.meta()->name }, asset->scene());
-            return;
+            return true;
         }
     }
 
-    LOG_ERROR(LogChannel::Asset, "failed to start PIE scene {}", guid.toString());
+    return false;
 }
 
-void PIESession::endPIESession() {
+bool PIESession::endPIESession() {
     m_engine_services.sceneScheduler().remove(this);
     m_view_id = {};
 
     if (m_pie_scene.valid()) {
         endPIEScene();
     }
+    return true;
 }
 
 void PIESession::commitSceneChange(std::string&& path) {

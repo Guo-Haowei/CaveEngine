@@ -291,7 +291,7 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
     d.leaveKey();
 
     for (auto&& [ent, prefab] : scene.view<PrefabInstanceComponent>()) {
-        scene.instantiatePrefab(prefab, ent);
+        InstantiatePrefab(scene, prefab, ent);
     }
 
     for (auto&& [ent, overrides] : overrides_map) {
@@ -306,10 +306,67 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
     }
 }
 
-std::string ToString(const Scene& scene) {
-    YamlSerializer yaml;
-    SerializeScene(yaml, scene, nullptr, false);
-    return yaml.emitter().c_str();
+// @TODO: move this somewhere else
+void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entity ent) {
+    if (prefab.instance().valid()) {
+        scene.removeEntity(prefab.instance());
+    }
+
+    // @TODO: remove this
+    auto handle_opt = AssetRegistry::singleton().findByGuid<PrefabAsset>(prefab.prefabGuid());
+    if (handle_opt.is_none()) {
+        return;
+    }
+
+    const PrefabAsset* asset = handle_opt.unwrap_unchecked().get();
+    DEV_ASSERT(asset);
+    Scene copy;
+    copy.copy(asset->scene());
+
+    auto new_entities = copy.getSortedEntityArray();
+    std::unordered_map<Entity, Entity> mapping;
+    for (Entity raw_entity : new_entities) {
+        Entity mapped = scene.createEntity();
+        scene.create<PrefabChildComponent>(mapped);
+        mapping[raw_entity] = mapped;
+    }
+
+    // remap hierarchy
+    for (auto [id, hier] : copy.view<HierarchyComponent>()) {
+        hier.parent_id = mapping[hier.parent_id];
+    }
+
+    // remap material
+    for (auto [id, renderer] : copy.view<MeshRendererComponent>()) {
+        auto& materials = renderer.GetMaterialInstances();
+        for (size_t i = 0; i < materials.size(); ++i) {
+            materials[i] = mapping[materials[i]];
+        }
+
+        CRASH_NOW_MSG("remap skin and skeleton");
+    }
+
+    // merge components
+    for (uint16_t cid = 0; cid < (uint16_t)copy.storage().entries().size(); ++cid) {
+        auto& entry = copy.storage().entries()[cid];
+        if (!entry.pool) continue;
+        entry.pool->remap(mapping);
+
+        CRASH_COND(cid >= scene.storage().entries().size());
+        auto& my_entry = scene.storage().entries()[cid];
+
+        if (!my_entry.pool) {
+            scene.storage().getOrCreate(cid);
+        }
+        my_entry.pool->merge(std::move(*entry.pool));
+    }
+
+    // link instance
+    Entity mapped_root = mapping[copy.root()];
+    HierarchyComponent& hier = scene.create<HierarchyComponent>(mapped_root);
+    hier.parent_id = ent.valid() ? ent : scene.root();
+
+    prefab.setInstance(mapped_root);
 }
 
 }  // namespace cave

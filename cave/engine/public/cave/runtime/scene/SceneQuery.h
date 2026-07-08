@@ -65,8 +65,6 @@ public:
 
     RayHit raycast(math::Ray& ray, const RaycastFilter& filter) const;
 
-    std::string debugString() const;
-
 private:
     Scene& m_scene;
 };

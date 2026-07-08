@@ -168,24 +168,23 @@ void EditorState::commitModeSwitch() {
     }
 
     const EditorState::Mode old_mode = m_mode;
-    m_mode = flipMode(m_mode);
 
+    bool ok = false;
     switch (old_mode) {
         case EditorState::Mode::Editing: {
             PreviewScene preview = m_workspace->focusedPreviewScene();
-            m_pie->beginPIESession(preview.guid, preview.view_id);
+            ok = m_pie->beginPIESession(preview.guid, preview.view_id);
         } break;
         case EditorState::Mode::Playing: {
-            m_pie->endPIESession();
+            ok = m_pie->endPIESession();
         } break;
     }
 
-#if USING(USE_LOG)
-    constexpr const char* names[2] = { "Editing", "PIE" };
-    LOG_INFO(LogChannel::Editor, "State {} -> {}",
-             names[std::to_underlying(old_mode)],
-             names[std::to_underlying(m_mode)]);
-#endif
+    if (ok) {
+        m_mode = flipMode(m_mode);
+    } else {
+        LOG_ERROR(LogChannel::Asset, "failed to start PIE session");
+    }
 
     m_switch_mode_requested = false;
 }

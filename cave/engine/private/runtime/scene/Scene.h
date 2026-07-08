@@ -119,8 +119,6 @@ public:
 
     ecs::Entity duplicateEntity(ecs::Entity ent);
 
-    void instantiatePrefab(PrefabInstanceComponent& prefab, ecs::Entity ent = ecs::Entity::null());
-
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
