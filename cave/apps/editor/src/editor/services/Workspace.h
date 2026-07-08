@@ -70,7 +70,7 @@ private:
     bool loadWorkspaceState();
     bool buildStateCachePath();
 
-    EditorState& editor_;
+    EditorState& m_editor;
     EngineServices& m_engine_services;
     EditorServices& m_editor_services;
     const DebugId m_debug_id;

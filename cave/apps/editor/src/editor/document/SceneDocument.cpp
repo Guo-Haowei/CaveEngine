@@ -26,10 +26,17 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         .scene_ctx = ctx,
     });
 
+    const AssetMetaData* meta = nullptr;
     if (auto handle_opt = m_asset_reg.findByGuid<SceneAsset>(guid)) {
         auto handle = handle_opt.unwrap_unchecked();
-        const AssetMetaData* meta = handle.meta();
-        DEV_ASSERT(meta);
+        meta = handle.meta();
+    }
+    if (auto handle_opt = m_asset_reg.findByGuid<PrefabAsset>(guid)) {
+        auto handle = handle_opt.unwrap_unchecked();
+        meta = handle.meta();
+    }
+
+    if (DEV_VERIFY(meta)) {
         m_preview_scene = m_scene_reg.registerScene(
             {
                 .source = SceneSource::Editor,

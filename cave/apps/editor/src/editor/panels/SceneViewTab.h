@@ -33,7 +33,7 @@ private:
     void drawUIImpl() override;
     void drawGizmo(const math::FloatRect& rect);
 
-    void onAssetDropped(AssetHandle&& handle) override;
+    bool onAssetDropped(AssetHandle handle) override;
 
     Scene* getResolvedScene();
 

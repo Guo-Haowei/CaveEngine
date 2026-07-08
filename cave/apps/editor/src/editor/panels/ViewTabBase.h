@@ -31,13 +31,13 @@ public:
     void onDestroy() override;
 
     void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
+    virtual bool onAssetDropped(AssetHandle handle);
 
     ViewId viewId() const override { return m_view_id; }
 
 private:
     void commitSceneChange(std::string&&) override {}
     void commitSceneReload() override;
-    virtual void onAssetDropped(AssetHandle&&) {}
 
 protected:
     void submitView(bool support_pie);

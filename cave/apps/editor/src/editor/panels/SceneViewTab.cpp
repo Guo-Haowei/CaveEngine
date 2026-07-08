@@ -7,7 +7,6 @@
 #include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
-#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
@@ -248,7 +247,11 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     }
 }
 
-void SceneViewTab::onAssetDropped(AssetHandle&& handle) {
+bool SceneViewTab::onAssetDropped(AssetHandle handle) {
+    if (ViewTabBase::onAssetDropped(handle)) {
+        return true;
+    }
+
     IAsset* asset = handle.get();
     switch (asset->type()) {
         case AssetType::Prefab: {
@@ -257,14 +260,11 @@ void SceneViewTab::onAssetDropped(AssetHandle&& handle) {
                 Entity prefb = writer.prefabObject("prefab", handle.guid());
                 writer.attachChild(prefb, scene->root());
             });
-        } break;
-            // @TODO: prefab
+            return true;
+        }
         default:
-            break;
+            return false;
     }
-
-    const AssetMetaData* meta = handle.meta();
-    LOG_ERROR(LogChannel::Asset, "asset {} not accepted", meta->name);
 }
 
 Scene* SceneViewTab::getResolvedScene() {
