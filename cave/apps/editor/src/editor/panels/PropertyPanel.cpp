@@ -175,7 +175,7 @@ void PropertyPanel::drawUIImpl() {
     SelectionKey selection = m_editor_services.selection().Primary(preview.doc_id);
 
     ecs::Entity id = selection.entity;
-    if (!id.IsValid()) {
+    if (!id.valid()) {
         return;
     }
 

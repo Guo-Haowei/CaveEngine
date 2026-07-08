@@ -22,12 +22,12 @@ public:
     void registerInt(std::string_view key, int value);
     void registerFloat(std::string_view key, float value);
     void registerString(std::string_view key, std::string_view value);
-    void registerVector2f(std::string_view key, float x, float y);
-    void registerVector3f(std::string_view key, float x, float y, float z);
-    void registerVector4f(std::string_view key, float x, float y, float z, float w);
-    void registerVector2i(std::string_view key, int x, int y);
-    void registerVector3i(std::string_view key, int x, int y, int z);
-    void registerVector4i(std::string_view key, int x, int y, int z, int w);
+    void registerVec2f(std::string_view key, float x, float y);
+    void registerVec3f(std::string_view key, float x, float y, float z);
+    void registerVec4f(std::string_view key, float x, float y, float z, float w);
+    void registerVec2i(std::string_view key, int x, int y);
+    void registerVec3i(std::string_view key, int x, int y, int z);
+    void registerVec4i(std::string_view key, int x, int y, int z, int w);
 
     bool setInt(int value);
     bool setFloat(float value);

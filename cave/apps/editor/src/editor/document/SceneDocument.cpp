@@ -3,9 +3,10 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneTickContext.h"
 
+#include "engine/private/runtime/assets/PrefabAsset.h"
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
@@ -25,9 +26,17 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         .scene_ctx = ctx,
     });
 
-    if (auto handle = m_asset_reg.findByGuid<Scene>(guid)) {
-        const AssetMetaData* meta = handle.unwrap_unchecked().meta();
+    const AssetMetaData* meta = nullptr;
+    if (auto handle_opt = m_asset_reg.findByGuid<SceneAsset>(guid)) {
+        auto handle = handle_opt.unwrap_unchecked();
+        meta = handle.meta();
+    }
+    if (auto handle_opt = m_asset_reg.findByGuid<PrefabAsset>(guid)) {
+        auto handle = handle_opt.unwrap_unchecked();
+        meta = handle.meta();
+    }
 
+    if (DEV_VERIFY(meta)) {
         m_preview_scene = m_scene_reg.registerScene(
             {
                 .source = SceneSource::Editor,
@@ -44,9 +53,9 @@ SceneDocument::~SceneDocument() {
 }
 
 bool SceneDocument::save() {
-    Scene* source = m_handle.get<Scene>();
+    SceneAsset* source = m_handle.get<SceneAsset>();
     Scene* tmp = m_scene_reg.resolve(m_preview_scene);
-    source->copy(*tmp);
+    source->sceneMut().copy(*tmp);
     return DocumentBase::save();
 }
 
@@ -55,10 +64,19 @@ bool SceneDocument::saveAs(std::string_view p_new_path) {
     return false;
 }
 
-std::unique_ptr<Scene> SceneDocument::createPreviewScene() const {
-    auto scene = std::make_unique<Scene>();
-    scene->copy(*m_handle.get<Scene>());
-    return scene;
+Owner<Scene> SceneDocument::createPreviewScene() const {
+    const Scene* scene = nullptr;
+    if (const auto scene_asset = m_handle.get<SceneAsset>()) {
+        scene = &scene_asset->scene();
+    } else if (const auto prefab_asset = m_handle.get<PrefabAsset>()) {
+        scene = &prefab_asset->scene();
+    }
+    if (DEV_VERIFY(scene)) {
+        auto scene_copy = std::make_unique<Scene>();
+        scene_copy->copy(*scene);
+        return scene_copy;
+    }
+    return nullptr;
 }
 
 }  // namespace cave

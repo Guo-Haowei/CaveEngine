@@ -166,16 +166,15 @@ static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
     const HierarchyComponent* hierarchy = &p_scene.getComponentByIndex<HierarchyComponent>(p_index);
     ecs::Entity parent = hierarchy->parent_id;
 
-    while (parent.IsValid()) {
+    while (parent.valid()) {
         TransformComponent* parent_transform = p_scene.component<TransformComponent>(parent);
         if (DEV_VERIFY(parent_transform)) {
             world_matrix = parent_transform->localMatrix() * world_matrix;
 
             if ((hierarchy = p_scene.component<HierarchyComponent>(parent)) != nullptr) {
                 parent = hierarchy->parent_id;
-                // DEV_ASSERT(parent.IsValid() || );
             } else {
-                parent.MakeInvalid();
+                parent = ecs::Entity::null();
             }
         } else {
             break;
@@ -407,11 +406,11 @@ static void UpdateMeshEmitter(float p_timestep,
         DEV_ASSERT(free_index.v < p_emitter.particles.size());
         auto& p = p_emitter.particles[free_index.v];
 
-        Vector3f initial_speed{ 0 };
+        Vec3f initial_speed{ 0 };
         initial_speed.x += Random::Float(p_emitter.vxRange.x, p_emitter.vxRange.y);
         initial_speed.y += Random::Float(p_emitter.vyRange.x, p_emitter.vyRange.y);
         initial_speed.z += Random::Float(p_emitter.vzRange.x, p_emitter.vzRange.y);
-        Vector3f initial_rotation{
+        Vec3f initial_rotation{
             Random::Float(-HalfPi(), HalfPi()),
             Random::Float(-HalfPi(), HalfPi()),
             Random::Float(-HalfPi(), HalfPi()),

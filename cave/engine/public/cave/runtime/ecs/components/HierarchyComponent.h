@@ -2,8 +2,8 @@
 // File: cave/runtime/ecs/components/HierarchyComponent.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 

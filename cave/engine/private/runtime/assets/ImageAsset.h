@@ -36,7 +36,7 @@ struct ImageAsset : IAsset {
 
     Result<void> saveToDisk(const AssetMetaData& p_meta) const override;
 
-    std::vector<Guid> dependencies() const override;
+    Vector<Guid> dependencies() const override;
 };
 
 DECLARE_ENUM_TRAITS(ImageAsset::Sampler, "linear", "point");

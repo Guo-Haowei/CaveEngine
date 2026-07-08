@@ -66,7 +66,7 @@ public:
     Result<void> saveToDisk(const AssetMetaData& meta) const override;
     Result<void> loadFromDisk(const AssetMetaData& meta) override;
 
-    std::vector<Guid> dependencies() const override;
+    Vector<Guid> dependencies() const override;
 };
 
 }  // namespace cave

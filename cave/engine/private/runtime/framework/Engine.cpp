@@ -19,7 +19,7 @@ bool InitializeCore() {
     s_os = new OS;
     s_os->Initialize();
 
-    ecs::ComponentRegistry::Builtin(s_component_reg);
+    ecs::ComponentRegistry::builtin(s_component_reg);
 
     thread::Initialize();
     jobsystem::Initialize();

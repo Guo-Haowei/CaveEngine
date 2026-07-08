@@ -70,7 +70,7 @@ void TileSetAsset::setImage(const Guid& guid) {
     updateFrames();
 }
 
-std::vector<Guid> TileSetAsset::dependencies() const {
+Vector<Guid> TileSetAsset::dependencies() const {
     return { image_guid_ };
 }
 
@@ -115,7 +115,7 @@ auto TileSetAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     YamlSerializer yaml;
     yaml.beginMap(false)
         .beginKey("version")
-        .write(VERSION)
+        .write(kVersion)
         .beginKey("content")
         .write(*this)
         .endMap();

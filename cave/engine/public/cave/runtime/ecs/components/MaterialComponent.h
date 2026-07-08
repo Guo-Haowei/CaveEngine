@@ -2,7 +2,7 @@
 // File: cave/runtime/ecs/components/MaterialComponent.h
 // =============================================================================
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
@@ -29,7 +29,7 @@ struct MaterialComponent {
 
     // Non-serialized
     Handle<MaterialAsset> m_material_handle{};
-    std::vector<Handle<ImageAsset>> m_images;
+    Vector<Handle<ImageAsset>> m_images;
 
     const Guid& GetResourceGuid() const { return m_material_id; }
     bool SetResourceGuid(const Guid& p_guid);

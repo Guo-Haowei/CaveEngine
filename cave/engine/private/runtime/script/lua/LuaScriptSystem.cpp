@@ -118,7 +118,7 @@ void LuaScriptSystem::start(SceneContext& ctx) {
 
         const auto& meta = findOrAdd(ctx, L, script.m_source_id, script.m_class_name.c_str());
         if (script.m_instance == 0) {
-            const auto instance = CreateInstance(meta, L, entity.GetId());
+            const auto instance = CreateInstance(meta, L, entity.id());
             script.m_instance = instance;
         }
     }

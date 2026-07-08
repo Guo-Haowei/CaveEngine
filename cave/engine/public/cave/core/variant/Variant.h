@@ -7,7 +7,7 @@
 #include <string_view>
 #include <unordered_map>
 
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/reflection/Reflection.h"
 
 namespace cave {

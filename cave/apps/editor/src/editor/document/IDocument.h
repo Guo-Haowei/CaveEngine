@@ -20,8 +20,7 @@ class IDocument {
 public:
     virtual ~IDocument() = default;
 
-    virtual bool apply(std::unique_ptr<IEditCmd> cmd,
-                       uint32_t coalesce) = 0;
+    virtual bool apply(Owner<IEditCmd> cmd, uint32_t coalesce) = 0;
 
     virtual bool canUndo() const = 0;
     virtual bool canRedo() const = 0;
@@ -35,8 +34,8 @@ public:
     virtual bool save() = 0;
     virtual bool saveAs(std::string_view new_path) = 0;
 
-    virtual void undoLabels(std::vector<std::string>& out, int max_items) const = 0;
-    virtual void redoLabels(std::vector<std::string>& out, int max_items) const = 0;
+    virtual void undoLabels(Vector<std::string>& out, int max_items) const = 0;
+    virtual void redoLabels(Vector<std::string>& out, int max_items) const = 0;
 
     AssetHandle rawHandle() const {
         return m_handle;
@@ -44,7 +43,7 @@ public:
 
     template<typename T>
     Handle<T> handle() const {
-        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
+        static_assert(AssetClass<T>);
         AssetHandle copy = m_handle;
         return Handle<T>(std::move(copy));
     }
@@ -54,7 +53,7 @@ public:
     // @TODO: remove this, not all doc is related to scene
     virtual SceneId previewScene() const { return {}; }
 
-    virtual std::unique_ptr<Scene> createPreviewScene() const = 0;
+    virtual Owner<Scene> createPreviewScene() const = 0;
     virtual void reloadPreviewScene() = 0;
 
 protected:

@@ -26,7 +26,7 @@ namespace cave {
 namespace fs = std::filesystem;
 
 Workspace::Workspace(EditorState& editor)
-    : editor_(editor)
+    : m_editor(editor)
     , m_engine_services(editor.app().services())
     , m_editor_services(editor.services())
     , m_debug_id(MakeDebugId(this)) {
@@ -138,7 +138,7 @@ bool Workspace::handleIntent(Intent& intent) {
 }
 
 void Workspace::onEvents(const InputFrame& input) {
-    if (editor_.isPlaying()) {
+    if (m_editor.isPlaying()) {
         return;
     }
 
@@ -183,26 +183,27 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
     ProjectManager& project_mgr = m_engine_services.projectManager();
     const ViewDimension dim = project_mgr.project().is_2d ? ViewDimension::Dim2 : ViewDimension::Dim3;
 
-    std::unique_ptr<Tab> tab;
+    Owner<Tab> tab;
     switch (meta->type) {
-        case AssetType::Scene:
-        case AssetType::Material: {
-            tab = std::make_unique<SceneViewTab>(editor_,
+        case AssetType::Material:
+        case AssetType::Prefab:
+        case AssetType::Scene: {
+            tab = std::make_unique<SceneViewTab>(m_editor,
                                                  doc_id,
                                                  doc->previewScene(),
                                                  dim);
         } break;
         case AssetType::TileMap: {
-            tab = std::make_unique<TileMapEditor>(editor_, doc_id, doc->previewScene());
+            tab = std::make_unique<TileMapEditor>(m_editor, doc_id, doc->previewScene());
         } break;
         case AssetType::TileSet: {
-            tab = std::make_unique<TileSetEditor>(editor_, doc_id);
+            tab = std::make_unique<TileSetEditor>(m_editor, doc_id);
         } break;
         case AssetType::SpriteAnimation: {
-            tab = std::make_unique<SpriteAnimationEditor>(editor_, doc_id, doc->previewScene());
+            tab = std::make_unique<SpriteAnimationEditor>(m_editor, doc_id, doc->previewScene());
         } break;
         default: {
-            tab = std::make_unique<Tab>(editor_, doc_id);
+            tab = std::make_unique<Tab>(m_editor, doc_id);
         } break;
     }
 

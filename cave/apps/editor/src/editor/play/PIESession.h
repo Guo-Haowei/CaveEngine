@@ -21,8 +21,8 @@ public:
     explicit PIESession(EngineServices& services);
     ~PIESession();
 
-    void beginPIESession(const Guid& scene_guid, ViewId view_id);
-    void endPIESession();
+    bool beginPIESession(const Guid& scene_guid, ViewId view_id);
+    bool endPIESession();
 
     void tick(const FrameTime& time);
 

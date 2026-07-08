@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
 #include "chess/core/Position.h"

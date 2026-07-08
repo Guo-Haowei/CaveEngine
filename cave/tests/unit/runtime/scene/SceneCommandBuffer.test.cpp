@@ -27,14 +27,14 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     cb.setProperty(e2, NameComponent_Id, "name"_sid, FixedString<64>("e2"));
     cb.setProperty(e2, HierarchyComponent_Id, "parent_id"_sid, e1);
 
-    ComponentRegistry reg = ComponentRegistry::Builtin();
+    ComponentRegistry reg = ComponentRegistry::builtin();
 
     SceneCommandExecutor executor(scene, reg);
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, scene });
 
-    Entity r1 = map.Resolve(e1);
-    Entity r2 = map.Resolve(e2);
+    Entity r1 = map.resolve(e1);
+    Entity r2 = map.resolve(e2);
 
     const HierarchyComponent* hier2 = scene.component<HierarchyComponent>(r2);
     ASSERT_TRUE(hier2);

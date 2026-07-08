@@ -5,15 +5,15 @@ namespace cave {
 
 #if USING(STRING_ID_KEEP_SOURCE)
 bool StringId::operator==(const StringId& rhs) const {
-    if (rhs.hash_ != hash_) {
+    if (rhs.m_hash != m_hash) {
         return false;
     }
 
-    if (rhs.debug_name_ != debug_name_) {
+    if (rhs.m_debug_name != m_debug_name) {
         LOG_FATAL("StringId:: hash '{}' collision detected - '{}' and '{}'",
-                  hash_,
-                  debug_name_.view(),
-                  rhs.debug_name_.view());
+                  m_hash,
+                  m_debug_name.view(),
+                  rhs.m_debug_name.view());
         return false;
     }
     return true;

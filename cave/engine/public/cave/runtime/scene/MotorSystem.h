@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "cave/core/math/Box.h"
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {

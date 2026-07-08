@@ -11,12 +11,12 @@ template<Arithmetic T, int N, int A, int B, int C, int D>
 struct Swizzle<T, 2, N, A, B, C, D> {
     T d[N];
 
-    Vector<T, 2> operator=(const Vector<T, 2>& p_vec) {
-        return Vector<T, 2>(d[A] = p_vec.x, d[B] = p_vec.y);
+    Vec<T, 2> operator=(const Vec<T, 2>& p_vec) {
+        return Vec<T, 2>(d[A] = p_vec.x, d[B] = p_vec.y);
     }
 
-    operator Vector<T, 2>() {
-        return Vector<T, 2>(d[A], d[B]);
+    operator Vec<T, 2>() {
+        return Vec<T, 2>(d[A], d[B]);
     }
 };
 
@@ -25,12 +25,12 @@ template<Arithmetic T, int N, int A, int B, int C, int D>
 struct Swizzle<T, 3, N, A, B, C, D> {
     T d[N];
 
-    Vector<T, 3> operator=(const Vector<T, 3>& p_vec) {
-        return Vector<T, 3>(d[A] = p_vec.x, d[B] = p_vec.y, d[C] = p_vec.z);
+    Vec<T, 3> operator=(const Vec<T, 3>& p_vec) {
+        return Vec<T, 3>(d[A] = p_vec.x, d[B] = p_vec.y, d[C] = p_vec.z);
     }
 
-    operator Vector<T, 3>() {
-        return Vector<T, 3>(d[A], d[B], d[C]);
+    operator Vec<T, 3>() {
+        return Vec<T, 3>(d[A], d[B], d[C]);
     }
 };
 
@@ -39,12 +39,12 @@ template<Arithmetic T, int N, int A, int B, int C, int D>
 struct Swizzle<T, 4, N, A, B, C, D> {
     T d[N];
 
-    Vector<T, 4> operator=(const Vector<T, 4>& p_vec) {
-        return Vector<T, 4>(d[A] = p_vec.x, d[B] = p_vec.y, d[C] = p_vec.z, d[D] = p_vec.w);
+    Vec<T, 4> operator=(const Vec<T, 4>& p_vec) {
+        return Vec<T, 4>(d[A] = p_vec.x, d[B] = p_vec.y, d[C] = p_vec.z, d[D] = p_vec.w);
     }
 
-    operator Vector<T, 4>() {
-        return Vector<T, 4>(d[A], d[B], d[C], d[D]);
+    operator Vec<T, 4>() {
+        return Vec<T, 4>(d[A], d[B], d[C], d[D]);
     }
 };
 

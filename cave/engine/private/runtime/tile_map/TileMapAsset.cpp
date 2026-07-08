@@ -30,7 +30,7 @@ void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
     }
 }
 
-std::vector<Guid> TileMapAsset::dependencies() const {
+Vector<Guid> TileMapAsset::dependencies() const {
     return { tile_set_id_ };
 }
 
@@ -125,7 +125,7 @@ Result<void> TileMapAsset::saveToDisk(const AssetMetaData& meta) const {
     YamlSerializer yaml;
     yaml.beginMap(false)
         .beginKey("version")
-        .write(VERSION)
+        .write(kVersion)
         .beginKey("content")
         .write(*this)
         .endMap();

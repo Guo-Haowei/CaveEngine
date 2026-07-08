@@ -1,9 +1,9 @@
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/AABB.h"
 #include "cave/core/math/Angle.h"
 #include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 #include "shader_defines.hlsl.h"
@@ -20,8 +20,8 @@ struct ParticleEmitterComponent {
     int particlesPerFrame{ 10 };
     float particleScale{ 1.0f };
     float particleLifeSpan{ 3.0f };
-    Vector3f startingVelocity{ 0.0f };
-    Vector4f color{ Vector4f::One };
+    Vec3f startingVelocity{ 0.0f };
+    Vecf color{ Vecf::One };
     std::string texture;
 
     // Non-Serialized
@@ -51,17 +51,17 @@ struct MeshEmitterComponent {
     };
 
     struct Particle {
-        Vector3f position;
+        Vec3f position;
         float lifespan;
-        Vector3f rotation;
+        Vec3f rotation;
         float scale;
-        Vector3f velocity;
-        Vector3f angularVelocity;
+        Vec3f velocity;
+        Vec3f angularVelocity;
 
         void Init(float p_lifespan,
-                  const Vector3f& p_position,
-                  const Vector3f& p_velocity,
-                  const Vector3f& p_rotation,
+                  const Vec3f& p_position,
+                  const Vec3f& p_velocity,
+                  const Vec3f& p_rotation,
                   float p_scale) {
             position = p_position;
             lifespan = p_lifespan;
@@ -75,7 +75,7 @@ struct MeshEmitterComponent {
     int maxMeshCount{ 128 };
     int emissionPerFrame{ 1 };
     ecs::Entity meshId;
-    Vector3f gravity{ 0 };
+    Vec3f gravity{ 0 };
     float scale{ 1.0f };
     Vector2f vxRange{ 0 };
     Vector2f vyRange{ 0 };

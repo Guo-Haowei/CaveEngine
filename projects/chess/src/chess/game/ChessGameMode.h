@@ -6,6 +6,8 @@
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentBus.h"
 
+#include "cave/runtime/scene/SceneContext.h"
+
 namespace chess {
 
 class IChessGameState;
@@ -31,6 +33,8 @@ private:
     const cave::DebugId m_debug_id;
 
     std::unique_ptr<IChessGameState> m_state;
+
+    cave::SceneContext* m_ctx;
 };
 
 }  // namespace chess

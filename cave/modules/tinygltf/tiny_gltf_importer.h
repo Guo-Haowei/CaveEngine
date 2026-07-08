@@ -11,7 +11,7 @@
 #endif
 
 #if USING(USE_IMPORTER_TINYGLTF)
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 #include "engine/private/runtime/assets/SceneImporter.h"
 

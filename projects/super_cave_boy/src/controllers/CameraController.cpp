@@ -52,7 +52,7 @@ void CameraController::update(SceneContext& ctx, float dt) {
 }
 
 void CameraController::followTarget(cave::SceneContext& ctx, float dt) {
-    if (!entity().IsValid() || !m_target.IsValid()) {
+    if (!entity().valid() || !m_target.valid()) {
         return;
     }
 

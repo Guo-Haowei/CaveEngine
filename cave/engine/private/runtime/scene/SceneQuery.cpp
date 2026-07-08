@@ -87,8 +87,4 @@ RayHit SceneQuery::raycast(math::Ray& ray, const RaycastFilter&) const {
     return res;
 }
 
-std::string SceneQuery::debugString() const {
-    return ToString(m_scene);
-}
-
 }  // namespace cave

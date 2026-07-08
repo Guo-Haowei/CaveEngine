@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/ids/Entity.h"
 
 namespace cave {
 

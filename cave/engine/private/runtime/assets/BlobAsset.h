@@ -22,7 +22,7 @@ public:
 
     Result<void> saveToDisk(const AssetMetaData&) const override;
 
-    std::vector<Guid> dependencies() const override;
+    Vector<Guid> dependencies() const override;
 };
 
 }  // namespace cave

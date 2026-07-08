@@ -19,36 +19,36 @@ public:
     explicit constexpr StringId() = default;
 
     explicit constexpr StringId(std::string_view sv)
-        : hash_(Hash::hash64(sv)) {
+        : m_hash(Hash::hash64(sv)) {
 #if USING(STRING_ID_KEEP_SOURCE)
-        debug_name_.assign(sv);
+        m_debug_name.assign(sv);
 #endif
     }
 
     constexpr auto operator<=>(const StringId& rhs) const {
-        return hash_ <=> rhs.hash_;
+        return m_hash <=> rhs.m_hash;
     }
 
 #if USING(STRING_ID_KEEP_SOURCE)
-    std::string_view debugName() const { return debug_name_.view(); }
+    std::string_view debugName() const { return m_debug_name.view(); }
 
     bool operator==(const StringId& p_other) const;
 #else
     std::string_view debugName() const { return ""; }
 
     constexpr bool operator==(const StringId& rhs) const {
-        return hash_ == rhs.hash_;
+        return m_hash == rhs.m_hash;
     }
 #endif
 
     constexpr uint64_t hash() const {
-        return hash_;
+        return m_hash;
     }
 
 private:
-    uint64_t hash_{ 0 };
+    uint64_t m_hash{ 0 };
 #if USING(STRING_ID_KEEP_SOURCE)
-    FixedString<32> debug_name_;
+    FixedString<32> m_debug_name;
 #endif
 };
 

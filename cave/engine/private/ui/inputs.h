@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/core/containers/FixedString.h"
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/string/StringUtils.h"
 
 namespace cave::ui {

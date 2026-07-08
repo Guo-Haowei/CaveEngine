@@ -5,9 +5,9 @@
 #include <string>
 #include <string_view>
 
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Ray.h"
-#include "cave/core/math/Vector.h"
-#include "cave/runtime/ecs/Entity.h"
+#include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
@@ -64,8 +64,6 @@ public:
     size_t componentCount(ComponentId cid) const;
 
     RayHit raycast(math::Ray& ray, const RaycastFilter& filter) const;
-
-    std::string debugString() const;
 
 private:
     Scene& m_scene;

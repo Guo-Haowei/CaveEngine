@@ -32,7 +32,7 @@ void SpiderController::start(SceneContext& ctx) {
 void SpiderController::update(SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
-    if (!m_player.IsValid()) {
+    if (!m_player.valid()) {
         m_player = findPlayer(query);
     }
 

@@ -13,42 +13,42 @@ class Degree;
 class Degree {
 public:
     explicit constexpr Degree()
-        : value_(0) {}
+        : m_value(0) {}
     explicit constexpr Degree(float degree)
-        : value_(degree) {}
+        : m_value(degree) {}
     explicit constexpr Degree(double degree)
-        : value_(static_cast<float>(degree)) {}
+        : m_value(static_cast<float>(degree)) {}
 
     Degree operator*(float scalar) const {
-        return Degree{ value_ * scalar };
+        return Degree{ m_value * scalar };
     }
     Degree operator/(float scalar) const {
-        return Degree{ value_ / scalar };
+        return Degree{ m_value / scalar };
     }
     Degree& operator*=(float scalar) {
-        value_ *= scalar;
+        m_value *= scalar;
         return *this;
     }
     Degree& operator/=(float scalar) {
-        value_ /= scalar;
+        m_value /= scalar;
         return *this;
     }
     Degree& operator+=(Degree rhs) {
-        value_ += rhs.value_;
+        m_value += rhs.m_value;
         return *this;
     }
     Degree& operator-=(Degree rhs) {
-        value_ -= rhs.value_;
+        m_value -= rhs.m_value;
         return *this;
     }
 
     constexpr auto operator<=>(const Degree&) const = default;
 
-    constexpr Degree operator-() { return Degree(-value_); }
+    constexpr Degree operator-() { return Degree(-m_value); }
 
-    void clamp(float low, float high) { value_ = math::clamp(value_, low, high); }
-    constexpr float radians() const { return math::radians(value_); }
-    constexpr float degrees() const { return value_; }
+    void clamp(float low, float high) { m_value = math::clamp(m_value, low, high); }
+    constexpr float radians() const { return math::radians(m_value); }
+    constexpr float degrees() const { return m_value; }
 
     float sin() const {
         return std::sin(radians());
@@ -63,59 +63,59 @@ public:
     }
 
 private:
-    float value_;
+    float m_value;
 };
 
 class Radian {
 public:
     explicit constexpr Radian()
-        : value_(0) {}
+        : m_value(0) {}
     explicit constexpr Radian(float rad)
-        : value_(rad) {}
+        : m_value(rad) {}
 
     Radian operator*(float scalar) const {
-        return Radian{ value_ * scalar };
+        return Radian{ m_value * scalar };
     }
     Radian operator/(float scalar) const {
-        return Radian{ value_ / scalar };
+        return Radian{ m_value / scalar };
     }
     Radian& operator*=(float scalar) {
-        value_ *= scalar;
+        m_value *= scalar;
         return *this;
     }
     Radian& operator/=(float scalar) {
-        value_ /= scalar;
+        m_value /= scalar;
         return *this;
     }
     Radian& operator+=(Radian rhs) {
-        value_ += rhs.value_;
+        m_value += rhs.m_value;
         return *this;
     }
     Radian& operator-=(Radian rhs) {
-        value_ -= rhs.value_;
+        m_value -= rhs.m_value;
         return *this;
     }
     Radian& operator+=(Degree rhs) {
-        value_ += rhs.radians();
+        m_value += rhs.radians();
         return *this;
     }
     Radian& operator-=(Degree rhs) {
-        value_ -= rhs.radians();
+        m_value -= rhs.radians();
         return *this;
     }
 
     constexpr auto operator<=>(const Radian&) const = default;
 
-    void clamp(float low, float high) { value_ = math::clamp(value_, low, high); }
-    float degrees() const { return math::degrees(value_); }
-    float radians() const { return value_; }
+    void clamp(float low, float high) { m_value = math::clamp(m_value, low, high); }
+    float degrees() const { return math::degrees(m_value); }
+    float radians() const { return m_value; }
 
-    float sin() const { return std::sin(value_); }
-    float cos() const { return std::cos(value_); }
-    float tan() const { return std::tan(value_); }
+    float sin() const { return std::sin(m_value); }
+    float cos() const { return std::cos(m_value); }
+    float tan() const { return std::tan(m_value); }
 
 private:
-    float value_;
+    float m_value;
 };
 
 }  // namespace cave::math

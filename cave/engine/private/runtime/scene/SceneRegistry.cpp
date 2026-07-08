@@ -12,7 +12,7 @@
         DEV_ASSERT(::cave::thread::IsMainThread()); \
     } while (0)
 
-#define DEBUG_SCENE_REG IN_USE
+#define DEBUG_SCENE_REG NOT_IN_USE
 #if USING(DEBUG_SCENE_REG)
 #define DEBUG_PRINT(...) LOG_INFO(cave::LogChannel::Scene, __VA_ARGS__)
 #else

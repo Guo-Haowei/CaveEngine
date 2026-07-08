@@ -7,6 +7,7 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -16,9 +17,9 @@ namespace cave {
 namespace fs = std::filesystem;
 using namespace cave::render;
 
-SceneImporter::SceneImporter(const std::filesystem::path& p_source_path,
-                             const std::filesystem::path& p_dest_dir)
-    : AssetImporter(p_source_path, p_dest_dir) {
+SceneImporter::SceneImporter(const fs::path& source_path,
+                             const fs::path& dest_dir)
+    : AssetImporter(source_path, dest_dir) {
 
     m_file_name = StringUtils::removeExtension(m_source_path.filename().string());
 
@@ -39,13 +40,13 @@ Result<void> SceneImporter::PrepareImport() {
     return Result<void>();
 }
 
-std::string SceneImporter::NameGenerator(std::string_view p_name, uint32_t& p_counter) {
-    ++p_counter;
-    return std::format("{}_{}", p_name, p_counter);
+std::string SceneImporter::nameGenerator(std::string_view name, uint32_t& counter) {
+    ++counter;
+    return std::format("{}_{}", name, counter);
 }
 
-Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_path, bool p_srgb) {
-    fs::path name = p_sys_path.filename();
+Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& sys_path, bool srgb) {
+    fs::path name = sys_path.filename();
 
     fs::path image_path = m_dest_dir / name;
 
@@ -56,9 +57,9 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
 
     // copy image to dest
     std::error_code err;
-    const bool ok = fs::copy_file(p_sys_path, image_path, std::filesystem::copy_options::overwrite_existing, err);
+    const bool ok = fs::copy_file(sys_path, image_path, std::filesystem::copy_options::overwrite_existing, err);
     if (!ok) {
-        return CAVE_ERROR(ErrorCode::FAILURE, "Failed to copy file from {} to {}", p_sys_path.string(), image_path.string());
+        return CAVE_ERROR(ErrorCode::FAILURE, "Failed to copy file from {} to {}", sys_path.string(), image_path.string());
     }
 
     auto _meta = AssetMetaData::createMeta(virtual_path);
@@ -69,7 +70,7 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
     // save meta
     AssetMetaData meta = std::move(_meta.unwrap_unchecked());
 
-    meta.import_settings["color_space"] = p_srgb ? "srgb" : "linear";
+    meta.import_settings["color_space"] = srgb ? "srgb" : "linear";
     meta.import_settings["sampler"] = "linear";
 
     if (auto res = meta.saveToDisk(nullptr); !res) {
@@ -85,55 +86,57 @@ Result<Guid> SceneImporter::RegisterImage(const std::filesystem::path& p_sys_pat
     return guid;
 }
 
-Result<Guid> SceneImporter::RegisterMaterial(std::string&& p_name,
-                                             std::shared_ptr<MaterialAsset>&& p_material) {
+Result<Guid> SceneImporter::RegisterMaterial(std::string&& name,
+                                             Ref<MaterialAsset>&& material) {
 
-    fs::path sys_path = m_dest_dir / std::format("{}.mat", p_name);
+    fs::path sys_path = m_dest_dir / std::format("{}.mat", name);
 
     Guid guid = Guid::make();
     AssetMetaData meta;
     meta.type = AssetType::Material;
-    meta.name = std::move(p_name);
+    meta.name = std::move(name);
     meta.guid = guid;
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
-    if (auto res = p_material->saveToDisk(meta); !res) {
+    if (auto res = material->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::singleton().registerAsset(std::move(meta), p_material);
+    AssetRegistry::singleton().registerAsset(std::move(meta), material);
 
     // @TODO: request textures
 
     return guid;
 }
 
-Result<Guid> SceneImporter::RegisterMesh(std::string&& p_name,
-                                         std::shared_ptr<MeshAsset>&& p_mesh) {
-    fs::path sys_path = m_dest_dir / std::format("{}.mesh", p_name);
+Result<Guid> SceneImporter::RegisterMesh(std::string&& name,
+                                         Ref<MeshAsset>&& mesh) {
+    fs::path sys_path = m_dest_dir / std::format("{}.mesh", name);
 
     Guid guid = Guid::make();
     AssetMetaData meta;
     meta.type = AssetType::Mesh;
-    meta.name = std::move(p_name);
+    meta.name = std::move(name);
     meta.guid = guid;
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
 
-    if (auto res = p_mesh->saveToDisk(meta); !res) {
+    if (auto res = mesh->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::singleton().registerAsset(std::move(meta), p_mesh);
+    AssetRegistry::singleton().registerAsset(std::move(meta), mesh);
 
     // @TODO: move it to somewhere else, if it's headless, no need to create gpu data
-    RenderDevice::singleton().RequestMesh(p_mesh.get());
+    RenderDevice::singleton().RequestMesh(mesh.get());
 
     return Result<Guid>(guid);
 }
 
 Result<void> SceneImporter::RegisterScene(ecs::Entity root) {
-    m_scene->setRoot(root);
-    m_scene->component<NameComponent>(root)->setName(m_file_name);
+    Scene& scene = m_scene_asset->sceneMut();
+
+    scene.setRoot(root);
+    scene.component<NameComponent>(root)->setName(m_file_name);
 
     fs::path sys_path = m_dest_dir / std::format("{}.scene", m_file_name);
 
@@ -142,11 +145,12 @@ Result<void> SceneImporter::RegisterScene(ecs::Entity root) {
     meta.name = m_file_name;
     meta.guid = Guid::make();
     meta.import_path = IAssetManager::singleton().resolvePath(sys_path);
-    if (auto res = m_scene->saveToDisk(meta); !res) {
+    if (auto res = m_scene_asset->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
-    AssetRegistry::singleton().registerAsset(std::move(meta), m_scene);
+    // @TODO: refactor this part
+    AssetRegistry::singleton().registerAsset(std::move(meta), m_scene_asset);
     return Result<void>();
 }
 

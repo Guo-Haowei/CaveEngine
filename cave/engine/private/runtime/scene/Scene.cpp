@@ -9,18 +9,13 @@
 
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/components/All.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/Engine.h"
-#include "engine/private/runtime/scene/SceneSerializer.h"
 #include "engine/private/runtime/scene/SystemManager.h"
 #include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/EcsSystems.h"
 
 // systems
 #include "engine/private/runtime/script/lua/LuaScriptSystem.h"
-
-// @TODO: refactor
-#include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
@@ -175,7 +170,7 @@ void Scene::copy(const Scene& other) {
     for (auto& entry : other.m_storage.entries()) {
         if (entry.pool) {
             m_storage.ensure(idx);
-            m_storage.entries_[idx].pool = std::move(entry.pool->clone());
+            m_storage.m_entries[idx].pool = std::move(entry.pool->clone());
         }
         ++idx;
     }
@@ -185,8 +180,8 @@ void Scene::copy(const Scene& other) {
     m_entity_seed = other.m_entity_seed;
 }
 
-std::vector<Entity> Scene::getSortedEntityArray() const {
-    std::unordered_set<Entity> entity_set;
+Vector<Entity> Scene::getSortedEntityArray() const {
+    HashSet<Entity> entity_set;
 
     for (const auto& it : m_storage.entries()) {
         if (!it.pool) continue;
@@ -198,7 +193,7 @@ std::vector<Entity> Scene::getSortedEntityArray() const {
         }
     }
 
-    std::vector<Entity> entity_array(entity_set.begin(), entity_set.end());
+    Vector<Entity> entity_array(entity_set.begin(), entity_set.end());
 
     std::sort(entity_array.begin(), entity_array.end());
     return entity_array;
@@ -210,7 +205,7 @@ void Scene::flushPendingDestroy() {
         return;
     }
 
-    std::vector<Entity> entities;
+    Vector<Entity> entities;
     entities.reserve(pending_count);
     for (auto [ent, _] : view<PendingDestroyComponent>()) {
         entities.emplace_back(ent);
@@ -219,67 +214,6 @@ void Scene::flushPendingDestroy() {
     for (auto ent : entities) {
         removeEntity(ent);
     }
-}
-
-void Scene::instantiatePrefab(PrefabInstanceComponent& prefab, Entity ent) {
-    if (prefab.instance().IsValid()) {
-        removeEntity(prefab.instance());
-    }
-
-    auto handle = AssetRegistry::singleton().findByGuid<Scene>(prefab.prefabGuid());
-    if (handle.is_none()) {
-        return;
-    }
-
-    const Scene* source = handle.unwrap_unchecked().get();
-    DEV_ASSERT(source);
-    Scene copy;
-    copy.copy(*source);
-
-    auto new_entities = copy.getSortedEntityArray();
-    std::unordered_map<Entity, Entity> mapping;
-    for (Entity raw_entity : new_entities) {
-        Entity mapped = createEntity();
-        create<PrefabChildComponent>(mapped);
-        mapping[raw_entity] = mapped;
-    }
-
-    // remap hierarchy
-    for (auto [id, hier] : copy.view<HierarchyComponent>()) {
-        hier.parent_id = mapping[hier.parent_id];
-    }
-
-    // remap material
-    for (auto [id, renderer] : copy.view<MeshRendererComponent>()) {
-        auto& materials = renderer.GetMaterialInstances();
-        for (size_t i = 0; i < materials.size(); ++i) {
-            materials[i] = mapping[materials[i]];
-        }
-
-        CRASH_NOW_MSG("remap skin and skeleton");
-    }
-
-    // merge components
-    for (uint16_t cid = 0; cid < (uint16_t)copy.m_storage.entries_.size(); ++cid) {
-        auto& entry = copy.m_storage.entries_[cid];
-        if (!entry.pool) continue;
-        entry.pool->remap(mapping);
-
-        CRASH_COND(cid >= m_storage.entries_.size());
-        auto& my_entry = m_storage.entries_[cid];
-
-        if (!my_entry.pool) {
-            m_storage.getOrCreate(cid);
-        }
-        my_entry.pool->merge(std::move(*entry.pool));
-    }
-
-    // link instance
-    Entity mapped_root = mapping[copy.m_root];
-    HierarchyComponent& hier = create<HierarchyComponent>(mapped_root);
-    hier.parent_id = ent.IsValid() ? ent : m_root;
-
-    prefab.setInstance(mapped_root);
 }
 
 bool Scene::has(ComponentId cid, ecs::Entity ent) const {
@@ -304,7 +238,7 @@ Entity Scene::findFirstByName(std::string_view name) const {
             return entity;
         }
     }
-    return ecs::Entity::Null();
+    return ecs::Entity::null();
 }
 
 Entity Scene::findChildByName(std::string_view name, Entity ent) const {
@@ -314,12 +248,12 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
         }
     }
 
-    return ecs::Entity::Null();
+    return ecs::Entity::null();
 }
 
 void Scene::removeEntity(ecs::Entity ent) {
     // @TODO: move it to SceneCommandExecutor
-    if (!ent.IsValid()) {
+    if (!ent.valid()) {
         return;
     }
 
@@ -343,7 +277,7 @@ void Scene::removeEntity(ecs::Entity ent) {
 
 void Scene::attachChild(ecs::Entity child, ecs::Entity parent) {
     DEV_ASSERT(child != parent);
-    DEV_ASSERT(parent.IsValid());
+    DEV_ASSERT(parent.valid());
 
     // @TODO: prevent circular dependency
 
@@ -365,7 +299,7 @@ static void DuplicateComponent(Scene& scene, Entity source, Entity dest) {
 }
 
 ecs::Entity Scene::duplicateEntity(ecs::Entity ent) {
-    if (!ent.IsValid()) {
+    if (!ent.valid()) {
         return ent;
     }
 
@@ -376,61 +310,6 @@ ecs::Entity Scene::duplicateEntity(ecs::Entity ent) {
 #undef REGISTER_COMPONENT
 
     return entity;
-}
-
-std::vector<Guid> Scene::dependencies() const {
-    std::vector<Guid> dependencies;
-    for (const auto& [id, material] : view<MaterialComponent>()) {
-        dependencies.push_back(material.m_material_id);
-    }
-    for (const auto& [id, mesh_renderer] : view<MeshRendererComponent>()) {
-        dependencies.push_back(mesh_renderer.GetResourceGuid());
-    }
-    for (const auto& [id, prefab] : view<PrefabInstanceComponent>()) {
-        dependencies.push_back(prefab.prefabGuid());
-    }
-    for (const auto& [id, tile_map_renderer] : view<TileMapInstanceComponent>()) {
-        dependencies.push_back(tile_map_renderer.GetResourceGuid());
-    }
-    for (const auto& [id, animator] : view<SpriteAnimatorComponent>()) {
-        dependencies.push_back(animator.GetResourceGuid());
-    }
-
-    dependencies.erase(
-        std::remove_if(dependencies.begin(), dependencies.end(),
-                       [](Guid guid) {
-                           // @HACK: replace the last two digits to see if guid is 0
-                           uint8_t* data = const_cast<uint8_t*>(guid.data());
-                           data[15] = 0;
-                           return guid.isNull();
-                       }),
-        dependencies.end());
-
-    return dependencies;
-}
-
-auto Scene::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
-    auto res = meta.saveToDisk(this);
-    if (!res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    YamlSerializer yaml;
-    SerializeScene(yaml, *this, AssetRegistry::singletonPtr(), true);
-    return SaveYaml(meta.import_path, yaml);
-}
-
-auto Scene::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
-    YAML::Node root;
-
-    if (auto res = LoadYaml(meta.import_path, root); !res) {
-        return CAVE_ERROR(res.error());
-    }
-
-    YamlDeserializer yaml;
-    yaml.Initialize(root);
-    DeserializeScene(yaml, *this);
-    return Result<void>();
 }
 
 }  // namespace cave

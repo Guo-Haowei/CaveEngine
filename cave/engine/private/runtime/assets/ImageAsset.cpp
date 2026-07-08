@@ -109,7 +109,7 @@ Result<void> ImageAsset::saveToDisk(const AssetMetaData& p_meta) const {
     return p_meta.saveToDisk(this);
 }
 
-std::vector<Guid> ImageAsset::dependencies() const {
+Vector<Guid> ImageAsset::dependencies() const {
     return {};
 }
 

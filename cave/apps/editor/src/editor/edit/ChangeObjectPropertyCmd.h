@@ -48,10 +48,10 @@ private:
         if (!component) return false;
 
         const auto& reg = engine::GetComponentRegistry();
-        const auto* meta = reg.TryGet(cid_);
+        const auto* meta = reg.tryGet(cid_);
         if (!meta) return false;
 
-        const auto* prop = meta->Find(pid_);
+        const auto* prop = meta->find(pid_);
         if (!prop) return false;
 
         prop->template GetData<ValueT>(component) = value;

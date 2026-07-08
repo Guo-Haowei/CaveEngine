@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 
 #include "engine/private/render/render_graph/RGTextureId.h"
 #include "engine/private/renderer/gpu_resource.h"

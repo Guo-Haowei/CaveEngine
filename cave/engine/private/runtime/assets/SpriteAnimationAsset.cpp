@@ -77,7 +77,7 @@ auto SpriteAnimationAsset::saveToDisk(const AssetMetaData& meta) const -> Result
     YamlSerializer yaml;
     yaml.beginMap(false)
         .beginKey("version")
-        .write(VERSION)
+        .write(kVersion)
         .beginKey("content")
         .write(*this)
         .endMap();

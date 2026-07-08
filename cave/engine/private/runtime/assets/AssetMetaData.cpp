@@ -72,6 +72,8 @@ auto AssetMetaData::createMeta(std::string_view path) -> Option<AssetMetaData> {
         type = AssetType::SpriteAnimation;
     } else if (extension == ".scene") {
         type = AssetType::Scene;
+    } else if (extension == ".prefab") {
+        type = AssetType::Prefab;
     } else if (extension == ".mat") {
         type = AssetType::Material;
     } else {

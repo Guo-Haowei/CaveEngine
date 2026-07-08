@@ -10,8 +10,8 @@ const MaterialAsset* MaterialAsset::Default() {
     return &s_default;
 }
 
-std::vector<Guid> MaterialAsset::dependencies() const {
-    std::vector<Guid> dependencies;
+Vector<Guid> MaterialAsset::dependencies() const {
+    Vector<Guid> dependencies;
     dependencies.reserve(textures.size());
     for (const auto& guid : textures) {
         if (!guid.isNull()) {
@@ -30,7 +30,7 @@ Result<void> MaterialAsset::saveToDisk(const AssetMetaData& p_meta) const {
     YamlSerializer yaml;
     yaml.beginMap(false)
         .beginKey("version")
-        .write(VERSION)
+        .write(kVersion)
         .beginKey("content")
         .write(*this)
         .endMap();

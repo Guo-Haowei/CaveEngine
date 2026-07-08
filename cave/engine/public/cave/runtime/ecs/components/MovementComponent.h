@@ -2,7 +2,7 @@
 // File: cave/runtime/platformer/MovementComponent.h
 // =============================================================================
 #pragma once
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {

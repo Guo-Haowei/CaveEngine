@@ -11,13 +11,13 @@
 namespace cave {
 
 ViewManager::ViewManager(SceneRegistry& scene_reg, bool is_opengl) noexcept
-    : scene_reg_(scene_reg)
-    , is_opengl_(is_opengl) {}
+    : m_scene_reg(scene_reg)
+    , m_is_opengl(is_opengl) {}
 
 void ViewManager::beginFrame() {
-    DEV_ASSERT(can_submit_ == false);
-    DEV_ASSERT(view_descs_.empty());
-    can_submit_ = true;
+    DEV_ASSERT(m_can_submit == false);
+    DEV_ASSERT(m_view_descs.empty());
+    m_can_submit = true;
 }
 
 static ResolvedView ResolveView(ViewDesc&& view_desc,
@@ -49,7 +49,7 @@ static ResolvedView ResolveView(ViewDesc&& view_desc,
         case CameraSource::Source::FirstCamera: {
             for (auto [id, camera] : scene->view<CameraComponent>()) {
                 // @HACK: just use the first camera
-                if (id.IsValid()) {
+                if (id.valid()) {
                     cam = &camera;
                     break;
                 }
@@ -91,27 +91,30 @@ static ResolvedView ResolveView(ViewDesc&& view_desc,
 }
 
 std::span<const ResolvedView> ViewManager::endFrame() {
-    DEV_ASSERT(can_submit_ == true);
-    can_submit_ = false;
+    DEV_ASSERT(m_can_submit == true);
+    m_can_submit = false;
 
-    resolved_views_.clear();
-    resolved_views_.reserve(view_descs_.size());
-    for (ViewDesc& desc : view_descs_) {
+    m_resolved_views.clear();
+    m_resolved_views.reserve(m_view_descs.size());
+    for (ViewDesc& desc : m_view_descs) {
         SceneId id = desc.scene_id;
-        if (Scene* scene = scene_reg_.resolve(id)) {
-            resolved_views_.emplace_back(ResolveView(std::move(desc), scene, is_opengl_));
-        } else {
+        if (Scene* scene = m_scene_reg.resolve(id)) {
+            m_resolved_views.emplace_back(ResolveView(std::move(desc), scene, m_is_opengl));
+        }
+#if 0
+        else {
             LOG_ERROR(LogChannel::View, "can't resolve {}#{}", id.index, id.gen);
         }
+#endif
     }
 
-    view_descs_.clear();
-    return resolved_views_;
+    m_view_descs.clear();
+    return m_resolved_views;
 }
 
 void ViewManager::submit(const ViewDesc& view_desc) {
-    DEV_ASSERT(can_submit_);
-    view_descs_.emplace_back(view_desc);
+    DEV_ASSERT(m_can_submit);
+    m_view_descs.emplace_back(view_desc);
 }
 
 ViewId ViewManager::createView(std::string_view debug_name,

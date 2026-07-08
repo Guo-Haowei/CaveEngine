@@ -6,6 +6,7 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneContext.h"
 
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneCommandExecutor.h"
@@ -63,33 +64,30 @@ void PIESession::endPIEScene() {
     m_pie_scene = {};
 }
 
-void PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
+bool PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
     m_engine_services.sceneScheduler().add(this);
     m_view_id = view_id;
 
     auto& asset_reg = m_engine_services.assetRegistry();
-    if (auto handle = asset_reg.findByGuid<Scene>(guid)) {
-        if (const Scene* asset_scene = handle.unwrap_unchecked().get()) {
-            beginPIEScene(
-                {
-                    .source = SceneSource::Runtime,
-                    .debug_name = handle.unwrap_unchecked().meta()->name,
-                },
-                *asset_scene);
-            return;
+    if (auto handle_opt = asset_reg.findByGuid<SceneAsset>(guid)) {
+        auto handle = handle_opt.unwrap_unchecked();
+        if (const SceneAsset* asset = handle.get()) {
+            beginPIEScene({ SceneSource::Runtime, handle.meta()->name }, asset->scene());
+            return true;
         }
     }
 
-    LOG_ERROR(LogChannel::Asset, "failed to start PIE scene {}", guid.toString());
+    return false;
 }
 
-void PIESession::endPIESession() {
+bool PIESession::endPIESession() {
     m_engine_services.sceneScheduler().remove(this);
     m_view_id = {};
 
     if (m_pie_scene.valid()) {
         endPIEScene();
     }
+    return true;
 }
 
 void PIESession::commitSceneChange(std::string&& path) {
@@ -97,14 +95,14 @@ void PIESession::commitSceneChange(std::string&& path) {
 
     endPIEScene();
 
-    auto handle = m_engine_services.assetRegistry().findByPath<Scene>(path);
-    if (handle.is_none()) {
+    auto handle_opt = m_engine_services.assetRegistry().findByPath<SceneAsset>(path);
+    if (handle_opt.is_none()) {
         LOG_ERROR(LogChannel::Asset, "Failed to find asset '{}'", path);
         return;
     }
 
-    Scene* asset_scene = handle.unwrap_unchecked().get();
-    if (!asset_scene) {
+    SceneAsset* asset = handle_opt.unwrap_unchecked().get();
+    if (!asset) {
         LOG_ERROR(LogChannel::Asset, "Failed to load asset '{}'", path);
         return;
     }
@@ -114,7 +112,7 @@ void PIESession::commitSceneChange(std::string&& path) {
             .source = SceneSource::Runtime,
             .debug_name = std::string(StringUtils::fileName(path)),
         },
-        *asset_scene);
+        asset->scene());
 }
 
 void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {

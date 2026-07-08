@@ -16,18 +16,16 @@ public:
     Option<AssetHandle> findByGuid(const Guid& guid, AssetType type = AssetType::All);
     Option<AssetHandle> findByPath(const std::string& path, AssetType type = AssetType::All);
 
-    template<typename T>
+    template<AssetClass T>
     Option<Handle<T>> findByPath(const std::string& path) {
-        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        auto handle = findByPath(path, T::ASSET_TYPE);
+        auto handle = findByPath(path, T::kAssetType);
         if (handle.is_none()) return None();
         return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
 
-    template<typename T>
+    template<AssetClass T>
     Option<Handle<T>> findByGuid(const Guid& guid) {
-        static_assert(requires { T::ASSET_TYPE; }, "T must define static constexpr ASSET_TYPE");
-        auto handle = findByGuid(guid, T::ASSET_TYPE);
+        auto handle = findByGuid(guid, T::kAssetType);
         if (handle.is_none()) return None();
         return Some(Handle<T>(std::move(handle.unwrap_unchecked())));
     }
@@ -46,8 +44,8 @@ public:
 
     std::vector<AssetHandle> getAssetsOfType(AssetType type) const;
 
-    std::vector<Guid> findReverseDependencies(Guid dependency) const;
-    std::vector<Guid> findReverseDependenciesTransitively(Guid dependency) const;
+    Vector<Guid> findReverseDependencies(Guid dependency) const;
+    Vector<Guid> findReverseDependenciesTransitively(Guid dependency) const;
 
     void refreshAllDependencies();
 
@@ -69,8 +67,8 @@ protected:
     std::unordered_map<std::string, Guid> path_map_;
     std::unordered_map<Guid, std::shared_ptr<AssetEntry>> guid_map_;
 
-    std::unordered_map<Guid, std::vector<Guid>> deps_;
-    std::unordered_map<Guid, std::vector<Guid>> reverse_deps_;
+    std::unordered_map<Guid, Vector<Guid>> deps_;
+    std::unordered_map<Guid, Vector<Guid>> reverse_deps_;
 };
 
 }  // namespace cave

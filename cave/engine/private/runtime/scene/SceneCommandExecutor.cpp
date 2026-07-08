@@ -33,7 +33,7 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
                                           const PropertyId& pid,
                                           const void* data,
                                           uint32_t data_size) {
-    const ecs::ComponentMeta* meta = m_reg.TryGet(cid);
+    const ecs::ComponentMeta* meta = m_reg.tryGet(cid);
     if (!meta) {
         LOG_WARN("Can't find meta for component '{}'", cid);
         return false;
@@ -41,13 +41,13 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
 
     void* comp = m_scene.storage().getRaw(meta->cid, ent);
     if (!comp) {
-        LOG_WARN("Can't find '{}' for ent {}", meta->name, ent.GetId());
+        LOG_WARN("Can't find '{}' for ent {}", meta->name, ent.id());
         return false;
     }
 
-    const FieldMetaBase* field = meta->Find(pid);
+    const FieldMetaBase* field = meta->find(pid);
     if (!field) {
-        LOG_WARN("Can't find '{}.{}' for ent {}", meta->name, pid.debugName(), ent.GetId());
+        LOG_WARN("Can't find '{}.{}' for ent {}", meta->name, pid.debugName(), ent.id());
         return false;
     }
 

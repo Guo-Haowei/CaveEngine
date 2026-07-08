@@ -42,9 +42,17 @@ public:
     PreviewBuildResult build(const PreviewBuildRequest& req) const;
 
 private:
-    PreviewBuildResult buildMaterial(const AssetHandle& handle, const PreviewOptions& options) const;
-    PreviewBuildResult buildMesh(const AssetHandle& handle, const PreviewOptions& options) const;
-    PreviewBuildResult buildScene(const AssetHandle& handle, const PreviewOptions& options) const;
+    PreviewBuildResult buildMaterial(const AssetMetaData* meta,
+                                     const AssetHandle& handle,
+                                     const PreviewOptions& options) const;
+
+    PreviewBuildResult buildMesh(const AssetMetaData* meta,
+                                 const AssetHandle& handle,
+                                 const PreviewOptions& options) const;
+
+    PreviewBuildResult buildSceneImpl(const AssetMetaData* meta,
+                                      const Scene& scene,
+                                      const PreviewOptions& options) const;
 
     SceneTickContext makeSceneContext(Scene& scene) const;
 

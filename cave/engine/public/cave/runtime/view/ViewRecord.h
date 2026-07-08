@@ -4,7 +4,7 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
 #include "cave/core/math/Rect.h"
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 
 namespace cave {
 

@@ -192,8 +192,8 @@ private:
 
 struct CollisionPairHash {
     std::size_t operator()(const CollisionPair& p) const noexcept {
-        uint32_t a = p.a.GetId();
-        uint32_t b = p.b.GetId();
+        uint32_t a = p.a.id();
+        uint32_t b = p.b.id();
 
         uint64_t packed = (static_cast<uint64_t>(a) << 32) | static_cast<uint64_t>(b);
         return std::hash<uint64_t>{}(packed);

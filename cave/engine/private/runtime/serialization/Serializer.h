@@ -2,12 +2,12 @@
 // @TODO: refactor defines.h
 #include "defines.h"
 
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Box.h"
 #include "cave/core/math/Matrix.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
-#include "cave/runtime/ecs/Entity.h"
 
 #include "engine/private/core/io/file_access.h"
 
@@ -119,7 +119,7 @@ public:
     }
 
     template<typename T, int N>
-    ISerializer& write(const math::Vector<T, N>& object) {
+    ISerializer& write(const math::Vec<T, N>& object) {
         beginArray(true);
         write(object.x);
         write(object.y);

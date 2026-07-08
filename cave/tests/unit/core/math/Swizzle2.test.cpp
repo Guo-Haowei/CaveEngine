@@ -1,4 +1,4 @@
-#include "vector.test.h"
+#include "Vec.test.h"
 
 namespace cave::math {
 

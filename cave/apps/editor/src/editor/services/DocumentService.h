@@ -27,8 +27,8 @@ class DocumentService : protected GenIdRegistry<IDocument> {
 public:
     DocumentService(EngineServices& app_services,
                     EditorServices& editor_services) noexcept
-        : engine_services_(app_services)
-        , editor_services_(editor_services) {}
+        : m_engine_services(app_services)
+        , m_editor_services(editor_services) {}
 
     DocId openDoc(const OpenDocDesc& desc);
 
@@ -43,10 +43,10 @@ public:
     bool save(const Guid& guid);
 
 private:
-    EngineServices& engine_services_;
-    EditorServices& editor_services_;
+    EngineServices& m_engine_services;
+    EditorServices& m_editor_services;
 
-    std::unordered_map<Guid, DocId> guid_to_doc_;
+    std::unordered_map<Guid, DocId> m_guid_to_doc;
 };
 
 }  // namespace cave

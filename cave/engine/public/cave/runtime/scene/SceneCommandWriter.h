@@ -3,9 +3,10 @@
 // =============================================================================
 #pragma once
 #include <string_view>
-#include "cave/core/math/Vector.h"
+
+#include "cave/core/math/Vec.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
-#include "cave/runtime/ecs/Entity.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 
 namespace cave {
@@ -19,8 +20,7 @@ struct MaterialContext {
 
 class SceneCommandWriter : public SceneCommandBuffer {
     using Entity = ecs::Entity;
-    using Vector3f = math::Vec3f;
-    using Vector4f = math::Vec4f;
+    using Vec3f = math::Vec3f;
 
 public:
     explicit SceneCommandWriter(AssetRegistry& reg) noexcept
@@ -37,16 +37,16 @@ public:
     Entity transformObject(std::string_view name);
 
     Entity pointLightObject(std::string_view name,
-                            const Vector3f& position = Vector3f(0.0f, 1.0f, 0.0f),
-                            const Vector3f& color = Vector3f(1.0f),
+                            const Vec3f& position = Vec3f(0.0f, 1.0f, 0.0f),
+                            const Vec3f& color = Vec3f(1.0f),
                             float emissive = 5.0f);
 
     Entity areaLightObject(std::string_view name,
-                           const Vector3f& color = Vector3f(1),
+                           const Vec3f& color = Vec3f(1),
                            float emissive = 5.0f);
 
     Entity infiniteLightObject(std::string_view name,
-                               const Vector3f& color = Vector3f(1),
+                               const Vec3f& color = Vec3f(1),
                                float emissive = 5.0f);
 
     Entity meshObject(const std::string& mesh_path,

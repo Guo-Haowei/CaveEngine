@@ -9,8 +9,8 @@ bool IComponentPool::has(Entity ent) const {
     return m_lookup.find(ent) != m_lookup.end();
 }
 
-void IComponentPool::remap(const std::unordered_map<Entity, Entity>& map) {
-    std::unordered_map<Entity, size_t> new_lookup;
+void IComponentPool::remap(const HashMap<Entity, Entity>& map) {
+    HashMap<Entity, size_t> new_lookup;
 
     for (Entity& entity : m_entity_array) {
         auto it = map.find(entity);

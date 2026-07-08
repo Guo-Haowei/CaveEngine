@@ -28,7 +28,9 @@ DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
     m_asset = m_handle.wait();
 }
 
-bool DocumentBase::apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) {
+DocumentBase::~DocumentBase() = default;
+
+bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
     if (!cmd) return false;
 
     if (!m_undo.empty() /*&& coalesce != 0 && last_coalesce_ == coalesce*/) {
@@ -124,7 +126,7 @@ bool DocumentBase::saveAs(std::string_view) {
     return false;
 }
 
-std::unique_ptr<Scene> DocumentBase::createPreviewScene() const {
+Owner<Scene> DocumentBase::createPreviewScene() const {
     return nullptr;
 }
 

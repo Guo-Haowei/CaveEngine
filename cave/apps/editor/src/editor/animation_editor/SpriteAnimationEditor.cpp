@@ -95,7 +95,7 @@ void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
 
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Animation")) {
-            ImageSourceDropTarget(doc, icons.GetIconHandle(IconName::Checkerboard));
+            ImageSourceDropTarget(doc, icons.getIconHandle(IconName::Checkerboard));
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

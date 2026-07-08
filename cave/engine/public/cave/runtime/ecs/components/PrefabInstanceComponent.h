@@ -2,10 +2,10 @@
 // File: cave/runtime/ecs/components/PrefabInstanceComponent.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
-#include "cave/core/math/Vector.h"
+#include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 

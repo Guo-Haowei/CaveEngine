@@ -3,7 +3,7 @@
 // =============================================================================
 #pragma once
 #include <concepts>
-#include "cave/core/math/impl/Vector2.h"
+#include "cave/core/math/impl/Vec2.h"
 
 namespace cave::math {
 
@@ -30,15 +30,15 @@ struct Rect {
         return p_x >= Left() && p_x < Right() && p_y >= Top() && p_y < Bottom();
     }
 
-    constexpr Vector<T, 2> Min() const {
+    constexpr Vec<T, 2> Min() const {
         return { x, y };
     }
 
-    constexpr Vector<T, 2> Max() const {
+    constexpr Vec<T, 2> Max() const {
         return { x + w, y + h };
     }
 
-    constexpr Vector<T, 2> Extent() const {
+    constexpr Vec<T, 2> Extent() const {
         return { w, h };
     }
 };

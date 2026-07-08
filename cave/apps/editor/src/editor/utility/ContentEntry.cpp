@@ -110,6 +110,7 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
             } break;
             case AssetType::Material:
             case AssetType::Mesh:
+            case AssetType::Prefab:
             case AssetType::Scene: {
                 ThumbnailKey key{
                     .guid = handle.guid(),

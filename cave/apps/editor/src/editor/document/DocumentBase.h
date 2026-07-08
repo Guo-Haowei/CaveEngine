@@ -13,8 +13,9 @@ class SceneRegistry;
 class DocumentBase : public IDocument {
 public:
     DocumentBase(EngineServices& services, const Guid& guid);
+    ~DocumentBase();
 
-    bool apply(std::unique_ptr<IEditCmd> cmd, uint32_t coalesce) override;
+    bool apply(Owner<IEditCmd> cmd, uint32_t coalesce) override;
 
     bool canUndo() const override { return !m_undo.empty(); }
     bool canRedo() const override { return !m_redo.empty(); }
@@ -33,9 +34,9 @@ public:
         return m_saved_undo_size != m_undo.size();
     }
 
-    void undoLabels(std::vector<std::string>& out, int max_items) const override;
+    void undoLabels(Vector<std::string>& out, int max_items) const override;
 
-    void redoLabels(std::vector<std::string>& out, int max_items) const override;
+    void redoLabels(Vector<std::string>& out, int max_items) const override;
 
     bool save() override;
     bool saveAs(std::string_view) override;
@@ -46,7 +47,7 @@ public:
         return m_preview_scene;
     }
 
-    std::unique_ptr<Scene> createPreviewScene() const override;
+    Owner<Scene> createPreviewScene() const override;
     void reloadPreviewScene() override;
 
 private:
@@ -72,8 +73,8 @@ protected:
     Guid m_guid;
 
 private:
-    std::deque<std::unique_ptr<IEditCmd>> m_undo;
-    std::deque<std::unique_ptr<IEditCmd>> m_redo;
+    std::deque<Owner<IEditCmd>> m_undo;
+    std::deque<Owner<IEditCmd>> m_redo;
 
     size_t m_undo_limit = 0;       // 0 = unlimited
     size_t m_saved_undo_size = 0;  // save marker

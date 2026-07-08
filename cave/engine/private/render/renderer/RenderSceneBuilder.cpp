@@ -50,7 +50,7 @@ void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scen
         payload.materials.reserve(num_subset);
         for (size_t idx = 0; idx < num_subset; ++idx) {
             payload.subsets[idx] = mesh_asset->subsets[idx];
-            ecs::Entity material_id = idx < materials.size() ? materials[idx] : ecs::Entity::Null();
+            ecs::Entity material_id = idx < materials.size() ? materials[idx] : ecs::Entity::null();
             payload.materials.emplace_back(material_id);
         }
 
@@ -59,7 +59,7 @@ void RenderSceneBuilder::BuildFull(const Scene& p_scene, RenderScene& p_out_scen
         if (renderer.CastShadow()) flags |= RenderableFlags::CastShadow;
         if (renderer.Transparency()) flags |= RenderableFlags::Transparent;
         if (renderer.IsVisible()) flags |= RenderableFlags::Visible;
-        if (payload.skeleton.IsValid()) flags |= RenderableFlags::Skinned;
+        if (payload.skeleton.valid()) flags |= RenderableFlags::Skinned;
 
         Mat4f world = trans.worldMatrix();
         AABB world_bound = payload.local_bound;

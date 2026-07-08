@@ -43,7 +43,7 @@ void ChessPieceView::initialize() {
 
         for (int i = 1;; ++i) {
             Entity id = m_query.findFirstByName(std::format("{}_{}", name, i));
-            if (!id.IsValid()) {
+            if (!id.valid()) {
                 break;
             }
             entry.pool.emplace_back(id);
@@ -109,7 +109,7 @@ void ChessPieceView::spawnPiece(Piece piece, Square square) {
 
 void ChessPieceView::removePiece(Square square) {
     const Entity ent = m_board[square.index()];
-    m_board[square.index()] = Entity::Null();
+    m_board[square.index()] = Entity::null();
 
     auto renderer = m_query.component<MeshRendererComponent>(ent);
     if (DEV_VERIFY(renderer)) {
@@ -120,9 +120,9 @@ void ChessPieceView::removePiece(Square square) {
 
 void ChessPieceView::movePiece(Square from, Square to) {
     Entity ent = m_board[from.index()];
-    DEV_ASSERT(ent.IsValid());
+    DEV_ASSERT(ent.valid());
 
-    m_board[from.index()] = Entity::Null();
+    m_board[from.index()] = Entity::null();
     m_board[to.index()] = ent;
 
     auto anim = m_query.addComponent<TransformAnimationComponent>(ent);
@@ -140,7 +140,7 @@ void ChessPieceView::applyMove(const Position& position, Move move) {
     const Square to = move.to();
     const Color stm = position.sideToMove();
 
-    if (ecs::Entity captured_piece = entityAt(to); captured_piece.IsValid()) {
+    if (ecs::Entity captured_piece = entityAt(to); captured_piece.valid()) {
         removePiece(to);
     }
 

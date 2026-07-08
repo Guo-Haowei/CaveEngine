@@ -1,7 +1,7 @@
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/core/math/AABB.h"
 #include "cave/runtime/assets/AssetHandle.h"
-#include "cave/runtime/ecs/Entity.h"
 
 // @TODO: refactor
 namespace cave::render {
@@ -65,7 +65,7 @@ public:
 
     VertexAttribute attributes[std::to_underlying(VertexAttributeName::COUNT)];
 
-    std::vector<Guid> dependencies() const override;
+    Vector<Guid> dependencies() const override;
 
     Result<void> saveToDisk(const AssetMetaData& p_meta) const override;
 

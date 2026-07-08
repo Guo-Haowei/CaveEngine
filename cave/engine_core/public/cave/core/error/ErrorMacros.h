@@ -10,11 +10,11 @@
 
 namespace cave {
 
-using ErrorHandlerFunc = void (*)(void* p_userdata,
-                                  std::string_view p_function,
-                                  std::string_view p_file,
-                                  int p_line,
-                                  std::string_view p_error);
+using ErrorHandlerFunc = void (*)(void* userdata,
+                                  std::string_view function,
+                                  std::string_view file,
+                                  int line,
+                                  std::string_view error);
 
 struct ErrorHandlerListNode {
     ErrorHandlerFunc errorFunc = nullptr;

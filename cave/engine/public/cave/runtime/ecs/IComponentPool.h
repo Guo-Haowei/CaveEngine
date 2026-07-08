@@ -3,10 +3,10 @@
 // =============================================================================
 #pragma once
 #include <span>
-#include <vector>
-#include <unordered_map>
+
+#include "cave/core/containers/Containers.h"
+#include "cave/core/ids/Entity.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/Entity.h"
 
 namespace cave::ecs {
 
@@ -19,7 +19,7 @@ public:
     virtual ~IComponentPool() = default;
     virtual void clear() = 0;
     virtual void copy(const IComponentPool& other) = 0;
-    virtual std::unique_ptr<IComponentPool> clone() const = 0;
+    virtual Owner<IComponentPool> clone() const = 0;
 
     virtual void* createRaw(Entity ent) = 0;
     virtual void remove(Entity ent) = 0;
@@ -32,15 +32,15 @@ public:
     virtual void merge(IComponentPool&& other) = 0;
     virtual size_t count() const = 0;
 
-    void remap(const std::unordered_map<Entity, Entity>& map);
+    void remap(const HashMap<Entity, Entity>& map);
 
-    const std::vector<Entity>& entityArray() const {
+    const Vector<Entity>& entityArray() const {
         return m_entity_array;
     }
 
 protected:
-    std::vector<Entity> m_entity_array;
-    std::unordered_map<Entity, size_t> m_lookup;
+    Vector<Entity> m_entity_array;
+    HashMap<Entity, size_t> m_lookup;
 };
 
 }  // namespace cave::ecs

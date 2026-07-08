@@ -9,7 +9,7 @@
 namespace cave::ecs {
 
 void ComponentStorage::clearAll() {
-    for (auto& entry : entries_) {
+    for (auto& entry : m_entries) {
         if (entry.pool) {
             entry.pool->clear();
         }
@@ -18,7 +18,7 @@ void ComponentStorage::clearAll() {
 
 IComponentPool& ComponentStorage::getOrCreate(ComponentId cid) {
     ensure(cid);
-    Entry& e = entries_[cid];
+    Entry& e = m_entries[cid];
 
     // @TODO: instead of this, make pool typeless
     if (!e.pool) {
@@ -40,19 +40,19 @@ IComponentPool& ComponentStorage::getOrCreate(ComponentId cid) {
 
 bool ComponentStorage::isRegistered(ComponentId cid) const {
     const size_t idx = cid;
-    return idx < entries_.size() && entries_[idx].pool != nullptr;
+    return idx < m_entries.size() && m_entries[idx].pool != nullptr;
 }
 
 IComponentPool* ComponentStorage::tryGet(ComponentId cid) {
     const size_t idx = (size_t)cid;
-    if (idx >= entries_.size()) return nullptr;
-    return entries_[idx].pool.get();
+    if (idx >= m_entries.size()) return nullptr;
+    return m_entries[idx].pool.get();
 }
 
 const IComponentPool* ComponentStorage::tryGet(ComponentId cid) const {
     const size_t idx = (size_t)cid;
-    if (idx >= entries_.size()) return nullptr;
-    return entries_[idx].pool.get();
+    if (idx >= m_entries.size()) return nullptr;
+    return m_entries[idx].pool.get();
 }
 
 bool ComponentStorage::has(ComponentId cid, Entity ent) const {
@@ -76,7 +76,7 @@ void* ComponentStorage::createRaw(ComponentId cid, Entity ent) {
 }
 
 bool ComponentStorage::remove(ComponentId cid, Entity ent) {
-    if (!ent.IsValid()) return false;
+    if (!ent.valid()) return false;
     auto* pool = tryGet(cid);
     if (!pool) return false;
     if (!pool->has(ent)) return true;
@@ -86,7 +86,7 @@ bool ComponentStorage::remove(ComponentId cid, Entity ent) {
 
 void ComponentStorage::ensure(ComponentId cid) {
     const size_t need = cid + 1;
-    if (entries_.size() < need) entries_.resize(need);
+    if (m_entries.size() < need) m_entries.resize(need);
 }
 
 }  // namespace cave::ecs

@@ -1,16 +1,16 @@
 // =============================================================================
-// File: cave/core/math/impl/Vector2.h
+// File: cave/core/math/impl/Vec2.h
 // =============================================================================
 #pragma once
 #include "Swizzle.h"
-#include "VectorBase.h"
+#include "VecBase.h"
 
 namespace cave::math {
 
 template<Arithmetic T>
-struct Vector<T, 2> : VectorBase<T, 2> {
+struct Vec<T, 2> : VectorBase<T, 2> {
     using Base = VectorBase<T, 2>;
-    using Self = Vector<T, 2>;
+    using Self = Vec<T, 2>;
 
     WARNING_PUSH()
     WARNING_DISABLE(4201, "-Wgnu-anonymous-struct")
@@ -26,30 +26,30 @@ struct Vector<T, 2> : VectorBase<T, 2> {
     // clang-format on
     WARNING_POP()
 
-    explicit constexpr Vector() = default;
+    explicit constexpr Vec() = default;
 
-    explicit constexpr Vector(T v) noexcept
+    explicit constexpr Vec(T v) noexcept
         : x(v), y(v) {
     }
 
-    constexpr Vector(T x, T y) noexcept
+    constexpr Vec(T x, T y) noexcept
         : x(x), y(y) {
     }
 
     template<Arithmetic U>
         requires(!std::is_same<T, U>::value)
-    explicit constexpr Vector(U x, U y)
+    explicit constexpr Vec(U x, U y)
         : x(static_cast<T>(x)), y(static_cast<T>(y)) {
     }
 
     template<Arithmetic U>
         requires(!std::is_same<T, U>::value)
-    explicit Vector(const Vector<U, 2>& rhs)
+    explicit Vec(const Vec<U, 2>& rhs)
         : x(static_cast<T>(rhs.x)), y(static_cast<T>(rhs.y)) {
     }
 
     template<int N, int A, int B>
-    constexpr Vector(const Swizzle2<T, N, A, B, -1, -1>& swizzle)
+    constexpr Vec(const Swizzle2<T, N, A, B, -1, -1>& swizzle)
         : x(swizzle.d[A]), y(swizzle.d[B]) {
     }
 
@@ -60,12 +60,12 @@ struct Vector<T, 2> : VectorBase<T, 2> {
 };
 
 template<Arithmetic T>
-const Vector<T, 2> Vector<T, 2>::Zero(static_cast<T>(0));
+const Vec<T, 2> Vec<T, 2>::Zero(static_cast<T>(0));
 template<Arithmetic T>
-const Vector<T, 2> Vector<T, 2>::One(static_cast<T>(1));
+const Vec<T, 2> Vec<T, 2>::One(static_cast<T>(1));
 template<Arithmetic T>
-const Vector<T, 2> Vector<T, 2>::UnitX(static_cast<T>(1), static_cast<T>(0));
+const Vec<T, 2> Vec<T, 2>::UnitX(static_cast<T>(1), static_cast<T>(0));
 template<Arithmetic T>
-const Vector<T, 2> Vector<T, 2>::UnitY(static_cast<T>(0), static_cast<T>(1));
+const Vec<T, 2> Vec<T, 2>::UnitY(static_cast<T>(0), static_cast<T>(1));
 
 }  // namespace cave::math

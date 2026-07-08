@@ -10,7 +10,8 @@
 
 namespace cave {
 
-using namespace cave::literals;
+using namespace ::cave::math;
+using namespace ::cave::literals;
 using ecs::Entity;
 
 Entity SceneCommandWriter::nameObject(std::string_view name) {
@@ -46,14 +47,14 @@ Entity SceneCommandWriter::transformObject(std::string_view name) {
 }
 
 void SceneCommandWriter::attachChild(ecs::Entity child, ecs::Entity parent) {
-    DEV_ASSERT(child.IsValid() && parent.IsValid());
+    DEV_ASSERT(child.valid() && parent.valid());
     setProperty(child, HierarchyComponent_Id, "parent_id"_sid, parent);
 }
 
 Entity SceneCommandWriter::pointLightObject(
     std::string_view name,
-    const Vector3f& position,
-    const Vector3f& color,
+    const Vec3f& position,
+    const Vec3f& color,
     float emissive) {
     SceneCommandBuffer cb;
 
@@ -68,28 +69,28 @@ Entity SceneCommandWriter::pointLightObject(
     setProperty(e, LightComponent_Id, "atten_linear"_sid, 0.2f);
     setProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.05f);
 
-    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(color, 1.0f));
+    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vec4f(color, 1.0f));
     setProperty(e, MaterialComponent_Id, "emissive"_sid, emissive);
 
     return e;
 }
 
 Entity SceneCommandWriter::infiniteLightObject(std::string_view name,
-                                               const Vector3f& color,
+                                               const Vec3f& color,
                                                float emissive) {
     Entity e = transformObject(name);
     addComponent(e, LightComponent_Id);
     addComponent(e, MaterialComponent_Id);
 
     setProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
-    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(color, 1.0f));
+    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vec4f(color, 1.0f));
     setProperty(e, MaterialComponent_Id, "emissive"_sid, emissive);
 
     return e;
 }
 
 Entity SceneCommandWriter::areaLightObject(std::string_view name,
-                                           const Vector3f& color,
+                                           const Vec3f& color,
                                            float emissive) {
     Entity e = transformObject(name);
     addComponent(e, MeshRendererComponent_Id);
@@ -102,7 +103,7 @@ Entity SceneCommandWriter::areaLightObject(std::string_view name,
     setProperty(e, LightComponent_Id, "atten_quadratic"_sid, 0.032f);
 
     setProperty(e, LightComponent_Id, "type"_sid, LightType::Infinite);
-    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vector4f(color, 1.0f));
+    setProperty(e, MaterialComponent_Id, "base_color"_sid, Vec4f(color, 1.0f));
     setProperty(e, MaterialComponent_Id, "emissive"_sid, emissive);
 
     auto handle = m_asset_reg.findByPath<MeshAsset>("@persist://meshes/plane").unwrap();
@@ -127,7 +128,7 @@ Entity SceneCommandWriter::meshObject(const std::string& mesh_path,
         if (mat_ctx.guid) {
             setProperty(mat, MaterialComponent_Id, "material_id"_sid, *mat_ctx.guid);
         }
-        if (mat_ctx.base_color != Vector4f::One) {
+        if (mat_ctx.base_color != Vec4f::One) {
             setProperty(mat, MaterialComponent_Id, "base_color"_sid, mat_ctx.base_color);
         }
     }

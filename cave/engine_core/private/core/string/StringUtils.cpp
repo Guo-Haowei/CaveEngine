@@ -8,11 +8,11 @@ bool StringUtils::equal(const char* str1, const char* str2) {
     return strcmp(str1, str2) == 0;
 }
 
-void StringUtils::replaceFirst(std::string& str,
+void StringUtils::replaceFirst(String& str,
                                std::string_view pattern,
                                std::string_view replace) {
     size_t pos = str.find(pattern);
-    if (pos != std::string::npos) {
+    if (pos != String::npos) {
         str.replace(pos, pattern.size(), replace);
     }
 }

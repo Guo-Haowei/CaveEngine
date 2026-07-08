@@ -32,7 +32,7 @@ void SpawnObjects(SceneQuery& query, SceneCommandWriter& writer) {
     using ecs::Entity;
 
     Entity offset_node = query.findFirstByName("transform");
-    DEV_ASSERT(offset_node.IsValid());
+    DEV_ASSERT(offset_node.valid());
 
     writer.setNoSave(true);
 

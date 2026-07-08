@@ -3,12 +3,13 @@
 // =============================================================================
 #pragma once
 #include <type_traits>
-#include <vector>
-#include "cave/core/math/Vector.h"
+
+#include "cave/core/containers/Containers.h"
+#include "cave/core/ids/Entity.h"
+#include "cave/core/math/Vec.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
-#include "cave/runtime/ecs/Entity.h"
 
 namespace cave {
 
@@ -147,7 +148,7 @@ private:
     }
 
     uint32_t m_next_entity = kSceneCmdTmpBase;
-    std::vector<uint8_t> m_bytes;
+    Vector<uint8_t> m_bytes;
 };
 
 }  // namespace cave
