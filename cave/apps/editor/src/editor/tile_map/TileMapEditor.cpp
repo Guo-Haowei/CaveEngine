@@ -138,8 +138,11 @@ void TileMapEditor::drawOverlay(const TileSetAsset& tile_set) {
     Vec2f min{ m_coord.x, m_coord.y };
     Vec2f max{ m_coord.x + 1, m_coord.y + 1 };
     auto selections = m_sprite_selector.GetSelections();
+
+    constexpr Vec4f kEraseColor{ 1.0f, 0.5f, 0.5f, 0.7f };
+
     if (selections.empty()) {
-        m_canvas.addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
+        m_canvas.addBox2(min, max, kEraseColor);
     } else {
         auto [x, y] = selections[0];
         if (x >= 0 && y >= 0) {
