@@ -143,9 +143,9 @@ void SceneViewTab::drawUIImpl() {
 
     updateRect(view->display_rect_os);
     drawMainView(view->display_rect_os);
-    drawSelection();
 
     if (!m_editor.isPlaying()) {
+        drawSelection();
         drawGizmo(view->display_rect_os);
     }
 

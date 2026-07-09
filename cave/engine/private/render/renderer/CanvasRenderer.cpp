@@ -2,7 +2,9 @@
 
 #include "engine/private/renderer/gpu_resource.h"
 
-// @TODO: move IRenderDevice to render
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
+// @TODO: move IRenderDevice to render?
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/render/rhi/PipelineState.h"
 
@@ -110,17 +112,39 @@ Ref<GpuMesh> BuildCanvasMesh(IRenderDevice& device,
 
 }  // namespace
 
+CanvasRenderer::CanvasRenderer(AssetRegistry& asset_registry)
+    : m_asset_reg(asset_registry) {
+}
+
+void CanvasRenderer::ensureDefaultTexture() {
+    if (m_default_texture) {
+        return;
+    }
+
+    if (auto handle_opt = m_asset_reg.findByPath<ImageAsset>("@persist://textures/white@1x1")) {
+        if (const ImageAsset* image = handle_opt.unwrap_unchecked().get()) {
+            m_default_texture = image->gpu_texture;
+        }
+    }
+}
+
 void CanvasRenderer::drawCanvas(IRenderDevice& device,
                                 ICanvas& canvas,
                                 ViewId view_id) {
+    ensureDefaultTexture();
+
+    DEV_ASSERT(m_default_texture);
+
     auto primitives = canvas.primitives();
     for (const auto& bucket : primitives) {
         if (bucket.view_id == view_id) {
             auto mesh = BuildCanvasMesh(device, bucket);
             if (mesh) {
+                device.BindTexture(Dimension::TEXTURE_2D, m_default_texture->GetHandle(), 0);
                 device.SetMesh(mesh.get());
                 device.SetPipelineState(PSO_PRIMITIVE);
                 device.DrawElements(mesh->desc.drawCount);
+                device.UnbindTexture(Dimension::TEXTURE_2D, 0);
             }
             break;
         }

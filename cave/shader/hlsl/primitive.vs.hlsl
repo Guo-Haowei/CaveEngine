@@ -1,4 +1,4 @@
-/// File: debug_draw.vs.hlsl
+/// File: primitive.vs.hlsl
 #include "cbuffer.hlsl.h"
 
 struct VS_INPUT_COLOR {

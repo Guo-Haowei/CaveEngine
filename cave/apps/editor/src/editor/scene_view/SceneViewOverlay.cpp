@@ -56,7 +56,7 @@ void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
 
     if (const auto camera = scene.component<CameraComponent>(ent)) {
         Box2 box = CameraOrthoAABB2(*camera);
-        canvas.addBox2Frame(box.min(), box.max(), 0.04f, kCameraColor, &m);
+        canvas.addBox2Frame(box.min(), box.max(), 0.2f, kCameraColor, &m);
     }
 
     canvas.popView();

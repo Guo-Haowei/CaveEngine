@@ -6,6 +6,7 @@
 #include "engine/private/runtime/view/ResolvedView.h"
 
 // clang-format off
+namespace cave { class AssetRegistry; }
 namespace cave { class ICanvas; }
 namespace cave { struct FrameData; }
 namespace cave { struct UIFrameDrawData; }
@@ -17,7 +18,7 @@ class IRenderDevice;
 
 class Renderer {
 public:
-    Renderer(IRenderDevice& device, ICanvas& debug_draw);
+    Renderer(IRenderDevice& device, AssetRegistry& asset_registry);
     ~Renderer();
 
     void tick(const FrameTime& frame,

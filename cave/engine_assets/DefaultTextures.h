@@ -5,7 +5,7 @@ namespace cave {
 
 static Ref<ImageAsset> CreateWhite1x1Image() {
     auto image = std::make_shared<ImageAsset>();
-    image->format = PixelFormat::R8G8B8A8_UINT;
+    image->format = PixelFormat::R8G8B8A8_UNORM;
     image->width = image->height = 1;
     image->num_channels = 4;
     image->buffer = { 255, 255, 255, 255 };
@@ -39,7 +39,7 @@ static Ref<ImageAsset> CreateCheckerBoardImage() {
     }
 
     auto image = std::make_shared<ImageAsset>();
-    image->format = PixelFormat::R8G8B8A8_UINT;
+    image->format = PixelFormat::R8G8B8A8_UNORM;
     image->width = image->height = kTexSize;
     image->num_channels = kNumChannels;
     image->buffer = std::move(pixels);

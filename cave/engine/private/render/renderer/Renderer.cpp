@@ -49,12 +49,11 @@ using math::Vec4f;
 
 class Renderer::Impl {
 public:
-    Impl(IRenderDevice& device, ICanvas& debug_draw)
-        : device_(device)
-        , debug_draw_(debug_draw)
-        , transient_pool_(device)
-        , env_(transient_pool_, device)
-        , ssao_(device) {}
+    Impl(IRenderDevice& device)
+        : m_device(device)
+        , m_transient_pool(device)
+        , m_env(m_transient_pool, device)
+        , m_ssao(device) {}
 
     void tick(const FrameTime& time,
               std::span<const ResolvedView> views,
@@ -87,16 +86,15 @@ private:
     void createOrUpdateUIBuffers(const BuiltUIData& ui_data);
 
 private:
-    IRenderDevice& device_;
-    ICanvas& debug_draw_;
+    IRenderDevice& m_device;
     RenderSceneBuilder scene_builder_;
     std::unordered_map<SceneId, RenderScene> scene_cache_;
 
     // features
-    TransientPool transient_pool_;
-    EnvironmentFeature env_;
+    TransientPool m_transient_pool;
+    EnvironmentFeature m_env;
     ShadowFeature shadow_;
-    SsaoFeature ssao_;
+    SsaoFeature m_ssao;
     PathTracerFeature pathtracer_;
 
     GpuTextureId brdf_{};
@@ -107,9 +105,9 @@ private:
     std::shared_ptr<GpuMesh> ui_buffers_;
 };
 
-Renderer::Renderer(IRenderDevice& device, ICanvas& debug_draw)
-    : m_impl(std::make_unique<Impl>(device, debug_draw))
-    , m_canvas_render(std::make_unique<CanvasRenderer>()) {}
+Renderer::Renderer(IRenderDevice& device, AssetRegistry& asset_registry)
+    : m_impl(std::make_unique<Impl>(device))
+    , m_canvas_render(std::make_unique<CanvasRenderer>(asset_registry)) {}
 
 Renderer::~Renderer() = default;
 
@@ -258,7 +256,7 @@ static bool updateAllUIBuffer(IRenderDevice& p_device,
 // @TODO: consider move to UIRenderer
 void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
     if (ui_buffers_) {
-        if (!updateAllUIBuffer(device_, ui_data, *ui_buffers_)) {
+        if (!updateAllUIBuffer(m_device, ui_data, *ui_buffers_)) {
             // @TODO: proper error handling
             CRASH_NOW_MSG("Failed to update UI buffer");
         }
@@ -279,7 +277,7 @@ void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
     mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
     mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Color), 0 };
 
-    ui_buffers_ = device_.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
+    ui_buffers_ = m_device.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
 }
 
 void Renderer::Impl::tick(const FrameTime& time,
@@ -308,7 +306,7 @@ void Renderer::Impl::tick(const FrameTime& time,
             CRASH_NOW();
         } else {
             auto graph = *res;
-            graph->Resolve(transient_pool_);
+            graph->Resolve(m_transient_pool);
 
             submission->render_graph.push_back(graph);
         }
@@ -316,14 +314,14 @@ void Renderer::Impl::tick(const FrameTime& time,
 
     submission->frame_data = std::move(plan.frame_data);
 
-    device_.submit(std::move(submission));
+    m_device.submit(std::move(submission));
 }
 
 FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
                                          std::span<const ResolvedView> views) {
     FramePlan plan;
 
-    const bool is_opengl = device_.backend() == rhi::Backend::OpenGL;
+    const bool is_opengl = m_device.backend() == rhi::Backend::OpenGL;
     RenderOptions options = {
         .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
@@ -382,13 +380,13 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
                                               const ResolvedView& view_) -> Result<std::shared_ptr<CompiledGraph>> {
     if (!brdf_) {
         std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage("brdf.hdr");
-        brdf_ = device_.CreateTexture(image.get());
+        brdf_ = m_device.CreateTexture(image.get());
     }
     if (!ltc1_) {
-        ltc1_ = CreateLTC1(device_);
+        ltc1_ = CreateLTC1(m_device);
     }
     if (!ltc2_) {
-        ltc2_ = CreateLTC2(device_);
+        ltc2_ = CreateLTC2(m_device);
     }
 
     RenderGraphBuilderExt graph(view_.viewport_px);
@@ -397,7 +395,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
     RGTextureId ltc1 = graph.ImportTexture({ ltc1_ });
     RGTextureId ltc2 = graph.ImportTexture({ ltc2_ });
 
-    auto env_outputs = env_.Build(graph, plan_);
+    auto env_outputs = m_env.Build(graph, plan_);
 
     auto shadow_outputs = shadow_.Build(graph, plan_);
 
@@ -415,7 +413,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
             .normal = gbuffer_outputs.color1,
             .depth = prepass_outputs.depth,
         };
-        ssao_outputs = ssao_.Build(graph, plan_, ssao_inputs);
+        ssao_outputs = m_ssao.Build(graph, plan_, ssao_inputs);
     }
 
     auto lighting_outputs = graph.addLightingPass({
@@ -488,7 +486,7 @@ bool Renderer::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
 }
 
 bool Renderer::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
-    RenderPoolDump_Cmd(transient_pool_, ctx, args);
+    RenderPoolDump_Cmd(m_transient_pool, ctx, args);
     return true;
 }
 #endif
