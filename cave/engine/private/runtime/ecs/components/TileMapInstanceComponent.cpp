@@ -82,7 +82,7 @@ void TileMapInstanceComponent::createRenderData() {
         return;
     }
 
-    const auto& frames = tile_set->GetFrames();
+    const auto& frames = tile_set->frames();
 
     vertices.reserve((kTileChunkSize * kTileChunkSize));
     for (const auto& [key, chunk] : chunks) {

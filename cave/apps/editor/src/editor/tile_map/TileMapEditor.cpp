@@ -143,7 +143,14 @@ void TileMapEditor::drawOverlay(const TileSetAsset& tile_set) {
     } else {
         auto [x, y] = selections[0];
         if (x >= 0 && y >= 0) {
-            m_canvas.addImage(image->gpu_texture.get(), min, max);
+            const uint32_t tile_id = y * tile_set.col() + x;
+            const auto& frames = tile_set.frames();
+            Vec2f uv_min = frames[tile_id].min();
+            Vec2f uv_max = frames[tile_id].max();
+
+            m_canvas.addImage(image->gpu_texture.get(),
+                              min, max,
+                              uv_min, uv_max);
         }
     }
 }
