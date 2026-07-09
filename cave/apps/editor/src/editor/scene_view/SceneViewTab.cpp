@@ -12,6 +12,7 @@
 #include "engine/private/runtime/view/ViewManager.h"
 
 #include "editor/edit/ChangePropertyCmd.h"
+#include "editor/scene_view/SceneViewOverlay.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
 #include "editor/services/SelectionService.h"
@@ -142,12 +143,25 @@ void SceneViewTab::drawUIImpl() {
 
     updateRect(view->display_rect_os);
     drawMainView(view->display_rect_os);
+    drawSelection();
 
     if (!m_editor.isPlaying()) {
         drawGizmo(view->display_rect_os);
     }
 
     submitView();
+}
+
+void SceneViewTab::drawSelection() {
+    auto selection = m_editor_services.selection().primary(m_doc_id);
+
+    if (Scene* scene = m_engine_services.sceneRegistry().resolve(selection.scene)) {
+        SceneViewOverlay overlay;
+        overlay.drawSelectionHighlight(m_engine_services.canvas(),
+                                       m_view_id,
+                                       *scene,
+                                       selection.entity);
+    }
 }
 
 // @TODO: instead of asking for image, provide an image to renderer
@@ -166,7 +180,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(rect.x, rect.y, rect.w, rect.h);
 
-    SelectionKey selection = m_editor_services.selection().Primary(m_doc_id);
+    SelectionKey selection = m_editor_services.selection().primary(m_doc_id);
     ecs::Entity id = selection.entity;
 
     Scene* scene = getResolvedScene();

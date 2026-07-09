@@ -2,12 +2,12 @@
 
 namespace cave {
 
-void SelectionService::Set(DocId p_doc_id, const SelectionKey& p_key) {
-    m_selections[p_doc_id] = p_key;
+void SelectionService::setSelection(DocId doc_id, const SelectionKey& key) {
+    m_selections[doc_id] = key;
 }
 
-SelectionKey SelectionService::Primary(DocId p_doc_id) {
-    if (auto it = m_selections.find(p_doc_id); it != m_selections.end()) {
+SelectionKey SelectionService::primary(DocId doc_id) {
+    if (auto it = m_selections.find(doc_id); it != m_selections.end()) {
         return it->second;
     }
 

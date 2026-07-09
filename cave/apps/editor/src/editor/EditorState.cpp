@@ -69,7 +69,7 @@ EditorState::EditorState(IApplication& app)
     m_icon_cache = std::make_unique<IconCache>(app_services.assetRegistry(), app_services.assetManager());
     m_editor_services.icon_cache_ = m_icon_cache.get();
 
-    m_selection = std::make_unique<SelectionService>(*this);
+    m_selection = std::make_unique<SelectionService>();
     m_editor_services.selection_ = m_selection.get();
 
     m_shortcut = std::make_unique<ShortcutService>(*this);

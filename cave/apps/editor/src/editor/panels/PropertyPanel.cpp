@@ -172,7 +172,7 @@ void PropertyPanel::drawUIImpl() {
         return;
     }
 
-    SelectionKey selection = m_editor_services.selection().Primary(preview.doc_id);
+    SelectionKey selection = m_editor_services.selection().primary(preview.doc_id);
 
     ecs::Entity id = selection.entity;
     if (!id.valid()) {
