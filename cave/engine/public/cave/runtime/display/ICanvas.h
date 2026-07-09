@@ -57,6 +57,8 @@ public:
                           const math::Mat4f* transform = nullptr) = 0;
 
     virtual std::span<const CanvasBucket> primitives() const = 0;
+
+    virtual const CanvasBucket* findBucket(ViewId view_id) const = 0;
 };
 
 }  // namespace cave

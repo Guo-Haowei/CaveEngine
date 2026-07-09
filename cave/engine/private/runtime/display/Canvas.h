@@ -38,6 +38,8 @@ public:
         return m_buckets;
     }
 
+    const CanvasBucket* findBucket(ViewId view_id) const override;
+
 private:
     void addImageImpl(GpuTexture* texture,
                       const math::Vec2f& min,

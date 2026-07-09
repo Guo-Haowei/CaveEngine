@@ -67,6 +67,18 @@ void Canvas::popView() {
     m_current_idx = it->second;
 }
 
+const CanvasBucket* Canvas::findBucket(ViewId view_id) const {
+    DEV_ASSERT(!m_can_submit);
+    auto it = m_lookup.find(view_id);
+    if (it == m_lookup.end()) {
+        return nullptr;
+    }
+    if (DEV_VERIFY(it->second < static_cast<int>(m_buckets.size()))) {
+        return &m_buckets[it->second];
+    }
+    return nullptr;
+}
+
 void Canvas::addImage(GpuTexture* texture,
                       const math::Vec2f& min,
                       const math::Vec2f& max,

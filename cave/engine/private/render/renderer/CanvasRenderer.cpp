@@ -14,6 +14,17 @@ using namespace ::cave::math;
 
 namespace {
 
+struct PrimBatch {
+    uint32_t idx_offset = 0;
+    uint32_t idx_count = 0;
+    GpuTexture* tex{};
+};
+
+struct BuildResult {
+    Ref<GpuMesh> mesh;
+    Vector<PrimBatch> batch;
+};
+
 Ref<GpuMesh> BuildCanvasMesh(IRenderDevice& device,
                              const CanvasBucket& bucket) {
     const uint32_t item_count = static_cast<uint32_t>(bucket.shapes.size());
@@ -135,18 +146,15 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
 
     DEV_ASSERT(m_default_texture);
 
-    auto primitives = canvas.primitives();
-    for (const auto& bucket : primitives) {
-        if (bucket.view_id == view_id) {
-            auto mesh = BuildCanvasMesh(device, bucket);
-            if (mesh) {
-                device.BindTexture(Dimension::TEXTURE_2D, m_default_texture->GetHandle(), 0);
-                device.SetMesh(mesh.get());
-                device.SetPipelineState(PSO_PRIMITIVE);
-                device.DrawElements(mesh->desc.drawCount);
-                device.UnbindTexture(Dimension::TEXTURE_2D, 0);
-            }
-            break;
+    const CanvasBucket* bucket = canvas.findBucket(view_id);
+    if (bucket) {
+        auto mesh = BuildCanvasMesh(device, *bucket);
+        if (mesh) {
+            device.BindTexture(Dimension::TEXTURE_2D, m_default_texture->GetHandle(), 0);
+            device.SetMesh(mesh.get());
+            device.SetPipelineState(PSO_PRIMITIVE);
+            device.DrawElements(mesh->desc.drawCount);
+            device.UnbindTexture(Dimension::TEXTURE_2D, 0);
         }
     }
 }

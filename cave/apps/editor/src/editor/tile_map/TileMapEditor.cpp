@@ -199,7 +199,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
 
     m_canvas.pushView(m_view_id);
 
-	IDocument* doc = m_editor_services.document().resolve(m_doc_id);
+    IDocument* doc = m_editor_services.document().resolve(m_doc_id);
     DEV_ASSERT(doc);
 
     const TileMapAsset* tile_map = doc->handle<TileMapAsset>().get();
