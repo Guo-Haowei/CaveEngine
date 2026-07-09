@@ -58,9 +58,7 @@ public:
                           const math::Vec4f& tint = math::Vec4f::One,
                           const math::Mat4f* transform = nullptr) = 0;
 
-    virtual std::span<const CanvasBucket> primitives() const = 0;
-
-    virtual const CanvasBucket* findBucket(ViewId view_id) const = 0;
+    virtual bool takeBucket(ViewId view_id, CanvasBucket& out) = 0;
 };
 
 }  // namespace cave

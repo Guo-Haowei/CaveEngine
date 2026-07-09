@@ -34,11 +34,7 @@ public:
                   const math::Vec4f& tint,
                   const math::Mat4f* transform) override;
 
-    std::span<const CanvasBucket> primitives() const override {
-        return m_buckets;
-    }
-
-    const CanvasBucket* findBucket(ViewId view_id) const override;
+    bool takeBucket(ViewId view_id, CanvasBucket& out) override;
 
 private:
     void addImageImpl(GpuTexture* texture,

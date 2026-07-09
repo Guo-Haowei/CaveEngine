@@ -26,7 +26,7 @@ struct BuildResult {
 };
 
 BuildResult BuildCanvasMesh(IRenderDevice& device,
-                            const CanvasBucket& bucket) {
+                            CanvasBucket&& bucket) {
     BuildResult result;
 
     const uint32_t item_count = static_cast<uint32_t>(bucket.shapes.size());
@@ -34,16 +34,9 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         return result;
     }
 
-    Vector<const PrimShape*> sorted_shapes;
-    sorted_shapes.reserve(item_count);
-
-    for (const auto& shape : bucket.shapes) {
-        sorted_shapes.push_back(&shape);
-    }
-
-    std::sort(sorted_shapes.begin(), sorted_shapes.end(),
-              [](const PrimShape* a, const PrimShape* b) {
-                  return a->tex < b->tex;
+    std::sort(bucket.shapes.begin(), bucket.shapes.end(),
+              [](const PrimShape& a, const PrimShape& b) {
+                  return a.tex < b.tex;
               });
 
     Vector<uint32_t> indices;
@@ -66,9 +59,9 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
 
     GpuTexture* current_tex = nullptr;
 
-    for (const PrimShape* item : sorted_shapes) {
-        if (result.batches.empty() || item->tex != current_tex) {
-            current_tex = item->tex;
+    for (const PrimShape item : bucket.shapes) {
+        if (result.batches.empty() || item.tex != current_tex) {
+            current_tex = item.tex;
             begin_batch(current_tex);
         }
 
@@ -77,22 +70,22 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         const uint32_t offset = static_cast<uint32_t>(positions.size());
         const uint32_t before_index_count = static_cast<uint32_t>(indices.size());
 
-        switch (item->type) {
+        switch (item.type) {
             case PrimShapeType::Rect: {
-                positions.push_back(item->vertices[0].pos);
-                positions.push_back(item->vertices[1].pos);
-                positions.push_back(item->vertices[2].pos);
-                positions.push_back(item->vertices[3].pos);
+                positions.push_back(item.vertices[0].pos);
+                positions.push_back(item.vertices[1].pos);
+                positions.push_back(item.vertices[2].pos);
+                positions.push_back(item.vertices[3].pos);
 
-                uvs.push_back(item->vertices[0].uv);
-                uvs.push_back(item->vertices[1].uv);
-                uvs.push_back(item->vertices[2].uv);
-                uvs.push_back(item->vertices[3].uv);
+                uvs.push_back(item.vertices[0].uv);
+                uvs.push_back(item.vertices[1].uv);
+                uvs.push_back(item.vertices[2].uv);
+                uvs.push_back(item.vertices[3].uv);
 
-                colors.push_back(item->vertices[0].color);
-                colors.push_back(item->vertices[1].color);
-                colors.push_back(item->vertices[2].color);
-                colors.push_back(item->vertices[3].color);
+                colors.push_back(item.vertices[0].color);
+                colors.push_back(item.vertices[1].color);
+                colors.push_back(item.vertices[2].color);
+                colors.push_back(item.vertices[3].color);
 
                 indices.push_back(offset + 0);
                 indices.push_back(offset + 1);
@@ -106,7 +99,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
             default: {
                 LOG_WARN(LogChannel::Render,
                          "primitive {} not supported",
-                         std::to_underlying(item->type));
+                         std::to_underlying(item.type));
             } break;
         }
 
@@ -197,11 +190,15 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
 
     DEV_ASSERT(m_default_texture);
 
-    const CanvasBucket* bucket = canvas.findBucket(view_id);
-    if (!bucket) return;
+    CanvasBucket bucket;
+    if (!canvas.takeBucket(view_id, bucket)) {
+        return;
+    }
 
-    auto result = BuildCanvasMesh(device, *bucket);
-    if (!result.mesh) return;
+    auto result = BuildCanvasMesh(device, std::move(bucket));
+    if (!result.mesh) {
+        return;
+    }
 
     device.SetMesh(result.mesh.get());
     device.SetPipelineState(PSO_PRIMITIVE);
