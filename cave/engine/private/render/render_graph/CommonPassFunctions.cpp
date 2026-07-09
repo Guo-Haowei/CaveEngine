@@ -383,9 +383,9 @@ void TonePassFunc(RenderPassExcutionContext& p_ctx) {
     UIOverlayPassFunc(p_ctx);
 }
 
-static std::shared_ptr<GpuMesh> DebugDrawItemsBuffer(render::IRenderDevice& device,
-                                                     std::span<const DebugDrawItem> items_) {
-    const uint32_t item_count = static_cast<uint32_t>(items_.size());
+static std::shared_ptr<GpuMesh> BuildCanvasMesh(render::IRenderDevice& device,
+                                                const CanvasBucket& bucket) {
+    const uint32_t item_count = static_cast<uint32_t>(bucket.shapes.size());
     if (item_count == 0) {
         return nullptr;
     }
@@ -400,66 +400,77 @@ static std::shared_ptr<GpuMesh> DebugDrawItemsBuffer(render::IRenderDevice& devi
     uvs.reserve(item_count * 4);
     colors.reserve(item_count * 4);
 
-    for (const auto& item : items_) {
+    for (const auto& item : bucket.shapes) {
         const uint32_t offset = static_cast<uint32_t>(positions.size());
+        switch (item.type) {
+            case PrimShapeType::Rect: {
+                positions.push_back(item.vertices[0].pos);
+                positions.push_back(item.vertices[1].pos);
+                positions.push_back(item.vertices[2].pos);
+                positions.push_back(item.vertices[3].pos);
+                uvs.push_back(item.vertices[0].uv);
+                uvs.push_back(item.vertices[1].uv);
+                uvs.push_back(item.vertices[2].uv);
+                uvs.push_back(item.vertices[3].uv);
+                colors.push_back(item.vertices[0].color);
+                colors.push_back(item.vertices[1].color);
+                colors.push_back(item.vertices[2].color);
+                colors.push_back(item.vertices[3].color);
 
-        positions.push_back(item.min);                                   // bottom left
-        positions.push_back(Vec3f(item.max.x, item.min.y, item.min.z));  // bottom right
-        positions.push_back(Vec3f(item.min.x, item.max.y, item.min.z));  // top left
-        positions.push_back(item.max);                                   // top right
+                indices.push_back(0 + offset);
+                indices.push_back(1 + offset);
+                indices.push_back(2 + offset);
 
-        colors.push_back(item.tint_color);
-        colors.push_back(item.tint_color);
-        colors.push_back(item.tint_color);
-        colors.push_back(item.tint_color);
+                indices.push_back(0 + offset);
+                indices.push_back(3 + offset);
+                indices.push_back(2 + offset);
 
-        uvs.push_back(Vec2f(0, 0));
-        uvs.push_back(Vec2f(1, 0));
-        uvs.push_back(Vec2f(0, 1));
-        uvs.push_back(Vec2f(1, 1));
-
-        indices.push_back(0 + offset);
-        indices.push_back(1 + offset);
-        indices.push_back(3 + offset);
-
-        indices.push_back(0 + offset);
-        indices.push_back(3 + offset);
-        indices.push_back(2 + offset);
+            } break;
+            default: {
+                LOG_WARN(LogChannel::Render, "primitive {} not supported", std::to_underlying(item.type));
+            } break;
+        }
     }
 
-    DEV_ASSERT((uint32_t)indices.size() == item_count * 6);
+    const uint32_t vertex_count = static_cast<uint32_t>(positions.size());
+    const uint32_t index_count = static_cast<uint32_t>(indices.size());
+
+    if (index_count == 0) {
+        return nullptr;
+    }
+
     std::array<GpuBufferDesc, 3> buffer_descs;
     buffer_descs[0] = {
         .type = GpuBufferType::Vertex,
         .slot = 0,
         .element_size = sizeof(Vec3f),
-        .element_count = item_count * 4,
+        .element_count = vertex_count,
         .initial_data = positions.data(),
     };
     buffer_descs[1] = {
         .type = GpuBufferType::Vertex,
         .slot = 1,
         .element_size = sizeof(Vec2f),
-        .element_count = item_count * 4,
+        .element_count = vertex_count,
         .initial_data = uvs.data(),
     };
     buffer_descs[2] = {
         .type = GpuBufferType::Vertex,
         .slot = 2,
         .element_size = sizeof(Vec4f),
-        .element_count = item_count * 4,
+        .element_count = vertex_count,
         .initial_data = colors.data(),
     };
 
     GpuBufferDesc index_desc = {
         .type = GpuBufferType::Index,
         .element_size = sizeof(uint32_t),
-        .element_count = item_count * 6,
+        .element_count = index_count,
         .initial_data = indices.data(),
     };
 
     GpuMeshDesc desc;
-    desc.drawCount = item_count * 6;
+    desc.drawCount = index_count;
     desc.enabledVertexCount = 3;
     desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec3f), 0 };
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
@@ -505,9 +516,13 @@ void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
     }
 
     // debug draw
-    ICanvas& debug_draw = ctx.services.debugDraw();
-    auto mesh = DebugDrawItemsBuffer(ctx.cmd, debug_draw.items());
-    debug_draw.clear();
+    ICanvas& debug_draw = ctx.services.canvas();
+    auto primitives = debug_draw.primitives();
+    if (primitives.empty()) {
+        return;
+    }
+
+    auto mesh = BuildCanvasMesh(ctx.cmd, primitives[0]);
     if (mesh) {
         cmd.SetMesh(mesh.get());
         cmd.SetPipelineState(PSO_DEBUG_DRAW);

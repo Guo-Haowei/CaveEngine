@@ -32,7 +32,7 @@ struct RuntimeServices {
     AssetRegistry* asset_registry_{};
     DisplayService* display_service_{};
     IAssetManager* asset_manager_{};
-    ICanvas* debug_draw_{};
+    ICanvas* canvas_{};
     IGameInput* game_input_{};
     InputService* input_service_{};
     IUIRuntime* ui_{};
@@ -46,7 +46,7 @@ struct RuntimeServices {
     AssetRegistry& assetRegistry() { return *asset_registry_; }
     DisplayService& displayService() { return *display_service_; }
     IAssetManager& assetManager() { return *asset_manager_; }
-    ICanvas& debugDraw() { return *debug_draw_; }
+    ICanvas& canvas() { return *canvas_; }
     IGameInput& gameInput() { return *game_input_; }
     InputService& inputService() { return *input_service_; }
     NativeScriptRegistry& nativeScripts() { return *native_scripts_; }

@@ -9,11 +9,14 @@ namespace cave {
 
 using namespace cave::math;
 
+// @TODO: get rid of this
 void RunDebugRenderSystem(const Scene* scene, ICanvas& debug_draw) {
     if (!scene) {
         return;
     }
 
+    unused(debug_draw);
+#if 0
     auto view = scene->view<ColliderComponent, TransformComponent>();
     for (const auto& [id, collider, transform] : view) {
         if (!collider.debugDraw()) continue;
@@ -23,12 +26,13 @@ void RunDebugRenderSystem(const Scene* scene, ICanvas& debug_draw) {
             case ShapeType::Box: {
                 Vec2f min = Vec2f::Zero - Vec2f(shape.data.half.xy);
                 Vec2f max = Vec2f::Zero + Vec2f(shape.data.half.xy);
-                debug_draw.addBox2Frame(min, max, Vec4f(0, 0, 1, 0.9f), 0.04f, &m);
+                debug_draw.addBox2Frame(min, max, 0.04f, Vec4f(0, 0, 1, 0.9f), &m);
             } break;
             default:
                 break;
         }
     }
+#endif
 }
 
 }  // namespace cave

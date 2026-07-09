@@ -6,7 +6,7 @@
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 
-#include "engine/private/runtime/display/DebugDrawService.h"
+#include "engine/private/render/renderer/Canvas.h"
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
@@ -56,7 +56,7 @@ protected:
     EventQueue m_event_queue;
     std::vector<IService*> m_subsystems;
 
-    Canvas m_debug_draw;
+    Canvas m_canvas;
     IntentBus m_intent_bus;
     VFS m_vfs;
     NativeScriptRegistry m_native_scripts;

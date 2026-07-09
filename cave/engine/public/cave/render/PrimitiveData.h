@@ -27,13 +27,6 @@ struct PrimData {
     Vector<PrimVert> vertices;
     Vector<uint32_t> indices;
     Vector<PrimBatch> cmds;
-
-    void clear() {
-        vertices.clear();
-        indices.clear();
-        cmds.clear();
-    }
 };
 
 }  // namespace cave::render
-

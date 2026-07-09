@@ -131,7 +131,7 @@ void TileMapEditor::updateTileCoord() {
 
     Vec2f min{ coord_.x, coord_.y };
     Vec2f max{ coord_.x + 1, coord_.y + 1 };
-    m_engine_services.debugDraw().addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
+    m_engine_services.canvas().addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
 }
 
 void TileMapEditor::applayEditorTool() {
@@ -186,10 +186,15 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
     m_camera_controller->update(input);
 
     const bool should_apply_edit = updateEditMode(input);
+
+    m_engine_services.canvas().pushView(m_view_id);
+
     updateTileCoord();
     if (should_apply_edit) {
         applayEditorTool();
     }
+
+    m_engine_services.canvas().popView();
 }
 
 void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
