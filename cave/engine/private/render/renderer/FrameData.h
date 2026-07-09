@@ -119,6 +119,8 @@ struct FrameData {
     // UI stuff
     render::UIBatch ui_batch;
     std::shared_ptr<GpuMesh> ui_buffer;
+
+    ViewId view_id;
 };
 
 }  // namespace cave

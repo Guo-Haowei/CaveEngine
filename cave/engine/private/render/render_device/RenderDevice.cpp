@@ -420,7 +420,7 @@ void RenderDevice::EndPass(const CompiledPass& p_pass) {
 }
 
 void RenderDevice::Execute(const FrameData& p_data, const CompiledPass& p_pass) {
-    RenderPassExcutionContext ctx{
+    RenderPassExcutionContext ctx = {
         .frameData = p_data,
         .pass = p_pass,
         .cmd = *this,

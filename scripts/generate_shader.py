@@ -18,8 +18,6 @@ input_shaders = [
     'bloom_setup.cs',
     'bloom_downsample.cs',
     'bloom_upsample.cs',
-    'debug_draw.vs',
-    'debug_draw.ps',
     'depth.ps',
     # 'mesh.vs',
     # 'gbuffer.ps',
@@ -41,6 +39,9 @@ input_shaders = [
     'sprite_no_vert.vs',
     'sprite.vs',
     'sprite.ps',
+    'primitive.vs',
+    'primitive.ps',
+    # @TODO: get rid of ui_overlay shaders, they are the same as primitive shaders
     'ui_overlay.vs',
     'ui_overlay.ps',
 ]

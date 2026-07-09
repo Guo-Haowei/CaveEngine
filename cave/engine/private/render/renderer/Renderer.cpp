@@ -108,18 +108,19 @@ private:
 };
 
 Renderer::Renderer(IRenderDevice& device, ICanvas& debug_draw)
-    : impl_(std::make_unique<Impl>(device, debug_draw)) {}
+    : m_impl(std::make_unique<Impl>(device, debug_draw))
+    , m_canvas_render(std::make_unique<CanvasRenderer>()) {}
 
 Renderer::~Renderer() = default;
 
 void Renderer::tick(const FrameTime& p_frame,
                     std::span<const ResolvedView> p_views,
                     const UIFrameDrawData& p_ui_data) {
-    impl_->tick(p_frame, p_views, p_ui_data);
+    m_impl->tick(p_frame, p_views, p_ui_data);
 }
 
 void Renderer::setMode(bool is_2d) {
-    impl_->setMode(is_2d);
+    m_impl->setMode(is_2d);
 }
 
 // @TODO: remove this
@@ -301,6 +302,7 @@ void Renderer::Impl::tick(const FrameTime& time,
         FrameData& data = plan.frame_data[idx];
         data.ui_batch = ui_data.batches[idx];
         data.ui_buffer = ui_buffers_;
+        data.view_id = view.view_id;
 
         if (auto res = buildRenderGraph(data.options, view); !res) {
             CRASH_NOW();
@@ -482,7 +484,7 @@ RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId scene_id) {
 
 #if USING(USE_COMMAND)
 bool Renderer::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
-    return impl_->Cmd_dump(ctx, args);
+    return m_impl->Cmd_dump(ctx, args);
 }
 
 bool Renderer::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {

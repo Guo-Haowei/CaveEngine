@@ -1,7 +1,7 @@
 #pragma once
 #include <stack>
 
-#include "cave/render/ICanvas.h"
+#include "cave/runtime/display/ICanvas.h"
 
 namespace cave {
 

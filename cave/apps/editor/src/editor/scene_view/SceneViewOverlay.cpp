@@ -1,6 +1,6 @@
 #include "SceneViewOverlay.h"
 
-#include "cave/render/ICanvas.h"
+#include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"

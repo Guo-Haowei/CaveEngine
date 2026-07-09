@@ -6,7 +6,7 @@
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 
-#include "engine/private/render/renderer/Canvas.h"
+#include "engine/private/runtime/display/Canvas.h"
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
