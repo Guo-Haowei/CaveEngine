@@ -4,7 +4,6 @@
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/display/IDebugDrawService.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/scene/MotorSystem.h"

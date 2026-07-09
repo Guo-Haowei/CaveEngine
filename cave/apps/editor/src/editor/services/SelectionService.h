@@ -6,8 +6,6 @@
 
 namespace cave {
 
-class EditorState;
-
 enum class SelectionKind : uint8_t {
     None = 0,
     Scene,
@@ -27,23 +25,18 @@ struct SelectionKey {
     uint32_t sub_kind{};
     uint64_t sub_id{};
 
-    bool IsValid() const { return kind != SelectionKind::None; }
+    bool valid() const { return kind != SelectionKind::None; }
 
     friend bool operator==(const SelectionKey&, const SelectionKey&) = default;
 };
 
 class SelectionService {
 public:
-    SelectionService(EditorState& p_editor)
-        : m_editor(p_editor) {}
+    void setSelection(DocId doc_id, const SelectionKey& key);
 
-    void Set(DocId p_doc_id, const SelectionKey& p_key);
-
-    SelectionKey Primary(DocId p_doc_id);
+    SelectionKey primary(DocId doc_id);
 
 private:
-    EditorState& m_editor;
-
     std::unordered_map<DocId, SelectionKey> m_selections;
 };
 

@@ -56,7 +56,7 @@ void PickingService::raycast(const PickData& pick_data) {
         .entity = result.entity,
     };
 
-    m_editor_services.selection().Set(pick_data.doc_id, key);
+    m_editor_services.selection().setSelection(pick_data.doc_id, key);
 }
 
 bool PickingService::handleIntent(Intent& p_intent) {

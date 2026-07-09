@@ -26,15 +26,15 @@ struct ImageAsset : IAsset {
     int width = 0;
     int height = 0;
     int num_channels = 0;
-    std::vector<uint8_t> buffer;
+    Vector<uint8_t> buffer;
 
     // @TODO: write data to meta
     // @TODO: refactor
-    std::shared_ptr<GpuTexture> gpu_texture;
+    Ref<GpuTexture> gpu_texture;
 
-    Result<void> loadFromDisk(const AssetMetaData& p_meta) override;
+    Result<void> loadFromDisk(const AssetMetaData& meta) override;
 
-    Result<void> saveToDisk(const AssetMetaData& p_meta) const override;
+    Result<void> saveToDisk(const AssetMetaData& meta) const override;
 
     Vector<Guid> dependencies() const override;
 };

@@ -26,78 +26,81 @@ class CameraComponent {
 
 private:
     CAVE_PROP()
-    uint32_t flags_ = DirtyFlag;
+    uint32_t m_flags = DirtyFlag;
 
     CAVE_PROP(editor = EnumDropDown)
-    ProjectionType projection_ = ProjectionType::Perspective;
+    ProjectionType m_projection = ProjectionType::Perspective;
 
     CAVE_PROP(editor = DragFloat, min = 1, max = 179)
-    float fovy_ = kDefaultFovy;
+    float m_fovy = kDefaultFovy;
 
     CAVE_PROP(editor = DragFloat, min = 0.1f, max = 9)
-    float near_ = kDefaultNear;
+    float m_near = kDefaultNear;
 
     CAVE_PROP(editor = DragFloat, min = 10, max = 10000)
-    float far_ = kDefaultFar;
+    float m_far = kDefaultFar;
 
     CAVE_PROP(editor = InputFloat)
-    float aspect_ = 1.0f;
+    float m_aspect = 1.0f;
 
     CAVE_PROP()
-    float ortho_height_ = 10;
+    float m_ortho_height = 10;
 
     // Not serlialized
-    math::Vec3f front_ = -math::Vec3f::UnitZ;
-    math::Vec3f right_ = math::Vec3f::UnitX;
-    math::Vec3f up_ = math::Vec3f::UnitY;
-    math::Vec3f position_ = math::Vec3f::Zero;
+    math::Vec3f m_front = -math::Vec3f::UnitZ;
+    math::Vec3f m_right = math::Vec3f::UnitX;
+    math::Vec3f m_up = math::Vec3f::UnitY;
+    math::Vec3f m_position = math::Vec3f::Zero;
 
-    math::Mat4f view_matrix_;
-    math::Mat4f projection_matrix_;
-    math::Mat4f projection_view_matrix_;
+    math::Mat4f m_view_matrix;
+    math::Mat4f m_proj_matrix;
+    math::Mat4f m_proj_view_matrix;
 
 public:
     static constexpr float kDefaultNear = 0.1f;
     static constexpr float kDefaultFar = 1000.0f;
     static constexpr float kDefaultFovy = 60.0f;
 
+    ProjectionType projectionType() const { return m_projection; }
+    bool isOrtho() const { return m_projection == ProjectionType::Orthographic; }
+
     bool update(const math::Mat4f& transform);
 
-    float aspect() const { return aspect_; }
+    float aspect() const { return m_aspect; }
     void setAspect(float aspect);
 
-    float fovy() const { return fovy_; }
+    float fovy() const { return m_fovy; }
     void setFovy(float degree);
 
-    float near() const { return near_; }
+    float near() const { return m_near; }
     void setNear(float near);
 
-    float far() const { return far_; }
+    float far() const { return m_far; }
     void setFar(float far);
 
     void setProjectionType(ProjectionType projection);
 
-    float orthoHeight() const { return ortho_height_; }
+    float orthoHeight() const { return m_ortho_height; }
     void setOrthoHeight(float height);
 
-    math::Mat4f CalcProjection() const;
-    math::Mat4f CalcProjectionGL() const;
+    math::Mat4f calcProjection() const;
+    math::Mat4f calcProjectionGL() const;
 
     // ---------------- Accessors ----------------
     // these values are modified by Update() function only
-    const math::Mat4f& viewMatrix() const { return view_matrix_; }
-    const math::Mat4f& projectionMatrix() const { return projection_matrix_; }
-    const math::Mat4f& projectionViewMatrix() const { return projection_view_matrix_; }
+    const math::Mat4f& viewMatrix() const { return m_view_matrix; }
+    const math::Mat4f& projectionMatrix() const { return m_proj_matrix; }
+    const math::Mat4f& projectionViewMatrix() const { return m_proj_view_matrix; }
 
-    const math::Vec3f& front() const { return front_; }
-    const math::Vec3f& right() const { return right_; }
-    const math::Vec3f& up() const { return up_; }
-    const math::Vec3f& position() const { return position_; }
+    const math::Vec3f& front() const { return m_front; }
+    const math::Vec3f& right() const { return m_right; }
+    const math::Vec3f& up() const { return m_up; }
+    const math::Vec3f& position() const { return m_position; }
 
-    bool dirty() const { return flags_ & DirtyFlag; }
-    void setDirty(bool dirty = true) { dirty ? flags_ |= DirtyFlag : flags_ &= ~DirtyFlag; }
+    bool dirty() const { return m_flags & DirtyFlag; }
+    void setDirty(bool dirty = true) { dirty ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }
 
-    void OnDeserialized() { flags_ |= DirtyFlag; }
+    void OnDeserialized() { m_flags |= DirtyFlag; }
 };
 
 }  // namespace cave

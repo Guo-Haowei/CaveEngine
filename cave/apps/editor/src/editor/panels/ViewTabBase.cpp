@@ -142,7 +142,7 @@ void ViewTabBase::submitView(bool support_pie) {
         view.scene_id = m_preview_scene_id;
         view.camera_source = CameraSource::External(m_camera);
 
-        SelectionKey key = m_editor_services.selection().Primary(m_doc_id);
+        SelectionKey key = m_editor_services.selection().primary(m_doc_id);
         if (key.scene == m_preview_scene_id && key.entity.valid()) {
             view.highlight.entities.insert(key.entity);
         }

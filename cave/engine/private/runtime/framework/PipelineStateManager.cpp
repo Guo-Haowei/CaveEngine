@@ -303,10 +303,10 @@ Result<void> PipelineStateManager::initialize() {
                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                });
 
-    CREATE_PSO(PSO_DEBUG_DRAW,
+    CREATE_PSO(PSO_PRIMITIVE,
                {
-                   .vs = "debug_draw.vs",
-                   .ps = "debug_draw.ps",
+                   .vs = "primitive.vs",
+                   .ps = "primitive.ps",
                    .rasterizer_desc = &s_rasterizer_double_sided,
                    .depth_stencil_desc = &s_depth_reversed_stencil_off,
                    .input_layout_desc = &s_input_layout_debug,

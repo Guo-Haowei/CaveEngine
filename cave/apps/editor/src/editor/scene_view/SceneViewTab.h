@@ -31,6 +31,7 @@ private:
     void submitView();
 
     void drawUIImpl() override;
+    void drawSelection();
     void drawGizmo(const math::FloatRect& rect);
 
     bool onAssetDropped(AssetHandle handle) override;

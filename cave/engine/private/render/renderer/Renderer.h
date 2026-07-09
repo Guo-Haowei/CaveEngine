@@ -2,10 +2,12 @@
 #include "cave/core/diagnostics/Command.h"
 #include "cave/core/time/FrameTime.h"
 
+#include "engine/private/render/renderer/CanvasRenderer.h"
 #include "engine/private/runtime/view/ResolvedView.h"
 
 // clang-format off
-namespace cave { class IDebugDrawService; }
+namespace cave { class AssetRegistry; }
+namespace cave { class ICanvas; }
 namespace cave { struct FrameData; }
 namespace cave { struct UIFrameDrawData; }
 // clang-format on
@@ -16,7 +18,7 @@ class IRenderDevice;
 
 class Renderer {
 public:
-    Renderer(IRenderDevice& device, IDebugDrawService& debug_draw);
+    Renderer(IRenderDevice& device, AssetRegistry& asset_registry);
     ~Renderer();
 
     void tick(const FrameTime& frame,
@@ -26,6 +28,11 @@ public:
     // @TODO: instead, create renderer after project selected
     void setMode(bool is_2d);
 
+    template<typename T>
+    T* tryGet() { return nullptr; }
+    template<>
+    CanvasRenderer* tryGet() { return m_canvas_render.get(); }
+
 #if USING(USE_COMMAND)
     bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
 #endif
@@ -33,7 +40,11 @@ public:
 private:
     class Impl;
 
-    std::unique_ptr<Impl> impl_;
+    std::unique_ptr<Impl> m_impl;
+
+    // renderers
+    std::unique_ptr<CanvasRenderer> m_canvas_render;
+    // @TODO: UI renderer
 };
 
 }  // namespace cave::render

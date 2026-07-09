@@ -122,7 +122,7 @@ struct PipelineState {
     PSO_NAME(PSO_SPRITE)                 \
     PSO_NAME(PSO_SPRITE_NO_VERT)         \
     PSO_NAME(PSO_UI_OVERLAY)             \
-    PSO_NAME(PSO_DEBUG_DRAW)
+    PSO_NAME(PSO_PRIMITIVE)
 
 enum PipelineStateName : uint8_t {
 #define PSO_NAME(ENUM) ENUM,

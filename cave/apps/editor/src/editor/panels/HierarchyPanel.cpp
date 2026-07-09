@@ -129,7 +129,7 @@ void HierarchyCreator::DrawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
     DEV_ASSERT(hier);
     Entity current_id = hier->entity;
 
-    SelectionKey selection = m_selection.Primary(m_preview.doc_id);
+    SelectionKey selection = m_selection.primary(m_preview.doc_id);
 
     tree_flags |= hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
     tree_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
@@ -145,7 +145,7 @@ void HierarchyCreator::DrawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
             selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_selection.Set(m_preview.doc_id, selection);
+            m_selection.setSelection(m_preview.doc_id, selection);
         },
         [this, current_id]() {
             SelectionKey selection;
@@ -154,7 +154,7 @@ void HierarchyCreator::DrawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
             selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_selection.Set(m_preview.doc_id, selection);
+            m_selection.setSelection(m_preview.doc_id, selection);
             ImGui::OpenPopup(POPUP_NAME_ID);
         });
 
@@ -223,7 +223,7 @@ void HierarchyPanel::drawUIImpl() {
 
 void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
     if (ImGui::BeginPopup(POPUP_NAME_ID)) {
-        SelectionKey selection = m_editor_services.selection().Primary(preview_scene.doc_id);
+        SelectionKey selection = m_editor_services.selection().primary(preview_scene.doc_id);
         DEV_ASSERT(selection.doc == preview_scene.doc_id);
         ecs::Entity selected = selection.entity;
 

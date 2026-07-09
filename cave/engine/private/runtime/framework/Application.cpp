@@ -79,7 +79,7 @@ auto Application::setupModules() -> Result<void> {
     // @TODO: dependency injection?
     m_scene_registry = std::make_unique<SceneRegistry>();
 
-    m_renderer = std::make_unique<render::Renderer>(*m_render_device, m_debug_draw);
+    m_renderer = std::make_unique<render::Renderer>(*m_render_device, *m_asset_registry);
 
     m_scene_scheduler = std::make_unique<SceneScheduler>(m_engine_services);
 
@@ -97,7 +97,7 @@ auto Application::setupModules() -> Result<void> {
     // setup app services
     m_engine_services.asset_manager_ = m_asset_manager;
     m_engine_services.asset_registry_ = m_asset_registry;
-    m_engine_services.debug_draw_ = &m_debug_draw;
+    m_engine_services.canvas_ = &m_canvas;
     m_engine_services.display_service_ = m_display_service;
     m_engine_services.game_input_ = &m_game_input;
     m_engine_services.input_service_ = m_input_service;
@@ -216,6 +216,8 @@ bool Application::mainLoop() {
         return false;
     }
 
+    m_canvas.beginFrame();
+
     m_task_manager->TickMainThread();
 
     FrameTime time{
@@ -226,6 +228,7 @@ bool Application::mainLoop() {
     m_input_service->tick(time);
 
     m_scene_scheduler->flushSceneCommands();
+
     m_ui->beginFrame(m_input_service->getUIInput());
 
     m_asset_manager->update();
@@ -241,6 +244,7 @@ bool Application::mainLoop() {
     m_scene_scheduler->tick(time);
 
     m_ui->endFrame();
+    m_canvas.endFrame();
 
     std::span<const ResolvedView> views = m_view_manager->endFrame();
     m_renderer->tick(time, views, m_ui->takeDrawData());

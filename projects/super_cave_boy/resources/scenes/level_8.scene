@@ -1,5 +1,5 @@
 version: 19
-seed: 26
+seed: 35
 root: 1
 entities:
   - id: 1
@@ -43,7 +43,7 @@ entities:
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
-      translation: [0, 0, 4]
+      translation: [5, 3, 4]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     CameraComponent:
@@ -111,4 +111,20 @@ entities:
       TransformComponent:
         translation: [2.5, 3.5, 0]
         rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 35
+    NameComponent:
+      name: prefab
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    PrefabInstanceComponent:
+      prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
+    PrefabOverride:
+      TransformComponent:
+        translation: [12, 5.30000019, 0]
+        rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]

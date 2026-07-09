@@ -8,24 +8,24 @@
 
 namespace cave {
 
-// uint32_t flags_ ()
-// ProjectionType projection_ (editor = EnumDropDown)
-// float fovy_ (editor = DragFloat, min = 1, max = 179)
-// float near_ (editor = DragFloat, min = 0.1f, max = 9)
-// float far_ (editor = DragFloat, min = 10, max = 10000)
-// float aspect_ (editor = InputFloat)
-// float ortho_height_ ()
+// uint32_t m_flags ()
+// ProjectionType m_projection (editor = EnumDropDown)
+// float m_fovy (editor = DragFloat, min = 1, max = 179)
+// float m_near (editor = DragFloat, min = 0.1f, max = 9)
+// float m_far (editor = DragFloat, min = 10, max = 10000)
+// float m_aspect (editor = InputFloat)
+// float m_ortho_height ()
 
 template<>
 const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(CameraComponent, "flags", flags_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(CameraComponent, "projection", projection_, FieldFlag::Serialize, EditorHint::EnumDropDown),
-        REGISTER_FIELD(CameraComponent, "fovy", fovy_, FieldFlag::Serialize, EditorHint::DragFloat, 1, 179),
-        REGISTER_FIELD(CameraComponent, "near", near_, FieldFlag::Serialize, EditorHint::DragFloat, 0.1f, 9),
-        REGISTER_FIELD(CameraComponent, "far", far_, FieldFlag::Serialize, EditorHint::DragFloat, 10, 10000),
-        REGISTER_FIELD(CameraComponent, "aspect", aspect_, FieldFlag::Serialize, EditorHint::InputFloat),
-        REGISTER_FIELD(CameraComponent, "ortho_height", ortho_height_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(CameraComponent, "flags", m_flags, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(CameraComponent, "projection", m_projection, FieldFlag::Serialize, EditorHint::EnumDropDown),
+        REGISTER_FIELD(CameraComponent, "fovy", m_fovy, FieldFlag::Serialize, EditorHint::DragFloat, 1, 179),
+        REGISTER_FIELD(CameraComponent, "near", m_near, FieldFlag::Serialize, EditorHint::DragFloat, 0.1f, 9),
+        REGISTER_FIELD(CameraComponent, "far", m_far, FieldFlag::Serialize, EditorHint::DragFloat, 10, 10000),
+        REGISTER_FIELD(CameraComponent, "aspect", m_aspect, FieldFlag::Serialize, EditorHint::InputFloat),
+        REGISTER_FIELD(CameraComponent, "ortho_height", m_ortho_height, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

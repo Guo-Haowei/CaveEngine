@@ -12,7 +12,7 @@ namespace cave {
 // Guid guid ()
 // std::string name ()
 // std::string import_path ()
-// mutable std::vector<Guid> dependencies ()
+// mutable Vector<Guid> dependencies ()
 // std::string source_created_time ()
 // std::string source_last_modified ()
 // mutable std::map<std::string, std::string> import_settings ()

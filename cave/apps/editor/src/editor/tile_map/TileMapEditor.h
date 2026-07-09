@@ -6,6 +6,8 @@
 
 namespace cave {
 
+class ICanvas;
+
 class TileMapEditor final : public ViewTabBase {
     enum class Mode : uint8_t {
         None,
@@ -23,7 +25,7 @@ public:
 
     void onInputEvents(const InputFrame& input) override;
 
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void drawUIImpl() override;
@@ -36,17 +38,22 @@ private:
     bool canHandleInput(const InputFrame& input);
     bool updateEditMode(const InputFrame& input);
     void updateTileCoord();
-    void applayEditorTool();
+
+    void drawOverlay(const TileSetAsset& tile_set);
+    void applayEditorTool(const TileMapAsset& tile_map,
+                          const TileSetAsset& tile_set);
+
     Option<TileCoord> pointToTile(math::Vec2f point_os);
 
-    const DebugId debug_id_;
+    ICanvas& m_canvas;
+    const DebugId m_debug_id;
 
-    SpriteSelector sprite_selector_{ SpriteSelector::SelectionMode::Single };
-    Mode mode_{ Mode::None };
-    bool lb_down_{ false };
-    bool rb_down_{ false };
-    math::Vec2f cursor_;
-    TileCoord coord_;
+    SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
+    Mode m_mode{ Mode::None };
+    bool m_lb_down{ false };
+    bool m_rb_down{ false };
+    math::Vec2f m_cursor;
+    TileCoord m_coord;
 };
 
 }  // namespace cave

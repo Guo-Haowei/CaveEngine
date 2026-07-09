@@ -64,52 +64,47 @@ class ColliderComponent {
 
 private:
     CAVE_PROP(editor = EnumDropDown)
-    BodyType body_type_;
-
-    CAVE_PROP(editor = Toggle, serialize = false)
-    bool debug_draw_ = true;
+    BodyType m_body_type;
 
     CAVE_PROP()
-    Shape shape_;
+    Shape m_shape;
 
     CAVE_PROP()
-    uint32_t flags_ = None;
+    uint32_t m_flags = None;
 
     CAVE_PROP(editor = BitMask)
-    uint32_t layer_ = 0;
+    uint32_t m_layer = 0;
 
     CAVE_PROP(editor = BitMask)
-    uint32_t mask_ = 0;
+    uint32_t m_mask = 0;
 
     CAVE_PROP(editor = Toggle)
-    bool is_trigger_ = false;
+    bool m_is_trigger = false;
 
     // Non-serialized
-    mutable uint64_t user_data_ = 0;
+    mutable uint64_t m_user_data = 0;
 
     friend class Box2dPhysicsSystem;
     friend class Bullet3PhysicsManager;
 
 public:
-    FLAG_GETTER_SETTER(FixedRotationFlag, flags_)
-    FLAG_GETTER_SETTER(SensorFlag, flags_)
-    FLAG_GETTER_SETTER(BulletFlag, flags_)
+    FLAG_GETTER_SETTER(FixedRotationFlag, m_flags)
+    FLAG_GETTER_SETTER(SensorFlag, m_flags)
+    FLAG_GETTER_SETTER(BulletFlag, m_flags)
 
-    Shape& shape() { return shape_; }
-    const Shape& shape() const { return shape_; }
+    Shape& shape() { return m_shape; }
+    const Shape& shape() const { return m_shape; }
 
-    BodyType& bodyType() { return body_type_; }
-    const BodyType& bodyType() const { return body_type_; }
+    BodyType& bodyType() { return m_body_type; }
+    const BodyType& bodyType() const { return m_body_type; }
 
-    uint32_t layer() const { return layer_; }
-    void layer(uint32_t layer) { layer_ = layer; }
+    uint32_t layer() const { return m_layer; }
+    void layer(uint32_t layer) { m_layer = layer; }
 
-    uint32_t mask() const { return mask_; }
-    void mask(uint32_t mask) { mask_ = mask; }
+    uint32_t mask() const { return m_mask; }
+    void mask(uint32_t mask) { m_mask = mask; }
 
-    bool isTrigger() const { return is_trigger_; }
-
-    bool debugDraw() const { return debug_draw_; }
+    bool isTrigger() const { return m_is_trigger; }
 };
 
 }  // namespace cave

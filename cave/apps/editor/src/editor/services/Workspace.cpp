@@ -18,7 +18,7 @@
 #include "editor/tile_map/TileSetEditor.h"
 
 // @TODO: refactor
-#include "editor/panels/SceneViewTab.h"
+#include "editor/scene_view/SceneViewTab.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {

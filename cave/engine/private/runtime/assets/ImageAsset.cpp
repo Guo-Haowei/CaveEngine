@@ -7,29 +7,29 @@
 
 namespace cave {
 
-static PixelFormat ChannelToFormat(int p_channel, bool p_is_float) {
-    switch (p_channel) {
+static PixelFormat ChannelToFormat(int channel, bool is_float) {
+    switch (channel) {
         case 1:
-            return p_is_float ? PixelFormat::R32_FLOAT : PixelFormat::R8_UINT;
+            return is_float ? PixelFormat::R32_FLOAT : PixelFormat::R8_UINT;
         case 2:
-            return p_is_float ? PixelFormat::R32G32_FLOAT : PixelFormat::R8G8_UINT;
+            return is_float ? PixelFormat::R32G32_FLOAT : PixelFormat::R8G8_UINT;
         case 3:
-            return p_is_float ? PixelFormat::R32G32B32_FLOAT : PixelFormat::R8G8B8_UINT;
+            return is_float ? PixelFormat::R32G32B32_FLOAT : PixelFormat::R8G8B8_UINT;
         case 4:
-            return p_is_float ? PixelFormat::R32G32B32A32_FLOAT : PixelFormat::R8G8B8A8_UNORM;
+            return is_float ? PixelFormat::R32G32B32A32_FLOAT : PixelFormat::R8G8B8A8_UNORM;
         default:
             CRASH_NOW();
             return PixelFormat::UNKNOWN;
     }
 }
 
-static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) {
-    auto res = FileAccess::Open(p_meta.import_path, FileAccess::READ);
+static Result<void> LoadImage(const AssetMetaData& meta, ImageAsset& image) {
+    auto res = FileAccess::Open(meta.import_path, FileAccess::READ);
     if (!res) {
         return CAVE_ERROR(res.error());
     }
 
-    std::string_view extension = StringUtils::extension(p_meta.import_path);
+    std::string_view extension = StringUtils::extension(meta.import_path);
 
     // @TODO: improve this part
     const bool is_float = extension == ".hdr";
@@ -66,7 +66,7 @@ static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) 
     }
 
     if (!pixels) {
-        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", p_meta.import_path);
+        return CAVE_ERROR(ErrorCode::ERR_PARSE_ERROR, "failed to parse file '{}'", meta.import_path);
     }
 
     if (req_channel > num_channels) {
@@ -82,31 +82,31 @@ static Result<void> LoadImage(const AssetMetaData& p_meta, ImageAsset& p_image) 
     stbi_image_free(pixels);
 
     PixelFormat format = ChannelToFormat(num_channels, is_float);
-    if (format == PixelFormat::R8G8B8A8_UNORM && p_image.color_space == ImageAsset::ColorSpace::SRGB) {
+    if (format == PixelFormat::R8G8B8A8_UNORM && image.color_space == ImageAsset::ColorSpace::SRGB) {
         format = PixelFormat::R8G8B8A8_UNORM_SRGB;
     }
 
-    p_image.format = format;
-    p_image.width = width;
-    p_image.height = height;
-    p_image.num_channels = num_channels;
-    p_image.buffer = std::move(buffer);
+    image.format = format;
+    image.width = width;
+    image.height = height;
+    image.num_channels = num_channels;
+    image.buffer = std::move(buffer);
 
     return Result<void>();
 }
 
-Result<void> ImageAsset::loadFromDisk(const AssetMetaData& p_meta) {
-    sampler = EnumTraits<Sampler>::FromString(p_meta.import_settings["sampler"]).unwrap_or(Sampler::Linear);
-    color_space = EnumTraits<ColorSpace>::FromString(p_meta.import_settings["color_space"]).unwrap_or(ColorSpace::Linear);
+Result<void> ImageAsset::loadFromDisk(const AssetMetaData& meta) {
+    sampler = EnumTraits<Sampler>::FromString(meta.import_settings["sampler"]).unwrap_or(Sampler::Linear);
+    color_space = EnumTraits<ColorSpace>::FromString(meta.import_settings["color_space"]).unwrap_or(ColorSpace::Linear);
 
-    return LoadImage(p_meta, *this);
+    return LoadImage(meta, *this);
 }
 
-Result<void> ImageAsset::saveToDisk(const AssetMetaData& p_meta) const {
-    p_meta.import_settings["sampler"] = EnumTraits<Sampler>::ToString(sampler);
-    p_meta.import_settings["color_space"] = EnumTraits<ColorSpace>::ToString(color_space);
+Result<void> ImageAsset::saveToDisk(const AssetMetaData& meta) const {
+    meta.import_settings["sampler"] = EnumTraits<Sampler>::ToString(sampler);
+    meta.import_settings["color_space"] = EnumTraits<ColorSpace>::ToString(color_space);
 
-    return p_meta.saveToDisk(this);
+    return meta.saveToDisk(this);
 }
 
 Vector<Guid> ImageAsset::dependencies() const {

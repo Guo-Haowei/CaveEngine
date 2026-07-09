@@ -8,24 +8,22 @@
 
 namespace cave {
 
-// BodyType body_type_ (editor = EnumDropDown)
-// bool debug_draw_ (editor = Toggle, serialize = false)
-// Shape shape_ ()
-// uint32_t flags_ ()
-// uint32_t layer_ (editor = BitMask)
-// uint32_t mask_ (editor = BitMask)
-// bool is_trigger_ (editor = Toggle)
+// BodyType m_body_type (editor = EnumDropDown)
+// Shape m_shape ()
+// uint32_t m_flags ()
+// uint32_t m_layer (editor = BitMask)
+// uint32_t m_mask (editor = BitMask)
+// bool m_is_trigger (editor = Toggle)
 
 template<>
 const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(ColliderComponent, "body_type", body_type_, FieldFlag::Serialize, EditorHint::EnumDropDown),
-        REGISTER_FIELD(ColliderComponent, "debug_draw", debug_draw_, FieldFlag::None, EditorHint::Toggle),
-        REGISTER_FIELD(ColliderComponent, "shape", shape_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(ColliderComponent, "flags", flags_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(ColliderComponent, "layer", layer_, FieldFlag::Serialize, EditorHint::BitMask),
-        REGISTER_FIELD(ColliderComponent, "mask", mask_, FieldFlag::Serialize, EditorHint::BitMask),
-        REGISTER_FIELD(ColliderComponent, "is_trigger", is_trigger_, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(ColliderComponent, "body_type", m_body_type, FieldFlag::Serialize, EditorHint::EnumDropDown),
+        REGISTER_FIELD(ColliderComponent, "shape", m_shape, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(ColliderComponent, "flags", m_flags, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(ColliderComponent, "layer", m_layer, FieldFlag::Serialize, EditorHint::BitMask),
+        REGISTER_FIELD(ColliderComponent, "mask", m_mask, FieldFlag::Serialize, EditorHint::BitMask),
+        REGISTER_FIELD(ColliderComponent, "is_trigger", m_is_trigger, FieldFlag::Serialize, EditorHint::Toggle),
     };
 
     return s_table;
