@@ -15,22 +15,36 @@ using namespace ::cave::math;
 namespace {
 
 struct PrimBatch {
-    uint32_t idx_offset = 0;
-    uint32_t idx_count = 0;
-    GpuTexture* tex{};
+    uint32_t index_offset = 0;
+    uint32_t index_count = 0;
+    const GpuTexture* tex{};
 };
 
 struct BuildResult {
     Ref<GpuMesh> mesh;
-    Vector<PrimBatch> batch;
+    Vector<PrimBatch> batches;
 };
 
-Ref<GpuMesh> BuildCanvasMesh(IRenderDevice& device,
-                             const CanvasBucket& bucket) {
+BuildResult BuildCanvasMesh(IRenderDevice& device,
+                            const CanvasBucket& bucket) {
+    BuildResult result;
+
     const uint32_t item_count = static_cast<uint32_t>(bucket.shapes.size());
     if (item_count == 0) {
-        return nullptr;
+        return result;
     }
+
+    Vector<const PrimShape*> sorted_shapes;
+    sorted_shapes.reserve(item_count);
+
+    for (const auto& shape : bucket.shapes) {
+        sorted_shapes.push_back(&shape);
+    }
+
+    std::sort(sorted_shapes.begin(), sorted_shapes.end(),
+              [](const PrimShape* a, const PrimShape* b) {
+                  return a->tex < b->tex;
+              });
 
     Vector<uint32_t> indices;
     Vector<Vec3f> positions;
@@ -42,43 +56,74 @@ Ref<GpuMesh> BuildCanvasMesh(IRenderDevice& device,
     uvs.reserve(item_count * 4);
     colors.reserve(item_count * 4);
 
-    for (const auto& item : bucket.shapes) {
+    auto begin_batch = [&](const GpuTexture* tex) {
+        PrimBatch batch;
+        batch.tex = tex;
+        batch.index_offset = static_cast<uint32_t>(indices.size());
+        batch.index_count = 0;
+        result.batches.push_back(batch);
+    };
+
+    GpuTexture* current_tex = nullptr;
+
+    for (const PrimShape* item : sorted_shapes) {
+        if (result.batches.empty() || item->tex != current_tex) {
+            current_tex = item->tex;
+            begin_batch(current_tex);
+        }
+
+        PrimBatch& batch = result.batches.back();
+
         const uint32_t offset = static_cast<uint32_t>(positions.size());
-        switch (item.type) {
+        const uint32_t before_index_count = static_cast<uint32_t>(indices.size());
+
+        switch (item->type) {
             case PrimShapeType::Rect: {
-                positions.push_back(item.vertices[0].pos);
-                positions.push_back(item.vertices[1].pos);
-                positions.push_back(item.vertices[2].pos);
-                positions.push_back(item.vertices[3].pos);
-                uvs.push_back(item.vertices[0].uv);
-                uvs.push_back(item.vertices[1].uv);
-                uvs.push_back(item.vertices[2].uv);
-                uvs.push_back(item.vertices[3].uv);
-                colors.push_back(item.vertices[0].color);
-                colors.push_back(item.vertices[1].color);
-                colors.push_back(item.vertices[2].color);
-                colors.push_back(item.vertices[3].color);
+                positions.push_back(item->vertices[0].pos);
+                positions.push_back(item->vertices[1].pos);
+                positions.push_back(item->vertices[2].pos);
+                positions.push_back(item->vertices[3].pos);
 
-                indices.push_back(0 + offset);
-                indices.push_back(1 + offset);
-                indices.push_back(2 + offset);
+                uvs.push_back(item->vertices[0].uv);
+                uvs.push_back(item->vertices[1].uv);
+                uvs.push_back(item->vertices[2].uv);
+                uvs.push_back(item->vertices[3].uv);
 
-                indices.push_back(0 + offset);
-                indices.push_back(3 + offset);
-                indices.push_back(2 + offset);
+                colors.push_back(item->vertices[0].color);
+                colors.push_back(item->vertices[1].color);
+                colors.push_back(item->vertices[2].color);
+                colors.push_back(item->vertices[3].color);
 
+                indices.push_back(offset + 0);
+                indices.push_back(offset + 1);
+                indices.push_back(offset + 2);
+
+                indices.push_back(offset + 0);
+                indices.push_back(offset + 3);
+                indices.push_back(offset + 2);
             } break;
+
             default: {
-                LOG_WARN(LogChannel::Render, "primitive {} not supported", std::to_underlying(item.type));
+                LOG_WARN(LogChannel::Render,
+                         "primitive {} not supported",
+                         std::to_underlying(item->type));
             } break;
         }
+
+        const uint32_t after_index_count = static_cast<uint32_t>(indices.size());
+        batch.index_count += after_index_count - before_index_count;
     }
+
+    // Remove empty batches caused by unsupported shapes.
+    std::erase_if(result.batches, [](const PrimBatch& batch) {
+        return batch.index_count == 0;
+    });
 
     const uint32_t vertex_count = static_cast<uint32_t>(positions.size());
     const uint32_t index_count = static_cast<uint32_t>(indices.size());
 
-    if (index_count == 0) {
-        return nullptr;
+    if (vertex_count == 0 || index_count == 0 || result.batches.empty()) {
+        return {};
     }
 
     std::array<GpuBufferDesc, 3> buffer_descs;
@@ -118,7 +163,13 @@ Ref<GpuMesh> BuildCanvasMesh(IRenderDevice& device,
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
     desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
 
-    return *(device.CreateMeshImpl(desc, buffer_descs, &index_desc));
+    auto mesh_result = device.CreateMeshImpl(desc, buffer_descs, &index_desc);
+    if (!mesh_result) {
+        return {};
+    }
+
+    result.mesh = *mesh_result;
+    return result;
 }
 
 }  // namespace
@@ -147,16 +198,21 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
     DEV_ASSERT(m_default_texture);
 
     const CanvasBucket* bucket = canvas.findBucket(view_id);
-    if (bucket) {
-        auto mesh = BuildCanvasMesh(device, *bucket);
-        if (mesh) {
-            device.BindTexture(Dimension::TEXTURE_2D, m_default_texture->GetHandle(), 0);
-            device.SetMesh(mesh.get());
-            device.SetPipelineState(PSO_PRIMITIVE);
-            device.DrawElements(mesh->desc.drawCount);
-            device.UnbindTexture(Dimension::TEXTURE_2D, 0);
-        }
+    if (!bucket) return;
+
+    auto result = BuildCanvasMesh(device, *bucket);
+    if (!result.mesh) return;
+
+    device.SetMesh(result.mesh.get());
+    device.SetPipelineState(PSO_PRIMITIVE);
+
+    constexpr int kSpriteSlot = 0;
+    for (const PrimBatch& batch : result.batches) {
+        const uint64_t tex = (batch.tex ? batch.tex : m_default_texture.get())->GetHandle();
+        device.BindTexture(Dimension::TEXTURE_2D, tex, kSpriteSlot);
+        device.DrawElements(batch.index_count, batch.index_offset);
     }
+    device.UnbindTexture(Dimension::TEXTURE_2D, kSpriteSlot);
 }
 
 }  // namespace cave::render

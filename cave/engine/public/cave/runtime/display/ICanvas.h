@@ -11,6 +11,8 @@
 
 namespace cave {
 
+struct GpuTexture;
+
 enum class PrimShapeType : uint8_t {
     Line = 0,
     Triangle,
