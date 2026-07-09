@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/display/DisplayService.h"
-#include "cave/runtime/display/IDebugDrawService.h"
+#include "cave/render/ICanvas.h"
 
 #include "engine/private/algorithm/algorithm.h"
 #include "engine/private/render/renderer/FrameData.h"

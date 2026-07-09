@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/display/IDebugDrawService.h
+// File: cave/render/ICanvas.h
 // =============================================================================
 #pragma once
 #include <span>

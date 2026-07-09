@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/display/IDebugDrawService.h"
+#include "cave/render/ICanvas.h"
 
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/runtime/scene/Scene.h"

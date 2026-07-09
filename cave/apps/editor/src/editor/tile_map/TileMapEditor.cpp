@@ -4,7 +4,7 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/display/DisplayService.h"
-#include "cave/runtime/display/IDebugDrawService.h"
+#include "cave/render/ICanvas.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/EditorState.h"
