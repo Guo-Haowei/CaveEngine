@@ -8,7 +8,7 @@ using math::Mat4f;
 using math::Vec3f;
 using math::Vec4f;
 
-Mat4f CameraComponent::CalcProjection() const {
+Mat4f CameraComponent::calcProjection() const {
     if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * aspect();
@@ -22,7 +22,7 @@ Mat4f CameraComponent::CalcProjection() const {
     return math::BuildPerspectiveRH(glm::radians<float>(m_fovy), aspect(), m_near, m_far);
 }
 
-Mat4f CameraComponent::CalcProjectionGL() const {
+Mat4f CameraComponent::calcProjectionGL() const {
     if (m_projection == ProjectionType::Orthographic) {
         const float half_height = m_ortho_height * 0.5f;
         const float half_width = half_height * aspect();
@@ -51,8 +51,8 @@ bool CameraComponent::update(const math::Mat4f& transform) {
         m_view_matrix = LookAtRh(m_position, m_position + m_front, Vec3f::UnitY);
 
         // use gl matrix for frustum culling
-        m_projection_matrix = CalcProjectionGL();
-        m_proj_view_matrix = m_projection_matrix * m_view_matrix;
+        m_proj_matrix = calcProjectionGL();
+        m_proj_view_matrix = m_proj_matrix * m_view_matrix;
         return true;
     }
 
@@ -60,7 +60,7 @@ bool CameraComponent::update(const math::Mat4f& transform) {
 }
 
 void CameraComponent::setAspect(float aspect) {
-    if (aspect != aspect_) {
+    if (aspect != m_aspect) {
         setDirty();
         m_aspect = aspect;
     }

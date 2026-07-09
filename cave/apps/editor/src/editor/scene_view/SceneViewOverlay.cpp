@@ -11,6 +11,20 @@ namespace cave {
 
 using namespace ::cave::math;
 
+static Box2 CameraOrthoAABB2(const CameraComponent& camera) {
+    DEV_ASSERT(camera.isOrtho());
+
+    const float h = camera.orthoHeight();
+    const float w = h * camera.aspect();
+
+    const Vec3f& p = camera.position();
+
+    return Box2{
+        Vec2f(p.x - w * 0.5f, p.y - h * 0.5f),
+        Vec2f(p.x + w * 0.5f, p.y + h * 0.5f),
+    };
+}
+
 void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
                                               ViewId view_id,
                                               const Scene& scene,
@@ -22,6 +36,9 @@ void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
 
     canvas.pushView(view_id);
 
+    constexpr Vec4f kColliderColor{ 0.0f, 0.0f, 1.0f, 0.9f };
+    constexpr Vec4f kCameraColor{ 0.2f, 0.8f, 0.2f, 0.9f };
+
     const Mat4f& m = transform->worldMatrix();
     if (const auto collider = scene.component<ColliderComponent>(ent)) {
         const Shape& shape = collider->shape();
@@ -30,7 +47,7 @@ void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
             case ShapeType::Box: {
                 Vec2f min = Vec2f::Zero - Vec2f(shape.data.half.xy);
                 Vec2f max = Vec2f::Zero + Vec2f(shape.data.half.xy);
-                canvas.addBox2Frame(min, max, 0.04f, Vec4f(0, 0, 1, 0.9f), &m);
+                canvas.addBox2Frame(min, max, 0.04f, kColliderColor, &m);
             } break;
             default:
                 break;
@@ -38,6 +55,8 @@ void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
     }
 
     if (const auto camera = scene.component<CameraComponent>(ent)) {
+        Box2 box = CameraOrthoAABB2(*camera);
+        canvas.addBox2Frame(box.min(), box.max(), 0.04f, kCameraColor, &m);
     }
 
     canvas.popView();

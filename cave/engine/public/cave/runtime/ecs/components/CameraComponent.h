@@ -61,6 +61,9 @@ public:
     static constexpr float kDefaultFar = 1000.0f;
     static constexpr float kDefaultFovy = 60.0f;
 
+    ProjectionType projectionType() const { return m_projection; }
+    bool isOrtho() const { return m_projection == ProjectionType::Orthographic; }
+
     bool update(const math::Mat4f& transform);
 
     float aspect() const { return m_aspect; }
@@ -80,8 +83,8 @@ public:
     float orthoHeight() const { return m_ortho_height; }
     void setOrthoHeight(float height);
 
-    math::Mat4f CalcProjection() const;
-    math::Mat4f CalcProjectionGL() const;
+    math::Mat4f calcProjection() const;
+    math::Mat4f calcProjectionGL() const;
 
     // ---------------- Accessors ----------------
     // these values are modified by Update() function only
