@@ -37,7 +37,7 @@ void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
     canvas.pushView(view_id);
 
     constexpr Vec4f kColliderColor{ 0.0f, 0.0f, 1.0f, 0.9f };
-    constexpr Vec4f kCameraColor{ 0.2f, 0.8f, 0.2f, 0.9f };
+    constexpr Vec4f kCameraColor{ 0.6f, 0.8f, 0.7f, 0.9f };
 
     const Mat4f& m = transform->worldMatrix();
     if (const auto collider = scene.component<ColliderComponent>(ent)) {

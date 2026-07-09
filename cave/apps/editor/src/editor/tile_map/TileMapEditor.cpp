@@ -29,7 +29,8 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              DocId doc_id,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
-    , debug_id_(MakeDebugId(this)) {
+    , m_canvas(m_engine_services.canvas())
+    , m_debug_id(MakeDebugId(this)) {
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
     //                                   [&]() {
@@ -52,9 +53,9 @@ void TileMapEditor::onDestroy() {
 }
 
 void TileMapEditor::changeMode(Mode mode) {
-    if (mode != mode_) {
+    if (mode != m_mode) {
         // LOG_INFO("change mode from {} to {}", (int)mode_, (int)mode);
-        mode_ = mode;
+        m_mode = mode;
     }
 }
 
@@ -81,80 +82,89 @@ bool TileMapEditor::updateEditMode(const InputFrame& input) {
         switch (event.type) {
             case InputEventType::ButtonDown: {
                 if (key == Key::LMB) {
-                    lb_down_ = true;
+                    m_lb_down = true;
                     event.consumed = true;
                     should_apply = true;
-                    cursor_ = { event.x, event.y };
+                    m_cursor = { event.x, event.y };
                 } else if (key == Key::RMB) {
-                    rb_down_ = true;
+                    m_rb_down = true;
                     event.consumed = true;
                     should_apply = true;
-                    cursor_ = { event.x, event.y };
+                    m_cursor = { event.x, event.y };
                 }
             } break;
             case InputEventType::ButtonUp: {
                 if (key == Key::LMB) {
-                    lb_down_ = false;
+                    m_lb_down = false;
                     event.consumed = true;
                 } else if (key == Key::RMB) {
-                    rb_down_ = false;
+                    m_rb_down = false;
                     event.consumed = true;
                 }
             } break;
             case InputEventType::MouseMove: {
                 should_apply = true;
-                cursor_ = { event.x, event.y };
+                m_cursor = { event.x, event.y };
             } break;
             default: {
             } break;
         }
     }
 
-    if (!(lb_down_ ^ rb_down_))
+    if (!(m_lb_down ^ m_rb_down))
         changeMode(Mode::None);
-    else if (lb_down_)
+    else if (m_lb_down)
         changeMode(Mode::Painting);
-    else if (rb_down_)
+    else if (m_rb_down)
         changeMode(Mode::Erasing);
 
-    return should_apply && mode_ != Mode::None;
+    return should_apply && m_mode != Mode::None;
 }
 
 void TileMapEditor::updateTileCoord() {
-    Vec2f point_os = cursor_ + m_engine_services.displayService().windowPos();
+    Vec2f point_os = m_cursor + m_engine_services.displayService().windowPos();
     auto res = pointToTile(point_os);
     if (res.is_none()) {
         return;
     }
 
-    coord_ = res.unwrap_unchecked();
-
-    Vec2f min{ coord_.x, coord_.y };
-    Vec2f max{ coord_.x + 1, coord_.y + 1 };
-    m_engine_services.canvas().addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
+    m_coord = res.unwrap_unchecked();
 }
 
-void TileMapEditor::applayEditorTool() {
-    IDocument* doc = m_editor_services.document().resolve(m_doc_id);
-    DEV_ASSERT(doc);
+void TileMapEditor::drawOverlay(const TileSetAsset& tile_set) {
+    const ImageAsset* image = tile_set.handle().get();
+    if (!image) return;
 
-    TileMapAsset* tile_map = doc->handle<TileMapAsset>().get();
+    Vec2f min{ m_coord.x, m_coord.y };
+    Vec2f max{ m_coord.x + 1, m_coord.y + 1 };
+    auto selections = m_sprite_selector.GetSelections();
+    if (selections.empty()) {
+        m_canvas.addBox2(min, max, Vec4f{ 0.7f, 0.2f, 0.2f, 0.7f });
+    } else {
+        auto [x, y] = selections[0];
+        if (x >= 0 && y >= 0) {
+            m_canvas.addImage(image->gpu_texture.get(), min, max);
+        }
+    }
+}
 
-    Option<TileId> old_tile = tile_map->tiles().tileAt(coord_);
+void TileMapEditor::applayEditorTool(const TileMapAsset& tile_map,
+                                     const TileSetAsset& tile_set) {
+
+    Option<TileId> old_tile = tile_map.tiles().tileAt(m_coord);
     Option<TileId> new_tile = None();
 
-    switch (mode_) {
+    switch (m_mode) {
         case cave::TileMapEditor::Mode::None:
             return;
         case cave::TileMapEditor::Mode::Painting: {
-            auto selections = sprite_selector_.GetSelections();
+            auto selections = m_sprite_selector.GetSelections();
             if (selections.empty()) {
                 return;
             }
             auto [x, y] = selections[0];
             if (x >= 0 && y >= 0) {
-                TileSetAsset* tile_set = tile_map->tileSetHandle().get();
-                const uint32_t tile_id = y * tile_set->col() + x;
+                const uint32_t tile_id = y * tile_set.col() + x;
                 new_tile = Some(TileId(tile_id));
             }
         } break;
@@ -172,7 +182,7 @@ void TileMapEditor::applayEditorTool() {
 
     auto cmd = std::make_unique<SetTileCommand>(m_engine_services.sceneRegistry(),
                                                 ecs::Entity::null(),
-                                                coord_,
+                                                m_coord,
                                                 old_tile,
                                                 new_tile);
     m_editor_services.edit().submit(m_doc_id, std::move(cmd));
@@ -187,14 +197,23 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
 
     const bool should_apply_edit = updateEditMode(input);
 
-    m_engine_services.canvas().pushView(m_view_id);
+    m_canvas.pushView(m_view_id);
+
+	IDocument* doc = m_editor_services.document().resolve(m_doc_id);
+    DEV_ASSERT(doc);
+
+    const TileMapAsset* tile_map = doc->handle<TileMapAsset>().get();
+    if (!tile_map) return;
+    const TileSetAsset* tile_set = tile_map->tileSetHandle().get();
+    if (!tile_set) return;
 
     updateTileCoord();
+    drawOverlay(*tile_set);
     if (should_apply_edit) {
-        applayEditorTool();
+        applayEditorTool(*tile_map, *tile_set);
     }
 
-    m_engine_services.canvas().popView();
+    m_canvas.popView();
 }
 
 void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
@@ -241,7 +260,7 @@ void TileMapEditor::drawAssetInspector(IDocument& doc) {
         const int column = tile_set->col();
         const int row = tile_set->row();
         if (auto image = handle.get(); image) {
-            sprite_selector_.SelectSprite(*image, &column, &row);
+            m_sprite_selector.SelectSprite(*image, &column, &row);
         }
     }
 }
