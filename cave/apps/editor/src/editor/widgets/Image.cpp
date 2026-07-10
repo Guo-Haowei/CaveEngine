@@ -118,7 +118,7 @@ void CenteredImage(const ImageAsset* p_image,
     ImGui::EndChild();
 }
 
-auto AssetCard(uint64_t p_texture_id,
+auto AssetCard(uint64_t tex,
                const char* p_name,
                const math::Vec2f& p_image_size) -> std::tuple<bool, bool> {
 
@@ -155,7 +155,7 @@ auto AssetCard(uint64_t p_texture_id,
     ImVec2 image_min = pos + ImVec2(padding, padding);
     ImVec2 image_max = image_min + ImVec2(p_image_size.x, p_image_size.y);
 
-    draw->AddImage(p_texture_id, image_min, image_max);
+    draw->AddImage(tex, image_min, image_max);
 
     // Text
     ImVec2 textStart = image_min + ImVec2(0, p_image_size.y + spacing);

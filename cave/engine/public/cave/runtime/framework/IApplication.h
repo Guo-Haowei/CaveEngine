@@ -17,7 +17,6 @@ class AppStateMachine;
 class CommandRegistry;
 class Console;
 class EventQueue;
-class ImguiManager;
 
 struct AppSpec {
     std::string_view userFolder;
@@ -78,9 +77,6 @@ public:
     virtual AppType appType() const = 0;
     bool isRuntime() const { return appType() == AppType::Runtime; }
 
-    // @TODO: clean up
-    ImguiManager* imguiManager() { return m_imgui_manager; }
-
     CommandRegistry& commandRegistry() { return *m_cmd_reg_; }
     Console& console() { return *m_console; }
     virtual EventQueue& eventQueue() = 0;
@@ -92,7 +88,6 @@ protected:
 
     // @TODO: move the following to services
     // also need subsystems
-    ImguiManager* m_imgui_manager{};
     CommandRegistry* m_cmd_reg_{};
     Console* m_console{};
     EngineServices m_engine_services;

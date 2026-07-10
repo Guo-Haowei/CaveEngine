@@ -52,9 +52,8 @@ auto D3d11GraphicsManager::InitializeInternal() -> Result<void> {
 
     m_meshes.set_description("GPU-Mesh-Allocator");
 
-    auto imgui = m_app->imguiManager();
-    if (imgui) {
-        imgui->SetRenderCallbacks(
+    if (ImGuiService* imgui = m_app->services().imgui) {
+        imgui->setRenderCallbacks(
             [this]() {
                 ImGui_ImplDX11_Init(m_device.Get(), m_deviceContext.Get());
                 ImGui_ImplDX11_NewFrame();

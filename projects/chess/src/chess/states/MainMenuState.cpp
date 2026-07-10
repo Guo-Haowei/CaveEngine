@@ -16,7 +16,7 @@ void MainMenuState::onEnter(cave::SceneContext&) {
 }
 
 void MainMenuState::tick(cave::SceneContext& ctx, float) {
-    IUIRuntime& ui = ctx.services.ui();
+    IUIRuntime& ui = ctx.services.UI();
 
     ui.beginView(ctx.view_id);
     const float offset_x = 760.0f;

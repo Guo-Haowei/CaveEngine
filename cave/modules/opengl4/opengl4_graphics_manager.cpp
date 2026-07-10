@@ -15,7 +15,7 @@ namespace cave::render {
 void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
 auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->services().display_service_);
+    auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->services().display_service);
     DEV_ASSERT(display_manager);
     if (!display_manager) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
@@ -44,9 +44,8 @@ auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
 
     m_meshes.set_description("GPU-Mesh-Allocator");
 
-    auto imgui = m_app->imguiManager();
-    if (imgui) {
-        imgui->SetRenderCallbacks(
+    if (ImGuiService* imgui = m_app->services().imgui) {
+        imgui->setRenderCallbacks(
             []() {
                 ImGui_ImplOpenGL3_Init();
                 ImGui_ImplOpenGL3_CreateDeviceObjects();

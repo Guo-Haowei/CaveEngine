@@ -15,6 +15,7 @@ class DisplayService;
 class IAssetManager;
 class ICanvas;
 class IGameInput;
+class ImGuiService;
 class InputService;
 class IntentBus;
 class IUIRuntime;
@@ -29,33 +30,36 @@ class ViewManager;
 class GameModuleHandle;
 
 struct RuntimeServices {
-    AssetRegistry* asset_registry_{};
-    DisplayService* display_service_{};
-    IAssetManager* asset_manager_{};
+    AssetRegistry* asset_registry{};
+    DisplayService* display_service{};
+    IAssetManager* asset_manager{};
     ICanvas* canvas_{};
-    IGameInput* game_input_{};
-    InputService* input_service_{};
-    IUIRuntime* ui_{};
-    NativeScriptRegistry* native_scripts_{};
-    ProjectManager* project_manager_{};
-    SceneRegistry* scene_registry_{};
-    SceneScheduler* scene_scheduler_{};
-    TaskManager* task_manager_{};
-    ViewManager* view_manager_{};
+    IGameInput* game_input{};
+    InputService* input_service{};
+    IUIRuntime* ui{};
+    NativeScriptRegistry* native_scripts{};
+    ProjectManager* project_manager{};
+    SceneRegistry* scene_registry{};
+    SceneScheduler* scene_scheduler{};
+    TaskManager* task_manager{};
+    ViewManager* view_manager{};
 
-    AssetRegistry& assetRegistry() { return *asset_registry_; }
-    DisplayService& displayService() { return *display_service_; }
-    IAssetManager& assetManager() { return *asset_manager_; }
+    // optional
+    ImGuiService* imgui{};
+
+    AssetRegistry& assetRegistry() { return *asset_registry; }
+    DisplayService& displayService() { return *display_service; }
+    IAssetManager& assetManager() { return *asset_manager; }
     ICanvas& canvas() { return *canvas_; }
-    IGameInput& gameInput() { return *game_input_; }
-    InputService& inputService() { return *input_service_; }
-    NativeScriptRegistry& nativeScripts() { return *native_scripts_; }
-    ProjectManager& projectManager() { return *project_manager_; }
-    SceneRegistry& sceneRegistry() { return *scene_registry_; }
-    SceneScheduler& sceneScheduler() { return *scene_scheduler_; }
-    TaskManager& taskManager() { return *task_manager_; }
-    IUIRuntime& ui() { return *ui_; }
-    ViewManager& viewManager() { return *view_manager_; }
+    IGameInput& gameInput() { return *game_input; }
+    InputService& inputService() { return *input_service; }
+    NativeScriptRegistry& nativeScripts() { return *native_scripts; }
+    ProjectManager& projectManager() { return *project_manager; }
+    SceneRegistry& sceneRegistry() { return *scene_registry; }
+    SceneScheduler& sceneScheduler() { return *scene_scheduler; }
+    TaskManager& taskManager() { return *task_manager; }
+    IUIRuntime& UI() { return *ui; }
+    ViewManager& viewManager() { return *view_manager; }
 };
 
 struct EngineServices : public RuntimeServices {

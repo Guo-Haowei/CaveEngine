@@ -140,11 +140,11 @@ void EditorState::tick(const FrameTime& time) {
         m_pie->tick(time);
     }
 
-    ImguiManager* imgui_manager = m_app.imguiManager();
-    DEV_ASSERT(imgui_manager);
+    ImGuiService* imgui = m_app.services().imgui;
+    DEV_ASSERT(imgui);
 
     // @TODO: refactor this
-    imgui_manager->BeginFrame();
+    imgui->beginFrame();
 
     dockSpace();
     for (auto& panel : m_panels) {

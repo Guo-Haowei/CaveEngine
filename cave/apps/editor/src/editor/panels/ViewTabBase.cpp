@@ -11,6 +11,7 @@
 
 // @TODO: remove
 #include "editor/EditorState.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
@@ -171,35 +172,18 @@ void ViewTabBase::updateRect(math::FloatRect& out_rect) {
 }
 
 void ViewTabBase::drawMainView(const math::FloatRect& rect) {
-    using rhi::Backend;
 
     const ImVec2 min{ rect.x, rect.y };
     const ImVec2 max{ rect.Right(), rect.Bottom() };
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+    draw_list->AddRectFilled(min, max, IM_COL32(40, 40, 40, 255));
+
     // @TODO: move it somewhere else
     uint64_t tex = m_texture->GetHandle();
 
-    draw_list->AddRectFilled(min, max, IM_COL32(40, 40, 40, 255));
-    // add image for drawing
-    switch (m_editor.app().backend()) {
-        case Backend::Direct3D11:
-        case Backend::Direct3D12: {
-            draw_list->AddImage((ImTextureID)tex, min, max);
-        } break;
-        case Backend::OpenGL: {
-            ImVec2 uv_min = ImVec2(0, 1);
-            ImVec2 uv_max = ImVec2(1, 0);
-            draw_list->AddImage((ImTextureID)tex, min, max, uv_min, uv_max);
-        } break;
-        case Backend::Vulkan:
-        case Backend::Metal: {
-        } break;
-        default:
-            CRASH_NOW();
-            break;
-    }
+    m_engine_services.imgui->drawTexture(*draw_list, tex, min, max);
 
     ImGui::Dummy({ rect.w, rect.h });
     if (auto handle_opt = DragDropTarget(AssetType::All)) {

@@ -353,7 +353,7 @@ VulkanGraphicsManager::VulkanGraphicsManager()
 }
 
 auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
-    auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->services().display_service_);
+    auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->services().display_service);
     DEV_ASSERT(display_manager);
     if (!display_manager) {
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
@@ -374,9 +374,8 @@ auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
     VK_CHECK_ERROR(glfwCreateWindowSurface(g_Instance, m_window, g_Allocator, &m_surface),
                    ErrorCode::ERR_CANT_CREATE);
 
-    auto imgui = m_app->imguiManager();
-    if (imgui) {
-        imgui->SetRenderCallbacks(
+    if (ImGuiService* imgui = m_app->services().imgui) {
+        imgui->setRenderCallbacks(
             [&]() {
                 int w, h;
                 glfwGetFramebufferSize(m_window, &w, &h);

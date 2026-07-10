@@ -112,7 +112,7 @@ void InputService::tick(const FrameTime& time) {
     axis_state_.updateFromEvents(input_events_.data(), input_events_.size());
 
     // *) Feed ImGui from remaining raw events
-    if (ImguiManager* imgui = m_app->imguiManager()) {
+    if (ImGuiService* imgui = m_app->services().imgui) {
         imgui->Feed(input_events_);
 
         // Gate gameplay/editor mapping based on ImGui capture

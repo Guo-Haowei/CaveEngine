@@ -178,9 +178,8 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
             IID_PPV_ARGS(&m_debugIndexData)));
     }
 
-    auto imgui = m_app->imguiManager();
-    if (imgui) {
-        imgui->SetRenderCallbacks(
+    if (ImGuiService* imgui = m_app->services().imgui) {
+        imgui->setRenderCallbacks(
             [this]() {
                 ImGui_ImplDX12_Init(m_device.Get(),
                                     NUM_FRAMES_IN_FLIGHT,

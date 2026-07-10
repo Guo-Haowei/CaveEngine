@@ -122,8 +122,8 @@ void ProjectBrowserState::tick(const FrameTime&) {
         selectProject(DVAR_GET_STRING(last_opened_project));
     }
 
-    if (ImguiManager* imgui_manager = m_app.imguiManager()) {
-        imgui_manager->BeginFrame();
+    if (ImGuiService* imgui_manager = m_app.services().imgui) {
+        imgui_manager->beginFrame();
 
         ui::DockSpace({ "DockSpaceRoot",
                         nullptr,

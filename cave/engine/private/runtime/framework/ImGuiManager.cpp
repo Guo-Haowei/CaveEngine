@@ -18,9 +18,10 @@
 
 namespace cave {
 
+using namespace ::cave::math;
 namespace fs = std::filesystem;
 
-auto ImguiManager::InitializeImpl() -> Result<void> {
+auto ImGuiService::InitializeImpl() -> Result<void> {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
@@ -124,7 +125,7 @@ auto ImguiManager::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void ImguiManager::FinalizeImpl() {
+void ImGuiService::FinalizeImpl() {
     DEV_ASSERT(m_rendererFinalizeFunc);
     m_rendererFinalizeFunc();
 
@@ -134,7 +135,7 @@ void ImguiManager::FinalizeImpl() {
     ImGui::DestroyContext();
 }
 
-void ImguiManager::BeginFrame() {
+void ImGuiService::beginFrame() {
     if (DEV_VERIFY(m_displayBeginFrameFunc)) {
         m_displayBeginFrameFunc();
         ImGui::NewFrame();
@@ -154,7 +155,7 @@ static int MouseButtonIndex(Key p_key) {
     }
 }
 
-ImGuiKey ImguiManager::ToImGuiKey(Key p_key) {
+ImGuiKey ImGuiService::toImGuiKey(Key p_key) {
     // clang-format off
     switch (p_key) {
         case Key::Tab:            return ImGuiKey_Tab;
@@ -288,7 +289,7 @@ ImGuiKey ImguiManager::ToImGuiKey(Key p_key) {
     // clang-format on
 }
 
-void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
+void ImGuiService::Feed(std::vector<InputEvent>& p_events) {
     ImGuiIO& io = ImGui::GetIO();
 
     for (auto& e : p_events) {
@@ -323,7 +324,7 @@ void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
                         io.AddMouseButtonEvent(idx, down);
                     }
                 } else {
-                    if (const ImGuiKey ik = ToImGuiKey(k); ik != ImGuiKey_None) {
+                    if (const ImGuiKey ik = toImGuiKey(k); ik != ImGuiKey_None) {
                         io.AddKeyEvent(ik, down);
                     }
                 }
@@ -334,15 +335,41 @@ void ImguiManager::Feed(std::vector<InputEvent>& p_events) {
     }
 }
 
-bool ImguiManager::WantKeyboard() const {
+void ImGuiService::drawTexture(ImDrawList& list,
+                               uint64_t tex,
+                               const ImVec2& min,
+                               const ImVec2& max) const {
+    using rhi::Backend;
+    auto handle = (ImTextureID)tex;
+
+    switch (m_backend) {
+        case Backend::Direct3D11:
+        case Backend::Direct3D12: {
+            list.AddImage(handle, min, max);
+        } break;
+        case Backend::OpenGL: {
+            ImVec2 uv_min = ImVec2(0, 1);
+            ImVec2 uv_max = ImVec2(1, 0);
+            list.AddImage(handle, min, max, uv_min, uv_max);
+        } break;
+        case Backend::Vulkan:
+        case Backend::Metal: {
+        } break;
+        default:
+            CRASH_NOW();
+            break;
+    }
+}
+
+bool ImGuiService::WantKeyboard() const {
     return ImGui::GetIO().WantCaptureKeyboard;
 }
 
-bool ImguiManager::WantMouse() const {
+bool ImGuiService::WantMouse() const {
     return ImGui::GetIO().WantCaptureMouse;
 }
 
-bool ImguiManager::WantTextInput() const {
+bool ImGuiService::WantTextInput() const {
     return ImGui::GetIO().WantTextInput;
 }
 

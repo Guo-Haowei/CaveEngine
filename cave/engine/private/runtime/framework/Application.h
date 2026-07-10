@@ -43,9 +43,6 @@ protected:
 
     float updateTime();
 
-    // @TODO: add CreateXXXManager for all managers
-    virtual Result<ImguiManager*> createImguiManager();
-
     void registerModule(IService* module);
 
     const AppType m_app_type;
@@ -54,7 +51,7 @@ protected:
     Stopwatch m_stopwatch;
 
     EventQueue m_event_queue;
-    std::vector<IService*> m_subsystems;
+    Vector<IService*> m_subsystems;
 
     Canvas m_canvas;
     IntentBus m_intent_bus;
@@ -63,14 +60,15 @@ protected:
     // @TODO: module manager?
     GameModuleHandle m_game_module_handle;
 
-    std::unique_ptr<ProjectManager> m_project_manager;
-    std::unique_ptr<SceneRegistry> m_scene_registry;
-    std::unique_ptr<SceneScheduler> m_scene_scheduler;
-    std::unique_ptr<ViewManager> m_view_manager;
-    std::unique_ptr<UIRuntime> m_ui;
-    std::unique_ptr<render::Renderer> m_renderer;
+    Owner<ProjectManager> m_project_manager;
+    Owner<SceneRegistry> m_scene_registry;
+    Owner<SceneScheduler> m_scene_scheduler;
+    Owner<ViewManager> m_view_manager;
+    Owner<UIRuntime> m_ui;
+    Owner<render::Renderer> m_renderer;
 
     // @TODO: do not use raw pointers
+    ImGuiService* m_imgui{};
     DisplayService* m_display_service{};
     InputService* m_input_service{};
     GameInput m_game_input;
