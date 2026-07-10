@@ -104,7 +104,7 @@ bool EditService::handleIntent(Intent& intent) {
     if (auto edit_intent = dynamic_cast<EditIntent*>(&intent)) {
         IDocument* doc = resolve(edit_intent->doc_id());
         if (DEV_VERIFY(doc)) {
-            doc->apply(std::move(edit_intent->cmd_), 0);
+            doc->apply(std::move(edit_intent->m_cmd), 0);
         }
 
         return true;

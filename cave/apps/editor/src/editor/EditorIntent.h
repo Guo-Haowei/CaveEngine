@@ -63,11 +63,11 @@ class EditIntent : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.edit");
 
-    EditIntent(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd)
+    EditIntent(DocId doc_id, Owner<IEditCmd>&& cmd)
         : BaseDocIntent(doc_id)
-        , cmd_(std::move(cmd)) {}
+        , m_cmd(std::move(cmd)) {}
 
-    std::unique_ptr<IEditCmd> cmd_;
+    std::unique_ptr<IEditCmd> m_cmd;
 };
 
 class PickIntent : public Intent {
@@ -75,17 +75,17 @@ public:
     CAVE_DECLARE_INTENT("editor.view.pick");
 
     PickIntent(math::Vec2f pointer)
-        : pointer_(pointer) {}
+        : m_pointer(pointer) {}
 
-    math::Vec2f pointer() const { return pointer_; }
+    math::Vec2f pointer() const { return m_pointer; }
 
 #if USING(DEBUG_BUILD)
     std::string debugString() const override {
-        return std::format("p=({},{})", pointer_.x, pointer_.y);
+        return std::format("p=({},{})", m_pointer.x, m_pointer.y);
     }
 #endif
 private:
-    math::Vec2f pointer_;
+    math::Vec2f m_pointer;
 };
 
 }  // namespace cave

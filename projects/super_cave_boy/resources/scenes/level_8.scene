@@ -114,7 +114,7 @@ entities:
         scale: [1, 1, 1]
   - id: 35
     NameComponent:
-      name: prefab
+      name: snake-01
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
