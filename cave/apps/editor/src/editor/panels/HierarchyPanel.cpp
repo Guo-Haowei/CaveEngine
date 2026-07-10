@@ -204,7 +204,7 @@ bool HierarchyCreator::Build(const Scene& scene) {
     if (nodes_without_parent != 1) {
         static int s_nodes_without_parent = 0;
         if (nodes_without_parent != s_nodes_without_parent) {
-            LOG_ERROR("{} orphan nodes detected", nodes_without_parent - 1);
+            LOG_ERROR(LogChannel::Scene, "{} orphan nodes detected", nodes_without_parent - 1);
             s_nodes_without_parent = nodes_without_parent;
         }
     }

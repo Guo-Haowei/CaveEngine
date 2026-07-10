@@ -22,6 +22,8 @@ entities:
       tile_map_id: 756A8896-80D1-CF49-96F7B13268F66267
       tint_color: [1, 1, 1, 1]
   - id: 3
+    HierarchyComponent:
+      parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
@@ -51,6 +53,8 @@ entities:
       params:
         {}
   - id: 9
+    HierarchyComponent:
+      parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
@@ -59,6 +63,8 @@ entities:
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 14
+    HierarchyComponent:
+      parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:

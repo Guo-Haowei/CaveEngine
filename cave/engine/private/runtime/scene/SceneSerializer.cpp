@@ -172,8 +172,9 @@ bool SerializePrefabEntity(ISerializer& s,
                            AssetRegistry* asset_reg) {
     s.beginMap(false);
 
-    s.beginKey("id")
-        .write(ent);
+    s.beginKey("id").write(ent);
+
+    SerializeComponent<HierarchyComponent>(s, "HierarchyComponent", scene, ent);
     SerializeComponent<PrefabInstanceComponent>(s, "PrefabInstanceComponent", scene, ent);
 
     SerializePrefabDiff(s, scene, ent, prefab, asset_reg);
@@ -299,8 +300,7 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
     for (auto&& [ent, prefab] : scene.view<PrefabInstanceComponent>()) {
         InstantiatePrefab(scene, prefab, ent);
 
-        auto hier = scene.component<HierarchyComponent>(ent);
-        if (!hier) {
+        if (!scene.has<HierarchyComponent>(ent)) {
             scene.create<HierarchyComponent>(ent).parent_id = scene.root();
         }
     }

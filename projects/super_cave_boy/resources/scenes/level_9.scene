@@ -95,6 +95,8 @@ entities:
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 47
+    HierarchyComponent:
+      parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
     PrefabOverride:
@@ -103,6 +105,8 @@ entities:
         rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]
   - id: 60
+    HierarchyComponent:
+      parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
     PrefabOverride:
@@ -111,6 +115,8 @@ entities:
         rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]
   - id: 75
+    HierarchyComponent:
+      parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
@@ -119,6 +125,8 @@ entities:
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 92
+    HierarchyComponent:
+      parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:

@@ -17,7 +17,7 @@ SceneAsset::~SceneAsset() = default;
 Vector<Guid> SceneAsset::dependencies() const {
     DEV_ASSERT(m_scene);
 
-    HashSet<Guid> deps;
+    Set<Guid> deps;
     for (const auto& [id, material] : m_scene->view<MaterialComponent>()) {
         deps.insert(material.m_material_id);
     }
