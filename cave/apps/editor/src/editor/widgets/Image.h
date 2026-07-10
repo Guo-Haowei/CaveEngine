@@ -32,18 +32,22 @@ void WarningIcon();
 
 void ErrorIcon();
 
-void CenteredImage(uint64_t p_handle,
-                   int p_desired_size,
-                   int p_img_width,
-                   int p_img_height,
-                   bool p_flip);
+void CenteredImage(uint64_t handle,
+                   int desired_size,
+                   int img_width,
+                   int img_height,
+                   bool flip);
 
-void CenteredImage(const ImageAsset* p_image,
-                   const math::Vec2f& p_background_region,
-                   uint64_t p_background);
+void CenteredImage(const ImageAsset* image,
+                   const math::Vec2f& background_region,
+                   uint64_t background);
 
-auto AssetCard(uint64_t p_texture_id,
-               const char* p_name,
-               const math::Vec2f& p_image_size) -> std::tuple<bool, bool>;
+using AssetCardImageFn = std::function<void(uint64_t, const ImVec2&, const ImVec2&)>;
+
+auto AssetCard(uint64_t texture_id,
+               const char* name,
+               const math::Vec2f& image_size,
+               AssetCardImageFn&& image_func = nullptr)
+    -> std::tuple<bool, bool>;
 
 }  // namespace cave::ui

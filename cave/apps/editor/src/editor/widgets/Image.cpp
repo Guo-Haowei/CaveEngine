@@ -118,9 +118,11 @@ void CenteredImage(const ImageAsset* p_image,
     ImGui::EndChild();
 }
 
-auto AssetCard(uint64_t tex,
-               const char* p_name,
-               const math::Vec2f& p_image_size) -> std::tuple<bool, bool> {
+auto AssetCard(uint64_t texture_id,
+               const char* name,
+               const math::Vec2f& image_size,
+               AssetCardImageFn&& image_func)
+    -> std::tuple<bool, bool> {
 
     ImDrawList* draw = ImGui::GetWindowDrawList();
     ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -132,8 +134,8 @@ auto AssetCard(uint64_t tex,
 
     // Estimate text height: 2 lines + padding
     float text_height = ImGui::GetFontSize() * 2 + spacing * 2;
-    ImVec2 card_size = ImVec2(p_image_size.x + padding * 2,
-                              p_image_size.y + text_height + 8);
+    ImVec2 card_size = ImVec2(image_size.x + padding * 2,
+                              image_size.y + text_height + 8);
 
     // Shadow behind card
     draw->AddRectFilled(pos + ImVec2(shadow_offset, shadow_offset),
@@ -147,19 +149,23 @@ auto AssetCard(uint64_t tex,
     draw->AddRectFilled(pos, pos + card_size, card_bg, rounding);
     ImGui::PopStyleColor();
 
-    ImGui::InvisibleButton(p_name, card_size);
+    ImGui::InvisibleButton(name, card_size);
     bool hovered = ImGui::IsItemHovered();
     bool clicked = ImGui::IsItemClicked();
 
     // Image (square)
     ImVec2 image_min = pos + ImVec2(padding, padding);
-    ImVec2 image_max = image_min + ImVec2(p_image_size.x, p_image_size.y);
+    ImVec2 image_max = image_min + ImVec2(image_size.x, image_size.y);
 
-    draw->AddImage(tex, image_min, image_max);
+    if (image_func) {
+        image_func(texture_id, image_min, image_max);
+    } else {
+        draw->AddImage(texture_id, image_min, image_max);
+    }
 
     // Text
-    ImVec2 textStart = image_min + ImVec2(0, p_image_size.y + spacing);
-    draw->AddText(textStart, IM_COL32(180, 180, 180, 220), p_name);
+    ImVec2 textStart = image_min + ImVec2(0, image_size.y + spacing);
+    draw->AddText(textStart, IM_COL32(180, 180, 180, 220), name);
 
     if (hovered) {
         draw->AddRect(pos, pos + card_size, IM_COL32(255, 255, 255, 100), rounding, 0, 1.5f);

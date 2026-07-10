@@ -188,7 +188,7 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     ImGui::Dummy({ rect.w, rect.h });
     if (auto handle_opt = DragDropTarget(AssetType::All)) {
         auto handle = handle_opt.unwrap_unchecked();
-        if (!onAssetDropped(std::move(handle))) {
+        if (!onAssetDropped(handle)) {
             const AssetMetaData* meta = handle.meta();
             LOG_ERROR(LogChannel::Asset, "asset '{}' not accepted", meta->name);
         }
