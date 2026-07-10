@@ -35,6 +35,7 @@ constexpr uint32_t kLatestSceneVersion = 19;
 constexpr char kSceneMagic[] = "xBScene";
 
 #define PREFAB_OVERRIDE_LIST               \
+    PREFAB_OVERRIDE(NameComponent)         \
     PREFAB_OVERRIDE(TransformComponent)    \
     PREFAB_OVERRIDE(NativeScriptComponent) \
     PREFAB_OVERRIDE(FacingComponent)
@@ -249,12 +250,14 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
     DEV_ASSERT(ok);
 
     struct OverrideComponents {
+        Option<NameComponent> NameComponent;
         Option<TransformComponent> TransformComponent;
         Option<FacingComponent> FacingComponent;
         Option<NativeScriptComponent> NativeScriptComponent;
 
         bool is_some() const {
-            return TransformComponent.is_some() ||
+            return NameComponent.is_some() ||
+                   TransformComponent.is_some() ||
                    FacingComponent.is_some() ||
                    NativeScriptComponent.is_some();
         }

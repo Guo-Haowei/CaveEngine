@@ -58,6 +58,8 @@ entities:
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
     PrefabOverride:
+      NameComponent:
+        name: snake-01
       TransformComponent:
         translation: [14.5, 5.30000019, 0]
         rotation: [0, 1, 0, 0]
@@ -68,6 +70,8 @@ entities:
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
     PrefabOverride:
+      NameComponent:
+        name: snake-02
       TransformComponent:
         translation: [23.5, 5.30000019, 0]
         rotation: [0, 0, 0, 1]
@@ -80,6 +84,8 @@ entities:
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:
+      NameComponent:
+        name: bat-01
       TransformComponent:
         translation: [10.1999998, 8.5, 0]
         rotation: [0, 0, 0, 1]
@@ -90,6 +96,8 @@ entities:
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:
+      NameComponent:
+        name: bat-02
       TransformComponent:
         translation: [30.2999992, 8.5, 0]
         rotation: [0, 0, 0, 1]
@@ -100,6 +108,8 @@ entities:
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
     PrefabOverride:
+      NameComponent:
+        name: spider-01
       TransformComponent:
         translation: [29.5, 5.4000001, 0]
         rotation: [0, 1, 0, 0]
@@ -110,6 +120,8 @@ entities:
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
     PrefabOverride:
+      NameComponent:
+        name: spider-02
       TransformComponent:
         translation: [36.5, 3.4000001, 0]
         rotation: [0, 1, 0, 0]
