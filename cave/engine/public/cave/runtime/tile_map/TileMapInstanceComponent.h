@@ -15,10 +15,10 @@ class TileMapInstanceComponent {
 
 private:
     CAVE_PROP(editor = Asset, tooltip = "tile map")
-    Guid tile_map_id_;
+    Guid m_tile_map_id;
 
     CAVE_PROP(editor = Color)
-    math::Vec4f tint_color_ = math::Vec4f::One;
+    math::Vec4f m_tint_color = math::Vec4f::One;
 
     struct Cache {
         Handle<ImageAsset> image;
@@ -27,26 +27,26 @@ private:
     };
 
     // Non serialize
-    bool visible_;
-    Handle<TileMapAsset> handle_;
-    Cache cache_;
-    uint32_t revision_{ 0 };
+    bool m_visible;
+    Handle<TileMapAsset> m_handle;
+    Cache m_cache;
+    uint32_t m_revision{ 0 };
 
 public:
     // @TODO: better way to create data
     void createRenderData();
 
-    bool visible() const { return visible_; }
-    const Cache& cache() const { return cache_; }
+    bool visible() const { return m_visible; }
+    const Cache& cache() const { return m_cache; }
 
-    const auto& tileMapHandle() const { return handle_; }
+    const auto& tileMapHandle() const { return m_handle; }
 
     void tintColor(const math::Vec4f& tint_color);
-    const math::Vec4f& tintColor() const { return tint_color_; }
+    const math::Vec4f& tintColor() const { return m_tint_color; }
 
     // @TODO: change to camelCase
     bool SetResourceGuid(const Guid& guid);
-    const Guid& GetResourceGuid() const { return tile_map_id_; }
+    const Guid& GetResourceGuid() const { return m_tile_map_id; }
     void OnDeserialized();
 };
 

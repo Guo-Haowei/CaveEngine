@@ -32,7 +32,7 @@ private:
 
     void drawUIImpl() override;
     void drawSelection();
-    void drawGizmo(const math::FloatRect& rect);
+    void drawGizmo(const math::FloatRect& rect, bool ortho);
 
     bool onAssetDropped(AssetHandle handle) override;
 

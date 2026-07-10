@@ -146,7 +146,7 @@ void SceneViewTab::drawUIImpl() {
 
     if (!m_editor.isPlaying()) {
         drawSelection();
-        drawGizmo(view->display_rect_os);
+        drawGizmo(view->display_rect_os, m_camera.isOrtho());
     }
 
     submitView();
@@ -166,7 +166,7 @@ void SceneViewTab::drawSelection() {
 
 // @TODO: instead of asking for image, provide an image to renderer
 // @TODO: move this to gizmo
-void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
+void SceneViewTab::drawGizmo(const math::FloatRect& rect, bool ortho) {
     DEV_ASSERT(!m_camera.dirty());
     DocId doc_id = docId();
 
@@ -174,7 +174,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect) {
     const Mat4f& proj_matrix = m_camera.projectionMatrix();
     const Mat4f& proj_view = m_camera.projectionViewMatrix();
 
-    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetOrthographic(ortho);
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetDrawlist();
@@ -271,9 +271,11 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
         case AssetType::Prefab: {
             Scene* scene = getResolvedScene();
             m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
-                Entity prefb = writer.prefabObject("prefab", handle.guid());
-                writer.attachChild(prefb, scene->root());
+                Entity prefab = writer.prefabObject("prefab", handle.guid());
+                writer.attachChild(prefab, scene->root());
+                return prefab;
             });
+
             return true;
         }
         default:

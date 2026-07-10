@@ -17,7 +17,7 @@ public:
         return false;
     }
 
-    void coalesceFrom(std::unique_ptr<IEditCmd>) override {
+    void coalesceFrom(Owner<IEditCmd>) override {
         return;
     }
 

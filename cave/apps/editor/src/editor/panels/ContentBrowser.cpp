@@ -18,6 +18,7 @@
 // @TODO: refactor
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/ui/layout.h"
 
 namespace cave {
@@ -196,9 +197,16 @@ void ContentBrowser::drawContentBrowser() {
     for (const auto& node : current->children) {
         const uint64_t handle = find_texture(*node);
 
-        auto [hovered, clicked] = ui::AssetCard(handle,
-                                                node->file_name.data(),
-                                                math::Vec2f(thumbnail_size));
+        auto [hovered, clicked] = ui::AssetCard(
+            handle,
+            node->file_name.data(),
+            math::Vec2f(thumbnail_size)
+#if 0
+            , [this](uint64_t tex, const ImVec2& min, const ImVec2& max) {
+                m_engine_services.imgui->drawTexture(*ImGui::GetWindowDrawList(), tex, min, max);
+            }
+#endif
+        );
         if (ImGui::BeginPopupContextItem()) {
             ShowPopup(*node, m_editor_services.document(), []() {
                 LOG_WARN("TODO: rename");

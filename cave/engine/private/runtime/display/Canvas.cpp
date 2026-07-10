@@ -133,13 +133,18 @@ void Canvas::addImageImpl(GpuTexture* texture,
                           const math::Mat4f* transform) {
     DEV_ASSERT(min.x < max.x && min.y < max.y);
 
+    Vec3f bottom_left{ min.x, min.y, 0.0f };
+    Vec3f bottom_right{ max.x, min.y, 0.0f };
+    Vec3f top_left{ min.x, max.y, 0.0f };
+    Vec3f top_right{ max.x, max.y, 0.0f };
+
     PrimShape shape{
         .type = PrimShapeType::Rect,
         .vertices = {
-            PrimVert{ Vec3f(min.x, min.y, 0.0f), Vec2f(uv_min.x, uv_min.y), tint },
-            PrimVert{ Vec3f(max.x, min.y, 0.0f), Vec2f(uv_max.x, uv_min.y), tint },
-            PrimVert{ Vec3f(max.x, max.y, 0.0f), Vec2f(uv_max.x, uv_max.y), tint },
-            PrimVert{ Vec3f(min.x, max.y, 0.0f), Vec2f(uv_min.x, uv_max.y), tint },
+            PrimVert{ bottom_left, Vec2f(uv_min.x, uv_max.y), tint },
+            PrimVert{ bottom_right, Vec2f(uv_max.x, uv_max.y), tint },
+            PrimVert{ top_left, Vec2f(uv_min.x, uv_min.y), tint },
+            PrimVert{ top_right, Vec2f(uv_max.x, uv_min.y), tint },
         },
         .tex = texture,
     };

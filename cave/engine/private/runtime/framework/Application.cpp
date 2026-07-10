@@ -59,10 +59,6 @@ void Application::registerModule(IService* p_module) {
     m_subsystems.push_back(p_module);
 }
 
-Result<ImguiManager*> Application::createImguiManager() {
-    return new ImguiManager();
-}
-
 auto Application::setupModules() -> Result<void> {
     // @TODO: clean up
     m_cmd_reg_ = new cave::CommandRegistry();
@@ -95,22 +91,22 @@ auto Application::setupModules() -> Result<void> {
     m_ui = std::make_unique<UIRuntime>(*m_view_manager);
 
     // setup app services
-    m_engine_services.asset_manager_ = m_asset_manager;
-    m_engine_services.asset_registry_ = m_asset_registry;
+    m_engine_services.asset_manager = m_asset_manager;
+    m_engine_services.asset_registry = m_asset_registry;
     m_engine_services.canvas_ = &m_canvas;
-    m_engine_services.display_service_ = m_display_service;
-    m_engine_services.game_input_ = &m_game_input;
-    m_engine_services.input_service_ = m_input_service;
+    m_engine_services.display_service = m_display_service;
+    m_engine_services.game_input = &m_game_input;
+    m_engine_services.input_service = m_input_service;
     m_engine_services.intent_bus_ = &m_intent_bus;
-    m_engine_services.native_scripts_ = &m_native_scripts;
-    m_engine_services.project_manager_ = m_project_manager.get();
+    m_engine_services.native_scripts = &m_native_scripts;
+    m_engine_services.project_manager = m_project_manager.get();
     m_engine_services.render_device_ = m_render_device;
     m_engine_services.renderer_ = m_renderer.get();
-    m_engine_services.scene_registry_ = m_scene_registry.get();
-    m_engine_services.scene_scheduler_ = m_scene_scheduler.get();
-    m_engine_services.task_manager_ = m_task_manager;
-    m_engine_services.ui_ = m_ui.get();
-    m_engine_services.view_manager_ = m_view_manager.get();
+    m_engine_services.scene_registry = m_scene_registry.get();
+    m_engine_services.scene_scheduler = m_scene_scheduler.get();
+    m_engine_services.task_manager = m_task_manager;
+    m_engine_services.ui = m_ui.get();
+    m_engine_services.view_manager = m_view_manager.get();
     m_engine_services.vfs_ = &m_vfs;
     m_engine_services.game_module_ = &m_game_module_handle;
 
@@ -123,12 +119,9 @@ auto Application::setupModules() -> Result<void> {
     registerModule(m_render_device);
 
     if (m_app_spec.enableImgui) {
-        auto res = createImguiManager();
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        m_imgui_manager = *res;
-        registerModule(m_imgui_manager);
+        m_imgui = new ImGuiService(m_app_spec.backend);
+        m_engine_services.imgui = m_imgui;
+        registerModule(m_imgui);
     }
 
     m_event_queue.RegisterListener(m_render_device);

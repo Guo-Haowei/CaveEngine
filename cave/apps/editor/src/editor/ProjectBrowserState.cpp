@@ -12,9 +12,9 @@
 #include "engine/private/core/os/os.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/BootLoadPipeline.h"
-#include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
@@ -122,8 +122,8 @@ void ProjectBrowserState::tick(const FrameTime&) {
         selectProject(DVAR_GET_STRING(last_opened_project));
     }
 
-    if (ImguiManager* imgui_manager = m_app.imguiManager()) {
-        imgui_manager->BeginFrame();
+    if (ImGuiService* imgui_manager = m_app.services().imgui) {
+        imgui_manager->beginFrame();
 
         ui::DockSpace({ "DockSpaceRoot",
                         nullptr,

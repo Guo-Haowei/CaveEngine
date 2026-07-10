@@ -106,9 +106,8 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
             return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", (int)backend_);
     }
 
-    auto imgui = m_app->imguiManager();
-    if (imgui) {
-        imgui->SetDisplayCallbacks(
+    if (ImGuiService* imgui = m_app->services().imgui) {
+        imgui->setDisplayCallbacks(
             [this]() {
                 switch (backend_) {
                     case Backend::OpenGL:

@@ -277,6 +277,7 @@ void HierarchyPanel::openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent) {
             m_editor_services.edit().submit(doc_id, [&](SceneCommandWriter& writer) {
                 Entity temp = create_func(writer, name);
                 writer.attachChild(temp, parent);
+                return temp;
             });
         }
 

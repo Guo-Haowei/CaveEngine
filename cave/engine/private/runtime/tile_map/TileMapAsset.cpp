@@ -16,14 +16,14 @@ int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
 }  // namespace
 
 void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
-    const bool should_update = force_update || tile_set_id_ != guid;
+    const bool should_update = force_update || m_tile_set_id != guid;
     if (should_update) {
         if (auto handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(guid)) {
-            tile_set_id_ = guid;
-            tile_set_handle_ = std::move(handle.unwrap());
+            m_tile_set_id = guid;
+            m_tile_set_handle = std::move(handle.unwrap());
         } else {
-            tile_set_id_ = Guid::null();
-            tile_set_handle_.invalidate();
+            m_tile_set_id = Guid::null();
+            m_tile_set_handle.invalidate();
         }
 
         incRevision();
@@ -31,7 +31,7 @@ void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
 }
 
 Vector<Guid> TileMapAsset::dependencies() const {
-    return { tile_set_id_ };
+    return { m_tile_set_id };
 }
 
 ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
@@ -156,7 +156,7 @@ Result<void> TileMapAsset::loadFromDisk(const AssetMetaData& meta) {
         d.leaveKey();
     }
 
-    tileSetGuid(tile_set_id_, true);
+    tileSetGuid(m_tile_set_id, true);
     return Result<void>();
 }
 

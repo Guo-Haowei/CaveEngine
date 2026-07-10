@@ -12,46 +12,46 @@ using namespace math;
 using namespace render;
 
 void TileMapInstanceComponent::tintColor(const Vec4f& tint_color) {
-    tint_color_ = tint_color;
+    m_tint_color = tint_color;
 }
 
 bool TileMapInstanceComponent::SetResourceGuid(const Guid& guid) {
     return AssetHandle::replaceGuidAndHandle(AssetType::TileMap,
                                              guid,
-                                             tile_map_id_,
-                                             handle_.rawHandle());
+                                             m_tile_map_id,
+                                             m_handle.rawHandle());
 }
 
 void TileMapInstanceComponent::OnDeserialized() {
-    if (tile_map_id_.isNull()) {
+    if (m_tile_map_id.isNull()) {
         return;
     }
-    auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(tile_map_id_);
-    handle_ = std::move(res.unwrap());
+    auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(m_tile_map_id);
+    m_handle = std::move(res.unwrap());
 }
 
 void TileMapInstanceComponent::createRenderData() {
-    if (tile_map_id_ != handle_.guid()) {
+    if (m_tile_map_id != m_handle.guid()) {
         OnDeserialized();
     }
 
-    auto tile_map = handle_.get();
+    auto tile_map = m_handle.get();
 
     if (!tile_map) {
         return;
     }
 
-    visible_ = tile_map->visible();
+    m_visible = tile_map->visible();
 
     // @TODO: update guid
-    if (cache_.tile_set_handle.guid() == Guid::null()) {
+    if (m_cache.tile_set_handle.guid() == Guid::null()) {
         auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(tile_map->tileSetGuid());
         if (tile_set_handle.is_some()) {
-            cache_.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
+            m_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
         }
     }
 
-    TileSetAsset* tile_set = cache_.tile_set_handle.get();
+    TileSetAsset* tile_set = m_cache.tile_set_handle.get();
     if (!tile_set) {
         return;
     }
@@ -62,7 +62,7 @@ void TileMapInstanceComponent::createRenderData() {
         need_update = true;
     }
 
-    if (tile_map->revision() != revision_) {
+    if (tile_map->revision() != m_revision) {
         need_update = true;
     }
 
@@ -70,7 +70,7 @@ void TileMapInstanceComponent::createRenderData() {
         return;
     }
 
-    cache_.image = tile_set->handle();
+    m_cache.image = tile_set->handle();
 
     std::vector<Vec2f> vertices;
     std::vector<Vec2f> uvs;
@@ -78,7 +78,7 @@ void TileMapInstanceComponent::createRenderData() {
 
     const auto& chunks = tile_map->tiles().chunks();
     if (chunks.empty()) {
-        visible_ = false;
+        m_visible = false;
         return;
     }
 
@@ -108,7 +108,6 @@ void TileMapInstanceComponent::createRenderData() {
                 Vec2f uv_min = frames[tile_id].min();
                 Vec2f uv_max = frames[tile_id].max();
 
-                // manually flip y here
                 Vec2f uv0 = { uv_min.x, uv_max.y };
                 Vec2f uv1 = { uv_max.x, uv_max.y };
                 Vec2f uv2 = { uv_min.x, uv_min.y };
@@ -166,9 +165,9 @@ void TileMapInstanceComponent::createRenderData() {
     // @NOTE: shouldn't call RenderDevice here
     auto mesh = RenderDevice::singleton().CreateMeshImpl(desc, buffers, &index_desc);
 
-    cache_.mesh = *mesh;
+    m_cache.mesh = *mesh;
 
-    revision_ = tile_map->revision();
+    m_revision = tile_map->revision();
 }
 
 }  // namespace cave

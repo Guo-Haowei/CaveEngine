@@ -24,12 +24,12 @@ public:
                         const void* data,
                         uint32_t data_size) override;
 
-    std::unique_ptr<IEditCmd> MoveCommand();
+    Owner<IEditCmd> takeCommand();
 
 private:
     SceneRegistry& m_scene_reg;
 
-    std::unique_ptr<CompositeEditCmd> m_cmd;
+    Owner<CompositeEditCmd> m_cmd;
 };
 
 }  // namespace cave

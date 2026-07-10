@@ -13,6 +13,7 @@
 #include "editor/EditorState.h"
 #include "editor/edit/SceneCommandExecutor_Undo.h"
 #include "editor/services/DocumentService.h"
+#include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
 
 namespace cave {
@@ -29,7 +30,7 @@ EditService::~EditService() {
     m_app_services.intentBus().removeHandler<EditIntent>(this);
 }
 
-void EditService::submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd) {
+void EditService::submit(DocId doc_id, Owner<IEditCmd>&& cmd) {
     m_app_services.intentBus().queue<EditIntent>(doc_id, std::move(cmd));
 }
 
@@ -37,8 +38,9 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
     SceneRegistry& scene_reg = m_app_services.sceneRegistry();
 
     Scene* scene = nullptr;
+    SceneId scene_id{};
     if (IDocument* doc = m_editor_services.document().resolve(doc_id)) {
-        SceneId scene_id = doc->previewScene();
+        scene_id = doc->previewScene();
         scene = scene_reg.resolve(scene_id);
     }
 
@@ -47,13 +49,25 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
     }
 
     SceneCommandWriter cb(m_app_services.assetRegistry());
-    func(cb);
+    auto ent = func(cb);
 
     EntityMap map(cb.allocationCount());
     SceneCommandExecutor_Undo executor(scene_reg);
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
+    ent = map.resolve(ent);
 
-    submit(doc_id, std::move(executor.MoveCommand()));
+    if (ent.valid()) {
+        SelectionKey selection = {
+            .kind = SelectionKind::Entity,
+            .doc = doc_id,
+            .scene = scene_id,
+            .entity = ent,
+        };
+
+        m_editor_services.selection().setSelection(doc_id, selection);
+    }
+
+    submit(doc_id, std::move(executor.takeCommand()));
 }
 
 void EditService::undo(DocId doc_id) {
@@ -104,7 +118,7 @@ bool EditService::handleIntent(Intent& intent) {
     if (auto edit_intent = dynamic_cast<EditIntent*>(&intent)) {
         IDocument* doc = resolve(edit_intent->doc_id());
         if (DEV_VERIFY(doc)) {
-            doc->apply(std::move(edit_intent->cmd_), 0);
+            doc->apply(std::move(edit_intent->m_cmd), 0);
         }
 
         return true;
