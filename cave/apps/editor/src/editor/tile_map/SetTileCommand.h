@@ -31,17 +31,7 @@ public:
 
     bool undo(IDocument& doc) override;
 
-    bool canCoalesceWith(const IEditCmd* cmd) const override;
-
-    void coalesceFrom(Owner<IEditCmd> cmd) override;
-
 private:
-    bool setTiles(TileMapAsset& tile_map,
-                  IDocument& doc,
-                  size_t begin,
-                  size_t end,
-                  int inc);
-
     Vector<Command> m_cmds;
 };
 

@@ -31,8 +31,6 @@ struct GridPaintInput {
 
     bool ctrl = false;
     bool shift = false;
-
-    bool cancel_pressed = false;
 };
 
 }  // namespace cave

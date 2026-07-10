@@ -2,17 +2,18 @@
 
 namespace cave {
 
-GridPaintMode GridPaintTool::resolveMode(const GridPaintInput& input) const {
-    // Modifiers only override the selected mode while idle.
+auto GridPaintTool::resolveMode(const GridPaintInput& input) const
+    -> std::pair<GridPaintMode, GridPaintModifier> {
+
     if (input.shift) {
-        return GridPaintMode::Line;
+        return std::make_pair(GridPaintMode::Line, GridPaintModifier::Shift);
     }
 
     if (input.ctrl) {
-        return GridPaintMode::Rect;
+        return std::make_pair(GridPaintMode::Rect, GridPaintModifier::Ctrl);
     }
 
-    return m_selected_mode;
+    return std::make_pair(m_selected_mode, GridPaintModifier::None);
 }
 
 void GridPaintTool::emit(GridPaintEventType type,
@@ -96,10 +97,12 @@ void GridPaintTool::buildHoverPreview(GridCoord coord,
 
 void GridPaintTool::beginStroke(GridCoord coord,
                                 GridPaintMode mode,
+                                GridPaintModifier modifier,
                                 GridPaintAction action) {
     m_stroke = {
         .active = true,
         .mode = mode,
+        .modifier = modifier,
         .action = action,
         .start = coord,
         .previous = coord,
@@ -191,12 +194,22 @@ void GridPaintTool::cancelStroke() {
     emit(GridPaintEventType::Cancel, action);
 }
 
+bool GridPaintTool::isStrokeModifierHeld(const GridPaintInput& input) const {
+    switch (m_stroke.modifier) {
+        case GridPaintModifier::None:
+            return true;
+        case GridPaintModifier::Ctrl:
+            return input.ctrl;
+        case GridPaintModifier::Shift:
+            return input.shift;
+    }
+    return false;
+}
+
 auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridPaintEvent> {
     m_events.clear();
 
-    const bool cancel_pressed = input.cancel_pressed;
-    const bool cursor_outside = m_stroke.active && !input.has_hover;
-    if (cancel_pressed || cursor_outside) {
+    if (m_stroke.active && !(input.has_hover && isStrokeModifierHeld(input))) {
         cancelStroke();
         return m_events;
     }
@@ -207,26 +220,19 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
             return m_events;
         }
 
+        const auto [mode, modifier] = resolveMode(input);
+
         if (input.left_pressed) {
-            beginStroke(
-                input.hover,
-                resolveMode(input),
-                GridPaintAction::Paint);
+            beginStroke(input.hover, mode, modifier, GridPaintAction::Paint);
             return m_events;
         }
 
         if (input.right_pressed) {
-            beginStroke(
-                input.hover,
-                resolveMode(input),
-                GridPaintAction::Erase);
+            beginStroke(input.hover, mode, modifier, GridPaintAction::Erase);
             return m_events;
         }
 
-        buildHoverPreview(
-            input.hover,
-            resolveMode(input));
-
+        buildHoverPreview(input.hover, mode);
         return m_events;
     }
 

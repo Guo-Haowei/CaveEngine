@@ -46,11 +46,4 @@ bool SetTileCommand::undo(IDocument& doc) {
     return true;
 }
 
-bool SetTileCommand::canCoalesceWith(const IEditCmd*) const {
-    return false;
-}
-
-void SetTileCommand::coalesceFrom(Owner<IEditCmd>) {
-}
-
 }  // namespace cave

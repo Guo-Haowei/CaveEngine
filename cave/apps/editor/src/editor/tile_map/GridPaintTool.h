@@ -21,6 +21,12 @@ enum class GridPaintEventType : uint8_t {
     Cancel,
 };
 
+enum class GridPaintModifier : uint8_t {
+    None,
+    Ctrl,
+    Shift,
+};
+
 struct GridBrush {
     int width = 1;
     int height = 1;
@@ -142,10 +148,12 @@ public:
     void reset();
 
 private:
+
     struct Stroke {
         bool active = false;
 
         GridPaintMode mode = GridPaintMode::Brush;
+        GridPaintModifier modifier = GridPaintModifier::None;
         GridPaintAction action = GridPaintAction::Paint;
 
         GridCoord start;
@@ -155,15 +163,19 @@ private:
         GridBrush brush;
     };
 
-    GridPaintMode resolveMode(const GridPaintInput& input) const;
+    auto resolveMode(const GridPaintInput& input) const
+        -> std::pair<GridPaintMode, GridPaintModifier>;
 
     void beginStroke(GridCoord coord,
                      GridPaintMode mode,
+                     GridPaintModifier modifier,
                      GridPaintAction action);
 
     void updateStroke(GridCoord coord);
     void finishStroke();
     void cancelStroke();
+
+    bool isStrokeModifierHeld(const GridPaintInput& input) const;
 
     void buildHoverPreview(GridCoord coord,
                            GridPaintMode mode);
