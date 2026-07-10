@@ -3,6 +3,7 @@
 #include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/ecs/components/CameraComponent.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
+#include "cave/runtime/ecs/components/PrefabInstanceComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/runtime/scene/Scene.h"
@@ -29,6 +30,15 @@ void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
                                               ViewId view_id,
                                               const Scene& scene,
                                               ecs::Entity ent) {
+    const auto prefab = scene.component<PrefabInstanceComponent>(ent);
+    ent = prefab ? prefab->instance() : ent;
+    drawSelectionHighlightImpl(canvas, view_id, scene, ent);
+}
+
+void SceneViewOverlay::drawSelectionHighlightImpl(ICanvas& canvas,
+                                                  ViewId view_id,
+                                                  const Scene& scene,
+                                                  ecs::Entity ent) {
     if (ent.isNull()) return;
 
     const auto transform = scene.component<TransformComponent>(ent);

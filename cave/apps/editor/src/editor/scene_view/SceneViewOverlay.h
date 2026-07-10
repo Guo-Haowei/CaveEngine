@@ -15,6 +15,10 @@ public:
                                 ecs::Entity ent);
 
 private:
+    void drawSelectionHighlightImpl(ICanvas& canvas,
+                                    ViewId view_id,
+                                    const Scene& scene,
+                                    ecs::Entity ent);
 };
 
 }  // namespace cave
