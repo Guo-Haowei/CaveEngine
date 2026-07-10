@@ -29,39 +29,39 @@ class TileMapAsset : public IAsset {
 
 private:
     CAVE_PROP()
-    std::string name_;
+    std::string m_name;
 
     CAVE_PROP(editor = Asset)
-    Guid tile_set_id_;
+    Guid m_tile_set_id;
 
     CAVE_PROP(editor = Toggle)
-    bool visible_ = true;
+    bool m_visible = true;
 
     CAVE_PROP()
-    ChunkedTileData tiles_;
+    ChunkedTileData m_tiles;
 
     // Non serialized
-    Handle<TileSetAsset> tile_set_handle_;
-    uint32_t revision_{ 1 };  // make sure revision is ahead of renderer the first frame
+    Handle<TileSetAsset> m_tile_set_handle;
+    uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
-    const Handle<TileSetAsset>& tileSetHandle() const { return tile_set_handle_; }
+    const Handle<TileSetAsset>& tileSetHandle() const { return m_tile_set_handle; }
 
-    std::string& name() { return name_; }
-    const std::string& name() const { return name_; }
-    void name(std::string&& name) { name_ = std::move(name); }
+    std::string& name() { return m_name; }
+    const std::string& name() const { return m_name; }
+    void name(std::string&& name) { m_name = std::move(name); }
 
-    const Guid& tileSetGuid() const { return tile_set_id_; }
+    const Guid& tileSetGuid() const { return m_tile_set_id; }
     void tileSetGuid(const Guid& guid, bool force = false);
 
-    ChunkedTileData& tiles() { return tiles_; }
-    const ChunkedTileData& tiles() const { return tiles_; }
+    ChunkedTileData& tiles() { return m_tiles; }
+    const ChunkedTileData& tiles() const { return m_tiles; }
 
-    uint32_t revision() const { return revision_; }
-    void incRevision() { ++revision_; }
+    uint32_t revision() const { return m_revision; }
+    void incRevision() { ++m_revision; }
 
-    bool visible() const { return visible_; }
-    void visible(bool visible) { visible_ = visible; }
+    bool visible() const { return m_visible; }
+    void visible(bool visible) { m_visible = visible; }
 
     Result<void> saveToDisk(const AssetMetaData& meta) const override;
     Result<void> loadFromDisk(const AssetMetaData& meta) override;

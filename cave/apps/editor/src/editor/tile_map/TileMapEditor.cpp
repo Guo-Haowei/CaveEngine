@@ -434,40 +434,6 @@ void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
     }
 }
 
-#if 0
-void TileMapEditor::applayEditorTool(const TileMapAsset& tile_map,
-                                     const TileSetAsset& tile_set) {
-
-    Option<TileId> old_tile = tile_map.tiles().tileAt(m_coord);
-    Option<TileId> new_tile = None();
-
-    switch (m_mode) {
-        case cave::TileMapEditor::Mode::None:
-            return;
-        case cave::TileMapEditor::Mode::Painting: {
-            auto selections = m_sprite_selector.GetSelections();
-            if (selections.empty()) {
-                return;
-            }
-            auto [x, y] = selections[0];
-            if (x >= 0 && y >= 0) {
-                const uint32_t tile_id = y * tile_set.col() + x;
-                new_tile = Some(TileId(tile_id));
-            }
-        } break;
-        case cave::TileMapEditor::Mode::Erasing: {
-            // old tile is already None
-            if (old_tile.unwrap_or(kEmptyTileId) == kEmptyTileId) {
-                return;
-            }
-        } break;
-    }
-
-    if (old_tile == new_tile) {
-        return;  // no op if the tiles are the same
-    }
-}
-#endif
 void TileMapEditor::finishPaintCommand() {
     if (m_pending_tile_changes.empty()) {
         return;

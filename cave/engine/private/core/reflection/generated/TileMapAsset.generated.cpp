@@ -8,18 +8,18 @@
 
 namespace cave {
 
-// std::string name_ ()
-// Guid tile_set_id_ (editor = Asset)
-// bool visible_ (editor = Toggle)
-// ChunkedTileData tiles_ ()
+// std::string m_name ()
+// Guid m_tile_set_id (editor = Asset)
+// bool m_visible (editor = Toggle)
+// ChunkedTileData m_tiles ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileMapAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TileMapAsset, "name", name_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(TileMapAsset, "tile_set_id", tile_set_id_, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(TileMapAsset, "visible", visible_, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(TileMapAsset, "tiles", tiles_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(TileMapAsset, "name", m_name, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(TileMapAsset, "tile_set_id", m_tile_set_id, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(TileMapAsset, "visible", m_visible, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(TileMapAsset, "tiles", m_tiles, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;
