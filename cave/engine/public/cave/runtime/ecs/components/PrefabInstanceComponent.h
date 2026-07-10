@@ -16,15 +16,9 @@ private:
     CAVE_PROP(editor = Asset)
     Guid m_prefab_id;
 
-    // Non-serialzed
-    ecs::Entity m_instance;
-
 public:
     const Guid& prefabGuid() const { return m_prefab_id; }
     void setPrefabGuid(const Guid& guid) { m_prefab_id = guid; }
-
-    ecs::Entity instance() const { return m_instance; }
-    void setInstance(ecs::Entity ent) { m_instance = ent; }
 };
 
 }  // namespace cave

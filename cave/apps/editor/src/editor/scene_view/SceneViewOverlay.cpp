@@ -30,8 +30,6 @@ void SceneViewOverlay::drawSelectionHighlight(ICanvas& canvas,
                                               ViewId view_id,
                                               const Scene& scene,
                                               ecs::Entity ent) {
-    const auto prefab = scene.component<PrefabInstanceComponent>(ent);
-    ent = prefab ? prefab->instance() : ent;
     drawSelectionHighlightImpl(canvas, view_id, scene, ent);
 }
 

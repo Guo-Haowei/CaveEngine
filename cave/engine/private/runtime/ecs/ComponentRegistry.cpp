@@ -122,14 +122,16 @@ void PrefabInstance_OnEdited(Scene& scene,
     if (pid == "prefab_id"_sid) {
         auto* c = (PrefabInstanceComponent*)scene.storage().getRaw(PrefabInstanceComponent_Id, ent);
         if (DEV_VERIFY(c)) {
+            DEV_ASSERT(0);
+#if 0
             Entity child = c->instance();
             if (child.valid()) {
                 scene.removeEntity(child);
-                c->setInstance(Entity::null());
                 c->setPrefabGuid(Guid::null());
             } else {
                 InstantiatePrefab(scene, *c, ent);
             }
+#endif
         }
     }
 }
