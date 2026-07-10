@@ -49,15 +49,7 @@ void TileMapEditor::submitView() {
     ViewTabBase::submitView(false);
 }
 
-void TileMapEditor::onCreate() {
-    ViewTabBase::onCreate();
-}
-
-void TileMapEditor::onDestroy() {
-    ViewTabBase::onDestroy();
-}
-
-void TileMapEditor::drawOverlay(const TileSetAsset& tile_set) {
+void TileMapEditor::drawGhostTiles(const TileSetAsset& tile_set) {
     const ImageAsset* image = tile_set.handle().get();
     if (!image) return;
 
@@ -80,7 +72,9 @@ void TileMapEditor::drawOverlay(const TileSetAsset& tile_set) {
 
                 m_canvas.addImage(image->gpu_texture.get(),
                                   min, max,
-                                  uv_min, uv_max);
+                                  uv_min, uv_max,
+                                  Vec4f(Vec3f::One, 0.9f)
+                );
             }
         }
     }
@@ -104,12 +98,11 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
     }
 
     m_canvas.pushView(m_view_id);
-    drawOverlay(*tile_set);
+    drawGhostTiles(*tile_set);
     m_canvas.popView();
 }
 
 void TileMapEditor::drawGizmo(const math::FloatRect& rect) {
-
     const Mat4f& proj_view = m_camera.projectionViewMatrix();
 
     ImGuizmo::SetOrthographic(true);
@@ -261,6 +254,7 @@ Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {
     return Some(index);
 }
 
+// ---- Paint Tool ----
 GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
     GridPaintInput out{};
 
@@ -268,7 +262,6 @@ GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
 
     out.ctrl = st.anyCtrlDown();
     out.shift = st.anyShiftDown();
-    out.cancel_pressed = st.down(InputDeviceId{}, Key::Escape);
 
     Vec2f cursor = m_cursor.unwrap_or(Vec2f::Zero);
 
@@ -347,6 +340,35 @@ void TileMapEditor::handlePaintEvent(const GridPaintEvent& event,
 
 void TileMapEditor::beginPaintCommand() {
     DEV_ASSERT(m_pending_tile_changes.empty());
+    m_pending_tile_changes.clear();
+}
+
+void TileMapEditor::finishPaintCommand() {
+    if (m_pending_tile_changes.empty()) {
+        return;
+    }
+
+    auto composite = std::make_unique<SetTileCommand>(m_engine_services.sceneRegistry(),
+                                                      ecs::Entity::null());
+
+    for (const auto& [coord, change] : m_pending_tile_changes) {
+        if (change.before == change.after) {
+            continue;
+        }
+
+        composite->add(coord, change.before, change.after);
+    }
+
+    m_pending_tile_changes.clear();
+
+    if (composite->empty()) {
+        return;
+    }
+
+    m_editor_services.edit().submit(m_doc_id, std::move(composite));
+}
+
+void TileMapEditor::cancelPaintCommand() {
     m_pending_tile_changes.clear();
 }
 
@@ -432,36 +454,6 @@ void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
             }
         }
     }
-}
-
-void TileMapEditor::finishPaintCommand() {
-    if (m_pending_tile_changes.empty()) {
-        return;
-    }
-
-    auto composite = std::make_unique<SetTileCommand>(
-        m_engine_services.sceneRegistry(),
-        ecs::Entity::null());
-
-    for (const auto& [coord, change] : m_pending_tile_changes) {
-        if (change.before == change.after) {
-            continue;
-        }
-
-        composite->add(coord, change.before, change.after);
-    }
-
-    m_pending_tile_changes.clear();
-
-    if (composite->empty()) {
-        return;
-    }
-
-    m_editor_services.edit().submit(m_doc_id, std::move(composite));
-}
-
-void TileMapEditor::cancelPaintCommand() {
-    m_pending_tile_changes.clear();
 }
 
 }  // namespace cave

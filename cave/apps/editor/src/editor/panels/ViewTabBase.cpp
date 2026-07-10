@@ -176,19 +176,22 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     const ImVec2 min{ rect.x, rect.y };
     const ImVec2 max{ rect.Right(), rect.Bottom() };
 
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
     // @TODO: move it somewhere else
     uint64_t tex = m_texture->GetHandle();
+
+    draw_list->AddRectFilled(min, max, IM_COL32(40, 40, 40, 255));
     // add image for drawing
     switch (m_editor.app().backend()) {
         case Backend::Direct3D11:
         case Backend::Direct3D12: {
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)tex, min, max);
+            draw_list->AddImage((ImTextureID)tex, min, max);
         } break;
         case Backend::OpenGL: {
-            // @TODO: add p_flip
             ImVec2 uv_min = ImVec2(0, 1);
             ImVec2 uv_max = ImVec2(1, 0);
-            ImGui::GetWindowDrawList()->AddImage((ImTextureID)tex, min, max, uv_min, uv_max);
+            draw_list->AddImage((ImTextureID)tex, min, max, uv_min, uv_max);
         } break;
         case Backend::Vulkan:
         case Backend::Metal: {

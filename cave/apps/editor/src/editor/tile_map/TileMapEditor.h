@@ -26,9 +26,6 @@ public:
                   SceneId preview_scene_id);
     ~TileMapEditor();
 
-    void onCreate() override;
-    void onDestroy() override;
-
     void onInputEvents(const InputFrame& input) override;
 
     DebugId debugId() const override { return m_debug_id; }
@@ -39,6 +36,17 @@ private:
         Option<TileId> after;
     };
 
+    void tileMapLayerOverview(TileMapAsset& tile_map);
+
+    void drawUIImpl() override;
+    void drawGizmo(const math::FloatRect& rect);
+    void drawAssetInspector(IDocument& doc) override;
+    void drawGhostTiles(const TileSetAsset& tile_set);
+
+    void submitView();
+
+    Option<TileCoord> pointToTile(math::Vec2f point_os);
+
     // ---- Paint Tool ----
     GridPaintInput buildInput(const InputFrame& input);
     void handlePaintEvent(const GridPaintEvent& event,
@@ -48,22 +56,12 @@ private:
     void beginPaintCommand();
     void finishPaintCommand();
     void cancelPaintCommand();
+
     void applyPaintCells(std::span<const GridPaintCell> cells,
                          GridPaintAction action,
                          const TileMapAsset& tile_map,
                          const TileSetAsset& tile_set);
     // ---- Paint Tool ----
-
-    void drawUIImpl() override;
-    void drawGizmo(const math::FloatRect& rect);
-    void drawAssetInspector(IDocument& doc) override;
-    void tileMapLayerOverview(TileMapAsset& tile_map);
-
-    void submitView();
-
-    void drawOverlay(const TileSetAsset& tile_set);
-
-    Option<TileCoord> pointToTile(math::Vec2f point_os);
 
     ICanvas& m_canvas;
     Owner<GridPaintTool> m_paint_tool;

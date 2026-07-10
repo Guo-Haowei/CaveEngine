@@ -84,21 +84,11 @@ void TileSetAsset::updateFrames() {
 
     for (uint32_t y = 0; y < m_row; ++y) {
         for (uint32_t x = 0; x < m_column; ++x) {
-            // flip y here because in ndc it's up is +y, down -y
-            // but in uv space, up is 0, down is 1
-#if 1
-            const float u0 = (x + 0) * inv_w;
-            const float v0 = (y + 0) * inv_h;
-            const float u1 = (x + 1) * inv_w;
-            const float v1 = (y + 1) * inv_h;
-#else
-            const float u0 = (x + 0) * inv_w;
-            const float v0 = (y + 1) * inv_h;
-            const float u1 = (x + 1) * inv_w;
-            const float v1 = (y + 0) * inv_h;
-#endif
-
-            m_frames.push_back(Box2({ u0, v0 }, { u1, v1 }));
+            const float u0 = static_cast<float>(x) * inv_w;
+            const float v0 = static_cast<float>(y) * inv_h;
+            const float u1 = static_cast<float>(x + 1) * inv_w;
+            const float v1 = static_cast<float>(y + 1) * inv_h;
+            m_frames.emplace_back(Box2({ u0, v0 }, { u1, v1 }));
         }
     }
 

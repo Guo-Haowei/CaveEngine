@@ -148,7 +148,6 @@ public:
     void reset();
 
 private:
-
     struct Stroke {
         bool active = false;
 
