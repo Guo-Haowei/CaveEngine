@@ -17,34 +17,31 @@ SceneAsset::~SceneAsset() = default;
 Vector<Guid> SceneAsset::dependencies() const {
     DEV_ASSERT(m_scene);
 
-    Vector<Guid> dependencies;
+    HashSet<Guid> deps;
     for (const auto& [id, material] : m_scene->view<MaterialComponent>()) {
-        dependencies.push_back(material.m_material_id);
+        deps.insert(material.m_material_id);
     }
     for (const auto& [id, mesh_renderer] : m_scene->view<MeshRendererComponent>()) {
-        dependencies.push_back(mesh_renderer.GetResourceGuid());
+        deps.insert(mesh_renderer.GetResourceGuid());
     }
     for (const auto& [id, prefab] : m_scene->view<PrefabInstanceComponent>()) {
-        dependencies.push_back(prefab.prefabGuid());
+        deps.insert(prefab.prefabGuid());
     }
     for (const auto& [id, tile_map_renderer] : m_scene->view<TileMapInstanceComponent>()) {
-        dependencies.push_back(tile_map_renderer.GetResourceGuid());
+        deps.insert(tile_map_renderer.GetResourceGuid());
     }
     for (const auto& [id, animator] : m_scene->view<SpriteAnimatorComponent>()) {
-        dependencies.push_back(animator.GetResourceGuid());
+        deps.insert(animator.GetResourceGuid());
     }
 
-    dependencies.erase(
-        std::remove_if(dependencies.begin(), dependencies.end(),
-                       [](Guid guid) {
-                           // @HACK: replace the last two digits to see if guid is 0
-                           uint8_t* data = const_cast<uint8_t*>(guid.data());
-                           data[15] = 0;
-                           return guid.isNull();
-                       }),
-        dependencies.end());
+    std::erase_if(deps, [](Guid guid) {
+        // @HACK: replace the last two digits to see if guid is 0
+        uint8_t* data = const_cast<uint8_t*>(guid.data());
+        data[15] = 0;
+        return guid.isNull();
+    });
 
-    return dependencies;
+    return Vector<Guid>(deps.begin(), deps.end());
 }
 
 auto SceneAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
