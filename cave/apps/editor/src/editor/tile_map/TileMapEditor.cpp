@@ -86,48 +86,6 @@ void TileMapEditor::drawOverlay(const TileSetAsset& tile_set) {
     }
 }
 
-#if 0
-void TileMapEditor::applayEditorTool(const TileMapAsset& tile_map,
-                                     const TileSetAsset& tile_set) {
-
-    Option<TileId> old_tile = tile_map.tiles().tileAt(m_coord);
-    Option<TileId> new_tile = None();
-
-    switch (m_mode) {
-        case cave::TileMapEditor::Mode::None:
-            return;
-        case cave::TileMapEditor::Mode::Painting: {
-            auto selections = m_sprite_selector.GetSelections();
-            if (selections.empty()) {
-                return;
-            }
-            auto [x, y] = selections[0];
-            if (x >= 0 && y >= 0) {
-                const uint32_t tile_id = y * tile_set.col() + x;
-                new_tile = Some(TileId(tile_id));
-            }
-        } break;
-        case cave::TileMapEditor::Mode::Erasing: {
-            // old tile is already None
-            if (old_tile.unwrap_or(kEmptyTileId) == kEmptyTileId) {
-                return;
-            }
-        } break;
-    }
-
-    if (old_tile == new_tile) {
-        return;  // no op if the tiles are the same
-    }
-
-    auto cmd = std::make_unique<SetTileCommand>(m_engine_services.sceneRegistry(),
-                                                ecs::Entity::null(),
-                                                m_coord,
-                                                old_tile,
-                                                new_tile);
-    m_editor_services.edit().submit(m_doc_id, std::move(cmd));
-}
-#endif
-
 void TileMapEditor::onInputEvents(const InputFrame& input) {
     m_camera_controller->update(input);
 
@@ -146,12 +104,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
     }
 
     m_canvas.pushView(m_view_id);
-
     drawOverlay(*tile_set);
-    // if (should_apply_edit) {
-    //     applayEditorTool(*tile_map, *tile_set);
-    // }
-
     m_canvas.popView();
 }
 
@@ -322,7 +275,7 @@ GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
     for (const InputEvent& event : input.events) {
         Key key = static_cast<Key>(event.code);
         switch (event.type) {
-            case InputEventType::ButtonDown: {
+            case InputEventType::ButtonDown:
                 if (key == Key::LMB) {
                     out.left_down = true;
                     out.left_pressed = true;
@@ -334,8 +287,8 @@ GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
                     event.consumed = true;
                     cursor = { event.x, event.y };
                 }
-            } break;
-            case InputEventType::ButtonUp: {
+                break;
+            case InputEventType::ButtonUp:
                 if (key == Key::LMB) {
                     out.left_down = false;
                     out.left_released = true;
@@ -345,12 +298,12 @@ GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
                     out.right_released = true;
                     event.consumed = true;
                 }
-            } break;
-            case InputEventType::MouseMove: {
+                break;
+            case InputEventType::MouseMove:
                 cursor = { event.x, event.y };
-            } break;
-            default: {
-            } break;
+                break;
+            default:
+                break;
         }
     }
 
@@ -394,9 +347,6 @@ void TileMapEditor::handlePaintEvent(const GridPaintEvent& event,
 
 void TileMapEditor::beginPaintCommand() {
     DEV_ASSERT(m_pending_tile_changes.empty());
-
-    // Recover gracefully in non-debug builds if a previous stroke
-    // somehow wasn't properly ended.
     m_pending_tile_changes.clear();
 }
 
@@ -484,41 +434,64 @@ void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
     }
 }
 
+#if 0
+void TileMapEditor::applayEditorTool(const TileMapAsset& tile_map,
+                                     const TileSetAsset& tile_set) {
+
+    Option<TileId> old_tile = tile_map.tiles().tileAt(m_coord);
+    Option<TileId> new_tile = None();
+
+    switch (m_mode) {
+        case cave::TileMapEditor::Mode::None:
+            return;
+        case cave::TileMapEditor::Mode::Painting: {
+            auto selections = m_sprite_selector.GetSelections();
+            if (selections.empty()) {
+                return;
+            }
+            auto [x, y] = selections[0];
+            if (x >= 0 && y >= 0) {
+                const uint32_t tile_id = y * tile_set.col() + x;
+                new_tile = Some(TileId(tile_id));
+            }
+        } break;
+        case cave::TileMapEditor::Mode::Erasing: {
+            // old tile is already None
+            if (old_tile.unwrap_or(kEmptyTileId) == kEmptyTileId) {
+                return;
+            }
+        } break;
+    }
+
+    if (old_tile == new_tile) {
+        return;  // no op if the tiles are the same
+    }
+}
+#endif
 void TileMapEditor::finishPaintCommand() {
     if (m_pending_tile_changes.empty()) {
         return;
     }
 
-// @TODO:
-#if 0
-    auto composite = std::make_unique<CompositeEditCmd>("Paint Tiles");
+    auto composite = std::make_unique<SetTileCommand>(
+        m_engine_services.sceneRegistry(),
+        ecs::Entity::null());
 
     for (const auto& [coord, change] : m_pending_tile_changes) {
         if (change.before == change.after) {
             continue;
         }
 
-        composite->add(
-            std::make_unique<SetTileCommand>(
-                m_engine_services.sceneRegistry(),
-                ecs::Entity::null(),
-                coord,
-                change.before,
-                change.after));
+        composite->add(coord, change.before, change.after);
     }
-#endif
 
     m_pending_tile_changes.clear();
 
-#if 0
     if (composite->empty()) {
         return;
     }
 
-    m_editor_services.edit().submit(
-        m_doc_id,
-        std::move(composite));
-#endif
+    m_editor_services.edit().submit(m_doc_id, std::move(composite));
 }
 
 void TileMapEditor::cancelPaintCommand() {
