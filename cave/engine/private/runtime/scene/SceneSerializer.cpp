@@ -137,32 +137,29 @@ bool SerializeComponentOverride(ISerializer& s,
 
 bool SerializePrefabDiff(ISerializer& s,
                          const Scene& scene,
-                         const PrefabInstanceComponent& prefab_comp,
+                         Entity ent,
+                         const PrefabInstanceComponent& prefab,
                          AssetRegistry* asset_reg) {
     if (!asset_reg) {
         return false;
     }
 
-    auto handle = asset_reg->findByGuid<PrefabAsset>(prefab_comp.prefabGuid());
+    auto handle = asset_reg->findByGuid<PrefabAsset>(prefab.prefabGuid());
     if (handle.is_none()) {
         return false;
     }
 
-    unused(scene);
-    DEV_ASSERT(0);
-    // Entity instance_ent = prefab_comp.instance();
-    const PrefabAsset* prefab = handle.unwrap_unchecked().get();
-    DEV_ASSERT(prefab);
-    Entity prefab_root = prefab->scene().root();
+    const PrefabAsset* prefab_asset = handle.unwrap_unchecked().get();
+    DEV_ASSERT(prefab_asset);
+    Entity prefab_root = prefab_asset->scene().root();
 
     s.beginKey("PrefabOverride");
     s.beginMap(false);
 
-#if 0
-#define PREFAB_OVERRIDE(T) SerializeComponentOverride<T>(s, #T, prefab->scene(), prefab_root, scene, instance_ent);
+#define PREFAB_OVERRIDE(T) \
+    SerializeComponentOverride<T>(s, #T, prefab_asset->scene(), prefab_root, scene, ent);
     PREFAB_OVERRIDE_LIST
 #undef PREFAB_OVERRIDE
-#endif
 
     s.endMap();
     return true;
@@ -171,16 +168,16 @@ bool SerializePrefabDiff(ISerializer& s,
 bool SerializePrefabEntity(ISerializer& s,
                            const Scene& scene,
                            Entity ent,
+                           const PrefabInstanceComponent& prefab,
                            AssetRegistry* asset_reg) {
-    const PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(ent);
-    DEV_ASSERT(prefab);
-
-    DEV_ASSERT(0);
-    unused(asset_reg);
-
     s.beginMap(false);
-    SerializeEntityImpl(s, scene, ent);
-    // SerializePrefabDiff(s, scene, *prefab, asset_reg);
+
+    s.beginKey("id")
+        .write(ent);
+    SerializeComponent<PrefabInstanceComponent>(s, "PrefabInstanceComponent", scene, ent);
+
+    SerializePrefabDiff(s, scene, ent, prefab, asset_reg);
+
     s.endMap();
     return true;
 }
@@ -190,12 +187,12 @@ bool SerializeEntity(ISerializer& s,
                      Entity ent,
                      AssetRegistry* asset_reg,
                      bool skip_prefab) {
-    if (skip_prefab && scene.has<PrefabChildComponent>(ent)) {
-        return true;  // skip prefab entities
+    if (auto prefab = scene.component<PrefabInstanceComponent>(ent)) {
+        return SerializePrefabEntity(s, scene, ent, *prefab, asset_reg);
     }
 
-    if (scene.has<PrefabInstanceComponent>(ent)) {
-        return SerializePrefabEntity(s, scene, ent, asset_reg);
+    if (skip_prefab && scene.has<PrefabChildComponent>(ent)) {
+        return true;  // skip prefab entities
     }
 
     return SerializeNormalEntity(s, scene, ent);
@@ -216,6 +213,8 @@ void SerializeScene(ISerializer& s, const Scene& scene, AssetRegistry* asset_reg
         .beginKey("entities");
 
     s.beginArray(false);
+
+    // @TODO: remap entities to use a more contact id
 
     for (auto ent : entity_array) {
         SerializeEntity(s, scene, ent, asset_reg, skip_prefab);
@@ -299,6 +298,11 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
 
     for (auto&& [ent, prefab] : scene.view<PrefabInstanceComponent>()) {
         InstantiatePrefab(scene, prefab, ent);
+
+        auto hier = scene.component<HierarchyComponent>(ent);
+        if (!hier) {
+            scene.create<HierarchyComponent>(ent).parent_id = scene.root();
+        }
     }
 
     for (auto&& [ent, overrides] : overrides_map) {
@@ -338,11 +342,6 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entit
             mapping[prefab_ent] = mapped;
         }
     }
-
-    DEV_ASSERT(scene.has<NameComponent>(parent));
-    scene.remove<NameComponent>(parent);
-    DEV_ASSERT(scene.has<TransformComponent>(parent));
-    scene.remove<TransformComponent>(parent);
 
     // remap hierarchy
     for (auto [id, hier] : copy.view<HierarchyComponent>()) {
