@@ -7,16 +7,16 @@ class CompositeEditCmd final : public IEditCmd {
 public:
     const char* label() const override { return "CompositeEditCmd"; }
 
-    void AddCommand(std::unique_ptr<IEditCmd>&& p_cmd);
+    void AddCommand(Owner<IEditCmd>&& cmd);
 
-    bool apply(IDocument& p_doc) override;
-    bool undo(IDocument& p_doc) override;
+    bool apply(IDocument& doc) override;
+    bool undo(IDocument& doc) override;
 
     bool canCoalesceWith(const IEditCmd*) const override { return false; }
-    void coalesceFrom(std::unique_ptr<IEditCmd>) override {}
+    void coalesceFrom(Owner<IEditCmd>) override {}
 
 private:
-    std::vector<std::unique_ptr<IEditCmd>> m_child;
+    Vector<Owner<IEditCmd>> m_child;
 };
 
 }  // namespace cave

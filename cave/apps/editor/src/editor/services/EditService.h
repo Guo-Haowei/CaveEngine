@@ -11,7 +11,7 @@ namespace cave {
 struct EngineServices;
 struct EditorServices;
 class SceneCommandWriter;
-using SceneCommandWriterFn = std::function<void(SceneCommandWriter&)>;
+using SceneCommandWriterFn = std::function<ecs::Entity(SceneCommandWriter&)>;
 
 class EditService final : public IIntentHandler {
 public:
@@ -19,7 +19,7 @@ public:
                 EditorServices& editor_services);
     ~EditService();
 
-    void submit(DocId doc_id, std::unique_ptr<IEditCmd>&& cmd);
+    void submit(DocId doc_id, Owner<IEditCmd>&& cmd);
 
     void submit(DocId doc_id, SceneCommandWriterFn&& func);
 

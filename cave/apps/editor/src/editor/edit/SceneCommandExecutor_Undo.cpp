@@ -8,46 +8,46 @@ namespace cave {
 
 using ecs::Entity;
 
-SceneCommandExecutor_Undo::SceneCommandExecutor_Undo(SceneRegistry& p_scene_reg) noexcept
-    : m_scene_reg(p_scene_reg) {
+SceneCommandExecutor_Undo::SceneCommandExecutor_Undo(SceneRegistry& scene_reg) noexcept
+    : m_scene_reg(scene_reg) {
     m_cmd = std::make_unique<CompositeEditCmd>();
 }
 
 SceneCommandExecutor_Undo::~SceneCommandExecutor_Undo() = default;
 
-void SceneCommandExecutor_Undo::addComponent(Entity p_ent, ComponentId p_cid) {
+void SceneCommandExecutor_Undo::addComponent(Entity ent, ComponentId cid) {
     auto cmd = std::make_unique<AddComponentCmd>(m_scene_reg,
-                                                 p_ent,
-                                                 p_cid);
+                                                 ent,
+                                                 cid);
     m_cmd->AddCommand(std::move(cmd));
 }
 
-bool SceneCommandExecutor_Undo::removeComponent(Entity p_ent, ComponentId p_cid) {
-    unused(p_ent);
-    unused(p_cid);
+bool SceneCommandExecutor_Undo::removeComponent(Entity ent, ComponentId cid) {
+    unused(ent);
+    unused(cid);
     CRASH_NOW_MSG("not implemented");
     return false;
 }
 
-bool SceneCommandExecutor_Undo::changeProperty(Entity p_ent,
-                                               ComponentId p_cid,
-                                               const PropertyId& p_pid,
-                                               const void* p_data,
-                                               uint32_t p_data_size) {
+bool SceneCommandExecutor_Undo::changeProperty(Entity ent,
+                                               ComponentId cid,
+                                               const PropertyId& pid,
+                                               const void* data,
+                                               uint32_t data_size) {
     auto cmd = std::make_unique<ChangePropertyCmd>(
         m_scene_reg,
-        p_ent,
-        p_cid,
-        p_pid,
+        ent,
+        cid,
+        pid,
         nullptr,  // composite command, don't care about old value
-        p_data,
-        p_data_size);
+        data,
+        data_size);
 
     m_cmd->AddCommand(std::move(cmd));
     return true;
 }
 
-std::unique_ptr<IEditCmd> SceneCommandExecutor_Undo::MoveCommand() {
+Owner<IEditCmd> SceneCommandExecutor_Undo::takeCommand() {
     return std::move(m_cmd);
 }
 

@@ -271,8 +271,9 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
         case AssetType::Prefab: {
             Scene* scene = getResolvedScene();
             m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
-                Entity prefb = writer.prefabObject("prefab", handle.guid());
-                writer.attachChild(prefb, scene->root());
+                Entity prefab = writer.prefabObject("prefab", handle.guid());
+                writer.attachChild(prefab, scene->root());
+                return prefab;
             });
 
             return true;
