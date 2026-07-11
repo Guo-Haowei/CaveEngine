@@ -49,13 +49,7 @@ void InitializeDefault(Scene& scene) {
     auto root = scene.createEntity();
     scene.create(TransformComponent_Id, root);
     scene.create<NameComponent>(root).setName("root");
-
-    auto ent = scene.createEntity();
-    scene.create(TransformComponent_Id, ent);
-    scene.create<NameComponent>(ent).setName("untitled");
-
     scene.setRoot(root);
-    scene.attachChild(ent);
 }
 
 AssetRef CreateAssetInstance(AssetType type, bool create) {
