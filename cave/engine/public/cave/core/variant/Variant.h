@@ -45,16 +45,16 @@ public:
     Variant(const char* value);
     Variant(std::string_view value);
     Variant(std::string value);
-    Variant(const math::Vec2f& value);
-    Variant(const math::Vec3f& value);
-    Variant(const math::Vec4f& value);
-    Variant(const math::Vec2i& value);
-    Variant(const math::Vec3i& value);
-    Variant(const math::Vec4i& value);
+    Variant(float x, float y);
+    Variant(float x, float y, float z);
+    Variant(float x, float y, float z, float w);
+    Variant(int x, int y);
+    Variant(int x, int y, int z);
+    Variant(int x, int y, int z, int w);
 
-    VariantType type() const { return type_; }
+    VariantType type() const { return m_type; }
 
-    bool valid() const { return type_ != VariantType::Invalid; }
+    bool valid() const { return m_type != VariantType::Invalid; }
     bool isNumeric() const;
 
     bool asBool(bool fallback = false) const;
@@ -74,18 +74,16 @@ public:
     bool operator==(const Variant& rhs) const;
     bool operator!=(const Variant& rhs) const { return !(*this == rhs); }
 
-    static Variant makeDefault(VariantType type);
-
 private:
-    VariantType type_{};
+    VariantType m_type{};
 
     union {
-        int int_;
-        float float_;
-        math::Vec4f vec_;
-        math::Vec4i ivec_;
+        int m_int;
+        float m_float;
+        math::Vec4f m_vec;
+        math::Vec4i m_ivec;
     };
-    std::string string_;
+    std::string m_string;
 };
 
 using VariantMap = std::unordered_map<std::string, Variant>;

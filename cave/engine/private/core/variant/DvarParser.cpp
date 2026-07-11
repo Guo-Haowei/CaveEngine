@@ -37,7 +37,9 @@ bool DvarParser::parseSetCmd(std::string& out) {
         return false;
     }
 
-    Dvar* dvar = Dvar::findDvar(std::string(name));
+    // Dvar* dvar = Dvar::findDvar(std::string(name));
+    Dvar* dvar;
+    DEV_ASSERT(0);
     if (dvar == nullptr) {
         out = std::format("dvar '{}' not found", name);
         return false;
@@ -54,26 +56,26 @@ bool DvarParser::parseSetCmd(std::string& out) {
         case VariantType::Int: {
             ok = ok && tryGetInt(ix);
             if (!overriden) {
-                ok = ok && dvar->setInt(ix);
+                ok = ok && dvar->setValue(ix);
             }
         } break;
         case VariantType::Float: {
             ok = ok && tryGetFloat(fx);
             if (!overriden) {
-                ok = ok && dvar->setFloat(fx);
+                ok = ok && dvar->setValue(fx);
             }
         } break;
         case VariantType::String: {
             ok = ok && tryGetString(str);
             if (!overriden) {
-                ok = ok && dvar->setString(str);
+                ok = ok && dvar->setValue(str);
             }
         } break;
         case VariantType::Vec2f: {
             ok = ok && tryGetFloat(fx);
             ok = ok && tryGetFloat(fy);
             if (!overriden) {
-                ok = ok && dvar->setVec2f(fx, fy);
+                ok = ok && dvar->setValue(fx, fy);
             }
         } break;
         case VariantType::Vec3f: {
@@ -81,7 +83,7 @@ bool DvarParser::parseSetCmd(std::string& out) {
             ok = ok && tryGetFloat(fy);
             ok = ok && tryGetFloat(fz);
             if (!overriden) {
-                ok = ok && dvar->setVec3f(fx, fy, fz);
+                ok = ok && dvar->setValue(fx, fy, fz);
             }
         } break;
         case VariantType::Vec4f: {
@@ -90,14 +92,14 @@ bool DvarParser::parseSetCmd(std::string& out) {
             ok = ok && tryGetFloat(fz);
             ok = ok && tryGetFloat(fw);
             if (!overriden) {
-                ok = ok && dvar->setVec4f(fx, fy, fz, fw);
+                ok = ok && dvar->setValue(fx, fy, fz, fw);
             }
         } break;
         case VariantType::Vec2i: {
             ok = ok && tryGetInt(ix);
             ok = ok && tryGetInt(iy);
             if (!overriden) {
-                ok = ok && dvar->setVec2i(ix, iy);
+                ok = ok && dvar->setValue(ix, iy);
             }
         } break;
         case VariantType::Vec3i: {
@@ -105,7 +107,7 @@ bool DvarParser::parseSetCmd(std::string& out) {
             ok = ok && tryGetInt(iy);
             ok = ok && tryGetInt(iz);
             if (!overriden) {
-                ok = ok && dvar->setVec3i(ix, iy, iz);
+                ok = ok && dvar->setValue(ix, iy, iz);
             }
         } break;
         case VariantType::Vec4i: {
@@ -114,7 +116,7 @@ bool DvarParser::parseSetCmd(std::string& out) {
             ok = ok && tryGetInt(iz);
             ok = ok && tryGetInt(iw);
             if (!overriden) {
-                ok = ok && dvar->setVec4i(ix, iy, iz, iw);
+                ok = ok && dvar->setValue(ix, iy, iz, iw);
             }
         } break;
         default:
