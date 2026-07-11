@@ -12,7 +12,6 @@
 
 namespace cave {
 
-class ISceneSystem;
 class Scene;
 enum class SceneSystemId : uint32_t;
 
@@ -38,12 +37,6 @@ class SceneQuery {
 public:
     explicit SceneQuery(Scene& scene) noexcept
         : m_scene(scene) {}
-
-    ISceneSystem* system(SceneSystemId id);
-    template<typename T>
-    T* system() {
-        return static_cast<T*>(system(T::kSystemId));
-    }
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;

@@ -56,7 +56,7 @@ void EnemyControllerBase::start(SceneContext& ctx) {
 void EnemyControllerBase::destroy() {
 }
 
-void EnemyControllerBase::onBodyEntered(cave::SceneContext& ctx, Entity player) {
+void EnemyControllerBase::onBodyEntered(SceneContext& ctx, Entity player) {
     return onBodyStay(ctx, player);
 }
 
@@ -67,7 +67,7 @@ void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
     DEV_ASSERT(player_collider);
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
-    auto script_system = query.system<NativeScriptSystem>();
+    auto script_system = ctx.system<NativeScriptSystem>();
     DEV_ASSERT(script_system);
 
     auto* player_script = query.component<NativeScriptComponent>(player);

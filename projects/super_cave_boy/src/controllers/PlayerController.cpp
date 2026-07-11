@@ -73,11 +73,11 @@ bool CheckWallGrab(
 
 }  // namespace
 
-void PlayerController::start(cave::SceneContext& ctx) {
+void PlayerController::start(SceneContext& ctx) {
     m_animator = ctx.query.findChildByName("animator_node", entity());
 }
 
-void PlayerController::update(cave::SceneContext& ctx, float dt) {
+void PlayerController::update(SceneContext& ctx, float dt) {
     m_hurt_timer.tick(dt);
 
     // if (health_ <= 0) {
@@ -148,7 +148,7 @@ void PlayerController::update(cave::SceneContext& ctx, float dt) {
         const float predicted_dy = vel->linear.y * dt;
         const Box2 body = ComputeWorldAABB(*transform, *collider);
 
-        const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+        const TileWorldSystem* tile_world = ctx.system<TileWorldSystem>();
         DEV_ASSERT(tile_world);
         if (CheckWallGrab(body, predicted_dy, *tile_world)) {
             m_grabbing_ = true;

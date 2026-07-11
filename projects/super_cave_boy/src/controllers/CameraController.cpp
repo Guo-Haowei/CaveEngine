@@ -51,7 +51,7 @@ void CameraController::update(SceneContext& ctx, float dt) {
     followTarget(ctx, dt);
 }
 
-void CameraController::followTarget(cave::SceneContext& ctx, float dt) {
+void CameraController::followTarget(SceneContext& ctx, float dt) {
     if (!entity().valid() || !m_target.valid()) {
         return;
     }
@@ -69,7 +69,7 @@ void CameraController::followTarget(cave::SceneContext& ctx, float dt) {
 
     Vec3f new_pos = camera_pos + (target_pos - camera_pos) * speed;
 
-    auto tile_world = query.system<TileWorldSystem>();
+    auto tile_world = ctx.system<TileWorldSystem>();
     auto bound = tile_world->worldBound();
 
     Vec2f xy = ClampCameraToTileMap(new_pos.xy, bound.min(), bound.max(), camera->orthoHeight(), camera->aspect());

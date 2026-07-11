@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/runtime/scene/SystemManager.h
+// =============================================================================
 #pragma once
 #include <array>
 
@@ -52,10 +55,10 @@ public:
     void update(SceneTickContext& ctx);
 
 private:
-    void addImpl(std::unique_ptr<ISceneSystem>&& system);
+    void addImpl(Owner<ISceneSystem>&& system);
 
 private:
-    std::vector<std::unique_ptr<ISceneSystem>> m_systems;
+    Vector<Owner<ISceneSystem>> m_systems;
     std::array<ISceneSystem*, std::to_underlying(SceneSystemId::Count)> m_lookup{};
 
     bool m_scene_created{ false };

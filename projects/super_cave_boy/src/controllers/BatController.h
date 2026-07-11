@@ -12,8 +12,8 @@ class BatController : public EnemyControllerBase {
 private:
     void update(cave::SceneContext& ctx, float dt) override;
 
-    void updateIdle(cave::SceneQuery& query);
-    void updateMove(cave::SceneQuery& query, float dt);
+    void updateIdle(cave::SceneContext& ctx);
+    void updateMove(cave::SceneContext& ctx, float dt);
 
     bool canSeePlayer(const cave::math::Vec2f& bat_pos,
                       const cave::math::Vec2f& player_pos) const;

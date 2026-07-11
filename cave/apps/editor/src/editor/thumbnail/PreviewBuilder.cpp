@@ -65,20 +65,6 @@ PreviewBuilder::PreviewBuilder(EngineServices& engine_services) noexcept
 
 PreviewBuilder::~PreviewBuilder() = default;
 
-SceneTickContext PreviewBuilder::makeSceneContext(Scene& scene) const {
-    SceneContext ctx = {
-        .scene = scene,
-        .query = SceneQuery(scene),
-        .services = m_engine_services,
-    };
-
-    return {
-        .domain = SceneTickDomain::Editor,
-        .dt = 0.0f,
-        .scene_ctx = ctx,
-    };
-}
-
 PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
     AssetHandle handle = m_asset_reg.findByGuid(req.guid).unwrap();
     const AssetMetaData* meta = handle.meta();
@@ -127,7 +113,11 @@ PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
         camera_source = CameraSource::External(camera);
     }
 
-    scene->begin(makeSceneContext(*scene));
+    scene->begin(SceneTickContext{
+        .domain = SceneTickDomain::Editor,
+        .dt = 0.0f,
+        .scene_ctx = SceneContext(*scene, m_engine_services),
+    });
     scene->end();
 
     return {

@@ -60,7 +60,7 @@ void SnakeController::start(SceneContext& ctx) {
     }
 }
 
-void SnakeController::update(cave::SceneContext& ctx, float dt) {
+void SnakeController::update(SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
     auto transform = query.component<TransformComponent>(entity());
@@ -69,7 +69,7 @@ void SnakeController::update(cave::SceneContext& ctx, float dt) {
 
     DEV_ASSERT(transform && collider && vel);
 
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+    const TileWorldSystem* tile_world = ctx.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
     const Box2 body = ComputeWorldAABB(*transform, *collider);

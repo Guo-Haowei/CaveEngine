@@ -6,6 +6,7 @@
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
 namespace super_cave_boy {
@@ -45,7 +46,7 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
     return close_x && valid_y;
 }
 
-void BatController::update(cave::SceneContext& ctx, float dt) {
+void BatController::update(SceneContext& ctx, float dt) {
     SceneQuery& query = ctx.query;
 
     if (!m_player.valid()) {
@@ -54,17 +55,18 @@ void BatController::update(cave::SceneContext& ctx, float dt) {
 
     switch (m_state) {
         case BatState::Idle: {
-            updateIdle(query);
+            updateIdle(ctx);
         } break;
         case BatState::Move: {
-            updateMove(query, dt);
+            updateMove(ctx, dt);
         } break;
     }
 
     updateAnimation(query);
 }
 
-void BatController::updateIdle(SceneQuery& query) {
+void BatController::updateIdle(SceneContext& ctx) {
+    SceneQuery& query = ctx.query;
     auto transform = query.component<TransformComponent>(entity());
     auto player_transform = query.component<TransformComponent>(m_player);
 
@@ -82,8 +84,9 @@ void BatController::updateIdle(SceneQuery& query) {
     }
 }
 
-void BatController::updateMove(SceneQuery& query, float) {
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+void BatController::updateMove(SceneContext& ctx, float) {
+    const TileWorldSystem* tile_world = ctx.system<TileWorldSystem>();
+    SceneQuery& query = ctx.query;
     DEV_ASSERT(tile_world);
 
     auto transform = query.component<TransformComponent>(entity());

@@ -1,6 +1,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
@@ -227,8 +228,9 @@ void MotorSystem::runTileWorldCollision(SceneTickContext& ctx) {
     const float dt = ctx.dt;
     Scene& scene = ctx.scene_ctx.scene;
     SceneQuery& query = ctx.scene_ctx.query;
+    SceneRuntime& runtime = ctx.scene_ctx.runtime;
 
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+    const TileWorldSystem* tile_world = runtime.systems().get<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
     auto view = scene.view<MotorComponent, VelocityComponent, ColliderComponent, TransformComponent>();
@@ -257,7 +259,8 @@ struct ColliderProxy {
 
 void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
     SceneQuery& query = ctx.scene_ctx.query;
-    NativeScriptSystem* script_system = query.system<NativeScriptSystem>();
+    SceneRuntime& runtime = ctx.scene_ctx.runtime;
+    NativeScriptSystem* script_system = runtime.systems().get<NativeScriptSystem>();
     if (!script_system) {
         return;
     }

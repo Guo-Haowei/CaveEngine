@@ -1,4 +1,4 @@
-#include "SystemManager.h"
+#include "cave/runtime/scene/SystemManager.h"
 
 namespace cave {
 
@@ -22,7 +22,7 @@ SystemManager::SystemManager() {
 
 SystemManager::~SystemManager() = default;
 
-void SystemManager::addImpl(std::unique_ptr<ISceneSystem>&& system) {
+void SystemManager::addImpl(Owner<ISceneSystem>&& system) {
     DEV_ASSERT(system);
 
     const SceneSystemId id = system->systemId();

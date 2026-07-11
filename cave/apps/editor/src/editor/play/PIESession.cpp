@@ -25,16 +25,6 @@ PIESession::~PIESession() {
     endPIESession();
 }
 
-SceneContext PIESession::makeSceneContext(Scene& scene) {
-    return SceneContext{
-        .scene = scene,
-        .query = SceneQuery(scene),
-        .services = m_engine_services,
-        .view_id = {},
-        .scene_transition = this,
-    };
-}
-
 void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
     DEV_ASSERT(!m_pie_scene.valid());
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
@@ -42,10 +32,14 @@ void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
 
     Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
+        SceneContext ctx(*scene, m_engine_services);
+        ctx.view_id = {};
+        ctx.scene_transition = this;
+
         scene->begin(SceneTickContext{
             .domain = SceneTickDomain::Simulate,
             .dt = 0.0f,
-            .scene_ctx = makeSceneContext(*scene),
+            .scene_ctx = ctx,
         });
     }
 }

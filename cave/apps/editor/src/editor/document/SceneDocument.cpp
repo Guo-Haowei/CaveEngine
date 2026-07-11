@@ -15,15 +15,10 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
 
     auto scene = createPreviewScene();
 
-    SceneContext ctx = {
-        .scene = *scene,
-        .query = SceneQuery(*scene),
-        .services = services,
-    };
-    scene->begin({
+    scene->begin(SceneTickContext{
         .domain = SceneTickDomain::Editor,
         .dt = 0.0f,
-        .scene_ctx = ctx,
+        .scene_ctx = SceneContext(*scene, services),
     });
 
     if (auto handle_opt = m_asset_reg.findByGuid(guid)) {

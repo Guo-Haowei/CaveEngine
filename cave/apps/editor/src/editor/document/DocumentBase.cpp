@@ -136,17 +136,11 @@ void DocumentBase::reloadPreviewScene() {
         return;
     }
 
-    SceneTickContext ctx = {
+    new_scene->begin(SceneTickContext{
         .domain = SceneTickDomain::Editor,
         .dt = 0.0f,
-        .scene_ctx = {
-            .scene = *new_scene,
-            .query = SceneQuery(*new_scene),
-            .services = m_engine_services,
-        },
-    };
-
-    new_scene->begin(ctx);
+        .scene_ctx = SceneContext(*new_scene, m_engine_services),
+    });
     new_scene->end();
 
     Scene* old_scene = m_scene_reg.resolve(m_preview_scene);

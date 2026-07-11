@@ -122,11 +122,11 @@ public:
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
-    ecs::ComponentStorage& storage() noexcept { return m_storage; }
-    const ecs::ComponentStorage& storage() const noexcept { return m_storage; }
+    auto& storage() noexcept { return m_storage; }
+    const auto& storage() const noexcept { return m_storage; }
 
-    SystemManager* systems();
-    const SystemManager* systems() const;
+    auto* runtime() { return m_runtime.get(); }
+    const auto* runtime() const { return m_runtime.get(); }
 
     const math::AABB& bound() const { return m_world_bound; }
     void setBound(const math::AABB& bound) { m_world_bound = bound; }
@@ -141,7 +141,7 @@ public:
     // @TODO: deprecate
     std::atomic<uint32_t> dirtyFlags_{ SCENE_DIRTY_NONE };
 
-    std::vector<ecs::Entity> getSortedEntityArray() const;
+    Vector<ecs::Entity> getSortedEntityArray() const;
 
 private:
     void flushPendingDestroy();
