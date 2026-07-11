@@ -94,7 +94,7 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
     }
 }
 
-auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
+auto LoadAsset(const Ref<AssetEntry>& entry) -> Result<AssetRef> {
     AssetRef asset = CreateAssetInstance(entry->metadata.type, false);
     if (!asset) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
