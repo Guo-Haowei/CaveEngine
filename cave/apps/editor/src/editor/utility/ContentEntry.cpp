@@ -132,25 +132,26 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const ContentEntry& node) {
     ShowAssetToolTip(thumbnail, node.handle);
 }
 
-static void ShowFolderPopup(const ContentEntry& p_node) {
+static void ShowFolderPopup(const ContentEntry& node) {
     auto& asset_manager = IAssetManager::singleton();
 
     if (ImGui::BeginMenu("Add")) {
         if (ImGui::MenuItem("Folder")) {
-            fs::create_directory(p_node.sys_path / "NewFolder");
+            fs::create_directory(node.sys_path / "NewFolder");
         }
 
-#define ADD_ASSET_MENU(TYPE)                                                        \
-    do {                                                                            \
-        if (ImGui::MenuItem(#TYPE)) {                                               \
-            auto res = asset_manager.createAsset(AssetType::TYPE, p_node.sys_path); \
-            if (!res) {                                                             \
-                LOG_ERROR("Failed to create asset: {}", ToString(res.error()));     \
-            }                                                                       \
-        }                                                                           \
+#define ADD_ASSET_MENU(TYPE)                                                      \
+    do {                                                                          \
+        if (ImGui::MenuItem(#TYPE)) {                                             \
+            auto res = asset_manager.createAsset(AssetType::TYPE, node.sys_path); \
+            if (!res) {                                                           \
+                LOG_ERROR("Failed to create asset: {}", ToString(res.error()));   \
+            }                                                                     \
+        }                                                                         \
     } while (0)
 
         ADD_ASSET_MENU(Scene);
+        ADD_ASSET_MENU(Prefab);
         ADD_ASSET_MENU(SpriteAnimation);
         ADD_ASSET_MENU(Material);
         ADD_ASSET_MENU(TileSet);
@@ -168,14 +169,14 @@ static void ShowFolderPopup(const ContentEntry& p_node) {
             };
 
             if (auto path = os::OpenFileDialog(filter)) {
-                fs::path dest = p_node.sys_path;
+                fs::path dest = node.sys_path;
                 IAssetManager::singleton().submitImportScene({ path.unwrap_unchecked(), dest });
             }
         }
         ImGui::EndMenu();
     }
     if (ImGui::MenuItem("Delete")) {
-        fs::remove_all(p_node.sys_path);
+        fs::remove_all(node.sys_path);
     }
 }
 

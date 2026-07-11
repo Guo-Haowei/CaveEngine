@@ -29,7 +29,7 @@ const char* FileSystemPanel::windowId() const {
 }
 
 void FileSystemPanel::onAttach() {
-    root_ = m_engine_services.vfs().GetMount("@res");
+    m_root = m_engine_services.vfs().GetMount("@res");
 }
 
 void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
@@ -48,18 +48,18 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
 
     ImGui::SameLine();
 
-    if (renaming_ == entry.sys_path) {
+    if (m_renaming == entry.sys_path) {
         std::string buffer;
         ImGui::Text("%s", icon);
         ImGui::SameLine();
         if (ui::TextBox(nullptr, buffer)) {
-            fs::path to_path = renaming_.parent_path();
+            fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
-            m_engine_services.assetManager().renameAssetOrFolder(renaming_, to_path);
-            renaming_ = "";
+            m_engine_services.assetManager().renameAssetOrFolder(m_renaming, to_path);
+            m_renaming = "";
         }
         if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(0)) {
-            renaming_ = "";
+            m_renaming = "";
         }
     } else {
         auto text = std::format("{} {}", icon, entry.file_name);
@@ -68,7 +68,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
 
         if (ImGui::BeginPopupContextItem()) {
             ShowPopup(entry, m_editor_services.document(), [&]() {
-                renaming_ = entry.sys_path;
+                m_renaming = entry.sys_path;
             });
             ImGui::EndPopup();
         }

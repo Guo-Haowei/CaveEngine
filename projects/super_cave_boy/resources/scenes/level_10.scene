@@ -1,5 +1,5 @@
 version: 19
-seed: 14
+seed: 18
 root: 1
 entities:
   - id: 1
@@ -31,27 +31,6 @@ entities:
         translation: [3, 4.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 6
-    NameComponent:
-      name: camera
-    HierarchyComponent:
-      parent_id: 1
-    TransformComponent:
-      translation: [5, 3, 4]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-    CameraComponent:
-      flags: 0
-      projection: orthographic
-      fovy: 60
-      near: 0.100000001
-      far: 1000
-      aspect: 1.77999997
-      ortho_height: 10
-    NativeScriptComponent:
-      name: CameraController
-      params:
-        {}
   - id: 9
     HierarchyComponent:
       parent_id: 1
@@ -72,3 +51,10 @@ entities:
         translation: [3, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
+  - id: 18
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
+    PrefabOverride:
+      {}

@@ -3,5 +3,4 @@ content:
   name: ""
   tile_set_id: 94FB5794-CF41-1E46-8D6DB1E633C35D85
   visible: true
-  tiles:
-    []
+  tiles: []

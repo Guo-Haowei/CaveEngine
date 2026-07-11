@@ -13,8 +13,6 @@ namespace cave {
 using namespace ::cave::math;
 
 static Box2 CameraOrthoAABB2(const CameraComponent& camera) {
-    DEV_ASSERT(camera.isOrtho());
-
     const float h = camera.orthoHeight();
     const float w = h * camera.aspect();
 
@@ -63,8 +61,10 @@ void SceneViewOverlay::drawSelectionHighlightImpl(ICanvas& canvas,
     }
 
     if (const auto camera = scene.component<CameraComponent>(ent)) {
-        Box2 box = CameraOrthoAABB2(*camera);
-        canvas.addBox2Frame(box.min(), box.max(), 0.2f, kCameraColor, &m);
+        if (camera->isOrtho()) {
+            Box2 box = CameraOrthoAABB2(*camera);
+            canvas.addBox2Frame(box.min(), box.max(), 0.2f, kCameraColor, &m);
+        }
     }
 
     canvas.popView();
