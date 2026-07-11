@@ -1,13 +1,17 @@
 #include "Dvar.h"
 
 #if USING(ENABLE_DVAR)
-#include "VariantTable.h"
+#include "DvarTable.h"
 
 namespace cave {
 
-using namespace cave::math;
+Dvar* FindStaticDvar(std::string_view name) {
+    return DvarTable::global().find(name);
+}
 
-static DvarTable s_table;
+bool RegisterStaticDvar(Dvar* dvar) {
+    return DvarTable::global().registerStatic(dvar);
+}
 
 Dvar::Dvar(String name,
            Variant&& variant,
@@ -27,14 +31,6 @@ bool Dvar::setValue(Variant&& variant) {
 
     m_variant = std::move(variant);
     return true;
-}
-
-Dvar* FindStatic(std::string_view name) {
-    return s_table.find(name);
-}
-
-bool RegisterStatic(Dvar* dvar) {
-    return s_table.registerStatic(dvar);
 }
 
 }  // namespace cave

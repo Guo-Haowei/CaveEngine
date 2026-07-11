@@ -3,29 +3,29 @@
 #if USING(ENABLE_DVAR)
 
 #if defined(DEFINE_DVAR)
-#define DVAR_BOOL(name, flags, desc, value)       cave::Dvar DVAR_##name(name, cave::Variant(value), flags, desc)
-#define DVAR_INT(name, flags, desc, value)        cave::Dvar DVAR_##name(name, cave::Variant(value), flags, desc)
-#define DVAR_FLOAT(name, flags, desc, value)      cave::Dvar DVAR_##name(name, cave::Variant(value), flags, desc)
-#define DVAR_STRING(name, flags, desc, value)     cave::Dvar DVAR_##name(name, cave::Variant(value), flags, desc)
-#define DVAR_VEC2(name, flags, desc, x, y)        cave::Dvar DVAR_##name(name, cave::Variant(x, y), flags, desc)
-#define DVAR_VEC3(name, flags, desc, x, y, z)     cave::Dvar DVAR_##name(name, cave::Variant(x, y, z), flags, desc)
-#define DVAR_VEC4(name, flags, desc, x, y, z, w)  cave::Dvar DVAR_##name(name, cave::Variant(x, y, z, w), flags, desc)
-#define DVAR_IVEC2(name, flags, desc, x, y)       cave::Dvar DVAR_##name(name, cave::Variant(x, y), flags, desc)
-#define DVAR_IVEC3(name, flags, desc, x, y, z)    cave::Dvar DVAR_##name(name, cave::Variant(x, y, z), flags, desc)
-#define DVAR_IVEC4(name, flags, desc, x, y, z, w) cave::Dvar DVAR_##name(name, cave::Variant(x, y, z, w), flags, desc)
+#define DVAR_BOOL(name, flags, desc, value)       cave::Dvar DVAR_##name(#name, cave::Variant(value), flags, desc)
+#define DVAR_INT(name, flags, desc, value)        cave::Dvar DVAR_##name(#name, cave::Variant(value), flags, desc)
+#define DVAR_FLOAT(name, flags, desc, value)      cave::Dvar DVAR_##name(#name, cave::Variant(value), flags, desc)
+#define DVAR_STRING(name, flags, desc, value)     cave::Dvar DVAR_##name(#name, cave::Variant(value), flags, desc)
+#define DVAR_VEC2(name, flags, desc, x, y)        cave::Dvar DVAR_##name(#name, cave::Variant(x, y), flags, desc)
+#define DVAR_VEC3(name, flags, desc, x, y, z)     cave::Dvar DVAR_##name(#name, cave::Variant(x, y, z), flags, desc)
+#define DVAR_VEC4(name, flags, desc, x, y, z, w)  cave::Dvar DVAR_##name(#name, cave::Variant(x, y, z, w), flags, desc)
+#define DVAR_IVEC2(name, flags, desc, x, y)       cave::Dvar DVAR_##name(#name, cave::Variant(x, y), flags, desc)
+#define DVAR_IVEC3(name, flags, desc, x, y, z)    cave::Dvar DVAR_##name(#name, cave::Variant(x, y, z), flags, desc)
+#define DVAR_IVEC4(name, flags, desc, x, y, z, w) cave::Dvar DVAR_##name(#name, cave::Variant(x, y, z, w), flags, desc)
 #endif
 
 #if defined(REGISTER_DVAR)
-#define DVAR_BOOL(name, ...)   cave::RegisterStatic(DVAR_##name)
-#define DVAR_INT(name, ...)    cave::RegisterStatic(DVAR_##name)
-#define DVAR_FLOAT(name, ...)  cave::RegisterStatic(DVAR_##name)
-#define DVAR_STRING(name, ...) cave::RegisterStatic(DVAR_##name)
-#define DVAR_VEC2(name, ...)   cave::RegisterStatic(DVAR_##name)
-#define DVAR_VEC3(name, ...)   cave::RegisterStatic(DVAR_##name)
-#define DVAR_VEC4(name, ...)   cave::RegisterStatic(DVAR_##name)
-#define DVAR_IVEC2(name, ...)  cave::RegisterStatic(DVAR_##name)
-#define DVAR_IVEC3(name, ...)  cave::RegisterStatic(DVAR_##name)
-#define DVAR_IVEC4(name, ...)  cave::RegisterStatic(DVAR_##name)
+#define DVAR_BOOL(name, ...)   cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_INT(name, ...)    cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_FLOAT(name, ...)  cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_STRING(name, ...) cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_VEC2(name, ...)   cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_VEC3(name, ...)   cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_VEC4(name, ...)   cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_IVEC2(name, ...)  cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_IVEC3(name, ...)  cave::RegisterStaticDvar(&DVAR_##name)
+#define DVAR_IVEC4(name, ...)  cave::RegisterStaticDvar(&DVAR_##name)
 #endif
 
 #if !defined(DEFINE_DVAR) && !defined(REGISTER_DVAR)
@@ -69,7 +69,7 @@
 #endif
 
 #if !defined(DEFINE_DVAR) && !defined(REGISTER_DVAR)
-#define DVAR_BOOL(name, ...)   extern int DVAR_##name
+#define DVAR_BOOL(name, ...)   extern bool DVAR_##name
 #define DVAR_INT(name, ...)    extern int DVAR_##name
 #define DVAR_FLOAT(name, ...)  extern float DVAR_##name
 #define DVAR_STRING(name, ...) extern std::string DVAR_##name

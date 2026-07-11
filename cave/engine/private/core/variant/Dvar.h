@@ -49,8 +49,8 @@ private:
     DvarFlags m_flags;
 };
 
-Dvar* FindStatic(std::string_view name);
-bool RegisterStatic(Dvar* dvar);
+Dvar* FindStaticDvar(std::string_view name);
+bool RegisterStaticDvar(Dvar* dvar);
 
 }  // namespace cave
 

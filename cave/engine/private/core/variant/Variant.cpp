@@ -7,40 +7,55 @@ namespace cave {
 using namespace ::cave::math;
 
 Variant::Variant(bool value)
-    : m_type(VariantType::Int), m_int(value ? 1 : 0) {}
+    : m_type(VariantType::Int)
+    , m_int(value ? 1 : 0) {}
 
 Variant::Variant(int value)
-    : m_type(VariantType::Int), m_int(value) {}
+    : m_type(VariantType::Int)
+    , m_int(value) {}
 
 Variant::Variant(float value)
-    : m_type(VariantType::Float), m_float(value) {}
+    : m_type(VariantType::Float)
+    , m_float(value) {}
 
 Variant::Variant(const char* value)
-    : m_type(VariantType::String), m_int(0), m_string(value) {}
+    : m_type(VariantType::String)
+    , m_int(0)
+    , m_string(value) {}
 
 Variant::Variant(std::string_view value)
-    : m_type(VariantType::String), m_int(0), m_string(value) {}
+    : m_type(VariantType::String)
+    , m_int(0)
+    , m_string(value) {}
 
 Variant::Variant(std::string value)
-    : m_type(VariantType::String), m_int(0), m_string(std::move(value)) {}
+    : m_type(VariantType::String)
+    , m_int(0)
+    , m_string(std::move(value)) {}
 
 Variant::Variant(float x, float y)
-    : m_type(VariantType::Vec2f), m_vec{ x, y, 0.0f, 0.0f } {}
+    : m_type(VariantType::Vec2f)
+    , m_vec{ x, y, 0.0f, 0.0f } {}
 
 Variant::Variant(float x, float y, float z)
-    : m_type(VariantType::Vec3f), m_vec{ x, y, z, 0.0f } {}
+    : m_type(VariantType::Vec3f)
+    , m_vec{ x, y, z, 0.0f } {}
 
 Variant::Variant(float x, float y, float z, float w)
-    : m_type(VariantType::Vec4f), m_vec{ x, y, z, w } {}
+    : m_type(VariantType::Vec4f)
+    , m_vec{ x, y, z, w } {}
 
 Variant::Variant(int x, int y)
-    : m_type(VariantType::Vec2i), m_vec{ x, y, 0, 0 } {}
+    : m_type(VariantType::Vec2i)
+    , m_ivec{ x, y, 0, 0 } {}
 
 Variant::Variant(int x, int y, int z)
-    : m_type(VariantType::Vec3i), m_vec{ x, y, z, 0 } {}
+    : m_type(VariantType::Vec3i)
+    , m_ivec{ x, y, z, 0 } {}
 
 Variant::Variant(int x, int y, int z, int w)
-    : m_type(VariantType::Vec4i), m_vec{ x, y, z, w } {}
+    : m_type(VariantType::Vec4i)
+    , m_ivec{ x, y, z, w } {}
 
 bool Variant::isNumeric() const {
     return m_type == VariantType::Int || m_type == VariantType::Float;

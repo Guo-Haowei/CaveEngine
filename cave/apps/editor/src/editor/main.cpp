@@ -5,8 +5,6 @@
 #include "engine/private/runtime/framework/EntryPoint.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
-#include "modules/bullet3/bullet3_physics_manager.h"
-
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/ProjectBrowserState.h"
@@ -128,7 +126,7 @@ void DestroyApp(IApplication* p_app) {
 
 }  // namespace cave
 
-int main(int p_argc, const char** p_argv) {
+int main(int argc, const char** argv) {
     using namespace cave;
 
     IAssetManager::RegisterCreateFunc([]() -> IAssetManager* {
@@ -138,5 +136,5 @@ int main(int p_argc, const char** p_argv) {
         return new GlfwDisplayService();
     });
 
-    return Main(p_argc, p_argv);
+    return Main(argc, argv);
 }

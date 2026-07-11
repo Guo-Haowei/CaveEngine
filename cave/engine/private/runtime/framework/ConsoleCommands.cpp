@@ -22,7 +22,7 @@ public:
 void RegisterCommands::dvar(CommandRegistry& cmd_reg) {
     cmd_reg.registerCmd({
         .name = "dvar.set",
-        .help = "List registered dvars.",
+        .help = "Set dvar value.",
         .usage = "Usage: dvar.set name [value]",
         .fn = [](CommandContext& ctx, const CommandArgs& args_) {
             if (args_.tokens.empty()) {
@@ -39,28 +39,7 @@ void RegisterCommands::dvar(CommandRegistry& cmd_reg) {
             return false;
         },
     });
-    cmd_reg.registerCmd({
-        .name = "dvar.dump",
-        .help = "Dump all registered dvars.",
-        .usage = "dvar.dump",
-        .fn = [](CommandContext& ctx, const CommandArgs&) {
-            std::string msg;
-            msg.reserve(512);
-            msg.append("Dvar:");
-            for (const auto& it : Dvar::s_map) {
-                msg.append(std::format(
-                    "\n -- {}, '{}', {}",
-                    it.first,
-                    it.second->variant().toString(),
-                    it.second->desc()));
-            }
-            msg.push_back('\n');
-
-            ctx.log.Info(LogChannel::Console, std::move(msg));
-            return true;
-        },
-    });
-};
+}
 
 void RegisterCommands::render(CommandRegistry& cmd_reg) {
     cmd_reg.registerCmd({

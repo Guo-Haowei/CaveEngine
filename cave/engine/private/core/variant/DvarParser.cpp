@@ -37,9 +37,7 @@ bool DvarParser::parseSetCmd(std::string& out) {
         return false;
     }
 
-    // Dvar* dvar = Dvar::findDvar(std::string(name));
-    Dvar* dvar;
-    DEV_ASSERT(0);
+    Dvar* dvar = FindStaticDvar(name);
     if (dvar == nullptr) {
         out = std::format("dvar '{}' not found", name);
         return false;

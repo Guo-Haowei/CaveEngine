@@ -5,7 +5,7 @@
 
 namespace cave {
 
-// @TODO: move
+// @TODO: move to core
 struct TransparentStringHash {
     using is_transparent = void;
 
@@ -49,6 +49,12 @@ public:
     Dvar* find(std::string_view sv);
     bool registerStatic(Dvar* dvar);
     bool registerDynamic(Owner<Dvar>&& dvar);
+
+    void serialize(std::string_view path);
+    void deserialize(std::string_view path);
+    bool parse(std::span<std::string_view> commands);
+
+    static DvarTable& global();
 
 private:
     bool registerImpl(const String& name, Entry&& entry);
