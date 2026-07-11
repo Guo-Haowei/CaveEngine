@@ -26,44 +26,59 @@ Vec2f GetAABBCenter(const TransformComponent& transform,
 
 void SpiderController::start(SceneContext& ctx) {
     EnemyControllerBase::start(ctx);
-    changeState(SpiderState::Idle);
+
+    m_state_machine.addState(
+        SpiderState::Idle,
+        {
+            .update = std::bind_front(&SpiderController::updateIdle, this),
+            .onEnter = [this](SceneContext& ctx) {
+                EnemyControllerBase::playAnimation(ctx, "idle");
+            },
+        });
+    m_state_machine.addState(
+        SpiderState::PrepareAttack,
+        {
+            .update = std::bind_front(&SpiderController::updateIdle, this),
+            .onEnter = [this](SceneContext& ctx) {
+                EnemyControllerBase::playAnimation(ctx, "prepare_attack");
+            },
+        });
+    m_state_machine.addState(
+        SpiderState::Attack,
+        {
+            .update = [this](SceneContext& ctx, float) { enterAttack(ctx);
+            },
+            .onEnter = [this](SceneContext& ctx) {
+                EnemyControllerBase::playAnimation(ctx, "air");
+            },
+        });
+    m_state_machine.addState(
+        SpiderState::Air,
+        {
+            .update = std::bind_front(&SpiderController::updateAir, this),
+            .onEnter = [this](SceneContext& ctx) {
+                EnemyControllerBase::playAnimation(ctx, "air");
+            },
+        });
+    m_state_machine.addState(
+        SpiderState::Wait,
+        {
+            .update = [this](SceneContext& ctx, float dt) {
+                m_wait_timer.tick(dt);
+                if (m_wait_timer.finished()) {
+                    m_state_machine.switchTo(ctx, SpiderState::Idle);
+                } },
+            .onEnter = [this](SceneContext& ctx) {
+                EnemyControllerBase::playAnimation(ctx, "idle");
+                m_wait_timer.start(); },
+        });
+
+    m_state_machine.switchTo(ctx, SpiderState::Idle);
 }
 
 void SpiderController::update(SceneContext& ctx, float dt) {
-    SceneQuery& query = ctx.query;
-
-    if (!m_player.valid()) {
-        m_player = findPlayer(query);
-    }
-
-    switch (m_state) {
-        case SpiderState::Idle:
-            updateIdle(query, dt);
-            break;
-        case SpiderState::Attack:
-            enterAttack(query);
-            break;
-        case SpiderState::Air:
-            updateAir(query, dt);
-            break;
-        case SpiderState::Wait:
-            updateWait(dt);
-            break;
-    }
-
-    updateAnimation(query);
-}
-
-void SpiderController::changeState(SpiderState state) {
-    if (m_state == state) {
-        return;
-    }
-
-    m_state = state;
-
-    if (m_state == SpiderState::Wait) {
-        m_wait_timer.start();
-    }
+    DEV_ASSERT(m_player.valid());
+    m_state_machine.update(ctx, dt);
 }
 
 bool SpiderController::canAttackPlayer(const Vec2f& spider_pos,
@@ -81,7 +96,8 @@ float SpiderController::computeJumpXSpeed(float distance_x) const {
     return std::clamp(speed, m_min_jump_x_speed, m_max_jump_x_speed);
 }
 
-void SpiderController::updateIdle(SceneQuery& query, float) {
+void SpiderController::updateIdle(SceneContext& ctx, float) {
+    SceneQuery& query = ctx.query;
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
 
@@ -94,11 +110,12 @@ void SpiderController::updateIdle(SceneQuery& query, float) {
     const Vec2f player_pos = GetAABBCenter(*player_transform, *player_collider);
 
     if (canAttackPlayer(spider_pos, player_pos)) {
-        changeState(SpiderState::Attack);
+        m_state_machine.switchTo(ctx, SpiderState::Attack);
     }
 }
 
-void SpiderController::enterAttack(SceneQuery& query) {
+void SpiderController::enterAttack(SceneContext& ctx) {
+    SceneQuery& query = ctx.query;
     auto transform = query.component<TransformComponent>(entity());
     auto collider = query.component<ColliderComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
@@ -115,7 +132,7 @@ void SpiderController::enterAttack(SceneQuery& query) {
     const float abs_dx = std::abs(dx);
 
     if (abs_dx > m_attack_range_x) {
-        changeState(SpiderState::Idle);
+        m_state_machine.switchTo(ctx, SpiderState::Idle);
         return;
     }
 
@@ -124,10 +141,11 @@ void SpiderController::enterAttack(SceneQuery& query) {
     vel->linear.x = dir_x * computeJumpXSpeed(abs_dx);
     vel->linear.y = m_jump_y_speed;
 
-    changeState(SpiderState::Air);
+    m_state_machine.switchTo(ctx, SpiderState::Air);
 }
 
-void SpiderController::updateAir(SceneQuery& query, float) {
+void SpiderController::updateAir(SceneContext& ctx, float) {
+    SceneQuery& query = ctx.query;
     const auto contact = query.component<ContactComponent>(entity());
     auto vel = query.component<VelocityComponent>(entity());
     DEV_ASSERT(contact && vel);
@@ -135,38 +153,7 @@ void SpiderController::updateAir(SceneQuery& query, float) {
     if (contact->hit_down) {
         vel->linear.x = 0;
         vel->linear.y = 0;
-        changeState(SpiderState::Wait);
-    }
-}
-
-void SpiderController::updateWait(float dt) {
-    m_wait_timer.tick(dt);
-    if (m_wait_timer.finished()) {
-        changeState(SpiderState::Idle);
-    }
-}
-
-void SpiderController::updateAnimation(SceneQuery& query) {
-    auto animator = query.component<SpriteAnimatorComponent>(m_animator);
-
-    if (!animator) {
-        return;
-    }
-
-    switch (m_state) {
-        case SpiderState::Idle: {
-            animator->currentClip("idle");
-        } break;
-        case SpiderState::PrepareAttack: {
-            animator->currentClip("prepare_attack");
-        } break;
-        case SpiderState::Attack:
-        case SpiderState::Air: {
-            animator->currentClip("air");
-        } break;
-        case SpiderState::Wait: {
-            animator->currentClip("idle");
-        } break;
+        m_state_machine.switchTo(ctx, SpiderState::Wait);
     }
 }
 

@@ -17,6 +17,7 @@ protected:
     void onBodyStay(cave::SceneContext& ctx, Entity player) override;
 
     Entity findPlayer(cave::SceneQuery& query) const;
+    void playAnimation(cave::SceneContext& ctx, std::string_view name);
 
     Entity m_player{};
     Entity m_animator{};

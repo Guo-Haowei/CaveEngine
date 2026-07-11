@@ -54,10 +54,7 @@ void BatController::start(SceneContext& ctx) {
         {
             .update = std::bind_front(&BatController::updateIdle, this),
             .onEnter = [this](SceneContext& ctx) {
-                auto animator = ctx.query.component<SpriteAnimatorComponent>(m_animator);
-                if (DEV_VERIFY(animator)) {
-                    animator->currentClip("idle");
-                }
+                playAnimation(ctx, "idle");
             },
         });
     m_state_machine.addState(
@@ -65,10 +62,7 @@ void BatController::start(SceneContext& ctx) {
         {
             .update = std::bind_front(&BatController::updateMove, this),
             .onEnter = [this](SceneContext& ctx) {
-                auto animator = ctx.query.component<SpriteAnimatorComponent>(m_animator);
-                if (DEV_VERIFY(animator)) {
-                    animator->currentClip("fly");
-                }
+                playAnimation(ctx, "fly");
             },
         });
 
@@ -76,12 +70,6 @@ void BatController::start(SceneContext& ctx) {
 }
 
 void BatController::update(SceneContext& ctx, float dt) {
-
-    DEV_ASSERT(m_player.valid());
-    //if (!m_player.valid()) {
-    //    m_player = findPlayer(query);
-    //}
-
     m_state_machine.update(ctx, dt);
 }
 

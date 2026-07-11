@@ -118,4 +118,11 @@ Entity EnemyControllerBase::findPlayer(SceneQuery& query) const {
     return query.findFirstByName("player");
 }
 
+void EnemyControllerBase::playAnimation(SceneContext& ctx, std::string_view name) {
+    auto animator = ctx.query.component<SpriteAnimatorComponent>(m_animator);
+    if (DEV_VERIFY(animator)) {
+        animator->currentClip(name);
+    }
+}
+
 }  // namespace super_cave_boy
