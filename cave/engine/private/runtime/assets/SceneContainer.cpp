@@ -1,4 +1,4 @@
-#include "SceneAsset.h"
+#include "SceneContainer.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/ecs/components/All.h"
@@ -8,13 +8,13 @@
 
 namespace cave {
 
-SceneAsset::SceneAsset()
+SceneContainer::SceneContainer()
     : m_scene(std::make_unique<Scene>()) {
 }
 
-SceneAsset::~SceneAsset() = default;
+SceneContainer::~SceneContainer() = default;
 
-Vector<Guid> SceneAsset::dependencies() const {
+Vector<Guid> SceneContainer::dependencies() const {
     DEV_ASSERT(m_scene);
 
     Set<Guid> deps;
@@ -44,7 +44,7 @@ Vector<Guid> SceneAsset::dependencies() const {
     return Vector<Guid>(deps.begin(), deps.end());
 }
 
-auto SceneAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
+auto SceneContainer::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     auto res = meta.saveToDisk(this);
     if (!res) {
         return CAVE_ERROR(res.error());
@@ -55,7 +55,7 @@ auto SceneAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     return SaveYaml(meta.import_path, yaml);
 }
 
-auto SceneAsset::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
+auto SceneContainer::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YAML::Node root;
 
     if (auto res = LoadYaml(meta.import_path, root); !res) {

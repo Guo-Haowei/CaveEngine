@@ -9,7 +9,6 @@ public:
     ~SceneDocument();
 
     bool save() override;
-    bool saveAs(std::string_view new_path) override;
 
     Owner<Scene> createPreviewScene() const override;
 };

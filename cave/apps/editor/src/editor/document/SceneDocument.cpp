@@ -47,29 +47,21 @@ SceneDocument::~SceneDocument() {
 }
 
 bool SceneDocument::save() {
-    SceneAsset* source = m_handle.get<SceneAsset>();
-    Scene* tmp = m_scene_reg.resolve(m_preview_scene);
-    source->sceneMut().copy(*tmp);
-    return DocumentBase::save();
-}
-
-bool SceneDocument::saveAs(std::string_view p_new_path) {
-    unused(p_new_path);
+    if (auto asset = dynamic_cast<SceneContainer*>(m_handle.get())) {
+        Scene* tmp = m_scene_reg.resolve(m_preview_scene);
+        asset->sceneMut().copy(*tmp);
+        return DocumentBase::save();
+    }
     return false;
 }
 
 Owner<Scene> SceneDocument::createPreviewScene() const {
-    const Scene* scene = nullptr;
-    if (const auto scene_asset = m_handle.get<SceneAsset>()) {
-        scene = &scene_asset->scene();
-    } else if (const auto prefab_asset = m_handle.get<PrefabAsset>()) {
-        scene = &prefab_asset->scene();
-    }
-    if (DEV_VERIFY(scene)) {
+    if (auto asset = dynamic_cast<SceneContainer*>(m_handle.get())) {
         auto scene_copy = std::make_unique<Scene>();
-        scene_copy->copy(*scene);
+        scene_copy->copy(asset->scene());
         return scene_copy;
     }
+
     return nullptr;
 }
 
