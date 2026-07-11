@@ -1,0 +1,137 @@
+version: 19
+seed: 21
+root: 1
+entities:
+  - id: 1
+    NameComponent:
+      name: root
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 2
+    NameComponent:
+      name: untitled
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 3
+    NameComponent:
+      name: tile_map
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    TileMapInstanceComponent:
+      tile_map_id: A3917A01-7FDE-4541-93078879A7370AFC
+      tint_color: [1, 1, 1, 1]
+  - id: 4
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
+    PrefabOverride:
+      TransformComponent:
+        translation: [2.2747879, 5.5501585, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 8
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
+    PrefabOverride:
+      {}
+  - id: 9
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
+    PrefabOverride:
+      TransformComponent:
+        translation: [2.30395937, 3.535326, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 11
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
+    PrefabOverride:
+      TransformComponent:
+        translation: [37.2000008, 5.5, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+      NativeScriptComponent:
+        name: ExitTrigger
+        params:
+          level:
+            type: string
+            value: level_8
+  - id: 13
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
+    PrefabOverride:
+      NameComponent:
+        name: snake-01
+      TransformComponent:
+        translation: [13.3929729, 2.29999995, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+      FacingComponent:
+        facing: right
+  - id: 15
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
+    PrefabOverride:
+      NameComponent:
+        name: snake-02
+      TransformComponent:
+        translation: [11.9957857, 2.29999995, 0]
+        rotation: [0, 1, 0, 0]
+        scale: [1, 1, 1]
+  - id: 17
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
+    PrefabOverride:
+      NameComponent:
+        name: bat-01
+      TransformComponent:
+        translation: [23.3042259, 6.54323387, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 19
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
+    PrefabOverride:
+      NameComponent:
+        name: bat-02
+      TransformComponent:
+        translation: [28.2519455, 8.5577755, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 21
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
+    PrefabOverride:
+      NameComponent:
+        name: bat-03
+      TransformComponent:
+        translation: [33.2534637, 7.48802233, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
