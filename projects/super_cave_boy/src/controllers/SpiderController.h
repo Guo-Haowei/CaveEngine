@@ -1,5 +1,4 @@
 #pragma once
-#include "cave/core/time/CountdownTimer.h"
 #include "cave/runtime/game/StateMachine.h"
 
 #include "EnemyControllerBase.h"
@@ -36,7 +35,6 @@ private:
     cave::GameStateMachine<SpiderState> m_state_machine;
 
     cave::math::Vec2f m_detect_range{ 5, 5 };
-    cave::CountdownTimer m_wait_timer{ 1.0f };
 
     float m_attack_range_x = 6.0f;
 

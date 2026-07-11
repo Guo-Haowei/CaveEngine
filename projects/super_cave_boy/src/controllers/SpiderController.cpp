@@ -57,7 +57,7 @@ void SpiderController::start(SceneContext& ctx) {
         SpiderState::Wait,
         {
             .update = std::bind_front(&SpiderController::updateWait, this),
-            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "idle"); m_wait_timer.start(); },
+            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "idle"); },
         });
 
     m_state_machine.switchTo(ctx, SpiderState::Idle);
@@ -143,9 +143,8 @@ void SpiderController::updateAir(SceneContext& ctx, float) {
     }
 }
 
-void SpiderController::updateWait(SceneContext& ctx, float dt) {
-    m_wait_timer.tick(dt);
-    if (m_wait_timer.finished()) {
+void SpiderController::updateWait(SceneContext& ctx, float) {
+    if (m_state_machine.stateTime() > 1.0f) {
         m_state_machine.switchTo(ctx, SpiderState::Idle);
     }
 }
