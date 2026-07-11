@@ -32,11 +32,10 @@ void FileSystemPanel::onAttach() {
     root_ = m_engine_services.vfs().GetMount("@res");
 }
 
-void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
+void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
     const bool is_dir = entry.is_dir;
 
-    int flags = 0;
-    flags |= ImGuiTreeNodeFlags_DefaultOpen;
+    int flags = open ? ImGuiTreeNodeFlags_DefaultOpen : 0;
     flags |= !is_dir ? ImGuiTreeNodeFlags_Leaf : 0;
 
     auto id = std::format("##{}", entry.virtual_path);
@@ -99,7 +98,7 @@ void FileSystemPanel::drawUIImpl() {
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
-    drawFolderTreeNode(*asset_manager.assetRoot());
+    drawFolderTreeNode(*asset_manager.assetRoot(), true);
 }
 
 }  // namespace cave

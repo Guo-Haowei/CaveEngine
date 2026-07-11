@@ -27,17 +27,17 @@ using namespace ::cave::math;
 // @TODO: refactor this
 // @TODO: add motor to add velocity, collider, contact, etc
 // @TODO: add motor2d?
-#define COMPONENT_LIST              \
-    COMPONENT_DECL(Camera)          \
-    COMPONENT_DECL(NativeScript)    \
-    COMPONENT_DECL(SpriteAnimator)  \
-    COMPONENT_DECL(Collider)        \
-    COMPONENT_DECL(Trigger)         \
-    COMPONENT_DECL(Velocity)        \
-    COMPONENT_DECL(Motor)           \
-    COMPONENT_DECL(MeshRenderer)    \
-    COMPONENT_DECL(SpriteRenderer)  \
-    COMPONENT_DECL(Facing)          \
+#define COMPONENT_LIST             \
+    COMPONENT_DECL(Camera)         \
+    COMPONENT_DECL(NativeScript)   \
+    COMPONENT_DECL(SpriteAnimator) \
+    COMPONENT_DECL(Collider)       \
+    COMPONENT_DECL(Trigger)        \
+    COMPONENT_DECL(Velocity)       \
+    COMPONENT_DECL(Motor)          \
+    COMPONENT_DECL(MeshRenderer)   \
+    COMPONENT_DECL(SpriteRenderer) \
+    COMPONENT_DECL(Facing)         \
     COMPONENT_DECL(TileMapInstance)
 
 bool DrawPropertyAuto(const FieldMetaBase* property,

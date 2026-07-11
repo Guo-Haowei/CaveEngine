@@ -127,7 +127,7 @@ void PrefabInstance_OnEdited(Scene& scene,
             if (hier) {
                 InstantiatePrefab(scene, *c, ent);
             } else {
-                //c->setPrefabGuid(Guid::null());
+                // c->setPrefabGuid(Guid::null());
             }
         }
     }

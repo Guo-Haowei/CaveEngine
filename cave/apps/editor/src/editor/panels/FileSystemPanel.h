@@ -16,7 +16,7 @@ public:
 protected:
     void drawUIImpl() override;
 
-    void drawFolderTreeNode(const ContentEntry& node);
+    void drawFolderTreeNode(const ContentEntry& node, bool open = false);
 
     std::filesystem::path root_;
     std::filesystem::path renaming_;
