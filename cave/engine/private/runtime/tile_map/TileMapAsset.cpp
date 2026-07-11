@@ -86,14 +86,16 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
         if (x != kMaxIndex && y != kMaxIndex) {
             if (d.tryEnterKey("tiles")) {
                 auto chunk = std::make_unique<TileChunk>();
-                auto& tiles = chunk->tilesMut();
 
-                constexpr int kTileCount = kTileChunkSize * kTileChunkSize;
-                DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileCount);
-                for (int tile_idx = 0; tile_idx < kTileCount; ++tile_idx) {
-                    DEV_ASSERT(d.tryEnterIndex(tile_idx));
-                    d.read(tiles[tile_idx]);
-                    d.leaveIndex();
+                DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileChunkArea);
+                for (int16_t local_y = 0; local_y < kTileChunkSize; ++local_y) {
+                    for (int16_t local_x = 0; local_x < kTileChunkSize; ++local_x) {
+                        const int16_t tile_idx = local_y * kTileChunkSize + local_x;
+                        if (DEV_VERIFY(d.tryEnterIndex(tile_idx))) {
+                            d.read(chunk->at(local_x, local_y));
+                            d.leaveIndex();
+                        }
+                    }
                 }
 
                 if (!chunk->empty()) {

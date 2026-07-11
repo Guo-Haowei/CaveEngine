@@ -19,8 +19,8 @@ public:
     ~YamlDeserializer();
 
     int version() const override {
-        DEV_ASSERT(initialized_);
-        return version_;
+        DEV_ASSERT(m_initialized);
+        return m_version;
     }
 
     bool tryEnterKey(const char* key) override;
@@ -33,11 +33,11 @@ public:
 
     Option<int> arraySize() override;
 
-    Option<std::vector<std::string>> getKeys() override;
+    Option<Vector<String>> getKeys() override;
 
     bool read(bool& value) override;
     bool read(float& value) override;
-    bool read(std::string& value) override;
+    bool read(String& value) override;
 
     bool read(int8_t& value) override;
     bool read(uint8_t& value) override;
@@ -52,15 +52,14 @@ private:
     const YAML::Node& current() const;
 
     template<typename T>
-    bool readScalar(T& p_out);
+    bool readScalar(T& out);
 
 #if USING(VALIDATE_SERIALIZER)
-    std::vector<SerializerState> type_stack_;
+    Vector<SerializerState> m_type_stack;
 #endif
-
-    std::vector<YAML::Node> node_stack_;
-    int version_{ -1 };
-    bool initialized_{ false };
+    Vector<YAML::Node> m_node_stack;
+    int m_version{ -1 };
+    bool m_initialized{ false };
 };
 
 template<typename T>

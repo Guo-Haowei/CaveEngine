@@ -47,14 +47,6 @@ TileChunk::TileChunk() {
     m_local_tiles.fill(kEmptyTileId);
 }
 
-TileId& TileChunk::at(int16_t local_x, int16_t local_y) {
-    return m_local_tiles[local_y * kTileChunkSize + local_x];
-}
-
-const TileId& TileChunk::at(int16_t local_x, int16_t local_y) const {
-    return m_local_tiles[local_y * kTileChunkSize + local_x];
-}
-
 bool TileChunk::empty() const {
     for (TileId id : m_local_tiles) {
         if (id != kEmptyTileId) {

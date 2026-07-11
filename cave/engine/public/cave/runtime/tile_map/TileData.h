@@ -20,13 +20,15 @@ class TileChunk {
 public:
     TileChunk();
 
-    TileId& at(int16_t local_x, int16_t local_y);
+    TileId& at(int16_t local_x, int16_t local_y) {
+        return m_local_tiles[local_y * kTileChunkSize + local_x];
+    }
 
-    const TileId& at(int16_t local_x, int16_t local_y) const;
+    const TileId& at(int16_t local_x, int16_t local_y) const {
+        return m_local_tiles[local_y * kTileChunkSize + local_x];
+    }
 
     bool empty() const;
-
-    auto& tilesMut() { return m_local_tiles; }
 
 private:
     std::array<TileId, kTileChunkArea> m_local_tiles{};
