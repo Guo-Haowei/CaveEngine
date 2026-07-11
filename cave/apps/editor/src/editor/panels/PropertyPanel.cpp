@@ -38,8 +38,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(MeshRenderer)    \
     COMPONENT_DECL(SpriteRenderer)  \
     COMPONENT_DECL(Facing)          \
-    COMPONENT_DECL(TileMapInstance) \
-    COMPONENT_DECL(PrefabInstance)
+    COMPONENT_DECL(TileMapInstance)
 
 bool DrawPropertyAuto(const FieldMetaBase* property,
                       void* component,
@@ -256,7 +255,6 @@ void PropertyPanel::drawUIImpl() {
     ColliderComponent* collider = scene.component<ColliderComponent>(id);
     NativeScriptComponent* native_script = scene.component<NativeScriptComponent>(id);
     CameraComponent* camera = scene.component<CameraComponent>(id);
-    PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(id);
     FacingComponent* facing = scene.component<FacingComponent>(id);
     VelocityComponent* velocity = scene.component<VelocityComponent>(id);
     MotorComponent* motor = scene.component<MotorComponent>(id);
@@ -291,10 +289,6 @@ void PropertyPanel::drawUIImpl() {
         ui::TextBox("class_name", name);
 
         DrawComponentAuto<NativeScriptComponent>(&script, ctx);
-    });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("Prefab"), prefab, [&](PrefabInstanceComponent& prefab) {
-        DrawComponentAuto<PrefabInstanceComponent>(&prefab, ctx);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& collider) {
