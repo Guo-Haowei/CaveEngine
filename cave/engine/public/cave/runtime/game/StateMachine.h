@@ -68,7 +68,7 @@ public:
 
 private:
     T m_current{ T::Invalid };
-    T m_prev{T::Invalid};
+    T m_prev{ T::Invalid };
 
     float m_state_time = 0.0f;
     std::array<Callbacks, std::to_underlying(T::Count)> m_states;

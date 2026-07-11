@@ -39,45 +39,31 @@ void SpiderController::start(SceneContext& ctx) {
         SpiderState::PrepareAttack,
         {
             .update = std::bind_front(&SpiderController::updateIdle, this),
-            .onEnter = [this](SceneContext& ctx) {
-                EnemyControllerBase::playAnimation(ctx, "prepare_attack");
-            },
+            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "prepare_attack"); },
         });
     m_state_machine.addState(
         SpiderState::Attack,
         {
-            .update = [this](SceneContext& ctx, float) { enterAttack(ctx);
-            },
-            .onEnter = [this](SceneContext& ctx) {
-                EnemyControllerBase::playAnimation(ctx, "air");
-            },
+            .update = [this](SceneContext& ctx, float) { enterAttack(ctx); },
+            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "air"); },
         });
     m_state_machine.addState(
         SpiderState::Air,
         {
             .update = std::bind_front(&SpiderController::updateAir, this),
-            .onEnter = [this](SceneContext& ctx) {
-                EnemyControllerBase::playAnimation(ctx, "air");
-            },
+            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "air"); },
         });
     m_state_machine.addState(
         SpiderState::Wait,
         {
-            .update = [this](SceneContext& ctx, float dt) {
-                m_wait_timer.tick(dt);
-                if (m_wait_timer.finished()) {
-                    m_state_machine.switchTo(ctx, SpiderState::Idle);
-                } },
-            .onEnter = [this](SceneContext& ctx) {
-                EnemyControllerBase::playAnimation(ctx, "idle");
-                m_wait_timer.start(); },
+            .update = std::bind_front(&SpiderController::updateWait, this),
+            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "idle"); m_wait_timer.start(); },
         });
 
     m_state_machine.switchTo(ctx, SpiderState::Idle);
 }
 
 void SpiderController::update(SceneContext& ctx, float dt) {
-    DEV_ASSERT(m_player.valid());
     m_state_machine.update(ctx, dt);
 }
 
@@ -154,6 +140,13 @@ void SpiderController::updateAir(SceneContext& ctx, float) {
         vel->linear.x = 0;
         vel->linear.y = 0;
         m_state_machine.switchTo(ctx, SpiderState::Wait);
+    }
+}
+
+void SpiderController::updateWait(SceneContext& ctx, float dt) {
+    m_wait_timer.tick(dt);
+    if (m_wait_timer.finished()) {
+        m_state_machine.switchTo(ctx, SpiderState::Idle);
     }
 }
 

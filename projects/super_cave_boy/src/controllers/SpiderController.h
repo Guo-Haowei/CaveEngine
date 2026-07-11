@@ -25,6 +25,7 @@ private:
     void updateIdle(cave::SceneContext& ctx, float dt);
     void enterAttack(cave::SceneContext& ctx);
     void updateAir(cave::SceneContext& ctx, float dt);
+    void updateWait(cave::SceneContext& ctx, float dt);
 
     bool canAttackPlayer(const cave::math::Vec2f& spider_pos,
                          const cave::math::Vec2f& player_pos) const;
