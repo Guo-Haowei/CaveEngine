@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/base/NonCopyable.h"
 #include "cave/core/time/Stopwatch.h"
-#include "cave/game/GameModuleHandle.h"
+#include "cave/runtime/game/GameModuleHandle.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"

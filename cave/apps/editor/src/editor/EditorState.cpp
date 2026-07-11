@@ -39,7 +39,7 @@
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/ui/layout.h"
 
-#include "cave/game/GameModuleHandle.h"
+#include "cave/runtime/game/GameModuleHandle.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {

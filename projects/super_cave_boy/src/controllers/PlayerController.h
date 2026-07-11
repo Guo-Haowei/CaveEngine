@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/Vec.h"
 #include "cave/core/time/CountdownTimer.h"
-#include "cave/game/IGameModule.h"
+#include "cave/runtime/game/IGameModule.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/script/native/NativeScript.h"

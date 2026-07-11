@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/string/StringUtils.h"
-#include "cave/game/IGameModule.h"
+#include "cave/runtime/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneContext.h"
 

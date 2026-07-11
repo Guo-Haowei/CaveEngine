@@ -46,26 +46,46 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
     return close_x && valid_y;
 }
 
-void BatController::update(SceneContext& ctx, float dt) {
-    SceneQuery& query = ctx.query;
+void BatController::start(SceneContext& ctx) {
+    EnemyControllerBase::start(ctx);
 
-    if (!m_player.valid()) {
-        m_player = findPlayer(query);
-    }
+    m_state_machine.addState(
+        BatState::Idle,
+        {
+            .update = std::bind_front(&BatController::updateIdle, this),
+            .onEnter = [this](SceneContext& ctx) {
+                auto animator = ctx.query.component<SpriteAnimatorComponent>(m_animator);
+                if (DEV_VERIFY(animator)) {
+                    animator->currentClip("idle");
+                }
+            },
+        });
+    m_state_machine.addState(
+        BatState::Move,
+        {
+            .update = std::bind_front(&BatController::updateMove, this),
+            .onEnter = [this](SceneContext& ctx) {
+                auto animator = ctx.query.component<SpriteAnimatorComponent>(m_animator);
+                if (DEV_VERIFY(animator)) {
+                    animator->currentClip("fly");
+                }
+            },
+        });
 
-    switch (m_state) {
-        case BatState::Idle: {
-            updateIdle(ctx);
-        } break;
-        case BatState::Move: {
-            updateMove(ctx, dt);
-        } break;
-    }
-
-    updateAnimation(query);
+    m_state_machine.switchTo(ctx, BatState::Idle);
 }
 
-void BatController::updateIdle(SceneContext& ctx) {
+void BatController::update(SceneContext& ctx, float dt) {
+
+    DEV_ASSERT(m_player.valid());
+    //if (!m_player.valid()) {
+    //    m_player = findPlayer(query);
+    //}
+
+    m_state_machine.update(ctx, dt);
+}
+
+void BatController::updateIdle(SceneContext& ctx, float) {
     SceneQuery& query = ctx.query;
     auto transform = query.component<TransformComponent>(entity());
     auto player_transform = query.component<TransformComponent>(m_player);
@@ -76,11 +96,7 @@ void BatController::updateIdle(SceneContext& ctx) {
     const Vec2f player_pos = player_transform->translation().xy;
 
     if (canSeePlayer(bat_pos, player_pos)) {
-        m_state = BatState::Move;
-
-        if (auto animator = query.component<SpriteAnimatorComponent>(m_animator)) {
-            animator->currentClip("fly");
-        }
+        m_state_machine.switchTo(ctx, BatState::Move);
     }
 }
 
@@ -118,24 +134,6 @@ void BatController::updateMove(SceneContext& ctx, float) {
 
     vel->linear.x = desired_dir.x * speed;
     vel->linear.y = desired_dir.y * speed;
-}
-
-void BatController::updateAnimation(SceneQuery& query) {
-    auto animator = query.component<SpriteAnimatorComponent>(m_animator);
-
-    if (!animator) {
-        return;
-    }
-
-    switch (m_state) {
-        case BatState::Idle:
-            animator->currentClip("idle");
-            break;
-
-        case BatState::Move:
-            animator->currentClip("fly");
-            break;
-    }
 }
 
 }  // namespace super_cave_boy

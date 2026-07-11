@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "cave/game/IGameMode.h"
+#include "cave/runtime/game/IGameMode.h"
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentBus.h"
 
