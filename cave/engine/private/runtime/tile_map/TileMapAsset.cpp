@@ -37,19 +37,8 @@ Vector<Guid> TileMapAsset::dependencies() const {
 ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
     s.beginArray(false);
 
-    auto chunk_empty = [](const TileChunk& p_chunk) {
-        for (int16_t y = 0; y < kTileChunkSize; ++y) {
-            for (int16_t x = 0; x < kTileChunkSize; ++x) {
-                if (p_chunk.at(x, y) != kEmptyTileId) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    };
-
     for (const auto& [index, chunk] : tile_data.chunks()) {
-        if (chunk_empty(*chunk.get())) {
+        if (chunk->empty()) {
             continue;
         }
 
@@ -82,8 +71,9 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
 
     for (int chunk_idx = 0; chunk_idx < chunk_size; ++chunk_idx) {
         DEV_ASSERT(d.tryEnterIndex(chunk_idx));
-        int16_t x = INT16_MAX;
-        int16_t y = INT16_MAX;
+        constexpr int16_t kMaxIndex = std::numeric_limits<int16_t>::max();
+        int16_t x = kMaxIndex;
+        int16_t y = kMaxIndex;
         if (DEV_VERIFY(d.tryEnterKey("x"))) {
             d.read(x);
             d.leaveKey();
@@ -93,18 +83,23 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
             d.leaveKey();
         }
 
-        if (x != INT16_MAX && y != INT16_MAX) {
+        if (x != kMaxIndex && y != kMaxIndex) {
             if (d.tryEnterKey("tiles")) {
                 auto chunk = std::make_unique<TileChunk>();
-                auto& tiles = chunk->tiles;
-                tile_data.chunks()[TileChunkCoord(x, y)] = std::move(chunk);
+                auto& tiles = chunk->tilesMut();
 
-                constexpr int TILE_COUNT = kTileChunkSize * kTileChunkSize;
-                DEV_ASSERT(d.arraySize().unwrap_or(0) == TILE_COUNT);
-                for (int tile_idx = 0; tile_idx < TILE_COUNT; ++tile_idx) {
+                constexpr int kTileCount = kTileChunkSize * kTileChunkSize;
+                DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileCount);
+                for (int tile_idx = 0; tile_idx < kTileCount; ++tile_idx) {
                     DEV_ASSERT(d.tryEnterIndex(tile_idx));
                     d.read(tiles[tile_idx]);
                     d.leaveIndex();
+                }
+
+                if (!chunk->empty()) {
+                    [[maybe_unused]]
+                    const bool inserted = tile_data.addChunk(TileChunkCoord(x, y), std::move(chunk));
+                    DEV_ASSERT(inserted);
                 }
                 d.leaveKey();
             }

@@ -3,9 +3,9 @@
 // =============================================================================
 #pragma once
 #include <array>
-#include <memory>
 
-#include "TileCoord.h"
+#include "cave/core/containers/Containers.h"
+#include "cave/runtime/tile_map/TileCoord.h"
 
 namespace cave {
 
@@ -16,29 +16,20 @@ constexpr TileId kEmptyTileId = 0xFFFF;
 constexpr int16_t kTileChunkSize = 32;
 constexpr int16_t kTileChunkArea = kTileChunkSize * kTileChunkSize;
 
-struct TileChunk {
-    std::array<TileId, kTileChunkArea> tiles{};
+class TileChunk {
+public:
+    TileChunk();
 
-    TileChunk() {
-        tiles.fill(kEmptyTileId);
-    }
+    TileId& at(int16_t local_x, int16_t local_y);
 
-    TileId& at(int16_t local_x, int16_t local_y) {
-        return tiles[local_y * kTileChunkSize + local_x];
-    }
+    const TileId& at(int16_t local_x, int16_t local_y) const;
 
-    const TileId& at(int16_t local_x, int16_t local_y) const {
-        return tiles[local_y * kTileChunkSize + local_x];
-    }
+    bool empty() const;
 
-    bool empty() const {
-        for (TileId id : tiles) {
-            if (id != kEmptyTileId) {
-                return false;
-            }
-        }
-        return true;
-    }
+    auto& tilesMut() { return m_local_tiles; }
+
+private:
+    std::array<TileId, kTileChunkArea> m_local_tiles{};
 };
 
 TileChunkCoord ToTileChunkCoord(TileCoord coord);
@@ -54,11 +45,12 @@ public:
 
     bool removeTile(TileCoord coord);
 
-    auto& chunks() { return chunks_; }
-    const auto& chunks() const { return chunks_; }
+    bool addChunk(TileChunkCoord coord, Owner<TileChunk>&& chunk);
+
+    const auto& chunks() const { return m_chunks; }
 
 private:
-    std::unordered_map<TileChunkCoord, std::unique_ptr<TileChunk>> chunks_;
+    HashMap<TileChunkCoord, Owner<TileChunk>> m_chunks;
 };
 
 }  // namespace cave

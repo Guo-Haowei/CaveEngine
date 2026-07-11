@@ -20,7 +20,7 @@ protected:
     void drawLogHistroy();
 
     bool allChannels() const {
-        return channel_filter_ == LogChannel::Count;
+        return m_channel_filter == LogChannel::Count;
     }
 
     bool passSearchFilter(const LogEvent& log) const;
@@ -29,14 +29,15 @@ protected:
     void channelDropDown();
     void searchBar();
 
-    bool auto_scroll_{ true };
-    bool scroll_to_bottom_{ false };
-    LogLevel level_filter_{ LOG_LEVEL_ALL & ~(LOG_LEVEL_TRACE) };
-    LogChannel channel_filter_{ LogChannel::Count };
-    FixedString<128> search_buffer_;
+    LogLevel m_level_filter;
+    LogChannel m_channel_filter{ LogChannel::Count };
+    FixedString<128> m_search_buffer;
+
+    bool m_auto_scroll{ true };
+    bool m_scroll_to_bottom{ false };
 
     // @TODO: make it a standalone window
-    std::unique_ptr<ConsolePanel> console_;
+    Owner<ConsolePanel> m_console;
 };
 
 }  // namespace cave
