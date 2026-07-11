@@ -30,31 +30,31 @@ namespace {
 
 // @TODO: build the scene tree and attach to scene
 // @TODO: on scene change instead of build every frame
-class HierarchyCreator {
+class SceneTreeBuilder {
 public:
     struct HierarchyNode {
         HierarchyNode* parent = nullptr;
         Entity entity;
 
-        std::vector<HierarchyNode*> children;
+        Vector<HierarchyNode*> children;
     };
 
-    HierarchyCreator(const PreviewScene& p_preview, SelectionService& p_selection)
-        : m_preview(p_preview), m_selection(p_selection) {}
+    SceneTreeBuilder(const PreviewScene& preview, SelectionService& selection)
+        : m_preview(preview), m_selection(selection) {}
 
-    void Update() {
-        if (Build(*m_preview.scene)) {
+    void update() {
+        if (buildSceneTree(*m_preview.scene)) {
             DEV_ASSERT(m_root);
-            DrawNode(m_root, ImGuiTreeNodeFlags_DefaultOpen);
+            drawNode(m_root, ImGuiTreeNodeFlags_DefaultOpen);
         }
     }
 
 private:
-    bool Build(const Scene& p_scene);
-    void DrawNode(HierarchyNode* p_node,
-                  ImGuiTreeNodeFlags p_flags = 0);
+    bool buildSceneTree(const Scene& scene);
+    void drawNode(HierarchyNode* node,
+                  ImGuiTreeNodeFlags flags = 0);
 
-    std::map<Entity, std::shared_ptr<HierarchyNode>> m_nodes;
+    Map<Entity, Owner<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
     const PreviewScene& m_preview;
     SelectionService& m_selection;
@@ -125,7 +125,7 @@ bool TreeNodeHelper(Scene& scene,
 }  // namespace
 
 // @TODO: make it an widget
-void HierarchyCreator::DrawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_flags) {
+void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_flags) {
     DEV_ASSERT(hier);
     Entity current_id = hier->entity;
 
@@ -163,35 +163,35 @@ void HierarchyCreator::DrawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
         ImGui::Indent(indentWidth);
 
         for (auto& child : hier->children) {
-            DrawNode(child);
+            drawNode(child);
         }
         ImGui::Unindent(indentWidth);
     }
 }
 
-bool HierarchyCreator::Build(const Scene& scene) {
-    const size_t hierarchy_count = scene.count<HierarchyComponent>();
-    if (hierarchy_count == 0) {
-        return false;
-    }
-
-    for (auto [self_id, hier] : scene.view<HierarchyComponent>()) {
-        auto find_or_create = [this](ecs::Entity id) {
-            auto it = m_nodes.find(id);
-            if (it == m_nodes.end()) {
-                m_nodes[id] = std::make_shared<HierarchyNode>();
-                return m_nodes[id].get();
+bool SceneTreeBuilder::buildSceneTree(const Scene& scene) {
+    for (auto [ent, transform] : scene.view<TransformComponent>()) {
+        auto find_or_create = [this](Entity ent) -> HierarchyNode* {
+            if (ent.isNull()) {
+                return nullptr;
             }
+            auto [it, ok] = m_nodes.try_emplace(ent, std::make_unique<HierarchyNode>());
             return it->second.get();
         };
 
-        const ecs::Entity parent_id = hier.parent_id;
+        const auto hier = scene.component<HierarchyComponent>(ent);
+
+        const Entity parent_id = hier ? hier->parent_id : Entity::null();
         HierarchyNode* parent_node = find_or_create(parent_id);
-        HierarchyNode* self_node = find_or_create(self_id);
-        parent_node->children.push_back(self_node);
-        parent_node->entity = parent_id;
-        self_node->parent = parent_node;
-        self_node->entity = self_id;
+        HierarchyNode* self_node = find_or_create(ent);
+        if (parent_node) {
+            parent_node->children.push_back(self_node);
+            parent_node->entity = parent_id;
+        }
+        if (DEV_VERIFY(self_node)) {
+            self_node->parent = parent_node;
+            self_node->entity = ent;
+        }
     }
 
     int nodes_without_parent = 0;
@@ -201,6 +201,7 @@ bool HierarchyCreator::Build(const Scene& scene) {
             m_root = it.second.get();
         }
     }
+
     if (nodes_without_parent != 1) {
         static int s_nodes_without_parent = 0;
         if (nodes_without_parent != s_nodes_without_parent) {
@@ -215,9 +216,9 @@ void HierarchyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
     PreviewScene preview = m_editor_services.workspace().focusedPreviewScene();
     if (preview.scene) {
-        HierarchyCreator creator(preview, m_editor_services.selection());
+        SceneTreeBuilder sceneTree(preview, m_editor_services.selection());
         drawPopup(preview);
-        creator.Update();
+        sceneTree.update();
     }
 }
 

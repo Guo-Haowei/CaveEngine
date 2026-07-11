@@ -9,15 +9,6 @@ entities:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-  - id: 2
-    NameComponent:
-      name: untitled
-    HierarchyComponent:
-      parent_id: 1
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
   - id: 3
     NameComponent:
       name: tile_map
