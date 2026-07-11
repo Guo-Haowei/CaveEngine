@@ -35,6 +35,7 @@ constexpr uint32_t kLatestSceneVersion = 19;
 constexpr char kSceneMagic[] = "xBScene";
 
 #define PREFAB_OVERRIDE_LIST               \
+    PREFAB_OVERRIDE(NameComponent)         \
     PREFAB_OVERRIDE(TransformComponent)    \
     PREFAB_OVERRIDE(NativeScriptComponent) \
     PREFAB_OVERRIDE(FacingComponent)
@@ -137,26 +138,27 @@ bool SerializeComponentOverride(ISerializer& s,
 
 bool SerializePrefabDiff(ISerializer& s,
                          const Scene& scene,
-                         const PrefabInstanceComponent& prefab_comp,
+                         Entity ent,
+                         const PrefabInstanceComponent& prefab,
                          AssetRegistry* asset_reg) {
     if (!asset_reg) {
         return false;
     }
 
-    auto handle = asset_reg->findByGuid<PrefabAsset>(prefab_comp.prefabGuid());
+    auto handle = asset_reg->findByGuid<PrefabAsset>(prefab.prefabGuid());
     if (handle.is_none()) {
         return false;
     }
 
-    Entity instance_ent = prefab_comp.instance();
-    const PrefabAsset* prefab = handle.unwrap_unchecked().get();
-    DEV_ASSERT(prefab);
-    Entity prefab_root = prefab->scene().root();
+    const PrefabAsset* prefab_asset = handle.unwrap_unchecked().get();
+    DEV_ASSERT(prefab_asset);
+    Entity prefab_root = prefab_asset->scene().root();
 
     s.beginKey("PrefabOverride");
     s.beginMap(false);
 
-#define PREFAB_OVERRIDE(T) SerializeComponentOverride<T>(s, #T, prefab->scene(), prefab_root, scene, instance_ent);
+#define PREFAB_OVERRIDE(T) \
+    SerializeComponentOverride<T>(s, #T, prefab_asset->scene(), prefab_root, scene, ent);
     PREFAB_OVERRIDE_LIST
 #undef PREFAB_OVERRIDE
 
@@ -167,13 +169,17 @@ bool SerializePrefabDiff(ISerializer& s,
 bool SerializePrefabEntity(ISerializer& s,
                            const Scene& scene,
                            Entity ent,
+                           const PrefabInstanceComponent& prefab,
                            AssetRegistry* asset_reg) {
-    const PrefabInstanceComponent* prefab = scene.component<PrefabInstanceComponent>(ent);
-    DEV_ASSERT(prefab);
-
     s.beginMap(false);
-    SerializeEntityImpl(s, scene, ent);
-    SerializePrefabDiff(s, scene, *prefab, asset_reg);
+
+    s.beginKey("id").write(ent);
+
+    SerializeComponent<HierarchyComponent>(s, "HierarchyComponent", scene, ent);
+    SerializeComponent<PrefabInstanceComponent>(s, "PrefabInstanceComponent", scene, ent);
+
+    SerializePrefabDiff(s, scene, ent, prefab, asset_reg);
+
     s.endMap();
     return true;
 }
@@ -183,12 +189,12 @@ bool SerializeEntity(ISerializer& s,
                      Entity ent,
                      AssetRegistry* asset_reg,
                      bool skip_prefab) {
-    if (skip_prefab && scene.has<PrefabChildComponent>(ent)) {
-        return true;  // skip prefab entities
+    if (auto prefab = scene.component<PrefabInstanceComponent>(ent)) {
+        return SerializePrefabEntity(s, scene, ent, *prefab, asset_reg);
     }
 
-    if (scene.has<PrefabInstanceComponent>(ent)) {
-        return SerializePrefabEntity(s, scene, ent, asset_reg);
+    if (skip_prefab && scene.has<PrefabChildComponent>(ent)) {
+        return true;  // skip prefab entities
     }
 
     return SerializeNormalEntity(s, scene, ent);
@@ -209,6 +215,8 @@ void SerializeScene(ISerializer& s, const Scene& scene, AssetRegistry* asset_reg
         .beginKey("entities");
 
     s.beginArray(false);
+
+    // @TODO: remap entities to use a more contact id
 
     for (auto ent : entity_array) {
         SerializeEntity(s, scene, ent, asset_reg, skip_prefab);
@@ -242,12 +250,14 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
     DEV_ASSERT(ok);
 
     struct OverrideComponents {
+        Option<NameComponent> NameComponent;
         Option<TransformComponent> TransformComponent;
         Option<FacingComponent> FacingComponent;
         Option<NativeScriptComponent> NativeScriptComponent;
 
         bool is_some() const {
-            return TransformComponent.is_some() ||
+            return NameComponent.is_some() ||
+                   TransformComponent.is_some() ||
                    FacingComponent.is_some() ||
                    NativeScriptComponent.is_some();
         }
@@ -292,25 +302,24 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
 
     for (auto&& [ent, prefab] : scene.view<PrefabInstanceComponent>()) {
         InstantiatePrefab(scene, prefab, ent);
+
+        if (!scene.has<HierarchyComponent>(ent)) {
+            scene.create<HierarchyComponent>(ent).parent_id = scene.root();
+        }
     }
 
     for (auto&& [ent, overrides] : overrides_map) {
-        const auto& prefab = *scene.component<PrefabInstanceComponent>(ent);
-        Entity child_ent = prefab.instance();
-#define PREFAB_OVERRIDE(T)                                               \
-    if (overrides.T.is_some()) {                                         \
-        *scene.component<T>(child_ent) = overrides.T.unwrap_unchecked(); \
+#define PREFAB_OVERRIDE(T)                                         \
+    if (overrides.T.is_some()) {                                   \
+        *scene.component<T>(ent) = overrides.T.unwrap_unchecked(); \
     }
         PREFAB_OVERRIDE_LIST
 #undef PREFAB_OVERRIDE
     }
 }
 
-// @TODO: move this somewhere else
-void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entity ent) {
-    if (prefab.instance().valid()) {
-        scene.removeEntity(prefab.instance());
-    }
+void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entity parent) {
+    DEV_ASSERT(parent.valid());
 
     // @TODO: remove this
     auto handle_opt = AssetRegistry::singleton().findByGuid<PrefabAsset>(prefab.prefabGuid());
@@ -323,17 +332,25 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entit
     Scene copy;
     copy.copy(asset->scene());
 
+    // @TODO: add components to parent, instead of link it
     auto new_entities = copy.getSortedEntityArray();
     std::unordered_map<Entity, Entity> mapping;
-    for (Entity raw_entity : new_entities) {
-        Entity mapped = scene.createEntity();
-        scene.create<PrefabChildComponent>(mapped);
-        mapping[raw_entity] = mapped;
+
+    for (Entity prefab_ent : new_entities) {
+        if (prefab_ent == copy.root()) {
+            mapping[prefab_ent] = parent;
+        } else {
+            Entity mapped = scene.createEntity();
+            scene.create<PrefabChildComponent>(mapped);
+            mapping[prefab_ent] = mapped;
+        }
     }
 
     // remap hierarchy
     for (auto [id, hier] : copy.view<HierarchyComponent>()) {
-        hier.parent_id = mapping[hier.parent_id];
+        auto it = mapping.find(hier.parent_id);
+        DEV_ASSERT(it != mapping.end());
+        hier.parent_id = it->second;
     }
 
     // remap material
@@ -360,13 +377,6 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entit
         }
         my_entry.pool->merge(std::move(*entry.pool));
     }
-
-    // link instance
-    Entity mapped_root = mapping[copy.root()];
-    HierarchyComponent& hier = scene.create<HierarchyComponent>(mapped_root);
-    hier.parent_id = ent.valid() ? ent : scene.root();
-
-    prefab.setInstance(mapped_root);
 }
 
 }  // namespace cave

@@ -1,0 +1,23 @@
+version: 19
+seed: 1
+root: 1
+entities:
+  - id: 1
+    NameComponent:
+      name: game_camera
+    TransformComponent:
+      translation: [5, 3, 3]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    CameraComponent:
+      flags: 0
+      projection: orthographic
+      fovy: 60
+      near: 0.100000001
+      far: 1000
+      aspect: 1.77999997
+      ortho_height: 10
+    NativeScriptComponent:
+      name: CameraController
+      params:
+        {}

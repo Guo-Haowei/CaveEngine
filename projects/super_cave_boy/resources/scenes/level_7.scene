@@ -1,17 +1,17 @@
 version: 19
-seed: 102
+seed: 21
 root: 1
 entities:
   - id: 1
     NameComponent:
-      name: world
+      name: root
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-  - id: 2
+  - id: 3
     NameComponent:
-      name: platformer
+      name: tile_map
     HierarchyComponent:
       parent_id: 1
     TransformComponent:
@@ -19,19 +19,52 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapInstanceComponent:
-      tile_map_id: 8B4DBABB-43B4-3048-A8F93F43AD349908
+      tile_map_id: A3917A01-7FDE-4541-93078879A7370AFC
       tint_color: [1, 1, 1, 1]
-  - id: 8
+  - id: 4
     HierarchyComponent:
       parent_id: 1
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
       TransformComponent:
-        translation: [3, 6, 0]
+        translation: [2.2747879, 5.5501585, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 15
+  - id: 8
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
+    PrefabOverride:
+      {}
+  - id: 9
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
+    PrefabOverride:
+      TransformComponent:
+        translation: [2.30395937, 3.535326, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 11
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
+    PrefabOverride:
+      TransformComponent:
+        translation: [37.2000008, 5.5, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+      NativeScriptComponent:
+        name: ExitTrigger
+        params:
+          level:
+            type: string
+            value: level_8
+  - id: 13
     HierarchyComponent:
       parent_id: 1
     PrefabInstanceComponent:
@@ -40,10 +73,12 @@ entities:
       NameComponent:
         name: snake-01
       TransformComponent:
-        translation: [14.5, 5.30000019, 0]
-        rotation: [0, 1, 0, 0]
+        translation: [13.3929729, 2.29999995, 0]
+        rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 20
+      FacingComponent:
+        facing: right
+  - id: 15
     HierarchyComponent:
       parent_id: 1
     PrefabInstanceComponent:
@@ -52,12 +87,10 @@ entities:
       NameComponent:
         name: snake-02
       TransformComponent:
-        translation: [23.5, 5.30000019, 0]
-        rotation: [0, 0, 0, 1]
+        translation: [11.9957857, 2.29999995, 0]
+        rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]
-      FacingComponent:
-        facing: right
-  - id: 27
+  - id: 17
     HierarchyComponent:
       parent_id: 1
     PrefabInstanceComponent:
@@ -66,10 +99,10 @@ entities:
       NameComponent:
         name: bat-01
       TransformComponent:
-        translation: [10.1999998, 8.5, 0]
+        translation: [23.3042259, 6.54323387, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 36
+  - id: 19
     HierarchyComponent:
       parent_id: 1
     PrefabInstanceComponent:
@@ -78,57 +111,18 @@ entities:
       NameComponent:
         name: bat-02
       TransformComponent:
-        translation: [30.2999992, 8.5, 0]
+        translation: [28.2519455, 8.5577755, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 47
+  - id: 21
     HierarchyComponent:
       parent_id: 1
     PrefabInstanceComponent:
-      prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
+      prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:
       NameComponent:
-        name: spider-01
+        name: bat-03
       TransformComponent:
-        translation: [29.5, 5.4000001, 0]
-        rotation: [0, 1, 0, 0]
-        scale: [1, 1, 1]
-  - id: 60
-    HierarchyComponent:
-      parent_id: 1
-    PrefabInstanceComponent:
-      prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
-    PrefabOverride:
-      NameComponent:
-        name: spider-02
-      TransformComponent:
-        translation: [36.5, 3.4000001, 0]
-        rotation: [0, 1, 0, 0]
-        scale: [1, 1, 1]
-  - id: 75
-    HierarchyComponent:
-      parent_id: 1
-    PrefabInstanceComponent:
-      prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
-    PrefabOverride:
-      TransformComponent:
-        translation: [34.5, 2.5, 0]
+        translation: [33.2534637, 7.48802233, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 92
-    HierarchyComponent:
-      parent_id: 1
-    PrefabInstanceComponent:
-      prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
-    PrefabOverride:
-      TransformComponent:
-        translation: [3, 3.5, 0]
-        rotation: [0, 0, 0, 1]
-        scale: [1, 1, 1]
-  - id: 102
-    HierarchyComponent:
-      parent_id: 1
-    PrefabInstanceComponent:
-      prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
-    PrefabOverride:
-      {}

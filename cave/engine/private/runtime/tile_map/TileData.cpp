@@ -43,11 +43,24 @@ TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local
     };
 }
 
+TileChunk::TileChunk() {
+    m_local_tiles.fill(kEmptyTileId);
+}
+
+bool TileChunk::empty() const {
+    for (TileId id : m_local_tiles) {
+        if (id != kEmptyTileId) {
+            return false;
+        }
+    }
+    return true;
+}
+
 Option<TileId> ChunkedTileData::tileAt(TileCoord coord) const {
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
-    auto it = chunks_.find(chunk_coord);
-    if (it == chunks_.end()) {
+    auto it = m_chunks.find(chunk_coord);
+    if (it == m_chunks.end()) {
         return None();
     }
 
@@ -68,7 +81,7 @@ bool ChunkedTileData::addTile(TileCoord coord, TileId tile_id) {
 
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
-    auto& chunk = chunks_[chunk_coord];
+    auto& chunk = m_chunks[chunk_coord];
     if (chunk == nullptr) {
         chunk = std::make_unique<TileChunk>();
         std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
@@ -89,8 +102,8 @@ bool ChunkedTileData::addTile(TileCoord coord, TileId tile_id) {
 bool ChunkedTileData::removeTile(TileCoord coord) {
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
-    auto it = chunks_.find(chunk_coord);
-    if (it == chunks_.end()) {
+    auto it = m_chunks.find(chunk_coord);
+    if (it == m_chunks.end()) {
         return false;
     }
 
@@ -104,6 +117,12 @@ bool ChunkedTileData::removeTile(TileCoord coord) {
 
     tile = kEmptyTileId;
     return true;
+}
+
+bool ChunkedTileData::addChunk(TileChunkCoord coord, Owner<TileChunk>&& chunk) {
+    auto [it, inserted] = m_chunks.insert(std::make_pair(coord, std::move(chunk)));
+
+    return inserted;
 }
 
 }  // namespace cave

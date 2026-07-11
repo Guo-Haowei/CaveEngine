@@ -32,12 +32,12 @@ const MetaTableFields& MetaDataTable<PendingDestroyComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_PendingDestroyComponent_meta = MetaDataTable<PendingDestroyComponent>::GetFields();
 
-// FixedString<64> name_ ()
+// FixedString<64> m_name ()
 
 template<>
 const MetaTableFields& MetaDataTable<NameComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(NameComponent, "name", name_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(NameComponent, "name", m_name, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

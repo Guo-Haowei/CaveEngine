@@ -135,7 +135,12 @@ void TileMapInstanceComponent::createRenderData() {
         }
     }
 
-    uint32_t count = (uint32_t)indices.size();
+    const uint32_t count = static_cast<uint32_t>(indices.size());
+    if (count == 0) {
+        m_revision = tile_map->revision();
+        m_cache.mesh = nullptr;
+        return;
+    }
 
     std::array<GpuBufferDesc, 2> buffers;
     GpuBufferDesc buffer_desc;
@@ -165,7 +170,7 @@ void TileMapInstanceComponent::createRenderData() {
     // @NOTE: shouldn't call RenderDevice here
     auto mesh = RenderDevice::singleton().CreateMeshImpl(desc, buffers, &index_desc);
 
-    m_cache.mesh = *mesh;
+    m_cache.mesh = mesh.value_or(nullptr);
 
     m_revision = tile_map->revision();
 }

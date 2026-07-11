@@ -29,14 +29,13 @@ const char* FileSystemPanel::windowId() const {
 }
 
 void FileSystemPanel::onAttach() {
-    root_ = m_engine_services.vfs().GetMount("@res");
+    m_root = m_engine_services.vfs().GetMount("@res");
 }
 
-void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
+void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
     const bool is_dir = entry.is_dir;
 
-    int flags = 0;
-    flags |= ImGuiTreeNodeFlags_DefaultOpen;
+    int flags = open ? ImGuiTreeNodeFlags_DefaultOpen : 0;
     flags |= !is_dir ? ImGuiTreeNodeFlags_Leaf : 0;
 
     auto id = std::format("##{}", entry.virtual_path);
@@ -49,18 +48,18 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
 
     ImGui::SameLine();
 
-    if (renaming_ == entry.sys_path) {
+    if (m_renaming == entry.sys_path) {
         std::string buffer;
         ImGui::Text("%s", icon);
         ImGui::SameLine();
         if (ui::TextBox(nullptr, buffer)) {
-            fs::path to_path = renaming_.parent_path();
+            fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
-            m_engine_services.assetManager().renameAssetOrFolder(renaming_, to_path);
-            renaming_ = "";
+            m_engine_services.assetManager().renameAssetOrFolder(m_renaming, to_path);
+            m_renaming = "";
         }
         if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(0)) {
-            renaming_ = "";
+            m_renaming = "";
         }
     } else {
         auto text = std::format("{} {}", icon, entry.file_name);
@@ -69,7 +68,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry) {
 
         if (ImGui::BeginPopupContextItem()) {
             ShowPopup(entry, m_editor_services.document(), [&]() {
-                renaming_ = entry.sys_path;
+                m_renaming = entry.sys_path;
             });
             ImGui::EndPopup();
         }
@@ -99,7 +98,7 @@ void FileSystemPanel::drawUIImpl() {
 
     auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
-    drawFolderTreeNode(*asset_manager.assetRoot());
+    drawFolderTreeNode(*asset_manager.assetRoot(), true);
 }
 
 }  // namespace cave

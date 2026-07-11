@@ -271,11 +271,24 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
         case AssetType::Prefab: {
             Scene* scene = getResolvedScene();
             m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
-                Entity prefab = writer.prefabObject("prefab", handle.guid());
-                writer.attachChild(prefab, scene->root());
-                return prefab;
+                Entity ent = writer.createEntity();
+                writer.addComponent(ent, PrefabInstanceComponent_Id);
+                writer.addComponent(ent, HierarchyComponent_Id);
+                writer.setProperty(ent, PrefabInstanceComponent_Id, "prefab_id"_sid, handle.guid());
+                writer.attachChild(ent, scene->root());
+                return ent;
             });
 
+            return true;
+        }
+        case AssetType::TileMap: {
+            Scene* scene = getResolvedScene();
+            m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
+                Entity ent = writer.tileMapObject("tile_map");
+                writer.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, handle.guid());
+                writer.attachChild(ent, scene->root());
+                return ent;
+            });
             return true;
         }
         default:

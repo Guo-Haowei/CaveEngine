@@ -20,18 +20,26 @@ class NameComponent {
 
 private:
     CAVE_PROP()
-    FixedString<64> name_;
+    FixedString<64> m_name;
 
 public:
     NameComponent() = default;
 
-    NameComponent(const char* name) { name_ = name; }
+    NameComponent(const char* name) { m_name = name; }
 
-    void setName(const char* name) { name_ = name; }
-    void setName(std::string_view name) { name_ = name; }
+    void setName(const char* name) { m_name = name; }
+    void setName(std::string_view name) { m_name = name; }
 
-    std::string_view name() const { return name_.view(); }
-    FixedString<64>& nameRef() { return name_; }
+    std::string_view name() const { return m_name.view(); }
+    FixedString<64>& nameRef() { return m_name; }
+
+    bool operator==(const NameComponent& rhs) const {
+        return m_name.view() == rhs.m_name.view();
+    }
+
+    bool operator!=(const NameComponent& rhs) const {
+        return m_name.view() != rhs.m_name.view();
+    }
 };
 
 }  // namespace cave

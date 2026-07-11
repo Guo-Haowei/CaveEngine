@@ -1,5 +1,5 @@
 version: 19
-seed: 14
+seed: 18
 root: 1
 entities:
   - id: 1
@@ -22,14 +22,8 @@ entities:
       tile_map_id: 756A8896-80D1-CF49-96F7B13268F66267
       tint_color: [1, 1, 1, 1]
   - id: 3
-    NameComponent:
-      name: player-01
     HierarchyComponent:
       parent_id: 1
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
@@ -37,36 +31,9 @@ entities:
         translation: [3, 4.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 6
-    NameComponent:
-      name: camera
-    HierarchyComponent:
-      parent_id: 1
-    TransformComponent:
-      translation: [5, 3, 4]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-    CameraComponent:
-      flags: 0
-      projection: orthographic
-      fovy: 60
-      near: 0.100000001
-      far: 1000
-      aspect: 1.77999997
-      ortho_height: 10
-    NativeScriptComponent:
-      name: CameraController
-      params:
-        {}
   - id: 9
-    NameComponent:
-      name: exit-01
     HierarchyComponent:
       parent_id: 1
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
@@ -75,14 +42,8 @@ entities:
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 14
-    NameComponent:
-      name: entrance-01
     HierarchyComponent:
       parent_id: 1
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
     PrefabInstanceComponent:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:
@@ -90,3 +51,10 @@ entities:
         translation: [3, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
+  - id: 18
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
+    PrefabOverride:
+      {}

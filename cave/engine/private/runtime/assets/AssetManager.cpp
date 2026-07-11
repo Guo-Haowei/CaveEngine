@@ -49,13 +49,7 @@ void InitializeDefault(Scene& scene) {
     auto root = scene.createEntity();
     scene.create(TransformComponent_Id, root);
     scene.create<NameComponent>(root).setName("root");
-
-    auto ent = scene.createEntity();
-    scene.create(TransformComponent_Id, ent);
-    scene.create<NameComponent>(ent).setName("untitled");
-
     scene.setRoot(root);
-    scene.attachChild(ent);
 }
 
 AssetRef CreateAssetInstance(AssetType type, bool create) {
@@ -94,7 +88,7 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
     }
 }
 
-auto LoadAsset(const std::shared_ptr<AssetEntry>& entry) -> Result<AssetRef> {
+auto LoadAsset(const Ref<AssetEntry>& entry) -> Result<AssetRef> {
     AssetRef asset = CreateAssetInstance(entry->metadata.type, false);
     if (!asset) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
