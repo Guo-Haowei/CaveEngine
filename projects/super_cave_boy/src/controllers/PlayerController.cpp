@@ -7,6 +7,7 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
+#include "cave/runtime/platformer/FacingComponent.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
@@ -35,6 +36,7 @@ inline bool NearlyEqual(float a, float b, float eps = 0.01f) {
 bool CheckWallGrab(
     const Box2& body,
     float dy,
+    FacingComponent& facing,
     const TileWorldSystem& world) {
     if (dy >= 0.0f) {
         return false;
@@ -60,10 +62,12 @@ bool CheckWallGrab(
         }
 
         if (NearlyEqual(body.max().x, solid.min().x, kPlayerGrabEps)) {
+            facing.facing = Facing::Right;
             return true;
         }
 
         if (NearlyEqual(body.min().x, solid.max().x, kPlayerGrabEps)) {
+            facing.facing = Facing::Left;
             return true;
         }
     }
@@ -190,8 +194,9 @@ void PlayerController::updateNormal(float dt) {
         const Box2 body = ComputeWorldAABB(*transform, *collider);
 
         const TileWorldSystem* tile_world = system<TileWorldSystem>();
-        DEV_ASSERT(tile_world);
-        if (CheckWallGrab(body, predicted_dy, *tile_world)) {
+        auto* facing = component<FacingComponent>();
+        DEV_ASSERT(tile_world && facing);
+        if (CheckWallGrab(body, predicted_dy, *facing, *tile_world)) {
             m_grabbing = true;
             m_taking_jump = false;
 
