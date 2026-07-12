@@ -15,9 +15,9 @@ template<typename T>
 class GameStateMachine {
 public:
     struct Callbacks {
-        std::function<void(cave::SceneContext&, float)> update;
-        std::function<void(cave::SceneContext&)> onEnter;
-        std::function<void(cave::SceneContext&)> onExit;
+        std::function<void(SceneContext&, float)> update;
+        std::function<void(SceneContext&)> onEnter;
+        std::function<void(SceneContext&)> onExit;
     };
 
     void addState(T state, Callbacks&& callbacks) {
@@ -25,7 +25,7 @@ public:
         m_states[std::to_underlying(state)] = std::move(callbacks);
     }
 
-    void switchTo(cave::SceneContext& ctx, T state) {
+    void switchTo(SceneContext& ctx, T state) {
         DEV_ASSERT_INDEX(state, T::Count);
         if (state == m_current) {
             return;
@@ -48,7 +48,7 @@ public:
         }
     }
 
-    void update(cave::SceneContext& ctx, float dt) {
+    void update(SceneContext& ctx, float dt) {
         m_state_time += dt;
         auto& update_func = m_states[std::to_underlying(m_current)].update;
         if (update_func) {

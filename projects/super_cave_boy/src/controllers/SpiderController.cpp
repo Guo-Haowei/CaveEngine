@@ -29,36 +29,26 @@ void SpiderController::start(SceneContext& ctx) {
 
     m_state_machine.addState(
         SpiderState::Idle,
-        {
-            .update = std::bind_front(&SpiderController::updateIdle, this),
-            .onEnter = [this](SceneContext& ctx) {
-                EnemyControllerBase::playAnimation(ctx, "idle");
-            },
-        });
+        { .update = std::bind_front(&SpiderController::updateIdle, this),
+          .onEnter = [this](SceneContext& ctx) {
+              playAnimation(ctx, "idle");
+          } });
     m_state_machine.addState(
         SpiderState::PrepareAttack,
-        {
-            .update = std::bind_front(&SpiderController::updateIdle, this),
-            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "prepare_attack"); },
-        });
+        { .update = std::bind_front(&SpiderController::updateIdle, this),
+          .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "prepare_attack"); } });
     m_state_machine.addState(
         SpiderState::Attack,
-        {
-            .update = [this](SceneContext& ctx, float) { enterAttack(ctx); },
-            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "air"); },
-        });
+        { .update = [this](SceneContext& ctx, float) { enterAttack(ctx); },
+          .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "air"); } });
     m_state_machine.addState(
         SpiderState::Air,
-        {
-            .update = std::bind_front(&SpiderController::updateAir, this),
-            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "air"); },
-        });
+        { .update = std::bind_front(&SpiderController::updateAir, this),
+          .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "air"); } });
     m_state_machine.addState(
         SpiderState::Wait,
-        {
-            .update = std::bind_front(&SpiderController::updateWait, this),
-            .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "idle"); },
-        });
+        { .update = std::bind_front(&SpiderController::updateWait, this),
+          .onEnter = [this](SceneContext& ctx) { playAnimation(ctx, "idle"); } });
 
     m_state_machine.switchTo(ctx, SpiderState::Idle);
 }

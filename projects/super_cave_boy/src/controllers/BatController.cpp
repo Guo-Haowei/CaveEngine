@@ -51,20 +51,17 @@ void BatController::start(SceneContext& ctx) {
 
     m_state_machine.addState(
         BatState::Idle,
-        {
-            .update = std::bind_front(&BatController::updateIdle, this),
-            .onEnter = [this](SceneContext& ctx) {
-                playAnimation(ctx, "idle");
-            },
-        });
+        { .update = std::bind_front(&BatController::updateIdle, this),
+          .onEnter = [this](SceneContext& ctx) {
+              playAnimation(ctx, "idle");
+          } });
+
     m_state_machine.addState(
         BatState::Move,
-        {
-            .update = std::bind_front(&BatController::updateMove, this),
-            .onEnter = [this](SceneContext& ctx) {
-                playAnimation(ctx, "fly");
-            },
-        });
+        { .update = std::bind_front(&BatController::updateMove, this),
+          .onEnter = [this](SceneContext& ctx) {
+              playAnimation(ctx, "fly");
+          } });
 
     m_state_machine.switchTo(ctx, BatState::Idle);
 }

@@ -18,10 +18,16 @@ entities:
       layer: 2
       mask: 1
       is_trigger: true
+    MotorComponent:
+      affected_by_gravity: true
+      terminal_fall_speed: -30
+      gravity: -35
     VelocityComponent:
       linear: [0, 0, 0]
     NativeScriptComponent:
       name: SnakeController
+      params:
+        {}
     FacingComponent:
       facing: left
   - id: 2
@@ -47,3 +53,4 @@ entities:
         max: [1, 0]
       flip_x: false
       flip_y: false
+      z_index: 0
