@@ -31,8 +31,12 @@ public:
     const SystemManager& systems() const { return m_systems; }
 
 private:
+    SceneContext& context();
+
     const SceneFeature m_features;
     SystemManager m_systems;
+
+    char m_context[sizeof(SceneContext)]{};
 };
 
 }  // namespace cave

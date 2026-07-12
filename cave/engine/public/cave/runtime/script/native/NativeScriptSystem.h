@@ -31,9 +31,11 @@ private:
 
     SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
 
-    void ensureBound(ecs::Entity entity,
+    void ensureBound(SceneContext& ctx,
+                     ecs::Entity entity,
                      NativeScriptComponent& component);
 
+    bool m_always_run_called = false;
     std::unique_ptr<NativeScriptStorage> m_storage;
     const DebugId m_debug_id;
 };

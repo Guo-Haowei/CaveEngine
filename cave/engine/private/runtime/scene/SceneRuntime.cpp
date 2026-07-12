@@ -8,6 +8,8 @@
 namespace cave {
 
 void SceneRuntime::start(SceneContext& ctx) {
+    std::memcpy(&m_context, &ctx, sizeof(SceneContext));
+
     if ((int)(m_features & SceneFeature::NativeScript)) {
         m_systems.add<NativeScriptSystem>(ctx.services.nativeScripts());
         auto native_scripts = m_systems.get<NativeScriptSystem>();
@@ -25,10 +27,17 @@ void SceneRuntime::start(SceneContext& ctx) {
 
 void SceneRuntime::shutdown() {
     m_systems.shutdown();
+
+    std::memset(&m_context, 0, sizeof(SceneContext));
 }
 
 void SceneRuntime::update(SceneTickContext& ctx) {
     m_systems.update(ctx);
+}
+
+SceneContext& SceneRuntime::context() {
+    DEV_ASSERT(m_context[0]);
+    return *reinterpret_cast<SceneContext*>(&m_context);
 }
 
 }  // namespace cave

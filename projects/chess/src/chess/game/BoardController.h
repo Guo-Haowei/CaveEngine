@@ -18,7 +18,7 @@ public:
     void start(cave::SceneContext& ctx) override;
     void destroy() override;
 
-    void update(cave::SceneContext& ctx, float dt) override;
+    void update(float dt) override;
 
 private:
     cave::IntentBus m_intent_bus;

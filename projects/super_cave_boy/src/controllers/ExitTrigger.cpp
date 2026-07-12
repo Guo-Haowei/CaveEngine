@@ -12,10 +12,9 @@ namespace super_cave_boy {
 using namespace ::cave;
 using namespace ::cave::math;
 
-void ExitTrigger::onBodyEntered(SceneContext& ctx, Entity player) {
-    SceneQuery& query = ctx.query;
+void ExitTrigger::onBodyEntered(Entity player) {
 #if USING(ENABLE_ASSERT)
-    auto* player_collider = query.component<ColliderComponent>(player);
+    auto* player_collider = query().component<ColliderComponent>(player);
     DEV_ASSERT(player_collider);
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
@@ -23,16 +22,15 @@ void ExitTrigger::onBodyEntered(SceneContext& ctx, Entity player) {
     auto it = params().find("level");
     if (it != params().end()) {
         std::string_view level = it->second.asString();
-        if (DEV_VERIFY(ctx.scene_transition)) {
-            ctx.scene_transition->requestSceneChange(std::format("@res://scenes/{}.scene", level));
+        // this can be a scene runtime thing?
+        if (DEV_VERIFY(sceneTransition())) {
+            sceneTransition()->requestSceneChange(std::format("@res://scenes/{}.scene", level));
         }
     }
 }
 
-void ExitTrigger::onBodyExited(SceneContext& ctx, Entity player) {
-    unused(ctx);
+void ExitTrigger::onBodyExited(Entity player) {
     unused(player);
-
     LOG_OK("Exited portal!");
 }
 

@@ -43,8 +43,8 @@ bool ShouldTurnAround(const Box2& body,
 
 }  // namespace
 
-void SnakeController::start(SceneContext& ctx) {
-    auto facing = ctx.query.component<FacingComponent>(entity());
+void SnakeController::start() {
+    auto facing = component<FacingComponent>();
     // @TODO: prefab override
     switch (facing->facing) {
         case Facing::Left: {
@@ -60,16 +60,14 @@ void SnakeController::start(SceneContext& ctx) {
     }
 }
 
-void SnakeController::update(SceneContext& ctx, float dt) {
-    SceneQuery& query = ctx.query;
-
-    auto transform = query.component<TransformComponent>(entity());
-    auto collider = query.component<ColliderComponent>(entity());
-    auto vel = query.component<VelocityComponent>(entity());
+void SnakeController::update(float dt) {
+    auto transform = component<TransformComponent>();
+    auto collider = component<ColliderComponent>();
+    auto vel = component<VelocityComponent>();
 
     DEV_ASSERT(transform && collider && vel);
 
-    const TileWorldSystem* tile_world = ctx.system<TileWorldSystem>();
+    const TileWorldSystem* tile_world = system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
     const Box2 body = ComputeWorldAABB(*transform, *collider);

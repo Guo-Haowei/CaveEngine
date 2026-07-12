@@ -18,16 +18,16 @@ enum class SpiderState : uint8_t {
 
 class SpiderController : public EnemyControllerBase {
 private:
-    void start(cave::SceneContext& ctx) override;
-    void update(cave::SceneContext& ctx, float dt) override;
+    void start() override;
+    void update(float dt) override;
 
-    void updateIdle(cave::SceneContext& ctx, float dt);
-    void enterAttack(cave::SceneContext& ctx);
-    void updateAir(cave::SceneContext& ctx, float dt);
-    void updateWait(cave::SceneContext& ctx, float dt);
+    void updateIdle(float dt);
+    void enterAttack();
+    void updateAir(float dt);
+    void updateWait(float dt);
 
-    bool canAttackPlayer(const cave::math::Vec2f& spider_pos,
-                         const cave::math::Vec2f& player_pos) const;
+    bool canAttackPlayer(cave::math::Vec2f spider_pos,
+                         cave::math::Vec2f player_pos) const;
 
     float computeJumpXSpeed(float distance_x) const;
 

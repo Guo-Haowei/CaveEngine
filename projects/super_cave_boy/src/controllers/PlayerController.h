@@ -37,8 +37,8 @@ public:
                          float bounce_speed);
 
 protected:
-    void start(cave::SceneContext& ctx) override;
-    void update(cave::SceneContext& ctx, float dt) override;
+    void start() override;
+    void update(float dt) override;
 
 private:
     void updateAnimation(cave::SpriteAnimatorComponent& animator);

@@ -318,9 +318,9 @@ void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
 
         if (auto* instance = resolve_script(self)) {
             if (!was_overlapping) {
-                instance->onBodyEntered(ctx.scene_ctx, other);
+                instance->onBodyEntered(other);
             } else {
-                instance->onBodyStay(ctx.scene_ctx, other);
+                instance->onBodyStay(other);
             }
         }
     };
@@ -328,7 +328,7 @@ void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
     auto fire_exit = [&resolve_script, &ctx](bool is_trigger, Entity self, Entity other) {
         if (!is_trigger) return;
         if (auto* instance = resolve_script(self)) {
-            instance->onBodyExited(ctx.scene_ctx, other);
+            instance->onBodyExited(other);
         }
     };
 

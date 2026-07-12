@@ -109,8 +109,8 @@ void BoardController::destroy() {
     m_game.reset();
 }
 
-void BoardController::update(SceneContext& ctx, float dt) {
-    m_game->tick(ctx, dt);
+void BoardController::update(float dt) {
+    m_game->tick(context(), dt);
 }
 
 }  // namespace chess

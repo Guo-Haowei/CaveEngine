@@ -35,8 +35,7 @@ bool OverlapsSolidTiles(const Box2& aabb, const TileWorldSystem& world) {
 
 }  // namespace
 
-bool BatController::canSeePlayer(const Vec2f& bat_pos,
-                                 const Vec2f& player_pos) const {
+bool BatController::canSeePlayer(Vec2f bat_pos, Vec2f player_pos) const {
     const float dx = std::abs(player_pos.x - bat_pos.x);
     const float dy = std::abs(player_pos.y - bat_pos.y);
 
@@ -46,34 +45,33 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
     return close_x && valid_y;
 }
 
-void BatController::start(SceneContext& ctx) {
-    EnemyControllerBase::start(ctx);
+void BatController::start() {
+    EnemyControllerBase::start();
 
     m_state_machine.addState(
         BatState::Idle,
-        { .update = std::bind_front(&BatController::updateIdle, this),
-          .onEnter = [this](SceneContext& ctx) {
-              playAnimation(ctx, "idle");
-          } });
+        {
+            .update = std::bind_front(&BatController::updateIdle, this),
+            .onEnter = [this]() { playAnimation("idle"); },
+        });
 
     m_state_machine.addState(
         BatState::Move,
-        { .update = std::bind_front(&BatController::updateMove, this),
-          .onEnter = [this](SceneContext& ctx) {
-              playAnimation(ctx, "fly");
-          } });
+        {
+            .update = std::bind_front(&BatController::updateMove, this),
+            .onEnter = [this]() { playAnimation("fly"); },
+        });
 
-    m_state_machine.switchTo(ctx, BatState::Idle);
+    m_state_machine.switchTo(BatState::Idle);
 }
 
-void BatController::update(SceneContext& ctx, float dt) {
-    m_state_machine.update(ctx, dt);
+void BatController::update(float dt) {
+    m_state_machine.update(dt);
 }
 
-void BatController::updateIdle(SceneContext& ctx, float) {
-    SceneQuery& query = ctx.query;
-    auto transform = query.component<TransformComponent>(entity());
-    auto player_transform = query.component<TransformComponent>(m_player);
+void BatController::updateIdle(float) {
+    auto transform = component<TransformComponent>();
+    auto player_transform = query().component<TransformComponent>(m_player);
 
     DEV_ASSERT(transform && player_transform);
 
@@ -81,19 +79,18 @@ void BatController::updateIdle(SceneContext& ctx, float) {
     const Vec2f player_pos = player_transform->translation().xy;
 
     if (canSeePlayer(bat_pos, player_pos)) {
-        m_state_machine.switchTo(ctx, BatState::Move);
+        m_state_machine.switchTo(BatState::Move);
     }
 }
 
-void BatController::updateMove(SceneContext& ctx, float) {
-    const TileWorldSystem* tile_world = ctx.system<TileWorldSystem>();
-    SceneQuery& query = ctx.query;
+void BatController::updateMove(float) {
+    const TileWorldSystem* tile_world = system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
-    auto transform = query.component<TransformComponent>(entity());
-    auto collider = query.component<ColliderComponent>(entity());
-    auto vel = query.component<VelocityComponent>(entity());
-    auto player_transform = query.component<TransformComponent>(m_player);
+    auto transform = component<TransformComponent>();
+    auto collider = component<ColliderComponent>();
+    auto vel = component<VelocityComponent>();
+    auto player_transform = query().component<TransformComponent>(m_player);
 
     DEV_ASSERT(transform && collider && vel && player_transform);
 

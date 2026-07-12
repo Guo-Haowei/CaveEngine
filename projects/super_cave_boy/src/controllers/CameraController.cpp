@@ -43,33 +43,32 @@ Vec2f ClampCameraToTileMap(Vec2f camera_pos,
 
 }  // namespace
 
-void CameraController::start(SceneContext& ctx) {
-    m_target = ctx.query.findFirstByName("player");
+void CameraController::start() {
+    m_target = query().findFirstByName("player");
 }
 
-void CameraController::update(SceneContext& ctx, float dt) {
-    followTarget(ctx, dt);
+void CameraController::update(float dt) {
+    followTarget(dt);
 }
 
-void CameraController::followTarget(SceneContext& ctx, float dt) {
+void CameraController::followTarget(float dt) {
     if (!entity().valid() || !m_target.valid()) {
         return;
     }
 
     float speed = 8.f * dt;
     speed = math::max(speed, 0.0f);
-    SceneQuery& query = ctx.query;
 
-    auto target_transform = query.component<TransformComponent>(m_target);
-    auto camera_transform = query.component<TransformComponent>(entity());
-    auto camera = query.component<CameraComponent>(entity());
+    auto target_transform = query().component<TransformComponent>(m_target);
+    auto camera_transform = component<TransformComponent>();
+    auto camera = component<CameraComponent>();
 
     const Vec3f target_pos = target_transform->translation();
     const Vec3f camera_pos = camera_transform->translation();
 
     Vec3f new_pos = camera_pos + (target_pos - camera_pos) * speed;
 
-    auto tile_world = ctx.system<TileWorldSystem>();
+    auto tile_world = system<TileWorldSystem>();
     auto bound = tile_world->worldBound();
 
     Vec2f xy = ClampCameraToTileMap(new_pos.xy, bound.min(), bound.max(), camera->orthoHeight(), camera->aspect());

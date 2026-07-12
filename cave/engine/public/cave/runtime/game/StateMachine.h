@@ -9,15 +9,13 @@
 
 namespace cave {
 
-struct SceneContext;
-
 template<typename T>
 class GameStateMachine {
 public:
     struct Callbacks {
-        std::function<void(SceneContext&, float)> update;
-        std::function<void(SceneContext&)> onEnter;
-        std::function<void(SceneContext&)> onExit;
+        std::function<void(float)> update;
+        std::function<void()> onEnter;
+        std::function<void()> onExit;
     };
 
     void addState(T state, Callbacks&& callbacks) {
@@ -25,7 +23,7 @@ public:
         m_states[std::to_underlying(state)] = std::move(callbacks);
     }
 
-    void switchTo(SceneContext& ctx, T state) {
+    void switchTo(T state) {
         DEV_ASSERT_INDEX(state, T::Count);
         if (state == m_current) {
             return;
@@ -34,7 +32,7 @@ public:
         if (initialized()) {
             auto& exit_func = m_states[std::to_underlying(m_current)].onExit;
             if (exit_func) {
-                exit_func(ctx);
+                exit_func();
             }
         }
 
@@ -44,15 +42,15 @@ public:
 
         auto& enter_func = m_states[std::to_underlying(state)].onEnter;
         if (enter_func) {
-            enter_func(ctx);
+            enter_func();
         }
     }
 
-    void update(SceneContext& ctx, float dt) {
+    void update(float dt) {
         m_state_time += dt;
         auto& update_func = m_states[std::to_underlying(m_current)].update;
         if (update_func) {
-            update_func(ctx, dt);
+            update_func(dt);
         }
     }
 

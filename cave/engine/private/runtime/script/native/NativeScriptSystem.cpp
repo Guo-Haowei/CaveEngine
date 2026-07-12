@@ -88,7 +88,8 @@ NativeScriptSystem::NativeScriptSystem(NativeScriptRegistry& script_registry)
 
 NativeScriptSystem::~NativeScriptSystem() = default;
 
-void NativeScriptSystem::ensureBound(Entity entity,
+void NativeScriptSystem::ensureBound(SceneContext& ctx,
+                                     Entity entity,
                                      NativeScriptComponent& script) {
     if (script.name.empty()) {
         return;
@@ -110,7 +111,7 @@ void NativeScriptSystem::ensureBound(Entity entity,
         return;
     }
 
-    instance->bind(entity, script.params);
+    instance->bind(ctx, entity, script.params);
 
     script.handle = instance_id;
 }
@@ -137,7 +138,7 @@ void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
     SceneCommandWriter writer(ctx.services.assetRegistry());
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        ensureBound(ent, script);
+        ensureBound(ctx, ent, script);
 
         NativeScript* instance = m_storage->resolveScript(script.handle);
         if (DEV_VERIFY(instance)) {
@@ -148,12 +149,14 @@ void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
     SceneCommandExecutor executor(scene);
     EntityMap map(writer.allocationCount());
     SceneCommandPlayback::Play(writer, executor, { map, scene });
+    m_always_run_called = true;
 }
 
 void NativeScriptSystem::start(SceneContext& ctx) {
+    DEV_ASSERT(m_always_run_called);
     for (auto [ent, script] : ctx.scene.view<NativeScriptComponent>()) {
         if (NativeScript* instance = m_storage->resolveScript(script.handle)) {
-            instance->start(ctx);
+            instance->start();
         }
     }
 }
@@ -162,7 +165,7 @@ void NativeScriptSystem::update(SceneTickContext& ctx) {
     auto& scene = ctx.scene_ctx.scene;
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
         if (NativeScript* instance = m_storage->resolveScript(script.handle)) {
-            instance->update(ctx.scene_ctx, ctx.dt);
+            instance->update(ctx.dt);
         }
     }
 }

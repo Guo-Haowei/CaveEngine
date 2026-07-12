@@ -14,14 +14,14 @@ enum class BatState : uint8_t {
 
 class BatController : public EnemyControllerBase {
 private:
-    void start(cave::SceneContext& ctx) override;
-    void update(cave::SceneContext& ctx, float dt) override;
+    void start() override;
+    void update(float dt) override;
 
-    void updateIdle(cave::SceneContext& ctx, float dt);
-    void updateMove(cave::SceneContext& ctx, float dt);
+    void updateIdle(float dt);
+    void updateMove(float dt);
 
-    bool canSeePlayer(const cave::math::Vec2f& bat_pos,
-                      const cave::math::Vec2f& player_pos) const;
+    bool canSeePlayer(cave::math::Vec2f bat_pos,
+                      cave::math::Vec2f player_pos) const;
 
 private:
     cave::GameStateMachine<BatState> m_state_machine;

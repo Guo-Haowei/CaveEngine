@@ -73,25 +73,24 @@ bool CheckWallGrab(
 
 }  // namespace
 
-void PlayerController::start(SceneContext& ctx) {
-    m_animator = ctx.query.findChildByName("animator_node", entity());
+void PlayerController::start() {
+    m_animator = query().findChildByName("animator_node", entity());
 }
 
-void PlayerController::update(SceneContext& ctx, float dt) {
+void PlayerController::update(float dt) {
     m_hurt_timer.tick(dt);
 
     // if (health_ <= 0) {
     // }
 
-    const IGameInput& input = ctx.services.gameInput();
-    SceneQuery& query = ctx.query;
+    const IGameInput& input = services().gameInput();
 
-    auto transform = query.component<TransformComponent>(entity());
-    auto collider = query.component<ColliderComponent>(entity());
-    auto vel = query.component<VelocityComponent>(entity());
-    auto motor = query.component<MotorComponent>(entity());
-    auto contact = query.component<ContactComponent>(entity());
-    auto animator = query.component<SpriteAnimatorComponent>(m_animator);
+    auto transform = component<TransformComponent>();
+    auto collider = component<ColliderComponent>();
+    auto vel = component<VelocityComponent>();
+    auto motor = component<MotorComponent>();
+    auto contact = component<ContactComponent>();
+    auto animator = query().component<SpriteAnimatorComponent>(m_animator);
 
     DEV_ASSERT(transform && collider && vel && motor && contact && animator);
 
@@ -148,7 +147,7 @@ void PlayerController::update(SceneContext& ctx, float dt) {
         const float predicted_dy = vel->linear.y * dt;
         const Box2 body = ComputeWorldAABB(*transform, *collider);
 
-        const TileWorldSystem* tile_world = ctx.system<TileWorldSystem>();
+        const TileWorldSystem* tile_world = system<TileWorldSystem>();
         DEV_ASSERT(tile_world);
         if (CheckWallGrab(body, predicted_dy, *tile_world)) {
             m_grabbing_ = true;
