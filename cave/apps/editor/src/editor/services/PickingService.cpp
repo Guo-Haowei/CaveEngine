@@ -5,6 +5,7 @@
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/intent/IntentBus.h"
+#include "cave/runtime/scene/SceneQuery.h"
 
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"

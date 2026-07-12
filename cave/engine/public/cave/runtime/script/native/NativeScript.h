@@ -44,7 +44,7 @@ protected:
 
     // @TODO: move to scene runtime?
     ViewId viewId() const { return m_runtime->view_id; }
-    // ISceneTransitionRequests* sceneTransition() { return m_runtime->scene_transition; }
+    ISceneTransitionRequests* transition() { return m_runtime->transition; }
 
     template<typename T>
     T* component() { return query().component<T>(entity()); }

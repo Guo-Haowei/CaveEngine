@@ -13,8 +13,7 @@ public:
     BoardController();
     ~BoardController() override;
 
-    void alwaysRun(cave::SceneContext& ctx,
-                   cave::SceneCommandWriter& writer) override;
+    void alwaysRun(cave::SceneCommandWriter& writer) override;
     void start() override;
     void destroy() override;
 

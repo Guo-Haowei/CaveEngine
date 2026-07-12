@@ -12,8 +12,12 @@ namespace cave {
 
 SceneRuntime::SceneRuntime(SceneTickDomain domain,
                            RuntimeServices& services,
-                           Scene& scene)
-    : m_services(services)
+                           Scene& scene,
+                           ViewId view_id,
+                           ISceneTransitionRequests* transition)
+    : view_id(view_id)
+    , transition(transition)
+    , m_services(services)
     , m_scene(scene)
     , m_query(scene) {
 

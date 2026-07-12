@@ -3,12 +3,15 @@
 // =============================================================================
 #pragma once
 #include "cave/core/typedefs.h"
-#include "cave/runtime/scene/SceneContext.h"
+#include "cave/core/ids/ViewId.h"
+#include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/scene/SystemManager.h"
 
 namespace cave {
 
 class Scene;
+class ISceneTransitionRequests;
 
 enum class SceneFeature : uint32_t {
     NativeScript = 1,
@@ -23,7 +26,9 @@ class SceneRuntime {
 public:
     SceneRuntime(SceneTickDomain domain,
                  RuntimeServices& services,
-                 Scene& scene);
+                 Scene& scene,
+                 ViewId view_id = {},
+                 ISceneTransitionRequests* transition = nullptr);
 
     void start();
     void shutdown();
@@ -42,7 +47,7 @@ public:
     const T* system() const { return m_systems.get<T>(); }
 
     ViewId view_id;
-
+    ISceneTransitionRequests* transition{};
 private:
     RuntimeServices& m_services;
     Scene& m_scene;

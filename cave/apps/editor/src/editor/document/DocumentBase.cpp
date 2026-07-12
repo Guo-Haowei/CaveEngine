@@ -1,6 +1,7 @@
 #include "DocumentBase.h"
 
 #include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -136,9 +137,10 @@ void DocumentBase::reloadPreviewScene() {
         return;
     }
 
-    new_scene->begin(MakeOwner<SceneRuntime>(SceneTickDomain::Editor,
-                                             m_engine_services,
-                                             *new_scene));
+    new_scene->begin(MakeOwner<SceneRuntime>(
+        SceneTickDomain::Editor,
+        m_engine_services,
+        *new_scene));
 
     new_scene->end();
 

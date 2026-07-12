@@ -5,11 +5,11 @@
 #include <array>
 
 #include "cave/core/base/NonCopyable.h"
+#include "cave/core/containers/Containers.h"
+#include "cave/core/memory/Pointer.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {
-
-struct SceneContext;
 
 class SystemManager : public NonCopyable {
 public:

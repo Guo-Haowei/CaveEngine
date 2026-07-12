@@ -5,8 +5,8 @@
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "chess/agents/ChessAIAgent.h"
 #include "chess/agents/LocalHumanAgent.h"
@@ -24,16 +24,18 @@ using cave::math::Vec2i;
 using core::Color;
 using core::Square;
 
-ChessGameSession::ChessGameSession(IntentBus& intent_bus) noexcept
-    : m_intent_bus(intent_bus) {}
+ChessGameSession::ChessGameSession(SceneRuntime& runtime,
+                                   IntentBus& intent_bus) noexcept
+    : m_runtime(runtime)
+    , m_intent_bus(intent_bus) {}
 
 ChessGameSession::~ChessGameSession() = default;
 
-void ChessGameSession::tick(SceneContext& ctx) {
+void ChessGameSession::tick() {
     switch (m_phase) {
 #define SESSION_PHASE(Enum)  \
     case SessionPhase::Enum: \
-        tick##Enum(ctx);     \
+        tick##Enum();        \
         break;
         SESSION_PHASE_LIST
 #undef SESSION_PHASE
@@ -59,10 +61,10 @@ void ChessGameSession::tick(SceneContext& ctx) {
     }
 }
 
-void ChessGameSession::tickAwaitPlayerInput(SceneContext& ctx) {
+void ChessGameSession::tickAwaitPlayerInput() {
     // @TODO: grid adapter should be owned by client/player?
     if (m_grid_adapter) {
-        m_grid_adapter->tick(ctx);
+        m_grid_adapter->tick();
     }
 
     // poll player intents
@@ -70,20 +72,20 @@ void ChessGameSession::tickAwaitPlayerInput(SceneContext& ctx) {
     m_agents[std::to_underlying(side)]->tick(m_intent_bus);
 }
 
-void ChessGameSession::tickResolvingMove(SceneContext&) {
+void ChessGameSession::tickResolvingMove() {
     setPhase(SessionPhase::Animating);
 }
 
-void ChessGameSession::tickAnimating(SceneContext& ctx) {
-    if (isAnimating(ctx)) {
+void ChessGameSession::tickAnimating() {
+    if (isAnimating()) {
         return;
     }
 
     setPhase(SessionPhase::AwaitPlayerInput);
 }
 
-void ChessGameSession::tickGameOver(SceneContext& ctx) {
-    if (isAnimating(ctx)) {
+void ChessGameSession::tickGameOver() {
+    if (isAnimating()) {
         return;
     }
 
@@ -93,8 +95,8 @@ void ChessGameSession::tickGameOver(SceneContext& ctx) {
     // host_.intentBus().queue<ChessStateIntent>(std::move(state));
 }
 
-bool ChessGameSession::isAnimating(SceneContext& ctx) const {
-    return ctx.query.componentCount(TransformAnimationComponent_Id) != 0;
+bool ChessGameSession::isAnimating() const {
+    return m_runtime.query().componentCount(TransformAnimationComponent_Id) != 0;
 }
 
 auto ChessGameSession::createPlayer(Color side, PlayerKind kind)
@@ -112,15 +114,15 @@ auto ChessGameSession::createPlayer(Color side, PlayerKind kind)
 }
 
 // @TODO: this should be configured by MainMenu?
-void ChessGameSession::onEnterBoot(SceneContext& ctx) {
+void ChessGameSession::onEnterBoot() {
     MatchConfig config{};
     config.black = { PlayerKind::LocalAI };
 
-    m_auth = std::make_unique<ChessMatchAuthority>(m_intent_bus);
-    m_client = std::make_unique<ChessGameClient>(m_intent_bus,
-                                                 ctx.scene,
-                                                 *this,
-                                                 *m_auth);
+    m_auth = MakeOwner<ChessMatchAuthority>(m_intent_bus);
+    m_client = MakeOwner<ChessGameClient>(m_intent_bus,
+                                          m_runtime.scene(),
+                                          *this,
+                                          *m_auth);
 
     const PlayerKind white = config.white.kind;
     const PlayerKind black = config.black.kind;

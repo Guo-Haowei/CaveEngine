@@ -4,7 +4,6 @@
 
 #include "cave/core/ids/Entity.h"
 #include "cave/runtime/intent/IntentBus.h"
-#include "cave/runtime/scene/SceneContext.h"
 
 #include "chess/agents/IPlayerAgent.h"
 #include "chess/core/Move.h"

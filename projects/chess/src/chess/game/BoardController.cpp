@@ -1,7 +1,6 @@
 #include "BoardController.h"
 
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneContext.h"
 
 #include "chess/core/Bitboard.h"
 #include "chess/core/Piece.h"
@@ -95,13 +94,13 @@ void SpawnObjects(SceneQuery& query, SceneCommandWriter& writer) {
 BoardController::BoardController() = default;
 BoardController::~BoardController() = default;
 
-void BoardController::alwaysRun(SceneContext& ctx, SceneCommandWriter& writer) {
-    SpawnObjects(ctx.query, writer);
+void BoardController::alwaysRun(SceneCommandWriter& writer) {
+    SpawnObjects(query(), writer);
 }
 
 void BoardController::start() {
     m_game = std::make_unique<ChessGameMode>(m_intent_bus);
-    m_game->onEnter(context());
+    m_game->onEnter();
 }
 
 void BoardController::destroy() {
@@ -110,7 +109,7 @@ void BoardController::destroy() {
 }
 
 void BoardController::update(float dt) {
-    m_game->tick(context(), dt);
+    m_game->tick(dt);
 }
 
 }  // namespace chess

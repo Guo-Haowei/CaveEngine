@@ -4,7 +4,7 @@
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneContext.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -32,15 +32,12 @@ void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
 
     Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
-        SceneContext ctx(*scene, m_engine_services);
-        ctx.view_id = {};
-        ctx.scene_transition = this;
-
-        scene->begin(SceneTickContext{
-            .domain = SceneTickDomain::Simulate,
-            .dt = 0.0f,
-            .scene_ctx = ctx,
-        });
+        scene->begin(MakeOwner<SceneRuntime>(
+            SceneTickDomain::Simulate,
+            m_engine_services,
+            *scene,
+            m_view_id,
+            this));
     }
 }
 

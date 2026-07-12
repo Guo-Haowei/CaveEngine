@@ -15,10 +15,7 @@ namespace cave::ecs { class ComponentRegistry; }
 
 namespace cave {
 
-// @TODO: refactor
-class PrefabInstanceComponent;
 class SceneRuntime;
-class SystemManager;
 
 enum SceneDirtyFlags : uint32_t {
     SCENE_DIRTY_NONE = 0,

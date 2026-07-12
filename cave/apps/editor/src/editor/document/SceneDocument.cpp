@@ -1,6 +1,7 @@
 #include "SceneDocument.h"
 
 #include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 #include "cave/runtime/scene/SceneTickContext.h"
 
 #include "engine/private/runtime/assets/PrefabAsset.h"
@@ -24,11 +25,7 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         const AssetMetaData* meta = handle_opt.unwrap_unchecked().meta();
         if (DEV_VERIFY(meta)) {
             DEV_ASSERT(meta->type == AssetType::Scene || meta->type == AssetType::Prefab);
-            m_preview_scene = m_scene_reg.registerScene(
-                {
-                    .source = SceneSource::Editor,
-                    .debug_name = meta->name,
-                },
+            m_preview_scene = m_scene_reg.registerScene({ SceneSource::Editor, meta->name },
                 std::move(scene));
         }
     }

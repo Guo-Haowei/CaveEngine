@@ -3,7 +3,6 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 #include "cave/runtime/intent/IntentBus.h"
-#include "cave/runtime/scene/SceneContext.h"
 
 #include "chess/game/ChessIntent.h"
 #include "chess/states/GameplayState.h"

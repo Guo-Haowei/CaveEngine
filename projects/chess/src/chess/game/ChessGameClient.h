@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentBus.h"
 

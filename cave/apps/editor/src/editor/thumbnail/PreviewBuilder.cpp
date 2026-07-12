@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -113,11 +114,10 @@ PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
         camera_source = CameraSource::External(camera);
     }
 
-    scene->begin(SceneTickContext{
-        .domain = SceneTickDomain::Editor,
-        .dt = 0.0f,
-        .scene_ctx = SceneContext(*scene, m_engine_services),
-    });
+    scene->begin(MakeOwner<SceneRuntime>(
+        SceneTickDomain::Editor,
+        m_engine_services,
+        *scene));
     scene->end();
 
     return {

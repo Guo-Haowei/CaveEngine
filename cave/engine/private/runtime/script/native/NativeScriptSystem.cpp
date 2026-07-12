@@ -3,7 +3,6 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
-#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneRuntime.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"

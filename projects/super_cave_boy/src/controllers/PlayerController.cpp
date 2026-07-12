@@ -7,7 +7,6 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/scene/MotorSystem.h"
-#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"

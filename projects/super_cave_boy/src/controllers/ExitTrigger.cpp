@@ -2,7 +2,6 @@
 
 #include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/scene/ISceneTransitionRequests.h"
-#include "cave/runtime/scene/SceneContext.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
 #include "Utility.h"
@@ -23,8 +22,8 @@ void ExitTrigger::onBodyEntered(Entity player) {
     if (it != params().end()) {
         std::string_view level = it->second.asString();
         // this can be a scene runtime thing?
-        if (DEV_VERIFY(sceneTransition())) {
-            sceneTransition()->requestSceneChange(std::format("@res://scenes/{}.scene", level));
+        if (DEV_VERIFY(transition())) {
+            transition()->requestSceneChange(std::format("@res://scenes/{}.scene", level));
         }
     }
 }
