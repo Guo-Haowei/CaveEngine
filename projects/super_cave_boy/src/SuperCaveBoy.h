@@ -1,6 +1,4 @@
 #pragma once
-#include <memory>
-#include "cave/core/typedefs.h"
 #include "cave/runtime/game/IGameModule.h"
 
 namespace super_cave_boy {

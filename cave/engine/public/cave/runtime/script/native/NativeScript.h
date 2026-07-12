@@ -35,6 +35,7 @@ public:
 
 protected:
     SceneRuntime& runtime() { return *m_runtime; }
+    MessageBus& message() { return m_runtime->messageBus(); }
 
     SceneQuery& query() { return m_runtime->query(); }
     const SceneQuery& query() const { return m_runtime->query(); }

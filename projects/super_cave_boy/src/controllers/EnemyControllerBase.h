@@ -1,5 +1,4 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Vec.h"
 #include "cave/runtime/script/native/NativeScript.h"
 

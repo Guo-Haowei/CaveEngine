@@ -25,6 +25,9 @@ constexpr float kExitAnimationDuration = 0.5f;
 constexpr cave::StringId kPlayerDamaged = "player.damaged"_sid;
 constexpr cave::StringId kPlayerBounced = "player.bounced"_sid;
 constexpr cave::StringId kPlayerLeave = "player.leave"_sid;
+constexpr cave::StringId kCutsceneStart = "cutscene.start"_sid;
+constexpr cave::StringId kCutsceneEnd = "cutscene.end"_sid;
+constexpr cave::StringId kGuardianAwake = "guardian.awake"_sid;
 constexpr cave::StringId kGuardianBeginFight = "guardian.begin_fight"_sid;
 constexpr cave::StringId kGuardianDefeated = "guardian.defeated"_sid;
 

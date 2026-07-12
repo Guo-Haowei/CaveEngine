@@ -54,7 +54,7 @@ void ExitController::start() {
         m_state_machine.switchTo(ExitState::NotTriggered);
     }
 
-    runtime().messageBus().listen(kGuardianDefeated, [this](const Message&) {
+    message().listen(kGuardianDefeated, [this](const Message&) {
         if (DEV_VERIFY(m_state_machine.is(ExitState::Hidden))) {
             m_state_machine.switchTo(ExitState::Appearing);
         }
@@ -78,7 +78,7 @@ void ExitController::updateAppear(float) {
 }
 
 void ExitController::enterActive() {
-    runtime().messageBus().emit(kPlayerLeave, entity());
+    message().emit(kPlayerLeave, entity());
 }
 
 void ExitController::exitActive() {

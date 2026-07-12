@@ -14,7 +14,7 @@ namespace cave {
 // float m_near (editor = DragFloat, min = 0.1f, max = 9)
 // float m_far (editor = DragFloat, min = 10, max = 10000)
 // float m_aspect (editor = InputFloat)
-// float m_ortho_height ()
+// float m_ortho_height (editor = InputFloat)
 
 template<>
 const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
@@ -25,7 +25,7 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
         REGISTER_FIELD(CameraComponent, "near", m_near, FieldFlag::Serialize, EditorHint::DragFloat, 0.1f, 9),
         REGISTER_FIELD(CameraComponent, "far", m_far, FieldFlag::Serialize, EditorHint::DragFloat, 10, 10000),
         REGISTER_FIELD(CameraComponent, "aspect", m_aspect, FieldFlag::Serialize, EditorHint::InputFloat),
-        REGISTER_FIELD(CameraComponent, "ortho_height", m_ortho_height, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(CameraComponent, "ortho_height", m_ortho_height, FieldFlag::Serialize, EditorHint::InputFloat),
     };
 
     return s_table;

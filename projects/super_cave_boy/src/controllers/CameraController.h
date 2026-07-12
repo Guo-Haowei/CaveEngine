@@ -1,6 +1,4 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
-#include "cave/runtime/game/IGameModule.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
 namespace super_cave_boy {

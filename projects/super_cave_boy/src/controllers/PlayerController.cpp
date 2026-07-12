@@ -80,8 +80,7 @@ bool CheckWallGrab(
 void PlayerController::start() {
     m_animator = query().findChildByName("animator_node", entity());
 
-    MessageBus& message_bus = runtime().messageBus();
-    message_bus.listen(kPlayerDamaged, [this](const Message& message) {
+    message().listen(kPlayerDamaged, [this](const Message& message) {
         if (m_state_machine.is(PlayerState::Normal)) {
             PlayerHurtInfo info{
                 .damage = 1,
@@ -91,15 +90,23 @@ void PlayerController::start() {
         }
     });
 
-    message_bus.listen(kPlayerBounced, [this](const Message&) {
+    message().listen(kPlayerBounced, [this](const Message&) {
         if (m_state_machine.is(PlayerState::Normal)) {
             bounceFromEnemy(kPlayerBounceSpeed);
         }
     });
 
-    message_bus.listen(kPlayerLeave, [this](const Message&) {
+    message().listen(kPlayerLeave, [this](const Message&) {
         m_block_input = true;
         m_state_machine.switchTo(PlayerState::Exiting);
+    });
+
+    message().listen(kCutsceneStart, [this](const Message&) {
+        m_block_input = true;
+    });
+
+    message().listen(kCutsceneEnd, [this](const Message&) {
+        m_block_input = false;
     });
 
     m_state_machine.addState(

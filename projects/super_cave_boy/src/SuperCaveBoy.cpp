@@ -4,6 +4,7 @@
 
 #include "controllers/BatController.h"
 #include "controllers/CameraController.h"
+#include "controllers/CutsceneController.h"
 #include "controllers/ExitController.h"
 #include "controllers/GuardianController.h"
 #include "controllers/PlayerController.h"
@@ -20,6 +21,7 @@ SuperCaveBoy::~SuperCaveBoy() = default;
 void SuperCaveBoy::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<BatController>("BatController");
     registry.registerScript<CameraController>("CameraController");
+    registry.registerScript<CutsceneController>("CutsceneController");
     registry.registerScript<ExitController>("ExitController");
     registry.registerScript<GuardianController>("GuardianController");
     registry.registerScript<PlayerController>("PlayerController");

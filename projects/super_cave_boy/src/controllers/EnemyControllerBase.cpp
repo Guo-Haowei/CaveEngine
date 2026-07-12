@@ -84,10 +84,8 @@ void EnemyControllerBase::onBodyStay(Entity player) {
 
     Entity enemy = entity();
 
-    MessageBus& message_bus = runtime().messageBus();
-
     if (IsStompingEnemy(query(), player, enemy)) {
-        message_bus.emit(kPlayerBounced, enemy);
+        message().emit(kPlayerBounced, enemy);
         takeDamageFromPlayer(1);
         return;
     }
@@ -101,12 +99,12 @@ void EnemyControllerBase::onBodyStay(Entity player) {
 
     const float dir_x = player_x >= enemy_x ? 1.0f : -1.0f;
 
-    message_bus.emit(kPlayerDamaged,
-                     enemy,
-                     Variant{
-                         dir_x * kPlayerKnockbackX,
-                         kPlayerKnockbackY,
-                     });
+    message().emit(kPlayerDamaged,
+                   enemy,
+                   Variant{
+                       dir_x * kPlayerKnockbackX,
+                       kPlayerKnockbackY,
+                   });
 }
 
 Entity EnemyControllerBase::findPlayer() const {

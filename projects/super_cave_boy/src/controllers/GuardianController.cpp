@@ -37,10 +37,6 @@ void GuardianController::start() {
     m_hover_y = m_ground_y + m_rise_height;
 
     m_state_machine.addState(
-        GuardianState::Inactive,
-        {});
-
-    m_state_machine.addState(
         GuardianState::Raising,
         {
             .update = [this](float dt) { updateRaising(dt); },
@@ -81,11 +77,19 @@ void GuardianController::start() {
 
     m_state_machine.switchTo(GuardianState::Inactive);
 
-    m_begin_fight_listener = runtime().messageBus().listen(
+    m_begin_fight_listener = message().listen(
         kGuardianBeginFight,
         [this](const Message&) {
             beginFight();
         });
+
+    m_awake_listener = message().listen(
+        kGuardianAwake,
+        [this](const Message&) {
+            playAnimation("move");
+        });
+
+    playAnimation("idle");
 }
 
 void GuardianController::update(float dt) {
@@ -99,9 +103,9 @@ void GuardianController::takeDamageFromPlayer(int damage) {
             return;
         }
 
-        auto& message_bus = runtime().messageBus();
-        message_bus.emit(kGuardianDefeated, entity());
-        message_bus.disconnect(m_begin_fight_listener);
+        message().emit(kGuardianDefeated, entity());
+        message().disconnect(m_awake_listener);
+        message().disconnect(m_begin_fight_listener);
         query().queueDestroy(entity());
     }
 }

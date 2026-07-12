@@ -47,6 +47,7 @@ private:
     cave::GameStateMachine<GuardianState> m_state_machine;
 
     cave::ListenerId m_begin_fight_listener = 0;
+    cave::ListenerId m_awake_listener = 0;
 
     float m_ground_y = 0.0f;
     float m_hover_y = 0.0f;
