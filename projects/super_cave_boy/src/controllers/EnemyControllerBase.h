@@ -10,7 +10,9 @@ class EnemyControllerBase : public cave::NativeScript {
 
 protected:
     void start() override;
-    void destroy() override;
+
+    virtual void takeDamageFromPlayer(int damage);
+    bool alive() const { return m_health > 0; }
 
     void onBodyEntered(Entity player) override;
     void onBodyStay(Entity player) override;

@@ -24,6 +24,7 @@ constexpr float kWallDistance = 1.0f;
 
 GuardianController::GuardianController() noexcept {
     m_health = 3;
+    m_health = 1;
 }
 
 void GuardianController::start() {
@@ -88,12 +89,22 @@ void GuardianController::start() {
         });
 }
 
-void GuardianController::destroy() {
-    runtime().messageBus().disconnect(m_begin_fight_listener);
-}
-
 void GuardianController::update(float dt) {
     m_state_machine.update(dt);
+}
+
+void GuardianController::takeDamageFromPlayer(int damage) {
+    if (DEV_VERIFY(m_health > 0)) {
+        m_health -= damage;
+        if (alive()) {
+            return;
+        }
+
+        auto& message_bus = runtime().messageBus();
+        message_bus.emit(kGuardianDefeated, entity());
+        message_bus.disconnect(m_begin_fight_listener);
+        query().queueDestroy(entity());
+    }
 }
 
 void GuardianController::beginFight() {

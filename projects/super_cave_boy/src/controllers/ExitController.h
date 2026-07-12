@@ -7,10 +7,11 @@
 namespace super_cave_boy {
 
 enum ExitState {
-    Inactive = 0,
-    Active,
+    NotTriggered = 0,
+    Triggered,
     Expired,
-    Invisible,
+    Hidden,
+    Appearing,
     Count,
     Invalid = Count,
 };
@@ -22,9 +23,16 @@ protected:
     void start() override;
     void update(float dt) override;
 
+    void updateAppear(float dt);
+
+    void enterActive();
+    void exitActive();
+
     void onBodyStay(Entity player) override;
 
     cave::GameStateMachine<ExitState> m_state_machine;
+    Entity m_sprite;
+
     bool m_fired = false;
 };
 

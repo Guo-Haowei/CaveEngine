@@ -41,6 +41,7 @@ public:
 
     void setTintColor(const math::Vec4f& color) { m_tint_color = color; }
     const math::Vec4f& tintColor() const { return m_tint_color; }
+    math::Vec4f& tintColor() { return m_tint_color; }
 
     void setRect(const math::Box2& rect) { m_rect = rect; }
     const math::Box2& rect() const { return m_rect; }

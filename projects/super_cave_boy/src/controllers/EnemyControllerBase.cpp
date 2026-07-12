@@ -54,7 +54,13 @@ void EnemyControllerBase::start() {
     m_animator = query().findChildByName("animator_node", entity());
 }
 
-void EnemyControllerBase::destroy() {
+void EnemyControllerBase::takeDamageFromPlayer(int damage) {
+    if (DEV_VERIFY(m_health > 0)) {
+        m_health -= damage;
+        if (!alive()) {
+            query().queueDestroy(entity());
+        }
+    }
 }
 
 void EnemyControllerBase::onBodyEntered(Entity player) {
@@ -82,10 +88,7 @@ void EnemyControllerBase::onBodyStay(Entity player) {
 
     if (IsStompingEnemy(query(), player, enemy)) {
         message_bus.emit(kPlayerBounced, enemy);
-        --m_health;
-        if (m_health <= 0) {
-            query().queueDestroy(enemy);
-        }
+        takeDamageFromPlayer(1);
         return;
     }
 

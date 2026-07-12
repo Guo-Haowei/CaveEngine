@@ -41,6 +41,15 @@ entities:
         translation: [16.5, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
+      NativeScriptComponent:
+        name: ExitController
+        params:
+          level:
+            type: string
+            value: level_10
+          initial_state:
+            type: string
+            value: hidden
   - id: 14
     HierarchyComponent:
       parent_id: 1

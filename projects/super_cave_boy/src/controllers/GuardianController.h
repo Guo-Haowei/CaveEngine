@@ -24,9 +24,10 @@ public:
 
 private:
     void start() override;
-    void destroy() override;
 
     void update(float dt) override;
+
+    void takeDamageFromPlayer(int damage) override;
 
     void enterFollow();
     void updateFollow(float dt);

@@ -223,14 +223,10 @@ void PlayerController::onEnterExiting() {
 }
 
 void PlayerController::updateExiting(float) {
-    float ratio = 1.0f - (m_state_machine.stateTime() / kExitAnimationDuration);
-    ratio = math::clamp(ratio, 0.0f, 1.0f);
-
     auto* sprite = query().component<SpriteRendererComponent>(m_animator);
     if (DEV_VERIFY(sprite)) {
-        Vec4f tint = sprite->tintColor();
-        tint.a = ratio;
-        sprite->setTintColor(tint);
+        const float ratio = 1.0f - (m_state_machine.stateTime() / kExitAnimationDuration);
+        sprite->tintColor().a = math::clamp(ratio, 0.0f, 1.0f);
     }
 }
 

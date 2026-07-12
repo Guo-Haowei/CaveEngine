@@ -26,6 +26,7 @@ constexpr cave::StringId kPlayerDamaged = "player.damaged"_sid;
 constexpr cave::StringId kPlayerBounced = "player.bounced"_sid;
 constexpr cave::StringId kPlayerLeave = "player.leave"_sid;
 constexpr cave::StringId kGuardianBeginFight = "guardian.begin_fight"_sid;
+constexpr cave::StringId kGuardianDefeated = "guardian.defeated"_sid;
 
 inline bool IsPlayer(const cave::ColliderComponent& collider) {
     return collider.layer() & kPlayerLayer;

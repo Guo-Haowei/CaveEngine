@@ -6,6 +6,11 @@ namespace cave {
 
 using namespace ::cave::math;
 
+Variant::Variant(VariantType type)
+    : m_type(type) {
+    std::memset(&m_ivec, 0, sizeof(m_ivec));
+}
+
 Variant::Variant(bool value)
     : m_type(VariantType::Int)
     , m_int(value ? 1 : 0) {}
