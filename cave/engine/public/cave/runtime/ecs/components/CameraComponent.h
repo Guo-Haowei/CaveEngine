@@ -43,7 +43,7 @@ private:
     CAVE_PROP(editor = InputFloat)
     float m_aspect = 1.0f;
 
-    CAVE_PROP()
+    CAVE_PROP(editor = InputFloat)
     float m_ortho_height = 10;
 
     // Not serlialized

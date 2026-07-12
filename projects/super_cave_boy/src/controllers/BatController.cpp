@@ -52,14 +52,14 @@ void BatController::start() {
         BatState::Idle,
         {
             .update = std::bind_front(&BatController::updateIdle, this),
-            .onEnter = [this]() { playAnimation("idle"); },
+            .on_enter = [this]() { playAnimation("idle"); },
         });
 
     m_state_machine.addState(
         BatState::Move,
         {
             .update = std::bind_front(&BatController::updateMove, this),
-            .onEnter = [this]() { playAnimation("fly"); },
+            .on_enter = [this]() { playAnimation("fly"); },
         });
 
     m_state_machine.switchTo(BatState::Idle);

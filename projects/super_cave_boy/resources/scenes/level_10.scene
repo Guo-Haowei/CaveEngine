@@ -1,5 +1,5 @@
 version: 19
-seed: 18
+seed: 27
 root: 1
 entities:
   - id: 1
@@ -28,7 +28,7 @@ entities:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
       TransformComponent:
-        translation: [3, 4.5, 0]
+        translation: [2.02448869, 4.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 9
@@ -38,9 +38,18 @@ entities:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
       TransformComponent:
-        translation: [16.5, 2.5, 0]
+        translation: [17.4846458, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
+      NativeScriptComponent:
+        name: ExitController
+        params:
+          level:
+            type: string
+            value: level_10
+          initial_state:
+            type: string
+            value: hidden
   - id: 14
     HierarchyComponent:
       parent_id: 1
@@ -48,7 +57,7 @@ entities:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:
       TransformComponent:
-        translation: [3, 2.5, 0]
+        translation: [2.03732395, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 18
@@ -58,3 +67,37 @@ entities:
       prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
     PrefabOverride:
       {}
+  - id: 22
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 0CC56972-64AF-3A43-BFB41CFF39705652
+    PrefabOverride:
+      TransformComponent:
+        translation: [17.478117, 3.20000005, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]
+  - id: 27
+    NameComponent:
+      name: cutscene
+    HierarchyComponent:
+      parent_id: 1
+    TransformComponent:
+      translation: [3.95339108, 2.39098144, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    ColliderComponent:
+      body_type: static
+      shape:
+        type: box
+        data: [0.5, 6.30000019, 0.5]
+      flags: 0
+      layer: 4
+      mask: 1
+      is_trigger: true
+    TriggerComponent:
+      enabled: true
+    NativeScriptComponent:
+      name: CutsceneController
+      params:
+        {}

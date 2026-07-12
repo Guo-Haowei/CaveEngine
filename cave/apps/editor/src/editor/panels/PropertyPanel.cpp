@@ -213,7 +213,7 @@ void PropertyPanel::drawUIImpl() {
 
     ImGui::SameLine();
     ImGui::PushItemWidth(-1);
-    if (ImGui::Button("+")) {
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS)) {
         ImGui::OpenPopup("AddComponentPopup");
     }
 
@@ -324,21 +324,6 @@ void PropertyPanel::drawUIImpl() {
     DrawComponent(
         DRAW_COMPONENT_ARGS("SpriteAnimator"), sprite_animator,
         [&](SpriteAnimatorComponent& animator) {
-            // @TODO: refactor this
-            // @TODO: drop down
-            const Guid& guid = animator.GetResourceGuid();
-            if (auto handle = AssetRegistry::singleton().findByGuid<SpriteAnimationAsset>(guid);
-                handle.is_some()) {
-                // SpriteAnimationAsset* asset = handle.unwrap_unchecked().get();
-                // std::string clip_name = animator.currentClip();
-                // if (ui::TextBox("clip", clip_name)) {
-                //    const SpriteAnimationClip* clip = asset->GetClip(clip_name);
-                //    if (clip) {
-                //        p_animator.SetClip(clip_name);
-                //    }
-                //}
-            }
-
             DrawComponentAuto<SpriteAnimatorComponent>(&animator, ctx);
         });
 

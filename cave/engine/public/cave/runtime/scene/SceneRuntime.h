@@ -6,6 +6,7 @@
 #include "cave/core/typedefs.h"
 #include "cave/core/ids/ViewId.h"
 #include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/game/MessageBus.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/scene/SystemManager.h"
 
@@ -28,7 +29,7 @@ public:
     SceneRuntime(SceneTickDomain domain,
                  RuntimeServices& services,
                  Scene& scene,
-                 ViewId view_id = {},
+                 ViewId view_id,
                  ISceneTransitionRequests* transition = nullptr);
 
     void start();
@@ -38,6 +39,7 @@ public:
 
     Scene& scene() { return m_scene; }
     RuntimeServices& services() { return m_services; }
+    MessageBus& messageBus() { return m_message_bus; }
 
     SceneQuery& query() { return m_query; }
     const SceneQuery& query() const { return m_query; }
@@ -58,6 +60,7 @@ private:
     ISceneTransitionRequests* m_transition{};
     SceneFeature m_features;
     SystemManager m_systems;
+    MessageBus m_message_bus;
 };
 
 }  // namespace cave

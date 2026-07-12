@@ -214,7 +214,7 @@ bool DrawVariantMap(const char* label, VariantMap& map) {
             VariantType selected_type = value.type();
             ImGui::SetNextItemWidth(-1.0f);
             if (DrawVariantTypeCombo("##type", selected_type)) {
-                value = Variant();
+                value = Variant(selected_type);
                 changed = true;
             }
 

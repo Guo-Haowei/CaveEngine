@@ -17,7 +17,7 @@ using namespace ::cave::math;
 namespace {
 
 constexpr float kSnakeSpeed = 1.4f;
-constexpr float kProbeEps = 0.05f;
+constexpr float kWallDistance = 0.05f;
 
 bool ShouldTurnAround(const Box2& body,
                       int facing_x,
@@ -25,12 +25,12 @@ bool ShouldTurnAround(const Box2& body,
     DEV_ASSERT(facing_x == -1 || facing_x == 1);
 
     const float front_x = facing_x > 0
-                              ? body.max().x + kProbeEps
-                              : body.min().x - kProbeEps;
+                              ? body.max().x + kWallDistance
+                              : body.min().x - kWallDistance;
 
     const float wall_y = (body.min().y + body.max().y) * 0.5f;
 
-    const float ground_y = body.min().y - kProbeEps;
+    const float ground_y = body.min().y - kWallDistance;
 
     const TileCoord wall_tile = TileWorldSystem::worldToTile({ front_x, wall_y });
     const TileCoord ground_tile = TileWorldSystem::worldToTile({ front_x, ground_y });

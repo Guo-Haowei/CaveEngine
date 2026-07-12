@@ -13,41 +13,42 @@ class SpriteRendererComponent {
 
 private:
     CAVE_PROP(editor = Asset)
-    Guid image_id_;
+    Guid m_image_id;
 
     CAVE_PROP(editor = Color)
-    math::Vec4f tint_color_ = math::Vec4f::One;
+    math::Vec4f m_tint_color = math::Vec4f::One;
 
     CAVE_PROP()
-    math::Box2 rect_ = { { 0.0f, 1.0f }, { 1.0f, 0.0f } };
+    math::Box2 m_rect = { { 0.0f, 1.0f }, { 1.0f, 0.0f } };
 
     CAVE_PROP(editor = Toggle)
-    bool flip_x_ = false;
+    bool m_flip_x = false;
 
     CAVE_PROP(editor = Toggle)
-    bool flip_y_ = false;
+    bool m_flip_y = false;
 
     CAVE_PROP(editor = InputInt)
-    int z_index_ = 0;  // higher draws later / on top
+    int m_z_index = 0;  // higher draws later / on top
 
     // Non serialized
-    Handle<ImageAsset> image_handle_;
+    Handle<ImageAsset> m_image_handle;
 
 public:
     bool SetResourceGuid(const Guid& guid);
-    const Guid& imageGuid() const { return image_id_; }
+    const Guid& imageGuid() const { return m_image_id; }
 
-    const Handle<ImageAsset> handle() const { return image_handle_; }
+    const Handle<ImageAsset> handle() const { return m_image_handle; }
 
-    void setTintColor(const math::Vec4f& color) { tint_color_ = color; }
-    const math::Vec4f& tintColor() const { return tint_color_; }
+    void setTintColor(const math::Vec4f& color) { m_tint_color = color; }
+    const math::Vec4f& tintColor() const { return m_tint_color; }
+    math::Vec4f& tintColor() { return m_tint_color; }
 
-    void setRect(const math::Box2& rect) { rect_ = rect; }
-    const math::Box2& rect() const { return rect_; }
+    void setRect(const math::Box2& rect) { m_rect = rect; }
+    const math::Box2& rect() const { return m_rect; }
 
-    bool flipX() const { return flip_x_; }
-    bool flipY() const { return flip_y_; }
-    int zIndex() const { return z_index_; }
+    bool flipX() const { return m_flip_x; }
+    bool flipY() const { return m_flip_y; }
+    int zIndex() const { return m_z_index; }
 
     void OnDeserialized();
 };

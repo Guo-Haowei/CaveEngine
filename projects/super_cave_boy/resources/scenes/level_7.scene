@@ -59,7 +59,7 @@ entities:
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
       NativeScriptComponent:
-        name: ExitTrigger
+        name: ExitController
         params:
           level:
             type: string

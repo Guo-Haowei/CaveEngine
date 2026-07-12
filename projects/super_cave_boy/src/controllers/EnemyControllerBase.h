@@ -1,5 +1,4 @@
 #pragma once
-#include "cave/core/ids/Entity.h"
 #include "cave/core/math/Vec.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
@@ -10,7 +9,9 @@ class EnemyControllerBase : public cave::NativeScript {
 
 protected:
     void start() override;
-    void destroy() override;
+
+    virtual void takeDamageFromPlayer(int damage);
+    bool alive() const { return m_health > 0; }
 
     void onBodyEntered(Entity player) override;
     void onBodyStay(Entity player) override;
@@ -20,6 +21,8 @@ protected:
 
     Entity m_player{};
     Entity m_animator{};
+
+    int m_health = 1;
 };
 
 }  // namespace super_cave_boy

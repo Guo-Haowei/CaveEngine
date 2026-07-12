@@ -140,7 +140,8 @@ void DocumentBase::reloadPreviewScene() {
     new_scene->begin(MakeOwner<SceneRuntime>(
         SceneTickDomain::Editor,
         m_engine_services,
-        *new_scene));
+        *new_scene,
+        ViewId{}));
 
     new_scene->end();
 

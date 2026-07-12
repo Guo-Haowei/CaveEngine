@@ -1,0 +1,9 @@
+type: sprite_anim
+guid: 1B104663-8EE4-5E4A-B7D6FF19015A247F
+name: guardian.anim
+import_path: "@res://animations/guardian.anim"
+dependencies: [7818D22F-10AE-8A4C-920D20A0BC525661]
+source_created_time: 2026-07-12 09:54:33.9764729
+source_last_modified: 2026-07-12 09:06:04.6168684
+import_settings:
+  {}

@@ -31,31 +31,32 @@ void SpiderController::start() {
         SpiderState::Idle,
         {
             .update = std::bind_front(&SpiderController::updateIdle, this),
-            .onEnter = [this]() { playAnimation("idle"); },
+            .on_enter = [this]() { playAnimation("idle"); },
         });
     m_state_machine.addState(
         SpiderState::PrepareAttack,
         {
             .update = std::bind_front(&SpiderController::updateIdle, this),
-            .onEnter = [this]() { playAnimation("prepare_attack"); },
+            .on_enter = [this]() { playAnimation("prepare_attack"); },
         });
     m_state_machine.addState(
         SpiderState::Attack,
         {
             .update = [this](float) { enterAttack(); },
-            .onEnter = [this]() { playAnimation("air"); },
+            .on_enter = [this]() { playAnimation("air"); },
         });
     m_state_machine.addState(
         SpiderState::Air,
         {
             .update = std::bind_front(&SpiderController::updateAir, this),
-            .onEnter = [this]() { playAnimation("air"); },
+            .on_enter = [this]() { playAnimation("air"); },
         });
     m_state_machine.addState(
         SpiderState::Wait,
         {
-            .update = std::bind_front(&SpiderController::updateWait, this),
-            .onEnter = [this]() { playAnimation("idle"); },
+            .on_enter = [this]() { playAnimation("idle"); },
+            .duration = 1.0f,
+            .next = SpiderState::Idle,
         });
 
     m_state_machine.switchTo(SpiderState::Idle);
@@ -134,12 +135,6 @@ void SpiderController::updateAir(float) {
         vel->linear.x = 0;
         vel->linear.y = 0;
         m_state_machine.switchTo(SpiderState::Wait);
-    }
-}
-
-void SpiderController::updateWait(float) {
-    if (m_state_machine.stateTime() > 1.0f) {
-        m_state_machine.switchTo(SpiderState::Idle);
     }
 }
 

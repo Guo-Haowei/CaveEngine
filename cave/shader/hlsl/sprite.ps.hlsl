@@ -15,5 +15,5 @@ float4 main(VS_OUTPUT_UV input)
         discard;
     }
 
-    return float4(color.rgb, 1.0f);
+    return color;
 }

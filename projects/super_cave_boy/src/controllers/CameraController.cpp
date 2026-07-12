@@ -5,6 +5,8 @@
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
+#include "SuperCaveBoyDefines.h"
+
 namespace super_cave_boy {
 
 using namespace ::cave;
@@ -44,6 +46,13 @@ Vec2f ClampCameraToTileMap(Vec2f camera_pos,
 
 void CameraController::start() {
     m_target = query().findFirstByName("player");
+
+    message().listen(kCutsceneStart, [this](const Message&) {
+        m_target = query().findFirstByName("cutscene");
+    });
+    message().listen(kCutsceneEnd, [this](const Message&) {
+        m_target = query().findFirstByName("player");
+    });
 }
 
 void CameraController::update(float dt) {
