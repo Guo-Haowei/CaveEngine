@@ -13,11 +13,13 @@ entities:
       body_type: static
       shape:
         type: box
-        data: [0.5, 0.5, 0.5]
+        data: [0.720000029, 1.20000005, 0.5]
       flags: 0
       layer: 2
       mask: 1
       is_trigger: true
+    ContactComponent:
+      {}
     MotorComponent:
       affected_by_gravity: false
       terminal_fall_speed: -30
@@ -36,7 +38,7 @@ entities:
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
+      scale: [2, 2.4000001, 1]
     SpriteAnimatorComponent:
       anim_id: 1B104663-8EE4-5E4A-B7D6FF19015A247F
       current_clip: idle

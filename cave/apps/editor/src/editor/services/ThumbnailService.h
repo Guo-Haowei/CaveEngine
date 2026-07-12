@@ -56,16 +56,16 @@ private:
     void processCompletions();
     void submitRequests(const BusyInfo& info);
 
-    ViewManager& view_manager_;
-    SceneRegistry& scene_reg_;
-    render::IRenderDevice& render_device_;
-    PreviewBuilder builder_;
+    ViewManager& m_view_manager;
+    SceneRegistry& m_scene_reg;
+    render::IRenderDevice& m_render_device;
+    PreviewBuilder m_preview_builder;
 
-    uint64_t frame_index_{};
+    uint64_t m_frame_index{};
 
-    std::list<PendingRequest> pending_;
-    std::list<ThumbnailKey> inflight_;
-    std::unordered_map<ThumbnailKey, ThumbnailRecord> cache_;
+    std::list<PendingRequest> m_pending;
+    std::list<ThumbnailKey> m_inflight;
+    HashMap<ThumbnailKey, ThumbnailRecord> m_thumbnail_cache;
 };
 
 }  // namespace cave

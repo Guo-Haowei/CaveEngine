@@ -1,5 +1,5 @@
 version: 19
-seed: 18
+seed: 22
 root: 1
 entities:
   - id: 1
@@ -58,3 +58,13 @@ entities:
       prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
     PrefabOverride:
       {}
+  - id: 22
+    HierarchyComponent:
+      parent_id: 1
+    PrefabInstanceComponent:
+      prefab_id: 0CC56972-64AF-3A43-BFB41CFF39705652
+    PrefabOverride:
+      TransformComponent:
+        translation: [12.7797775, 3.33259487, 0]
+        rotation: [0, 0, 0, 1]
+        scale: [1, 1, 1]

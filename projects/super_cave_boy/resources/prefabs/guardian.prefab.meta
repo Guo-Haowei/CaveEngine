@@ -4,6 +4,6 @@ name: guardian.prefab
 import_path: "@res://prefabs/guardian.prefab"
 dependencies: [1B104663-8EE4-5E4A-B7D6FF19015A247F]
 source_created_time: 2026-07-12 08:57:23.7587632
-source_last_modified: 2026-07-12 10:14:08.5264300
+source_last_modified: 2026-07-12 14:09:13.6394848
 import_settings:
   {}

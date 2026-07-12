@@ -36,7 +36,7 @@ bool TextBox(const char* label,
         ImGui::AlignTextToFramePadding();
         ImGui::TextUnformatted(label);
 
-        //ImGui::Text("%s", label);
+        // ImGui::Text("%s", label);
         ImGui::NextColumn();
     }
 

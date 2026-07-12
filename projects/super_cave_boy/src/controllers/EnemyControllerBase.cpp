@@ -82,7 +82,10 @@ void EnemyControllerBase::onBodyStay(Entity player) {
 
     if (IsStompingEnemy(query(), player, enemy)) {
         message_bus.emit(kPlayerBounced, enemy);
-        query().queueDestroy(enemy);
+        --m_health;
+        if (m_health <= 0) {
+            query().queueDestroy(enemy);
+        }
         return;
     }
 

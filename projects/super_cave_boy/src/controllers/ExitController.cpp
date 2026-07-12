@@ -26,8 +26,6 @@ void ExitController::start() {
         }
     };
 
-    // m_state_machine.addState(ExitState::Inactive, {});
-
     m_state_machine.addState(
         ExitState::Active,
         {
@@ -45,15 +43,16 @@ void ExitController::update(float dt) {
     m_state_machine.update(dt);
 }
 
-void ExitController::onBodyEntered(Entity player) {
+void ExitController::onBodyStay(Entity player) {
 #if USING(ENABLE_ASSERT)
     auto* player_collider = query().component<ColliderComponent>(player);
     DEV_ASSERT(player_collider);
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
 
-    if (m_state_machine.prev() == ExitState::Invalid) {
+    if (!m_triggered) {
         m_state_machine.switchTo(ExitState::Active);
+        m_triggered = true;
     }
 }
 

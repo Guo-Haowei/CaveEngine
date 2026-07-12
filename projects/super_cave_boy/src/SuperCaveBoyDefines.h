@@ -25,6 +25,7 @@ constexpr float kExitAnimationDuration = 0.5f;
 constexpr cave::StringId kPlayerDamaged = "player.damaged"_sid;
 constexpr cave::StringId kPlayerBounced = "player.bounced"_sid;
 constexpr cave::StringId kPlayerLeave = "player.leave"_sid;
+constexpr cave::StringId kGuardianBeginFight = "guardian.begin_fight"_sid;
 
 inline bool IsPlayer(const cave::ColliderComponent& collider) {
     return collider.layer() & kPlayerLayer;

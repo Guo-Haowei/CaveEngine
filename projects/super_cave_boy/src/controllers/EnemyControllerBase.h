@@ -20,6 +20,8 @@ protected:
 
     Entity m_player{};
     Entity m_animator{};
+
+    int m_health = 1;
 };
 
 }  // namespace super_cave_boy
