@@ -32,7 +32,7 @@ MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
         cb.attachChild(sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());

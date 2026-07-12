@@ -6,20 +6,11 @@
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneSerializer.h"
-#include "engine/private/runtime/scene/SystemManager.h"
 
 namespace cave {
 
 using namespace math;
 using ecs::Entity;
-
-ISceneSystem* SceneQuery::system(SceneSystemId id) {
-    if (m_scene.systems() == nullptr) {
-        return nullptr;
-    }
-
-    return m_scene.systems()->get(id);
-}
 
 Entity SceneQuery::findFirstByName(std::string_view name) const {
     return m_scene.findFirstByName(name);

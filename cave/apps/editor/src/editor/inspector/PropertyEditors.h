@@ -42,7 +42,7 @@ bool EditAndSubmit(const DrawComponentCtx& ctx,
     }
 
     if constexpr (std::is_trivially_copyable_v<ValueT>) {
-        auto cmd = std::make_unique<ChangePropertyCmd>(
+        auto cmd = MakeOwner<ChangePropertyCmd>(
             ctx.services.sceneRegistry(),
             ctx.entity,
             ctx.cid,
@@ -51,7 +51,7 @@ bool EditAndSubmit(const DrawComponentCtx& ctx,
             new_v);
         ctx.edit.submit(ctx.doc_id, std::move(cmd));
     } else {
-        auto cmd = std::make_unique<ChangeObjectPropertyCmd<ValueT>>(
+        auto cmd = MakeOwner<ChangeObjectPropertyCmd<ValueT>>(
             ctx.services.sceneRegistry(),
             ctx.entity,
             ctx.cid,
@@ -88,7 +88,7 @@ static void DrawComponent(const std::string& p_name,
 
         if (ImGui::BeginPopup("ComponentSettings")) {
             if (ImGui::MenuItem("remove component")) {
-                auto cmd = std::make_unique<RemoveComponentCmd<T>>(
+                auto cmd = MakeOwner<RemoveComponentCmd<T>>(
                     ctx.services.sceneRegistry(),
                     ctx.entity,
                     *p_component);

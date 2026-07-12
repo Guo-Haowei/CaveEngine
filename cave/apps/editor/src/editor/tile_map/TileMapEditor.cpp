@@ -32,7 +32,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
     , m_canvas(m_engine_services.canvas())
-    , m_paint_tool(std::make_unique<GridPaintTool>())
+    , m_paint_tool(MakeOwner<GridPaintTool>())
     , m_debug_id(MakeDebugId(this)) {
 
     // m_brush_desc = ToolBarButtonDesc{ ICON_FA_BRUSH, "TileMap editor mode",
@@ -347,8 +347,8 @@ void TileMapEditor::finishPaintCommand() {
         return;
     }
 
-    auto composite = std::make_unique<SetTileCommand>(m_engine_services.sceneRegistry(),
-                                                      ecs::Entity::null());
+    auto composite = MakeOwner<SetTileCommand>(m_engine_services.sceneRegistry(),
+                                               ecs::Entity::null());
 
     for (const auto& [coord, change] : m_pending_tile_changes) {
         if (change.before == change.after) {

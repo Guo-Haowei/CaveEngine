@@ -13,12 +13,11 @@ public:
     BoardController();
     ~BoardController() override;
 
-    void alwaysRun(cave::SceneContext& ctx,
-                   cave::SceneCommandWriter& writer) override;
-    void start(cave::SceneContext& ctx) override;
+    void alwaysRun(cave::SceneCommandWriter& writer) override;
+    void start() override;
     void destroy() override;
 
-    void update(cave::SceneContext& ctx, float dt) override;
+    void update(float dt) override;
 
 private:
     cave::IntentBus m_intent_bus;

@@ -24,4 +24,5 @@
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/typedefs.h"
 #include "cave/core/math/Utils.h"
+#include "cave/core/memory/Pointer.h"
 #include "cave/core/Option.h"

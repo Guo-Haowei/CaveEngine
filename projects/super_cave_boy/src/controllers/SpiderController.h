@@ -1,44 +1,40 @@
 #pragma once
-#include "cave/core/time/CountdownTimer.h"
+#include "cave/runtime/game/StateMachine.h"
 
 #include "EnemyControllerBase.h"
 #include "Utility.h"
 
 namespace super_cave_boy {
 
-enum class SpiderState {
-    Idle,
+enum class SpiderState : uint8_t {
+    Idle = 0,
     PrepareAttack,
     Attack,
     Air,
     Wait,
+    Count,
+    Invalid = Count,
 };
 
 class SpiderController : public EnemyControllerBase {
 private:
-    void start(cave::SceneContext& ctx) override;
-    void update(cave::SceneContext& ctx, float dt) override;
+    void start() override;
+    void update(float dt) override;
 
-    void updateIdle(cave::SceneQuery& query, float dt);
-    void enterAttack(cave::SceneQuery& query);
-    void updateAir(cave::SceneQuery& query, float dt);
+    void updateIdle(float dt);
+    void enterAttack();
+    void updateAir(float dt);
     void updateWait(float dt);
 
-    void changeState(SpiderState state);
-
-    bool canAttackPlayer(const cave::math::Vec2f& spider_pos,
-                         const cave::math::Vec2f& player_pos) const;
+    bool canAttackPlayer(cave::math::Vec2f spider_pos,
+                         cave::math::Vec2f player_pos) const;
 
     float computeJumpXSpeed(float distance_x) const;
 
-    void updateAnimation(cave::SceneQuery& query);
-
 private:
-    SpiderState m_state = SpiderState::Idle;
+    cave::GameStateMachine<SpiderState> m_state_machine;
 
     cave::math::Vec2f m_detect_range{ 5, 5 };
-
-    cave::CountdownTimer m_wait_timer{ 1.0f };
 
     float m_attack_range_x = 6.0f;
 

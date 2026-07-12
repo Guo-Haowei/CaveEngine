@@ -48,29 +48,28 @@ bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
 
 }  // namespace
 
-void EnemyControllerBase::start(SceneContext& ctx) {
-    m_player = findPlayer(ctx.query);
-    m_animator = ctx.query.findChildByName("animator_node", entity());
+void EnemyControllerBase::start() {
+    m_player = findPlayer();
+    m_animator = query().findChildByName("animator_node", entity());
 }
 
 void EnemyControllerBase::destroy() {
 }
 
-void EnemyControllerBase::onBodyEntered(cave::SceneContext& ctx, Entity player) {
-    return onBodyStay(ctx, player);
+void EnemyControllerBase::onBodyEntered(Entity player) {
+    return onBodyStay(player);
 }
 
-void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
-    SceneQuery& query = ctx.query;
+void EnemyControllerBase::onBodyStay(ecs::Entity player) {
 #if USING(ENABLE_ASSERT)
-    auto* player_collider = query.component<ColliderComponent>(player);
+    auto* player_collider = query().component<ColliderComponent>(player);
     DEV_ASSERT(player_collider);
     DEV_ASSERT(IsPlayer(*player_collider));
 #endif
-    auto script_system = query.system<NativeScriptSystem>();
+    auto script_system = system<NativeScriptSystem>();
     DEV_ASSERT(script_system);
 
-    auto* player_script = query.component<NativeScriptComponent>(player);
+    auto* player_script = query().component<NativeScriptComponent>(player);
     DEV_ASSERT(player_script);
     if (!player_script) {
         return;
@@ -85,17 +84,17 @@ void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
 
     Entity enemy = entity();
 
-    auto* player_velocity = query.component<VelocityComponent>(player);
-    auto* player_motor = query.component<MotorComponent>(player);
+    auto* player_velocity = query().component<VelocityComponent>(player);
+    auto* player_motor = query().component<MotorComponent>(player);
     DEV_ASSERT(player_motor && player_velocity);
-    if (IsStompingEnemy(query, player, enemy)) {
+    if (IsStompingEnemy(query(), player, enemy)) {
         controller->bounceFromEnemy(*player_velocity, *player_motor, kPlayerBounceSpeed);
-        query.queueDestroy(enemy);
+        query().queueDestroy(enemy);
         return;
     }
 
-    auto* player_transform = query.component<TransformComponent>(player);
-    auto* enemy_transform = query.component<TransformComponent>(enemy);
+    auto* player_transform = query().component<TransformComponent>(player);
+    auto* enemy_transform = component<TransformComponent>();
     DEV_ASSERT(player_transform && enemy_transform);
 
     const float player_x = player_transform->translation().x;
@@ -114,8 +113,15 @@ void EnemyControllerBase::onBodyStay(SceneContext& ctx, ecs::Entity player) {
     controller->takeDamage(*player_velocity, *player_motor, hurt_info);
 }
 
-Entity EnemyControllerBase::findPlayer(SceneQuery& query) const {
-    return query.findFirstByName("player");
+Entity EnemyControllerBase::findPlayer() const {
+    return query().findFirstByName("player");
+}
+
+void EnemyControllerBase::playAnimation(std::string_view name) {
+    auto animator = query().component<SpriteAnimatorComponent>(m_animator);
+    if (DEV_VERIFY(animator)) {
+        animator->currentClip(name);
+    }
 }
 
 }  // namespace super_cave_boy

@@ -27,11 +27,11 @@ class MotorSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::Motor)
 
 public:
-    MotorSystem();
-    ~MotorSystem();
+    MotorSystem(SceneRuntime& runtime);
+    ~MotorSystem() override;
 
 private:
-    void start(SceneContext&) override {}
+    void start() override {}
     void update(SceneTickContext& ctx) override;
 
     DebugId debugId() const override { return m_debug_id; }

@@ -106,8 +106,8 @@ private:
 };
 
 Renderer::Renderer(IRenderDevice& device, AssetRegistry& asset_registry)
-    : m_impl(std::make_unique<Impl>(device))
-    , m_canvas_render(std::make_unique<CanvasRenderer>(asset_registry)) {}
+    : m_impl(MakeOwner<Impl>(device))
+    , m_canvas_render(MakeOwner<CanvasRenderer>(asset_registry)) {}
 
 Renderer::~Renderer() = default;
 
@@ -285,7 +285,7 @@ void Renderer::Impl::tick(const FrameTime& time,
                           const UIFrameDrawData& ui_draw_data) {
     CAVE_PROFILE_EVENT();
 
-    auto submission = std::make_unique<RenderSubmission>();
+    auto submission = MakeOwner<RenderSubmission>();
 
     FramePlan plan = buildFramePlan(time, views);
 

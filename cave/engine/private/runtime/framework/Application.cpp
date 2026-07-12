@@ -73,22 +73,22 @@ auto Application::setupModules() -> Result<void> {
     m_task_manager = new TaskManager();
 
     // @TODO: dependency injection?
-    m_scene_registry = std::make_unique<SceneRegistry>();
+    m_scene_registry = MakeOwner<SceneRegistry>();
 
-    m_renderer = std::make_unique<render::Renderer>(*m_render_device, *m_asset_registry);
+    m_renderer = MakeOwner<render::Renderer>(*m_render_device, *m_asset_registry);
 
-    m_scene_scheduler = std::make_unique<SceneScheduler>(m_engine_services);
+    m_scene_scheduler = MakeOwner<SceneScheduler>(m_engine_services);
 
-    m_view_manager = std::make_unique<ViewManager>(*m_scene_registry,
-                                                   m_render_device->backend() == rhi::Backend::OpenGL);
+    m_view_manager = MakeOwner<ViewManager>(*m_scene_registry,
+                                            m_render_device->backend() == rhi::Backend::OpenGL);
 
-    m_project_manager = std::make_unique<ProjectManager>(m_vfs,
-                                                         *m_task_manager,
-                                                         *m_asset_manager,
-                                                         *m_asset_registry,
-                                                         *m_renderer);
+    m_project_manager = MakeOwner<ProjectManager>(m_vfs,
+                                                  *m_task_manager,
+                                                  *m_asset_manager,
+                                                  *m_asset_registry,
+                                                  *m_renderer);
 
-    m_ui = std::make_unique<UIRuntime>(*m_view_manager);
+    m_ui = MakeOwner<UIRuntime>(*m_view_manager);
 
     // setup app services
     m_engine_services.asset_manager = m_asset_manager;

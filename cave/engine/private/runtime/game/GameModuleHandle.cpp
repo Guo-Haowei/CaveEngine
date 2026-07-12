@@ -1,4 +1,4 @@
-#include "cave/game/GameModuleHandle.h"
+#include "cave/runtime/game/GameModuleHandle.h"
 
 namespace cave {
 

@@ -209,7 +209,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect, bool ortho) {
 
                 SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
                 if (operation & ImGuizmo::TRANSLATE) {
-                    auto cmd = std::make_unique<ChangePropertyCmd>(
+                    auto cmd = MakeOwner<ChangePropertyCmd>(
                         scene_reg,
                         id,
                         TransformComponent_Id,
@@ -218,7 +218,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect, bool ortho) {
                         pos_2);
                     edit_service.submit(doc_id, std::move(cmd));
                 } else if (operation & ImGuizmo::ROTATE) {
-                    auto cmd = std::make_unique<ChangePropertyCmd>(
+                    auto cmd = MakeOwner<ChangePropertyCmd>(
                         scene_reg,
                         id,
                         TransformComponent_Id,
@@ -227,7 +227,7 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect, bool ortho) {
                         rot_2);
                     edit_service.submit(doc_id, std::move(cmd));
                 } else if (operation & ImGuizmo::SCALE) {
-                    auto cmd = (std::make_unique<ChangePropertyCmd>(
+                    auto cmd = (MakeOwner<ChangePropertyCmd>(
                         scene_reg,
                         id,
                         TransformComponent_Id,

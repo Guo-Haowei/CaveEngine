@@ -6,6 +6,7 @@
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
 namespace super_cave_boy {
@@ -34,8 +35,7 @@ bool OverlapsSolidTiles(const Box2& aabb, const TileWorldSystem& world) {
 
 }  // namespace
 
-bool BatController::canSeePlayer(const Vec2f& bat_pos,
-                                 const Vec2f& player_pos) const {
+bool BatController::canSeePlayer(Vec2f bat_pos, Vec2f player_pos) const {
     const float dx = std::abs(player_pos.x - bat_pos.x);
     const float dy = std::abs(player_pos.y - bat_pos.y);
 
@@ -45,28 +45,33 @@ bool BatController::canSeePlayer(const Vec2f& bat_pos,
     return close_x && valid_y;
 }
 
-void BatController::update(cave::SceneContext& ctx, float dt) {
-    SceneQuery& query = ctx.query;
+void BatController::start() {
+    EnemyControllerBase::start();
 
-    if (!m_player.valid()) {
-        m_player = findPlayer(query);
-    }
+    m_state_machine.addState(
+        BatState::Idle,
+        {
+            .update = std::bind_front(&BatController::updateIdle, this),
+            .onEnter = [this]() { playAnimation("idle"); },
+        });
 
-    switch (m_state) {
-        case BatState::Idle: {
-            updateIdle(query);
-        } break;
-        case BatState::Move: {
-            updateMove(query, dt);
-        } break;
-    }
+    m_state_machine.addState(
+        BatState::Move,
+        {
+            .update = std::bind_front(&BatController::updateMove, this),
+            .onEnter = [this]() { playAnimation("fly"); },
+        });
 
-    updateAnimation(query);
+    m_state_machine.switchTo(BatState::Idle);
 }
 
-void BatController::updateIdle(SceneQuery& query) {
-    auto transform = query.component<TransformComponent>(entity());
-    auto player_transform = query.component<TransformComponent>(m_player);
+void BatController::update(float dt) {
+    m_state_machine.update(dt);
+}
+
+void BatController::updateIdle(float) {
+    auto transform = component<TransformComponent>();
+    auto player_transform = query().component<TransformComponent>(m_player);
 
     DEV_ASSERT(transform && player_transform);
 
@@ -74,22 +79,18 @@ void BatController::updateIdle(SceneQuery& query) {
     const Vec2f player_pos = player_transform->translation().xy;
 
     if (canSeePlayer(bat_pos, player_pos)) {
-        m_state = BatState::Move;
-
-        if (auto animator = query.component<SpriteAnimatorComponent>(m_animator)) {
-            animator->currentClip("fly");
-        }
+        m_state_machine.switchTo(BatState::Move);
     }
 }
 
-void BatController::updateMove(SceneQuery& query, float) {
-    const TileWorldSystem* tile_world = query.system<TileWorldSystem>();
+void BatController::updateMove(float) {
+    const TileWorldSystem* tile_world = system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
-    auto transform = query.component<TransformComponent>(entity());
-    auto collider = query.component<ColliderComponent>(entity());
-    auto vel = query.component<VelocityComponent>(entity());
-    auto player_transform = query.component<TransformComponent>(m_player);
+    auto transform = component<TransformComponent>();
+    auto collider = component<ColliderComponent>();
+    auto vel = component<VelocityComponent>();
+    auto player_transform = query().component<TransformComponent>(m_player);
 
     DEV_ASSERT(transform && collider && vel && player_transform);
 
@@ -115,24 +116,6 @@ void BatController::updateMove(SceneQuery& query, float) {
 
     vel->linear.x = desired_dir.x * speed;
     vel->linear.y = desired_dir.y * speed;
-}
-
-void BatController::updateAnimation(SceneQuery& query) {
-    auto animator = query.component<SpriteAnimatorComponent>(m_animator);
-
-    if (!animator) {
-        return;
-    }
-
-    switch (m_state) {
-        case BatState::Idle:
-            animator->currentClip("idle");
-            break;
-
-        case BatState::Move:
-            animator->currentClip("fly");
-            break;
-    }
 }
 
 }  // namespace super_cave_boy

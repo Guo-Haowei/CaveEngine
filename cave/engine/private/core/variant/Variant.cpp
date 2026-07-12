@@ -7,105 +7,120 @@ namespace cave {
 using namespace ::cave::math;
 
 Variant::Variant(bool value)
-    : type_(VariantType::Int), int_(value ? 1 : 0) {}
+    : m_type(VariantType::Int)
+    , m_int(value ? 1 : 0) {}
 
 Variant::Variant(int value)
-    : type_(VariantType::Int), int_(value) {}
+    : m_type(VariantType::Int)
+    , m_int(value) {}
 
 Variant::Variant(float value)
-    : type_(VariantType::Float), float_(value) {}
+    : m_type(VariantType::Float)
+    , m_float(value) {}
 
 Variant::Variant(const char* value)
-    : type_(VariantType::String), int_(0), string_(value) {}
+    : m_type(VariantType::String)
+    , m_int(0)
+    , m_string(value) {}
 
 Variant::Variant(std::string_view value)
-    : type_(VariantType::String), int_(0), string_(value) {}
+    : m_type(VariantType::String)
+    , m_int(0)
+    , m_string(value) {}
 
 Variant::Variant(std::string value)
-    : type_(VariantType::String), int_(0), string_(std::move(value)) {}
+    : m_type(VariantType::String)
+    , m_int(0)
+    , m_string(std::move(value)) {}
 
-Variant::Variant(const Vec2f& value)
-    : type_(VariantType::Vec2f), vec_(Vec4f(value, 0.0f, 0.0f)) {}
+Variant::Variant(float x, float y)
+    : m_type(VariantType::Vec2f)
+    , m_vec{ x, y, 0.0f, 0.0f } {}
 
-Variant::Variant(const Vec3f& value)
-    : type_(VariantType::Vec3f), vec_(Vec4f(value, 0.0f)) {}
+Variant::Variant(float x, float y, float z)
+    : m_type(VariantType::Vec3f)
+    , m_vec{ x, y, z, 0.0f } {}
 
-Variant::Variant(const Vec4f& value)
-    : type_(VariantType::Vec4f), vec_(value) {}
+Variant::Variant(float x, float y, float z, float w)
+    : m_type(VariantType::Vec4f)
+    , m_vec{ x, y, z, w } {}
 
-Variant::Variant(const Vec2i& value)
-    : type_(VariantType::Vec2i), ivec_(Vec4i(value, 0, 0)) {}
+Variant::Variant(int x, int y)
+    : m_type(VariantType::Vec2i)
+    , m_ivec{ x, y, 0, 0 } {}
 
-Variant::Variant(const Vec3i& value)
-    : type_(VariantType::Vec3i), ivec_(Vec4i(value, 0)) {}
+Variant::Variant(int x, int y, int z)
+    : m_type(VariantType::Vec3i)
+    , m_ivec{ x, y, z, 0 } {}
 
-Variant::Variant(const Vec4i& value)
-    : type_(VariantType::Vec4i), ivec_(value) {}
+Variant::Variant(int x, int y, int z, int w)
+    : m_type(VariantType::Vec4i)
+    , m_ivec{ x, y, z, w } {}
 
 bool Variant::isNumeric() const {
-    return type_ == VariantType::Int || type_ == VariantType::Float;
+    return m_type == VariantType::Int || m_type == VariantType::Float;
 }
 
 bool Variant::asBool(bool fallback) const {
-    if (type_ == VariantType::Int) {
-        return int_ != 0;
+    if (m_type == VariantType::Int) {
+        return m_int != 0;
     }
-    if (type_ == VariantType::Float) {
-        return float_ != 0.0f;
+    if (m_type == VariantType::Float) {
+        return m_float != 0.0f;
     }
     return fallback;
 }
 
 int Variant::asInt(int fallback) const {
-    if (type_ == VariantType::Int) {
-        return int_;
+    if (m_type == VariantType::Int) {
+        return m_int;
     }
-    if (type_ == VariantType::Float) {
-        return static_cast<int>(float_);
+    if (m_type == VariantType::Float) {
+        return static_cast<int>(m_float);
     }
     return fallback;
 }
 
 float Variant::asFloat(float fallback) const {
-    if (type_ == VariantType::Float) {
-        return float_;
+    if (m_type == VariantType::Float) {
+        return m_float;
     }
-    if (type_ == VariantType::Int) {
-        return static_cast<float>(int_);
+    if (m_type == VariantType::Int) {
+        return static_cast<float>(m_int);
     }
     return fallback;
 }
 
 std::string_view Variant::asString(std::string_view fallback) const {
-    return type_ == VariantType::String ? std::string_view(string_) : fallback;
+    return m_type == VariantType::String ? std::string_view(m_string) : fallback;
 }
 
 Vec2f Variant::asVec2f(Vec2f fallback) const {
-    return type_ == VariantType::Vec2f ? vec_.xy : fallback;
+    return m_type == VariantType::Vec2f ? m_vec.xy : fallback;
 }
 
 Vec3f Variant::asVec3f(Vec3f fallback) const {
-    return type_ == VariantType::Vec3f ? vec_.xyz : fallback;
+    return m_type == VariantType::Vec3f ? m_vec.xyz : fallback;
 }
 
 Vec4f Variant::asVec4f(Vec4f fallback) const {
-    return type_ == VariantType::Vec4f ? vec_ : fallback;
+    return m_type == VariantType::Vec4f ? m_vec : fallback;
 }
 
 Vec2i Variant::asVec2i(Vec2i fallback) const {
-    return type_ == VariantType::Vec2i ? ivec_.xy : fallback;
+    return m_type == VariantType::Vec2i ? m_ivec.xy : fallback;
 }
 
 Vec3i Variant::asVec3i(Vec3i fallback) const {
-    return type_ == VariantType::Vec3i ? ivec_.xyz : fallback;
+    return m_type == VariantType::Vec3i ? m_ivec.xyz : fallback;
 }
 
 Vec4i Variant::asVec4i(Vec4i fallback) const {
-    return type_ == VariantType::Vec4i ? ivec_ : fallback;
+    return m_type == VariantType::Vec4i ? m_ivec : fallback;
 }
 
 void* Variant::asPointer() {
-    switch (type_) {
+    switch (m_type) {
         case VariantType::Int:
         case VariantType::Float:
         case VariantType::Vec2f:
@@ -114,7 +129,7 @@ void* Variant::asPointer() {
         case VariantType::Vec2i:
         case VariantType::Vec3i:
         case VariantType::Vec4i:
-            return &int_;
+            return &m_int;
         default:
             CRASH_NOW();
             return nullptr;
@@ -122,31 +137,31 @@ void* Variant::asPointer() {
 }
 
 bool Variant::operator==(const Variant& rhs) const {
-    if (type_ != rhs.type_) {
+    if (m_type != rhs.m_type) {
         return false;
     }
 
-    switch (type_) {
+    switch (m_type) {
         case VariantType::Invalid:
             return true;
         case VariantType::Int:
-            return int_ == rhs.int_;
+            return m_int == rhs.m_int;
         case VariantType::Float:
-            return float_ == rhs.float_;
+            return m_float == rhs.m_float;
         case VariantType::String:
-            return string_ == rhs.string_;
+            return m_string == rhs.m_string;
         case VariantType::Vec2f:
             return asVec2f() == rhs.asVec2f();
         case VariantType::Vec3f:
             return asVec3f() == rhs.asVec3f();
         case VariantType::Vec4f:
-            return vec_ == rhs.vec_;
+            return m_vec == rhs.m_vec;
         case VariantType::Vec2i:
             return asVec2i() == rhs.asVec2i();
         case VariantType::Vec3i:
             return asVec3i() == rhs.asVec3i();
         case VariantType::Vec4i:
-            return ivec_ == rhs.ivec_;
+            return m_ivec == rhs.m_ivec;
         default:
             return false;
     }
@@ -156,51 +171,26 @@ bool Variant::operator==(const Variant& rhs) const {
 std::string Variant::toString() const {
     switch (type()) {
         case VariantType::Int:
-            return std::format("{}", int_);
+            return std::format("{}", m_int);
         case VariantType::Float:
-            return std::format("{}", float_);
+            return std::format("{}", m_float);
         case VariantType::String:
-            return std::format("\"{}\"", string_);
+            return std::format("\"{}\"", m_string);
         case VariantType::Vec2f:
-            return std::format("{} {}", vec_.x, vec_.y);
+            return std::format("{} {}", m_vec.x, m_vec.y);
         case VariantType::Vec2i:
-            return std::format("{} {}", ivec_.x, ivec_.y);
+            return std::format("{} {}", m_ivec.x, m_ivec.y);
         case VariantType::Vec3f:
-            return std::format("{} {} {}", vec_.x, vec_.y, vec_.z);
+            return std::format("{} {} {}", m_vec.x, m_vec.y, m_vec.z);
         case VariantType::Vec3i:
-            return std::format("{} {} {}", ivec_.x, ivec_.y, ivec_.z);
+            return std::format("{} {} {}", m_ivec.x, m_ivec.y, m_ivec.z);
         case VariantType::Vec4f:
-            return std::format("{} {} {} {}", vec_.x, vec_.y, vec_.z, vec_.w);
+            return std::format("{} {} {} {}", m_vec.x, m_vec.y, m_vec.z, m_vec.w);
         case VariantType::Vec4i:
-            return std::format("{} {} {} {}", ivec_.x, ivec_.y, ivec_.z, ivec_.w);
+            return std::format("{} {} {} {}", m_ivec.x, m_ivec.y, m_ivec.z, m_ivec.w);
         default:
             CRASH_NOW();
             return std::string{};
-    }
-}
-
-Variant Variant::makeDefault(VariantType type) {
-    switch (type) {
-        case VariantType::Int:
-            return Variant(0);
-        case VariantType::Float:
-            return Variant(0.0f);
-        case VariantType::String:
-            return Variant("");
-        case VariantType::Vec2f:
-            return Variant(math::Vec2f::Zero);
-        case VariantType::Vec3f:
-            return Variant(math::Vec3f::Zero);
-        case VariantType::Vec4f:
-            return Variant(math::Vec4f::Zero);
-        case VariantType::Vec2i:
-            return Variant(math::Vec2i::Zero);
-        case VariantType::Vec3i:
-            return Variant(math::Vec3i::Zero);
-        case VariantType::Vec4i:
-            return Variant(math::Vec4i::Zero);
-        default:
-            return Variant();
     }
 }
 

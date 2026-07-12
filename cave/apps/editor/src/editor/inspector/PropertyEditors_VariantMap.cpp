@@ -92,7 +92,7 @@ static bool DrawVariantValue(Variant& value) {
             math::Vec2f v = value.asVec2f();
             ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputFloat2("##value", &v.x)) {
-                value = Variant(v);
+                value = Variant(v.x, v.y);
                 return true;
             }
             return false;
@@ -102,7 +102,7 @@ static bool DrawVariantValue(Variant& value) {
             math::Vec3f v = value.asVec3f();
             ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputFloat3("##value", &v.x)) {
-                value = Variant(v);
+                value = Variant(v.x, v.y, v.z);
                 return true;
             }
             return false;
@@ -112,7 +112,7 @@ static bool DrawVariantValue(Variant& value) {
             math::Vec4f v = value.asVec4f();
             ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputFloat4("##value", &v.x)) {
-                value = Variant(v);
+                value = Variant(v.x, v.y, v.z, v.w);
                 return true;
             }
             return false;
@@ -122,7 +122,7 @@ static bool DrawVariantValue(Variant& value) {
             math::Vec2i v = value.asVec2i();
             ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputInt2("##value", &v.x)) {
-                value = Variant(v);
+                value = Variant(v.x, v.y);
                 return true;
             }
             return false;
@@ -132,7 +132,7 @@ static bool DrawVariantValue(Variant& value) {
             math::Vec3i v = value.asVec3i();
             ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputInt3("##value", &v.x)) {
-                value = Variant(v);
+                value = Variant(v.x, v.y, v.z);
                 return true;
             }
             return false;
@@ -142,7 +142,7 @@ static bool DrawVariantValue(Variant& value) {
             math::Vec4i v = value.asVec4i();
             ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputInt4("##value", &v.x)) {
-                value = Variant(v);
+                value = Variant(v.x, v.y, v.z, v.w);
                 return true;
             }
             return false;
@@ -214,7 +214,7 @@ bool DrawVariantMap(const char* label, VariantMap& map) {
             VariantType selected_type = value.type();
             ImGui::SetNextItemWidth(-1.0f);
             if (DrawVariantTypeCombo("##type", selected_type)) {
-                value = Variant::makeDefault(selected_type);
+                value = Variant();
                 changed = true;
             }
 

@@ -85,7 +85,7 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
 
         if (x != kMaxIndex && y != kMaxIndex) {
             if (d.tryEnterKey("tiles")) {
-                auto chunk = std::make_unique<TileChunk>();
+                auto chunk = MakeOwner<TileChunk>();
 
                 DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileChunkArea);
                 for (int16_t local_y = 0; local_y < kTileChunkSize; ++local_y) {

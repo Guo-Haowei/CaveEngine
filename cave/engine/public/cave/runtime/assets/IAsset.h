@@ -4,6 +4,7 @@
 #pragma once
 #include "cave/core/containers/Containers.h"
 #include "cave/core/error/Result.h"
+#include "cave/core/memory/Pointer.h"
 #include "cave/runtime/assets/AssetMetaData.h"
 
 namespace cave {

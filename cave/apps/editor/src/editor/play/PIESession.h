@@ -34,7 +34,6 @@ public:
     DebugId debugId() const override { return m_debug_id; }
 
 private:
-    SceneContext makeSceneContext(Scene& scene);
     void beginPIEScene(SceneDesc&& desc, const Scene& asset_scene);
     void endPIEScene();
 

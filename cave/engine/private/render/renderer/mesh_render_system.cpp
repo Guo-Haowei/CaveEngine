@@ -250,7 +250,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
 
                     Vec3f radiance(light.max_distance);
                     AABB aabb = AABB::FromCenterSize(light.position, radiance);
-                    auto pass = std::make_unique<PassContext>();
+                    auto pass = MakeOwner<PassContext>();
                     FillPass(
                         p_scene,
                         *pass.get(),

@@ -3,76 +3,18 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/threading/JobSystem.h"
 #include "cave/runtime/framework/EngineServices.h"
-#include "cave/runtime/scene/MotorSystem.h"
-#include "cave/runtime/script/native/NativeScriptSystem.h"
-#include "cave/runtime/tile_map/TileWorldSystem.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/Engine.h"
-#include "engine/private/runtime/scene/SystemManager.h"
 #include "engine/private/systems/AnimationSystem.h"
 #include "engine/private/systems/EcsSystems.h"
-
-// systems
-#include "engine/private/runtime/script/lua/LuaScriptSystem.h"
 
 namespace cave {
 
 using namespace ::cave::math;
 using ecs::Entity;
-
-//---------------- scene runtime --------------
-enum class SceneFeature : uint32_t {
-    NativeScript = 1,
-    Motor = 2,
-    TileWorld = 3,
-    All = NativeScript | Motor | TileWorld,
-};
-
-DEFINE_ENUM_BITWISE_OPERATIONS(SceneFeature);
-
-class SceneRuntime {
-public:
-    SceneRuntime(SceneFeature features)
-        : m_features(features) {}
-
-    void start(SceneContext& ctx);
-    void shutdown();
-
-    void update(SceneTickContext& ctx);
-
-private:
-    const SceneFeature m_features;
-    SystemManager m_systems;
-
-    friend class Scene;
-};
-
-void SceneRuntime::start(SceneContext& ctx) {
-    if ((int)(m_features & SceneFeature::NativeScript)) {
-        m_systems.add<NativeScriptSystem>(ctx.services.nativeScripts());
-        auto native_scripts = m_systems.get<NativeScriptSystem>();
-        native_scripts->alwaysRun(ctx);
-    }
-    if ((int)(m_features & SceneFeature::Motor)) {
-        m_systems.add<MotorSystem>();
-    }
-    if ((int)(m_features & SceneFeature::TileWorld)) {
-        m_systems.add<TileWorldSystem>();
-    }
-
-    m_systems.start(ctx);
-}
-
-void SceneRuntime::shutdown() {
-    m_systems.shutdown();
-}
-
-void SceneRuntime::update(SceneTickContext& ctx) {
-    m_systems.update(ctx);
-}
-// ---------------------------------------------
 
 Scene::Scene(ecs::ComponentRegistry& reg) noexcept
     : m_component_registry(reg) {
@@ -120,32 +62,14 @@ void Scene::update(float dt) {
     flushPendingDestroy();
 }
 
-SystemManager* Scene::systems() {
-    return m_runtime ? &m_runtime->m_systems : nullptr;
-}
-
-const SystemManager* Scene::systems() const {
-    return m_runtime ? &m_runtime->m_systems : nullptr;
-}
-
-void Scene::begin(SceneTickContext ctx) {
+void Scene::begin(Owner<SceneRuntime>&& runtime) {
     if (m_runtime) {
         LOG_ERROR(LogChannel::Scene, "onSimBegin already called");
         return;
     }
 
-    SceneFeature features = SceneFeature::NativeScript;
-    if (ctx.domain == SceneTickDomain::Simulate) {
-        if (count<MotorComponent>()) {
-            features |= SceneFeature::Motor;
-        }
-        if (count<TileMapInstanceComponent>()) {
-            features |= SceneFeature::TileWorld;
-        }
-    }
-
-    m_runtime = std::make_unique<SceneRuntime>(features);
-    m_runtime->start(ctx.scene_ctx);
+    m_runtime = std::move(runtime);
+    m_runtime->start();
 
     update(0.0f);
 }
@@ -257,7 +181,7 @@ void Scene::removeEntity(ecs::Entity ent) {
         return;
     }
 
-    std::vector<ecs::Entity> children;
+    Vector<ecs::Entity> children;
     for (auto [child, hierarchy] : view<HierarchyComponent>()) {
         if (hierarchy.parent_id == ent) {
             children.emplace_back(child);

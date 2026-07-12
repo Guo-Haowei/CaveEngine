@@ -5,6 +5,7 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -65,20 +66,6 @@ PreviewBuilder::PreviewBuilder(EngineServices& engine_services) noexcept
 
 PreviewBuilder::~PreviewBuilder() = default;
 
-SceneTickContext PreviewBuilder::makeSceneContext(Scene& scene) const {
-    SceneContext ctx = {
-        .scene = scene,
-        .query = SceneQuery(scene),
-        .services = m_engine_services,
-    };
-
-    return {
-        .domain = SceneTickDomain::Editor,
-        .dt = 0.0f,
-        .scene_ctx = ctx,
-    };
-}
-
 PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
     AssetHandle handle = m_asset_reg.findByGuid(req.guid).unwrap();
     const AssetMetaData* meta = handle.meta();
@@ -107,7 +94,7 @@ PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
 PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
                                                   const Scene& asset,
                                                   const PreviewOptions& options) const {
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
     scene->copy(asset);
 
     // @TODO: better camera
@@ -127,7 +114,10 @@ PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
         camera_source = CameraSource::External(camera);
     }
 
-    scene->begin(makeSceneContext(*scene));
+    scene->begin(MakeOwner<SceneRuntime>(
+        SceneTickDomain::Editor,
+        m_engine_services,
+        *scene));
     scene->end();
 
     return {
@@ -160,7 +150,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetMetaData* meta,
         cb.attachChild(sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
@@ -209,7 +199,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetMetaData* meta,
         cb.attachChild(e, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());

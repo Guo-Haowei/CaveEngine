@@ -54,8 +54,6 @@ private:
                                       const Scene& scene,
                                       const PreviewOptions& options) const;
 
-    SceneTickContext makeSceneContext(Scene& scene) const;
-
     AssetRegistry& m_asset_reg;
     SceneRegistry& m_scene_reg;
     EngineServices& m_engine_services;

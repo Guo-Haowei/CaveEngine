@@ -17,54 +17,40 @@ namespace cave {
 
 class Dvar {
 public:
-    explicit Dvar(VariantType type, DvarFlags flags, const char* desc);
+    explicit Dvar(String name,
+                  Variant&& variant,
+                  DvarFlags flags,
+                  const char* desc);
 
-    void registerInt(std::string_view key, int value);
-    void registerFloat(std::string_view key, float value);
-    void registerString(std::string_view key, std::string_view value);
-    void registerVec2f(std::string_view key, float x, float y);
-    void registerVec3f(std::string_view key, float x, float y, float z);
-    void registerVec4f(std::string_view key, float x, float y, float z, float w);
-    void registerVec2i(std::string_view key, int x, int y);
-    void registerVec3i(std::string_view key, int x, int y, int z);
-    void registerVec4i(std::string_view key, int x, int y, int z, int w);
+    bool setValue(Variant&& variant);
 
-    bool setInt(int value);
-    bool setFloat(float value);
-    bool setString(const std::string& value);
-    bool setString(std::string_view value);
-    bool setVec2f(float x, float y);
-    bool setVec3f(float x, float y, float z);
-    bool setVec4f(float x, float y, float z, float w);
-    bool setVec2i(int x, int y);
-    bool setVec3i(int x, int y, int z);
-    bool setVec4i(int x, int y, int z, int w);
+    template<typename... Args>
+    bool setValue(Args&&... args) {
+        return setValue(Variant{ std::forward<Args>(args)... });
+    }
 
-    void setFlag(DvarFlags flag) { flags_ |= flag; }
-    void unsetFlag(DvarFlags flag) { flags_ &= ~flag; }
+    void setFlag(DvarFlags flag) { m_flags |= flag; }
+    void unsetFlag(DvarFlags flag) { m_flags &= ~flag; }
 
-    Variant& variant() { return variant_; }
-    const Variant& variant() const { return variant_; }
+    Variant& variant() { return m_variant; }
+    const Variant& variant() const { return m_variant; }
 
-    VariantType type() const { return variant_.type(); }
-    const char* desc() const { return desc_; }
-    uint32_t flags() const { return flags_; }
+    const String& name() const { return m_name; }
 
-    static Dvar* findDvar(const std::string& name);
-    static void registerDvar(std::string_view key, Dvar* dvar);
+    VariantType type() const { return m_variant.type(); }
+    std::string_view desc() const { return m_desc; }
+    uint32_t flags() const { return m_flags; }
 
 private:
-    Variant variant_;
+    String m_name;
+    Variant m_variant;
 
-    const char* desc_;
-    DvarFlags flags_;
-
-    std::string name_;
-
-    inline static std::unordered_map<std::string, Dvar*> s_map;
-    friend class DvarCache;
-    friend class RegisterCommands;
+    std::string_view m_desc;
+    DvarFlags m_flags;
 };
+
+Dvar* FindStaticDvar(std::string_view name);
+bool RegisterStaticDvar(Dvar* dvar);
 
 }  // namespace cave
 
@@ -80,16 +66,16 @@ private:
 #define DVAR_GET_IVEC4(name)   (DVAR_##name).variant().asVec4i()
 #define DVAR_GET_POINTER(name) (DVAR_##name).variant().asPointer()
 
-#define DVAR_SET_BOOL(name, value)       (DVAR_##name).setInt(!!(value))
-#define DVAR_SET_INT(name, value)        (DVAR_##name).setInt(value)
-#define DVAR_SET_FLOAT(name, value)      (DVAR_##name).setFloat(value)
-#define DVAR_SET_STRING(name, value)     (DVAR_##name).setString(value)
-#define DVAR_SET_VEC2(name, x, y)        (DVAR_##name).setVec2f(x, y)
-#define DVAR_SET_VEC3(name, x, y, z)     (DVAR_##name).setVec3f(x, y, z)
-#define DVAR_SET_VEC4(name, x, y, z, w)  (DVAR_##name).setVec4f(x, y, z, w)
-#define DVAR_SET_IVEC2(name, x, y)       (DVAR_##name).setVec2i(x, y)
-#define DVAR_SET_IVEC3(name, x, y, z)    (DVAR_##name).setVec3i(x, y, z)
-#define DVAR_SET_IVEC4(name, x, y, z, w) (DVAR_##name).setVec4i(x, y, z, w)
+#define DVAR_SET_BOOL(name, value)       (DVAR_##name).setValue(!!(value))
+#define DVAR_SET_INT(name, value)        (DVAR_##name).setValue(value)
+#define DVAR_SET_FLOAT(name, value)      (DVAR_##name).setValue(value)
+#define DVAR_SET_STRING(name, value)     (DVAR_##name).setValue(value)
+#define DVAR_SET_VEC2(name, x, y)        (DVAR_##name).setValue(x, y)
+#define DVAR_SET_VEC3(name, x, y, z)     (DVAR_##name).setValue(x, y, z)
+#define DVAR_SET_VEC4(name, x, y, z, w)  (DVAR_##name).setValue(x, y, z, w)
+#define DVAR_SET_IVEC2(name, x, y)       (DVAR_##name).setValue(x, y)
+#define DVAR_SET_IVEC3(name, x, y, z)    (DVAR_##name).setValue(x, y, z)
+#define DVAR_SET_IVEC4(name, x, y, z, w) (DVAR_##name).setValue(x, y, z, w)
 
 #else
 

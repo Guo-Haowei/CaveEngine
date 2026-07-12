@@ -1,6 +1,7 @@
 #include "DocumentBase.h"
 
 #include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -136,17 +137,11 @@ void DocumentBase::reloadPreviewScene() {
         return;
     }
 
-    SceneTickContext ctx = {
-        .domain = SceneTickDomain::Editor,
-        .dt = 0.0f,
-        .scene_ctx = {
-            .scene = *new_scene,
-            .query = SceneQuery(*new_scene),
-            .services = m_engine_services,
-        },
-    };
+    new_scene->begin(MakeOwner<SceneRuntime>(
+        SceneTickDomain::Editor,
+        m_engine_services,
+        *new_scene));
 
-    new_scene->begin(ctx);
     new_scene->end();
 
     Scene* old_scene = m_scene_reg.resolve(m_preview_scene);

@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/Vec.h"
 #include "cave/core/time/CountdownTimer.h"
-#include "cave/game/IGameModule.h"
+#include "cave/runtime/game/IGameModule.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/script/native/NativeScript.h"
@@ -37,8 +37,8 @@ public:
                          float bounce_speed);
 
 protected:
-    void start(cave::SceneContext& ctx) override;
-    void update(cave::SceneContext& ctx, float dt) override;
+    void start() override;
+    void update(float dt) override;
 
 private:
     void updateAnimation(cave::SpriteAnimatorComponent& animator);

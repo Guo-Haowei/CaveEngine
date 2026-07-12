@@ -9,7 +9,7 @@
 namespace cave {
 
 SceneContainer::SceneContainer()
-    : m_scene(std::make_unique<Scene>()) {
+    : m_scene(MakeOwner<Scene>()) {
 }
 
 SceneContainer::~SceneContainer() = default;

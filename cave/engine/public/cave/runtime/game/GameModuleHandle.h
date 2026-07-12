@@ -1,9 +1,9 @@
 // =============================================================================
-// File: cave/game/GameModuleHandle.h
+// File: cave/runtime/game/GameModuleHandle.h
 // =============================================================================
 #pragma once
 #include "cave/platform/Dll.h"
-#include "cave/game/IGameModule.h"
+#include "cave/runtime/game/IGameModule.h"
 
 namespace cave {
 

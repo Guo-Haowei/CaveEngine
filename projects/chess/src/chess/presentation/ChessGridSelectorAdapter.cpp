@@ -24,14 +24,15 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 
-ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneContext& ctx,
+ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneRuntime& runtime,
                                                    ChessGameClient& game,
                                                    ChessBoardView& board_view) noexcept
-    : m_intent_bus(game.intentBus())
+    : m_runtime(runtime)
+    , m_intent_bus(game.intentBus())
     , m_client(game)
     , m_board_view(board_view) {
 
-    m_camera_id = ctx.query.findFirstByName("game_camera");
+    m_camera_id = m_runtime.query().findFirstByName("game_camera");
     assert(m_camera_id.valid());
 }
 
@@ -104,14 +105,14 @@ void ChessGridSelectorAdapter::onInvalid(int sx, int sy, int dx, int dy) {
     (void)dy;
 }
 
-void ChessGridSelectorAdapter::tickPointer(SceneContext& ctx, const IGameInput& input) {
+void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
     const PointerState& pointer = input.pointerState();
 
     // @TODO: project ray
-    const DisplayService& display = ctx.services.displayService();
+    const DisplayService& display = m_runtime.services().displayService();
 
-    ViewQuery query(ctx.services.viewManager());
-    const ViewRecord* view = query.resolve(ctx.view_id);
+    ViewQuery query(m_runtime.services().viewManager());
+    const ViewRecord* view = query.resolve(m_runtime.viewId());
     if (!view) {
         return;
     }
@@ -123,7 +124,7 @@ void ChessGridSelectorAdapter::tickPointer(SceneContext& ctx, const IGameInput& 
 
     Vec2f ndc = view->screenToNDC(pos_os);
 
-    auto camera = ctx.query.component<CameraComponent>(m_camera_id);
+    auto camera = m_runtime.query().component<CameraComponent>(m_camera_id);
     assert(camera);
 
     Ray ray = Ray::unproject(camera->projectionViewMatrix(), ndc);
@@ -182,9 +183,9 @@ void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
     }
 }
 
-void ChessGridSelectorAdapter::tick(SceneContext& ctx) {
-    const IGameInput& input = ctx.services.gameInput();
-    tickPointer(ctx, input);
+void ChessGridSelectorAdapter::tick() {
+    const IGameInput& input = m_runtime.services().gameInput();
+    tickPointer(input);
     tickKeyboard(input);
 }
 

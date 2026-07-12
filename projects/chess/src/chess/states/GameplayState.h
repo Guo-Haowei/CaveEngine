@@ -9,20 +9,22 @@ class ChessGameSession;
 
 class GameplayState final : public IChessGameState {
 public:
-    GameplayState(cave::IntentBus& intent_bus) noexcept;
+    GameplayState(cave::SceneRuntime& runtime,
+                  cave::IntentBus& intent_bus) noexcept;
+
     ~GameplayState() override;
 
-    void onEnter(cave::SceneContext& ctx) override;
+    void onEnter() override;
     void onExit() override;
 
-    void tick(cave::SceneContext& ctx, float dt) override;
+    void tick(float dt) override;
 
 #if USING(DEBUG_BUILD)
     const char* debugName() const override { return "GamePlay"; }
 #endif
 
 private:
-    std::unique_ptr<ChessGameSession> session_;
+    std::unique_ptr<ChessGameSession> m_session;
 };
 
 }  // namespace chess

@@ -128,7 +128,7 @@ TEST(Variant, construct_from_moved_string) {
 }
 
 TEST(Variant, construct_from_vec2f) {
-    Variant value(Vec2f(1.0f, 2.0f));
+    Variant value(1.0f, 2.0f);
 
     EXPECT_EQ(value.type(), VariantType::Vec2f);
     EXPECT_TRUE(value.valid());
@@ -141,7 +141,7 @@ TEST(Variant, construct_from_vec2f) {
 }
 
 TEST(Variant, construct_from_vec3f) {
-    Variant value(Vec3f(1.0f, 2.0f, 3.0f));
+    Variant value(1.0f, 2.0f, 3.0f);
 
     EXPECT_EQ(value.type(), VariantType::Vec3f);
 
@@ -149,7 +149,7 @@ TEST(Variant, construct_from_vec3f) {
 }
 
 TEST(Variant, construct_from_vec4f) {
-    Variant value(Vec4f(1.0f, 2.0f, 3.0f, 4.0f));
+    Variant value(1.0f, 2.0f, 3.0f, 4.0f);
 
     EXPECT_EQ(value.type(), VariantType::Vec4f);
 
@@ -157,7 +157,7 @@ TEST(Variant, construct_from_vec4f) {
 }
 
 TEST(Variant, construct_from_vec2i) {
-    Variant value(Vec2i(1, 2));
+    Variant value(1, 2);
 
     EXPECT_EQ(value.type(), VariantType::Vec2i);
 
@@ -165,7 +165,7 @@ TEST(Variant, construct_from_vec2i) {
 }
 
 TEST(Variant, construct_from_vec3i) {
-    Variant value(Vec3i(1, 2, 3));
+    Variant value(1, 2, 3);
 
     EXPECT_EQ(value.type(), VariantType::Vec3i);
 
@@ -173,7 +173,7 @@ TEST(Variant, construct_from_vec3i) {
 }
 
 TEST(Variant, construct_from_vec4i) {
-    Variant value(Vec4i(1, 2, 3, 4));
+    Variant value(1, 2, 3, 4);
 
     EXPECT_EQ(value.type(), VariantType::Vec4i);
 
@@ -182,7 +182,7 @@ TEST(Variant, construct_from_vec4i) {
 
 TEST(Variant, wrong_type_returns_fallback) {
     Variant string_value("hello");
-    Variant vec_value(Vec3f(1.0f, 2.0f, 3.0f));
+    Variant vec_value(1.0f, 2.0f, 3.0f);
 
     EXPECT_EQ(string_value.asInt(99), 99);
     EXPECT_FLOAT_EQ(string_value.asFloat(9.5f), 9.5f);

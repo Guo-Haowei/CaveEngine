@@ -1,12 +1,15 @@
+// =============================================================================
+// File: cave/runtime/scene/SystemManager.h
+// =============================================================================
 #pragma once
 #include <array>
 
 #include "cave/core/base/NonCopyable.h"
+#include "cave/core/containers/Containers.h"
+#include "cave/core/memory/Pointer.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {
-
-struct SceneContext;
 
 class SystemManager : public NonCopyable {
 public:
@@ -46,16 +49,16 @@ public:
         return get(id) != nullptr;
     }
 
-    void start(SceneContext& ctx);
+    void start();
     void shutdown();
 
     void update(SceneTickContext& ctx);
 
 private:
-    void addImpl(std::unique_ptr<ISceneSystem>&& system);
+    void addImpl(Owner<ISceneSystem>&& system);
 
 private:
-    std::vector<std::unique_ptr<ISceneSystem>> m_systems;
+    Vector<Owner<ISceneSystem>> m_systems;
     std::array<ISceneSystem*, std::to_underlying(SceneSystemId::Count)> m_lookup{};
 
     bool m_scene_created{ false };

@@ -6,23 +6,23 @@ namespace chess {
 
 using namespace ::cave;
 
-GameplayState::GameplayState(IntentBus& intent_bus) noexcept
-    : IChessGameState(intent_bus) {
-}
+GameplayState::GameplayState(SceneRuntime& runtime,
+                             IntentBus& intent_bus) noexcept
+    : IChessGameState(runtime, intent_bus) {}
 
 GameplayState::~GameplayState() = default;
 
-void GameplayState::onEnter(SceneContext& ctx) {
-    session_ = std::make_unique<ChessGameSession>(m_intent_bus);
-    session_->onEnterBoot(ctx);
+void GameplayState::onEnter() {
+    m_session = MakeOwner<ChessGameSession>(m_runtime, m_intent_bus);
+    m_session->onEnterBoot();
 }
 
 void GameplayState::onExit() {
-    session_.reset();
+    m_session.reset();
 }
 
-void GameplayState::tick(SceneContext& ctx, float) {
-    session_->tick(ctx);
+void GameplayState::tick(float) {
+    m_session->tick();
 }
 
 }  // namespace chess

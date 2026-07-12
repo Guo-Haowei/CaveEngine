@@ -10,15 +10,15 @@ using ecs::Entity;
 
 SceneCommandExecutor_Undo::SceneCommandExecutor_Undo(SceneRegistry& scene_reg) noexcept
     : m_scene_reg(scene_reg) {
-    m_cmd = std::make_unique<CompositeEditCmd>();
+    m_cmd = MakeOwner<CompositeEditCmd>();
 }
 
 SceneCommandExecutor_Undo::~SceneCommandExecutor_Undo() = default;
 
 void SceneCommandExecutor_Undo::addComponent(Entity ent, ComponentId cid) {
-    auto cmd = std::make_unique<AddComponentCmd>(m_scene_reg,
-                                                 ent,
-                                                 cid);
+    auto cmd = MakeOwner<AddComponentCmd>(m_scene_reg,
+                                          ent,
+                                          cid);
     m_cmd->AddCommand(std::move(cmd));
 }
 
@@ -34,7 +34,7 @@ bool SceneCommandExecutor_Undo::changeProperty(Entity ent,
                                                const PropertyId& pid,
                                                const void* data,
                                                uint32_t data_size) {
-    auto cmd = std::make_unique<ChangePropertyCmd>(
+    auto cmd = MakeOwner<ChangePropertyCmd>(
         m_scene_reg,
         ent,
         cid,

@@ -18,7 +18,8 @@ class TileWorldSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::TileWorld)
 
 public:
-    TileWorldSystem();
+    TileWorldSystem(SceneRuntime& runtime);
+    ~TileWorldSystem() override;
 
     const ChunkedTileData& rigidTiles() const { return m_rigid_tiles; }
 
@@ -35,13 +36,13 @@ public:
 private:
     void update(SceneTickContext&) override {}
 
-    void start(SceneContext& ctx) override;
+    void start() override;
 
     DebugId debugId() const override { return m_debug_id; }
 
     SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
 
-    void rebuildCollision(SceneContext& ctx);
+    void rebuildCollision();
 
     const DebugId m_debug_id;
 

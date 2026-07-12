@@ -14,17 +14,17 @@ namespace cave {
 static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const OpenDocDesc& desc) {
     switch (desc.asset_type) {
         case AssetType::Scene:
-            return std::make_unique<SceneDocument>(services, desc.guid);
+            return MakeOwner<SceneDocument>(services, desc.guid);
         case AssetType::Prefab:
-            return std::make_unique<SceneDocument>(services, desc.guid);
+            return MakeOwner<SceneDocument>(services, desc.guid);
         case AssetType::Material:
-            return std::make_unique<MaterialDocument>(services, desc.guid);
+            return MakeOwner<MaterialDocument>(services, desc.guid);
         case AssetType::SpriteAnimation:
-            return std::make_unique<SpriteAnimationDocument>(services, desc.guid);
+            return MakeOwner<SpriteAnimationDocument>(services, desc.guid);
         case AssetType::TileMap:
-            return std::make_unique<TileMapDocument>(services, desc.guid);
+            return MakeOwner<TileMapDocument>(services, desc.guid);
         default:
-            return std::make_unique<DocumentBase>(services, desc.guid);
+            return MakeOwner<DocumentBase>(services, desc.guid);
     }
 }
 

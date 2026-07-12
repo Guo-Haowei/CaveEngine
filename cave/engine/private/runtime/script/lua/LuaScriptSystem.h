@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include "cave/core/ids/Guid.h"
 #include "cave/runtime/scene/ISceneSystem.h"
@@ -57,3 +58,4 @@ private:
 };
 
 }  // namespace cave
+#endif

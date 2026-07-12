@@ -5,7 +5,6 @@
 #include <cstdint>
 
 #include "cave/core/typedefs.h"
-#include "cave/runtime/scene/SceneContext.h"
 
 namespace cave {
 
@@ -19,7 +18,6 @@ DEFINE_ENUM_BITWISE_OPERATIONS(SceneTickDomain)
 struct SceneTickContext {
     SceneTickDomain domain;
     float dt;
-    SceneContext scene_ctx;
 };
 
 }  // namespace cave

@@ -14,17 +14,17 @@ class NativeScriptSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::NativeScript)
 
 public:
-    NativeScriptSystem(NativeScriptRegistry& script_registry);
+    NativeScriptSystem(SceneRuntime& runtime);
     ~NativeScriptSystem() override;
 
     NativeScript* resolveScript(NativeScriptId id);
 
     void destroyScript(NativeScriptComponent& component);
 
-    void alwaysRun(SceneContext& ctx);
+    void alwaysRun();
 
 private:
-    void start(SceneContext& ctx) override;
+    void start() override;
     void update(SceneTickContext& ctx) override;
 
     DebugId debugId() const override { return m_debug_id; }
@@ -34,6 +34,7 @@ private:
     void ensureBound(ecs::Entity entity,
                      NativeScriptComponent& component);
 
+    bool m_always_run_called = false;
     std::unique_ptr<NativeScriptStorage> m_storage;
     const DebugId m_debug_id;
 };

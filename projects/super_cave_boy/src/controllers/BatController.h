@@ -1,27 +1,30 @@
 #pragma once
+#include "cave/runtime/game/StateMachine.h"
+
 #include "EnemyControllerBase.h"
 
 namespace super_cave_boy {
 
-enum class BatState {
-    Idle,
+enum class BatState : uint8_t {
+    Idle = 0,
     Move,
+    Count,
+    Invalid = Count,
 };
 
 class BatController : public EnemyControllerBase {
 private:
-    void update(cave::SceneContext& ctx, float dt) override;
+    void start() override;
+    void update(float dt) override;
 
-    void updateIdle(cave::SceneQuery& query);
-    void updateMove(cave::SceneQuery& query, float dt);
+    void updateIdle(float dt);
+    void updateMove(float dt);
 
-    bool canSeePlayer(const cave::math::Vec2f& bat_pos,
-                      const cave::math::Vec2f& player_pos) const;
-
-    void updateAnimation(cave::SceneQuery& query);
+    bool canSeePlayer(cave::math::Vec2f bat_pos,
+                      cave::math::Vec2f player_pos) const;
 
 private:
-    BatState m_state = BatState::Idle;
+    cave::GameStateMachine<BatState> m_state_machine;
 
     cave::math::Vec2f m_detect_range{ 5, 5 };
     float m_speed = 2.0f;

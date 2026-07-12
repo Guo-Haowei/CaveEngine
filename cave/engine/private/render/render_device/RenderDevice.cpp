@@ -304,11 +304,11 @@ void RenderDevice::EndFrame() {
 void RenderDevice::MoveToNextFrame() {
 }
 
-std::shared_ptr<FrameContext> RenderDevice::CreateFrameContext() {
-    return std::make_unique<FrameContext>();
+Ref<FrameContext> RenderDevice::CreateFrameContext() {
+    return MakeRef<FrameContext>();
 }
 
-std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+Ref<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     auto texture = CreateTextureImpl(p_texture_desc, p_sampler_desc);
     return texture;
 }

@@ -119,7 +119,7 @@ void ViewManager::submit(const ViewDesc& view_desc) {
 
 ViewId ViewManager::createView(std::string_view debug_name,
                                const math::IntRect& viewport_px) {
-    auto view = std::make_unique<ViewRecord>();
+    auto view = MakeOwner<ViewRecord>();
     view->debug_name = debug_name;
     view->viewport_fb = viewport_px;
     const ViewId id = Base::create(std::move(view));

@@ -1,12 +1,9 @@
 #pragma once
-#include <cstdint>
-#include <memory>
-
-#include "cave/game/IGameMode.h"
+#include "cave/core/memory/Pointer.h"
+#include "cave/runtime/game/IGameMode.h"
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/IntentBus.h"
-
-#include "cave/runtime/scene/SceneContext.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 namespace chess {
 
@@ -15,26 +12,26 @@ class IChessGameState;
 class ChessGameMode final : public cave::IGameMode,
                             public cave::IIntentHandler {
 public:
-    ChessGameMode(cave::IntentBus& intent_bus);
+    ChessGameMode(cave::SceneRuntime& runtime,
+                  cave::IntentBus& intent_bus);
     ~ChessGameMode();
 
-    void onEnter(cave::SceneContext& ctx) final;
+    void onEnter() final;
     void onExit() final;
-    void tick(cave::SceneContext& ctx, float dt) final;
+    void tick(float dt) final;
 
     bool handleIntent(cave::Intent& intent) override;
 
     cave::DebugId debugId() const override { return m_debug_id; }
 
 private:
-    void commitStateChange(cave::SceneContext& ctx, std::unique_ptr<IChessGameState>&& new_state);
+    void commitStateChange(cave::Owner<IChessGameState>&& new_state);
 
     cave::IntentBus& m_intent_bus;
+    cave::SceneRuntime& m_runtime;
     const cave::DebugId m_debug_id;
 
     std::unique_ptr<IChessGameState> m_state;
-
-    cave::SceneContext* m_ctx;
 };
 
 }  // namespace chess

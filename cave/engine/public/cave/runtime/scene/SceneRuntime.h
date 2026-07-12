@@ -1,0 +1,63 @@
+// =============================================================================
+// File: cave/runtime/scene/SceneRuntime.h
+// =============================================================================
+#pragma once
+#include "cave/core/base/NonCopyable.h"
+#include "cave/core/typedefs.h"
+#include "cave/core/ids/ViewId.h"
+#include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/scene/SceneQuery.h"
+#include "cave/runtime/scene/SystemManager.h"
+
+namespace cave {
+
+class Scene;
+class ISceneTransitionRequests;
+
+enum class SceneFeature : uint32_t {
+    NativeScript = 1,
+    Motor = 2,
+    TileWorld = 3,
+    All = NativeScript | Motor | TileWorld,
+};
+
+DEFINE_ENUM_BITWISE_OPERATIONS(SceneFeature);
+
+class SceneRuntime : public NonCopyable {
+public:
+    SceneRuntime(SceneTickDomain domain,
+                 RuntimeServices& services,
+                 Scene& scene,
+                 ViewId view_id = {},
+                 ISceneTransitionRequests* transition = nullptr);
+
+    void start();
+    void shutdown();
+
+    void update(SceneTickContext& ctx);
+
+    Scene& scene() { return m_scene; }
+    RuntimeServices& services() { return m_services; }
+
+    SceneQuery& query() { return m_query; }
+    const SceneQuery& query() const { return m_query; }
+
+    template<typename T>
+    T* system() { return m_systems.get<T>(); }
+    template<typename T>
+    const T* system() const { return m_systems.get<T>(); }
+
+    ViewId viewId() const { return m_view_id; }
+    ISceneTransitionRequests* transition() const { return m_transition; }
+
+private:
+    RuntimeServices& m_services;
+    Scene& m_scene;
+    SceneQuery m_query;
+    ViewId m_view_id;
+    ISceneTransitionRequests* m_transition{};
+    SceneFeature m_features;
+    SystemManager m_systems;
+};
+
+}  // namespace cave

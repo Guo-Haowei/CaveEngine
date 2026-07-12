@@ -1,3 +1,4 @@
+#if 0
 #include "LuaScriptSystem.h"
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
@@ -214,3 +215,4 @@ ObjectFunctions LuaScriptSystem::findOrAdd(SceneContext& ctx,
 }
 
 }  // namespace cave
+#endif

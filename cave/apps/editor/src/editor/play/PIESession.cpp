@@ -2,9 +2,9 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/string/StringUtils.h"
-#include "cave/game/IGameModule.h"
+#include "cave/runtime/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
-#include "cave/runtime/scene/SceneContext.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -25,16 +25,6 @@ PIESession::~PIESession() {
     endPIESession();
 }
 
-SceneContext PIESession::makeSceneContext(Scene& scene) {
-    return SceneContext{
-        .scene = scene,
-        .query = SceneQuery(scene),
-        .services = m_engine_services,
-        .view_id = {},
-        .scene_transition = this,
-    };
-}
-
 void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
     DEV_ASSERT(!m_pie_scene.valid());
     SceneRegistry& scene_reg = m_engine_services.sceneRegistry();
@@ -42,11 +32,12 @@ void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
 
     Scene* scene = scene_reg.resolve(m_pie_scene);
     if (DEV_VERIFY(scene)) {
-        scene->begin(SceneTickContext{
-            .domain = SceneTickDomain::Simulate,
-            .dt = 0.0f,
-            .scene_ctx = makeSceneContext(*scene),
-        });
+        scene->begin(MakeOwner<SceneRuntime>(
+            SceneTickDomain::Simulate,
+            m_engine_services,
+            *scene,
+            m_view_id,
+            this));
     }
 }
 

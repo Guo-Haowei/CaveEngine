@@ -29,7 +29,7 @@ auto BuildFolderTree(const fs::path& sys_path,
             return nullptr;
         }
 
-        auto node = std::make_unique<ContentEntry>();
+        auto node = MakeOwner<ContentEntry>();
         node->type = AssetType::Unknown;
         node->extension = "";
         node->is_dir = is_dir;
