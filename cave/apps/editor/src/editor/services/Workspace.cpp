@@ -188,22 +188,22 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         case AssetType::Material:
         case AssetType::Prefab:
         case AssetType::Scene: {
-            tab = std::make_unique<SceneViewTab>(m_editor,
-                                                 doc_id,
-                                                 doc->previewScene(),
-                                                 dim);
+            tab = MakeOwner<SceneViewTab>(m_editor,
+                                          doc_id,
+                                          doc->previewScene(),
+                                          dim);
         } break;
         case AssetType::TileMap: {
-            tab = std::make_unique<TileMapEditor>(m_editor, doc_id, doc->previewScene());
+            tab = MakeOwner<TileMapEditor>(m_editor, doc_id, doc->previewScene());
         } break;
         case AssetType::TileSet: {
-            tab = std::make_unique<TileSetEditor>(m_editor, doc_id);
+            tab = MakeOwner<TileSetEditor>(m_editor, doc_id);
         } break;
         case AssetType::SpriteAnimation: {
-            tab = std::make_unique<SpriteAnimationEditor>(m_editor, doc_id, doc->previewScene());
+            tab = MakeOwner<SpriteAnimationEditor>(m_editor, doc_id, doc->previewScene());
         } break;
         default: {
-            tab = std::make_unique<Tab>(m_editor, doc_id);
+            tab = MakeOwner<Tab>(m_editor, doc_id);
         } break;
     }
 

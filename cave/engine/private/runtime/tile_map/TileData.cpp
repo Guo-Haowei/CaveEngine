@@ -83,7 +83,7 @@ bool ChunkedTileData::addTile(TileCoord coord, TileId tile_id) {
 
     auto& chunk = m_chunks[chunk_coord];
     if (chunk == nullptr) {
-        chunk = std::make_unique<TileChunk>();
+        chunk = MakeOwner<TileChunk>();
         std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
     }
 

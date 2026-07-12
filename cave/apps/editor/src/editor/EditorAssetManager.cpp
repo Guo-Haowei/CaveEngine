@@ -129,7 +129,7 @@ Result<void> EditorAssetManager::InitializeImpl() {
         return CAVE_ERROR(res.error());
     }
 
-    file_watcher_ = std::make_unique<FileWatcher>();
+    file_watcher_ = MakeOwner<FileWatcher>();
 
     return addAlwaysLoadImages();
 }

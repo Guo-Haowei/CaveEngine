@@ -49,7 +49,7 @@ public:
         return get(id) != nullptr;
     }
 
-    void start(SceneContext& ctx);
+    void start();
     void shutdown();
 
     void update(SceneTickContext& ctx);

@@ -14,12 +14,12 @@ void OS::Initialize() {
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_USERDATA);
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
 
-    addLogger(std::make_unique<Win32Logger>());
-    addLogger(std::make_unique<DebugConsoleLogger>());
+    addLogger(MakeOwner<Win32Logger>());
+    addLogger(MakeOwner<DebugConsoleLogger>());
 
 #if 0
     if (EnableAnsi()) {
-        addLogger(std::make_unique<AnsiLogger>());
+        addLogger(MakeOwner<AnsiLogger>());
     }
 #endif
 

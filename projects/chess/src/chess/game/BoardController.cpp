@@ -99,9 +99,9 @@ void BoardController::alwaysRun(SceneContext& ctx, SceneCommandWriter& writer) {
     SpawnObjects(ctx.query, writer);
 }
 
-void BoardController::start(SceneContext& ctx) {
+void BoardController::start() {
     m_game = std::make_unique<ChessGameMode>(m_intent_bus);
-    m_game->onEnter(ctx);
+    m_game->onEnter(context());
 }
 
 void BoardController::destroy() {

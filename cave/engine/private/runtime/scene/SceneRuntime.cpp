@@ -5,39 +5,52 @@
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/ecs/components/All.h"
+
 namespace cave {
 
-void SceneRuntime::start(SceneContext& ctx) {
-    std::memcpy(&m_context, &ctx, sizeof(SceneContext));
+SceneRuntime::SceneRuntime(SceneTickDomain domain,
+                           RuntimeServices& services,
+                           Scene& scene)
+    : m_services(services)
+    , m_scene(scene)
+    , m_query(scene) {
 
+    SceneFeature features = SceneFeature::NativeScript;
+    if (domain == SceneTickDomain::Simulate) {
+        if (scene.count<MotorComponent>()) {
+            features |= SceneFeature::Motor;
+        }
+        if (scene.count<TileMapInstanceComponent>()) {
+            features |= SceneFeature::TileWorld;
+        }
+    }
+    m_features = features;
+}
+
+void SceneRuntime::start() {
     if ((int)(m_features & SceneFeature::NativeScript)) {
-        m_systems.add<NativeScriptSystem>(ctx.services.nativeScripts());
+        m_systems.add<NativeScriptSystem>(*this);
         auto native_scripts = m_systems.get<NativeScriptSystem>();
-        native_scripts->alwaysRun(ctx);
+        native_scripts->alwaysRun();
     }
     if ((int)(m_features & SceneFeature::Motor)) {
-        m_systems.add<MotorSystem>();
+        m_systems.add<MotorSystem>(*this);
     }
     if ((int)(m_features & SceneFeature::TileWorld)) {
-        m_systems.add<TileWorldSystem>();
+        m_systems.add<TileWorldSystem>(*this);
     }
 
-    m_systems.start(ctx);
+    m_systems.start();
 }
 
 void SceneRuntime::shutdown() {
     m_systems.shutdown();
-
-    std::memset(&m_context, 0, sizeof(SceneContext));
 }
 
 void SceneRuntime::update(SceneTickContext& ctx) {
     m_systems.update(ctx);
-}
-
-SceneContext& SceneRuntime::context() {
-    DEV_ASSERT(m_context[0]);
-    return *reinterpret_cast<SceneContext*>(&m_context);
 }
 
 }  // namespace cave

@@ -61,9 +61,9 @@ void SceneScheduler::tick(const FrameTime& time) {
     SceneRegistry& scene_registry = m_engine_services.sceneRegistry();
     for (const SceneTickRequest& req : requests) {
         if (Scene* scene = scene_registry.resolve(req.scene_id)) {
-            SceneContext ctx(*scene, m_engine_services);
-            ctx.view_id = req.view_id,
-            ctx.scene_transition = &req.owner,
+            SceneContext ctx = {
+                &req.owner,
+            };
 
             scene->tick({
                 .domain = req.mode,

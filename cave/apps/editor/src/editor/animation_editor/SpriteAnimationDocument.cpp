@@ -26,7 +26,7 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     cb.addComponent(ent, SpriteRendererComponent_Id);
     cb.addComponent(ent, SpriteAnimatorComponent_Id);
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());

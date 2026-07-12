@@ -211,26 +211,26 @@ class CollisionSystem {
     using TriggerCache = std::unordered_set<CollisionPair, CollisionPairHash, CollisionPairEqual>;
 
 public:
-    void runCollisionPair(SceneTickContext& ctx);
+    void runCollisionPair(SceneRuntime& runtime, SceneTickContext& ctx);
 
 private:
     TriggerCache m_trigger_cache;
 };
 
-MotorSystem::MotorSystem()
-    : m_debug_id(MakeDebugId(this))
-    , m_collision(std::make_unique<CollisionSystem>()) {
+MotorSystem::MotorSystem(SceneRuntime& runtime)
+    : ISceneSystem(runtime)
+    , m_debug_id(MakeDebugId(this))
+    , m_collision(MakeOwner<CollisionSystem>()) {
 }
 
 MotorSystem::~MotorSystem() = default;
 
 void MotorSystem::runTileWorldCollision(SceneTickContext& ctx) {
     const float dt = ctx.dt;
-    Scene& scene = ctx.scene_ctx.scene;
-    SceneQuery& query = ctx.scene_ctx.query;
-    SceneRuntime& runtime = ctx.scene_ctx.runtime;
+    Scene& scene = m_runtime.scene();
+    SceneQuery& query = m_runtime.query();
 
-    const TileWorldSystem* tile_world = runtime.systems().get<TileWorldSystem>();
+    const TileWorldSystem* tile_world = m_runtime.system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
     auto view = scene.view<MotorComponent, VelocityComponent, ColliderComponent, TransformComponent>();
@@ -257,15 +257,14 @@ struct ColliderProxy {
     bool is_trigger = false;
 };
 
-void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
-    SceneQuery& query = ctx.scene_ctx.query;
-    SceneRuntime& runtime = ctx.scene_ctx.runtime;
-    NativeScriptSystem* script_system = runtime.systems().get<NativeScriptSystem>();
+void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext& ctx) {
+    SceneQuery& query = runtime.query();
+    NativeScriptSystem* script_system = runtime.system<NativeScriptSystem>();
     if (!script_system) {
         return;
     }
 
-    Scene& scene = ctx.scene_ctx.scene;
+    Scene& scene = runtime.scene();
     std::vector<ColliderProxy> colliders;
 
     for (auto [ent, collider, transform] : scene.view<ColliderComponent, TransformComponent>()) {
@@ -355,7 +354,7 @@ void CollisionSystem::runCollisionPair(SceneTickContext& ctx) {
 
 void MotorSystem::update(SceneTickContext& ctx) {
     runTileWorldCollision(ctx);
-    m_collision->runCollisionPair(ctx);
+    m_collision->runCollisionPair(m_runtime, ctx);
 }
 
 void MotorSystem::moveKinematic2D(const TileWorldSystem& tile_world,

@@ -76,13 +76,13 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
     InputService& input = m_app->services().inputService();
     {
         InputDeviceId kb_id = InputDeviceId::nextId();
-        auto keyboard_mouse_device = std::make_unique<GlfwKeyboardMouseDevice>(kb_id);
+        auto keyboard_mouse_device = MakeOwner<GlfwKeyboardMouseDevice>(kb_id);
         keyboard_mouse_device->InstallCallbacks(window_);
         input.addDevice(std::move(keyboard_mouse_device));
     }
     {
         InputDeviceId pad_id = InputDeviceId::nextId();
-        auto keyboard_mouse_device = std::make_unique<GlfwGamepadDevice>(pad_id, GLFW_JOYSTICK_1);
+        auto keyboard_mouse_device = MakeOwner<GlfwGamepadDevice>(pad_id, GLFW_JOYSTICK_1);
         input.addDevice(std::move(keyboard_mouse_device));
     }
 

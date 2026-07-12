@@ -23,7 +23,7 @@ static constexpr float kLogFilterWidth = 150.0f;
 LogPanel::LogPanel(EditorState& editor)
     : EditorWindow(editor)
     , m_level_filter{ LOG_LEVEL_ALL & ~(LOG_LEVEL_TRACE) } {
-    m_console = std::make_unique<ConsolePanel>(editor);
+    m_console = MakeOwner<ConsolePanel>(editor);
 }
 
 LogPanel::~LogPanel() = default;

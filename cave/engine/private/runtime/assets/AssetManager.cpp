@@ -237,7 +237,7 @@ uint64_t AssetManager::submitLoadAsset(const AssetLoadRequest& request) {
     opt.priority = TaskPriority::Normal;
     opt.start_immediately = true;
 
-    return services().taskManager().submit(std::make_unique<LoadAssetTask>(*this, request.guid),
+    return services().taskManager().submit(MakeOwner<LoadAssetTask>(*this, request.guid),
                                            opt);
 }
 

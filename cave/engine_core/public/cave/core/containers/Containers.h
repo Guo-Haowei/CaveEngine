@@ -3,7 +3,6 @@
 // =============================================================================
 #pragma once
 #include <map>
-#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -62,18 +61,5 @@ using BasicString = std::basic_string<CharT, Traits, Allocator>;
 
 using String = BasicString<char>;
 using WString = BasicString<wchar_t>;
-
-// =============================================================================
-// Smart pointers
-// =============================================================================
-
-template<typename T, typename Deleter = std::default_delete<T>>
-using Owner = std::unique_ptr<T, Deleter>;
-
-template<typename T>
-using Ref = std::shared_ptr<T>;
-
-template<typename T>
-using WeakRef = std::weak_ptr<T>;
 
 }  // namespace cave

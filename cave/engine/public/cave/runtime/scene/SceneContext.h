@@ -16,21 +16,7 @@ class NativeScriptRegistry;
 class ISceneTransitionRequests;
 
 struct SceneContext {
-    Scene& scene;
-    SceneRuntime& runtime;
-    SceneQuery query;
-    RuntimeServices& services;
-
-    ViewId view_id;
     ISceneTransitionRequests* scene_transition{};
-
-    SceneContext(Scene& scene, RuntimeServices& services);
-
-    template<typename T>
-    T* system() { return reinterpret_cast<T*>(system(T::kSystemId)); }
-
-private:
-    void* system(SceneSystemId system_id);
 };
 
 }  // namespace cave

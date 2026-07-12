@@ -15,11 +15,10 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
 
     auto scene = createPreviewScene();
 
-    scene->begin(SceneTickContext{
-        .domain = SceneTickDomain::Editor,
-        .dt = 0.0f,
-        .scene_ctx = SceneContext(*scene, services),
-    });
+    scene->begin(MakeOwner<SceneRuntime>(
+        SceneTickDomain::Editor,
+        m_engine_services,
+        *scene));
 
     if (auto handle_opt = m_asset_reg.findByGuid(guid)) {
         const AssetMetaData* meta = handle_opt.unwrap_unchecked().meta();
@@ -52,7 +51,7 @@ bool SceneDocument::save() {
 
 Owner<Scene> SceneDocument::createPreviewScene() const {
     if (auto asset = dynamic_cast<SceneContainer*>(m_handle.get())) {
-        auto scene_copy = std::make_unique<Scene>();
+        auto scene_copy = MakeOwner<Scene>();
         scene_copy->copy(asset->scene());
         return scene_copy;
     }

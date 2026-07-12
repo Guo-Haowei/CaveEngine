@@ -62,24 +62,14 @@ void Scene::update(float dt) {
     flushPendingDestroy();
 }
 
-void Scene::begin(SceneTickContext ctx) {
+void Scene::begin(Owner<SceneRuntime>&& runtime) {
     if (m_runtime) {
         LOG_ERROR(LogChannel::Scene, "onSimBegin already called");
         return;
     }
 
-    SceneFeature features = SceneFeature::NativeScript;
-    if (ctx.domain == SceneTickDomain::Simulate) {
-        if (count<MotorComponent>()) {
-            features |= SceneFeature::Motor;
-        }
-        if (count<TileMapInstanceComponent>()) {
-            features |= SceneFeature::TileWorld;
-        }
-    }
-
-    m_runtime = std::make_unique<SceneRuntime>(features);
-    m_runtime->start(ctx.scene_ctx);
+    m_runtime = std::move(runtime);
+    m_runtime->start();
 
     update(0.0f);
 }

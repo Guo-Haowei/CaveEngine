@@ -93,7 +93,7 @@ PreviewBuildResult PreviewBuilder::build(const PreviewBuildRequest& req) const {
 PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
                                                   const Scene& asset,
                                                   const PreviewOptions& options) const {
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
     scene->copy(asset);
 
     // @TODO: better camera
@@ -150,7 +150,7 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetMetaData* meta,
         cb.attachChild(sphere, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
@@ -199,7 +199,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetMetaData* meta,
         cb.attachChild(e, root);
     }
 
-    auto scene = std::make_unique<Scene>();
+    auto scene = MakeOwner<Scene>();
 
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());

@@ -5,7 +5,7 @@
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/ids/Entity.h"
 #include "cave/core/variant/Variant.h"
-#include "cave/runtime/scene/SceneContext.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 namespace cave {
 
@@ -17,7 +17,7 @@ class NativeScript {
 public:
     virtual ~NativeScript() = default;
 
-    virtual void alwaysRun(SceneContext&, SceneCommandWriter&) {}
+    virtual void alwaysRun(SceneCommandWriter&) {}
     virtual void start() {}
     virtual void destroy() {}
 
@@ -34,20 +34,17 @@ public:
     }
 
 protected:
-    SceneQuery& query() { return m_context->query; }
-    const SceneQuery& query() const { return m_context->query; }
+    SceneQuery& query() { return m_runtime->query(); }
+    const SceneQuery& query() const { return m_runtime->query(); }
 
     template<typename T>
-    T* system() { return reinterpret_cast<T*>(system(T::kSystemId)); }
+    T* system() { return m_runtime->system<T>(); }
 
-    RuntimeServices& services() { return m_context->services; }
-    SceneRuntime& runtime() { return m_context->runtime; }
+    RuntimeServices& services() { return m_runtime->services(); }
 
     // @TODO: move to scene runtime?
-    ViewId viewId() const { return m_context->view_id; }
-    ISceneTransitionRequests* sceneTransition() { return m_context->scene_transition; }
-
-    SceneContext& context() { return *m_context; }
+    ViewId viewId() const { return m_runtime->view_id; }
+    // ISceneTransitionRequests* sceneTransition() { return m_runtime->scene_transition; }
 
     template<typename T>
     T* component() { return query().component<T>(entity()); }
@@ -57,16 +54,14 @@ protected:
 private:
     friend class NativeScriptSystem;
 
-    void bind(SceneContext& ctx, ecs::Entity entity, const VariantMap& params);
+    void bind(SceneRuntime* runtime, ecs::Entity entity, const VariantMap& params);
 
     void unbind();
 
 private:
-    void* system(SceneSystemId system_id);
-
     ecs::Entity m_entity{};
     VariantMap m_params{};
-    SceneContext* m_context{};
+    SceneRuntime* m_runtime{};
 };
 
 }  // namespace cave

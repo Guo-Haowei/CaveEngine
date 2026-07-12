@@ -4,6 +4,7 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneContext.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 
@@ -81,15 +82,15 @@ private:
     const uint32_t m_manager_id;
 };
 
-NativeScriptSystem::NativeScriptSystem(NativeScriptRegistry& script_registry)
-    : m_storage(std::make_unique<NativeScriptStorage>(script_registry))
+NativeScriptSystem::NativeScriptSystem(SceneRuntime& runtime)
+    : ISceneSystem(runtime)
+    , m_storage(MakeOwner<NativeScriptStorage>(runtime.services().nativeScripts()))
     , m_debug_id(MakeDebugId(this)) {
 }
 
 NativeScriptSystem::~NativeScriptSystem() = default;
 
-void NativeScriptSystem::ensureBound(SceneContext& ctx,
-                                     Entity entity,
+void NativeScriptSystem::ensureBound(Entity entity,
                                      NativeScriptComponent& script) {
     if (script.name.empty()) {
         return;
@@ -111,7 +112,7 @@ void NativeScriptSystem::ensureBound(SceneContext& ctx,
         return;
     }
 
-    instance->bind(ctx, entity, script.params);
+    instance->bind(&m_runtime, entity, script.params);
 
     script.handle = instance_id;
 }
@@ -132,17 +133,17 @@ void NativeScriptSystem::destroyScript(NativeScriptComponent& script) {
     script.handle = {};
 }
 
-void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
-    auto& scene = ctx.scene;
+void NativeScriptSystem::alwaysRun() {
+    Scene& scene = m_runtime.scene();
 
-    SceneCommandWriter writer(ctx.services.assetRegistry());
+    SceneCommandWriter writer(m_runtime.services().assetRegistry());
 
     for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
-        ensureBound(ctx, ent, script);
+        ensureBound(ent, script);
 
         NativeScript* instance = m_storage->resolveScript(script.handle);
         if (DEV_VERIFY(instance)) {
-            instance->alwaysRun(ctx, writer);
+            instance->alwaysRun(writer);
         }
     }
 
@@ -152,9 +153,9 @@ void NativeScriptSystem::alwaysRun(SceneContext& ctx) {
     m_always_run_called = true;
 }
 
-void NativeScriptSystem::start(SceneContext& ctx) {
+void NativeScriptSystem::start() {
     DEV_ASSERT(m_always_run_called);
-    for (auto [ent, script] : ctx.scene.view<NativeScriptComponent>()) {
+    for (auto [ent, script] : m_runtime.scene().view<NativeScriptComponent>()) {
         if (NativeScript* instance = m_storage->resolveScript(script.handle)) {
             instance->start();
         }
@@ -162,8 +163,7 @@ void NativeScriptSystem::start(SceneContext& ctx) {
 }
 
 void NativeScriptSystem::update(SceneTickContext& ctx) {
-    auto& scene = ctx.scene_ctx.scene;
-    for (auto [ent, script] : scene.view<NativeScriptComponent>()) {
+    for (auto [ent, script] : m_runtime.scene().view<NativeScriptComponent>()) {
         if (NativeScript* instance = m_storage->resolveScript(script.handle)) {
             instance->update(ctx.dt);
         }

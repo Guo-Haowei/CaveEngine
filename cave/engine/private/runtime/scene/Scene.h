@@ -109,7 +109,7 @@ public:
     void attachChild(ecs::Entity child, ecs::Entity parent);
     void attachChild(ecs::Entity child) { attachChild(child, m_root); }
 
-    void begin(SceneTickContext ctx);
+    void begin(Owner<SceneRuntime>&& runtime);
     void end();
 
     void tick(SceneTickContext ctx);

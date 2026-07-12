@@ -79,7 +79,7 @@ public:
 };
 
 SceneRegistry::SceneRegistry()
-    : m_impl(std::make_unique<Impl>()) {
+    : m_impl(MakeOwner<Impl>()) {
 }
 
 SceneRegistry::~SceneRegistry() = default;
@@ -123,7 +123,7 @@ bool SceneRegistry::isAlive(SceneId scene_id) const {
 SceneId SceneRegistry::Impl::createScene(SceneDesc&& desc) {
     ASSERT_GAME_THREAD();
 
-    return registerScene(std::move(desc), std::make_unique<Scene>());
+    return registerScene(std::move(desc), MakeOwner<Scene>());
 }
 
 SceneId SceneRegistry::Impl::registerScene(SceneDesc&& desc, std::unique_ptr<Scene>&& scene) {
@@ -141,7 +141,7 @@ bool SceneRegistry::Impl::replaceScene(SceneId id, std::unique_ptr<Scene>&& scen
 }
 
 SceneId SceneRegistry::Impl::cloneScene(SceneDesc&& desc, const Scene& scene) {
-    auto copy = std::make_unique<Scene>();
+    auto copy = MakeOwner<Scene>();
     copy->copy(scene);
 
     SceneId id = registerScene(std::move(desc), std::move(copy));

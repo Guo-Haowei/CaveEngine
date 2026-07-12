@@ -121,7 +121,7 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             Vec4f old_v = q;
             Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
 
-            auto cmd = std::make_unique<ChangePropertyCmd>(
+            auto cmd = MakeOwner<ChangePropertyCmd>(
                 ctx.services.sceneRegistry(),
                 ctx.entity,
                 ctx.cid,
@@ -200,7 +200,7 @@ void PropertyPanel::drawUIImpl() {
     {
         FixedString<64> name = name_component->nameRef();
         if (ui::TextBox("Name", name)) {
-            auto cmd = std::make_unique<ChangePropertyCmd>(
+            auto cmd = MakeOwner<ChangePropertyCmd>(
                 m_engine_services.sceneRegistry(),
                 id,
                 NameComponent_Id,
@@ -224,7 +224,7 @@ void PropertyPanel::drawUIImpl() {
                       std::to_underlying(cid));
             return;
         }
-        auto cmd = std::make_unique<AddComponentCmd>(
+        auto cmd = MakeOwner<AddComponentCmd>(
             m_engine_services.sceneRegistry(),
             id,
             cid);

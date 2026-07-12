@@ -5,6 +5,7 @@
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
@@ -36,11 +37,14 @@ inline TileRange GetTileRangeFromAABB(const Box2& aabb, float tile_size) {
 
 }  // namespace
 
-TileWorldSystem::TileWorldSystem()
-    : m_debug_id(MakeDebugId(this)) {}
+TileWorldSystem::TileWorldSystem(SceneRuntime& runtime)
+    : ISceneSystem(runtime)
+    , m_debug_id(MakeDebugId(this)) {}
 
-void TileWorldSystem::start(SceneContext& ctx) {
-    rebuildCollision(ctx);
+TileWorldSystem::~TileWorldSystem() = default;
+
+void TileWorldSystem::start() {
+    rebuildCollision();
 }
 
 TileCoord TileWorldSystem::worldToTile(Vec2f world_pos, float tile_size) {
@@ -82,10 +86,10 @@ std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) co
     return result;
 }
 
-void TileWorldSystem::rebuildCollision(SceneContext& ctx) {
+void TileWorldSystem::rebuildCollision() {
     m_world_bound.invalidate();
 
-    auto view = ctx.scene.view<TileMapInstanceComponent, TransformComponent>();
+    auto view = m_runtime.scene().view<TileMapInstanceComponent, TransformComponent>();
     for (auto [ent, instance, transform] : view) {
         TileMapAsset* tile_map = instance.tileMapHandle().get();
         Vec2f offset = transform.translation().xy;

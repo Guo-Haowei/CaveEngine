@@ -44,12 +44,12 @@ public:
         const AppStateId initial_state = AppStateId::ProjectBrowser;
 #endif
         AppStateMachine::registerCreateFunc(AppStateId::ProjectBrowser, [](IApplication& p_app) {
-            auto state = std::make_unique<ProjectBrowserState>(p_app);
+            auto state = MakeOwner<ProjectBrowserState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 
         AppStateMachine::registerCreateFunc(AppStateId::Editor, [](IApplication& p_app) {
-            auto state = std::make_unique<EditorState>(p_app);
+            auto state = MakeOwner<EditorState>(p_app);
             return std::unique_ptr<AppState>(std::move(state));
         });
 

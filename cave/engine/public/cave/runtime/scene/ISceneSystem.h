@@ -12,6 +12,8 @@
 
 namespace cave {
 
+class SceneRuntime;
+
 enum class SceneSystemId : uint32_t {
     Invalid = 0,
 
@@ -34,15 +36,21 @@ public:                                                    \
 
 class ISceneSystem {
 public:
+    ISceneSystem(SceneRuntime& runtime) noexcept
+        : m_runtime(runtime) {}
+
     virtual ~ISceneSystem() = default;
 
-    virtual void start(SceneContext&) = 0;
+    virtual void start() = 0;
     virtual void update(SceneTickContext&) = 0;
 
     virtual SceneTickDomain domain() const = 0;
 
     virtual SceneSystemId systemId() const = 0;
     virtual DebugId debugId() const = 0;
+
+protected:
+    SceneRuntime& m_runtime;
 };
 
 template<typename T>

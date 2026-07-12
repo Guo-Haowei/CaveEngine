@@ -53,12 +53,12 @@ const ISceneSystem* SystemManager::get(SceneSystemId id) const {
     return m_lookup[ToIndex(id)];
 }
 
-void SystemManager::start(SceneContext& ctx) {
+void SystemManager::start() {
     DEV_ASSERT(!m_scene_created);
 
     for (auto& system : m_systems) {
         LOG_TRACE(LogChannel::Scene, "+{}", system->debugId().type);
-        system->start(ctx);
+        system->start();
     }
 
     m_scene_created = true;

@@ -48,34 +48,34 @@ using ecs::Entity;
 
 EditorState::EditorState(IApplication& app)
     : AppState(app)
-    , m_pie(std::make_unique<PIESession>(app.services()))
+    , m_pie(MakeOwner<PIESession>(app.services()))
     , m_debug_id(MakeDebugId(this)) {
 
     EngineServices& app_services = app.services();
 
     // services
-    m_document = std::make_unique<DocumentService>(app_services, m_editor_services);
+    m_document = MakeOwner<DocumentService>(app_services, m_editor_services);
     m_editor_services.document_ = m_document.get();
 
-    m_edit = std::make_unique<EditService>(app_services, m_editor_services);
+    m_edit = MakeOwner<EditService>(app_services, m_editor_services);
     m_editor_services.edit_ = m_edit.get();
 
-    m_picking = std::make_unique<PickingService>(app_services, m_editor_services);
+    m_picking = MakeOwner<PickingService>(app_services, m_editor_services);
     m_editor_services.picking_ = m_picking.get();
 
-    m_thumbnail = std::make_unique<ThumbnailService>(app_services);
+    m_thumbnail = MakeOwner<ThumbnailService>(app_services);
     m_editor_services.thumbnail_ = m_thumbnail.get();
 
-    m_icon_cache = std::make_unique<IconCache>(app_services.assetRegistry(), app_services.assetManager());
+    m_icon_cache = MakeOwner<IconCache>(app_services.assetRegistry(), app_services.assetManager());
     m_editor_services.icon_cache_ = m_icon_cache.get();
 
-    m_selection = std::make_unique<SelectionService>();
+    m_selection = MakeOwner<SelectionService>();
     m_editor_services.selection_ = m_selection.get();
 
-    m_shortcut = std::make_unique<ShortcutService>(*this);
+    m_shortcut = MakeOwner<ShortcutService>(*this);
     m_editor_services.shortcut_ = m_shortcut.get();
 
-    m_workspace = std::make_unique<Workspace>(*this);
+    m_workspace = MakeOwner<Workspace>(*this);
     m_editor_services.workspace_ = m_workspace.get();
 
     // panels

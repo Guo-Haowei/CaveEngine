@@ -15,7 +15,7 @@ public:
 
     void alwaysRun(cave::SceneContext& ctx,
                    cave::SceneCommandWriter& writer) override;
-    void start(cave::SceneContext& ctx) override;
+    void start() override;
     void destroy() override;
 
     void update(float dt) override;
