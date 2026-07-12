@@ -31,7 +31,7 @@ Vector<Guid> SceneContainer::dependencies() const {
         deps.insert(tile_map_renderer.GetResourceGuid());
     }
     for (const auto& [id, animator] : m_scene->view<SpriteAnimatorComponent>()) {
-        deps.insert(animator.GetResourceGuid());
+        deps.insert(animator.animGuid());
     }
 
     std::erase_if(deps, [](Guid guid) {

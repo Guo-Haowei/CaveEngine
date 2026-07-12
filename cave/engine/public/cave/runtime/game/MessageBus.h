@@ -26,7 +26,7 @@ private:
         Callback callback;
     };
 
-	HashMap<StringId, Vector<Listener>> m_registration;
+    HashMap<StringId, Vector<Listener>> m_registration;
     ListenerId m_next_id = 0;
 };
 

@@ -8,22 +8,22 @@
 
 namespace cave {
 
-// Guid image_id_ (editor = Asset)
-// math::Vec4f tint_color_ (editor = Color)
-// math::Box2 rect_ ()
-// bool flip_x_ (editor = Toggle)
-// bool flip_y_ (editor = Toggle)
-// int z_index_ (editor = InputInt)
+// Guid m_image_id (editor = Asset)
+// math::Vec4f m_tint_color (editor = Color)
+// math::Box2 m_rect ()
+// bool m_flip_x (editor = Toggle)
+// bool m_flip_y (editor = Toggle)
+// int m_z_index (editor = InputInt)
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteRendererComponent, "image_id", image_id_, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(SpriteRendererComponent, "tint_color", tint_color_, FieldFlag::Serialize, EditorHint::Color),
-        REGISTER_FIELD(SpriteRendererComponent, "rect", rect_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SpriteRendererComponent, "flip_x", flip_x_, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SpriteRendererComponent, "flip_y", flip_y_, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SpriteRendererComponent, "z_index", z_index_, FieldFlag::Serialize, EditorHint::InputInt),
+        REGISTER_FIELD(SpriteRendererComponent, "image_id", m_image_id, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(SpriteRendererComponent, "tint_color", m_tint_color, FieldFlag::Serialize, EditorHint::Color),
+        REGISTER_FIELD(SpriteRendererComponent, "rect", m_rect, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteRendererComponent, "flip_x", m_flip_x, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SpriteRendererComponent, "flip_y", m_flip_y, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SpriteRendererComponent, "z_index", m_z_index, FieldFlag::Serialize, EditorHint::InputInt),
     };
 
     return s_table;

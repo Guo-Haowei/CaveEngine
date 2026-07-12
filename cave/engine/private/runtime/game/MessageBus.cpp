@@ -36,7 +36,6 @@ void MessageBus::emit(StringId id, ecs::Entity sender, Variant payload) {
     const auto listeners = it->second;
 
     for (const Listener& listener : listeners) {
-        LOG_OK("emitting {} to {}", id.debugName(), listener.id);
         listener.callback(message);
     }
 }

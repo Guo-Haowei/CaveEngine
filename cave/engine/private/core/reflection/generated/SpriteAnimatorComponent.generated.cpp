@@ -8,20 +8,20 @@
 
 namespace cave {
 
-// Guid anim_id_ (editor = Asset)
-// std::string current_clip_ ()
-// bool looping_ (editor = Toggle)
-// bool playing_ (editor = Toggle)
-// float speed_ ()
+// Guid m_anim_id (editor = Asset)
+// std::string m_current_clip ()
+// bool m_looping (editor = Toggle)
+// bool m_playing (editor = Toggle)
+// float m_speed ()
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteAnimatorComponent, "anim_id", anim_id_, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(SpriteAnimatorComponent, "current_clip", current_clip_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SpriteAnimatorComponent, "looping", looping_, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SpriteAnimatorComponent, "playing", playing_, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SpriteAnimatorComponent, "speed", speed_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimatorComponent, "anim_id", m_anim_id, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(SpriteAnimatorComponent, "current_clip", m_current_clip, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimatorComponent, "looping", m_looping, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SpriteAnimatorComponent, "playing", m_playing, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SpriteAnimatorComponent, "speed", m_speed, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

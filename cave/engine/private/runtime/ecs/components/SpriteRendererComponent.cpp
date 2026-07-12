@@ -8,14 +8,14 @@ namespace cave {
 bool SpriteRendererComponent::SetResourceGuid(const Guid& guid) {
     return AssetHandle::replaceGuidAndHandle(AssetType::Image,
                                              guid,
-                                             image_id_,
-                                             image_handle_.rawHandle());
+                                             m_image_id,
+                                             m_image_handle.rawHandle());
 }
 
 void SpriteRendererComponent::OnDeserialized() {
-    if (!image_id_.isNull()) {
-        image_handle_ =
-            AssetRegistry::singleton().findByGuid<ImageAsset>(image_id_).unwrap();
+    if (!m_image_id.isNull()) {
+        m_image_handle =
+            AssetRegistry::singleton().findByGuid<ImageAsset>(m_image_id).unwrap();
     }
 }
 

@@ -20,9 +20,11 @@ constexpr float kPlayerStompTolerance = 0.12f;
 constexpr float kPlayerJumpForce = 13.0f;
 constexpr float kPlayerWallJumpForce = 11.5f;
 constexpr float kPlayerGrabEps = 0.03f;
+constexpr float kExitAnimationDuration = 0.75f;
 
 constexpr cave::StringId kPlayerDamaged = "player.damaged"_sid;
 constexpr cave::StringId kPlayerBounced = "player.bounced"_sid;
+constexpr cave::StringId kPlayerLeave = "player.leave"_sid;
 
 inline bool IsPlayer(const cave::ColliderComponent& collider) {
     return collider.layer() & kPlayerLayer;

@@ -59,7 +59,7 @@ public:
         } else {
             if (timer >= duration) {
                 timer = duration;
-                animator.playing(false);
+                animator.pause();
             }
         }
         animator.playbackTimer(timer);

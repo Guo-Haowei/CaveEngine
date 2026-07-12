@@ -12,13 +12,15 @@ namespace cave {
 template<typename T>
 class GameStateMachine {
 public:
-    struct Callbacks {
+    struct StateContext {
         std::function<void(float)> update;
-        std::function<void()> onEnter;
-        std::function<void()> onExit;
+        std::function<void()> on_enter;
+        std::function<void()> on_exit;
+        float duration = 0.0f;
+        T next = T::Invalid;
     };
 
-    void addState(T state, Callbacks&& callbacks) {
+    void addState(T state, StateContext&& callbacks) {
         DEV_ASSERT_INDEX(state, T::Count);
         m_states[std::to_underlying(state)] = std::move(callbacks);
     }
@@ -30,7 +32,7 @@ public:
         }
 
         if (initialized()) {
-            auto& exit_func = m_states[std::to_underlying(m_current)].onExit;
+            auto& exit_func = m_states[std::to_underlying(m_current)].on_exit;
             if (exit_func) {
                 exit_func();
             }
@@ -40,7 +42,7 @@ public:
         m_current = state;
         m_state_time = 0.0f;
 
-        auto& enter_func = m_states[std::to_underlying(state)].onEnter;
+        auto& enter_func = m_states[std::to_underlying(state)].on_enter;
         if (enter_func) {
             enter_func();
         }
@@ -48,9 +50,12 @@ public:
 
     void update(float dt) {
         m_state_time += dt;
-        auto& update_func = m_states[std::to_underlying(m_current)].update;
-        if (update_func) {
-            update_func(dt);
+        auto& context = m_states[std::to_underlying(m_current)];
+        if (context.update) {
+            context.update(dt);
+        }
+        if (context.duration > 0.0f && m_state_time >= context.duration) {
+            switchTo(context.next);
         }
     }
 
@@ -69,7 +74,7 @@ private:
     T m_prev{ T::Invalid };
 
     float m_state_time = 0.0f;
-    std::array<Callbacks, std::to_underlying(T::Count)> m_states;
+    std::array<StateContext, std::to_underlying(T::Count)> m_states;
 };
 
 }  // namespace cave

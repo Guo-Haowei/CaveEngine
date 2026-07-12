@@ -24,7 +24,6 @@ private:
     void updateIdle(float dt);
     void enterAttack();
     void updateAir(float dt);
-    void updateWait(float dt);
 
     bool canAttackPlayer(cave::math::Vec2f spider_pos,
                          cave::math::Vec2f player_pos) const;

@@ -19,7 +19,7 @@ entities:
       mask: 1
       is_trigger: true
     NativeScriptComponent:
-      name: ExitTrigger
+      name: ExitController
       params:
         level:
           type: string

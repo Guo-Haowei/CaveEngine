@@ -235,10 +235,10 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     DrawToolBar(buttons);
 
     if (m_last_req == Request::Play) {
-        animator->playing(true);
+        animator->play();
         m_last_req = Request::None;
     } else if (m_last_req == Request::Pause) {
-        animator->playing(false);
+        animator->pause();
         m_last_req = Request::None;
     }
 
@@ -248,7 +248,7 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
     if (const SpriteAnimationClip* clip = anim.tryGetClip(animator->currentClip())) {
         float playback = animator->playbackTimer();
         if (ImGui::SliderFloat("timeline", &playback, 0.0f, clip->totalDuration())) {
-            animator->playing(true);
+            animator->play();
             animator->playbackTimer(playback);
         }
     }

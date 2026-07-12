@@ -3,6 +3,7 @@
 #include "cave/core/math/Vec.h"
 #include "cave/core/time/CountdownTimer.h"
 #include "cave/runtime/game/IGameModule.h"
+#include "cave/runtime/game/StateMachine.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/script/native/NativeScript.h"
@@ -11,7 +12,14 @@
 
 namespace super_cave_boy {
 
-enum class PlayerState {
+enum class PlayerState : uint8_t {
+    Normal,
+    Exiting,
+    Count,
+    Invalid = Count,
+};
+
+enum class PlayerNormalState : uint8_t {
     Idle,
     Walk,
     Air,
@@ -27,13 +35,15 @@ struct PlayerHurtInfo {
 class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
-public:
-
-protected:
+private:
     void start() override;
     void update(float dt) override;
 
-private:
+    void updateNormal(float dt);
+
+    void onEnterExiting();
+    void updateExiting(float dt);
+
     void updateAnimation(cave::SpriteAnimatorComponent& animator);
     void updatePlayerState(cave::VelocityComponent& vel);
 
@@ -44,15 +54,18 @@ private:
                  cave::MotorComponent& motor);
     bool hurt() const { return m_hurt_timer.active(); }
 
-    PlayerState m_state = PlayerState::Air;
+    cave::GameStateMachine<PlayerState> m_state_machine;
     cave::CountdownTimer m_hurt_timer{ kPlayerHurtCountDown };
 
+    PlayerNormalState m_state = PlayerNormalState::Air;
+
     Entity m_animator;
+    bool m_block_input = false;
 
     // @TODO: clean up
-    bool m_taking_jump_ = false;
-    bool m_landed_ = false;
-    bool m_grabbing_ = false;
+    bool m_taking_jump = false;
+    bool m_landed = false;
+    bool m_grabbing = false;
 };
 
 }  // namespace super_cave_boy

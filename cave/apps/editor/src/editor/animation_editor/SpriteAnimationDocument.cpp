@@ -34,7 +34,7 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     scene->setRoot(map.resolve(root));
 
     SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(map.resolve(ent));
-    animator->SetResourceGuid(guid);
+    animator->setAnimGuid(guid);
 
     scene->update(0.0f);
 

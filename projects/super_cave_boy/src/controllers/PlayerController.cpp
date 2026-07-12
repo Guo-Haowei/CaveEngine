@@ -3,6 +3,7 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
+#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
@@ -77,19 +78,47 @@ void PlayerController::start() {
 
     MessageBus& message_bus = runtime().messageBus();
     message_bus.listen(kPlayerDamaged, [this](const Message& message) {
-        PlayerHurtInfo info{
-            .damage = 1,
-            .knockback = message.payload.asVec2f(),
-        };
-        takeDamage(info);
+        if (m_state_machine.is(PlayerState::Normal)) {
+            PlayerHurtInfo info{
+                .damage = 1,
+                .knockback = message.payload.asVec2f(),
+            };
+            takeDamage(info);
+        }
     });
 
     message_bus.listen(kPlayerBounced, [this](const Message&) {
-        bounceFromEnemy(kPlayerBounceSpeed);
+        if (m_state_machine.is(PlayerState::Normal)) {
+            bounceFromEnemy(kPlayerBounceSpeed);
+        }
     });
+
+    message_bus.listen(kPlayerLeave, [this](const Message&) {
+        m_block_input = true;
+        m_state_machine.switchTo(PlayerState::Exiting);
+    });
+
+    m_state_machine.addState(
+        PlayerState::Normal,
+        {
+            .update = std::bind_front(&PlayerController::updateNormal, this),
+        });
+
+    m_state_machine.addState(
+        PlayerState::Exiting,
+        {
+            .update = std::bind_front(&PlayerController::updateExiting, this),
+            .on_enter = std::bind_front(&PlayerController::onEnterExiting, this),
+        });
+
+    m_state_machine.switchTo(PlayerState::Normal);
 }
 
 void PlayerController::update(float dt) {
+    m_state_machine.update(dt);
+}
+
+void PlayerController::updateNormal(float dt) {
     m_hurt_timer.tick(dt);
 
     // if (health_ <= 0) {
@@ -112,17 +141,18 @@ void PlayerController::update(float dt) {
         return;
     }
 
-    const bool jump_pressed = input.isPressed("ui_up"_sid);
-
-    int move_x =
-        input.isPressed("ui_right"_sid) -
-        input.isPressed("ui_left"_sid);
+    bool jump_pressed = false;
+    int move_x = 0;
+    if (!m_block_input) {
+        jump_pressed = input.isPressed("ui_up"_sid);
+        move_x = input.isPressed("ui_right"_sid) - input.isPressed("ui_left"_sid);
+    }
 
     // Contact is from previous MotorSystem frame.
-    m_taking_jump_ = contact->hit_down;
+    m_taking_jump = contact->hit_down;
 
     if (contact->hit_down) {
-        m_grabbing_ = false;
+        m_grabbing = false;
     }
 
     // Jump can cancel grab.
@@ -131,7 +161,7 @@ void PlayerController::update(float dt) {
     }
 
     // If currently grabbing, freeze player and skip normal movement.
-    if (m_grabbing_) {
+    if (m_grabbing) {
         move_x = 0;
 
         vel->linear.x = 0.0f;
@@ -152,7 +182,7 @@ void PlayerController::update(float dt) {
     //
     // Must happen after normal velocity is known, but before MotorSystem.
     // MotorSystem will run after this script update.
-    const bool airborne = !m_taking_jump_;
+    const bool airborne = !m_taking_jump;
     const bool falling = vel->linear.y < 0.0f;
 
     if (airborne && falling) {
@@ -162,8 +192,8 @@ void PlayerController::update(float dt) {
         const TileWorldSystem* tile_world = system<TileWorldSystem>();
         DEV_ASSERT(tile_world);
         if (CheckWallGrab(body, predicted_dy, *tile_world)) {
-            m_grabbing_ = true;
-            m_taking_jump_ = false;
+            m_grabbing = true;
+            m_taking_jump = false;
 
             vel->linear.x = 0.0f;
             vel->linear.y = 0.0f;
@@ -176,25 +206,48 @@ void PlayerController::update(float dt) {
     updateAnimation(*animator);
 }
 
+void PlayerController::onEnterExiting() {
+    auto* velocity = component<VelocityComponent>();
+    if (DEV_VERIFY(velocity)) {
+        velocity->linear.x = 0.0f;
+    }
+    auto* anim = query().component<SpriteAnimatorComponent>(m_animator);
+    if (DEV_VERIFY(anim)) {
+        anim->pause();
+    }
+}
+
+void PlayerController::updateExiting(float) {
+    float ratio = 1.0f - (m_state_machine.stateTime() / kExitAnimationDuration);
+    ratio = math::clamp(ratio, 0.0f, 1.0f);
+
+    auto* sprite = query().component<SpriteRendererComponent>(m_animator);
+    if (DEV_VERIFY(sprite)) {
+        Vec4f tint = sprite->tintColor();
+        tint.a = ratio;
+        sprite->setTintColor(tint);
+    }
+}
+
 void PlayerController::updateAnimation(SpriteAnimatorComponent& animator) {
     switch (m_state) {
-        case PlayerState::Idle: {
+        case PlayerNormalState::Idle: {
             animator.currentClip("idle");
         } break;
-        case PlayerState::Walk: {
+        case PlayerNormalState::Walk: {
             animator.currentClip("walk");
         } break;
-        case PlayerState::Air: {
+        case PlayerNormalState::Air: {
             animator.currentClip("jump");
             // if (motor_.vspeed > 0.0f) {
             // } else {
             //     animator->currentClip("jump");
             // }
         } break;
-        case PlayerState::Grab: {
+        case PlayerNormalState::Grab: {
             animator.currentClip("grab");
         } break;
-        case PlayerState::Hurt: {
+        case PlayerNormalState::Hurt: {
             animator.currentClip("hurt");
         } break;
     }
@@ -202,45 +255,45 @@ void PlayerController::updateAnimation(SpriteAnimatorComponent& animator) {
 
 void PlayerController::updatePlayerState(VelocityComponent& vel) {
     if (hurt()) {
-        m_state = PlayerState::Hurt;
+        m_state = PlayerNormalState::Hurt;
         return;
     }
 
-    if (m_grabbing_) {
-        m_state = PlayerState::Grab;
+    if (m_grabbing) {
+        m_state = PlayerNormalState::Grab;
         return;
     }
 
-    if (!m_taking_jump_) {
-        m_state = PlayerState::Air;
+    if (!m_taking_jump) {
+        m_state = PlayerNormalState::Air;
         return;
     }
 
     if (vel.linear.x != 0.0f) {
-        m_state = PlayerState::Walk;
+        m_state = PlayerNormalState::Walk;
         return;
     }
 
-    m_state = PlayerState::Idle;
+    m_state = PlayerNormalState::Idle;
 }
 
 void PlayerController::tryJump(VelocityComponent& vel,
                                MotorComponent& motor) {
-    if (m_grabbing_) {
+    if (m_grabbing) {
         vel.linear.y = kPlayerWallJumpForce;
 
-        m_taking_jump_ = false;
-        m_grabbing_ = false;
+        m_taking_jump = false;
+        m_grabbing = false;
 
         motor.affected_by_gravity = true;
         return;
     }
 
-    if (m_taking_jump_) {
+    if (m_taking_jump) {
         vel.linear.y = kPlayerJumpForce;
 
-        m_taking_jump_ = false;
-        m_grabbing_ = false;
+        m_taking_jump = false;
+        m_grabbing = false;
 
         motor.affected_by_gravity = true;
         return;
@@ -264,8 +317,8 @@ void PlayerController::takeDamage(const PlayerHurtInfo& info) {
 
     motor->affected_by_gravity = true;
 
-    m_grabbing_ = false;
-    m_taking_jump_ = false;
+    m_grabbing = false;
+    m_taking_jump = false;
 
     // @TODO: play sound
 }
@@ -277,8 +330,8 @@ void PlayerController::bounceFromEnemy(float bounce_speed) {
     vel->linear.y = bounce_speed;
     motor->affected_by_gravity = true;
 
-    m_grabbing_ = false;
-    m_taking_jump_ = false;
+    m_grabbing = false;
+    m_taking_jump = false;
 }
 
 }  // namespace super_cave_boy
