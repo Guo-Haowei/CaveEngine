@@ -7,7 +7,7 @@
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
-#include "Utility.h"
+#include "SuperCaveBoyDefines.h"
 
 namespace super_cave_boy {
 
@@ -28,13 +28,6 @@ class PlayerController final : public ::cave::NativeScript {
     using Entity = cave::ecs::Entity;
 
 public:
-    void takeDamage(cave::VelocityComponent& vel,
-                    cave::MotorComponent& motor,
-                    const PlayerHurtInfo& info);
-
-    void bounceFromEnemy(cave::VelocityComponent& vel,
-                         cave::MotorComponent& motor,
-                         float bounce_speed);
 
 protected:
     void start() override;
@@ -43,6 +36,9 @@ protected:
 private:
     void updateAnimation(cave::SpriteAnimatorComponent& animator);
     void updatePlayerState(cave::VelocityComponent& vel);
+
+    void takeDamage(const PlayerHurtInfo& info);
+    void bounceFromEnemy(float bounce_speed);
 
     void tryJump(cave::VelocityComponent& vel,
                  cave::MotorComponent& motor);

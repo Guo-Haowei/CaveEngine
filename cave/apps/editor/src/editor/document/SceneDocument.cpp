@@ -19,7 +19,8 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
     scene->begin(MakeOwner<SceneRuntime>(
         SceneTickDomain::Editor,
         m_engine_services,
-        *scene));
+        *scene,
+        ViewId{}));
 
     if (auto handle_opt = m_asset_reg.findByGuid(guid)) {
         const AssetMetaData* meta = handle_opt.unwrap_unchecked().meta();

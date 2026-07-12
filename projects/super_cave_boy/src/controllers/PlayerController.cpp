@@ -74,6 +74,19 @@ bool CheckWallGrab(
 
 void PlayerController::start() {
     m_animator = query().findChildByName("animator_node", entity());
+
+    MessageBus& message_bus = runtime().messageBus();
+    message_bus.listen(kPlayerDamaged, [this](const Message& message) {
+        PlayerHurtInfo info{
+            .damage = 1,
+            .knockback = message.payload.asVec2f(),
+        };
+        takeDamage(info);
+    });
+
+    message_bus.listen(kPlayerBounced, [this](const Message&) {
+        bounceFromEnemy(kPlayerBounceSpeed);
+    });
 }
 
 void PlayerController::update(float dt) {
@@ -234,9 +247,7 @@ void PlayerController::tryJump(VelocityComponent& vel,
     }
 }
 
-void PlayerController::takeDamage(VelocityComponent& vel,
-                                  MotorComponent& motor,
-                                  const PlayerHurtInfo& info) {
+void PlayerController::takeDamage(const PlayerHurtInfo& info) {
     if (m_hurt_timer.active()) {
         return;
     }
@@ -245,10 +256,13 @@ void PlayerController::takeDamage(VelocityComponent& vel,
 
     m_hurt_timer.start();
 
-    vel.linear.x = info.knockback.x;
-    vel.linear.y = info.knockback.y;
+    auto* vel = component<VelocityComponent>();
+    auto* motor = component<MotorComponent>();
 
-    motor.affected_by_gravity = true;
+    vel->linear.x = info.knockback.x;
+    vel->linear.y = info.knockback.y;
+
+    motor->affected_by_gravity = true;
 
     m_grabbing_ = false;
     m_taking_jump_ = false;
@@ -256,11 +270,12 @@ void PlayerController::takeDamage(VelocityComponent& vel,
     // @TODO: play sound
 }
 
-void PlayerController::bounceFromEnemy(VelocityComponent& vel,
-                                       MotorComponent& motor,
-                                       float bounce_speed) {
-    vel.linear.y = bounce_speed;
-    motor.affected_by_gravity = true;
+void PlayerController::bounceFromEnemy(float bounce_speed) {
+    auto* vel = component<VelocityComponent>();
+    auto* motor = component<MotorComponent>();
+
+    vel->linear.y = bounce_speed;
+    motor->affected_by_gravity = true;
 
     m_grabbing_ = false;
     m_taking_jump_ = false;

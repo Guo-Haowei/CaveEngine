@@ -2,7 +2,7 @@
 #include "cave/runtime/game/StateMachine.h"
 
 #include "EnemyControllerBase.h"
-#include "Utility.h"
+#include "SuperCaveBoyDefines.h"
 
 namespace super_cave_boy {
 

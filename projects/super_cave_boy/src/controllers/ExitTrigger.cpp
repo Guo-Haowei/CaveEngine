@@ -4,7 +4,7 @@
 #include "cave/runtime/scene/ISceneTransitionRequests.h"
 #include "cave/runtime/scene/SceneQuery.h"
 
-#include "Utility.h"
+#include "SuperCaveBoyDefines.h"
 
 namespace super_cave_boy {
 

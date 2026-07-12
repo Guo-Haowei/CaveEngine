@@ -117,7 +117,8 @@ PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
     scene->begin(MakeOwner<SceneRuntime>(
         SceneTickDomain::Editor,
         m_engine_services,
-        *scene));
+        *scene,
+        ViewId{}));
     scene->end();
 
     return {

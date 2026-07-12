@@ -1,12 +1,13 @@
 #include "EnemyControllerBase.h"
-#include "PlayerController.h"
 
 #include "cave/core/diagnostics/Log.h"
+#include "cave/runtime/ecs/components/MovementComponent.h"
+#include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 
-#include "Utility.h"
+#include "SuperCaveBoyDefines.h"
 
 namespace super_cave_boy {
 
@@ -60,7 +61,7 @@ void EnemyControllerBase::onBodyEntered(Entity player) {
     return onBodyStay(player);
 }
 
-void EnemyControllerBase::onBodyStay(ecs::Entity player) {
+void EnemyControllerBase::onBodyStay(Entity player) {
 #if USING(ENABLE_ASSERT)
     auto* player_collider = query().component<ColliderComponent>(player);
     DEV_ASSERT(player_collider);
@@ -75,20 +76,12 @@ void EnemyControllerBase::onBodyStay(ecs::Entity player) {
         return;
     }
 
-    auto* instance = script_system->resolveScript(player_script->handle);
-    PlayerController* controller = dynamic_cast<PlayerController*>(instance);
-    DEV_ASSERT(controller);
-    if (!controller) {
-        return;
-    }
-
     Entity enemy = entity();
 
-    auto* player_velocity = query().component<VelocityComponent>(player);
-    auto* player_motor = query().component<MotorComponent>(player);
-    DEV_ASSERT(player_motor && player_velocity);
+    MessageBus& message_bus = runtime().messageBus();
+
     if (IsStompingEnemy(query(), player, enemy)) {
-        controller->bounceFromEnemy(*player_velocity, *player_motor, kPlayerBounceSpeed);
+        message_bus.emit(kPlayerBounced, enemy);
         query().queueDestroy(enemy);
         return;
     }
@@ -102,15 +95,12 @@ void EnemyControllerBase::onBodyStay(ecs::Entity player) {
 
     const float dir_x = player_x >= enemy_x ? 1.0f : -1.0f;
 
-    PlayerHurtInfo hurt_info{
-        .damage = 1,
-        .knockback = math::Vec2f{
-            dir_x * kPlayerKnockbackX,
-            kPlayerKnockbackY,
-        },
-    };
-
-    controller->takeDamage(*player_velocity, *player_motor, hurt_info);
+    message_bus.emit(kPlayerDamaged,
+                     enemy,
+                     Variant{
+                         dir_x * kPlayerKnockbackX,
+                         kPlayerKnockbackY,
+                     });
 }
 
 Entity EnemyControllerBase::findPlayer() const {
