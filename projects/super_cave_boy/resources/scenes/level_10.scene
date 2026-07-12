@@ -28,7 +28,7 @@ entities:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
       TransformComponent:
-        translation: [3, 4.5, 0]
+        translation: [2.02448869, 4.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 9
@@ -38,7 +38,7 @@ entities:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
       TransformComponent:
-        translation: [16.5, 2.5, 0]
+        translation: [-8.30823803, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
       NativeScriptComponent:
@@ -57,7 +57,7 @@ entities:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:
       TransformComponent:
-        translation: [3, 2.5, 0]
+        translation: [2.03732395, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 18
@@ -74,6 +74,6 @@ entities:
       prefab_id: 0CC56972-64AF-3A43-BFB41CFF39705652
     PrefabOverride:
       TransformComponent:
-        translation: [12.7797775, 3.33259487, 0]
+        translation: [17.478117, 3.20000005, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]

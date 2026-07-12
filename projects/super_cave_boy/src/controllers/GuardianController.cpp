@@ -79,8 +79,7 @@ void GuardianController::start() {
             .next = GuardianState::Raising,
         });
 
-    m_state_machine.switchTo(GuardianState::Raising);
-    // m_state_machine.switchTo(GuardianState::Inactive);
+    m_state_machine.switchTo(GuardianState::Inactive);
 
     m_begin_fight_listener = runtime().messageBus().listen(
         kGuardianBeginFight,
@@ -199,7 +198,7 @@ void GuardianController::enterFalling() {
     playAnimation("move");
 }
 
-void GuardianController::updateFalling(float ) {
+void GuardianController::updateFalling(float) {
     auto* velocity = component<VelocityComponent>();
     auto* contact = component<ContactComponent>();
     DEV_ASSERT(velocity && contact);
