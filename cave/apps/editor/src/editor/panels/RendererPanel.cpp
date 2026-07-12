@@ -38,7 +38,7 @@ static void CollapseWindow(const std::string& p_window_name, std::function<void(
 void RendererPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
-    ImGui::Text("Debug");
+    ImGui::TextUnformatted("Debug");
     ImGui::Text("Frame rate:%.2f", ImGui::GetIO().Framerate);
     ImGui::Checkbox("show editor", (bool*)DVAR_GET_POINTER(show_editor));
 

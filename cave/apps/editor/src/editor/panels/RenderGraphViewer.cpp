@@ -48,16 +48,16 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
             ImNodes::EndInputAttribute();
         }
 
-        auto add_image = [](bool p_flip, const std::shared_ptr<GpuTexture>& p_texture) {
-            if (!p_texture) return;
+        auto add_image = [](bool flip, const std::shared_ptr<GpuTexture>& texture) {
+            if (!texture) return;
 
-            ImGui::Text("%s", p_texture->desc.name.c_str());
-            if (p_texture && p_texture->desc.dimension == Dimension::TEXTURE_2D) {
+            ImGui::TextUnformatted(texture->desc.name.c_str());
+            if (texture && texture->desc.dimension == Dimension::TEXTURE_2D) {
                 ImVec2 size(180 * 3, 120 * 3);
-                if (p_flip) {
-                    ImGui::Image(p_texture->GetHandle(), size, ImVec2(0, 1), ImVec2(1, 0));
+                if (flip) {
+                    ImGui::Image(texture->GetHandle(), size, ImVec2(0, 1), ImVec2(1, 0));
                 } else {
-                    ImGui::Image(p_texture->GetHandle(), size);
+                    ImGui::Image(texture->GetHandle(), size);
                 }
             }
         };

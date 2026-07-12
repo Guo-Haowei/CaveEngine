@@ -25,7 +25,7 @@ void ColorIcon(Color p_color, IconType p_icon) {
     }
 
     ImGui::PushStyleColor(ImGuiCol_Text, color);
-    ImGui::Text("%s", icon);
+    ImGui::TextUnformatted(icon);
     ImGui::PopStyleColor();
 }
 

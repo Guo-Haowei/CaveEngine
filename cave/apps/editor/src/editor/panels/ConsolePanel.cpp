@@ -15,7 +15,7 @@ ConsolePanel::ConsolePanel(EditorState& editor)
 void ConsolePanel::DrawConsole() {
     float spacing = 10.0f;
     ImGui::SetNextItemWidth(70.0f);
-    ImGui::Text(">: cmd");
+    ImGui::TextUnformatted(">: cmd");
     ImGui::SameLine(0.0f, spacing);
 
     ImGui::SetNextItemWidth(-1.0f);

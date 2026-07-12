@@ -76,7 +76,7 @@ void DragDropSourceContentEntry(const ContentEntry& source) {
                 DragPayload payload = MakePayloadAsset(source);
                 SetPayload(kPayloadAsset, payload);
             }
-            ImGui::Text("%s", source.virtual_path.c_str());
+            ImGui::TextUnformatted(source.virtual_path.c_str());
             ImGui::EndDragDropSource();
         }
     }
