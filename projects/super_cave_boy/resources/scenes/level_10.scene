@@ -38,7 +38,7 @@ entities:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
       TransformComponent:
-        translation: [-8.30823803, 2.5, 0]
+        translation: [17.4846458, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
       NativeScriptComponent:
