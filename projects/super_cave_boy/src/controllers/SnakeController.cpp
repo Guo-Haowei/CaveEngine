@@ -16,7 +16,7 @@ using namespace ::cave::math;
 
 namespace {
 
-constexpr float kSnakeSpeed = 2.0f;
+constexpr float kSnakeSpeed = 1.4f;
 constexpr float kProbeEps = 0.05f;
 
 bool ShouldTurnAround(const Box2& body,

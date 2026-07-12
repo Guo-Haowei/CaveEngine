@@ -4,6 +4,7 @@
 
 #include "cave/core/ids/Entity.h"
 #include "cave/runtime/intent/IntentBus.h"
+#include "cave/runtime/scene/SceneRuntime.h"
 
 #include "chess/agents/IPlayerAgent.h"
 #include "chess/core/Move.h"
@@ -24,7 +25,7 @@ class ChessGridSelectorAdapter {
     using GetPlayerFunc = std::function<LocalHumanAgent*(core::Color)>;
 
 public:
-    ChessGridSelectorAdapter(cave::SceneContext& ctx,
+    ChessGridSelectorAdapter(cave::SceneRuntime& runtime,
                              ChessGameClient& game,
                              ChessBoardView& board_view) noexcept;
 
@@ -35,7 +36,7 @@ public:
     void onCancel();
     void onInvalid(int sx, int sy, int dx, int dy);
 
-    void tick(cave::SceneContext& ctx);
+    void tick();
 
     void setController(cave::GridSelectController* controller) {
         m_controller = controller;
@@ -46,9 +47,10 @@ public:
     }
 
 private:
-    void tickPointer(cave::SceneContext& ctx, const cave::IGameInput& input);
+    void tickPointer(const cave::IGameInput& input);
     void tickKeyboard(const cave::IGameInput& input);
 
+    cave::SceneRuntime& m_runtime;
     cave::IntentBus& m_intent_bus;
 
     ChessGameClient& m_client;

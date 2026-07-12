@@ -34,6 +34,8 @@ public:
     }
 
 protected:
+    SceneRuntime& runtime() { return *m_runtime; }
+
     SceneQuery& query() { return m_runtime->query(); }
     const SceneQuery& query() const { return m_runtime->query(); }
 
@@ -43,8 +45,8 @@ protected:
     RuntimeServices& services() { return m_runtime->services(); }
 
     // @TODO: move to scene runtime?
-    ViewId viewId() const { return m_runtime->view_id; }
-    ISceneTransitionRequests* transition() { return m_runtime->transition; }
+    ViewId viewId() const { return m_runtime->viewId(); }
+    ISceneTransitionRequests* transition() { return m_runtime->transition(); }
 
     template<typename T>
     T* component() { return query().component<T>(entity()); }

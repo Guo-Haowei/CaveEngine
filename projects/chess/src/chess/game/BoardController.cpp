@@ -99,7 +99,7 @@ void BoardController::alwaysRun(SceneCommandWriter& writer) {
 }
 
 void BoardController::start() {
-    m_game = std::make_unique<ChessGameMode>(m_intent_bus);
+    m_game = std::make_unique<ChessGameMode>(runtime(), m_intent_bus);
     m_game->onEnter();
 }
 

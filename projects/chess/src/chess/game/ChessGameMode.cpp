@@ -16,8 +16,9 @@ namespace chess {
 
 using namespace cave;
 
-ChessGameMode::ChessGameMode(IntentBus& intent_bus)
-    : m_intent_bus(intent_bus)
+ChessGameMode::ChessGameMode(SceneRuntime& runtime, IntentBus& intent_bus)
+    : m_runtime(runtime)
+    , m_intent_bus(intent_bus)
     , m_debug_id(MakeDebugId(this)) {
     m_intent_bus.addHandler<ChessStateIntent>(this);
 }
@@ -27,7 +28,7 @@ ChessGameMode::~ChessGameMode() {
 }
 
 void ChessGameMode::onEnter() {
-    m_state = std::make_unique<MainMenuState>(m_intent_bus);
+    m_state = std::make_unique<MainMenuState>(m_runtime, m_intent_bus);
     m_state->onEnter();
 }
 

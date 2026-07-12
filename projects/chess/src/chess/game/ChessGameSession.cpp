@@ -133,7 +133,7 @@ void ChessGameSession::onEnterBoot() {
     const bool any_human = white == PlayerKind::LocalHuman || black == PlayerKind::LocalHuman;
     if (any_human) {
         m_grid_adapter = std::make_unique<ChessGridSelectorAdapter>(
-            ctx,
+            m_runtime,
             *m_client,
             m_client->boardView());
 

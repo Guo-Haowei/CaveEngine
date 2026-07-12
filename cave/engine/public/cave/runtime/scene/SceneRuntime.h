@@ -2,6 +2,7 @@
 // File: cave/runtime/scene/SceneRuntime.h
 // =============================================================================
 #pragma once
+#include "cave/core/base/NonCopyable.h"
 #include "cave/core/typedefs.h"
 #include "cave/core/ids/ViewId.h"
 #include "cave/runtime/framework/EngineServices.h"
@@ -22,7 +23,7 @@ enum class SceneFeature : uint32_t {
 
 DEFINE_ENUM_BITWISE_OPERATIONS(SceneFeature);
 
-class SceneRuntime {
+class SceneRuntime : public NonCopyable {
 public:
     SceneRuntime(SceneTickDomain domain,
                  RuntimeServices& services,
@@ -46,12 +47,15 @@ public:
     template<typename T>
     const T* system() const { return m_systems.get<T>(); }
 
-    ViewId view_id;
-    ISceneTransitionRequests* transition{};
+    ViewId viewId() const { return m_view_id; }
+    ISceneTransitionRequests* transition() const { return m_transition; }
+
 private:
     RuntimeServices& m_services;
     Scene& m_scene;
     SceneQuery m_query;
+    ViewId m_view_id;
+    ISceneTransitionRequests* m_transition{};
     SceneFeature m_features;
     SystemManager m_systems;
 };

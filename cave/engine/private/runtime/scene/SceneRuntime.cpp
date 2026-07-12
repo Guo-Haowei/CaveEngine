@@ -15,11 +15,11 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
                            Scene& scene,
                            ViewId view_id,
                            ISceneTransitionRequests* transition)
-    : view_id(view_id)
-    , transition(transition)
-    , m_services(services)
+    : m_services(services)
     , m_scene(scene)
-    , m_query(scene) {
+    , m_query(scene)
+    , m_view_id(view_id)
+    , m_transition(transition) {
 
     SceneFeature features = SceneFeature::NativeScript;
     if (domain == SceneTickDomain::Simulate) {

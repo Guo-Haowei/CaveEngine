@@ -76,11 +76,11 @@ private:
 
     SessionPhase m_phase{ SessionPhase::AwaitPlayerInput };
 
-    Owner<ChessMatchAuthority> m_auth;
-    Owner<ChessGameClient> m_client;
+    cave::Owner<ChessMatchAuthority> m_auth;
+    cave::Owner<ChessGameClient> m_client;
 
-    Owner<cave::GridSelectController> m_selector;
-    Owner<ChessGridSelectorAdapter> m_grid_adapter;
+    cave::Owner<cave::GridSelectController> m_selector;
+    cave::Owner<ChessGridSelectorAdapter> m_grid_adapter;
 
     std::array<std::unique_ptr<IPlayerAgent>, 2> m_agents;
 };

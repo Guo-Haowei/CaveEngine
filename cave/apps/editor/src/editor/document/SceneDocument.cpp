@@ -26,7 +26,7 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
         if (DEV_VERIFY(meta)) {
             DEV_ASSERT(meta->type == AssetType::Scene || meta->type == AssetType::Prefab);
             m_preview_scene = m_scene_reg.registerScene({ SceneSource::Editor, meta->name },
-                std::move(scene));
+                                                        std::move(scene));
         }
     }
 }
