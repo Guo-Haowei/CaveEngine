@@ -1,0 +1,9 @@
+type: tilemap
+guid: 70B46582-6BA6-1C45-93E8FC300C40314A
+name: end.tilemap
+import_path: "@res://scenes/end.tilemap"
+dependencies: [94FB5794-CF41-1E46-8D6DB1E633C35D85]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

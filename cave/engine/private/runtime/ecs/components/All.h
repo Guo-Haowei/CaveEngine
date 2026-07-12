@@ -17,7 +17,7 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ecs/components/TriggerComponent.h"
 
-#include "cave/runtime/platformer/FacingComponent.h"
+#include "cave/runtime/game/platformer/FacingComponent.h"
 
 #include "cave/runtime/script/lua/LuaScriptComponent.h"
 #include "cave/runtime/script/native/NativeScriptComponent.h"

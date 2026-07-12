@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/platformer/FacingComponent.h
+// File: cave/runtime/game/platformer/FacingComponent.h
 // =============================================================================
 #pragma once
 #include "cave/runtime/ecs/ComponentDefines.h"

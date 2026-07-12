@@ -1,0 +1,9 @@
+type: scene
+guid: 2DA03F3D-F518-0C43-A3FCD6143B78E6A8
+name: end.scene
+import_path: "@res://scenes/end.scene"
+dependencies: [69460BD5-CDB3-304B-B31C17310CBCADB7, 70B46582-6BA6-1C45-93E8FC300C40314A]
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

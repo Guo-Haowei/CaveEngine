@@ -101,7 +101,6 @@ void NativeScriptSystem::ensureBound(Entity entity,
         }
 
         script.handle = {};
-        LOG_WARN(LogChannel::Script, "Found stale handle '{}'", script.name.c_str());
     }
 
     NativeScriptId instance_id = m_storage->createScript(script.name);
