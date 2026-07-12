@@ -1,0 +1,9 @@
+type: image
+guid: 7818D22F-10AE-8A4C-920D20A0BC525661
+name: ""
+import_path: "@res://textures/spr_guardian.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

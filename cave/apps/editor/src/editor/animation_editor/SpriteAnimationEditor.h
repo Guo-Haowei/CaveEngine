@@ -7,7 +7,6 @@
 
 namespace cave {
 
-// @TODO: better editor
 class SpriteAnimationAsset;
 struct ImageAsset;
 
@@ -35,7 +34,7 @@ private:
 
     const DebugId m_debug_id;
 
-    std::string m_selected_clip;
+    std::string m_text_buffer;
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Multi };
 
     ToolBarButtonDesc m_play_button;

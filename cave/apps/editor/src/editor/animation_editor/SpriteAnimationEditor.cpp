@@ -123,12 +123,10 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
     const auto& button_active = colors[ImGuiCol_ButtonActive];
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
-    m_selected_clip.resize(128);
-    ui::TextBox("name", m_selected_clip);
-
+    ui::TextBox("Add clip", m_text_buffer, false);
     ImGui::SameLine();
-
-    if (ImGui::Button(ICON_FA_SQUARE_PLUS "  Add Animation")) {
+    ImGui::PushItemWidth(-1);
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS) && !StringUtils::isNullOrEmpty(m_text_buffer.c_str())) {
         const auto [w, h] = m_sprite_selector.GetDim();
         const float inv_w = 1.0f / w;
         const float inv_h = 1.0f / h;
@@ -152,9 +150,9 @@ void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageA
             frames.push_back({ { u0, v0 }, { u1, v1 } });
         }
 
-        if (!m_selected_clip.empty() && !frames.empty()) {
-            anim.addClip(std::move(m_selected_clip), std::move(frames));
-            m_selected_clip.clear();
+        if (!frames.empty()) {
+            anim.addClip(std::move(m_text_buffer), std::move(frames));
+            m_text_buffer.clear();
             m_sprite_selector.ClearSelections();
         }
     }
@@ -208,6 +206,7 @@ std::string SpriteAnimationEditor::selectAnimation(SpriteAnimationAsset& anim,
     }
     return "";
 }
+
 void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& doc) {
     SceneId scene_id = doc.previewScene();
     Scene* scene = m_engine_services.sceneRegistry().resolve(scene_id);

@@ -31,9 +31,7 @@ bool SpriteAnimationAsset::addClip(std::string&& name, std::vector<math::Box2>&&
         return false;
     }
 
-    clips_.insert(std::make_pair(std::move(name),
-                                 SpriteAnimationClip(std::move(frames))));
-
+    clips_.insert(std::make_pair(std::move(name), SpriteAnimationClip(std::move(frames))));
     return true;
 }
 

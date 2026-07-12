@@ -24,42 +24,47 @@ bool CheckBox(const char* name,
 bool TextBox(const char* label,
              char* buf_ptr,
              uint32_t buf_size,
-             float column_width,
-             float text_box_width) {
+             bool enter_returns_true,
+             float column_width) {
+    auto tag = std::format("##{}", label ? label : "dummy");
+    auto columns_id = std::format("##{}_columns", label ? label : "dummy");
 
     if (label) {
-        ImGui::Columns(2);
+        ImGui::Columns(2, columns_id.c_str());
         ImGui::SetColumnWidth(0, column_width);
-        if (text_box_width > 0) {
-            ImGui::SetColumnWidth(1, text_box_width);
-        }
-        ImGui::Text("%s", label);
+
+        ImGui::AlignTextToFramePadding();
+        ImGui::TextUnformatted(label);
+
+        //ImGui::Text("%s", label);
         ImGui::NextColumn();
     }
 
-    int flags = ImGuiInputTextFlags_EnterReturnsTrue;
+    int flags = enter_returns_true
+                    ? ImGuiInputTextFlags_EnterReturnsTrue
+                    : 0;
 
-    auto tag = std::format("##{}", label ? label : "dummy");
     bool dirty = ImGui::InputText(tag.c_str(),
                                   buf_ptr,
                                   buf_size,
                                   flags);
-
-    ImGui::Columns(1);
+    if (label) {
+        ImGui::Columns(1);
+    }
     return dirty;
 }
 
 bool TextBox(const char* label,
              std::string& str,
-             float column_width,
-             float text_box_width) {
+             bool enter_returns_true,
+             float column_width) {
     char buf[256]{};
     StringUtils::strcpy(buf, str.c_str());
     const bool dirty = TextBox(label,
                                buf,
                                sizeof(buf),
-                               column_width,
-                               text_box_width);
+                               enter_returns_true,
+                               column_width);
     if (dirty) {
         str = buf;
     }
@@ -69,7 +74,8 @@ bool TextBox(const char* label,
 bool InputInt(const char* label,
               int& out_value,
               float column_width) {
-    ImGui::Columns(2);
+    auto columns_id = std::format("##{}_columns", label);
+    ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
     ImGui::Text("%s", label);
     ImGui::NextColumn();
@@ -82,7 +88,8 @@ bool InputInt(const char* label,
 bool InputFloat(const char* label,
                 float& out_value,
                 float column_width) {
-    ImGui::Columns(2);
+    auto columns_id = std::format("##{}_columns", label);
+    ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
     ImGui::Text("%s", label);
     ImGui::NextColumn();
@@ -98,7 +105,8 @@ bool DragInt(const char* label,
              int min,
              int max,
              float column_width) {
-    ImGui::Columns(2);
+    auto columns_id = std::format("##{}_columns", label);
+    ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
     ImGui::Text("%s", label);
     ImGui::NextColumn();
@@ -114,7 +122,8 @@ bool DragFloat(const char* label,
                float min,
                float max,
                float column_width) {
-    ImGui::Columns(2);
+    auto columns_id = std::format("##{}_columns", label);
+    ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
     ImGui::Text("%s", label);
     ImGui::NextColumn();
@@ -167,7 +176,8 @@ static bool Float3Impl(int type,
         }
     };
 
-    ImGui::Columns(2);
+    auto columns_id = std::format("##{}_columns", label);
+    ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
     ImGui::Text("%s", label);
     ImGui::NextColumn();
@@ -243,7 +253,8 @@ bool Float3(const char* label,
 bool ColorPicker3(const char* label,
                   Vec3f& out,
                   float column_width) {
-    ImGui::Columns(2);
+    auto columns_id = std::format("##{}_columns", label);
+    ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
     ImGui::Text("%s", label);
     ImGui::NextColumn();
@@ -256,7 +267,8 @@ bool ColorPicker3(const char* label,
 bool ColorPicker4(const char* label,
                   Vec4f& out,
                   float column_width) {
-    ImGui::Columns(2);
+    auto columns_id = std::format("##{}_columns", label);
+    ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
     ImGui::Text("%s", label);
     ImGui::NextColumn();

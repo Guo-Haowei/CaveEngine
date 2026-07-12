@@ -213,7 +213,7 @@ void PropertyPanel::drawUIImpl() {
 
     ImGui::SameLine();
     ImGui::PushItemWidth(-1);
-    if (ImGui::Button("+")) {
+    if (ImGui::Button(ICON_FA_SQUARE_PLUS)) {
         ImGui::OpenPopup("AddComponentPopup");
     }
 

@@ -1,0 +1,9 @@
+type: prefab
+guid: 0CC56972-64AF-3A43-BFB41CFF39705652
+name: guardian.prefab
+import_path: "@res://prefabs/guardian.prefab"
+dependencies: [1B104663-8EE4-5E4A-B7D6FF19015A247F]
+source_created_time: 2026-07-12 08:57:23.7587632
+source_last_modified: 2026-07-12 10:14:08.5264300
+import_settings:
+  {}

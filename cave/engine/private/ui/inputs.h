@@ -14,22 +14,22 @@ bool CheckBox(const char* name,
 bool TextBox(const char* label,
              char* buf_ptr,
              uint32_t buf_cap,
-             float column_width,
-             float text_box_width);
+             bool enter_returns_true,
+             float column_width);
 
 bool TextBox(const char* label,
              std::string& str,
-             float column_width = kDefaultColumnWidth,
-             float text_box_width = 0);
+             bool enter_returns_true = true,
+             float column_width = kDefaultColumnWidth);
 
 template<size_t N>
 bool TextBox(const char* label,
              FixedString<N>& str,
-             float column_width = kDefaultColumnWidth,
-             float text_box_width = 0) {
+             bool enter_returns_true = true,
+             float column_width = kDefaultColumnWidth) {
     char buf[N]{};
     StringUtils::strcpy(buf, str.c_str());
-    const bool dirty = TextBox(label, buf, N, column_width, text_box_width);
+    const bool dirty = TextBox(label, buf, N, enter_returns_true, column_width);
     if (dirty) {
         str.assign(buf);
     }
