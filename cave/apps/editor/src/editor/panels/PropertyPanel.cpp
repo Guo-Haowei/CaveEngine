@@ -4,20 +4,20 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 
-#include "engine/private/runtime/ecs/components/All.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
-
 #include "editor/inspector/PropertyEditors.h"
+#include "editor/EditorState.h"
+#include "editor/utility/ContentEntry.h"
+#include "editor/services/DragDropService.h"
+#include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/ui/layout.h"
-
-#include "editor/EditorState.h"
-#include "editor/utility/ContentEntry.h"
-#include "editor/widgets/DragDrop.h"
 
 namespace cave {
 
@@ -122,13 +122,13 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
 
             auto cmd = MakeOwner<ChangePropertyCmd>(
-                ctx.services.sceneRegistry(),
+                ctx.engine_services.sceneRegistry(),
                 ctx.entity,
                 ctx.cid,
                 property->id,
                 old_v,
                 new_v);
-            ctx.edit.submit(ctx.doc_id, std::move(cmd));
+            ctx.editor_services.edit().submit(ctx.doc_id, std::move(cmd));
             return true;
         } break;
         case EditorHint::Asset: {
@@ -189,9 +189,8 @@ void PropertyPanel::drawUIImpl() {
     EditService& edit_service = m_editor_services.edit();
 
     const DrawComponentCtx ctx{
-        .services = m_engine_services,
-        .edit = edit_service,
-        .thumbnail = m_editor_services.thumbnail(),
+        .engine_services = m_engine_services,
+        .editor_services = m_editor_services,
         .scene = &scene,
         .entity = id,
         .doc_id = doc_id,

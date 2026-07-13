@@ -15,6 +15,7 @@
 #include "editor/panels/RendererPanel.h"
 
 #include "editor/services/DocumentService.h"
+#include "editor/services/DragDropService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/PickingService.h"
@@ -51,49 +52,52 @@ EditorState::EditorState(IApplication& app)
     , m_pie(MakeOwner<PIESession>(app.services()))
     , m_debug_id(MakeDebugId(this)) {
 
-    EngineServices& app_services = app.services();
+    EngineServices& engine_services = app.services();
 
     // services
-    m_document = MakeOwner<DocumentService>(app_services, m_editor_services);
-    m_editor_services.document_ = m_document.get();
+    m_document = MakeOwner<DocumentService>(engine_services, services());
+    m_editor_services.document_service = m_document.get();
 
-    m_edit = MakeOwner<EditService>(app_services, m_editor_services);
-    m_editor_services.edit_ = m_edit.get();
+    m_edit = MakeOwner<EditService>(engine_services, services());
+    m_editor_services.edit_service = m_edit.get();
 
-    m_picking = MakeOwner<PickingService>(app_services, m_editor_services);
-    m_editor_services.picking_ = m_picking.get();
+    m_picking = MakeOwner<PickingService>(engine_services, services());
+    m_editor_services.picking_service = m_picking.get();
 
-    m_thumbnail = MakeOwner<ThumbnailService>(app_services);
-    m_editor_services.thumbnail_ = m_thumbnail.get();
+    m_thumbnail = MakeOwner<ThumbnailService>(engine_services);
+    m_editor_services.thumbnail_service = m_thumbnail.get();
 
-    m_icon_cache = MakeOwner<IconCache>(app_services.assetRegistry(), app_services.assetManager());
-    m_editor_services.icon_cache_ = m_icon_cache.get();
+    m_icon_cache = MakeOwner<IconCache>(engine_services.assetRegistry(), engine_services.assetManager());
+    m_editor_services.icon_cache = m_icon_cache.get();
 
     m_selection = MakeOwner<SelectionService>();
-    m_editor_services.selection_ = m_selection.get();
+    m_editor_services.selection_service = m_selection.get();
 
     m_shortcut = MakeOwner<ShortcutService>(*this);
-    m_editor_services.shortcut_ = m_shortcut.get();
+    m_editor_services.shortcut_service = m_shortcut.get();
 
     m_workspace = MakeOwner<Workspace>(*this);
-    m_editor_services.workspace_ = m_workspace.get();
+    m_editor_services.workspace_service = m_workspace.get();
+
+    m_drag_drop = MakeOwner<DragDropService>(engine_services, services());
+    m_editor_services.drag_drop = m_drag_drop.get();
 
     // panels
-    m_content_browser = std::make_shared<ContentBrowser>(*this);
-    m_menu_bar = std::make_shared<MenuBar>(*this);
-    m_log_panel = std::make_shared<LogPanel>(*this);
-    m_file_system_panel = std::make_shared<FileSystemPanel>(*this);
-    m_asset_inspector = std::make_shared<AssetInspector>(*this);
+    m_content_browser = MakeRef<ContentBrowser>(*this);
+    m_menu_bar = MakeRef<MenuBar>(*this);
+    m_log_panel = MakeRef<LogPanel>(*this);
+    m_file_system_panel = MakeRef<FileSystemPanel>(*this);
+    m_asset_inspector = MakeRef<AssetInspector>(*this);
 
     addPanel(m_log_panel);
     addPanel(m_asset_inspector);
-    addPanel(std::make_shared<RendererPanel>(*this));
-    addPanel(std::make_shared<HierarchyPanel>(*this));
-    addPanel(std::make_shared<PropertyPanel>(*this));
+    addPanel(MakeRef<RendererPanel>(*this));
+    addPanel(MakeRef<HierarchyPanel>(*this));
+    addPanel(MakeRef<PropertyPanel>(*this));
     addPanel(m_content_browser);
     addPanel(m_file_system_panel);
 
-    static_cast<EditorAssetManager&>(app_services.assetManager()).setEditorServices(&m_editor_services);
+    static_cast<EditorAssetManager&>(engine_services.assetManager()).setEditorServices(&m_editor_services);
 }
 
 EditorState::~EditorState() {
@@ -189,8 +193,8 @@ void EditorState::commitModeSwitch() {
     m_switch_mode_requested = false;
 }
 
-void EditorState::addPanel(std::shared_ptr<IEditorItem> p_panel) {
-    m_panels.emplace_back(std::move(p_panel));
+void EditorState::addPanel(Ref<IEditorItem> panel) {
+    m_panels.emplace_back(std::move(panel));
 }
 
 void EditorState::dockSpace() {

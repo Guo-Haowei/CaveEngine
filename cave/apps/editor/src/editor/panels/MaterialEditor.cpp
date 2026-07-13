@@ -3,10 +3,10 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/ui/layout.h"
 
 #include "editor/EditorState.h"
-#include "editor/widgets/DragDrop.h"
-#include "engine/private/ui/layout.h"
+#include "editor/services/DragDropService.h"
 
 namespace cave {
 
@@ -68,7 +68,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
             ImGui::Image(image->gpu_texture->GetHandle(), ImVec2(128, 128));
         }
 
-        if (auto _handle = DragDropTarget_Asset(AssetType::Image)) {
+        if (auto _handle = dropAsset(AssetType::Image)) {
             material = _handle.unwrap_unchecked().GetGuid();
         }
     }

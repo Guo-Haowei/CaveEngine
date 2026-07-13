@@ -6,10 +6,10 @@
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 
-#include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
-#include "editor/services/IconCache.h"
+#include "editor/services/DragDropService.h"
 #include "editor/services/EditorServices.h"
+#include "editor/services/IconCache.h"
 
 // @TODO: refactor
 #include "engine/private/ui/inputs.h"
@@ -25,7 +25,7 @@ using namespace ::cave::math;
 
 namespace {
 
-void ImageSourceDropTarget(IDocument& doc, uint64_t checkerboard) {
+void ImageSourceDropTarget(DragDropService& drag_drop, IDocument& doc, uint64_t checkerboard) {
     auto asset = doc.handle<SpriteAnimationAsset>().get();
     DEV_ASSERT(asset);
 
@@ -37,8 +37,8 @@ void ImageSourceDropTarget(IDocument& doc, uint64_t checkerboard) {
     Vec2f region_size(128, 128);
     ui::CenteredImage(image, region_size, checkerboard);
 
-    if (auto _handle = DragDropTarget_Asset(AssetType::Image)) {
-        asset->SetGuid(_handle.unwrap_unchecked().guid());
+    if (auto handle = drag_drop.dropAsset(AssetType::Image)) {
+        asset->SetGuid(handle.unwrap_unchecked().guid());
     }
 }
 
@@ -95,7 +95,9 @@ void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
 
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Animation")) {
-            ImageSourceDropTarget(doc, icons.getIconHandle(IconName::Checkerboard));
+            ImageSourceDropTarget(m_editor_services.dragDrop(),
+                                  doc,
+                                  icons.getIconHandle(IconName::Checkerboard));
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 #include "EditCmdBase.h"

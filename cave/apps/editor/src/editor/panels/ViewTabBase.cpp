@@ -4,9 +4,9 @@
 
 #include "editor/services/EditorServices.h"
 #include "editor/services/DocumentService.h"
+#include "editor/services/DragDropService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
-#include "editor/widgets/DragDrop.h"
 #include "editor/play/PIESession.h"
 
 // @TODO: remove
@@ -186,7 +186,7 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     m_engine_services.imgui->drawTexture(*draw_list, tex, min, max);
 
     ImGui::Dummy({ rect.w, rect.h });
-    if (auto handle_opt = DragDropTarget_Asset(AssetType::All)) {
+    if (auto handle_opt = m_editor_services.dragDrop().dropAsset(AssetType::All)) {
         auto handle = handle_opt.unwrap_unchecked();
         if (!onAssetDropped(handle)) {
             const AssetMetaData* meta = handle.meta();

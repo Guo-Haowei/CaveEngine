@@ -1,18 +1,27 @@
-#include "DragDrop.h"
+#include "DragDropService.h"
+
+#include "cave/runtime/ecs/components/HierarchyComponent.h"
+#include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
+#include "editor/edit/ChangePropertyCmd.h"
 #include "editor/utility/ContentEntry.h"
+#include "editor/services/EditService.h"
+#include "editor/services/EditorServices.h"
 
 namespace cave {
 
 namespace fs = std::filesystem;
+using ecs::Entity;
 
 namespace {
 
 struct DragPayload {
     DragKind kind;
-    ecs::Entity entity;
+    Entity entity;
     AssetType type{ AssetType::Unknown };
     Guid guid;
     char path[256]{ 0 };
@@ -51,7 +60,13 @@ bool IsChild(const ContentEntry* node1, const ContentEntry* node2) {
 
 }  // namespace
 
-void DragDropSource_SceneNode(ecs::Entity ent, std::string_view name) {
+DragDropService::DragDropService(EngineServices& engine_services,
+                                 EditorServices& editor_services)
+    : m_edit(editor_services.edit())
+    , m_scene_reg(engine_services.sceneRegistry()) {
+}
+
+void DragDropService::dragSceneNode(Entity ent, std::string_view name) {
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
         SetPayload(kPayloadSceneNode, ent);
         ImGui::Text("entity '%.*s'", static_cast<int>(name.size()), name.data());
@@ -59,7 +74,7 @@ void DragDropSource_SceneNode(ecs::Entity ent, std::string_view name) {
     }
 }
 
-void DragDropSource_ContentEntry(const ContentEntry& source) {
+void DragDropService::dragContentEntry(const ContentEntry& source) {
     if (source.virtual_path != "@res://") {
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
             if (source.is_dir) {
@@ -75,7 +90,36 @@ void DragDropSource_ContentEntry(const ContentEntry& source) {
     }
 }
 
-Option<AssetHandle> DragDropTarget_Asset(AssetType mask) {
+void DragDropService::dropSceneNode(Entity ent, DocId doc_id, const Scene& scene) {
+    auto drop_node = [&]() {
+        using namespace cave::literals;
+        const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadSceneNode);
+        if (!payload) return;
+
+        const Entity child_id = *reinterpret_cast<const Entity*>(payload->Data);
+        if (child_id.isNull() || child_id == ent) return;
+
+        auto* child_hier = scene.component<HierarchyComponent>(child_id);
+        if (child_hier->parent_id == ent) return;
+
+        auto cmd = MakeOwner<ChangePropertyCmd>(
+            m_scene_reg,
+            child_id,
+            BuiltinComponentId::HierarchyComponent_Id,
+            "parent_id"_sid,
+            child_hier->parent_id,
+            ent);
+
+        m_edit.submit(doc_id, std::move(cmd));
+    };
+
+    if (ImGui::BeginDragDropTarget()) {
+        drop_node();
+        ImGui::EndDragDropTarget();
+    }
+}
+
+Option<AssetHandle> DragDropService::dropAsset(AssetType mask) {
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAsset)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
@@ -90,9 +134,8 @@ Option<AssetHandle> DragDropTarget_Asset(AssetType mask) {
     return None();
 }
 
-void DragDropTarget_Folder(const ContentEntry& target,
-                           const StringHashMap<const ContentEntry*>& lut) {
-
+void DragDropService::dropFolder(const ContentEntry& target,
+                                 const StringHashMap<const ContentEntry*>& lut) {
     if (!target.is_dir) {
         return;
     }

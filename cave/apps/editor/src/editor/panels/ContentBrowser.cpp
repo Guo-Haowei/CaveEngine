@@ -7,11 +7,11 @@
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
+#include "editor/services/DragDropService.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/ThumbnailService.h"
 #include "editor/services/Workspace.h"
 #include "editor/utility/ContentEntry.h"
-#include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
 
@@ -214,9 +214,9 @@ void ContentBrowser::drawContentBrowser() {
             ImGui::EndPopup();
         }
 
-        DragDropSource_ContentEntry(*node);
-
-        DragDropTarget_Folder(*node, asset_manager.folderLut());
+        auto& drag_drop = m_editor_services.dragDrop();
+        drag_drop.dragContentEntry(*node);
+        drag_drop.dropFolder(*node, asset_manager.folderLut());
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
