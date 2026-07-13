@@ -14,8 +14,9 @@ using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 
-Spawner::Spawner(SceneQuery& query, SceneCommandWriter& writer)
-    : m_query(query)
+Spawner::Spawner(SpawnType type, SceneQuery& query, SceneCommandWriter& writer)
+    : m_type(type)
+    , m_query(query)
     , m_writer(writer) {
 
     m_prev_no_save = m_writer.noSave();
@@ -31,7 +32,7 @@ Spawner::~Spawner() {
     m_writer.setNoSave(m_prev_no_save);
 }
 
-void Spawner::spawnPieces(SpawnType type) {
+void Spawner::spawnPieces() {
     Entity piece_parent = m_writer.transformObject("pieces");
     m_writer.attachChild(piece_parent, m_offset_node);
 
@@ -60,7 +61,7 @@ void Spawner::spawnPieces(SpawnType type) {
         }
     }
 
-    if (type == SpawnType::Gameplay) {
+    if (m_type == SpawnType::Gameplay) {
         spawnExtraPieces(piece_parent);
         spawnTiles();
     }

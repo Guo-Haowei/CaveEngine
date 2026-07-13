@@ -8,7 +8,7 @@ namespace chess {
 class ChessViewFactory;
 
 enum class SpawnType : uint8_t {
-    Menu,
+    MainMenu,
     Gameplay,
 };
 
@@ -16,16 +16,17 @@ class Spawner {
     using Entity = cave::ecs::Entity;
 
 public:
-    Spawner(cave::SceneQuery& query, cave::SceneCommandWriter& writer);
+    Spawner(SpawnType type, cave::SceneQuery& query, cave::SceneCommandWriter& writer);
     ~Spawner();
 
     // @TODO: pass FEN instead
-    void spawnPieces(SpawnType type);
+    void spawnPieces();
 
 private:
     void spawnExtraPieces(Entity piece_parent);
     void spawnTiles();
 
+    const SpawnType m_type;
     cave::SceneQuery& m_query;
     cave::SceneCommandWriter& m_writer;
 

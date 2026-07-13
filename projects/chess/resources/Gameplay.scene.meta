@@ -1,0 +1,9 @@
+type: scene
+guid: F39B030D-4541-4449-9A19B0E56FADD13F
+name: Gameplay.scene
+import_path: "@res://Gameplay.scene"
+dependencies: [6E2C66A5-5D0B-944A-87F91E968231C94A, 8B43351D-333B-9A4D-8BAAB542CF234B1E]
+source_created_time: 2026-01-16 13:11:54.6500014
+source_last_modified: 2026-07-13 06:45:50.4118600
+import_settings:
+  {}

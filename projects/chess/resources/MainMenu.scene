@@ -12,6 +12,10 @@ entities:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
+    NativeScriptComponent:
+      name: MainMenu
+      params:
+        {}
   - id: 2
     NameComponent:
       name: light
@@ -47,10 +51,6 @@ entities:
       translation: [0, -0.120999999, 0]
       rotation: [0, 0, 0, 1]
       scale: [7.76999998, 7.7699995, 7.7699976]
-    NativeScriptComponent:
-      name: BoardController
-      params:
-        {}
     MeshRendererComponent:
       visibility: true
       cast_shadow: true
@@ -78,7 +78,7 @@ entities:
       rotation: [-0.31498, -0.632995546, -0.314871162, 0.633214235]
       scale: [1, 1, 1]
     CameraComponent:
-      flags: 0
+      flags: 1
       projection: perspective
       fovy: 60
       near: 0.100000001

@@ -8,8 +8,8 @@ BoardController::BoardController() = default;
 BoardController::~BoardController() = default;
 
 void BoardController::alwaysRun(cave::SceneCommandWriter& writer) {
-    Spawner spawner(query(), writer);
-    spawner.spawnPieces(SpawnType::Gameplay);
+    Spawner spawner(SpawnType::Gameplay, query(), writer);
+    spawner.spawnPieces();
 }
 
 void BoardController::start() {
