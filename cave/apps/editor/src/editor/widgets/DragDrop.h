@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/containers/StringHash.h"
 #include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/runtime/assets/AssetType.h"
@@ -18,16 +19,20 @@ enum class DragKind : uint32_t {
     SceneNode,
 };
 
-Option<AssetHandle> DragDropTarget(AssetType mask);
-
 template<class T>
 inline void SetPayload(const char* type, const T& pay_load) {
     ImGui::SetDragDropPayload(type, &pay_load, sizeof(T), ImGuiCond_Once);
 }
 
-void DragDropSourceContentEntry(const ContentEntry& source);
+void DragDropSource_SceneNode(ecs::Entity ent, std::string_view name);
 
-void DragDropTargetFolder(const ContentEntry& target,
-                          const std::unordered_map<std::string, const ContentEntry*>& lut);
+void DragDropSource_ContentEntry(const ContentEntry& source);
+
+void DragDropTarget_SceneNode(ecs::Entity ent, Scene& scene);
+
+void DragDropTarget_Folder(const ContentEntry& target,
+                           const StringHashMap<const ContentEntry*>& lut);
+
+Option<AssetHandle> DragDropTarget_Asset(AssetType mask);
 
 }  // namespace cave

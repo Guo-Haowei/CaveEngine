@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/containers/StringHash.h"
 #include "cave/runtime/assets/AssetHandle.h"
 
 namespace cave {
@@ -12,16 +13,16 @@ struct ContentEntry {
 
     bool is_dir;
     std::filesystem::path sys_path;
-    std::string virtual_path;
+    String virtual_path;
     std::string_view file_name;
     std::string_view extension;
 
     ContentEntry* parent;
-    std::vector<std::unique_ptr<ContentEntry>> children;
+    Vector<Owner<ContentEntry>> children;
 };
 
-auto BuildFolderTree(const std::filesystem::path& sys_path,
-                     ContentEntry* parent) -> std::unique_ptr<ContentEntry>;
+Owner<ContentEntry> BuildFolderTree(const std::filesystem::path& sys_path,
+                                    ContentEntry* parent);
 
 /// tool tip
 void ShowAssetToolTip(ThumbnailService& service, const AssetHandle& handle);

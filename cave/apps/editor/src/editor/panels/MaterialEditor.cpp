@@ -68,7 +68,7 @@ void MaterialEditor::DrawTextureSlots(MaterialAsset& p_material) {
             ImGui::Image(image->gpu_texture->GetHandle(), ImVec2(128, 128));
         }
 
-        if (auto _handle = DragDropTarget(AssetType::Image)) {
+        if (auto _handle = DragDropTarget_Asset(AssetType::Image)) {
             material = _handle.unwrap_unchecked().GetGuid();
         }
     }

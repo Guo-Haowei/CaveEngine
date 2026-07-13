@@ -37,7 +37,7 @@ void ImageSourceDropTarget(IDocument& doc, uint64_t checkerboard) {
     Vec2f region_size(128, 128);
     ui::CenteredImage(image, region_size, checkerboard);
 
-    if (auto _handle = DragDropTarget(AssetType::Image)) {
+    if (auto _handle = DragDropTarget_Asset(AssetType::Image)) {
         asset->SetGuid(_handle.unwrap_unchecked().guid());
     }
 }

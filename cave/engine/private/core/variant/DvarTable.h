@@ -1,33 +1,10 @@
 #pragma once
+#include "cave/core/containers/StringHash.h"
 #include "cave/core/variant/Variant.h"
 
 #include "Dvar.h"
 
 namespace cave {
-
-// @TODO: move to core
-struct TransparentStringHash {
-    using is_transparent = void;
-
-    size_t operator()(std::string_view value) const noexcept {
-        return std::hash<std::string_view>{}(value);
-    }
-
-    size_t operator()(const std::string& value) const noexcept {
-        return operator()(std::string_view{ value });
-    }
-
-    size_t operator()(const char* value) const noexcept {
-        return operator()(std::string_view{ value });
-    }
-};
-
-template<typename T>
-using StringHashMap = std::unordered_map<
-    std::string,
-    T,
-    TransparentStringHash,
-    std::equal_to<>>;
 
 class DvarTable {
     struct Entry {

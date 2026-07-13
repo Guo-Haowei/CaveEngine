@@ -73,11 +73,11 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
             ImGui::EndPopup();
         }
 
-        DragDropSourceContentEntry(entry);
+        DragDropSource_ContentEntry(entry);
 
         auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
-        DragDropTargetFolder(entry, asset_manager.folderLut());
+        DragDropTarget_Folder(entry, asset_manager.folderLut());
 
         if (hovered) {
             ShowAssetToolTip(m_editor_services.thumbnail(), entry);

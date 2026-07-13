@@ -109,13 +109,21 @@ void FileWatcher::watchLoop() {
 
 namespace {
 
-auto CreateImageAsset(const AssetMetaData& meta) -> Result<std::shared_ptr<ImageAsset>> {
-    auto image = std::make_shared<ImageAsset>();
+auto CreateImageAsset(const AssetMetaData& meta) -> Result<Ref<ImageAsset>> {
+    auto image = MakeRef<ImageAsset>();
     if (auto res = image->loadFromDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }
 
     return image;
+}
+
+void BuildFolderLut(const ContentEntry* node,
+                    StringHashMap<const ContentEntry*>& lut) {
+    lut[node->sys_path.string()] = node;
+    for (const auto& child : node->children) {
+        BuildFolderLut(child.get(), lut);
+    }
 }
 
 }  // namespace
@@ -129,51 +137,43 @@ Result<void> EditorAssetManager::InitializeImpl() {
         return CAVE_ERROR(res.error());
     }
 
-    file_watcher_ = MakeOwner<FileWatcher>();
+    m_file_watcher = MakeOwner<FileWatcher>();
 
     return addAlwaysLoadImages();
 }
 
 void EditorAssetManager::FinalizeImpl() {
-    file_watcher_->stop();
+    m_file_watcher->stop();
 
     AssetManager::FinalizeImpl();
 }
 
 void EditorAssetManager::update() {
-    if (resource_folder_.empty()) {
-        resource_folder_ = m_app->services().vfs().GetMount("@res");
-        if (resource_folder_.empty()) {
+    if (m_resource_folder.empty()) {
+        m_resource_folder = m_app->services().vfs().GetMount("@res");
+        if (m_resource_folder.empty()) {
             return;
         }
     }
 
-    if (file_watcher_->isStopped()) {
-        file_watcher_->start(resource_folder_.string());
+    if (m_file_watcher->isStopped()) {
+        m_file_watcher->start(m_resource_folder.string());
     }
 
-    if (file_watcher_->hasChanged()) {
+    if (m_file_watcher->hasChanged()) {
         refreshAssetFolderTree();
-        file_watcher_->clearFlag();
-    }
-}
-
-static void BuildFolderLut(const ContentEntry* p_node,
-                           std::unordered_map<std::string, const ContentEntry*>& p_lut) {
-    p_lut[p_node->sys_path.string()] = p_node;
-    for (const auto& child : p_node->children) {
-        BuildFolderLut(child.get(), p_lut);
+        m_file_watcher->clearFlag();
     }
 }
 
 void EditorAssetManager::refreshAssetFolderTree() {
     CAVE_PROFILE_EVENT("Build folder tree");
 
-    asset_root_ = BuildFolderTree(resource_folder_, nullptr);
+    m_asset_root = BuildFolderTree(m_resource_folder, nullptr);
 
-    folder_lut_.clear();
-    if (asset_root_) {
-        BuildFolderLut(asset_root_.get(), folder_lut_);
+    m_folder_lut.clear();
+    if (m_asset_root) {
+        BuildFolderLut(m_asset_root.get(), m_folder_lut);
     }
 }
 
@@ -197,19 +197,17 @@ Result<void> EditorAssetManager::addAlwaysLoadImages() {
                 return CAVE_ERROR(res.error());
             }
             auto image = *res;
-            images_[file_name.string()] = image;
+            m_images[file_name.string()] = image;
             m_app->services().renderDevice().RequestTexture(image.get());
         }
     }
 
     return Result<void>();
 }
-std::shared_ptr<ImageAsset> EditorAssetManager::findImage(const std::string& p_name) {
-    auto it = images_.find(p_name);
-    if (it == images_.end()) {
-        return nullptr;
-    }
-    return it->second;
+
+Ref<ImageAsset> EditorAssetManager::findImage(std::string_view name) {
+    auto it = m_images.find(name);
+    return it == m_images.end() ? nullptr : it->second;
 }
 
 void EditorAssetManager::onAssetSaved(const AssetChangedEvent& event) {
@@ -219,7 +217,7 @@ void EditorAssetManager::onAssetSaved(const AssetChangedEvent& event) {
         reloadAsset(guid);
     }
 
-    editor_services_->workspace().onAssetChanged(event.guid, affected);
+    m_editor_services->workspace().onAssetChanged(event.guid, affected);
 }
 
 }  // namespace cave

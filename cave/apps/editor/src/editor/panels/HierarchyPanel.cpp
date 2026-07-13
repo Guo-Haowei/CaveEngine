@@ -124,17 +124,14 @@ bool TreeNodeHelper(Scene& scene,
     }
 
     // @TODO: refactor to use DragDrop.h interface
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-        SetPayload(kPayloadSceneNode, ent);
-        ImGui::Text("entity '%.*s'", static_cast<int>(name.size()), name.data());
-        ImGui::EndDragDropSource();
-    }
+    DragDropSource_SceneNode(ent, name);
 
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadSceneNode)) {
             const Entity child_id = *reinterpret_cast<const Entity*>(payload->Data);
 
             if (child_id != ent) {
+                // 
                 scene.attachChild(child_id, ent);
 
 #if USING(USE_LOG)

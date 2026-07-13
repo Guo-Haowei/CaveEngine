@@ -186,7 +186,7 @@ void ViewTabBase::drawMainView(const math::FloatRect& rect) {
     m_engine_services.imgui->drawTexture(*draw_list, tex, min, max);
 
     ImGui::Dummy({ rect.w, rect.h });
-    if (auto handle_opt = DragDropTarget(AssetType::All)) {
+    if (auto handle_opt = DragDropTarget_Asset(AssetType::All)) {
         auto handle = handle_opt.unwrap_unchecked();
         if (!onAssetDropped(handle)) {
             const AssetMetaData* meta = handle.meta();

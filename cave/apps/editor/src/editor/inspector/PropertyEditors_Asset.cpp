@@ -33,7 +33,7 @@ bool DrawAsset(const DrawComponentCtx& ctx,
     const bool hovered = ImGui::IsItemHovered();
 
     bool dirty = false;
-    if (auto _handle = DragDropTarget(meta ? meta->type : AssetType::All); _handle.is_some()) {
+    if (auto _handle = DragDropTarget_Asset(meta ? meta->type : AssetType::All); _handle.is_some()) {
         dirty = true;
         guid = _handle.unwrap_unchecked().guid();
     }

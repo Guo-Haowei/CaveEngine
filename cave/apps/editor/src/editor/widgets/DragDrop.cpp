@@ -51,22 +51,15 @@ bool IsChild(const ContentEntry* node1, const ContentEntry* node2) {
 
 }  // namespace
 
-Option<AssetHandle> DragDropTarget(AssetType mask) {
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAsset)) {
-            const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
-            DEV_ASSERT(data.kind == DragKind::Asset);
-            if (auto handle = AssetRegistry::singleton().findByGuid(data.guid, mask)) {
-                return Some(handle.unwrap_unchecked());
-            }
-        }
-        ImGui::EndDragDropTarget();
+void DragDropSource_SceneNode(ecs::Entity ent, std::string_view name) {
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+        SetPayload(kPayloadSceneNode, ent);
+        ImGui::Text("entity '%.*s'", static_cast<int>(name.size()), name.data());
+        ImGui::EndDragDropSource();
     }
-
-    return None();
 }
 
-void DragDropSourceContentEntry(const ContentEntry& source) {
+void DragDropSource_ContentEntry(const ContentEntry& source) {
     if (source.virtual_path != "@res://") {
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
             if (source.is_dir) {
@@ -82,8 +75,23 @@ void DragDropSourceContentEntry(const ContentEntry& source) {
     }
 }
 
-void DragDropTargetFolder(const ContentEntry& target,
-                          const std::unordered_map<std::string, const ContentEntry*>& lut) {
+Option<AssetHandle> DragDropTarget_Asset(AssetType mask) {
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAsset)) {
+            const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
+            DEV_ASSERT(data.kind == DragKind::Asset);
+            if (auto handle = AssetRegistry::singleton().findByGuid(data.guid, mask)) {
+                return Some(handle.unwrap_unchecked());
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    return None();
+}
+
+void DragDropTarget_Folder(const ContentEntry& target,
+                           const StringHashMap<const ContentEntry*>& lut) {
 
     if (!target.is_dir) {
         return;
@@ -92,11 +100,12 @@ void DragDropTargetFolder(const ContentEntry& target,
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAsset)) {
             // @TODO: move assets, need to move meta as well
+            LOG_WARN("TODO: implement kPayloadAsset");
         }
 
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadFolder)) {
             const DragPayload& data = *reinterpret_cast<const DragPayload*>(payload->Data);
-            auto it = lut.find(std::string(data.path));
+            auto it = lut.find(data.path);
             DEV_ASSERT(it != lut.end());
             const ContentEntry* moved = it->second;
             const bool is_child = IsChild(&target, moved);

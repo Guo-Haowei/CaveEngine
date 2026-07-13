@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/containers/StringHash.h"
 #include "engine/private/runtime/assets/AssetManager.h"
 #include "editor/services/EditorServices.h"
 
@@ -21,35 +22,35 @@ struct AssetChangedEvent {
 class EditorAssetManager : public AssetManager {
 public:
     EditorAssetManager();
-    virtual ~EditorAssetManager();
+    ~EditorAssetManager() override;
 
     Result<void> InitializeImpl() override;
     void FinalizeImpl() override;
 
     void update() override;
 
-    std::shared_ptr<ImageAsset> findImage(const std::string& name);
+    Ref<ImageAsset> findImage(std::string_view name);
 
     void onAssetSaved(const AssetChangedEvent& event);
 
-    const auto& assetRoot() const { return asset_root_; }
-    const auto& folderLut() const { return folder_lut_; }
+    const auto& assetRoot() const { return m_asset_root; }
+    const auto& folderLut() const { return m_folder_lut; }
 
-    EditorServices& editorServices() { return *editor_services_; }
-    void setEditorServices(EditorServices* services) { editor_services_ = services; }
+    EditorServices& editorServices() { return *m_editor_services; }
+    void setEditorServices(EditorServices* services) { m_editor_services = services; }
 
 protected:
     Result<void> addAlwaysLoadImages();
     void refreshAssetFolderTree();
 
-    EditorServices* editor_services_{};
+    EditorServices* m_editor_services{};
 
-    std::unordered_map<std::string, std::shared_ptr<ImageAsset>> images_;
-    std::unique_ptr<FileWatcher> file_watcher_;
+    StringHashMap<Ref<ImageAsset>> m_images;
+    Owner<FileWatcher> m_file_watcher;
 
-    std::filesystem::path resource_folder_;
-    std::unique_ptr<ContentEntry> asset_root_;
-    std::unordered_map<std::string, const ContentEntry*> folder_lut_;
+    std::filesystem::path m_resource_folder;
+    Owner<ContentEntry> m_asset_root;
+    StringHashMap<const ContentEntry*> m_folder_lut;
 };
 
 }  // namespace cave

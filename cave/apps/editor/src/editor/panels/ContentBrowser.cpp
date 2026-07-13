@@ -214,9 +214,9 @@ void ContentBrowser::drawContentBrowser() {
             ImGui::EndPopup();
         }
 
-        DragDropSourceContentEntry(*node);
+        DragDropSource_ContentEntry(*node);
 
-        DragDropTargetFolder(*node, asset_manager.folderLut());
+        DragDropTarget_Folder(*node, asset_manager.folderLut());
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
