@@ -125,10 +125,10 @@ entities:
       parent_id: 147
       local_visible: true
     UIRectTransformComponent:
-      anchor_min: [0, 0]
-      anchor_max: [0, 0]
-      offset_min: [0, 0]
-      offset_max: [100, 100]
+      anchor_min: [0.5, 0]
+      anchor_max: [0.5, 0]
+      offset_min: [-200, 325]
+      offset_max: [200, 425]
     UIButtonComponent:
       clicked_event: ""
   - id: 280
@@ -138,9 +138,9 @@ entities:
       parent_id: 147
       local_visible: true
     UIRectTransformComponent:
-      anchor_min: [0, 0]
-      anchor_max: [0, 0]
-      offset_min: [0, 0]
-      offset_max: [100, 100]
+      anchor_min: [0.5, 0]
+      anchor_max: [0.5, 0]
+      offset_min: [-200, 500]
+      offset_max: [200, 600]
     UIButtonComponent:
       clicked_event: ""
