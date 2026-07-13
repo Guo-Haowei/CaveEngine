@@ -45,14 +45,14 @@ public:
 
     bool canCoalesceWith(const IEditCmd* cmd) const override;
 
-    void coalesceFrom(std::unique_ptr<IEditCmd> cmd) override;
+    void coalesceFrom(Owner<IEditCmd> cmd) override;
 
 private:
-    const ComponentId cid_;
-    const PropertyId pid_;
+    const ComponentId m_cid;
+    const PropertyId m_pid;
 
-    std::vector<uint8_t> old_;
-    std::vector<uint8_t> new_;
+    Vector<uint8_t> m_old;
+    Vector<uint8_t> m_new;
 };
 
 }  // namespace cave
