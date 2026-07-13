@@ -60,4 +60,28 @@ const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_UIButtonComponent_meta = MetaDataTable<UIButtonComponent>::GetFields();
 
+
+template<>
+const MetaTableFields& MetaDataTable<UIImageComponent>::GetFields() {
+    static MetaTableFields s_table = {
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_UIImageComponent_meta = MetaDataTable<UIImageComponent>::GetFields();
+
+
+template<>
+const MetaTableFields& MetaDataTable<UITextComponent>::GetFields() {
+    static MetaTableFields s_table = {
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_UITextComponent_meta = MetaDataTable<UITextComponent>::GetFields();
+
 }  // namespace cave

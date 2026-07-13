@@ -354,6 +354,19 @@ void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, e
     OBJECT_LIST
 #undef DEFINE_OBJECT
 
+    auto can_add_canvas_item = [](const Scene& scene, Entity parent) {
+        while (parent != scene.root() && parent.valid()) {
+            if (scene.has(UICanvasComponent_Id, parent)) return true;
+            const auto* hier = scene.component<HierarchyComponent>(parent);
+            if (DEV_VERIFY(hier)) {
+                parent = hier->parent_id;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    };
+
     if (ImGui::BeginMenu("UI")) {
         const bool is_parent_root = parent == preview_scene.scene->root();
         if (ImGui::MenuItem("Canvas", nullptr, false, is_parent_root)) {
@@ -363,8 +376,13 @@ void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, e
                 return temp;
             });
         }
-        // only add button to UI stufwriterf
-        if (ImGui::MenuItem("Button", nullptr, false, true)) {
+        const bool can_add_ui = can_add_canvas_item(*preview_scene.scene, parent);
+        if (ImGui::MenuItem("Button", nullptr, false, can_add_ui)) {
+            edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+                Entity temp = writer.button("UIButton");
+                writer.attachChild(temp, parent);
+                return temp;
+            });
         }
         ImGui::EndMenu();
     }

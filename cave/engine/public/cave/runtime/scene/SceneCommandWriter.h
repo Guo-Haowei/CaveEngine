@@ -84,6 +84,7 @@ public:
     Entity tileMapObject(std::string_view name);
 
     Entity canvas(std::string_view name);
+    Entity button(std::string_view name);
 
     void setNoSave(bool value) { m_no_save = value; }
     bool noSave() const { return m_no_save; }

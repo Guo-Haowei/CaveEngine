@@ -45,6 +45,8 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)       \
     REGISTER_COMPONENT(UICanvasComponent, "UI::UICanvasComponent", 0)                        \
     REGISTER_COMPONENT(UIRectTransformComponent, "UI::UIRectTransformComponent", 0)          \
+    REGISTER_COMPONENT(UIImageComponent, "UI::UIImageComponent", 0)                          \
+    REGISTER_COMPONENT(UITextComponent, "UI::UITextComponent", 0)                            \
     REGISTER_COMPONENT(UIButtonComponent, "UI::UIButtonComponent", 0)
 
 #define REGISTER_COMPONENT_LIST                                                \

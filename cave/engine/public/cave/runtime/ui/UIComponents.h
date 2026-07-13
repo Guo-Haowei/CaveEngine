@@ -54,4 +54,26 @@ struct UIButtonComponent {
     bool interactable = true;
 };
 
+struct UIImageComponent {
+    CAVE_COMPONENT(UIImageComponent)
+
+    math::Vec4f tint = math::Vec4f::One;
+
+    // Non-serialized
+    // AssetHandle texture;
+};
+
+struct UITextComponent {
+    CAVE_COMPONENT(UITextComponent)
+
+    String text = "Text";
+
+    math::Vec4f tint = math::Vec4f::One;
+
+    float font_size = 24.0f;
+
+    // Non-serialized
+    // AssetHandle font;
+};
+
 }  // namespace cave

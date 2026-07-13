@@ -167,4 +167,22 @@ Entity SceneCommandWriter::canvas(std::string_view name) {
     return e;
 }
 
+Entity SceneCommandWriter::button(std::string_view name) {
+    Entity button = nameObject(name);
+
+    addComponent(button, HierarchyComponent_Id);
+    addComponent(button, UIRectTransformComponent_Id);
+    addComponent(button, UIImageComponent_Id);
+    addComponent(button, UIButtonComponent_Id);
+
+    Entity label = nameObject("Text");
+
+    addComponent(label, HierarchyComponent_Id);
+    addComponent(label, UIRectTransformComponent_Id);
+    addComponent(label, UITextComponent_Id);
+
+    attachChild(label, button);
+    return button;
+}
+
 }  // namespace cave
