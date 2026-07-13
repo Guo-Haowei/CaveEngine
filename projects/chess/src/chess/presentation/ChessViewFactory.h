@@ -11,34 +11,33 @@ namespace cave { class SceneCommandWriter; }
 
 namespace chess {
 
-// @TODO: factory and registry
+struct PieceCreatInfo {
+    core::Piece piece;
+    cave::ecs::Entity parent;
+    bool visible = true;
+};
+
+struct TileCreatInfo {
+    cave::math::Vec4f color;
+    const char* name;
+    cave::ecs::Entity parent;
+    bool visible = false;
+};
 
 class ChessViewFactory {
     using Entity = ::cave::ecs::Entity;
 
 public:
-    ChessViewFactory(cave::SceneCommandWriter& writer, Entity parent);
+    ChessViewFactory(cave::SceneCommandWriter& writer);
 
-    Entity createPiece(core::Square square, core::Piece piece);
-
-    // @TODO: move tile creation to somewhere else
-    struct TileInitInfo {
-        cave::math::Vec4f color;
-        const char* name;
-        Entity parent;
-    };
-    Entity createTile(core::Square square, const TileInitInfo& info);
-
-    void setVisible(bool visible) { visible_ = visible; }
+    Entity createPiece(core::Square square, const PieceCreatInfo& info);
+    Entity createTile(core::Square square, const TileCreatInfo& info);
 
 private:
-    cave::SceneCommandWriter& writer_;
-    Entity parent_;
-    const char* materials_[2];
+    cave::SceneCommandWriter& m_writer;
+    const char* m_materials[2];
 
-    std::array<uint8_t, core::kPieceMax> piece_counters_{ 0 };
-
-    bool visible_{ true };
+    std::array<uint8_t, core::kPieceMax> m_piece_counters{ 0 };
 };
 
 }  // namespace chess
