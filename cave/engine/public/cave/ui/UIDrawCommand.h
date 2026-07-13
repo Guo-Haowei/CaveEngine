@@ -2,8 +2,8 @@
 // File: cave/ui/UIDrawCommand.h
 // =============================================================================
 #pragma once
-#include <vector>
 #include "cave/core/Color.h"
+#include "cave/core/containers/Containers.h"
 #include "cave/ui/UITypes.h"
 
 namespace cave {
@@ -26,7 +26,7 @@ struct UIDrawCommand {
 };
 
 struct UIDrawList {
-    std::vector<UIDrawCommand> cmds;
+    Vector<UIDrawCommand> cmds;
 
     void addRect(const UIRect& rect, const Color& color) {
         UIDrawCommand cmd{
