@@ -1,5 +1,7 @@
 #include "SceneSerializer.h"
 
+#include "cave/runtime/ui/UIComponents.h"
+
 #include "engine/private/runtime/assets/PrefabAsset.h"
 #include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"

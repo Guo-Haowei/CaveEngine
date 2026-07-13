@@ -2,8 +2,7 @@
 // File: cave/runtime/ui/UIComponents.h
 // =============================================================================
 #pragma once
-#include <cstdint>
-
+#include "cave/core/containers/Containers.h"
 #include "cave/core/math/Vec.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 
@@ -49,8 +48,8 @@ struct UIRectTransformComponent {
 struct UIButtonComponent {
     CAVE_COMPONENT(UIButtonComponent)
 
-    CAVE_PROP(editor = StringId)
-    StringId clicked_event;
+    CAVE_PROP(editor = InputText)
+    String clicked_event;
 
     bool interactable = true;
 };

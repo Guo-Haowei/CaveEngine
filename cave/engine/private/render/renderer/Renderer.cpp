@@ -3,6 +3,7 @@
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 
@@ -49,17 +50,18 @@ using math::Vec4f;
 
 class Renderer::Impl {
 public:
-    Impl(IRenderDevice& device)
-        : m_device(device)
-        , m_transient_pool(device)
-        , m_env(m_transient_pool, device)
-        , m_ssao(device) {}
+    Impl(EngineServices& services)
+        : m_services(services)
+        , m_device(services.renderDevice())
+        , m_transient_pool(m_device)
+        , m_env(m_transient_pool, m_device)
+        , m_ssao(m_device) {}
 
     void tick(const FrameTime& time,
               std::span<const ResolvedView> views,
               const UIFrameDrawData& ui_draw_data);
 
-    void setMode(bool is_2d) { is_2d_ = is_2d; }
+    void setMode(bool is_2d) { m_is_2d = is_2d; }
 
 #if USING(USE_COMMAND)
     bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
@@ -86,9 +88,10 @@ private:
     void createOrUpdateUIBuffers(const BuiltUIData& ui_data);
 
 private:
+    EngineServices& m_services;
     IRenderDevice& m_device;
     RenderSceneBuilder scene_builder_;
-    std::unordered_map<SceneId, RenderScene> scene_cache_;
+    HashMap<SceneId, RenderScene> scene_cache_;
 
     // features
     TransientPool m_transient_pool;
@@ -97,17 +100,17 @@ private:
     SsaoFeature m_ssao;
     PathTracerFeature pathtracer_;
 
-    GpuTextureId brdf_{};
-    GpuTextureId ltc1_{};
-    GpuTextureId ltc2_{};
-    bool is_2d_{ false };
+    GpuTextureId m_brdf{};
+    GpuTextureId m_ltc1{};
+    GpuTextureId m_ltc2{};
+    bool m_is_2d{ false };
 
-    std::shared_ptr<GpuMesh> ui_buffers_;
+    Ref<GpuMesh> m_ui_buffers;
 };
 
-Renderer::Renderer(IRenderDevice& device, AssetRegistry& asset_registry)
-    : m_impl(MakeOwner<Impl>(device))
-    , m_canvas_render(MakeOwner<CanvasRenderer>(asset_registry)) {}
+Renderer::Renderer(EngineServices& services)
+    : m_impl(MakeOwner<Impl>(services))
+    , m_canvas_render(MakeOwner<CanvasRenderer>(services.assetRegistry())) {}
 
 Renderer::~Renderer() = default;
 
@@ -255,8 +258,8 @@ static bool updateAllUIBuffer(IRenderDevice& p_device,
 
 // @TODO: consider move to UIRenderer
 void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
-    if (ui_buffers_) {
-        if (!updateAllUIBuffer(m_device, ui_data, *ui_buffers_)) {
+    if (m_ui_buffers) {
+        if (!updateAllUIBuffer(m_device, ui_data, *m_ui_buffers)) {
             // @TODO: proper error handling
             CRASH_NOW_MSG("Failed to update UI buffer");
         }
@@ -277,7 +280,7 @@ void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
     mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
     mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Color), 0 };
 
-    ui_buffers_ = m_device.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
+    m_ui_buffers = m_device.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
 }
 
 void Renderer::Impl::tick(const FrameTime& time,
@@ -299,7 +302,7 @@ void Renderer::Impl::tick(const FrameTime& time,
         const ResolvedView& view = plan.views[idx];
         FrameData& data = plan.frame_data[idx];
         data.ui_batch = ui_data.batches[idx];
-        data.ui_buffer = ui_buffers_;
+        data.ui_buffer = m_ui_buffers;
         data.view_id = view.view_id;
 
         if (auto res = buildRenderGraph(data.options, view); !res) {
@@ -373,31 +376,31 @@ auto Renderer::Impl::buildRenderGraph(const RenderOptions& plan,
         return buildRenderGraphPt(plan, view);
     }
 
-    return is_2d_ ? buildRenderGraph2d(plan, view) : buildRenderGraphDeferred(plan, view);
+    return m_is_2d ? buildRenderGraph2d(plan, view) : buildRenderGraphDeferred(plan, view);
 }
 
-auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
-                                              const ResolvedView& view_) -> Result<std::shared_ptr<CompiledGraph>> {
-    if (!brdf_) {
-        std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage("brdf.hdr");
-        brdf_ = m_device.CreateTexture(image.get());
+auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
+                                              const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+    if (!m_brdf) {
+        Ref<ImageAsset> image = m_services.assetManager().findImage("brdf.hdr");
+        m_brdf = m_device.CreateTexture(image.get());
     }
-    if (!ltc1_) {
-        ltc1_ = CreateLTC1(m_device);
+    if (!m_ltc1) {
+        m_ltc1 = CreateLTC1(m_device);
     }
-    if (!ltc2_) {
-        ltc2_ = CreateLTC2(m_device);
+    if (!m_ltc2) {
+        m_ltc2 = CreateLTC2(m_device);
     }
 
-    RenderGraphBuilderExt graph(view_.viewport_px);
+    RenderGraphBuilderExt graph(view.viewport_px);
 
-    RGTextureId brdf = graph.ImportTexture({ brdf_ });
-    RGTextureId ltc1 = graph.ImportTexture({ ltc1_ });
-    RGTextureId ltc2 = graph.ImportTexture({ ltc2_ });
+    RGTextureId brdf = graph.ImportTexture({ m_brdf });
+    RGTextureId ltc1 = graph.ImportTexture({ m_ltc1 });
+    RGTextureId ltc2 = graph.ImportTexture({ m_ltc2 });
 
-    auto env_outputs = m_env.Build(graph, plan_);
+    auto env_outputs = m_env.Build(graph, plan);
 
-    auto shadow_outputs = shadow_.Build(graph, plan_);
+    auto shadow_outputs = shadow_.Build(graph, plan);
 
     // @TODO: refactor the following
     auto prepass_outputs = graph.addDepthPrepass();
@@ -408,12 +411,12 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
 
     SsaoFeature::Outputs ssao_outputs{};
 
-    if (plan_.enable_ssao) {
+    if (plan.enable_ssao) {
         SsaoFeature::Inputs ssao_inputs{
             .normal = gbuffer_outputs.color1,
             .depth = prepass_outputs.depth,
         };
-        ssao_outputs = m_ssao.Build(graph, plan_, ssao_inputs);
+        ssao_outputs = m_ssao.Build(graph, plan, ssao_inputs);
     }
 
     auto lighting_outputs = graph.addLightingPass({
@@ -450,7 +453,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan_,
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
         .bloom = 0,
-        .color_attachment = view_.output,
+        .color_attachment = view.output,
     });
 
     return graph.Compile();

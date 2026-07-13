@@ -61,21 +61,37 @@ void Application::registerModule(IService* p_module) {
 
 auto Application::setupModules() -> Result<void> {
     // @TODO: clean up
+    m_engine_services.canvas_ = &m_canvas;
+    m_engine_services.intent_bus = &m_intent_bus;
+
     m_cmd_reg_ = new cave::CommandRegistry();
     m_console = new cave::Console(*this);
 
-    m_asset_manager = CreateAssetService();
-    m_asset_registry = new AssetRegistry();
-    m_render_device = CreateRenderDevice(m_app_spec.backend);
-    m_display_service = CreateDisplayService();
-    m_input_service = new InputService(m_game_input);
-    m_game_input.setPointer(m_input_service->pointers());
     m_task_manager = new TaskManager();
+    m_engine_services.task_manager = m_task_manager;
+
+    m_asset_manager = CreateAssetService();
+    m_engine_services.asset_manager = m_asset_manager;
+
+    m_asset_registry = new AssetRegistry();
+    m_engine_services.asset_registry = m_asset_registry;
+
+    m_render_device = CreateRenderDevice(m_app_spec.backend);
+    m_engine_services.render_device = m_render_device;
+
+    m_display_service = CreateDisplayService();
+    m_engine_services.display_service = m_display_service;
+
+    m_input_service = new InputService(m_game_input);
+    m_engine_services.input_service = m_input_service;
+
+    m_game_input.setPointer(m_input_service->pointers());
 
     // @TODO: dependency injection?
     m_scene_registry = MakeOwner<SceneRegistry>();
 
-    m_renderer = MakeOwner<render::Renderer>(*m_render_device, *m_asset_registry);
+    m_renderer = MakeOwner<render::Renderer>(m_engine_services);
+    m_engine_services.renderer_ = m_renderer.get();
 
     m_scene_scheduler = MakeOwner<SceneScheduler>(m_engine_services);
 
@@ -87,28 +103,19 @@ auto Application::setupModules() -> Result<void> {
                                                   *m_asset_manager,
                                                   *m_asset_registry,
                                                   *m_renderer);
+    m_engine_services.project_manager = m_project_manager.get();
 
     m_ui = MakeOwner<UIRuntime>(*m_view_manager);
+    m_engine_services.ui = m_ui.get();
 
     // setup app services
-    m_engine_services.asset_manager = m_asset_manager;
-    m_engine_services.asset_registry = m_asset_registry;
-    m_engine_services.canvas_ = &m_canvas;
-    m_engine_services.display_service = m_display_service;
     m_engine_services.game_input = &m_game_input;
-    m_engine_services.input_service = m_input_service;
-    m_engine_services.intent_bus_ = &m_intent_bus;
     m_engine_services.native_scripts = &m_native_scripts;
-    m_engine_services.project_manager = m_project_manager.get();
-    m_engine_services.render_device_ = m_render_device;
-    m_engine_services.renderer_ = m_renderer.get();
     m_engine_services.scene_registry = m_scene_registry.get();
     m_engine_services.scene_scheduler = m_scene_scheduler.get();
-    m_engine_services.task_manager = m_task_manager;
-    m_engine_services.ui = m_ui.get();
     m_engine_services.view_manager = m_view_manager.get();
-    m_engine_services.vfs_ = &m_vfs;
-    m_engine_services.game_module_ = &m_game_module_handle;
+    m_engine_services.vfs = &m_vfs;
+    m_engine_services.game_module = &m_game_module_handle;
 
     // register subsystems
     registerModule(m_task_manager);

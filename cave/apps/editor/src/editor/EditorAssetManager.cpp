@@ -150,7 +150,7 @@ void EditorAssetManager::FinalizeImpl() {
 
 void EditorAssetManager::update() {
     if (m_resource_folder.empty()) {
-        m_resource_folder = m_app->services().vfs().GetMount("@res");
+        m_resource_folder = m_app->services().VFS().GetMount("@res");
         if (m_resource_folder.empty()) {
             return;
         }

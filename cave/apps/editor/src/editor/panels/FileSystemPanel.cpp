@@ -29,7 +29,7 @@ const char* FileSystemPanel::windowId() const {
 }
 
 void FileSystemPanel::onAttach() {
-    m_root = m_engine_services.vfs().GetMount("@res");
+    m_root = m_engine_services.VFS().GetMount("@res");
 }
 
 void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {

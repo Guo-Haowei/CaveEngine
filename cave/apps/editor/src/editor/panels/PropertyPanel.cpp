@@ -52,6 +52,12 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                 [](const char* label, bool& value) {
                     return ui::CheckBox(label, value);
                 });
+        case EditorHint::InputText:
+            return EditAndSubmit<String>(
+                ctx, component, property,
+                [](const char* label, String& value) {
+                    return ui::TextBox(label, value);
+                });
         case EditorHint::InputInt:
             return EditAndSubmit<int>(
                 ctx, component, property,

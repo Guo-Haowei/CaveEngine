@@ -36,10 +36,10 @@ namespace cave {
 
 enum class EditorHint {
     None = 0,
-    StringId,
     EnumDropDown,
     Asset,
     Toggle,
+    InputText,
     InputInt,
     InputFloat,
     DragFloat,

@@ -46,12 +46,12 @@ const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_UIRectTransformComponent_meta = MetaDataTable<UIRectTransformComponent>::GetFields();
 
-// StringId clicked_event (editor = StringId)
+// String clicked_event (editor = InputText)
 
 template<>
 const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(UIButtonComponent, "clicked_event", clicked_event, FieldFlag::Serialize, EditorHint::StringId),
+        REGISTER_FIELD(UIButtonComponent, "clicked_event", clicked_event, FieldFlag::Serialize, EditorHint::InputText),
     };
 
     return s_table;

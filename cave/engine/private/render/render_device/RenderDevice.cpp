@@ -217,18 +217,18 @@ static void FillTextureAndSamplerDesc(const ImageAsset* p_image, GpuTextureDesc&
     }
 }
 
-std::shared_ptr<GpuTexture> RenderDevice::CreateTexture(ImageAsset* p_image) {
-    DEV_ASSERT(p_image);
+Ref<GpuTexture> RenderDevice::CreateTexture(ImageAsset* image) {
+    DEV_ASSERT(image);
 
     GpuTextureDesc texture_desc{};
     SamplerDesc sampler_desc{};
-    FillTextureAndSamplerDesc(p_image, texture_desc, sampler_desc);
+    FillTextureAndSamplerDesc(image, texture_desc, sampler_desc);
 
-    p_image->gpu_texture = CreateTexture(texture_desc, sampler_desc);
-    return p_image->gpu_texture;
+    image->gpu_texture = CreateTexture(texture_desc, sampler_desc);
+    return image->gpu_texture;
 }
 
-void RenderDevice::submit(std::unique_ptr<render::RenderSubmission>&& p_submission) {
+void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: make it a function

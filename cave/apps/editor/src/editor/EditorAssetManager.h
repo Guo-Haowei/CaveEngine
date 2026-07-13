@@ -29,7 +29,7 @@ public:
 
     void update() override;
 
-    Ref<ImageAsset> findImage(std::string_view name);
+    Ref<ImageAsset> findImage(std::string_view name) override;
 
     void onAssetSaved(const AssetChangedEvent& event);
 
