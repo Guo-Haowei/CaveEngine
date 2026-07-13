@@ -2,6 +2,7 @@
 // File: cave/runtime/script/native/NativeScriptSystem.h
 // =============================================================================
 #pragma once
+#include "cave/core/containers/Containers.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 #include "cave/runtime/script/native/NativeScript.h"
 #include "cave/runtime/script/native/NativeScriptComponent.h"
@@ -35,7 +36,7 @@ private:
                      NativeScriptComponent& component);
 
     bool m_always_run_called = false;
-    std::unique_ptr<NativeScriptStorage> m_storage;
+    Owner<NativeScriptStorage> m_storage;
     const DebugId m_debug_id;
 };
 

@@ -18,6 +18,7 @@ constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
 void UIRuntime::beginFrame(const UIInput& input) {
     m_ui_input = input;
     m_draw_data.clear();
+    m_events.clear();
     m_hot = Entity{};
 }
 
@@ -27,7 +28,9 @@ void UIRuntime::endFrame() {
     }
 }
 
-void UIRuntime::buildCanvas(const Scene& scene, ViewId view_id) {
+void UIRuntime::buildCanvas(const Scene& scene,
+                            SceneId scene_id,
+                            ViewId view_id) {
     auto count = scene.count<UICanvasComponent>();
     if (!count) {
         return;
@@ -40,13 +43,18 @@ void UIRuntime::buildCanvas(const Scene& scene, ViewId view_id) {
             break;
         }
         auto ui_tree = m_resolver.resolve(scene, ent, canvas.resolution);
-        buildDrawList(ui_tree, view_id);
+        buildDrawList(ui_tree, scene, scene_id, view_id);
+
+        m_ui_trees[scene_id] = std::move(ui_tree);
 
         ++counter;
     }
 }
 
-void UIRuntime::buildDrawList(const ResolvedUITree& ui_tree, ViewId view_id) {
+void UIRuntime::buildDrawList(const ResolvedUITree& ui_tree,
+                              const Scene& scene,
+                              SceneId scene_id,
+                              ViewId view_id) {
     const ViewRecord* view = m_view_manager.resolve(view_id);
     DEV_ASSERT(view);
 
@@ -67,6 +75,15 @@ void UIRuntime::buildDrawList(const ResolvedUITree& ui_tree, ViewId view_id) {
 
         if (hovered && m_ui_input.submit_pressed) {
             m_active = uiid;
+
+            auto* button = scene.component<UIButtonComponent>(element.entity);
+            if (button && button->interactable && !button->clicked_event.empty()) {
+                m_events.emplace_back(UIButtonClicked{
+                    scene_id,
+                    StringId(button->clicked_event),
+                    element.entity,
+                });
+            }
         }
 
         bool clicked = false;

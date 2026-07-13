@@ -68,14 +68,6 @@ void UpdateHierarchy(Scene& scene, size_t idx, float) {
                 parent = hierarchy->parent_id;
                 visible = visible && hierarchy->local_visible;
             } else {
-#if USING(USE_LOG)
-                const auto* name = scene.component<NameComponent>(parent);
-                if (name) {
-                    LOG_WARN(LogChannel::Scene, "entity {} does not have HierarchyComponent", name->name());
-                } else {
-                    LOG_WARN(LogChannel::Scene, "entity {} does not have HierarchyComponent", parent.id());
-                }
-#endif
                 parent = Entity::null();
             }
         } else {

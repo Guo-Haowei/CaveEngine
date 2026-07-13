@@ -237,19 +237,25 @@ bool Application::mainLoop() {
     // update layers from back to front
     m_view_manager->beginFrame();
 
-    m_state_machine.tick(time);
+    m_state_machine.tick(time); // submit view requests
     m_intent_bus.flush();
+
+    std::span<const ResolvedView> views = m_view_manager->endFrame();
+    // ----- 
+
+    for (const ResolvedView& view : views) {
+        m_ui_runtime->buildCanvas(*view.scene,
+                                  view.scene_id,
+                                  view.view_id);
+    }
+
+    auto events = m_ui_runtime->events();
 
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->tick(time);
 
     m_ui_runtime->endFrame();
     m_canvas.endFrame();
-
-    std::span<const ResolvedView> views = m_view_manager->endFrame();
-    for (const ResolvedView& view : views) {
-        m_ui_runtime->buildCanvas(*view.scene, view.view_id);
-    }
 
     m_renderer->tick(time, views, m_ui_runtime->takeDrawData());
 

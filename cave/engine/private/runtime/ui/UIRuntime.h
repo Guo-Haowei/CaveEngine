@@ -23,10 +23,19 @@ public:
         return std::move(m_draw_data);
     }
 
-    void buildCanvas(const Scene& scene, ViewId view_id) override;
+    void buildCanvas(const Scene& scene,
+                     SceneId scene_id,
+                     ViewId view_id);
+
+    std::span<const UIButtonClicked> events() const override {
+        return m_events;
+    }
 
 private:
-    void buildDrawList(const ResolvedUITree& ui_tree, ViewId view_id);
+    void buildDrawList(const ResolvedUITree& ui_tree,
+                       const Scene& scene,
+                       SceneId scene_id,
+                       ViewId view_id);
 
     ViewManager& m_view_manager;
     UIInput m_ui_input{};
@@ -36,6 +45,9 @@ private:
     ecs::Entity m_active;  // pressed/captured this frame
 
     UILayoutResolver m_resolver;
+    Vector<UIButtonClicked> m_events;
+
+    HashMap<SceneId, ResolvedUITree> m_ui_trees;
 };
 
 }  // namespace cave
