@@ -38,6 +38,8 @@ FILES = [
     'public/cave/runtime/tile_map/TileMapAsset.h',
     'public/cave/runtime/tile_map/TileSetAsset.h',
 
+    'public/cave/runtime/ui/UIComponents.h',
+
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',
 

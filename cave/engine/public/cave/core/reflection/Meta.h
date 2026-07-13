@@ -36,6 +36,7 @@ namespace cave {
 
 enum class EditorHint {
     None = 0,
+    StringId,
     EnumDropDown,
     Asset,
     Toggle,
@@ -45,6 +46,7 @@ enum class EditorHint {
     DragInt,
     Color,
     Translation,
+    Translation2D,
     Rotation,
     Scale,
     BitMask,

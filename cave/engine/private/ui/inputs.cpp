@@ -138,7 +138,7 @@ enum {
 };
 
 template<int N>
-static bool Float3Impl(int type,
+static bool FloatNImpl(int type,
                        const char* label,
                        float* data,
                        float reset_value,
@@ -239,14 +239,14 @@ bool Float2(const char* label,
             Vec2f& out,
             float reset_value,
             float column_width) {
-    return Float3Impl<2>(TYPE_TRANSFORM, label, &out.x, reset_value, column_width);
+    return FloatNImpl<2>(TYPE_TRANSFORM, label, &out.x, reset_value, column_width);
 }
 
 bool Float3(const char* label,
             Vec3f& out_vec3,
             float reset_value,
             float column_width) {
-    return Float3Impl<3>(TYPE_TRANSFORM, label, &out_vec3.x, reset_value, column_width);
+    return FloatNImpl<3>(TYPE_TRANSFORM, label, &out_vec3.x, reset_value, column_width);
 }
 
 bool ColorPicker3(const char* label,

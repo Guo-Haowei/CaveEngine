@@ -42,7 +42,10 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(MaterialComponent, "World::MaterialComponent", 0)                     \
     REGISTER_COMPONENT(FacingComponent, "World::FacingComponent", 0)                         \
     REGISTER_COMPONENT(SpriteRendererComponent, "World::SpriteRendererComponent", 0)         \
-    REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)
+    REGISTER_COMPONENT(TileMapInstanceComponent, "World::TileMapInstanceComponent", 0)       \
+    REGISTER_COMPONENT(UICanvasComponent, "UI::UICanvasComponent", 0)                        \
+    REGISTER_COMPONENT(UIRectTransformComponent, "UI::UIRectTransformComponent", 0)          \
+    REGISTER_COMPONENT(UIButtonComponent, "UI::UIButtonComponent", 0)
 
 #define REGISTER_COMPONENT_LIST                                                \
     REGISTER_COMPONENT_SERIALIZED_LIST                                         \

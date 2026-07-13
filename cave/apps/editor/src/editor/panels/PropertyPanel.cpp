@@ -90,6 +90,12 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                 [](const char* label, Vec4f& value) {
                     return ui::ColorPicker4(label, value);
                 });
+        case EditorHint::Translation2D:
+            return EditAndSubmit<Vec2f>(
+                ctx, component, property,
+                [](const char* label, Vec2f& value) {
+                    return ui::Float2(label, value, 0.0f);
+                });
         case EditorHint::Translation:
             return EditAndSubmit<Vec3f>(
                 ctx, component, property,
