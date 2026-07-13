@@ -1,3 +1,4 @@
+#if 0
 #include "GameOverState.h"
 
 #include "cave/runtime/framework/IUIRuntime.h"
@@ -10,7 +11,6 @@ namespace chess {
 
 using namespace cave;
 
-#if 0
 void GameOverState::Tick(cave::IHostServices& p_host, const cave::FrameTime&) {
     cave::IUIRuntime& ui = p_host.ui();
 
@@ -26,6 +26,6 @@ void GameOverState::Tick(cave::IHostServices& p_host, const cave::FrameTime&) {
     }
     ui.endView();
 }
-#endif
 
 }  // namespace chess
+#endif

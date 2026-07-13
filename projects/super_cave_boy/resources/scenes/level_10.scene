@@ -46,7 +46,7 @@ entities:
         params:
           level:
             type: string
-            value: level_10
+            value: end
           initial_state:
             type: string
             value: hidden
@@ -74,7 +74,7 @@ entities:
       prefab_id: 0CC56972-64AF-3A43-BFB41CFF39705652
     PrefabOverride:
       TransformComponent:
-        translation: [17.478117, 3.20000005, 0]
+        translation: [16.9236126, 3.20000005, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 27

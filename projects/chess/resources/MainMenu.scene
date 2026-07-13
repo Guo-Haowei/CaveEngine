@@ -1,0 +1,146 @@
+version: 20
+seed: 280
+root: 1
+entities:
+  - id: 1
+    NameComponent:
+      name: root
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    NativeScriptComponent:
+      name: MainMenu
+      params:
+        {}
+  - id: 2
+    NameComponent:
+      name: light
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0.852087259, 0.0361759625, 0.447049439, -0.269787729]
+      scale: [0.999999821, 1.00000095, 1.00000024]
+    LightComponent:
+      type: infinite
+      atten_constant: 1
+      atten_linear: 0
+      atten_quadratic: 0
+      shadow_region:
+        min: [.inf, .inf, .inf]
+        max: [-.inf, -.inf, -.inf]
+      cast_shadow: true
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 5
+      material_id: 00000000-0000-0000-0000000000000000
+  - id: 46
+    NameComponent:
+      name: chess_board
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    TransformComponent:
+      translation: [0, -0.120999999, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [7.76999998, 7.7699995, 7.7699976]
+    MeshRendererComponent:
+      visibility: true
+      cast_shadow: true
+      transparency: false
+      mesh_id: 6E2C66A5-5D0B-944A-87F91E968231C94A
+      materials: [47]
+      skeleton_id: 0
+  - id: 47
+    NameComponent:
+      name: mat_0
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 8B43351D-333B-9A4D-8BAAB542CF234B1E
+  - id: 77
+    NameComponent:
+      name: game_camera
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    TransformComponent:
+      translation: [-5.80000019, 6.69999981, 0]
+      rotation: [-0.31498, -0.632995546, -0.314871162, 0.633214235]
+      scale: [1, 1, 1]
+    CameraComponent:
+      flags: 0
+      projection: perspective
+      fovy: 60
+      near: 0.100000001
+      far: 1000
+      aspect: 1.77777779
+      ortho_height: 10
+  - id: 81
+    NameComponent:
+      name: transform
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    TransformComponent:
+      translation: [-3.5, 0, -3.5]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 147
+    NameComponent:
+      name: UICanvas
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    UICanvasComponent:
+      space: screen
+      resolution: [1920, 1080]
+      match: 0.5
+  - id: 213
+    NameComponent:
+      name: MainMenuStart
+    HierarchyComponent:
+      parent_id: 147
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0.5, 0]
+      anchor_max: [0.5, 0]
+      offset_min: [-200, 150]
+      offset_max: [200, 250]
+    UIButtonComponent:
+      clicked_event: main_menu.start
+  - id: 279
+    NameComponent:
+      name: Button2
+    HierarchyComponent:
+      parent_id: 147
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0.5, 0]
+      anchor_max: [0.5, 0]
+      offset_min: [-200, 325]
+      offset_max: [200, 425]
+    UIButtonComponent:
+      clicked_event: ""
+  - id: 280
+    NameComponent:
+      name: Button3
+    HierarchyComponent:
+      parent_id: 147
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0.5, 0]
+      anchor_max: [0.5, 0]
+      offset_min: [-200, 500]
+      offset_max: [200, 600]
+    UIButtonComponent:
+      clicked_event: ""

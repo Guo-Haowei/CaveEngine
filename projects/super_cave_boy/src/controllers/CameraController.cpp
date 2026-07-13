@@ -60,28 +60,26 @@ void CameraController::update(float dt) {
 }
 
 void CameraController::followTarget(float dt) {
-    if (!entity().valid() || !m_target.valid()) {
-        return;
+    auto camera_transform = component<TransformComponent>();
+    DEV_ASSERT(camera_transform);
+
+    Vec3f new_pos = camera_transform->translation();
+    const float z = new_pos.z;
+    if (m_target.valid()) {
+        float speed = 8.f * dt;
+        speed = math::max(speed, 0.0f);
+        auto target_transform = query().component<TransformComponent>(m_target);
+
+        const Vec3f target_pos = target_transform->translation();
+        new_pos += (target_pos - new_pos) * speed;
     }
 
-    float speed = 8.f * dt;
-    speed = math::max(speed, 0.0f);
-
-    auto target_transform = query().component<TransformComponent>(m_target);
-    auto camera_transform = component<TransformComponent>();
     auto camera = component<CameraComponent>();
-
-    const Vec3f target_pos = target_transform->translation();
-    const Vec3f camera_pos = camera_transform->translation();
-
-    Vec3f new_pos = camera_pos + (target_pos - camera_pos) * speed;
-
     auto tile_world = system<TileWorldSystem>();
     auto bound = tile_world->worldBound();
-
     Vec2f xy = ClampCameraToTileMap(new_pos.xy, bound.min(), bound.max(), camera->orthoHeight(), camera->aspect());
 
-    camera_transform->setTranslation(Vec3f{ xy, camera_pos.z });
+    camera_transform->setTranslation(Vec3f{ xy, z });
 }
 
 }  // namespace super_cave_boy

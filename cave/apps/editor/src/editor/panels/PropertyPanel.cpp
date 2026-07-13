@@ -3,21 +3,22 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-
-#include "engine/private/runtime/ecs/components/All.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
+#include "cave/runtime/ui/UIComponents.h"
 
 #include "editor/inspector/PropertyEditors.h"
+#include "editor/EditorState.h"
+#include "editor/utility/ContentEntry.h"
+#include "editor/services/DragDropService.h"
+#include "editor/services/SelectionService.h"
+#include "editor/services/Workspace.h"
 
 // @TODO: refactor
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
+#include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/ui/layout.h"
-
-#include "editor/EditorState.h"
-#include "editor/utility/ContentEntry.h"
-#include "editor/widgets/DragDrop.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
+#include "engine/private/runtime/ui/Layout.h"
 
 namespace cave {
 
@@ -51,6 +52,12 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                 ctx, component, property,
                 [](const char* label, bool& value) {
                     return ui::CheckBox(label, value);
+                });
+        case EditorHint::InputText:
+            return EditAndSubmit<String>(
+                ctx, component, property,
+                [](const char* label, String& value) {
+                    return ui::TextBox(label, value);
                 });
         case EditorHint::InputInt:
             return EditAndSubmit<int>(
@@ -90,6 +97,12 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                 [](const char* label, Vec4f& value) {
                     return ui::ColorPicker4(label, value);
                 });
+        case EditorHint::Translation2D:
+            return EditAndSubmit<Vec2f>(
+                ctx, component, property,
+                [](const char* label, Vec2f& value) {
+                    return ui::Float2(label, value, 0.0f);
+                });
         case EditorHint::Translation:
             return EditAndSubmit<Vec3f>(
                 ctx, component, property,
@@ -122,13 +135,13 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
             Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
 
             auto cmd = MakeOwner<ChangePropertyCmd>(
-                ctx.services.sceneRegistry(),
+                ctx.engine_services.sceneRegistry(),
                 ctx.entity,
                 ctx.cid,
                 property->id,
                 old_v,
                 new_v);
-            ctx.edit.submit(ctx.doc_id, std::move(cmd));
+            ctx.editor_services.edit().submit(ctx.doc_id, std::move(cmd));
             return true;
         } break;
         case EditorHint::Asset: {
@@ -163,6 +176,44 @@ bool DrawComponentAuto(T* component, const DrawComponentCtx& ctx) {
     return (int)dirty;
 }
 
+template<ComponentType T>
+void DrawComponentAuto(std::string_view name, const DrawComponentCtx& ctx) {
+    T* component = ctx.scene->component<T>(ctx.entity);
+    if (!component) return;
+
+    const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
+                                             ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap |
+                                             ImGuiTreeNodeFlags_FramePadding;
+    ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+    float line_height = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+    ImGui::Separator();
+    bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, "%s", name.data());
+    ImGui::PopStyleVar();
+    ImGui::SameLine(contentRegionAvailable.x - line_height * 0.5f);
+    if (ImGui::Button("-", ImVec2{ line_height, line_height })) {
+        ImGui::OpenPopup("ComponentSettings");
+    }
+
+    if (ImGui::BeginPopup("ComponentSettings")) {
+        if (ImGui::MenuItem("remove component")) {
+            auto cmd = MakeOwner<RemoveComponentCmd<T>>(
+                ctx.engine_services.sceneRegistry(),
+                ctx.entity,
+                *component);
+            ctx.editor_services.edit().submit(ctx.doc_id, std::move(cmd));
+        }
+
+        ImGui::EndPopup();
+    }
+
+    if (open) {
+        DrawComponentAuto(component, ctx);
+        ImGui::TreePop();
+    }
+}
+
 void PropertyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
@@ -189,9 +240,8 @@ void PropertyPanel::drawUIImpl() {
     EditService& edit_service = m_editor_services.edit();
 
     const DrawComponentCtx ctx{
-        .services = m_engine_services,
-        .edit = edit_service,
-        .thumbnail = m_editor_services.thumbnail(),
+        .engine_services = m_engine_services,
+        .editor_services = m_editor_services,
         .scene = &scene,
         .entity = id,
         .doc_id = doc_id,
@@ -248,17 +298,12 @@ void PropertyPanel::drawUIImpl() {
     }
 
     // @TODO: see how much this can be done with meta table
-
     TransformComponent* transform = scene.component<TransformComponent>(id);
     LightComponent* light = scene.component<LightComponent>(id);
     MaterialComponent* material = scene.component<MaterialComponent>(id);
     ColliderComponent* collider = scene.component<ColliderComponent>(id);
     NativeScriptComponent* native_script = scene.component<NativeScriptComponent>(id);
     CameraComponent* camera = scene.component<CameraComponent>(id);
-    FacingComponent* facing = scene.component<FacingComponent>(id);
-    VelocityComponent* velocity = scene.component<VelocityComponent>(id);
-    MotorComponent* motor = scene.component<MotorComponent>(id);
-    SpriteAnimatorComponent* sprite_animator = scene.component<SpriteAnimatorComponent>(id);
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
@@ -309,23 +354,16 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Facing"), facing, [&ctx](FacingComponent& comp) {
-        DrawComponentAuto(&comp, ctx);
-    });
+    DrawComponentAuto<FacingComponent>("Facing", ctx);
+    DrawComponentAuto<VelocityComponent>("Velocity", ctx);
+    DrawComponentAuto<MotorComponent>("Motor", ctx);
+    DrawComponentAuto<SpriteRendererComponent>("SpriteRenderer", ctx);
+    DrawComponentAuto<TileMapInstanceComponent>("TileMapInstance", ctx);
+    DrawComponentAuto<SpriteAnimatorComponent>("SpriteAnimator", ctx);
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Velocity"), velocity, [&ctx](VelocityComponent& comp) {
-        DrawComponentAuto(&comp, ctx);
-    });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("Motor"), motor, [&ctx](MotorComponent& comp) {
-        DrawComponentAuto(&comp, ctx);
-    });
-
-    DrawComponent(
-        DRAW_COMPONENT_ARGS("SpriteAnimator"), sprite_animator,
-        [&](SpriteAnimatorComponent& animator) {
-            DrawComponentAuto<SpriteAnimatorComponent>(&animator, ctx);
-        });
+    DrawComponentAuto<UICanvasComponent>("Canvas", ctx);
+    DrawComponentAuto<UIRectTransformComponent>("Rect", ctx);
+    DrawComponentAuto<UIButtonComponent>("Button", ctx);
 
     DrawComponent(
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),
@@ -342,18 +380,6 @@ void PropertyPanel::drawUIImpl() {
                 p_anim.SetTimer(timer);
             }
         });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"),
-                  scene.component<SpriteRendererComponent>(id),
-                  [&](SpriteRendererComponent& p_renderer) {
-                      DrawComponentAuto<SpriteRendererComponent>(&p_renderer, ctx);
-                  });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"),
-                  scene.component<TileMapInstanceComponent>(id),
-                  [&](TileMapInstanceComponent& p_renderer) {
-                      DrawComponentAuto<TileMapInstanceComponent>(&p_renderer, ctx);
-                  });
 
     MeshRendererComponent* mesh_renderer = scene.component<MeshRendererComponent>(id);
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {

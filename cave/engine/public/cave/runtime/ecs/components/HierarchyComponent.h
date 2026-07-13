@@ -12,6 +12,12 @@ struct HierarchyComponent {
 
     CAVE_PROP()
     ecs::Entity parent_id;
+
+    CAVE_PROP()
+    bool local_visible = true;
+
+    // Non-serialized attributes
+    bool visible = true;
 };
 
 }  // namespace cave

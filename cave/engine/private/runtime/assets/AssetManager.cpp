@@ -47,6 +47,7 @@ namespace {
 
 void InitializeDefault(Scene& scene) {
     auto root = scene.createEntity();
+    scene.create(HierarchyComponent_Id, root);
     scene.create(TransformComponent_Id, root);
     scene.create<NameComponent>(root).setName("root");
     scene.setRoot(root);
@@ -199,7 +200,7 @@ Result<void> AssetManager::renameAssetOrFolder(const fs::path& old_path,
 }
 
 std::string AssetManager::resolvePath(const fs::path& path) {
-    return services().vfs().Resolve("@res", path);
+    return services().VFS().Resolve("@res", path);
 }
 
 uint64_t AssetManager::submitLoadAsset(const AssetLoadRequest& request) {

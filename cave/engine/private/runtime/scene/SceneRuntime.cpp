@@ -4,9 +4,11 @@
 #include "cave/runtime/scene/SystemManager.h"
 #include "cave/runtime/script/native/NativeScriptSystem.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
+#include "cave/runtime/ui/UIComponents.h"
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/ecs/components/All.h"
+#include "engine/private/runtime/ui/UISystem.h"
 
 namespace cave {
 
@@ -23,6 +25,9 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
 
     SceneFeature features = SceneFeature::NativeScript;
     if (domain == SceneTickDomain::Simulate) {
+        if (scene.count<UICanvasComponent>()) {
+            features |= SceneFeature::UI;
+        }
         if (scene.count<MotorComponent>()) {
             features |= SceneFeature::Motor;
         }
@@ -34,6 +39,9 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
 }
 
 void SceneRuntime::start() {
+    if ((int)(m_features & SceneFeature::UI)) {
+        m_systems.add<UISystem>(*this);
+    }
     if ((int)(m_features & SceneFeature::NativeScript)) {
         m_systems.add<NativeScriptSystem>(*this);
         auto native_scripts = m_systems.get<NativeScriptSystem>();

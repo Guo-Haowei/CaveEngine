@@ -6,19 +6,17 @@
 #include "engine/private/runtime/view/ResolvedView.h"
 
 // clang-format off
-namespace cave { class AssetRegistry; }
 namespace cave { class ICanvas; }
+namespace cave { struct EngineServices; }
 namespace cave { struct FrameData; }
 namespace cave { struct UIFrameDrawData; }
 // clang-format on
 
 namespace cave::render {
 
-class IRenderDevice;
-
 class Renderer {
 public:
-    Renderer(IRenderDevice& device, AssetRegistry& asset_registry);
+    Renderer(EngineServices& services);
     ~Renderer();
 
     void tick(const FrameTime& frame,
@@ -40,10 +38,10 @@ public:
 private:
     class Impl;
 
-    std::unique_ptr<Impl> m_impl;
+    Owner<Impl> m_impl;
 
     // renderers
-    std::unique_ptr<CanvasRenderer> m_canvas_render;
+    Owner<CanvasRenderer> m_canvas_render;
     // @TODO: UI renderer
 };
 

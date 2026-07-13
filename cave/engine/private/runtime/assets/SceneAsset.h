@@ -4,7 +4,10 @@
 namespace cave {
 
 class SceneAsset final : public SceneContainer {
-    CAVE_ASSET(SceneAsset, AssetType::Scene, 0)
+    CAVE_ASSET(SceneAsset, AssetType::Scene, 20)
+
+public:
+    auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;
 };
 
 }  // namespace cave

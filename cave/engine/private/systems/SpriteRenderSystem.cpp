@@ -1,5 +1,6 @@
-#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
+#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
@@ -16,8 +17,10 @@ void RunSpriteRenderSystem(const Scene* scene, FrameData& framedata) {
 
     auto& sprites = framedata.sprites;
 
-    auto view = scene->view<SpriteRendererComponent, TransformComponent>();
-    for (const auto& [id, sprite_renderer, transform] : view) {
+    auto view = scene->view<SpriteRendererComponent, TransformComponent, HierarchyComponent>();
+    for (const auto& [id, sprite_renderer, transform, hier] : view) {
+        if (!hier.visible) continue;
+
         const Mat4f& world_matrix = transform.worldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;

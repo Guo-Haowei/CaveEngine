@@ -4,6 +4,7 @@
 #include <imgui/imgui_internal.h>
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -11,22 +12,23 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
+#include "editor/edit/ChangePropertyCmd.h"
+#include "editor/edit/EditObjectCmd.h"
 #include "editor/services/DocumentService.h"
+#include "editor/services/DragDropService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/EditorServices.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
-
-#include "editor/edit/EditObjectCmd.h"
-#include "editor/EditorState.h"
-#include "editor/widgets/DragDrop.h"
 
 namespace cave {
 
 using ::cave::ecs::Entity;
-
-#define POPUP_NAME_ID "SCENE_PANEL_POPUP"
+using namespace ::cave::literals;
 
 namespace {
+
+constexpr char kPopupNameId[] = "SCENE_PANEL_POPUP";
 
 // @TODO: build the scene tree and attach to scene
 // @TODO: on scene change instead of build every frame
@@ -39,8 +41,12 @@ public:
         Vector<HierarchyNode*> children;
     };
 
-    SceneTreeBuilder(const PreviewScene& preview, SelectionService& selection)
-        : m_preview(preview), m_selection(selection) {}
+    SceneTreeBuilder(const PreviewScene& preview,
+                     EngineServices& engine_services,
+                     EditorServices& editor_services)
+        : m_preview(preview)
+        , m_engine_services(engine_services)
+        , m_editor_services(editor_services) {}
 
     void update() {
         if (buildSceneTree(*m_preview.scene)) {
@@ -53,19 +59,30 @@ private:
     bool buildSceneTree(const Scene& scene);
     void drawNode(HierarchyNode* node,
                   ImGuiTreeNodeFlags flags = 0);
+    bool treeNodeHelper(Scene& scene,
+                        Entity ent,
+                        ImGuiTreeNodeFlags tree_flags,
+                        std::function<void()> on_left_click,
+                        std::function<void()> on_right_click);
+
+    const PreviewScene& m_preview;
+
+    EngineServices& m_engine_services;
+    EditorServices& m_editor_services;
 
     Map<Entity, Owner<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
-    const PreviewScene& m_preview;
-    SelectionService& m_selection;
 };
 
-bool TreeNodeHelper(Scene& scene,
-                    Entity ent,
-                    ImGuiTreeNodeFlags tree_flags,
-                    std::function<void()> on_left_click,
-                    std::function<void()> on_right_click) {
-    const NameComponent* name_component = scene.component<NameComponent>(ent);
+bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
+                                      Entity ent,
+                                      ImGuiTreeNodeFlags tree_flags,
+                                      std::function<void()> on_left_click,
+                                      std::function<void()> on_right_click) {
+    const auto* name_component = scene.component<NameComponent>(ent);
+    const auto* hier_component = scene.component<HierarchyComponent>(ent);
+    DEV_ASSERT(name_component && hier_component);
+
     std::string_view name = name_component->name();
     if (name.empty()) {
         name = "Untitled";
@@ -75,48 +92,89 @@ bool TreeNodeHelper(Scene& scene,
     if (tree_flags & ImGuiTreeNodeFlags_Leaf) {
         icon = ICON_FA_SQUARE_SHARE_NODES;
     }
-    auto node_name = std::format("##{}", ent.id());
-    auto tag = std::format("{} {}{}", icon, name, node_name);
+
+    const char* text = hier_component->visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+    const auto node_name = std::format("##tree_node_{}", ent.id());
+    const auto selectable_name = std::format("{} {}##tree_selectable_{}", icon, name, ent.id());
+    const auto visibility_name = std::format("{}##visibility_{}", text, ent.id());
 
     tree_flags |= ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
+    constexpr float kVisibilityColumnWidth = 36.0f;
+    constexpr float kRightPadding = 4.0f;
+
+    ImGui::PushID(static_cast<int>(ent.id()));
+
+    const float row_start_y = ImGui::GetCursorPosY();
+
     const bool expanded = ImGui::TreeNodeEx(node_name.c_str(), tree_flags);
+
     ImGui::SameLine();
 
-    ImGui::Selectable(tag.c_str());
-    if (ImGui::IsItemHovered()) {
+    const float available_width = ImGui::GetContentRegionAvail().x;
+    float selectable_width = available_width -
+                             kVisibilityColumnWidth -
+                             kRightPadding -
+                             ImGui::GetStyle().ItemSpacing.x;
+    selectable_width = math::max(selectable_width, 1.0f);
+
+    ImGui::Selectable(selectable_name.c_str(),
+                      false,
+                      ImGuiSelectableFlags_None,
+                      ImVec2(selectable_width, 0.0f));
+
+    const bool selectable_hovered = ImGui::IsItemHovered();
+
+    bool left_clicked = false;
+    bool right_clicked = false;
+
+    if (selectable_hovered) {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            if (on_left_click) {
-                on_left_click();
-            }
+            left_clicked = true;
         } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-            if (on_right_click) {
-                on_right_click();
-            }
+            right_clicked = true;
         }
     }
 
-    // @TODO: refactor to use DragDrop.h interface
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-        SetPayload(kPayloadSceneNode, ent);
-        ImGui::Text("entity '%s'", name.data());
-        ImGui::EndDragDropSource();
+    m_editor_services.dragDrop().dragSceneNode(ent, name);
+    m_editor_services.dragDrop().dropSceneNode(ent, m_preview.doc_id, scene);
+
+    const float visibility_x =
+        ImGui::GetWindowContentRegionMax().x -
+        kVisibilityColumnWidth -
+        kRightPadding;
+
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(visibility_x);
+    ImGui::SetCursorPosY(row_start_y);
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 2.0f));
+
+    if (ImGui::Button(visibility_name.c_str(), ImVec2(kVisibilityColumnWidth, 0.0f))) {
+        auto cmd = MakeOwner<ChangePropertyCmd>(
+            m_engine_services.sceneRegistry(),
+            ent,
+            BuiltinComponentId::HierarchyComponent_Id,
+            "local_visible"_sid,
+            hier_component->local_visible,
+            !hier_component->local_visible);
+
+        m_editor_services.edit().submit(m_preview.doc_id, std::move(cmd));
     }
 
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadSceneNode)) {
-            Entity child_id = *reinterpret_cast<Entity*>(payload->Data);
-            if (child_id != ent) {
-                scene.attachChild(child_id, ent);
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor(3);
 
-                if constexpr (true) {  // @TODO: log macro
-                    const NameComponent* child_name = scene.component<NameComponent>(child_id);
-                    DEV_ASSERT(child_name);
-                    LOG_TRACE("moved '{}' under '{}'", child_name->name(), name);
-                }
-            }
-        }
-        ImGui::EndDragDropTarget();
+    ImGui::PopID();
+
+    if (left_clicked && on_left_click) {
+        on_left_click();
+    }
+    if (right_clicked && on_right_click) {
+        on_right_click();
     }
 
     return expanded;
@@ -129,12 +187,12 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
     DEV_ASSERT(hier);
     Entity current_id = hier->entity;
 
-    SelectionKey selection = m_selection.primary(m_preview.doc_id);
+    SelectionKey selection = m_editor_services.selection().primary(m_preview.doc_id);
 
     tree_flags |= hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
     tree_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
 
-    const bool expanded = TreeNodeHelper(
+    const bool expanded = treeNodeHelper(
         *m_preview.scene,
         current_id,
         tree_flags,
@@ -145,7 +203,7 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
             selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_selection.setSelection(m_preview.doc_id, selection);
+            m_editor_services.selection().setSelection(m_preview.doc_id, selection);
         },
         [this, current_id]() {
             SelectionKey selection;
@@ -154,8 +212,8 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
             selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_selection.setSelection(m_preview.doc_id, selection);
-            ImGui::OpenPopup(POPUP_NAME_ID);
+            m_editor_services.selection().setSelection(m_preview.doc_id, selection);
+            ImGui::OpenPopup(kPopupNameId);
         });
 
     if (expanded) {
@@ -170,18 +228,16 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
 }
 
 bool SceneTreeBuilder::buildSceneTree(const Scene& scene) {
-    for (auto [ent, transform] : scene.view<TransformComponent>()) {
+    for (auto [ent, hier] : scene.view<HierarchyComponent>()) {
         auto find_or_create = [this](Entity ent) -> HierarchyNode* {
             if (ent.isNull()) {
                 return nullptr;
             }
-            auto [it, ok] = m_nodes.try_emplace(ent, std::make_unique<HierarchyNode>());
+            auto [it, ok] = m_nodes.try_emplace(ent, MakeOwner<HierarchyNode>());
             return it->second.get();
         };
 
-        const auto hier = scene.component<HierarchyComponent>(ent);
-
-        const Entity parent_id = hier ? hier->parent_id : Entity::null();
+        const Entity parent_id = hier.parent_id;
         HierarchyNode* parent_node = find_or_create(parent_id);
         HierarchyNode* self_node = find_or_create(ent);
         if (parent_node) {
@@ -216,14 +272,16 @@ void HierarchyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
     PreviewScene preview = m_editor_services.workspace().focusedPreviewScene();
     if (preview.scene) {
-        SceneTreeBuilder sceneTree(preview, m_editor_services.selection());
+        SceneTreeBuilder sceneTree(preview,
+                                   m_engine_services,
+                                   m_editor_services);
         drawPopup(preview);
         sceneTree.update();
     }
 }
 
 void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
-    if (ImGui::BeginPopup(POPUP_NAME_ID)) {
+    if (ImGui::BeginPopup(kPopupNameId)) {
         SelectionKey selection = m_editor_services.selection().primary(preview_scene.doc_id);
         DEV_ASSERT(selection.doc == preview_scene.doc_id);
         ecs::Entity selected = selection.entity;
@@ -231,7 +289,13 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
         ecs::Entity parent = selected.valid() ? selected : preview_scene.scene->root();
 
         if (ImGui::BeginMenu("Add")) {
-            openAddEntityPopupImpl(preview_scene.doc_id, parent);
+            const bool is_ui = preview_scene.scene->has(UICanvasComponent_Id, parent) ||
+                               preview_scene.scene->has(UIRectTransformComponent_Id, parent);
+            if (is_ui) {
+                openAddUIPopupImpl(preview_scene, parent);
+            } else {
+                openAddEntityPopupImpl(preview_scene, parent);
+            }
             ImGui::EndMenu();
         }
 
@@ -269,13 +333,39 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
     DEFINE_OBJECT(torus,          true )
 // clang-format on
 
-void HierarchyPanel::openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent) {
-    DEV_ASSERT(parent.valid());
+void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
+    EditService& edit = m_editor_services.edit();
+
+    auto can_add_canvas_item = [](const Scene& scene, Entity parent) {
+        while (parent != scene.root() && parent.valid()) {
+            if (scene.has(UICanvasComponent_Id, parent)) return true;
+            const auto* hier = scene.component<HierarchyComponent>(parent);
+            if (DEV_VERIFY(hier)) {
+                parent = hier->parent_id;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    };
+
+    const bool can_add_ui = can_add_canvas_item(*preview_scene.scene, parent);
+    if (ImGui::MenuItem("Button", nullptr, false, can_add_ui)) {
+        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+            Entity temp = writer.button("UIButton");
+            writer.attachChild(temp, parent);
+            return temp;
+        });
+    }
+}
+
+void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
+    EditService& edit = m_editor_services.edit();
 
     using CreateFunc = Entity (*)(SceneCommandWriter&, std::string_view);
     auto add_object = [&](const char* name, bool separate, CreateFunc&& create_func) {
         if (ImGui::MenuItem(name)) {
-            m_editor_services.edit().submit(doc_id, [&](SceneCommandWriter& writer) {
+            edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
                 Entity temp = create_func(writer, name);
                 writer.attachChild(temp, parent);
                 return temp;
@@ -293,6 +383,16 @@ void HierarchyPanel::openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent) {
     [](SceneCommandWriter& writer, std::string_view name) { return writer.NAME##Object(name); });
     OBJECT_LIST
 #undef DEFINE_OBJECT
+
+    ImGui::Separator();
+    const bool is_parent_root = parent == preview_scene.scene->root();
+    if (ImGui::MenuItem("Canvas", nullptr, false, is_parent_root)) {
+        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+            Entity temp = writer.canvas("UICanvas");
+            writer.attachChild(temp, parent);
+            return temp;
+        });
+    }
 }
 
 }  // namespace cave

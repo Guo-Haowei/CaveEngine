@@ -32,7 +32,6 @@ class GameModuleHandle;
 struct RuntimeServices {
     AssetRegistry* asset_registry{};
     DisplayService* display_service{};
-    IAssetManager* asset_manager{};
     ICanvas* canvas_{};
     IGameInput* game_input{};
     InputService* input_service{};
@@ -49,7 +48,6 @@ struct RuntimeServices {
 
     AssetRegistry& assetRegistry() { return *asset_registry; }
     DisplayService& displayService() { return *display_service; }
-    IAssetManager& assetManager() { return *asset_manager; }
     ICanvas& canvas() { return *canvas_; }
     IGameInput& gameInput() { return *game_input; }
     InputService& inputService() { return *input_service; }
@@ -63,19 +61,21 @@ struct RuntimeServices {
 };
 
 struct EngineServices : public RuntimeServices {
-    IntentBus* intent_bus_{};
-    VFS* vfs_{};
-    GameModuleHandle* game_module_{};
+    IAssetManager* asset_manager{};
+    IntentBus* intent_bus{};
+    VFS* vfs{};
+    GameModuleHandle* game_module{};
 
-    render::IRenderDevice* render_device_{};
+    render::IRenderDevice* render_device{};
     render::Renderer* renderer_{};
 
-    IntentBus& intentBus() { return *intent_bus_; }
-    VFS& vfs() { return *vfs_; }
-    GameModuleHandle& gameModule() { return *game_module_; }
+    IAssetManager& assetManager() { return *asset_manager; }
+    IntentBus& intentBus() { return *intent_bus; }
+    VFS& VFS() { return *vfs; }
+    GameModuleHandle& gameModule() { return *game_module; }
 
     render::Renderer& renderer() { return *renderer_; };
-    render::IRenderDevice& renderDevice() { return *render_device_; };
+    render::IRenderDevice& renderDevice() { return *render_device; };
 };
 
 }  // namespace cave

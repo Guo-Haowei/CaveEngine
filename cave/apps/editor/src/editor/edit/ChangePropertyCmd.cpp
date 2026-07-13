@@ -22,14 +22,14 @@ ChangePropertyCmd::ChangePropertyCmd(SceneRegistry& scene_reg,
                                      const void* new_data,
                                      uint32_t data_size)
     : EditCmdBase(scene_reg, ent)
-    , cid_(cid)
-    , pid_(pid) {
-    old_.resize(data_size);
-    new_.resize(data_size);
+    , m_cid(cid)
+    , m_pid(pid) {
+    m_old.resize(data_size);
+    m_new.resize(data_size);
 
     const void* old = old_data ? old_data : new_data;
-    std::memcpy(old_.data(), old, data_size);
-    std::memcpy(new_.data(), new_data, data_size);
+    std::memcpy(m_old.data(), old, data_size);
+    std::memcpy(m_new.data(), new_data, data_size);
 }
 
 bool ChangePropertyCmd::apply(IDocument& doc) {
@@ -40,11 +40,11 @@ bool ChangePropertyCmd::apply(IDocument& doc) {
 
     SceneCommandExecutor executor(*scene);
     bool res = executor.changeProperty(m_ent,
-                                       cid_,
-                                       pid_,
-                                       new_.data(),
-                                       (uint32_t)new_.size());
-    DEBUG_PRINT("Do: changed '{}' of entity {}", pid_.debugName(), m_ent.id());
+                                       m_cid,
+                                       m_pid,
+                                       m_new.data(),
+                                       (uint32_t)m_new.size());
+    DEBUG_PRINT("Do: changed '{}' of entity {}", m_pid.debugName(), m_ent.id());
     return res;
 }
 
@@ -56,26 +56,26 @@ bool ChangePropertyCmd::undo(IDocument& doc) {
 
     SceneCommandExecutor executor(*scene);
     bool res = executor.changeProperty(m_ent,
-                                       cid_,
-                                       pid_,
-                                       old_.data(),
-                                       (uint32_t)old_.size());
-    DEBUG_PRINT("Undo: changed '{}' of entity {}", pid_.debugName(), m_ent.id());
+                                       m_cid,
+                                       m_pid,
+                                       m_old.data(),
+                                       (uint32_t)m_old.size());
+    DEBUG_PRINT("Undo: changed '{}' of entity {}", m_pid.debugName(), m_ent.id());
     return res;
 }
 
 bool ChangePropertyCmd::canCoalesceWith(const IEditCmd* edit_cmd) const {
     if (const Self* cmd = dynamic_cast<const Self*>(edit_cmd)) {
         return cmd->m_ent == cmd->m_ent &&
-               cid_ == cmd->cid_ &&
-               pid_ == cmd->pid_;
+               m_cid == cmd->m_cid &&
+               m_pid == cmd->m_pid;
     }
     return false;
 }
 
 void ChangePropertyCmd::coalesceFrom(std::unique_ptr<IEditCmd> edit_cmd) {
     Self& cmd = dynamic_cast<Self&>(*edit_cmd);
-    new_ = std::move(cmd.new_);
+    m_new = std::move(cmd.m_new);
 }
 
 }  // namespace cave

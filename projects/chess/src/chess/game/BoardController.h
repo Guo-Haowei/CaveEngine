@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/memory/Pointer.h"
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScript.h"
 
@@ -21,7 +22,7 @@ public:
 
 private:
     cave::IntentBus m_intent_bus;
-    std::unique_ptr<ChessGameMode> m_game;
+    cave::Owner<ChessGameMode> m_game;
 };
 
 }  // namespace chess

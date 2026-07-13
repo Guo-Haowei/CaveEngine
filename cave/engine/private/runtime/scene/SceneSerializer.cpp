@@ -1,6 +1,9 @@
 #include "SceneSerializer.h"
 
+#include "cave/runtime/ui/UIComponents.h"
+
 #include "engine/private/runtime/assets/PrefabAsset.h"
+#include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
@@ -12,15 +15,15 @@ using cave::ecs::Entity;
 namespace {
 
 // kLatestSceneVersion history
-// version 1: initial version
-// version 2: don't serialize scene.m_bound
-// version 3: light component atten
-// version 4: light component flags
-// version 5: add validation
-// version 6: add collider component
-// version 7: add enabled to material
-// version 8: add particle emitter
-// version 9: add ParticleEmitterComponent.gravity
+// version 1:  initial version
+// version 2:  don't serialize scene.m_bound
+// version 3:  light component atten
+// version 4:  light component flags
+// version 5:  add validation
+// version 6:  add collider component
+// version 7:  add enabled to material
+// version 8:  add particle emitter
+// version 9:  add ParticleEmitterComponent.gravity
 // version 10: add ForceFieldComponent
 // version 11: add ScriptFieldComponent
 // version 12: add CameraComponent
@@ -31,8 +34,8 @@ namespace {
 // version 17: remove armature.flags
 // version 18: change RigidBodyComponent
 // version 19: serialize scene.m_physicsMode
-constexpr uint32_t kLatestSceneVersion = 19;
-constexpr char kSceneMagic[] = "xBScene";
+// version 20: root must have a hier component
+constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
 
 #define PREFAB_OVERRIDE_LIST               \
     PREFAB_OVERRIDE(NameComponent)         \
@@ -243,6 +246,10 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
         if (d.read(root)) {
             scene.setRoot(root);
         }
+        d.leaveKey();
+    }
+    if (d.tryEnterKey("version")) {
+        d.read(scene.version());
         d.leaveKey();
     }
 

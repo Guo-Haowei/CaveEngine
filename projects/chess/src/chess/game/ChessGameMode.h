@@ -7,31 +7,20 @@
 
 namespace chess {
 
-class IChessGameState;
+class ChessGameSession;
 
-class ChessGameMode final : public cave::IGameMode,
-                            public cave::IIntentHandler {
+class ChessGameMode final : public cave::IGameMode {
 public:
     ChessGameMode(cave::SceneRuntime& runtime,
                   cave::IntentBus& intent_bus);
-    ~ChessGameMode();
+    ~ChessGameMode() override;
 
     void onEnter() final;
     void onExit() final;
     void tick(float dt) final;
 
-    bool handleIntent(cave::Intent& intent) override;
-
-    cave::DebugId debugId() const override { return m_debug_id; }
-
 private:
-    void commitStateChange(cave::Owner<IChessGameState>&& new_state);
-
-    cave::IntentBus& m_intent_bus;
-    cave::SceneRuntime& m_runtime;
-    const cave::DebugId m_debug_id;
-
-    std::unique_ptr<IChessGameState> m_state;
+    cave::Owner<ChessGameSession> m_session;
 };
 
 }  // namespace chess

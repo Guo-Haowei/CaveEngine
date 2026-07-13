@@ -1,10 +1,13 @@
-version: 19
+version: 20
 seed: 21
 root: 1
 entities:
   - id: 1
     NameComponent:
       name: root
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -14,6 +17,7 @@ entities:
       name: tile_map
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -24,6 +28,7 @@ entities:
   - id: 4
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
@@ -34,6 +39,7 @@ entities:
   - id: 8
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
     PrefabOverride:
@@ -41,6 +47,7 @@ entities:
   - id: 9
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:
@@ -51,6 +58,7 @@ entities:
   - id: 11
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
@@ -67,6 +75,7 @@ entities:
   - id: 13
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
     PrefabOverride:
@@ -81,6 +90,7 @@ entities:
   - id: 15
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
     PrefabOverride:
@@ -93,6 +103,7 @@ entities:
   - id: 17
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:
@@ -105,6 +116,7 @@ entities:
   - id: 19
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:
@@ -117,6 +129,7 @@ entities:
   - id: 21
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:

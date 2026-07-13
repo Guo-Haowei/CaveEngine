@@ -22,33 +22,33 @@ class TransformComponent {
 
 private:
     CAVE_PROP(editor = Translation)
-    math::Vec3f translation_;
+    math::Vec3f m_translation;
 
     CAVE_PROP(editor = Rotation)
-    math::Vec4f rotation_;
+    math::Vec4f m_rotation;
 
     CAVE_PROP(editor = Scale)
-    math::Vec3f scale_;
+    math::Vec3f m_scale;
 
     // Non-serialized attributes
-    math::Mat4f world_;
+    math::Mat4f m_world;
 
-    uint32_t flags_ = DirtyFlag;
+    uint32_t m_flags = DirtyFlag;
 
 public:
     TransformComponent();
 
-    const math::Vec3f& translation() const { return translation_; }
-    const math::Vec4f& rotation() const { return rotation_; }
-    const math::Vec3f& scale() const { return scale_; }
+    const math::Vec3f& translation() const { return m_translation; }
+    const math::Vec4f& rotation() const { return m_rotation; }
+    const math::Vec3f& scale() const { return m_scale; }
 
     void setTranslation(const math::Vec3f& v);
     void setRotation(const math::Vec4f& v);
     void setScale(const math::Vec3f& v);
 
-    const math::Mat4f& worldMatrix() const { return world_; }
+    const math::Mat4f& worldMatrix() const { return m_world; }
 
-    void setWorldMatrix(const math::Mat4f& v) { world_ = v; }
+    void setWorldMatrix(const math::Mat4f& v) { m_world = v; }
 
     math::Mat4f localMatrix() const;
 
@@ -69,7 +69,7 @@ public:
     void setLocalTransform(const math::Mat4f& matrix);
     void matrixTransform(const math::Mat4f& matrix);
 
-    bool dirty() const { return flags_ & DirtyFlag; }
+    bool dirty() const { return m_flags & DirtyFlag; }
     void setDirty(bool dirty = true);
 
     bool operator==(const TransformComponent& rhs) const {
@@ -82,7 +82,7 @@ public:
         return !(this->operator==(rhs));
     }
 
-    void OnDeserialized() { flags_ |= DirtyFlag; }
+    void OnDeserialized() { m_flags |= DirtyFlag; }
 };
 
 }  // namespace cave

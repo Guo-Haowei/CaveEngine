@@ -7,11 +7,11 @@
 
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
+#include "editor/services/DragDropService.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/ThumbnailService.h"
 #include "editor/services/Workspace.h"
 #include "editor/utility/ContentEntry.h"
-#include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 #include "editor/widgets/ToolBar.h"
 
@@ -19,7 +19,7 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
-#include "engine/private/ui/layout.h"
+#include "engine/private/runtime/ui/Layout.h"
 
 namespace cave {
 
@@ -214,9 +214,9 @@ void ContentBrowser::drawContentBrowser() {
             ImGui::EndPopup();
         }
 
-        DragDropSourceContentEntry(*node);
-
-        DragDropTargetFolder(*node, asset_manager.folderLut());
+        auto& drag_drop = m_editor_services.dragDrop();
+        drag_drop.dragContentEntry(*node);
+        drag_drop.dropFolder(*node, asset_manager.folderLut());
 
         if (node->is_dir) {
             if (hovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {

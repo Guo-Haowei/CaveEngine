@@ -17,12 +17,10 @@ class SceneRuntime;
 enum class SceneSystemId : uint32_t {
     Invalid = 0,
 
-    TileWorld,
+    UI,
     NativeScript,
-    LuaScript,
+    TileWorld,
     Motor,
-    Physics2D,
-    Physics3D,
 
     Count,
 };

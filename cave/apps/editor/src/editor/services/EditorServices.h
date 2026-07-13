@@ -3,6 +3,7 @@
 namespace cave {
 
 class DocumentService;
+class DragDropService;
 class EditService;
 class IconCache;
 class PickingService;
@@ -12,23 +13,25 @@ class ThumbnailService;
 class Workspace;
 
 struct EditorServices {
-    DocumentService* document_{};
-    EditService* edit_{};
-    IconCache* icon_cache_{};
-    PickingService* picking_{};
-    SelectionService* selection_{};
-    ShortcutService* shortcut_{};
-    ThumbnailService* thumbnail_{};
-    Workspace* workspace_{};
+    DocumentService* document_service{};
+    DragDropService* drag_drop{};
+    EditService* edit_service{};
+    IconCache* icon_cache{};
+    PickingService* picking_service{};
+    SelectionService* selection_service{};
+    ShortcutService* shortcut_service{};
+    ThumbnailService* thumbnail_service{};
+    Workspace* workspace_service{};
 
-    DocumentService& document() { return *document_; }
-    EditService& edit() { return *edit_; }
-    IconCache& iconCache() { return *icon_cache_; }
-    PickingService& picking() { return *picking_; }
-    SelectionService& selection() { return *selection_; }
-    ShortcutService& shortcut() { return *shortcut_; }
-    ThumbnailService& thumbnail() { return *thumbnail_; }
-    Workspace& workspace() { return *workspace_; }
+    DocumentService& document() { return *document_service; }
+    DragDropService& dragDrop() { return *drag_drop; }
+    EditService& edit() { return *edit_service; }
+    IconCache& iconCache() { return *icon_cache; }
+    PickingService& picking() { return *picking_service; }
+    SelectionService& selection() { return *selection_service; }
+    ShortcutService& shortcut() { return *shortcut_service; }
+    ThumbnailService& thumbnail() { return *thumbnail_service; }
+    Workspace& workspace() { return *workspace_service; }
 };
 
 }  // namespace cave

@@ -7,14 +7,14 @@
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/utility/ContentEntry.h"
-#include "editor/widgets/DragDrop.h"
-#include "engine/private/ui/inputs.h"
+#include "editor/services/DragDropService.h"
 
 // @TODO: remove private include
 #include "engine/private/core/os/platform_io.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/VFS.h"
+#include "engine/private/runtime/ui/Inputs.h"
 
 namespace cave {
 
@@ -29,7 +29,7 @@ const char* FileSystemPanel::windowId() const {
 }
 
 void FileSystemPanel::onAttach() {
-    m_root = m_engine_services.vfs().GetMount("@res");
+    m_root = m_engine_services.VFS().GetMount("@res");
 }
 
 void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
@@ -73,11 +73,11 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
             ImGui::EndPopup();
         }
 
-        DragDropSourceContentEntry(entry);
+        m_editor_services.dragDrop().dragContentEntry(entry);
 
         auto& asset_manager = static_cast<EditorAssetManager&>(IAssetManager::singleton());
 
-        DragDropTargetFolder(entry, asset_manager.folderLut());
+        m_editor_services.dragDrop().dropFolder(entry, asset_manager.folderLut());
 
         if (hovered) {
             ShowAssetToolTip(m_editor_services.thumbnail(), entry);

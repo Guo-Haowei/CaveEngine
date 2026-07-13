@@ -29,7 +29,7 @@ FILES = [
     'public/cave/runtime/ecs/components/TriggerComponent.h',
     'public/cave/runtime/ecs/components/MovementComponent.h',
 
-    'public/cave/runtime/platformer/FacingComponent.h',
+    'public/cave/runtime/game/platformer/FacingComponent.h',
 
     'public/cave/runtime/script/lua/LuaScriptComponent.h',
     'public/cave/runtime/script/native/NativeScriptComponent.h',
@@ -37,6 +37,8 @@ FILES = [
     'public/cave/runtime/tile_map/TileMapInstanceComponent.h',
     'public/cave/runtime/tile_map/TileMapAsset.h',
     'public/cave/runtime/tile_map/TileSetAsset.h',
+
+    'public/cave/runtime/ui/UIComponents.h',
 
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',

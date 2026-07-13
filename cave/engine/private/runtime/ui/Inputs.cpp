@@ -1,4 +1,4 @@
-#include "inputs.h"
+#include "Inputs.h"
 
 #include <imgui/imgui_internal.h>
 
@@ -11,7 +11,7 @@ bool CheckBox(const char* name,
               float column_width) {
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", name);
+    ImGui::TextUnformatted(name);
     ImGui::NextColumn();
 
     auto string_id = std::format("##{}", name);
@@ -36,7 +36,6 @@ bool TextBox(const char* label,
         ImGui::AlignTextToFramePadding();
         ImGui::TextUnformatted(label);
 
-        // ImGui::Text("%s", label);
         ImGui::NextColumn();
     }
 
@@ -77,7 +76,7 @@ bool InputInt(const char* label,
     auto columns_id = std::format("##{}_columns", label);
     ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", label);
+    ImGui::TextUnformatted(label);
     ImGui::NextColumn();
     auto tag = std::format("##{}", label);
     bool is_dirty = ImGui::InputInt(tag.c_str(), &out_value);
@@ -91,7 +90,7 @@ bool InputFloat(const char* label,
     auto columns_id = std::format("##{}_columns", label);
     ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", label);
+    ImGui::TextUnformatted(label);
     ImGui::NextColumn();
     auto tag = std::format("##{}", label);
     bool is_dirty = ImGui::InputFloat(tag.c_str(), &out_value);
@@ -108,7 +107,7 @@ bool DragInt(const char* label,
     auto columns_id = std::format("##{}_columns", label);
     ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", label);
+    ImGui::TextUnformatted(label);
     ImGui::NextColumn();
     auto tag = std::format("##{}", label);
     bool is_dirty = ImGui::DragInt(tag.c_str(), &out_value, speed, min, max);
@@ -125,7 +124,7 @@ bool DragFloat(const char* label,
     auto columns_id = std::format("##{}_columns", label);
     ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", label);
+    ImGui::TextUnformatted(label);
     ImGui::NextColumn();
     auto tag = std::format("##{}", label);
     bool is_dirty = ImGui::DragFloat(tag.c_str(), &out, speed, min, max);
@@ -139,7 +138,7 @@ enum {
 };
 
 template<int N>
-static bool Float3Impl(int type,
+static bool FloatNImpl(int type,
                        const char* label,
                        float* data,
                        float reset_value,
@@ -179,7 +178,7 @@ static bool Float3Impl(int type,
     auto columns_id = std::format("##{}_columns", label);
     ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", label);
+    ImGui::TextUnformatted(label);
     ImGui::NextColumn();
 
     ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
@@ -240,14 +239,14 @@ bool Float2(const char* label,
             Vec2f& out,
             float reset_value,
             float column_width) {
-    return Float3Impl<2>(TYPE_TRANSFORM, label, &out.x, reset_value, column_width);
+    return FloatNImpl<2>(TYPE_TRANSFORM, label, &out.x, reset_value, column_width);
 }
 
 bool Float3(const char* label,
             Vec3f& out_vec3,
             float reset_value,
             float column_width) {
-    return Float3Impl<3>(TYPE_TRANSFORM, label, &out_vec3.x, reset_value, column_width);
+    return FloatNImpl<3>(TYPE_TRANSFORM, label, &out_vec3.x, reset_value, column_width);
 }
 
 bool ColorPicker3(const char* label,
@@ -256,7 +255,7 @@ bool ColorPicker3(const char* label,
     auto columns_id = std::format("##{}_columns", label);
     ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", label);
+    ImGui::TextUnformatted(label);
     ImGui::NextColumn();
     const bool dirty = ImGui::ColorPicker3(label, &out.r);
     ImGui::Columns(1);
@@ -270,7 +269,7 @@ bool ColorPicker4(const char* label,
     auto columns_id = std::format("##{}_columns", label);
     ImGui::Columns(2, columns_id.c_str());
     ImGui::SetColumnWidth(0, column_width);
-    ImGui::Text("%s", label);
+    ImGui::TextUnformatted(label);
     ImGui::NextColumn();
     const bool dirty = ImGui::ColorPicker4(label, &out.r);
     ImGui::Columns(1);

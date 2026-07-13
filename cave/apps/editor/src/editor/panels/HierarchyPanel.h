@@ -21,8 +21,9 @@ protected:
     void drawUIImpl() override;
 
 private:
-    void drawPopup(const PreviewScene& ctx);
-    void openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent);
+    void drawPopup(const PreviewScene& preview_scene);
+    void openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
+    void openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
 };
 
 }  // namespace cave

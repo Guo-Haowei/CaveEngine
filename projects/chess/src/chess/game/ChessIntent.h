@@ -5,23 +5,6 @@
 
 namespace chess {
 
-class IChessGameState;
-
-class ChessStateIntent : public cave::Intent {
-public:
-    CAVE_DECLARE_INTENT("chess.state");
-
-    ChessStateIntent(std::unique_ptr<IChessGameState> state);
-    ~ChessStateIntent();
-
-    std::string debugString() const override;
-
-    std::unique_ptr<IChessGameState> m_state;
-
-private:
-    const std::string m_debug_name;
-};
-
 class MoveIntentBase : public cave::Intent {
 public:
     MoveIntentBase(core::Color side, core::Move move) noexcept

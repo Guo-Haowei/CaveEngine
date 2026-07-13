@@ -49,7 +49,7 @@ public:
     virtual AssetRef loadAssetSync(const Guid& guid) = 0;
 
     // @TODO: remove this
-    virtual std::shared_ptr<ImageAsset> findImage(const std::string&) { return nullptr; }
+    virtual Ref<ImageAsset> findImage(std::string_view) { return nullptr; }
 };
 
 }  // namespace cave

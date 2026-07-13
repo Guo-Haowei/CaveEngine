@@ -7,7 +7,7 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/input/IGameInput.h"
-#include "cave/runtime/platformer/FacingComponent.h"
+#include "cave/runtime/game/platformer/FacingComponent.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"

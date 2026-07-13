@@ -2,7 +2,7 @@
 // Auto-generated metadata for FacingComponent.h
 // Check generate_meta.py for more details
 
-#include "cave/runtime/platformer/FacingComponent.h"
+#include "cave/runtime/game/platformer/FacingComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 

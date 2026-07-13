@@ -1,7 +1,6 @@
 #include "RenderScene.h"
 
 #include "cave/runtime/ecs/components/MaterialComponent.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/LightComponent.h"
 #include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
@@ -19,8 +18,8 @@ namespace cave::render {
 using namespace cave::math;
 
 // @TODO: fix this function OMG
-static void FillMaterialConstantBuffer(bool p_is_opengl,
-                                       const MaterialComponent* p_material,
+static void FillMaterialConstantBuffer(bool is_opengl,
+                                       const MaterialComponent* material,
                                        MaterialConstantBuffer& cb) {
     cb.c_hasBaseColorMap = false;
     cb.c_hasNormalMap = false;
@@ -32,7 +31,7 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
     cb.c_materialMapHandle = 0;
     cb.c_heightMapHandle = 0;
 
-    if (!p_material) {
+    if (!material) {
         cb.c_baseColor = Vec4f(1, 0, 1, 1);
         cb.c_metallic = 0.5f;
         cb.c_roughness = 0.5f;
@@ -40,14 +39,14 @@ static void FillMaterialConstantBuffer(bool p_is_opengl,
         return;
     }
 
-    cb.c_baseColor = p_material->base_color;
-    cb.c_metallic = p_material->metallic;
-    cb.c_roughness = p_material->roughness;
-    cb.c_emissivePower = p_material->emissive;
+    cb.c_baseColor = material->base_color;
+    cb.c_metallic = material->metallic;
+    cb.c_roughness = material->roughness;
+    cb.c_emissivePower = material->emissive;
 
     // @TODO: [SCRUM-210] fix material
-    const auto& images = p_material->m_images;
-    unused(p_is_opengl);
+    const auto& images = material->m_images;
+    unused(is_opengl);
     auto set_texture = [&](TextureSlot p_idx,
                            TextureHandle& p_out_handle) {
         const int idx = std::to_underlying(p_idx);
@@ -84,7 +83,7 @@ static void FillPass(const RenderScene& p_rs,
                      const Scene& p_es,
                      FilterObjectFunc1 p_filter,
                      const math::Frustum& p_frustum,
-                     std::vector<DrawItem>& p_commands,
+                     Vector<DrawItem>& p_commands,
                      const ResolvedView& p_view,
                      FrameData& p_framedata,
                      bool p_no_mat) {

@@ -27,12 +27,12 @@ class EditorState final : public AppState {
     };
 
 public:
-    EditorState(IApplication& p_app);
+    EditorState(IApplication& app);
     ~EditorState();
 
-    void onEnter(const StateRequest& p_args) override;
+    void onEnter(const StateRequest& args) override;
     void onExit() override;
-    void tick(const FrameTime& p_time) override;
+    void tick(const FrameTime& time) override;
 
     Option<StateRequest> popRequest() override { return None(); }
 
@@ -52,7 +52,7 @@ public:
 
 private:
     void dockSpace();
-    void addPanel(std::shared_ptr<IEditorItem> panel);
+    void addPanel(Ref<IEditorItem> panel);
 
     static Mode flipMode(Mode mode) { return static_cast<Mode>(1 - std::to_underlying(mode)); }
     void commitModeSwitch();
@@ -63,27 +63,27 @@ private:
     Mode m_mode{ Mode::Editing };
     bool m_switch_mode_requested{ false };
 
-    std::unique_ptr<PIESession> m_pie;
+    Owner<PIESession> m_pie;
 
-    // @TODO: move to EditorServices
-    std::unique_ptr<DocumentService> m_document;
-    std::unique_ptr<EditService> m_edit;
-    std::unique_ptr<IconCache> m_icon_cache;
-    std::unique_ptr<PickingService> m_picking;
-    std::unique_ptr<SelectionService> m_selection;
-    std::unique_ptr<ShortcutService> m_shortcut;
-    std::unique_ptr<Workspace> m_workspace;
-    std::unique_ptr<ThumbnailService> m_thumbnail;
+    Owner<DocumentService> m_document;
+    Owner<DragDropService> m_drag_drop;
+    Owner<EditService> m_edit;
+    Owner<IconCache> m_icon_cache;
+    Owner<PickingService> m_picking;
+    Owner<SelectionService> m_selection;
+    Owner<ShortcutService> m_shortcut;
+    Owner<Workspace> m_workspace;
+    Owner<ThumbnailService> m_thumbnail;
 
     // @TODO: use unique_ptr
-    std::shared_ptr<AssetInspector> m_asset_inspector;
-    std::shared_ptr<ContentBrowser> m_content_browser;
-    std::shared_ptr<FileSystemPanel> m_file_system_panel;
-    std::shared_ptr<LogPanel> m_log_panel;
-    std::shared_ptr<MenuBar> m_menu_bar;
+    Ref<AssetInspector> m_asset_inspector;
+    Ref<ContentBrowser> m_content_browser;
+    Ref<FileSystemPanel> m_file_system_panel;
+    Ref<LogPanel> m_log_panel;
+    Ref<MenuBar> m_menu_bar;
 
     EditorServices m_editor_services;
-    std::vector<std::shared_ptr<IEditorItem>> m_panels;
+    Vector<Ref<IEditorItem>> m_panels;
     const DebugId m_debug_id;
 };
 

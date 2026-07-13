@@ -22,7 +22,7 @@ public:
 private:
     EngineServices& m_engine_services;
 
-    std::vector<SceneOwner*> m_owners;
+    Vector<SceneOwner*> m_owners;
 };
 
 }  // namespace cave

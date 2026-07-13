@@ -1,10 +1,13 @@
-version: 19
+version: 20
 seed: 42
 root: 1
 entities:
   - id: 1
     NameComponent:
       name: world
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -14,6 +17,7 @@ entities:
       name: platformer
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -24,6 +28,7 @@ entities:
   - id: 3
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
@@ -34,6 +39,7 @@ entities:
   - id: 7
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
@@ -50,6 +56,7 @@ entities:
   - id: 19
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
     PrefabOverride:
@@ -60,6 +67,7 @@ entities:
   - id: 26
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:
@@ -70,6 +78,7 @@ entities:
   - id: 35
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
     PrefabOverride:
@@ -80,6 +89,7 @@ entities:
   - id: 42
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
     PrefabOverride:

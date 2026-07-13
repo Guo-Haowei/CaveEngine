@@ -1,10 +1,13 @@
-version: 19
+version: 20
 seed: 81
 root: 1
 entities:
   - id: 1
     NameComponent:
       name: root
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -14,6 +17,7 @@ entities:
       name: light
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0.852087259, 0.0361759625, 0.447049439, -0.269787729]
@@ -38,6 +42,7 @@ entities:
       name: chess_board
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, -0.120999999, 0]
       rotation: [0, 0, 0, 1]
@@ -67,12 +72,13 @@ entities:
       name: game_camera
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [-5.80000019, 6.69999981, 0]
       rotation: [-0.31498, -0.632995546, -0.314871162, 0.633214235]
       scale: [1, 1, 1]
     CameraComponent:
-      flags: 0
+      flags: 1
       projection: perspective
       fovy: 60
       near: 0.100000001
@@ -84,6 +90,7 @@ entities:
       name: transform
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [-3.5, 0, -3.5]
       rotation: [0, 0, 0, 1]

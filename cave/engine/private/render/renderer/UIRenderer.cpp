@@ -6,7 +6,7 @@ using math::Vec2f;
 using math::Vec4f;
 
 static void AppendUIRect(BuiltUIData& p_out,
-                         const UIRect& p_rect,
+                         const OldUIRect& p_rect,
                          const Color& p_color) {
     const float x0 = p_rect.Left();
     const float y0 = p_rect.Top();

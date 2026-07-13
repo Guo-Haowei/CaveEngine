@@ -11,7 +11,7 @@
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/framework/VFS.h"
 #include "engine/private/runtime/input/InputService.h"
-#include "engine/private/ui/UIRuntime.h"
+#include "engine/private/runtime/ui/UIRuntime.h"
 
 namespace cave {
 
@@ -64,7 +64,7 @@ protected:
     Owner<SceneRegistry> m_scene_registry;
     Owner<SceneScheduler> m_scene_scheduler;
     Owner<ViewManager> m_view_manager;
-    Owner<UIRuntime> m_ui;
+    Owner<UIRuntime> m_ui_runtime;
     Owner<render::Renderer> m_renderer;
 
     // @TODO: do not use raw pointers

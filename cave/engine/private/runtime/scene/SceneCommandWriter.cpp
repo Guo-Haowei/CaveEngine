@@ -160,4 +160,19 @@ Entity SceneCommandWriter::tileMapObject(std::string_view name) {
     return e;
 }
 
+Entity SceneCommandWriter::canvas(std::string_view name) {
+    Entity e = nameObject(name);
+    addComponent(e, HierarchyComponent_Id);
+    addComponent(e, UICanvasComponent_Id);
+    return e;
+}
+
+Entity SceneCommandWriter::button(std::string_view name) {
+    Entity e = nameObject(name);
+    addComponent(e, HierarchyComponent_Id);
+    addComponent(e, UIRectTransformComponent_Id);
+    addComponent(e, UIButtonComponent_Id);
+    return e;
+}
+
 }  // namespace cave

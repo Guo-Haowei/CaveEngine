@@ -10,12 +10,12 @@
 
 #include "editor/panels/AssetInspector.h"
 #include "editor/services/DocumentService.h"
+#include "editor/services/DragDropService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/EditService.h"
 #include "editor/services/IconCache.h"
 #include "editor/tile_map/GridPaintTool.h"
 #include "editor/tile_map/SetTileCommand.h"
-#include "editor/widgets/DragDrop.h"
 #include "editor/widgets/Image.h"
 
 // @TODO: remove
@@ -210,10 +210,8 @@ void TileMapEditor::tileMapLayerOverview(TileMapAsset& tile_map) {
                 // tool->SetActiveLayer(layer_id);
             }
 
-            // @TODO: make an asset drop region
-            // accept same type of assets, show tooltips, etc
-            if (auto _handle = DragDropTarget(AssetType::TileSet)) {
-                layer.tileSetGuid(_handle.unwrap_unchecked().guid());
+            if (auto handle_opt = m_editor_services.dragDrop().dropAsset(AssetType::TileSet)) {
+                layer.tileSetGuid(handle_opt.unwrap_unchecked().guid());
             }
         }
 

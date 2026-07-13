@@ -18,8 +18,10 @@ class ISceneTransitionRequests;
 enum class SceneFeature : uint32_t {
     NativeScript = 1,
     Motor = 2,
-    TileWorld = 3,
-    All = NativeScript | Motor | TileWorld,
+    TileWorld = 4,
+    UI = 8,
+
+    All = NativeScript | Motor | TileWorld | UI,
 };
 
 DEFINE_ENUM_BITWISE_OPERATIONS(SceneFeature);

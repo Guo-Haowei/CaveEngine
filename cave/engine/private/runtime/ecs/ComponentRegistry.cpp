@@ -1,5 +1,6 @@
 #include "cave/core/reflection/Meta.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/ui/UIComponents.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"

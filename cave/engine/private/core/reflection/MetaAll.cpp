@@ -22,6 +22,7 @@
 #include "generated/TileMapInstanceComponent.generated.cpp"
 #include "generated/TileMapAsset.generated.cpp"
 #include "generated/TileSetAsset.generated.cpp"
+#include "generated/UIComponents.generated.cpp"
 #include "generated/AssetMetaData.generated.cpp"
 #include "generated/MaterialAsset.generated.cpp"
 #include "generated/SpriteAnimationAsset.generated.cpp"

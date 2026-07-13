@@ -21,7 +21,7 @@ static void DrawToolBarButton(const ToolBarButtonDesc& desc) {
 
     if (ImGui::IsItemHovered()) {
         ImGui::BeginTooltip();
-        ImGui::Text("%s", desc.tooltip);
+        ImGui::TextUnformatted(desc.tooltip);
         ImGui::EndTooltip();
     }
 }

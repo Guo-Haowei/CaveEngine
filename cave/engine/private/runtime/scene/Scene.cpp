@@ -4,6 +4,7 @@
 #include "cave/core/threading/JobSystem.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneRuntime.h"
+#include "cave/runtime/ui/UIComponents.h"
 
 #include "engine/private/core/io/archive.h"
 #include "engine/private/runtime/ecs/components/All.h"

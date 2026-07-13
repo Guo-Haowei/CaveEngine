@@ -2,6 +2,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/render/renderer/FrameData.h"
 
+#include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 
@@ -12,25 +13,23 @@ void RunTileMapRenderSystem(Scene* scene, FrameData& framedata) {
         return;
     }
 
-    auto view = scene->view<TileMapInstanceComponent>();
-    for (const auto& [id, tile_map_renderer] : view) {
-        tile_map_renderer.createRenderData();
+    auto view = scene->view<TileMapInstanceComponent, HierarchyComponent>();
+    for (const auto& [id, instance, hier] : view) {
+        if (!hier.visible) continue;
 
-        const auto& cache = tile_map_renderer.cache();
-        if (!tile_map_renderer.visible()) {
-            continue;
-        }
+        instance.createRenderData();
 
-        if (!cache.mesh) {
-            continue;
-        }
+        const auto& cache = instance.cache();
+        if (!instance.visible()) continue;
+
+        if (!cache.mesh) continue;
 
         const TransformComponent& transform = *scene->component<TransformComponent>(id);
 
         const math::Mat4f& world_matrix = transform.worldMatrix();
         PerBatchConstantBuffer batch_buffer;
         batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_tint_color = tile_map_renderer.tintColor();
+        batch_buffer.c_tint_color = instance.tintColor();
 
         DrawItem draw;
         draw.index.count = cache.mesh->desc.drawCount;

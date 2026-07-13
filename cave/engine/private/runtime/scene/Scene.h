@@ -133,6 +133,9 @@ public:
 
     void setSeed(uint32_t seed) { m_entity_seed = seed; }
 
+    uint32_t version() const { return m_version; }
+    uint32_t& version() { return m_version; }
+
     // @TODO: deprecate
     SceneDirtyFlags dirtyFlags() const { return static_cast<SceneDirtyFlags>(dirtyFlags_.load()); }
     // @TODO: deprecate
@@ -148,6 +151,8 @@ private:
 
     uint32_t m_entity_seed{ 0 };
     ecs::Entity m_root;
+    uint32_t m_version;
+
     math::AABB m_world_bound;
 
     Owner<SceneRuntime> m_runtime;
