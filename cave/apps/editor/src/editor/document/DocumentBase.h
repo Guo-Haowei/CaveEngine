@@ -11,6 +11,15 @@ class EditorAssetManager;
 class SceneRegistry;
 
 class DocumentBase : public IDocument {
+    using EditStateId = uint64_t;
+
+    struct EditRecord {
+        Owner<IEditCmd> cmd;
+
+        EditStateId before_state = 0;
+        EditStateId after_state = 0;
+    };
+
 public:
     DocumentBase(EngineServices& services, const Guid& guid);
     ~DocumentBase();
@@ -31,12 +40,8 @@ public:
     }
 
     bool isDirty() const override {
-        return m_saved_undo_size != m_undo.size();
+        return m_current_state != m_saved_state;
     }
-
-    void undoLabels(Vector<std::string>& out, int max_items) const override;
-
-    void redoLabels(Vector<std::string>& out, int max_items) const override;
 
     bool save() override;
     bool saveAs(std::string_view) override;
@@ -73,11 +78,15 @@ protected:
     Guid m_guid;
 
 private:
-    std::deque<Owner<IEditCmd>> m_undo;
-    std::deque<Owner<IEditCmd>> m_redo;
+    std::deque<EditRecord> m_undo;
+    std::deque<EditRecord> m_redo;
 
     size_t m_undo_limit = 0;       // 0 = unlimited
     size_t m_saved_undo_size = 0;  // save marker
+
+    EditStateId m_current_state = 0;
+    EditStateId m_saved_state = 0;
+    EditStateId m_next_state = 1;
 
     uint32_t m_last_coalesce = 0;
 };

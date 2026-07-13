@@ -34,9 +34,6 @@ public:
     virtual bool save() = 0;
     virtual bool saveAs(std::string_view new_path) = 0;
 
-    virtual void undoLabels(Vector<std::string>& out, int max_items) const = 0;
-    virtual void redoLabels(Vector<std::string>& out, int max_items) const = 0;
-
     AssetHandle rawHandle() const {
         return m_handle;
     }

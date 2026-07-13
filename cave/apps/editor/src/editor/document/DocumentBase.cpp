@@ -32,71 +32,89 @@ DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
 DocumentBase::~DocumentBase() = default;
 
 bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
-    if (!cmd) return false;
-
-    if (!m_undo.empty() /*&& coalesce != 0 && last_coalesce_ == coalesce*/) {
-        IEditCmd* last = m_undo.back().get();
-        if (last && last->canCoalesceWith(cmd.get())) {
-            cmd->apply(*this);
-            last->coalesceFrom(std::move(cmd));
-            m_redo.clear();
-            touchDirtyAfterEdit();
-            return true;
-        }
+    if (!cmd) {
+        return false;
     }
+
+    const bool can_coalesce =
+        coalesce != 0 &&
+        coalesce == m_last_coalesce &&
+        !m_undo.empty() &&
+        m_undo.back().cmd->canCoalesceWith(cmd.get());
+
+    if (can_coalesce) {
+        cmd->apply(*this);
+
+        EditRecord& last = m_undo.back();
+        last.cmd->coalesceFrom(std::move(cmd));
+
+        // Although this remains one undo operation, it is a new document state.
+        last.after_state = m_next_state++;
+        m_current_state = last.after_state;
+
+        m_redo.clear();
+        touchDirtyAfterEdit();
+        return true;
+    }
+
+    const EditStateId before_state = m_current_state;
+    const EditStateId after_state = m_next_state++;
 
     cmd->apply(*this);
 
-    m_undo.push_back(std::move(cmd));
+    m_undo.push_back(EditRecord{
+        .cmd = std::move(cmd),
+        .before_state = before_state,
+        .after_state = after_state,
+    });
+
+    m_current_state = after_state;
     m_redo.clear();
 
     m_last_coalesce = coalesce;
+
     touchDirtyAfterEdit();
     trimUndoIfNeeded();
-
     return true;
 }
 
 bool DocumentBase::undo() {
-    if (m_undo.empty()) return false;
-    auto cmd = std::move(m_undo.back());
+    if (m_undo.empty()) {
+        return false;
+    }
+
+    EditRecord record = std::move(m_undo.back());
     m_undo.pop_back();
 
-    cmd->undo(*this);
-    m_redo.push_back(std::move(cmd));
+    record.cmd->undo(*this);
+    m_current_state = record.before_state;
 
+    m_redo.push_back(std::move(record));
+
+    // Prevent the next edit from accidentally joining an old interaction.
     m_last_coalesce = 0;
-    recomputeDirtyAfterHistoryMove();
+
+    touchDirtyAfterEdit();
     return true;
 }
 
 bool DocumentBase::redo() {
-    if (m_redo.empty()) return false;
-    auto cmd = std::move(m_redo.back());
+    if (m_redo.empty()) {
+        return false;
+    }
+
+    EditRecord record = std::move(m_redo.back());
     m_redo.pop_back();
 
-    cmd->apply(*this);
-    m_undo.push_back(std::move(cmd));
+    record.cmd->apply(*this);
+    m_current_state = record.after_state;
+
+    m_undo.push_back(std::move(record));
 
     m_last_coalesce = 0;
-    recomputeDirtyAfterHistoryMove();
+
+    touchDirtyAfterEdit();
     return true;
-}
-
-void DocumentBase::undoLabels(std::vector<std::string>& out, int max_items) const {
-    out.clear();
-    int count = 0;
-    for (auto it = m_undo.rbegin(); it != m_undo.rend() && count < max_items; ++it, ++count) {
-        out.emplace_back((*it)->label());
-    }
-}
-
-void DocumentBase::redoLabels(std::vector<std::string>& out, int max_items) const {
-    out.clear();
-    int count = 0;
-    for (auto it = m_redo.rbegin(); it != m_redo.rend() && count < max_items; ++it, ++count) {
-        out.emplace_back((*it)->label());
-    }
 }
 
 void DocumentBase::trimUndoIfNeeded() {
@@ -114,6 +132,8 @@ void DocumentBase::trimUndoIfNeeded() {
 bool DocumentBase::save() {
     bool ok = m_asset_reg.saveAsset(m_guid);
     if (ok) {
+        m_saved_state = m_current_state;
+
         m_asset_mgr.onAssetSaved({
             .reason = AssetChangeReason::Saved,
             .revision = m_asset_reg.revision(m_guid),
