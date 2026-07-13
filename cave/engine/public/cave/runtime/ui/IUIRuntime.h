@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/framework/IUIRuntime.h
+// File: cave/runtime/ui/IUIRuntime.h
 // =============================================================================
 #pragma once
 #include <span>

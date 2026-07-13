@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/hash/Hash.h"
 #include "cave/core/ids/ViewId.h"
-#include "cave/runtime/framework/IUIRuntime.h"
+#include "cave/runtime/ui/IUIRuntime.h"
 
 #include "UILayoutResolver.h"
 

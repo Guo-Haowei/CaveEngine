@@ -5,7 +5,7 @@
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/framework/IUIRuntime.h"
+#include "cave/runtime/ui/IUIRuntime.h"
 
 #include "FramePlan.h"
 #include "RendererDebug.h"

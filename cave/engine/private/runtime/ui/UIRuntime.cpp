@@ -64,7 +64,7 @@ void UIRuntime::buildDrawList(const ResolvedView& view) {
 
     for (const auto [ent, canvas] : view.scene->view<UICanvasComponent>()) {
         const auto* resolved_canvas = findResolved(view.scene_id, ent);
-        DEV_ASSERT(resolved_canvas);
+        if (!resolved_canvas) continue;
 
         for (const auto& button : resolved_canvas->elements) {
             Color color = kButtonNormal;

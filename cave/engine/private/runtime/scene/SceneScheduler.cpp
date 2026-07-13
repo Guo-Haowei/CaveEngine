@@ -2,7 +2,7 @@
 
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/EngineServices.h"
-#include "cave/runtime/framework/IUIRuntime.h"
+#include "cave/runtime/ui/IUIRuntime.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
