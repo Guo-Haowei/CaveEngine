@@ -12,13 +12,8 @@ namespace cave {
 
 #include "shader_defines.hlsl.h"
 
-using namespace cave::math;
-
-// @TODO: refactor
-namespace {
-template<typename T>
-constexpr float Saturate(T x) { return math::min(T(1), math::max(T(0), x)); }
-}  // namespace
+using namespace ::cave::math;
+using ::cave::ecs::Entity;
 
 [[maybe_unused]] static constexpr uint32_t SMALL_SUBTASK_GROUP_SIZE = 64;
 
@@ -40,17 +35,171 @@ constexpr float Saturate(T x) { return math::min(T(1), math::max(T(0), x)); }
 #define JS_PARALLEL_FOR JS_NO_PARALLEL_FOR
 #endif
 
-class SkeletalAnimationSystem {
-public:
-    static void Update(Scene& scene, size_t p_index, float p_timestep);
-};
+// @TODO: refactor
+namespace {
+template<typename T>
+constexpr float Saturate(T x) { return math::min(T(1), math::max(T(0), x)); }
 
 // @TODO: fix
 #pragma warning(push)
 #pragma warning(disable : 4996)
 
-void SkeletalAnimationSystem::Update(Scene& scene, size_t p_index, float p_timestep) {
-    SkeletalAnimationComponent& animation = scene.getComponentByIndex<SkeletalAnimationComponent>(p_index);
+void UpdateHierarchy(Scene& scene, size_t idx, float) {
+    Entity self_id = scene.getEntityByIndex<HierarchyComponent>(idx);
+    TransformComponent* self_transform = scene.component<TransformComponent>(self_id);
+
+    if (!self_transform) {
+        return;
+    }
+
+    Mat4f world_matrix = self_transform->localMatrix();
+    auto* self_hierarchy = &scene.getComponentByIndex<HierarchyComponent>(idx);
+
+    const auto* hierarchy = self_hierarchy;
+    bool visible = hierarchy->local_visible;
+    Entity parent = hierarchy->parent_id;
+
+    while (parent.valid()) {
+        TransformComponent* parent_transform = scene.component<TransformComponent>(parent);
+        if (DEV_VERIFY(parent_transform)) {
+            world_matrix = parent_transform->localMatrix() * world_matrix;
+
+            if ((hierarchy = scene.component<HierarchyComponent>(parent)) != nullptr) {
+                parent = hierarchy->parent_id;
+                visible = visible && hierarchy->local_visible;
+            } else {
+#if USING(USE_LOG)
+                const auto* name = scene.component<NameComponent>(parent);
+                if (name) {
+                    LOG_WARN(LogChannel::Scene, "entity {} does not have HierarchyComponent", name->name());
+                } else {
+                    LOG_WARN(LogChannel::Scene, "entity {} does not have HierarchyComponent", parent.id());
+                }
+#endif
+                parent = Entity::null();
+            }
+        } else {
+            break;
+        }
+    }
+
+    self_hierarchy->visible = visible;
+    self_transform->setWorldMatrix(world_matrix);
+    self_transform->setDirty(false);
+}
+
+void UpdateSkeleton(Scene& scene, size_t idx, float) {
+    auto ent = scene.getEntityByIndex<SkeletonComponent>(idx);
+    auto* transform = scene.component<TransformComponent>(ent);
+    DEV_ASSERT(transform);
+
+    // The transform world matrices are in world space, but skinning needs them in skeleton-local space,
+    //	so that the skin is reusable for instanced meshes.
+    //	We remove the skeleton's world matrix from the bone world matrix to obtain the bone local transform
+    //	These local bone matrices will only be used for skinning, the actual transform components for the bones
+    //	remain unchanged.
+    //
+    //	This is useful for an other thing too:
+    //	If a whole transform tree is transformed by some parent (even gltf import does that to convert from RH
+    // to LH space) 	then the inverseBindMatrices are not reflected in that because they are not contained in
+    // the hierarchy system. 	But this will correct them too.
+
+    SkeletonComponent& skeleton = scene.getComponentByIndex<SkeletonComponent>(idx);
+    const Mat4f R = glm::inverse(transform->worldMatrix());
+    const size_t numBones = skeleton.bone_collection.size();
+    if (skeleton.bone_transforms.size() != numBones) {
+        skeleton.bone_transforms.resize(numBones);
+    }
+
+    int cursor = 0;
+    for (Entity boneID : skeleton.bone_collection) {
+        const TransformComponent* boneTransform = scene.component<TransformComponent>(boneID);
+        DEV_ASSERT(boneTransform);
+
+        const Mat4f& B = skeleton.inverse_bind_matrices[cursor];
+        const Mat4f& W = boneTransform->worldMatrix();
+        const Mat4f M = R * W * B;
+        skeleton.bone_transforms[cursor] = M;
+        ++cursor;
+
+        // @TODO: skeleton animation
+    }
+};
+
+void UpdateLight(const TransformComponent& transform,
+                 LightComponent& p_light) {
+
+    p_light.SetPosition(transform.translation());
+
+    if (p_light.IsDirty() || transform.dirty()) {
+        const float constant = p_light.GetAttenConstant();
+        const float linear = p_light.GetAttenLinear();
+        const float quadratic = p_light.GetAttenQuadratic();
+        // update max distance
+        constexpr float atten_factor_inv = 1.0f / 0.03f;
+        if (linear == 0.0f && quadratic == 0.0f) {
+            p_light.SetMaxDistance(1000.0f);
+        } else {
+            // (constant + linear * x + quad * x^2) * atten_factor = 1
+            // quad * x^2 + linear * x + constant - 1.0 / atten_factor = 0
+            const float a = quadratic;
+            const float b = linear;
+            const float c = constant - atten_factor_inv;
+
+            float discriminant = b * b - 4 * a * c;
+            if (discriminant < 0.0f) {
+                CRASH_NOW_MSG("TODO: fix");
+            }
+
+            float sqrt_d = glm::sqrt(discriminant);
+            float root1 = (-b + sqrt_d) / (2 * a);
+            float root2 = (-b - sqrt_d) / (2 * a);
+            float max_distance = root1 > 0.0f ? root1 : root2;
+            max_distance = math::max(LIGHT_SHADOW_MIN_DISTANCE + 1.0f, max_distance);
+            p_light.SetMaxDistance(max_distance);
+        }
+
+        // update shadow map
+        if (p_light.CastShadow()) {
+            // @TODO: [SCRUM-178] shadow atlas
+        }
+
+        // update light space matrices
+        if (p_light.CastShadow()) {
+            switch (p_light.GetType()) {
+                case LightType::Point: {
+                    CRASH_NOW();
+#if 0
+                    constexpr float near_plane = LIGHT_SHADOW_MIN_DISTANCE;
+                    const float far_plane = p_light.m_maxDistance;
+                    const bool is_opengl = IRenderDevice::singleton().GetBackend() == Backend::OPENGL;
+                    auto matrices = is_opengl ? BuildOpenGlPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane)
+                                              : BuildPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane);
+
+                    for (size_t i = 0; i < matrices.size(); ++i) {
+                        p_light.m_lightSpaceMatrices[i] = matrices[i];
+                    }
+#endif
+                } break;
+                default:
+                    break;
+            }
+        }
+
+        // @TODO: don't update shadow map unless necessary
+        p_light.SetDirty(false);
+    }
+}
+
+}  // namespace
+
+class SkeletalAnimationSystem {
+public:
+    static void Update(Scene& scene, size_t p_index, float dt);
+};
+
+void SkeletalAnimationSystem::Update(Scene& scene, size_t idx, float dt) {
+    SkeletalAnimationComponent& animation = scene.getComponentByIndex<SkeletalAnimationComponent>(idx);
 
     if (!animation.IsPlaying()) {
         return;
@@ -148,153 +297,16 @@ void SkeletalAnimationSystem::Update(Scene& scene, size_t p_index, float p_times
     }
 
     if (animation.IsPlaying()) {
-        animation.m_timer += p_timestep * animation.m_speed;
+        animation.m_timer += dt * animation.m_speed;
     }
 }
 
-static void UpdateHierarchy(Scene& p_scene, size_t p_index, float p_timestep) {
-    unused(p_timestep);
-
-    ecs::Entity self_id = p_scene.getEntityByIndex<HierarchyComponent>(p_index);
-    TransformComponent* self_transform = p_scene.component<TransformComponent>(self_id);
-
-    if (!self_transform) {
-        return;
-    }
-
-    Mat4f world_matrix = self_transform->localMatrix();
-    const HierarchyComponent* hierarchy = &p_scene.getComponentByIndex<HierarchyComponent>(p_index);
-    ecs::Entity parent = hierarchy->parent_id;
-
-    while (parent.valid()) {
-        TransformComponent* parent_transform = p_scene.component<TransformComponent>(parent);
-        if (DEV_VERIFY(parent_transform)) {
-            world_matrix = parent_transform->localMatrix() * world_matrix;
-
-            if ((hierarchy = p_scene.component<HierarchyComponent>(parent)) != nullptr) {
-                parent = hierarchy->parent_id;
-            } else {
-                parent = ecs::Entity::null();
-            }
-        } else {
-            break;
-        }
-    }
-
-    self_transform->setWorldMatrix(world_matrix);
-    self_transform->setDirty(false);
-}
-
-static void UpdateSkeleton(Scene& p_scene, size_t p_index, float) {
-    TransformComponent* transform = p_scene.component<TransformComponent>(p_scene.getEntityByIndex<SkeletonComponent>(p_index));
-    DEV_ASSERT(transform);
-
-    // The transform world matrices are in world space, but skinning needs them in skeleton-local space,
-    //	so that the skin is reusable for instanced meshes.
-    //	We remove the skeleton's world matrix from the bone world matrix to obtain the bone local transform
-    //	These local bone matrices will only be used for skinning, the actual transform components for the bones
-    //	remain unchanged.
-    //
-    //	This is useful for an other thing too:
-    //	If a whole transform tree is transformed by some parent (even gltf import does that to convert from RH
-    // to LH space) 	then the inverseBindMatrices are not reflected in that because they are not contained in
-    // the hierarchy system. 	But this will correct them too.
-
-    SkeletonComponent& skeleton = p_scene.getComponentByIndex<SkeletonComponent>(p_index);
-    const Mat4f R = glm::inverse(transform->worldMatrix());
-    const size_t numBones = skeleton.bone_collection.size();
-    if (skeleton.bone_transforms.size() != numBones) {
-        skeleton.bone_transforms.resize(numBones);
-    }
-
-    int idx = 0;
-    for (ecs::Entity boneID : skeleton.bone_collection) {
-        const TransformComponent* boneTransform = p_scene.component<TransformComponent>(boneID);
-        DEV_ASSERT(boneTransform);
-
-        const Mat4f& B = skeleton.inverse_bind_matrices[idx];
-        const Mat4f& W = boneTransform->worldMatrix();
-        const Mat4f M = R * W * B;
-        skeleton.bone_transforms[idx] = M;
-        ++idx;
-
-        // @TODO: skeleton animation
-    }
-};
-
-static void UpdateLight(float p_timestep,
-                        const TransformComponent& p_transform,
-                        LightComponent& p_light) {
-    unused(p_timestep);
-
-    p_light.SetPosition(p_transform.translation());
-
-    if (p_light.IsDirty() || p_transform.dirty()) {
-        const float constant = p_light.GetAttenConstant();
-        const float linear = p_light.GetAttenLinear();
-        const float quadratic = p_light.GetAttenQuadratic();
-        // update max distance
-        constexpr float atten_factor_inv = 1.0f / 0.03f;
-        if (linear == 0.0f && quadratic == 0.0f) {
-            p_light.SetMaxDistance(1000.0f);
-        } else {
-            // (constant + linear * x + quad * x^2) * atten_factor = 1
-            // quad * x^2 + linear * x + constant - 1.0 / atten_factor = 0
-            const float a = quadratic;
-            const float b = linear;
-            const float c = constant - atten_factor_inv;
-
-            float discriminant = b * b - 4 * a * c;
-            if (discriminant < 0.0f) {
-                CRASH_NOW_MSG("TODO: fix");
-            }
-
-            float sqrt_d = glm::sqrt(discriminant);
-            float root1 = (-b + sqrt_d) / (2 * a);
-            float root2 = (-b - sqrt_d) / (2 * a);
-            float max_distance = root1 > 0.0f ? root1 : root2;
-            max_distance = math::max(LIGHT_SHADOW_MIN_DISTANCE + 1.0f, max_distance);
-            p_light.SetMaxDistance(max_distance);
-        }
-
-        // update shadow map
-        if (p_light.CastShadow()) {
-            // @TODO: [SCRUM-178] shadow atlas
-        }
-
-        // update light space matrices
-        if (p_light.CastShadow()) {
-            switch (p_light.GetType()) {
-                case LightType::Point: {
-                    CRASH_NOW();
-#if 0
-                    constexpr float near_plane = LIGHT_SHADOW_MIN_DISTANCE;
-                    const float far_plane = p_light.m_maxDistance;
-                    const bool is_opengl = IRenderDevice::singleton().GetBackend() == Backend::OPENGL;
-                    auto matrices = is_opengl ? BuildOpenGlPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane)
-                                              : BuildPointLightCubeMapViewProjectionMatrix(p_light.m_position, near_plane, far_plane);
-
-                    for (size_t i = 0; i < matrices.size(); ++i) {
-                        p_light.m_lightSpaceMatrices[i] = matrices[i];
-                    }
-#endif
-                } break;
-                default:
-                    break;
-            }
-        }
-
-        // @TODO: don't update shadow map unless necessary
-        p_light.SetDirty(false);
-    }
-}
-
-void RunLightUpdateSystem(Scene& p_scene, jobsystem::Context&, float p_timestep) {
+void RunLightUpdateSystem(Scene& scene, jobsystem::Context&, float) {
     CAVE_PROFILE_EVENT();
 
-    auto view = p_scene.view<LightComponent, TransformComponent>();
+    auto view = scene.view<LightComponent, TransformComponent>();
     for (auto [id, light, transform] : view) {
-        UpdateLight(p_timestep, transform, light);
+        UpdateLight(transform, light);
     }
 }
 
@@ -318,9 +330,9 @@ void RunSkeletonUpdateSystem(Scene& scene, jobsystem::Context& p_context, float 
     JS_PARALLEL_FOR(SkeletonComponent, p_context, index, 1, UpdateSkeleton(scene, index, p_timestep));
 }
 
-void RunHierarchyUpdateSystem(Scene& scene, jobsystem::Context& p_context, float p_timestep) {
+void RunHierarchyUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(HierarchyComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(scene, index, p_timestep));
+    JS_PARALLEL_FOR(HierarchyComponent, ctx, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(scene, index, dt));
 }
 
 void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
@@ -347,6 +359,8 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
 
     scene.setBound(bound);
 }
+
+#pragma warning(pop)
 
 void RunFacingUpdateSystem(Scene& scene, jobsystem::Context&, float) {
     auto view = scene.view<FacingComponent, VelocityComponent, TransformComponent>();

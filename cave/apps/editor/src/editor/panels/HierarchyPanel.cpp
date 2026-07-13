@@ -159,8 +159,8 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
             ent,
             BuiltinComponentId::HierarchyComponent_Id,
             "local_visible"_sid,
-            hier_component->visible,
-            !hier_component->visible);
+            hier_component->local_visible,
+            !hier_component->local_visible);
 
         m_editor_services.edit().submit(m_preview.doc_id, std::move(cmd));
     }
