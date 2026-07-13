@@ -289,7 +289,13 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
         ecs::Entity parent = selected.valid() ? selected : preview_scene.scene->root();
 
         if (ImGui::BeginMenu("Add")) {
-            openAddEntityPopupImpl(preview_scene, parent);
+            const bool is_ui = preview_scene.scene->has(UICanvasComponent_Id, parent) ||
+                               preview_scene.scene->has(UIRectTransformComponent_Id, parent);
+            if (is_ui) {
+                openAddUIPopupImpl(preview_scene, parent);
+            } else {
+                openAddEntityPopupImpl(preview_scene, parent);
+            }
             ImGui::EndMenu();
         }
 
@@ -327,9 +333,33 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
     DEFINE_OBJECT(torus,          true )
 // clang-format on
 
-void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
-    DEV_ASSERT(parent.valid());
+void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
+    EditService& edit = m_editor_services.edit();
 
+    auto can_add_canvas_item = [](const Scene& scene, Entity parent) {
+        while (parent != scene.root() && parent.valid()) {
+            if (scene.has(UICanvasComponent_Id, parent)) return true;
+            const auto* hier = scene.component<HierarchyComponent>(parent);
+            if (DEV_VERIFY(hier)) {
+                parent = hier->parent_id;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    };
+
+    const bool can_add_ui = can_add_canvas_item(*preview_scene.scene, parent);
+    if (ImGui::MenuItem("Button", nullptr, false, can_add_ui)) {
+        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+            Entity temp = writer.button("UIButton");
+            writer.attachChild(temp, parent);
+            return temp;
+        });
+    }
+}
+
+void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
     EditService& edit = m_editor_services.edit();
 
     using CreateFunc = Entity (*)(SceneCommandWriter&, std::string_view);
@@ -354,37 +384,14 @@ void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, e
     OBJECT_LIST
 #undef DEFINE_OBJECT
 
-    auto can_add_canvas_item = [](const Scene& scene, Entity parent) {
-        while (parent != scene.root() && parent.valid()) {
-            if (scene.has(UICanvasComponent_Id, parent)) return true;
-            const auto* hier = scene.component<HierarchyComponent>(parent);
-            if (DEV_VERIFY(hier)) {
-                parent = hier->parent_id;
-            } else {
-                return false;
-            }
-        }
-        return false;
-    };
-
-    if (ImGui::BeginMenu("UI")) {
-        const bool is_parent_root = parent == preview_scene.scene->root();
-        if (ImGui::MenuItem("Canvas", nullptr, false, is_parent_root)) {
-            edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
-                Entity temp = writer.canvas("UICanvas");
-                writer.attachChild(temp, parent);
-                return temp;
-            });
-        }
-        const bool can_add_ui = can_add_canvas_item(*preview_scene.scene, parent);
-        if (ImGui::MenuItem("Button", nullptr, false, can_add_ui)) {
-            edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
-                Entity temp = writer.button("UIButton");
-                writer.attachChild(temp, parent);
-                return temp;
-            });
-        }
-        ImGui::EndMenu();
+    ImGui::Separator();
+    const bool is_parent_root = parent == preview_scene.scene->root();
+    if (ImGui::MenuItem("Canvas", nullptr, false, is_parent_root)) {
+        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+            Entity temp = writer.canvas("UICanvas");
+            writer.attachChild(temp, parent);
+            return temp;
+        });
     }
 }
 

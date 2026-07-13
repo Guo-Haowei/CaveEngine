@@ -12,12 +12,12 @@
 #include "editor/services/IconCache.h"
 
 // @TODO: refactor
-#include "engine/private/ui/inputs.h"
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/view/ViewManager.h"
+#include "engine/private/runtime/ui/Inputs.h"
 
 namespace cave {
 

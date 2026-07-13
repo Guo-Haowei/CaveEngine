@@ -4,7 +4,7 @@
 
 // @TODO: refactor
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "engine/private/ui/inputs.h"
+#include "engine/private/runtime/ui/Inputs.h"
 
 #include "editor/services/DragDropService.h"
 #include "editor/utility/ContentEntry.h"

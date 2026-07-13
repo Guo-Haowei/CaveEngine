@@ -18,7 +18,7 @@
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "engine/private/ui/layout.h"
+#include "engine/private/runtime/ui/Layout.h"
 
 namespace cave {
 
@@ -357,10 +357,13 @@ void PropertyPanel::drawUIImpl() {
     DrawComponentAuto<FacingComponent>("Facing", ctx);
     DrawComponentAuto<VelocityComponent>("Velocity", ctx);
     DrawComponentAuto<MotorComponent>("Motor", ctx);
-    DrawComponentAuto<UICanvasComponent>("UICanvas", ctx);
     DrawComponentAuto<SpriteRendererComponent>("SpriteRenderer", ctx);
     DrawComponentAuto<TileMapInstanceComponent>("TileMapInstance", ctx);
     DrawComponentAuto<SpriteAnimatorComponent>("SpriteAnimator", ctx);
+
+    DrawComponentAuto<UICanvasComponent>("Canvas", ctx);
+    DrawComponentAuto<UIRectTransformComponent>("Rect", ctx);
+    DrawComponentAuto<UIButtonComponent>("Button", ctx);
 
     DrawComponent(
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),

@@ -105,8 +105,8 @@ auto Application::setupModules() -> Result<void> {
                                                   *m_renderer);
     m_engine_services.project_manager = m_project_manager.get();
 
-    m_ui = MakeOwner<UIRuntime>(*m_view_manager);
-    m_engine_services.ui = m_ui.get();
+    m_ui_runtime = MakeOwner<UIRuntime>(*m_view_manager);
+    m_engine_services.ui = m_ui_runtime.get();
 
     // setup app services
     m_engine_services.game_input = &m_game_input;
@@ -229,7 +229,7 @@ bool Application::mainLoop() {
 
     m_scene_scheduler->flushSceneCommands();
 
-    m_ui->beginFrame(m_input_service->getUIInput());
+    m_ui_runtime->beginFrame(m_input_service->getUIInput());
 
     m_asset_manager->update();
 
@@ -243,11 +243,15 @@ bool Application::mainLoop() {
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->tick(time);
 
-    m_ui->endFrame();
+    m_ui_runtime->endFrame();
     m_canvas.endFrame();
 
     std::span<const ResolvedView> views = m_view_manager->endFrame();
-    m_renderer->tick(time, views, m_ui->takeDrawData());
+    for (const ResolvedView& view : views) {
+        m_ui_runtime->buildCanvas(*view.scene, view.view_id);
+    }
+
+    m_renderer->tick(time, views, m_ui_runtime->takeDrawData());
 
     return true;
 }

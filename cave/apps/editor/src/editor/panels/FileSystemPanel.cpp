@@ -14,7 +14,7 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/VFS.h"
-#include "engine/private/ui/inputs.h"
+#include "engine/private/runtime/ui/Inputs.h"
 
 namespace cave {
 

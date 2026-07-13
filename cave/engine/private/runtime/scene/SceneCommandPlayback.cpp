@@ -6,28 +6,29 @@ namespace cave {
 
 using ecs::Entity;
 
-EntityMap::EntityMap(uint32_t p_reserve) {
+EntityMap::EntityMap(uint32_t reserve) {
     m_remap.clear();
-    m_remap.resize(p_reserve, Entity::null());
+    m_remap.resize(reserve, Entity::null());
 }
 
-static bool IsTemp(ecs::Entity p_id) noexcept { return p_id.id() >= kSceneCmdTmpBase; }
+static bool IsTemp(ecs::Entity ent) noexcept { return ent.id() >= kSceneCmdTmpBase; }
 
-Entity EntityMap::resolve(Entity p_ent) const noexcept {
-    if (!IsTemp(p_ent)) return p_ent;
+Entity EntityMap::resolve(Entity ent) const noexcept {
+    if (!IsTemp(ent)) return ent;
 
-    const uint32_t index = p_ent.id() - kSceneCmdTmpBase;
+    const uint32_t index = ent.id() - kSceneCmdTmpBase;
     if (DEV_VERIFY(index < m_remap.size())) {
         return m_remap[index];
     }
 
+    CRASH_NOW();
     return Entity::null();
 }
 
-void EntityMap::setRemap(Entity p_temp, Entity p_real) {
-    const uint32_t index = p_temp.id() - kSceneCmdTmpBase;
+void EntityMap::setRemap(Entity tmp, Entity real) {
+    const uint32_t index = tmp.id() - kSceneCmdTmpBase;
     DEV_ASSERT(index < m_remap.size());
-    m_remap[index] = p_real;
+    m_remap[index] = real;
 }
 
 void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,

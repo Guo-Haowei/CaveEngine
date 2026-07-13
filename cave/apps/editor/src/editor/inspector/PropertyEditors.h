@@ -11,7 +11,7 @@
 #include "editor/edit/RemoveComponentCmd.h"
 
 //
-#include "engine/private/ui/inputs.h"
+#include "engine/private/runtime/ui/Inputs.h"
 
 namespace cave {
 

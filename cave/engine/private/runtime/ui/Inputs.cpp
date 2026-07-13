@@ -1,4 +1,4 @@
-#include "inputs.h"
+#include "Inputs.h"
 
 #include <imgui/imgui_internal.h>
 

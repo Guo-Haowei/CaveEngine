@@ -1,6 +1,10 @@
 #pragma once
 #include "cave/core/ids/ViewId.h"
 #include "cave/runtime/framework/IUIRuntime.h"
+
+#include "UILayoutResolver.h"
+
+// @TODO: fix
 #include "cave/ui/UIDrawCommand.h"
 
 namespace cave {
@@ -15,25 +19,23 @@ public:
     void beginFrame(const UIInput& input) override;
     void endFrame() override;
 
-    void beginView(ViewId view_id) override;
-    void endView() override;
-
-    bool button(UIId id, UIRect rect) override;
-
     UIFrameDrawData takeDrawData() override {
         return std::move(m_draw_data);
     }
 
+    void buildCanvas(const Scene& scene, ViewId view_id) override;
+
 private:
+    void buildDrawList(const ResolvedUITree& ui_tree, ViewId view_id);
+
     ViewManager& m_view_manager;
     UIInput m_ui_input{};
     UIFrameDrawData m_draw_data{};
-    ViewId m_current_view{};
 
-    UIId m_hot = 0;     // hovered this frame
-    UIId m_active = 0;  // pressed/captured this frame
+    ecs::Entity m_hot;     // hovered this frame
+    ecs::Entity m_active;  // pressed/captured this frame
 
-    int m_stack = 0;
+    UILayoutResolver m_resolver;
 };
 
 }  // namespace cave

@@ -16,8 +16,7 @@ void MainMenuState::onEnter() {
 }
 
 void MainMenuState::tick(float) {
-    IUIRuntime& ui = m_runtime.services().UI();
-
+#if 0
     ui.beginView(m_runtime.viewId());
     const float offset_x = 760.0f;
     const float offset_y = 200.0f;
@@ -32,6 +31,7 @@ void MainMenuState::tick(float) {
         LOG_OK(LogChannel::Game, "UI Button 3 clicked");
     }
     ui.endView();
+#endif
 }
 
 }  // namespace chess

@@ -261,7 +261,7 @@ void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
     if (m_ui_buffers) {
         if (!updateAllUIBuffer(m_device, ui_data, *m_ui_buffers)) {
             // @TODO: proper error handling
-            CRASH_NOW_MSG("Failed to update UI buffer");
+            // CRASH_NOW_MSG("Failed to update UI buffer");
         }
         // @TODO: if failed to update buffer, create a new one
         return;

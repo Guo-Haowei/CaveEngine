@@ -1,5 +1,5 @@
 version: 20
-seed: 147
+seed: 280
 root: 1
 entities:
   - id: 1
@@ -103,5 +103,44 @@ entities:
       local_visible: true
     UICanvasComponent:
       space: screen
-      reference_resolution: [1920, 1080]
-      match_width_or_height: 0.5
+      resolution: [1920, 1080]
+      match: 0.5
+  - id: 213
+    NameComponent:
+      name: MainMenuStart
+    HierarchyComponent:
+      parent_id: 147
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0.5, 0]
+      anchor_max: [0.5, 0]
+      offset_min: [-200, 150]
+      offset_max: [200, 250]
+    UIButtonComponent:
+      clicked_event: main_menu.start
+  - id: 279
+    NameComponent:
+      name: Button2
+    HierarchyComponent:
+      parent_id: 147
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [0, 0]
+      offset_max: [100, 100]
+    UIButtonComponent:
+      clicked_event: ""
+  - id: 280
+    NameComponent:
+      name: Button3
+    HierarchyComponent:
+      parent_id: 147
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [0, 0]
+      offset_max: [100, 100]
+    UIButtonComponent:
+      clicked_event: ""

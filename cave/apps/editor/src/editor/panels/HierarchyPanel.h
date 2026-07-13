@@ -23,6 +23,7 @@ protected:
 private:
     void drawPopup(const PreviewScene& preview_scene);
     void openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
+    void openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
 };
 
 }  // namespace cave

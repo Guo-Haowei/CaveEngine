@@ -4,6 +4,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
+#include "cave/runtime/game/GameModuleHandle.h"
 
 #include "editor/panels/AssetInspector.h"
 #include "editor/panels/ContentBrowser.h"
@@ -38,9 +39,8 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
-#include "engine/private/ui/layout.h"
+#include "engine/private/runtime/ui/Layout.h"
 
-#include "cave/runtime/game/GameModuleHandle.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {
