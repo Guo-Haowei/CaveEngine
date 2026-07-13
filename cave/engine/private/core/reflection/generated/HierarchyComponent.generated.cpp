@@ -9,11 +9,13 @@
 namespace cave {
 
 // ecs::Entity parent_id ()
+// bool local_visible ()
 
 template<>
 const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(HierarchyComponent, "parent_id", parent_id, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(HierarchyComponent, "local_visible", local_visible, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

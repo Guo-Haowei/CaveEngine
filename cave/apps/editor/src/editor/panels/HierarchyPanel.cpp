@@ -4,6 +4,7 @@
 #include <imgui/imgui_internal.h>
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
@@ -11,18 +12,19 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
+#include "editor/edit/ChangePropertyCmd.h"
+#include "editor/edit/EditObjectCmd.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/DragDropService.h"
 #include "editor/services/EditService.h"
+#include "editor/services/EditorServices.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
-
-#include "editor/edit/EditObjectCmd.h"
-#include "editor/EditorState.h"
 
 namespace cave {
 
 using ::cave::ecs::Entity;
+using namespace ::cave::literals;
 
 namespace {
 
@@ -39,8 +41,12 @@ public:
         Vector<HierarchyNode*> children;
     };
 
-    SceneTreeBuilder(const PreviewScene& preview, EditorServices& services)
-        : m_preview(preview), m_services(services) {}
+    SceneTreeBuilder(const PreviewScene& preview,
+                     EngineServices& engine_services,
+                     EditorServices& editor_services)
+        : m_preview(preview)
+        , m_engine_services(engine_services)
+        , m_editor_services(editor_services) {}
 
     void update() {
         if (buildSceneTree(*m_preview.scene)) {
@@ -57,11 +63,12 @@ private:
                         Entity ent,
                         ImGuiTreeNodeFlags tree_flags,
                         std::function<void()> on_left_click,
-                        std::function<void()> on_right_click,
-                        std::function<void()> on_visibility_click);
+                        std::function<void()> on_right_click);
 
     const PreviewScene& m_preview;
-    EditorServices& m_services;
+
+    EngineServices& m_engine_services;
+    EditorServices& m_editor_services;
 
     Map<Entity, Owner<HierarchyNode>> m_nodes;
     HierarchyNode* m_root = nullptr;
@@ -71,10 +78,10 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
                                       Entity ent,
                                       ImGuiTreeNodeFlags tree_flags,
                                       std::function<void()> on_left_click,
-                                      std::function<void()> on_right_click,
-                                      std::function<void()> on_visibility_click) {
-    const NameComponent* name_component = scene.component<NameComponent>(ent);
-    DEV_ASSERT(name_component);
+                                      std::function<void()> on_right_click) {
+    const auto* name_component = scene.component<NameComponent>(ent);
+    const auto* hier_component = scene.component<HierarchyComponent>(ent);
+    DEV_ASSERT(name_component && hier_component);
 
     std::string_view name = name_component->name();
     if (name.empty()) {
@@ -86,8 +93,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
         icon = ICON_FA_SQUARE_SHARE_NODES;
     }
 
-    const char* text = ICON_FA_EYE_SLASH;
-    // const char* text = ICON_FA_EYE;
+    const char* text = hier_component->visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
     const auto node_name = std::format("##tree_node_{}", ent.id());
     const auto selectable_name = std::format("{} {}##tree_selectable_{}", icon, name, ent.id());
     const auto visibility_name = std::format("{}##visibility_{}", text, ent.id());
@@ -130,8 +136,8 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
         }
     }
 
-    m_services.dragDrop().dragSceneNode(ent, name);
-    m_services.dragDrop().dropSceneNode(ent, m_preview.doc_id, scene);
+    m_editor_services.dragDrop().dragSceneNode(ent, name);
+    m_editor_services.dragDrop().dropSceneNode(ent, m_preview.doc_id, scene);
 
     const float visibility_x =
         ImGui::GetWindowContentRegionMax().x -
@@ -148,9 +154,15 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 2.0f));
 
     if (ImGui::Button(visibility_name.c_str(), ImVec2(kVisibilityColumnWidth, 0.0f))) {
-        if (on_visibility_click) {
-            on_visibility_click();
-        }
+        auto cmd = MakeOwner<ChangePropertyCmd>(
+            m_engine_services.sceneRegistry(),
+            ent,
+            BuiltinComponentId::HierarchyComponent_Id,
+            "local_visible"_sid,
+            hier_component->visible,
+            !hier_component->visible);
+
+        m_editor_services.edit().submit(m_preview.doc_id, std::move(cmd));
     }
 
     ImGui::PopStyleVar();
@@ -175,7 +187,7 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
     DEV_ASSERT(hier);
     Entity current_id = hier->entity;
 
-    SelectionKey selection = m_services.selection().primary(m_preview.doc_id);
+    SelectionKey selection = m_editor_services.selection().primary(m_preview.doc_id);
 
     tree_flags |= hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
     tree_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
@@ -191,7 +203,7 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
             selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_services.selection().setSelection(m_preview.doc_id, selection);
+            m_editor_services.selection().setSelection(m_preview.doc_id, selection);
         },
         [this, current_id]() {
             SelectionKey selection;
@@ -200,11 +212,8 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
             selection.scene = m_preview.scene_id;
             selection.entity = current_id;
 
-            m_services.selection().setSelection(m_preview.doc_id, selection);
+            m_editor_services.selection().setSelection(m_preview.doc_id, selection);
             ImGui::OpenPopup(kPopupNameId);
-        },
-        []() {
-            LOG_WARN("TODO: implement");
         });
 
     if (expanded) {
@@ -265,7 +274,9 @@ void HierarchyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
     PreviewScene preview = m_editor_services.workspace().focusedPreviewScene();
     if (preview.scene) {
-        SceneTreeBuilder sceneTree(preview, m_editor_services);
+        SceneTreeBuilder sceneTree(preview,
+                                   m_engine_services,
+                                   m_editor_services);
         drawPopup(preview);
         sceneTree.update();
     }
