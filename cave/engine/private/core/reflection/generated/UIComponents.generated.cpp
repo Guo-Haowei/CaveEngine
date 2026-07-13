@@ -9,15 +9,15 @@
 namespace cave {
 
 // UICanvasSpace space (editor = EnumDropDown)
-// math::Vec2f reference_resolution (editor = Translation2D)
-// float match_width_or_height (editor = InputFloat)
+// math::Vec2f resolution (editor = Translation2D)
+// float match (editor = InputFloat)
 
 template<>
 const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(UICanvasComponent, "space", space, FieldFlag::Serialize, EditorHint::EnumDropDown),
-        REGISTER_FIELD(UICanvasComponent, "reference_resolution", reference_resolution, FieldFlag::Serialize, EditorHint::Translation2D),
-        REGISTER_FIELD(UICanvasComponent, "match_width_or_height", match_width_or_height, FieldFlag::Serialize, EditorHint::InputFloat),
+        REGISTER_FIELD(UICanvasComponent, "resolution", resolution, FieldFlag::Serialize, EditorHint::Translation2D),
+        REGISTER_FIELD(UICanvasComponent, "match", match, FieldFlag::Serialize, EditorHint::InputFloat),
     };
 
     return s_table;

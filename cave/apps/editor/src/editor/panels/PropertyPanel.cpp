@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/runtime/ui/UIComponents.h"
 
 #include "editor/inspector/PropertyEditors.h"
 #include "editor/EditorState.h"
@@ -175,6 +176,44 @@ bool DrawComponentAuto(T* component, const DrawComponentCtx& ctx) {
     return (int)dirty;
 }
 
+template<ComponentType T>
+void DrawComponentAuto(std::string_view name, const DrawComponentCtx& ctx) {
+    T* component = ctx.scene->component<T>(ctx.entity);
+    if (!component) return;
+
+    const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
+                                             ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap |
+                                             ImGuiTreeNodeFlags_FramePadding;
+    ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+    float line_height = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+    ImGui::Separator();
+    bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, "%s", name.data());
+    ImGui::PopStyleVar();
+    ImGui::SameLine(contentRegionAvailable.x - line_height * 0.5f);
+    if (ImGui::Button("-", ImVec2{ line_height, line_height })) {
+        ImGui::OpenPopup("ComponentSettings");
+    }
+
+    if (ImGui::BeginPopup("ComponentSettings")) {
+        if (ImGui::MenuItem("remove component")) {
+            auto cmd = MakeOwner<RemoveComponentCmd<T>>(
+                ctx.engine_services.sceneRegistry(),
+                ctx.entity,
+                *component);
+            ctx.editor_services.edit().submit(ctx.doc_id, std::move(cmd));
+        }
+
+        ImGui::EndPopup();
+    }
+
+    if (open) {
+        DrawComponentAuto(component, ctx);
+        ImGui::TreePop();
+    }
+}
+
 void PropertyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
 
@@ -259,17 +298,12 @@ void PropertyPanel::drawUIImpl() {
     }
 
     // @TODO: see how much this can be done with meta table
-
     TransformComponent* transform = scene.component<TransformComponent>(id);
     LightComponent* light = scene.component<LightComponent>(id);
     MaterialComponent* material = scene.component<MaterialComponent>(id);
     ColliderComponent* collider = scene.component<ColliderComponent>(id);
     NativeScriptComponent* native_script = scene.component<NativeScriptComponent>(id);
     CameraComponent* camera = scene.component<CameraComponent>(id);
-    FacingComponent* facing = scene.component<FacingComponent>(id);
-    VelocityComponent* velocity = scene.component<VelocityComponent>(id);
-    MotorComponent* motor = scene.component<MotorComponent>(id);
-    SpriteAnimatorComponent* sprite_animator = scene.component<SpriteAnimatorComponent>(id);
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
@@ -320,23 +354,13 @@ void PropertyPanel::drawUIImpl() {
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Facing"), facing, [&ctx](FacingComponent& comp) {
-        DrawComponentAuto(&comp, ctx);
-    });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("Velocity"), velocity, [&ctx](VelocityComponent& comp) {
-        DrawComponentAuto(&comp, ctx);
-    });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("Motor"), motor, [&ctx](MotorComponent& comp) {
-        DrawComponentAuto(&comp, ctx);
-    });
-
-    DrawComponent(
-        DRAW_COMPONENT_ARGS("SpriteAnimator"), sprite_animator,
-        [&](SpriteAnimatorComponent& animator) {
-            DrawComponentAuto<SpriteAnimatorComponent>(&animator, ctx);
-        });
+    DrawComponentAuto<FacingComponent>("Facing", ctx);
+    DrawComponentAuto<VelocityComponent>("Velocity", ctx);
+    DrawComponentAuto<MotorComponent>("Motor", ctx);
+    DrawComponentAuto<UICanvasComponent>("UICanvas", ctx);
+    DrawComponentAuto<SpriteRendererComponent>("SpriteRenderer", ctx);
+    DrawComponentAuto<TileMapInstanceComponent>("TileMapInstance", ctx);
+    DrawComponentAuto<SpriteAnimatorComponent>("SpriteAnimator", ctx);
 
     DrawComponent(
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),
@@ -353,18 +377,6 @@ void PropertyPanel::drawUIImpl() {
                 p_anim.SetTimer(timer);
             }
         });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("SpriteRenderer"),
-                  scene.component<SpriteRendererComponent>(id),
-                  [&](SpriteRendererComponent& p_renderer) {
-                      DrawComponentAuto<SpriteRendererComponent>(&p_renderer, ctx);
-                  });
-
-    DrawComponent(DRAW_COMPONENT_ARGS("TileMapRenderer"),
-                  scene.component<TileMapInstanceComponent>(id),
-                  [&](TileMapInstanceComponent& p_renderer) {
-                      DrawComponentAuto<TileMapInstanceComponent>(&p_renderer, ctx);
-                  });
 
     MeshRendererComponent* mesh_renderer = scene.component<MeshRendererComponent>(id);
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {

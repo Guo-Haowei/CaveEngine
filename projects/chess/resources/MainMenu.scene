@@ -1,5 +1,5 @@
 version: 20
-seed: 81
+seed: 147
 root: 1
 entities:
   - id: 1
@@ -78,7 +78,7 @@ entities:
       rotation: [-0.31498, -0.632995546, -0.314871162, 0.633214235]
       scale: [1, 1, 1]
     CameraComponent:
-      flags: 1
+      flags: 0
       projection: perspective
       fovy: 60
       near: 0.100000001
@@ -95,3 +95,13 @@ entities:
       translation: [-3.5, 0, -3.5]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
+  - id: 147
+    NameComponent:
+      name: UICanvas
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    UICanvasComponent:
+      space: screen
+      reference_resolution: [1920, 1080]
+      match_width_or_height: 0.5

@@ -228,18 +228,16 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
 }
 
 bool SceneTreeBuilder::buildSceneTree(const Scene& scene) {
-    for (auto [ent, transform] : scene.view<TransformComponent>()) {
+    for (auto [ent, hier] : scene.view<HierarchyComponent>()) {
         auto find_or_create = [this](Entity ent) -> HierarchyNode* {
             if (ent.isNull()) {
                 return nullptr;
             }
-            auto [it, ok] = m_nodes.try_emplace(ent, std::make_unique<HierarchyNode>());
+            auto [it, ok] = m_nodes.try_emplace(ent, MakeOwner<HierarchyNode>());
             return it->second.get();
         };
 
-        const auto hier = scene.component<HierarchyComponent>(ent);
-
-        const Entity parent_id = hier ? hier->parent_id : Entity::null();
+        const Entity parent_id = hier.parent_id;
         HierarchyNode* parent_node = find_or_create(parent_id);
         HierarchyNode* self_node = find_or_create(ent);
         if (parent_node) {
@@ -291,7 +289,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
         ecs::Entity parent = selected.valid() ? selected : preview_scene.scene->root();
 
         if (ImGui::BeginMenu("Add")) {
-            openAddEntityPopupImpl(preview_scene.doc_id, parent);
+            openAddEntityPopupImpl(preview_scene, parent);
             ImGui::EndMenu();
         }
 
@@ -329,13 +327,15 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
     DEFINE_OBJECT(torus,          true )
 // clang-format on
 
-void HierarchyPanel::openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent) {
+void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
     DEV_ASSERT(parent.valid());
+
+    EditService& edit = m_editor_services.edit();
 
     using CreateFunc = Entity (*)(SceneCommandWriter&, std::string_view);
     auto add_object = [&](const char* name, bool separate, CreateFunc&& create_func) {
         if (ImGui::MenuItem(name)) {
-            m_editor_services.edit().submit(doc_id, [&](SceneCommandWriter& writer) {
+            edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
                 Entity temp = create_func(writer, name);
                 writer.attachChild(temp, parent);
                 return temp;
@@ -353,6 +353,21 @@ void HierarchyPanel::openAddEntityPopupImpl(DocId doc_id, ecs::Entity parent) {
     [](SceneCommandWriter& writer, std::string_view name) { return writer.NAME##Object(name); });
     OBJECT_LIST
 #undef DEFINE_OBJECT
+
+    if (ImGui::BeginMenu("UI")) {
+        const bool is_parent_root = parent == preview_scene.scene->root();
+        if (ImGui::MenuItem("Canvas", nullptr, false, is_parent_root)) {
+            edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+                Entity temp = writer.canvas("UICanvas");
+                writer.attachChild(temp, parent);
+                return temp;
+            });
+        }
+        // only add button to UI stufwriterf
+        if (ImGui::MenuItem("Button", nullptr, false, true)) {
+        }
+        ImGui::EndMenu();
+    }
 }
 
 }  // namespace cave

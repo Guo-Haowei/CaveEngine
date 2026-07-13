@@ -23,10 +23,10 @@ struct UICanvasComponent {
     UICanvasSpace space = UICanvasSpace::Screen;
 
     CAVE_PROP(editor = Translation2D)
-    math::Vec2f reference_resolution = { 1920.0f, 1080.0f };
+    math::Vec2f resolution = { 1920.0f, 1080.0f };
 
     CAVE_PROP(editor = InputFloat)
-    float match_width_or_height = 0.5f;  // 0 = match width, 1 = match height.
+    float match = 0.5f;  // 0 = match width, 1 = match height.
 };
 
 struct UIRectTransformComponent {
