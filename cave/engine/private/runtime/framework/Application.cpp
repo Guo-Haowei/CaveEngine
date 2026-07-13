@@ -229,7 +229,7 @@ bool Application::mainLoop() {
 
     m_scene_scheduler->flushSceneCommands();
 
-    m_ui_runtime->beginFrame(m_input_service->getUIInput());
+    m_ui_runtime->beginFrame();
 
     m_asset_manager->update();
 
@@ -241,16 +241,14 @@ bool Application::mainLoop() {
     m_intent_bus.flush();
 
     std::span<const ResolvedView> views = m_view_manager->endFrame();
-    // -----
-
-    for (const ResolvedView& view : views) {
-        m_ui_runtime->buildCanvas(*view.scene,
-                                  view.scene_id,
-                                  view.view_id);
-    }
 
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->tick(time);
+
+    // build UI data
+    for (const ResolvedView& view : views) {
+        m_ui_runtime->buildDrawList(view);
+    }
 
     m_ui_runtime->endFrame();
     m_canvas.endFrame();

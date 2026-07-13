@@ -5,101 +5,77 @@
 
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
+#include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave {
 
 using ecs::Entity;
 using math::Vec2f;
 
-constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
-constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
-constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
-
-void UIRuntime::beginFrame(const UIInput& input) {
-    m_ui_input = input;
+void UIRuntime::beginFrame() {
     m_draw_data.clear();
-    m_events.clear();
-    m_hot = Entity{};
+    m_resolved.clear();
 }
 
 void UIRuntime::endFrame() {
-    if (!m_ui_input.submit_down) {
-        m_active = Entity{};
-    }
 }
 
-void UIRuntime::buildCanvas(const Scene& scene,
-                            SceneId scene_id,
-                            ViewId view_id) {
+void UIRuntime::resolve(const Scene& scene, SceneId scene_id) {
     auto count = scene.count<UICanvasComponent>();
     if (!count) {
         return;
     }
 
-    int counter = 0;
     for (auto [ent, canvas] : scene.view<UICanvasComponent>()) {
-        if (counter > 1) {
-            LOG_WARN(LogChannel::UI, "Only support one canvas per scene");
+        UICanvasKey key = {
+            .scene_id = scene_id,
+            .canvas_entity = ent,
+        };
+
+        auto it = m_resolved.find(key);
+        if (it != m_resolved.end()) {
+            LOG_WARN(LogChannel::UI, "Canvas already resolved");
             break;
         }
-        auto ui_tree = m_resolver.resolve(scene, ent, canvas.resolution);
-        buildDrawList(ui_tree, scene, scene_id, view_id);
 
-        m_ui_trees[scene_id] = std::move(ui_tree);
-
-        ++counter;
+        auto resolved = m_resolver.resolve(scene, ent, canvas.resolution);
+        m_resolved[key] = std::move(resolved);
     }
 }
 
-void UIRuntime::buildDrawList(const ResolvedUITree& ui_tree,
-                              const Scene& scene,
-                              SceneId scene_id,
-                              ViewId view_id) {
-    const ViewRecord* view = m_view_manager.resolve(view_id);
-    DEV_ASSERT(view);
+const ResolvedUICanvas* UIRuntime::findResolved(SceneId scene_id,
+                                                ecs::Entity canvas_entity) const {
+    UICanvasKey key = {
+        .scene_id = scene_id,
+        .canvas_entity = canvas_entity,
+    };
 
-    const Vec2f point_fb = view->screenToFrameBufferPixel(m_ui_input.cursor_os);
+    auto it = m_resolved.find(key);
+    if (it == m_resolved.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
 
-    for (const ResolvedUIElement& element : ui_tree.elements) {
-        auto min = element.rect.min();
-        auto size = element.rect.size();
+void UIRuntime::buildDrawList(const ResolvedView& view) {
+    constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
+    constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
+    constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
 
-        OldUIRect rect{ min.x, min.y, size.x, size.y };
+    for (const auto [ent, canvas] : view.scene->view<UICanvasComponent>()) {
+        const auto* resolved_canvas = findResolved(view.scene_id, ent);
+        DEV_ASSERT(resolved_canvas);
 
-        Entity uiid = element.entity;
-
-        const bool hovered = rect.Contains(point_fb.x, point_fb.y);
-        if (hovered) {
-            m_hot = uiid;
-        }
-
-        if (hovered && m_ui_input.submit_pressed) {
-            m_active = uiid;
-
-            auto* button = scene.component<UIButtonComponent>(element.entity);
-            if (button && button->interactable && !button->clicked_event.empty()) {
-                m_events.emplace_back(UIButtonClicked{
-                    scene_id,
-                    StringId(button->clicked_event),
-                    element.entity,
-                });
+        for (const auto& button : resolved_canvas->elements) {
+            Color color = kButtonNormal;
+            if (button.active) {
+                color = kButtonActive;
+            } else if (button.hovered) {
+                color = kButtonHover;
             }
+
+            m_draw_data.draw_lists[view.view_id].addRect(button.rect, color);
         }
-
-        bool clicked = false;
-
-        if (m_active == uiid && m_ui_input.submit_released) {
-            clicked = hovered;
-        }
-
-        Color color = kButtonNormal;
-        if (m_active == uiid) {
-            color = kButtonActive;
-        } else if (m_hot == uiid) {
-            color = kButtonHover;
-        }
-
-        m_draw_data.draw_lists[view_id].addRect(rect, color);
     }
 }
 

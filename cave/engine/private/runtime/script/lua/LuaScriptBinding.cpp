@@ -105,25 +105,6 @@ bool OpenMathLib(lua_State* L) {
     return true;
 }
 
-bool OpenInputLib(lua_State* L) {
-    luabridge::getGlobalNamespace(L)
-        .beginNamespace("Input")
-        .addFunction("is_action_pressed", [](const char* action) -> int {
-            return InputService::singleton().gameInput().isPressed(StringId(action), 0);
-        })
-        .addFunction("is_action_just_pressed", [](const char* action) -> int {
-            return InputService::singleton().gameInput().isJustPressed(StringId(action), 0);
-        })
-        .addFunction("is_action_just_released", [](const char* action) -> int {
-            return InputService::singleton().gameInput().isJustReleased(StringId(action), 0);
-        })
-        .addFunction("get_action_strength", [](const char* action) -> float {
-            return InputService::singleton().gameInput().getStrength(StringId(action), 0);
-        })
-        .endNamespace();
-    return true;
-}
-
 bool OpenDisplayLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginNamespace("Display")

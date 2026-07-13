@@ -1,7 +1,18 @@
 #pragma once
+#include "cave/core/ids/Entity.h"
+#include "cave/core/ids/SceneId.h"
+#include "cave/core/string/StringId.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {
+
+class ViewManager;
+
+struct UIButtonClicked {
+    SceneId scene_id;
+    StringId event;
+    ecs::Entity source;
+};
 
 class UISystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::UI)
@@ -20,6 +31,8 @@ private:
 
 private:
     const DebugId m_debug_id;
+
+    // Vector<UIButtonClicked> m_events;
 };
 
 }  // namespace cave

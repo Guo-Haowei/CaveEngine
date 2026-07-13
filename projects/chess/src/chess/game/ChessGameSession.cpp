@@ -14,7 +14,6 @@
 #include "chess/game/ChessIntent.h"
 #include "chess/game/ChessMatchAuthority.h"
 #include "chess/presentation/ChessGridSelectorAdapter.h"
-#include "chess/states/GameOverState.h"
 
 namespace chess {
 

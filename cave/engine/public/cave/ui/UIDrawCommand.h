@@ -13,7 +13,7 @@ enum class UIDrawCommandType {
 };
 
 struct UIDrawRectCommand {
-    OldUIRect rect;
+    UIRect rect;
     Color color;
 };
 
@@ -28,7 +28,7 @@ struct UIDrawCommand {
 struct UIDrawList {
     Vector<UIDrawCommand> cmds;
 
-    void addRect(const OldUIRect& rect, const Color& color) {
+    void addRect(const UIRect& rect, const Color& color) {
         UIDrawCommand cmd{
             .type = UIDrawCommandType::Rect,
             .rect = {

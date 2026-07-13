@@ -5,23 +5,17 @@
 #include <span>
 
 #include "cave/core/containers/Containers.h"
-#include "cave/core/ids/Entity.h"
 #include "cave/core/ids/SceneId.h"
 #include "cave/core/ids/ViewId.h"
-#include "cave/core/string/StringId.h"
-#include "cave/ui/UIDrawCommand.h"
-#include "cave/ui/UIInput.h"
+#include "cave/runtime/ui/ResolvedUI.h"
 #include "cave/runtime/ui/UITypes.h"
+
+// @TODO: deprecate
+#include "cave/ui/UIDrawCommand.h"
 
 namespace cave {
 
 class Scene;
-
-struct UIButtonClicked {
-    SceneId scene_id;
-    StringId event;
-    ecs::Entity source;
-};
 
 // @TODO: deprecate
 struct UIFrameDrawData {
@@ -34,10 +28,12 @@ class IUIRuntime {
 public:
     virtual ~IUIRuntime() = default;
 
-    virtual void beginFrame(const UIInput& input) = 0;
+    virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
 
-    virtual std::span<const UIButtonClicked> events() const = 0;
+    virtual void resolve(const Scene& scene, SceneId scene_id) = 0;
+    virtual const ResolvedUICanvas* findResolved(SceneId scene_id,
+                                                 ecs::Entity canvas_entity) const = 0;
 
     virtual UIFrameDrawData takeDrawData() = 0;
 };

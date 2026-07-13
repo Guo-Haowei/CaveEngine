@@ -11,7 +11,7 @@ namespace cave {
 using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
-ResolvedUITree UILayoutResolver::resolve(const Scene& scene,
+ResolvedUICanvas UILayoutResolver::resolve(const Scene& scene,
                                          Entity canvas,
                                          math::Vec2f canvas_size) const {
     DEV_ASSERT(scene.count<UIRectTransformComponent>());
@@ -24,7 +24,7 @@ ResolvedUITree UILayoutResolver::resolve(const Scene& scene,
 
     UIRect canvas_rect{ Vec2f::Zero, canvas_size };
 
-    ResolvedUITree tree;
+    ResolvedUICanvas tree;
     auto it = tree_lookup.find(canvas);
     DEV_ASSERT(it != tree_lookup.end());
     for (Entity e : it->second) {
@@ -38,7 +38,7 @@ void UILayoutResolver::resolveNode(const Scene& scene,
                                    const TreeLookup& lookup,
                                    Entity ent,
                                    const UIRect& parent_rect,
-                                   ResolvedUITree& out) const {
+                                   ResolvedUICanvas& out) const {
     auto* hierarchy = scene.component<HierarchyComponent>(ent);
     DEV_ASSERT(hierarchy);
 
@@ -50,9 +50,15 @@ void UILayoutResolver::resolveNode(const Scene& scene,
 
     const UIRect resolved_rect = resolveRect(parent_rect, *transform);
 
-    out.elements.push_back(ResolvedUIElement{
+    Option<StringId> signal;
+    if (const auto* button = scene.component<UIButtonComponent>(ent)) {
+        signal = Some(StringId(button->clicked_event));
+    }
+
+    out.elements.push_back(ResolvedUIElement {
         .entity = ent,
         .rect = resolved_rect,
+        .clicked_event = std::move(signal),
         .effective_visible = hierarchy->visible,
         .draw_order = static_cast<uint32_t>(out.elements.size()),
     });

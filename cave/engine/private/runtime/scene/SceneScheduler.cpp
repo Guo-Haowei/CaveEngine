@@ -2,6 +2,7 @@
 
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/framework/EngineServices.h"
+#include "cave/runtime/framework/IUIRuntime.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
@@ -51,7 +52,7 @@ void SceneScheduler::flushSceneCommands() {
 }
 
 void SceneScheduler::tick(const FrameTime& time) {
-    std::vector<SceneTickRequest> requests;
+    Vector<SceneTickRequest> requests;
     for (SceneOwner* owner : m_owners) {
         if (owner) {
             owner->collectSceneTicks(requests);
@@ -59,10 +60,18 @@ void SceneScheduler::tick(const FrameTime& time) {
     }
 
     SceneRegistry& scene_registry = m_engine_services.sceneRegistry();
+    IUIRuntime& ui_runtime = m_engine_services.UI();
+    for (const SceneTickRequest& req : requests) {
+        if (Scene* scene = scene_registry.resolve(req.scene_id)) {
+            ui_runtime.resolve(*scene, req.scene_id);
+        }
+    }
+
     for (const SceneTickRequest& req : requests) {
         if (Scene* scene = scene_registry.resolve(req.scene_id)) {
             scene->tick({
                 .domain = req.mode,
+                .scene_id = req.scene_id,
                 .dt = time.dt,
             });
         }

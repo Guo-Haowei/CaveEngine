@@ -5,33 +5,33 @@ namespace cave::render {
 using math::Vec2f;
 using math::Vec4f;
 
-static void AppendUIRect(BuiltUIData& p_out,
-                         const OldUIRect& p_rect,
-                         const Color& p_color) {
-    const float x0 = p_rect.Left();
-    const float y0 = p_rect.Top();
-    const float x1 = p_rect.Right();
-    const float y1 = p_rect.Bottom();
+static void AppendUIRect(BuiltUIData& out,
+                         const UIRect& rect,
+                         const Color& color) {
+    const float x0 = rect.min().x;
+    const float y0 = rect.min().y;
+    const float x1 = rect.max().x;
+    const float y1 = rect.max().y;
 
-    const uint32_t base_vertex = static_cast<uint32_t>(p_out.positions.size());
+    const uint32_t base_vertex = static_cast<uint32_t>(out.positions.size());
 
-    p_out.positions.push_back(Vec2f(x0, y0));
-    p_out.positions.push_back(Vec2f(x1, y0));
-    p_out.positions.push_back(Vec2f(x1, y1));
-    p_out.positions.push_back(Vec2f(x0, y1));
+    out.positions.push_back(rect.min());
+    out.positions.push_back(Vec2f(x1, y0));
+    out.positions.push_back(rect.max());
+    out.positions.push_back(Vec2f(x0, y1));
 
-    p_out.colors.push_back(p_color);
-    p_out.colors.push_back(p_color);
-    p_out.colors.push_back(p_color);
-    p_out.colors.push_back(p_color);
+    out.colors.push_back(color);
+    out.colors.push_back(color);
+    out.colors.push_back(color);
+    out.colors.push_back(color);
 
-    p_out.indices.push_back(base_vertex + 0);
-    p_out.indices.push_back(base_vertex + 1);
-    p_out.indices.push_back(base_vertex + 2);
+    out.indices.push_back(base_vertex + 0);
+    out.indices.push_back(base_vertex + 1);
+    out.indices.push_back(base_vertex + 2);
 
-    p_out.indices.push_back(base_vertex + 0);
-    p_out.indices.push_back(base_vertex + 2);
-    p_out.indices.push_back(base_vertex + 3);
+    out.indices.push_back(base_vertex + 0);
+    out.indices.push_back(base_vertex + 2);
+    out.indices.push_back(base_vertex + 3);
 }
 
 BuiltUIData BuildUIData(std::span<const ResolvedView> p_views,

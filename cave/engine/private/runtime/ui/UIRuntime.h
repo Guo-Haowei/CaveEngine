@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/hash/Hash.h"
 #include "cave/core/ids/ViewId.h"
 #include "cave/runtime/framework/IUIRuntime.h"
 
@@ -10,44 +11,48 @@
 namespace cave {
 
 class ViewManager;
+struct ResolvedView;
+
+struct UICanvasKey {
+    SceneId scene_id;
+    ecs::Entity canvas_entity;
+
+    bool operator==(const UICanvasKey&) const = default;
+};
+
+struct UICanvasKeyHash {
+    size_t operator()(const UICanvasKey& key) const noexcept {
+        size_t hash = std::hash<cave::SceneId>{}(key.scene_id);
+        cave::Hash::add(hash, key.canvas_entity.id());
+        return hash;
+    }
+};
 
 class UIRuntime final : public IUIRuntime {
 public:
     UIRuntime(ViewManager& view_manager) noexcept
         : m_view_manager(view_manager) {}
 
-    void beginFrame(const UIInput& input) override;
+    void beginFrame() override;
     void endFrame() override;
 
     UIFrameDrawData takeDrawData() override {
         return std::move(m_draw_data);
     }
 
-    void buildCanvas(const Scene& scene,
-                     SceneId scene_id,
-                     ViewId view_id);
+    void resolve(const Scene& scene, SceneId scene_id) override;
 
-    std::span<const UIButtonClicked> events() const override {
-        return m_events;
-    }
+    const ResolvedUICanvas* findResolved(SceneId scene_id,
+                                         ecs::Entity canvas_entity) const override;
+
+    void buildDrawList(const ResolvedView& view);
 
 private:
-    void buildDrawList(const ResolvedUITree& ui_tree,
-                       const Scene& scene,
-                       SceneId scene_id,
-                       ViewId view_id);
-
     ViewManager& m_view_manager;
-    UIInput m_ui_input{};
     UIFrameDrawData m_draw_data{};
 
-    ecs::Entity m_hot;     // hovered this frame
-    ecs::Entity m_active;  // pressed/captured this frame
-
     UILayoutResolver m_resolver;
-    Vector<UIButtonClicked> m_events;
-
-    HashMap<SceneId, ResolvedUITree> m_ui_trees;
+    HashMap<UICanvasKey, ResolvedUICanvas, UICanvasKeyHash> m_resolved;
 };
 
 }  // namespace cave
