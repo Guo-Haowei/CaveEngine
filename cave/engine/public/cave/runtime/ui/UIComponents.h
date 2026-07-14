@@ -66,14 +66,15 @@ private:
     math::Vec4f m_tint = math::Vec4f::One;
 
     // Non-serialized
-    Handle<ImageAsset> m_image_handle;
+    mutable Handle<ImageAsset> m_image_handle;
 
 public:
     const Guid& imageGuid() const { return m_image_guid; }
 
     const math::Vec4f tint() const { return m_tint; }
 
-    void onDeserialized();
+    // @TODO: properly set m_image_handle
+    void onDeserialized() const;
 
     const Handle<ImageAsset>& handle() const { return m_image_handle; }
 };

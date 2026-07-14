@@ -5,7 +5,7 @@
 
 namespace cave {
 
-void UIImageComponent::onDeserialized() {
+void UIImageComponent::onDeserialized() const {
     if (!m_image_guid.isNull()) {
         auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(m_image_guid);
         if (handle.is_some()) {

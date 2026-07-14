@@ -79,6 +79,8 @@ void UIRuntime::buildDrawList(const ResolvedView& resolved_view) {
                 const GpuTexture* texture = nullptr;
                 if (const auto* image_asset = image->handle().get()) {
                     texture = image_asset->gpu_texture.get();
+                } else {
+                    image->onDeserialized();
                 }
 
                 m_ui_canvas.addImage(texture,
