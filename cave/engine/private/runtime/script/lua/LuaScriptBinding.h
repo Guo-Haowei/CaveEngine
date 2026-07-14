@@ -20,8 +20,6 @@ void SetPreloadFunc(lua_State* L);
 
 bool OpenMathLib(lua_State* L);
 
-bool OpenInputLib(lua_State* L);
-
 bool OpenDisplayLib(lua_State* L);
 
 bool OpenLogLib(lua_State* L);

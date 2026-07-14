@@ -7,7 +7,6 @@
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "RenderPackets.h"
-#include "UIRenderer.h"
 
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/gpu_resource.h"
@@ -82,6 +81,8 @@ enum class DrawPhase : uint8_t {
 };
 
 struct FrameData {
+    ViewId view_id;
+
     render::RenderOptions options;
     // @TODO: multi camera & viewport
 
@@ -115,12 +116,6 @@ struct FrameData {
     };
 
     math::AABB voxel_gi_bound;
-
-    // UI stuff
-    render::UIBatch ui_batch;
-    std::shared_ptr<GpuMesh> ui_buffer;
-
-    ViewId view_id;
 };
 
 }  // namespace cave

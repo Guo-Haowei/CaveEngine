@@ -114,6 +114,20 @@ void TileMapInstance_OnEdited(Scene& scene,
     }
 }
 
+void UIImageComponent_OnEdited(Scene& scene,
+                               ecs::Entity ent,
+                               ComponentId,
+                               const PropertyId& pid,
+                               const void*,
+                               uint32_t) {
+    if (pid == "image_guid"_sid) {
+        auto* c = (UIImageComponent*)scene.storage().getRaw(UIImageComponent_Id, ent);
+        if (DEV_VERIFY(c)) {
+            c->onDeserialized();
+        }
+    }
+}
+
 void PrefabInstance_OnEdited(Scene& scene,
                              ecs::Entity ent,
                              ComponentId,
@@ -155,6 +169,7 @@ void ComponentRegistry::builtin(ComponentRegistry& out) {
     out.getMut(MaterialComponent_Id).on_edited = Materail_OnEdited;
     out.getMut(TileMapInstanceComponent_Id).on_edited = TileMapInstance_OnEdited;
     out.getMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
+    out.getMut(UIImageComponent_Id).on_edited = UIImageComponent_OnEdited;
 }
 
 }  // namespace cave::ecs

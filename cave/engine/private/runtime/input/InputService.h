@@ -1,11 +1,10 @@
 #pragma once
-#include "cave/core/base/Singleton.h"
 #include "cave/core/string/StringId.h"
 #include "cave/runtime/framework/IService.h"
 #include "cave/runtime/input/IInputDevice.h"
 #include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/input/PointerState.h"
-#include "cave/ui/UIInput.h"
+#include "cave/runtime/ui/UIInput.h"
 
 #include "engine/private/runtime/input/GameInput.h"
 #include "engine/private/runtime/input/InputActionMap.h"
@@ -17,8 +16,7 @@ struct FrameTime;
 class IInputConsumer;
 class KeyState;
 
-class InputService : public IService,
-                     public Singleton<InputService> {
+class InputService : public IService {
 public:
     InputService(GameInput& game_input);
 
@@ -30,38 +28,38 @@ public:
     void tick(const FrameTime& time);
 
     const KeyState& keyState() const {
-        return key_state_;
+        return m_key_state;
     }
 
     void addConsumer(IInputConsumer* consumer) {
-        router_.addConsumer(consumer);
+        m_router.addConsumer(consumer);
     }
 
     void removeConsumer(IInputConsumer* consumer) {
-        router_.removeConsumer(consumer);
+        m_router.removeConsumer(consumer);
     }
 
-    const UIInput& getUIInput() const { return ui_input_; }
-    const GameInput& gameInput() const { return game_input_; }
+    const UIInput& getUIInput() const { return m_ui_input; }
+    const GameInput& gameInput() const { return m_game_input; }
     // @TODO: fix this part
-    const PointerState* pointers() const { return pointers_.data(); }
+    const PointerState* pointers() const { return m_pointers.data(); }
 
 private:
     void updatePointers(std::vector<InputEvent>& events);
     UIInput buildUIInput();
 
-    std::vector<std::unique_ptr<IInputDevice>> devices_{};
-    std::vector<InputEvent> input_events_;
+    Vector<Owner<IInputDevice>> m_devices{};
+    Vector<InputEvent> m_input_events;
 
-    std::array<PointerState, InputDeviceId::kMax> pointers_;
+    std::array<PointerState, InputDeviceId::kMax> m_pointers;
 
-    KeyState key_state_;
-    AxisState axis_state_;
+    KeyState m_key_state;
+    AxisState m_axis_state;
 
-    GameInput& game_input_;
-    InputRouter router_;
+    GameInput& m_game_input;
+    InputRouter m_router;
 
-    UIInput ui_input_;
+    UIInput m_ui_input;
 };
 
 };  // namespace cave

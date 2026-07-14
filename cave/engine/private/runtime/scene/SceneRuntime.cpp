@@ -6,9 +6,10 @@
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 #include "cave/runtime/ui/UIComponents.h"
 
+// @TODO: refactor
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/ecs/components/All.h"
-#include "engine/private/runtime/ui/UISystem.h"
+#include "engine/private/runtime/ui/UIInteractionSystem.h"
 
 namespace cave {
 
@@ -40,7 +41,7 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
 
 void SceneRuntime::start() {
     if ((int)(m_features & SceneFeature::UI)) {
-        m_systems.add<UISystem>(*this);
+        m_systems.add<UIInteractionSystem>(*this);
     }
     if ((int)(m_features & SceneFeature::NativeScript)) {
         m_systems.add<NativeScriptSystem>(*this);

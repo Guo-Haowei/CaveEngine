@@ -167,11 +167,26 @@ Entity SceneCommandWriter::canvas(std::string_view name) {
     return e;
 }
 
+Entity SceneCommandWriter::rect(std::string_view name) {
+    Entity e = nameObject(name);
+    addComponent(e, HierarchyComponent_Id);
+    addComponent(e, UIRectTransformComponent_Id);
+    return e;
+}
+
 Entity SceneCommandWriter::button(std::string_view name) {
     Entity e = nameObject(name);
     addComponent(e, HierarchyComponent_Id);
     addComponent(e, UIRectTransformComponent_Id);
     addComponent(e, UIButtonComponent_Id);
+    return e;
+}
+
+Entity SceneCommandWriter::image(std::string_view name) {
+    Entity e = nameObject(name);
+    addComponent(e, HierarchyComponent_Id);
+    addComponent(e, UIRectTransformComponent_Id);
+    addComponent(e, UIImageComponent_Id);
     return e;
 }
 

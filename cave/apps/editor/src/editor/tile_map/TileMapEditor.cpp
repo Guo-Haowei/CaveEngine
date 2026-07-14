@@ -72,8 +72,8 @@ void TileMapEditor::drawGhostTiles(const TileSetAsset& tile_set) {
 
                 m_canvas.addImage(image->gpu_texture.get(),
                                   min, max,
-                                  uv_min, uv_max,
-                                  Vec4f(Vec3f::One, 0.9f));
+                                  Vec4f(Vec3f::One, 0.9f),
+                                  uv_min, uv_max);
             }
         }
     }

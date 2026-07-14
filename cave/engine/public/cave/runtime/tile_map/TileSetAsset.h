@@ -4,9 +4,7 @@
 #pragma once
 #include "cave/core/math/Box.h"
 #include "cave/core/reflection/Reflection.h"
-
 #include "cave/runtime/assets/AssetHandle.h"
-#include "cave/runtime/assets/IAsset.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 
 // @TODO: move layer & mask to shape, and rename it collision shape
@@ -61,10 +59,10 @@ public:
     bool addBoxCollider(uint32_t tile_id);
     Option<Shape> getCollider(uint32_t tile_id) const;
 
-    void setImage(const Guid& guid);
-    const Handle<ImageAsset>& handle() const { return m_image_handle; }
-
     const Guid& imageGuid() const { return m_image_guid; }
+    void setImageGuid(const Guid& guid);
+
+    const Handle<ImageAsset>& handle() const { return m_image_handle; }
 
     const auto& frames() const { return m_frames; }
 

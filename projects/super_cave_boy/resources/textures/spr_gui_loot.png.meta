@@ -1,0 +1,9 @@
+type: image
+guid: 9C3D6F1A-7766-2544-9A71767789A4193B
+name: ""
+import_path: "@res://textures/spr_gui_loot.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

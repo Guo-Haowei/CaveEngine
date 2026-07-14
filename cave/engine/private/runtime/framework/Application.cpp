@@ -62,6 +62,7 @@ void Application::registerModule(IService* p_module) {
 auto Application::setupModules() -> Result<void> {
     // @TODO: clean up
     m_engine_services.canvas_ = &m_canvas;
+    m_engine_services.ui_canvas = &m_ui_canvas;
     m_engine_services.intent_bus = &m_intent_bus;
 
     m_cmd_reg_ = new cave::CommandRegistry();
@@ -105,7 +106,7 @@ auto Application::setupModules() -> Result<void> {
                                                   *m_renderer);
     m_engine_services.project_manager = m_project_manager.get();
 
-    m_ui_runtime = MakeOwner<UIRuntime>(*m_view_manager);
+    m_ui_runtime = MakeOwner<UIRuntime>(m_ui_canvas, *m_view_manager);
     m_engine_services.ui = m_ui_runtime.get();
 
     // setup app services
@@ -217,6 +218,7 @@ bool Application::mainLoop() {
     }
 
     m_canvas.beginFrame();
+    m_ui_canvas.beginFrame();
 
     m_task_manager->TickMainThread();
 
@@ -229,7 +231,7 @@ bool Application::mainLoop() {
 
     m_scene_scheduler->flushSceneCommands();
 
-    m_ui_runtime->beginFrame(m_input_service->getUIInput());
+    m_ui_runtime->beginFrame();
 
     m_asset_manager->update();
 
@@ -241,21 +243,20 @@ bool Application::mainLoop() {
     m_intent_bus.flush();
 
     std::span<const ResolvedView> views = m_view_manager->endFrame();
-    // -----
-
-    for (const ResolvedView& view : views) {
-        m_ui_runtime->buildCanvas(*view.scene,
-                                  view.scene_id,
-                                  view.view_id);
-    }
 
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->tick(time);
 
-    m_ui_runtime->endFrame();
-    m_canvas.endFrame();
+    // build UI data
+    for (const ResolvedView& view : views) {
+        m_ui_runtime->buildDrawList(view);
+    }
 
-    m_renderer->tick(time, views, m_ui_runtime->takeDrawData());
+    m_ui_runtime->endFrame(m_input_service->getUIInput());
+    m_canvas.endFrame();
+    m_ui_canvas.endFrame();
+
+    m_renderer->tick(time, views);
 
     return true;
 }

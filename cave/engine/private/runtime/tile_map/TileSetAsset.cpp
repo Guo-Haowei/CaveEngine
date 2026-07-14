@@ -1,6 +1,5 @@
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
-#include "engine/private/core/io/file_access.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
@@ -61,7 +60,7 @@ void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {
     }
 }
 
-void TileSetAsset::setImage(const Guid& guid) {
+void TileSetAsset::setImageGuid(const Guid& guid) {
     auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(guid);
     if (handle.is_some()) {
         setHandle(std::move(handle.unwrap_unchecked()));

@@ -1,14 +1,19 @@
 #pragma once
+#include "cave/core/ids/Entity.h"
+#include "cave/core/ids/SceneId.h"
+#include "cave/core/string/StringId.h"
 #include "cave/runtime/scene/ISceneSystem.h"
 
 namespace cave {
 
-class UISystem final : public ISceneSystem {
+class ViewManager;
+
+class UIInteractionSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::UI)
 
 public:
-    UISystem(SceneRuntime& runtime);
-    ~UISystem() override;
+    UIInteractionSystem(SceneRuntime& runtime);
+    ~UIInteractionSystem() override;
 
 private:
     void start() override {}

@@ -11,11 +11,9 @@ namespace cave {
 using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
-ResolvedUITree UILayoutResolver::resolve(const Scene& scene,
-                                         Entity canvas,
-                                         math::Vec2f canvas_size) const {
-    DEV_ASSERT(scene.count<UIRectTransformComponent>());
-
+ResolvedUICanvas UILayoutResolver::resolve(const Scene& scene,
+                                           Entity canvas,
+                                           math::Vec2f canvas_size) const {
     HashMap<Entity, Vector<Entity>> tree_lookup;
     for (auto [ent, rect, hier] : scene.view<UIRectTransformComponent, HierarchyComponent>()) {
         DEV_ASSERT(hier.parent_id.valid());
@@ -24,7 +22,7 @@ ResolvedUITree UILayoutResolver::resolve(const Scene& scene,
 
     UIRect canvas_rect{ Vec2f::Zero, canvas_size };
 
-    ResolvedUITree tree;
+    ResolvedUICanvas tree;
     auto it = tree_lookup.find(canvas);
     DEV_ASSERT(it != tree_lookup.end());
     for (Entity e : it->second) {
@@ -38,9 +36,12 @@ void UILayoutResolver::resolveNode(const Scene& scene,
                                    const TreeLookup& lookup,
                                    Entity ent,
                                    const UIRect& parent_rect,
-                                   ResolvedUITree& out) const {
+                                   ResolvedUICanvas& out) const {
     auto* hierarchy = scene.component<HierarchyComponent>(ent);
     DEV_ASSERT(hierarchy);
+    if (!hierarchy->local_visible) {
+        return;
+    }
 
     auto* transform = scene.component<UIRectTransformComponent>(ent);
     DEV_ASSERT(transform);
@@ -53,7 +54,6 @@ void UILayoutResolver::resolveNode(const Scene& scene,
     out.elements.push_back(ResolvedUIElement{
         .entity = ent,
         .rect = resolved_rect,
-        .effective_visible = hierarchy->visible,
         .draw_order = static_cast<uint32_t>(out.elements.size()),
     });
 

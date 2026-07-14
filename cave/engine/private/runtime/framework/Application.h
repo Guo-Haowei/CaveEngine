@@ -54,6 +54,7 @@ protected:
     Vector<IService*> m_subsystems;
 
     Canvas m_canvas;
+    Canvas m_ui_canvas;
     IntentBus m_intent_bus;
     VFS m_vfs;
     NativeScriptRegistry m_native_scripts;

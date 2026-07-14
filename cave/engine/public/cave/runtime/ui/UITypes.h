@@ -8,8 +8,6 @@
 
 namespace cave {
 
-using OldUIRect = math::Rect<float>;
-
 using UIId = uint64_t;
 using UIColor = Color;
 using UIRect = math::Box2;

@@ -18,8 +18,12 @@ public:
                     ICanvas& canvas,
                     ViewId view_id);
 
+    void setScreenSpace(bool value) { m_screen_space = value; }
+
 private:
     void ensureDefaultTexture();
+
+    bool m_screen_space = false;
 
     AssetRegistry& m_asset_reg;
     Ref<GpuTexture> m_default_texture{};

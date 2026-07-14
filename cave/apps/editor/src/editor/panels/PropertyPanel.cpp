@@ -361,9 +361,10 @@ void PropertyPanel::drawUIImpl() {
     DrawComponentAuto<TileMapInstanceComponent>("TileMapInstance", ctx);
     DrawComponentAuto<SpriteAnimatorComponent>("SpriteAnimator", ctx);
 
-    DrawComponentAuto<UICanvasComponent>("Canvas", ctx);
-    DrawComponentAuto<UIRectTransformComponent>("Rect", ctx);
-    DrawComponentAuto<UIButtonComponent>("Button", ctx);
+    DrawComponentAuto<UICanvasComponent>("UICanvas", ctx);
+    DrawComponentAuto<UIRectTransformComponent>("UIRect", ctx);
+    DrawComponentAuto<UIButtonComponent>("UIButton", ctx);
+    DrawComponentAuto<UIImageComponent>("UIImage", ctx);
 
     DrawComponent(
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),

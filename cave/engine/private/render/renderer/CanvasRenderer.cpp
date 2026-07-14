@@ -57,7 +57,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         result.batches.push_back(batch);
     };
 
-    GpuTexture* current_tex = nullptr;
+    const GpuTexture* current_tex = nullptr;
 
     for (const PrimShape item : bucket.shapes) {
         if (result.batches.empty() || item.tex != current_tex) {
@@ -201,7 +201,9 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
     }
 
     device.SetMesh(result.mesh.get());
-    device.SetPipelineState(PSO_PRIMITIVE);
+    // @TODO: clean this up
+    auto pso = m_screen_space ? PSO_UI_OVERLAY : PSO_PRIMITIVE;
+    device.SetPipelineState(pso);
 
     constexpr int kSpriteSlot = 0;
     for (const PrimBatch& batch : result.batches) {

@@ -95,7 +95,6 @@ void LuaScriptSystem::start(SceneContext& ctx) {
     lua::SetPreloadFunc(L);
     lua::OpenMathLib(L);
     lua::OpenSceneLib(L);
-    lua::OpenInputLib(L);
     lua::OpenDisplayLib(L);
     lua::OpenLogLib(L);
 

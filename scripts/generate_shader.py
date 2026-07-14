@@ -43,7 +43,6 @@ input_shaders = [
     'primitive.ps',
     # @TODO: get rid of ui_overlay shaders, they are the same as primitive shaders
     'ui_overlay.vs',
-    'ui_overlay.ps',
 ]
 
 def insert_file_name(file_path):

@@ -5,7 +5,7 @@
 #include "cave/runtime/ecs/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/framework/IUIRuntime.h"
+#include "cave/runtime/ui/IUIRuntime.h"
 
 #include "FramePlan.h"
 #include "RendererDebug.h"
@@ -13,7 +13,6 @@
 #include "RenderSceneBuilder.h"
 #include "RenderSubmission.h"
 #include "TransientPool.h"
-#include "UIRenderer.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
@@ -57,9 +56,7 @@ public:
         , m_env(m_transient_pool, m_device)
         , m_ssao(m_device) {}
 
-    void tick(const FrameTime& time,
-              std::span<const ResolvedView> views,
-              const UIFrameDrawData& ui_draw_data);
+    void tick(const FrameTime& time, std::span<const ResolvedView> views);
 
     void setMode(bool is_2d) { m_is_2d = is_2d; }
 
@@ -85,8 +82,6 @@ private:
 
     RenderScene& getOrCreateRenderScene(SceneId scene_id);
 
-    void createOrUpdateUIBuffers(const BuiltUIData& ui_data);
-
 private:
     EngineServices& m_services;
     IRenderDevice& m_device;
@@ -104,20 +99,21 @@ private:
     GpuTextureId m_ltc1{};
     GpuTextureId m_ltc2{};
     bool m_is_2d{ false };
-
-    Ref<GpuMesh> m_ui_buffers;
 };
 
 Renderer::Renderer(EngineServices& services)
     : m_impl(MakeOwner<Impl>(services))
-    , m_canvas_render(MakeOwner<CanvasRenderer>(services.assetRegistry())) {}
+    , m_overlay_renderer(MakeOwner<OverlayRenderer>(services.assetRegistry()))
+    , m_ui_renderer(MakeOwner<UIRenderer>(services.assetRegistry())) {
+
+    m_overlay_renderer->setScreenSpace(false);
+    m_ui_renderer->setScreenSpace(true);
+}
 
 Renderer::~Renderer() = default;
 
-void Renderer::tick(const FrameTime& p_frame,
-                    std::span<const ResolvedView> p_views,
-                    const UIFrameDrawData& p_ui_data) {
-    m_impl->tick(p_frame, p_views, p_ui_data);
+void Renderer::tick(const FrameTime& time, std::span<const ResolvedView> resolved_views) {
+    m_impl->tick(time, resolved_views);
 }
 
 void Renderer::setMode(bool is_2d) {
@@ -244,65 +240,16 @@ static bool updateUIBuffer(IRenderDevice& device,
     return true;
 }
 
-static bool updateAllUIBuffer(IRenderDevice& p_device,
-                              const BuiltUIData& p_data,
-                              GpuMesh& p_mesh) {
-    if (!updateUIBuffer(p_device, p_data.indices, p_mesh.indexBuffer.get()))
-        return false;
-    if (!updateUIBuffer(p_device, p_data.positions, p_mesh.vertexBuffers.at(0).get()))
-        return false;
-    if (!updateUIBuffer(p_device, p_data.colors, p_mesh.vertexBuffers.at(1).get()))
-        return false;
-    return true;
-}
-
-// @TODO: consider move to UIRenderer
-void Renderer::Impl::createOrUpdateUIBuffers(const BuiltUIData& ui_data) {
-    if (m_ui_buffers) {
-        if (!updateAllUIBuffer(m_device, ui_data, *m_ui_buffers)) {
-            // @TODO: proper error handling
-            // CRASH_NOW_MSG("Failed to update UI buffer");
-        }
-        // @TODO: if failed to update buffer, create a new one
-        return;
-    }
-
-    std::array<GpuBufferDesc, 2> vb_desc{};
-    vb_desc[0] = fillDesc(ui_data.positions);
-    vb_desc[1] = fillDesc(ui_data.colors);
-
-    GpuBufferDesc ib_desc = fillDesc(ui_data.indices);
-    ib_desc.type = GpuBufferType::Index;
-
-    GpuMeshDesc mesh_desc{};
-    mesh_desc.drawCount = ib_desc.element_count;
-    mesh_desc.enabledVertexCount = (uint32_t)vb_desc.size();
-    mesh_desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
-    mesh_desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Color), 0 };
-
-    m_ui_buffers = m_device.CreateMeshImpl(mesh_desc, vb_desc, &ib_desc).value();
-}
-
-void Renderer::Impl::tick(const FrameTime& time,
-                          std::span<const ResolvedView> views,
-                          const UIFrameDrawData& ui_draw_data) {
+void Renderer::Impl::tick(const FrameTime& time, std::span<const ResolvedView> views) {
     CAVE_PROFILE_EVENT();
 
     auto submission = MakeOwner<RenderSubmission>();
 
     FramePlan plan = buildFramePlan(time, views);
 
-    const BuiltUIData ui_data = BuildUIData(views, ui_draw_data);
-    DEV_ASSERT(ui_data.batches.size() == views.size());
-    if (!ui_data.indices.empty()) {
-        createOrUpdateUIBuffers(ui_data);
-    }
-
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
         const ResolvedView& view = plan.views[idx];
         FrameData& data = plan.frame_data[idx];
-        data.ui_batch = ui_data.batches[idx];
-        data.ui_buffer = m_ui_buffers;
         data.view_id = view.view_id;
 
         if (auto res = buildRenderGraph(data.options, view); !res) {
