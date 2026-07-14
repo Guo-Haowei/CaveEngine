@@ -82,6 +82,8 @@ enum class DrawPhase : uint8_t {
 };
 
 struct FrameData {
+    ViewId view_id;
+
     render::RenderOptions options;
     // @TODO: multi camera & viewport
 
@@ -115,12 +117,6 @@ struct FrameData {
     };
 
     math::AABB voxel_gi_bound;
-
-    // UI stuff
-    render::UIBatch ui_batch;
-    std::shared_ptr<GpuMesh> ui_buffer;
-
-    ViewId view_id;
 };
 
 }  // namespace cave

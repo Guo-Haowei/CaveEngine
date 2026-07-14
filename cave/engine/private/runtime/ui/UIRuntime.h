@@ -5,11 +5,9 @@
 
 #include "UILayoutResolver.h"
 
-// @TODO: fix
-#include "cave/ui/UIDrawCommand.h"
-
 namespace cave {
 
+class ICanvas;
 class ViewManager;
 struct ResolvedView;
 
@@ -30,15 +28,12 @@ struct UICanvasKeyHash {
 
 class UIRuntime final : public IUIRuntime {
 public:
-    UIRuntime(ViewManager& view_manager) noexcept
-        : m_view_manager(view_manager) {}
+    UIRuntime(ICanvas& ui_canvas, ViewManager& view_manager) noexcept
+        : m_ui_canvas(ui_canvas)
+        , m_view_manager(view_manager) {}
 
     void beginFrame() override;
     void endFrame(const UIInput& ui_input) override;
-
-    UIFrameDrawData takeDrawData() override {
-        return std::move(m_draw_data);
-    }
 
     void resolve(const Scene& scene, SceneId scene_id) override;
 
@@ -50,13 +45,13 @@ public:
     UIInteractionState& interactionState() override { return m_interaction_state; }
 
 private:
-    UIInteractionState m_interaction_state;
-
+    ICanvas& m_ui_canvas;
     ViewManager& m_view_manager;
-    UIFrameDrawData m_draw_data{};
 
     UILayoutResolver m_resolver;
     HashMap<UICanvasKey, ResolvedUICanvas, UICanvasKeyHash> m_resolved;
+
+    UIInteractionState m_interaction_state;
 };
 
 }  // namespace cave

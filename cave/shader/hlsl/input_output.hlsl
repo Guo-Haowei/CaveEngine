@@ -39,13 +39,15 @@ struct VS_OUTPUT_MESH {
     float3 B : BITANGENT;
 };
 
-// UI
-struct VS_INPUT_UI {
-    float2 position : POSITION;
+// Primitive
+struct VS_INPUT_COLOR {
+    float3 position : POSITION;
+    float2 uv : TEXCOORD;
     float4 color : COLOR;
 };
 
-struct VS_OUTPUT_UI {
+struct VS_OUTPUT_COLOR {
     float4 position : SV_POSITION;
+    float2 uv : TEXCOORD;
     float4 color : COLOR;
 };

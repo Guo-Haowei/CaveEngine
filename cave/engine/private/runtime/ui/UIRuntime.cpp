@@ -1,5 +1,6 @@
 #include "UIRuntime.h"
 
+#include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/ui/UIComponents.h"
 
@@ -13,7 +14,6 @@ using ecs::Entity;
 using math::Vec2f;
 
 void UIRuntime::beginFrame() {
-    m_draw_data.clear();
     m_resolved.clear();
 
     m_interaction_state.hovered = None();  // only reset hovered, active needs to survive
@@ -62,17 +62,19 @@ const ResolvedUICanvas* UIRuntime::findResolved(SceneId scene_id,
     return &it->second;
 }
 
-void UIRuntime::buildDrawList(const ResolvedView& view) {
+void UIRuntime::buildDrawList(const ResolvedView& resolved_view) {
     constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
     constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
     constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
 
-    for (const auto [ent, canvas] : view.scene->view<UICanvasComponent>()) {
-        const auto* resolved_canvas = findResolved(view.scene_id, ent);
+    m_ui_canvas.pushView(resolved_view.view_id);
+
+    for (const auto [ent, canvas] : resolved_view.scene->view<UICanvasComponent>()) {
+        const auto* resolved_canvas = findResolved(resolved_view.scene_id, ent);
         if (!resolved_canvas) continue;
 
         for (const auto& element : resolved_canvas->elements) {
-            const UIControlId control_id{ view.scene_id, element.entity };
+            const UIControlId control_id{ resolved_view.scene_id, element.entity };
 
             Color color = kButtonNormal;
             if (control_id == m_interaction_state.active.unwrap_or(UIControlId{})) {
@@ -81,9 +83,12 @@ void UIRuntime::buildDrawList(const ResolvedView& view) {
                 color = kButtonHover;
             }
 
-            m_draw_data.draw_lists[view.view_id].addRect(element.rect, color);
+            const auto& rect = element.rect;
+            m_ui_canvas.addBox2(rect.min(), rect.max(), color);
         }
     }
+
+    m_ui_canvas.popView();
 }
 
 }  // namespace cave

@@ -9,19 +9,26 @@
 namespace cave { class ICanvas; }
 namespace cave { struct EngineServices; }
 namespace cave { struct FrameData; }
-namespace cave { struct UIFrameDrawData; }
 // clang-format on
 
 namespace cave::render {
+
+class UIRenderer : public CanvasRenderer {
+public:
+    using CanvasRenderer::CanvasRenderer;
+};
+
+class OverlayRenderer : public CanvasRenderer {
+public:
+    using CanvasRenderer::CanvasRenderer;
+};
 
 class Renderer {
 public:
     Renderer(EngineServices& services);
     ~Renderer();
 
-    void tick(const FrameTime& frame,
-              std::span<const ResolvedView> views,
-              const UIFrameDrawData& ui_data);
+    void tick(const FrameTime& frame, std::span<const ResolvedView> views);
 
     // @TODO: instead, create renderer after project selected
     void setMode(bool is_2d);
@@ -29,7 +36,9 @@ public:
     template<typename T>
     T* tryGet() { return nullptr; }
     template<>
-    CanvasRenderer* tryGet() { return m_canvas_render.get(); }
+    OverlayRenderer* tryGet() { return m_overlay_renderer.get(); }
+    template<>
+    UIRenderer* tryGet() { return m_ui_renderer.get(); }
 
 #if USING(USE_COMMAND)
     bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
@@ -41,7 +50,8 @@ private:
     Owner<Impl> m_impl;
 
     // renderers
-    Owner<CanvasRenderer> m_canvas_render;
+    Owner<OverlayRenderer> m_overlay_renderer;
+    Owner<UIRenderer> m_ui_renderer;
     // @TODO: UI renderer
 };
 

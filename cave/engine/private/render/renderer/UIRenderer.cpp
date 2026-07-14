@@ -2,6 +2,7 @@
 
 namespace cave::render {
 
+#if 0
 using math::Vec2f;
 using math::Vec4f;
 
@@ -75,5 +76,6 @@ BuiltUIData BuildUIData(std::span<const ResolvedView> p_views,
 
     return out;
 }
+#endif
 
 }  // namespace cave::render

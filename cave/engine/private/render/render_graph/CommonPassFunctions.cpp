@@ -354,34 +354,22 @@ void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Dispatch(work_group_x, work_group_y, 1);
 }
 
-static void UIOverlayPassFunc(RenderPassExcutionContext& p_ctx) {
-    const UIBatch& batch = p_ctx.frameData.ui_batch;
-    if (batch.index_count == 0) {
-        return;
-    }
-
-    const auto& mesh = p_ctx.frameData.ui_buffer;
-    DEV_ASSERT(mesh);
-
-    auto& cmd = p_ctx.cmd;
-    cmd.SetPipelineState(PSO_UI_OVERLAY);
-    cmd.SetMesh(mesh.get());
-    cmd.DrawElements(mesh->desc.drawCount);
-}
-
 /// Tone
 /// Change to post processing?
-void TonePassFunc(RenderPassExcutionContext& p_ctx) {
+void TonePassFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = ctx.cmd;
 
     cmd.SetPipelineState(PSO_POST_PROCESS);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
 
-    // @TODO: move UI overlay to a different pass
-    UIOverlayPassFunc(p_ctx);
+    if (auto ui_renderer = ctx.services.renderer().tryGet<UIRenderer>()) {
+        ui_renderer->drawCanvas(ctx.cmd,
+                                ctx.services.UICanvas(),
+                                ctx.frameData.view_id);
+    }
 }
 
 void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
@@ -420,12 +408,10 @@ void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
     }
 
     // @TODO: move this to a different pass
-    Renderer& renderer = ctx.services.renderer();
-    auto canvas_renderer = renderer.tryGet<CanvasRenderer>();
-    if (canvas_renderer) {
-        canvas_renderer->drawCanvas(cmd,
-                                    ctx.services.canvas(),
-                                    ctx.frameData.view_id);
+    if (auto overlay = ctx.services.renderer().tryGet<OverlayRenderer>()) {
+        overlay->drawCanvas(cmd,
+                            ctx.services.canvas(),
+                            ctx.frameData.view_id);
     }
 }
 

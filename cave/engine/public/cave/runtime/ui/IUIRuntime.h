@@ -11,19 +11,9 @@
 #include "cave/runtime/ui/UIInput.h"
 #include "cave/runtime/ui/UITypes.h"
 
-// @TODO: deprecate
-#include "cave/ui/UIDrawCommand.h"
-
 namespace cave {
 
 class Scene;
-
-// @TODO: deprecate
-struct UIFrameDrawData {
-    HashMap<ViewId, UIDrawList> draw_lists;
-
-    void clear() { draw_lists.clear(); }
-};
 
 struct UIControlId {
     SceneId scene_id{};
@@ -47,8 +37,6 @@ public:
     virtual void resolve(const Scene& scene, SceneId scene_id) = 0;
     virtual const ResolvedUICanvas* findResolved(SceneId scene_id,
                                                  ecs::Entity canvas_entity) const = 0;
-
-    virtual UIFrameDrawData takeDrawData() = 0;
 
     virtual UIInteractionState& interactionState() = 0;
 };

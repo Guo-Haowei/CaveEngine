@@ -219,18 +219,6 @@ Result<void> PipelineStateManager::initialize() {
                                      .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                                  });
 
-    CREATE_PSO(PSO_UI_OVERLAY, {
-                                   .vs = "ui_overlay.vs",
-                                   .ps = "ui_overlay.ps",
-                                   .rasterizer_desc = &s_rasterizer_double_sided,
-                                   .depth_stencil_desc = &s_depth_stencil_off,
-                                   .input_layout_desc = &s_input_layout_ui,
-                                   .blend_desc = &s_transparent,
-                                   .num_render_targets = 1,
-                                   .rtv_formats = { RT_FMT_TONE },
-                                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
-                               });
-
 #pragma region PSO_BLOOM
     CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
     CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
@@ -303,6 +291,7 @@ Result<void> PipelineStateManager::initialize() {
                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                });
 
+    // @TODO: merge primitive and overlay
     CREATE_PSO(PSO_PRIMITIVE,
                {
                    .vs = "primitive.vs",
@@ -315,6 +304,19 @@ Result<void> PipelineStateManager::initialize() {
                    .rtv_formats = { RT_FMT_TONE },
                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                });
+
+    CREATE_PSO(PSO_UI_OVERLAY, {
+                                   .vs = "ui_overlay.vs",
+                                   .ps = "primitive.ps",
+                                   .rasterizer_desc = &s_rasterizer_double_sided,
+                                   .depth_stencil_desc = &s_depth_reversed_stencil_off,
+                                   .input_layout_desc = &s_input_layout_debug,
+                                   .blend_desc = &s_transparent,
+                                   .num_render_targets = 1,
+                                   .rtv_formats = { RT_FMT_TONE },
+                                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
+                               });
+
     CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
 
     // @HACK: only support this many shaders

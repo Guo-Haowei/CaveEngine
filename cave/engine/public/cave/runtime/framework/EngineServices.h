@@ -65,6 +65,7 @@ struct EngineServices : public RuntimeServices {
     IntentBus* intent_bus{};
     VFS* vfs{};
     GameModuleHandle* game_module{};
+    ICanvas* ui_canvas{};
 
     render::IRenderDevice* render_device{};
     render::Renderer* renderer_{};
@@ -73,6 +74,7 @@ struct EngineServices : public RuntimeServices {
     IntentBus& intentBus() { return *intent_bus; }
     VFS& VFS() { return *vfs; }
     GameModuleHandle& gameModule() { return *game_module; }
+    ICanvas& UICanvas() { return *ui_canvas; }
 
     render::Renderer& renderer() { return *renderer_; };
     render::IRenderDevice& renderDevice() { return *render_device; };

@@ -62,6 +62,7 @@ void Application::registerModule(IService* p_module) {
 auto Application::setupModules() -> Result<void> {
     // @TODO: clean up
     m_engine_services.canvas_ = &m_canvas;
+    m_engine_services.ui_canvas = &m_ui_canvas;
     m_engine_services.intent_bus = &m_intent_bus;
 
     m_cmd_reg_ = new cave::CommandRegistry();
@@ -105,7 +106,7 @@ auto Application::setupModules() -> Result<void> {
                                                   *m_renderer);
     m_engine_services.project_manager = m_project_manager.get();
 
-    m_ui_runtime = MakeOwner<UIRuntime>(*m_view_manager);
+    m_ui_runtime = MakeOwner<UIRuntime>(m_ui_canvas, *m_view_manager);
     m_engine_services.ui = m_ui_runtime.get();
 
     // setup app services
@@ -253,7 +254,7 @@ bool Application::mainLoop() {
     m_ui_runtime->endFrame(m_input_service->getUIInput());
     m_canvas.endFrame();
 
-    m_renderer->tick(time, views, m_ui_runtime->takeDrawData());
+    m_renderer->tick(time, views);
 
     return true;
 }
