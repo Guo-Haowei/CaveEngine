@@ -8,6 +8,7 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
 #include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
@@ -81,7 +82,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
                                       std::function<void()> on_right_click) {
     const auto* name_component = scene.component<NameComponent>(ent);
     const auto* hier_component = scene.component<HierarchyComponent>(ent);
-    DEV_ASSERT(name_component && hier_component);
+    if (!hier_component || !name_component) return false;
 
     std::string_view name = name_component->name();
     if (name.empty()) {
@@ -280,7 +281,10 @@ void HierarchyPanel::drawUIImpl() {
     }
 }
 
+
 void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
+    // @TODO: refactor this
+
     if (ImGui::BeginPopup(kPopupNameId)) {
         SelectionKey selection = m_editor_services.selection().primary(preview_scene.doc_id);
         DEV_ASSERT(selection.doc == preview_scene.doc_id);
@@ -313,6 +317,12 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
                     selected);
                 m_editor_services.edit().submit(preview_scene.doc_id, std::move(cmd));
             }
+        }
+        if (ImGui::MenuItem("Save as Prefab")) {
+            LOG_ERROR("Not implemented");
+            m_engine_services.assetManager().exportPrefab(
+                *preview_scene.scene,
+                selected);
         }
         ImGui::EndPopup();
     }

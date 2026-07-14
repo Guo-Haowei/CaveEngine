@@ -1,0 +1,9 @@
+type: prefab
+guid: A22D8CBE-B5E7-7043-BE0C35CA9EF76847
+name: HUD.prefab
+import_path: "@res://HUD.prefab"
+dependencies: []
+source_created_time: 2026-07-14 16:37:34.5210347
+source_last_modified: 2026-07-14 16:46:28.7504762
+import_settings:
+  {}

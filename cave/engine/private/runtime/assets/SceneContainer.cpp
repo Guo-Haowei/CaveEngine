@@ -51,7 +51,7 @@ auto SceneContainer::saveToDisk(const AssetMetaData& meta) const -> Result<void>
     }
 
     YamlSerializer yaml;
-    SerializeScene(yaml, *m_scene, AssetRegistry::singletonPtr(), true);
+    SerializeScene(yaml, *m_scene, AssetRegistry::singletonPtr());
     return SaveYaml(meta.import_path, yaml);
 }
 

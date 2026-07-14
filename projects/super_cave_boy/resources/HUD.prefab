@@ -1,0 +1,67 @@
+version: 20
+seed: 6
+root: 9
+entities:
+  - id: 1
+    NameComponent:
+      name: HUD
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
+    UICanvasComponent:
+      space: screen
+      resolution: [1920, 1080]
+      match: 0.5
+  - id: 2
+    NameComponent:
+      name: Health
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [25, 25]
+      offset_max: [329.899994, 136.100006]
+  - id: 3
+    NameComponent:
+      name: Heart1
+    HierarchyComponent:
+      parent_id: 2
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [0, 0]
+      offset_max: [100, 100]
+    UIImageComponent:
+      image_guid: 285FAD74-CB89-1743-AE29415CCA88473A
+      tint: [1, 1, 1, 1]
+  - id: 4
+    NameComponent:
+      name: Heart2
+    HierarchyComponent:
+      parent_id: 2
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [100, 0]
+      offset_max: [200, 100]
+    UIImageComponent:
+      image_guid: 285FAD74-CB89-1743-AE29415CCA88473A
+      tint: [1, 1, 1, 1]
+  - id: 5
+    NameComponent:
+      name: Heart3
+    HierarchyComponent:
+      parent_id: 2
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [200, 0]
+      offset_max: [300, 100]
+    UIImageComponent:
+      image_guid: 285FAD74-CB89-1743-AE29415CCA88473A
+      tint: [1, 1, 1, 1]

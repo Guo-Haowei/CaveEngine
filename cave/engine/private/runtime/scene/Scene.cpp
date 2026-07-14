@@ -111,9 +111,6 @@ Vector<Entity> Scene::getSortedEntityArray() const {
     for (const auto& it : m_storage.entries()) {
         if (!it.pool) continue;
         for (auto entity : it.pool->entityArray()) {
-            if (has<PrefabChildComponent>(entity)) {
-                continue;
-            }
             entity_set.insert(entity);
         }
     }
@@ -219,6 +216,13 @@ void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
 
         CRASH_NOW_MSG("remap skin and skeleton");
     }
+
+    for (uint16_t cid = 0; cid < static_cast<uint16_t>(storage().entries().size()); ++cid) {
+        auto& pool = storage().entries()[cid].pool;
+        if (pool) {
+            pool->remap(mapping);
+        }
+    }
 }
 
 void Scene::attachChild(Entity child, Entity parent) {
@@ -234,6 +238,24 @@ void Scene::attachChild(Entity child, Entity parent) {
     }
 
     hier->parent_id = parent;
+}
+
+bool Scene::isChild(Entity child, Entity parent) const {
+    DEV_ASSERT(child.valid() && parent.valid());
+
+    if (!DEV_VERIFY(child != parent)) {
+        return false;
+    }
+
+    Entity cursor = child;
+    while (cursor.valid()) {
+        const auto* hier = component<HierarchyComponent>(cursor);
+        if (DEV_VERIFY(hier)) {
+            if (hier->parent_id == parent) return true;
+            cursor = hier->parent_id;
+        }
+    }
+    return false;
 }
 
 template<typename T>

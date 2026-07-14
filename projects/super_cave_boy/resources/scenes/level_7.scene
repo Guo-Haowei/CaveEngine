@@ -1,5 +1,5 @@
 version: 20
-seed: 21
+seed: 12
 root: 1
 entities:
   - id: 1
@@ -12,7 +12,7 @@ entities:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-  - id: 3
+  - id: 2
     NameComponent:
       name: tile_map
     HierarchyComponent:
@@ -25,7 +25,7 @@ entities:
     TileMapInstanceComponent:
       tile_map_id: A3917A01-7FDE-4541-93078879A7370AFC
       tint_color: [1, 1, 1, 1]
-  - id: 4
+  - id: 3
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -36,7 +36,7 @@ entities:
         translation: [2.2747879, 5.5501585, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 8
+  - id: 4
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -44,7 +44,7 @@ entities:
       prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
     PrefabOverride:
       {}
-  - id: 9
+  - id: 5
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -55,7 +55,7 @@ entities:
         translation: [2.30395937, 3.535326, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 11
+  - id: 6
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -72,7 +72,7 @@ entities:
           level:
             type: string
             value: level_8
-  - id: 13
+  - id: 7
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -87,7 +87,7 @@ entities:
         scale: [1, 1, 1]
       FacingComponent:
         facing: right
-  - id: 15
+  - id: 8
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -100,7 +100,7 @@ entities:
         translation: [11.9957857, 2.29999995, 0]
         rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]
-  - id: 17
+  - id: 9
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -113,7 +113,7 @@ entities:
         translation: [23.3042259, 6.54323387, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 19
+  - id: 10
     HierarchyComponent:
       parent_id: 1
       local_visible: true
@@ -126,7 +126,7 @@ entities:
         translation: [28.2519455, 8.5577755, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 21
+  - id: 11
     HierarchyComponent:
       parent_id: 1
       local_visible: true

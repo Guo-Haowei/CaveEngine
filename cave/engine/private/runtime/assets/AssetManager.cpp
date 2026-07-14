@@ -26,6 +26,10 @@
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/VFS.h"
 
+// @TODO: refactor
+#include "engine/private/runtime/scene/SceneSerializer.h"
+#include "engine/private/runtime/serialization/YamlInclude.h"
+
 #include "modules/tinygltf/tiny_gltf_importer.h"
 
 #if USING(PLATFORM_WINDOWS) && defined(CAVE_BUILD_ASSIMP)
@@ -127,13 +131,36 @@ Result<Guid> AssetManager::createAsset(AssetType type,
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create instance '{}'", short_path);
     }
 
-    auto _meta = AssetMetaData::createMeta(short_path);
-    if (_meta.is_none()) {
+    auto meta_opt = AssetMetaData::createMeta(short_path);
+    if (meta_opt.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create meta '{}'", short_path);
     }
 
-    auto meta = std::move(_meta.unwrap_unchecked());
+    auto meta = std::move(meta_opt.unwrap_unchecked());
     if (auto res = asset->saveToDisk(meta); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    Guid guid = meta.guid;
+    services().assetRegistry().startAsyncLoad(std::move(meta));
+    return guid;
+}
+
+Result<Guid> AssetManager::exportPrefab(const Scene& scene, ecs::Entity root) {
+    std::string short_path = "@res://exported.prefab";
+    auto meta_opt = AssetMetaData::createMeta(short_path);
+    if (meta_opt.is_none()) {
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create meta '{}'", short_path);
+    }
+
+    auto meta = std::move(meta_opt.unwrap_unchecked());
+    if (auto res = meta.saveToDisk(nullptr); !res) {
+        return CAVE_ERROR(res.error());
+    }
+
+    YamlSerializer yaml;
+    ExportSubtree(yaml, scene, root, AssetRegistry::singletonPtr());
+    if (auto res = SaveYaml(meta.import_path, yaml); !res) {
         return CAVE_ERROR(res.error());
     }
 

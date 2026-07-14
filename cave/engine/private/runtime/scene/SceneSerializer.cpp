@@ -190,13 +190,12 @@ bool SerializePrefabEntity(ISerializer& s,
 bool SerializeEntity(ISerializer& s,
                      const Scene& scene,
                      Entity ent,
-                     AssetRegistry* asset_reg,
-                     bool skip_prefab) {
+                     AssetRegistry* asset_reg) {
     if (auto prefab = scene.component<PrefabInstanceComponent>(ent)) {
         return SerializePrefabEntity(s, scene, ent, *prefab, asset_reg);
     }
 
-    if (skip_prefab && scene.has<PrefabChildComponent>(ent)) {
+    if (scene.has<PrefabChildComponent>(ent)) {
         return true;  // skip prefab entities
     }
 
@@ -205,28 +204,41 @@ bool SerializeEntity(ISerializer& s,
 
 }  // namespace
 
-void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* asset_reg, bool skip_prefab) {
+void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* asset_reg) {
     Scene scene;
     scene.copy(source_scene);
-    // @TODO: remap entity
 
     auto entity_array = scene.getSortedEntityArray();
+    const uint32_t entity_count = static_cast<uint32_t>(entity_array.size());
+    uint32_t seed = entity_count + 1;
+
+    HashMap<Entity, Entity> mapping;
+    mapping[Entity::null()] = Entity::null();
+    for (uint32_t i = 0; i < entity_count; ++i) {
+        const Entity old = entity_array[i];
+        if (scene.has<PrefabChildComponent>(old) && !scene.has<PrefabInstanceComponent>(old)) {
+            --seed;
+        }
+
+        const Entity mapped = Entity(i + 1);
+        mapping[old] = mapped;
+        entity_array[i] = mapped;
+    }
+    scene.remapEntity(mapping);
 
     s.beginMap(false)
         .beginKey("version")
         .write(kLatestSceneVersion)
         .beginKey("seed")
-        .write(entity_array.back())
+        .write(seed)
         .beginKey("root")
         .write(scene.root())
         .beginKey("entities");
 
     s.beginArray(false);
 
-    // @TODO: remap entities to use a more contact id
-
     for (auto ent : entity_array) {
-        SerializeEntity(s, scene, ent, asset_reg, skip_prefab);
+        SerializeEntity(s, scene, ent, asset_reg);
     }
 
     s.endArray();
@@ -313,10 +325,6 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
 
     for (auto&& [ent, prefab] : scene.view<PrefabInstanceComponent>()) {
         InstantiatePrefab(scene, prefab, ent);
-
-        if (!scene.has<HierarchyComponent>(ent)) {
-            scene.create<HierarchyComponent>(ent).parent_id = scene.root();
-        }
     }
 
     for (auto&& [ent, overrides] : overrides_map) {
@@ -347,6 +355,7 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
     auto new_entities = copy.getSortedEntityArray();
     HashMap<Entity, Entity> mapping;
 
+    mapping[Entity::null()] = parent;
     for (Entity prefab_ent : new_entities) {
         if (prefab_ent == copy.root()) {
             mapping[prefab_ent] = parent;
@@ -360,10 +369,9 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
     copy.remapEntity(mapping);
 
     // merge components
-    for (uint16_t cid = 0; cid < (uint16_t)copy.storage().entries().size(); ++cid) {
+    for (uint16_t cid = 0; cid < static_cast<uint16_t>(copy.storage().entries().size()); ++cid) {
         auto& entry = copy.storage().entries()[cid];
         if (!entry.pool) continue;
-        entry.pool->remap(mapping);
 
         CRASH_COND(cid >= scene.storage().entries().size());
         auto& my_entry = scene.storage().entries()[cid];
@@ -373,6 +381,57 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
         }
         my_entry.pool->merge(std::move(*entry.pool));
     }
+}
+
+struct EntityExportSet {
+    const Scene& scene;
+    Entity root;
+    Vector<Entity> entities;
+};
+
+EntityExportSet CollectEntitySubtree(const Scene& scene, Entity root) {
+    auto entites = scene.getSortedEntityArray();
+
+    EntityExportSet export_set{
+        scene,
+        root,
+        { root },
+    };
+
+    for (Entity e : entites) {
+        if (e != root && scene.isChild(e, root)) {
+            export_set.entities.push_back(e);
+        }
+    }
+
+    return export_set;
+}
+
+void ExportSubtree(ISerializer& s,
+                   const Scene& scene,
+                   ecs::Entity root,
+                   AssetRegistry* asset_reg) {
+    auto result = CollectEntitySubtree(scene, root);
+    const uint32_t seed = scene.seed();
+
+    s.beginMap(false)
+        .beginKey("version")
+        .write(kLatestSceneVersion)
+        .beginKey("seed")
+        .write(seed)
+        .beginKey("root")
+        .write(root)
+        .beginKey("entities");
+
+    s.beginArray(false);
+
+    for (auto ent : result.entities) {
+        SerializeEntity(s, scene, ent, asset_reg);
+    }
+
+    s.endArray();
+
+    s.endMap();
 }
 
 }  // namespace cave
