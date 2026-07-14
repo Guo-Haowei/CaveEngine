@@ -210,15 +210,12 @@ void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* as
 
     auto entity_array = scene.getSortedEntityArray();
     const uint32_t entity_count = static_cast<uint32_t>(entity_array.size());
-    uint32_t seed = entity_count + 1;
+    uint32_t seed = entity_count;
 
     HashMap<Entity, Entity> mapping;
     mapping[Entity::null()] = Entity::null();
     for (uint32_t i = 0; i < entity_count; ++i) {
         const Entity old = entity_array[i];
-        if (scene.has<PrefabChildComponent>(old) && !scene.has<PrefabInstanceComponent>(old)) {
-            --seed;
-        }
 
         const Entity mapped = Entity(i + 1);
         mapping[old] = mapped;

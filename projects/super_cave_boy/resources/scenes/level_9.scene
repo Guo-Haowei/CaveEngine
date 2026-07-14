@@ -1,10 +1,13 @@
-version: 19
-seed: 102
+version: 20
+seed: 27
 root: 1
 entities:
   - id: 1
     NameComponent:
       name: world
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -14,6 +17,7 @@ entities:
       name: platformer
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -21,9 +25,10 @@ entities:
     TileMapInstanceComponent:
       tile_map_id: 8B4DBABB-43B4-3048-A8F93F43AD349908
       tint_color: [1, 1, 1, 1]
-  - id: 8
+  - id: 3
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
@@ -31,9 +36,10 @@ entities:
         translation: [3, 6, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 15
+  - id: 4
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
     PrefabOverride:
@@ -43,9 +49,10 @@ entities:
         translation: [14.5, 5.30000019, 0]
         rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]
-  - id: 20
+  - id: 5
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 477AFC1B-0FC6-8B41-87E385C732C39642
     PrefabOverride:
@@ -57,9 +64,10 @@ entities:
         scale: [1, 1, 1]
       FacingComponent:
         facing: right
-  - id: 27
+  - id: 6
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:
@@ -69,9 +77,10 @@ entities:
         translation: [10.1999998, 8.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 36
+  - id: 7
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: C649ED17-A78E-8B46-9AC1E15875409C71
     PrefabOverride:
@@ -81,9 +90,10 @@ entities:
         translation: [30.2999992, 8.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 47
+  - id: 8
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
     PrefabOverride:
@@ -93,9 +103,10 @@ entities:
         translation: [29.5, 5.4000001, 0]
         rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]
-  - id: 60
+  - id: 9
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 1861627A-7087-E140-A58CF1C940EA4C83
     PrefabOverride:
@@ -105,9 +116,10 @@ entities:
         translation: [36.5, 3.4000001, 0]
         rotation: [0, 1, 0, 0]
         scale: [1, 1, 1]
-  - id: 75
+  - id: 10
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
@@ -115,9 +127,10 @@ entities:
         translation: [34.5, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 92
+  - id: 11
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:
@@ -125,10 +138,19 @@ entities:
         translation: [3, 3.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
-  - id: 102
+  - id: 12
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     PrefabInstanceComponent:
       prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
+    PrefabOverride:
+      {}
+  - id: 13
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    PrefabInstanceComponent:
+      prefab_id: A22D8CBE-B5E7-7043-BE0C35CA9EF76847
     PrefabOverride:
       {}

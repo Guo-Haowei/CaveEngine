@@ -1,4 +1,4 @@
-version: 19
+version: 20
 seed: 2
 root: 1
 entities:
@@ -37,6 +37,7 @@ entities:
       name: animator_node
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]

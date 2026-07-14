@@ -1,5 +1,5 @@
 version: 20
-seed: 9
+seed: 19
 root: 1
 entities:
   - id: 1
@@ -92,5 +92,13 @@ entities:
       local_visible: true
     PrefabInstanceComponent:
       prefab_id: 69460BD5-CDB3-304B-B31C17310CBCADB7
+    PrefabOverride:
+      {}
+  - id: 9
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    PrefabInstanceComponent:
+      prefab_id: A22D8CBE-B5E7-7043-BE0C35CA9EF76847
     PrefabOverride:
       {}
