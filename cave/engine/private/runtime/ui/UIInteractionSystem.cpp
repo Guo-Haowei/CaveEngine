@@ -66,7 +66,7 @@ void UIInteractionSystem::update(SceneTickContext& ctx) {
                     state.hovered.is_some() &&
                     state.active.unwrap_unchecked() == state.hovered.unwrap_unchecked();
 
-                if (clicked && button->clicked_event.empty()) {
+                if (clicked && !button->clicked_event.empty()) {
                     const StringId signal(button->clicked_event);
                     m_runtime.messageBus().emit(signal, button_ent);
                 }
