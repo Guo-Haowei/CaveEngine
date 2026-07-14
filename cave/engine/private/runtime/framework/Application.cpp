@@ -249,7 +249,7 @@ bool Application::mainLoop() {
 
     // build UI data
     for (const ResolvedView& view : views) {
-        m_ui_runtime->buildDrawList(view);
+        m_ui_runtime->paint(view);
     }
 
     m_ui_runtime->endFrame(m_input_service->getUIInput());

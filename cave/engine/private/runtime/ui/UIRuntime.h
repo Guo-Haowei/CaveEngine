@@ -40,7 +40,7 @@ public:
     const ResolvedUICanvas* findResolved(SceneId scene_id,
                                          ecs::Entity canvas_entity) const override;
 
-    void buildDrawList(const ResolvedView& view);
+    void paint(const ResolvedView& view);
 
     UIInteractionState& interactionState() override { return m_interaction_state; }
 

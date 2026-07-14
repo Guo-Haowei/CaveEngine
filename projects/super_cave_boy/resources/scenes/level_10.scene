@@ -128,10 +128,10 @@ entities:
       parent_id: 32
       local_visible: true
     UIRectTransformComponent:
-      anchor_min: [0.00999999978, 0]
-      anchor_max: [0.100000001, 0]
-      offset_min: [0, 0]
-      offset_max: [200, 100]
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [25, 25]
+      offset_max: [329.899994, 136.100006]
   - id: 47
     NameComponent:
       name: Heart1
