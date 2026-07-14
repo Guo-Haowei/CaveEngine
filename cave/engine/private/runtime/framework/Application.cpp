@@ -218,6 +218,7 @@ bool Application::mainLoop() {
     }
 
     m_canvas.beginFrame();
+    m_ui_canvas.beginFrame();
 
     m_task_manager->TickMainThread();
 
@@ -253,6 +254,7 @@ bool Application::mainLoop() {
 
     m_ui_runtime->endFrame(m_input_service->getUIInput());
     m_canvas.endFrame();
+    m_ui_canvas.endFrame();
 
     m_renderer->tick(time, views);
 

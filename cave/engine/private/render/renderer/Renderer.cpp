@@ -108,7 +108,7 @@ Renderer::Renderer(EngineServices& services)
     , m_ui_renderer(MakeOwner<UIRenderer>(services.assetRegistry())) {
 
     m_overlay_renderer->setScreenSpace(false);
-    m_ui_renderer->setScreenSpace(false);
+    m_ui_renderer->setScreenSpace(true);
 }
 
 Renderer::~Renderer() = default;
