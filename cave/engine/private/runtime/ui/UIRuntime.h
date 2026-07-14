@@ -34,7 +34,7 @@ public:
         : m_view_manager(view_manager) {}
 
     void beginFrame() override;
-    void endFrame() override;
+    void endFrame(const UIInput& ui_input) override;
 
     UIFrameDrawData takeDrawData() override {
         return std::move(m_draw_data);
@@ -47,7 +47,11 @@ public:
 
     void buildDrawList(const ResolvedView& view);
 
+    UIInteractionState& interactionState() override { return m_interaction_state; }
+
 private:
+    UIInteractionState m_interaction_state;
+
     ViewManager& m_view_manager;
     UIFrameDrawData m_draw_data{};
 

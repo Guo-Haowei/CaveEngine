@@ -15,9 +15,14 @@ using math::Vec2f;
 void UIRuntime::beginFrame() {
     m_draw_data.clear();
     m_resolved.clear();
+
+    m_interaction_state.hovered = None();  // only reset hovered, active needs to survive
 }
 
-void UIRuntime::endFrame() {
+void UIRuntime::endFrame(const UIInput& ui_input) {
+    if (!ui_input.submit_down) {
+        m_interaction_state.active = None();
+    }
 }
 
 void UIRuntime::resolve(const Scene& scene, SceneId scene_id) {
@@ -66,15 +71,17 @@ void UIRuntime::buildDrawList(const ResolvedView& view) {
         const auto* resolved_canvas = findResolved(view.scene_id, ent);
         if (!resolved_canvas) continue;
 
-        for (const auto& button : resolved_canvas->elements) {
+        for (const auto& element : resolved_canvas->elements) {
+            const UIControlId control_id{ view.scene_id, element.entity };
+
             Color color = kButtonNormal;
-            if (button.active) {
+            if (control_id == m_interaction_state.active.unwrap_or(UIControlId{})) {
                 color = kButtonActive;
-            } else if (button.hovered) {
+            } else if (control_id == m_interaction_state.hovered.unwrap_or(UIControlId{})) {
                 color = kButtonHover;
             }
 
-            m_draw_data.draw_lists[view.view_id].addRect(button.rect, color);
+            m_draw_data.draw_lists[view.view_id].addRect(element.rect, color);
         }
     }
 }

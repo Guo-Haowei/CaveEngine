@@ -2,7 +2,7 @@
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/input/InputTypes.h"
 #include "cave/runtime/input/KeyState.h"
-#include "cave/ui/UIInput.h"
+#include "cave/runtime/ui/UIInput.h"
 
 #include "engine/private/runtime/input/AxisState.h"
 #include "engine/private/runtime/input/InputMapper.h"

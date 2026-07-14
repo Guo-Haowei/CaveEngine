@@ -12,16 +12,8 @@ namespace cave {
 
 struct ResolvedUIElement {
     ecs::Entity entity;
-
-    UIRect rect;  // Absolute canvas-space pixels.
-
-    Option<StringId> clicked_event;
-
-    bool effective_visible = true;
-    uint32_t draw_order = 0;
-
-    mutable bool hovered = false;
-    mutable bool active = false;
+    UIRect rect;
+    uint32_t draw_order;
 };
 
 struct ResolvedUICanvas {

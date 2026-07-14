@@ -131,9 +131,9 @@ void InputService::tick(const FrameTime& time) {
     // *) Mapping stage (non-consumed raw -> actions, with player assignment)
     DeviceRouting routing;
     m_game_input.updateActions(m_input_events,
-                              m_key_state,
-                              m_axis_state,
-                              routing);
+                               m_key_state,
+                               m_axis_state,
+                               routing);
 
     // *) Build UI Input
     m_ui_input = buildUIInput();

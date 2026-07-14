@@ -8,12 +8,6 @@ namespace cave {
 
 class ViewManager;
 
-struct UIButtonClicked {
-    SceneId scene_id;
-    StringId event;
-    ecs::Entity source;
-};
-
 class UIInteractionSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::UI)
 
@@ -31,8 +25,6 @@ private:
 
 private:
     const DebugId m_debug_id;
-
-    // Vector<UIButtonClicked> m_events;
 };
 
 }  // namespace cave

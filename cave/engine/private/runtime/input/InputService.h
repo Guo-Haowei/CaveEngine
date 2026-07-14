@@ -4,7 +4,7 @@
 #include "cave/runtime/input/IInputDevice.h"
 #include "cave/runtime/input/KeyState.h"
 #include "cave/runtime/input/PointerState.h"
-#include "cave/ui/UIInput.h"
+#include "cave/runtime/ui/UIInput.h"
 
 #include "engine/private/runtime/input/GameInput.h"
 #include "engine/private/runtime/input/InputActionMap.h"

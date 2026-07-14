@@ -250,7 +250,7 @@ bool Application::mainLoop() {
         m_ui_runtime->buildDrawList(view);
     }
 
-    m_ui_runtime->endFrame();
+    m_ui_runtime->endFrame(m_input_service->getUIInput());
     m_canvas.endFrame();
 
     m_renderer->tick(time, views, m_ui_runtime->takeDrawData());

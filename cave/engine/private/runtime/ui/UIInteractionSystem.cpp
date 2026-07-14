@@ -36,27 +36,44 @@ void UIInteractionSystem::update(SceneTickContext& ctx) {
     const Scene* scene = services.sceneRegistry().resolve(ctx.scene_id);
     DEV_ASSERT(scene);
 
-    for (auto [ent, canvas] : scene->view<UICanvasComponent>()) {
-        const ResolvedUICanvas* resolved = ui.findResolved(ctx.scene_id, ent);
+    UIInteractionState& state = ui.interactionState();
+
+    for (auto [canvas_ent, canvas] : scene->view<UICanvasComponent>()) {
+        const ResolvedUICanvas* resolved = ui.findResolved(ctx.scene_id, canvas_ent);
         DEV_ASSERT(resolved);
         if (!resolved) continue;
         for (auto it = resolved->elements.rbegin(); it != resolved->elements.rend(); ++it) {
             const ResolvedUIElement& element = *it;
+            const auto button_ent = element.entity;
+            const auto* button = scene->component<UIButtonComponent>(button_ent);
+            if (!button) {
+                continue;
+            }
 
             if (!element.rect.contains(point_fb)) {
                 continue;
             }
 
-            // maybe buffer then execute?
-            element.hovered = true;
-            if (ui_input.submit_pressed) {
-                element.active = true;
+            state.hovered = Some(UIControlId(ctx.scene_id, button_ent));
 
-                if (element.clicked_event.is_some()) {
-                    m_runtime.messageBus().emit(
-                        element.clicked_event.unwrap_unchecked(),
-                        element.entity);
+            if (ui_input.submit_pressed) {
+                state.active = state.hovered;
+            }
+
+            if (ui_input.submit_released) {
+                const bool clicked =
+                    state.active.is_some() &&
+                    state.hovered.is_some() &&
+                    state.active.unwrap_unchecked() == state.hovered.unwrap_unchecked();
+
+                if (clicked && button->clicked_event.empty()) {
+                    const StringId signal(button->clicked_event);
+                    m_runtime.messageBus().emit(signal, button_ent);
                 }
+
+                state.active = None();
+
+                break;
             }
         }
     }
