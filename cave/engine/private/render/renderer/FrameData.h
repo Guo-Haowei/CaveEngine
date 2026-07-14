@@ -7,7 +7,6 @@
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "RenderPackets.h"
-#include "UIRenderer.h"
 
 #include "engine/private/core/math/geomath.h"
 #include "engine/private/renderer/gpu_resource.h"

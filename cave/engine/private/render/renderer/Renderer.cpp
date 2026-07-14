@@ -13,7 +13,6 @@
 #include "RenderSceneBuilder.h"
 #include "RenderSubmission.h"
 #include "TransientPool.h"
-#include "UIRenderer.h"
 
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
