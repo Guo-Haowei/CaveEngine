@@ -364,12 +364,6 @@ void TonePassFunc(RenderPassExcutionContext& ctx) {
     cmd.SetPipelineState(PSO_POST_PROCESS);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
-
-    if (auto ui_renderer = ctx.services.renderer().tryGet<UIRenderer>()) {
-        ui_renderer->drawCanvas(ctx.cmd,
-                                ctx.services.UICanvas(),
-                                ctx.frameData.view_id);
-    }
 }
 
 void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
@@ -412,6 +406,11 @@ void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
         overlay->drawCanvas(cmd,
                             ctx.services.canvas(),
                             ctx.frameData.view_id);
+    }
+    if (auto ui_renderer = ctx.services.renderer().tryGet<UIRenderer>()) {
+        ui_renderer->drawCanvas(ctx.cmd,
+                                ctx.services.UICanvas(),
+                                ctx.frameData.view_id);
     }
 }
 

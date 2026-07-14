@@ -350,9 +350,24 @@ void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::
     };
 
     const bool can_add_ui = can_add_canvas_item(*preview_scene.scene, parent);
-    if (ImGui::MenuItem("Button", nullptr, false, can_add_ui)) {
+
+    if (ImGui::MenuItem("UIRect", nullptr, false, can_add_ui)) {
+        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+            Entity temp = writer.rect("UIRect");
+            writer.attachChild(temp, parent);
+            return temp;
+        });
+    }
+    if (ImGui::MenuItem("UIButton", nullptr, false, can_add_ui)) {
         edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
             Entity temp = writer.button("UIButton");
+            writer.attachChild(temp, parent);
+            return temp;
+        });
+    }
+    if (ImGui::MenuItem("UIImage", nullptr, false, can_add_ui)) {
+        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+            Entity temp = writer.image("UIImage");
             writer.attachChild(temp, parent);
             return temp;
         });

@@ -80,16 +80,15 @@ bool Canvas::takeBucket(ViewId view_id, CanvasBucket& out) {
     return false;
 }
 
-void Canvas::addImage(GpuTexture* texture,
+void Canvas::addImage(const GpuTexture* texture,
                       const math::Vec2f& min,
                       const math::Vec2f& max,
+                      const math::Vec4f& tint,
                       const math::Vec2f& uv_min,
                       const math::Vec2f& uv_max,
-                      const math::Vec4f& tint,
                       const math::Mat4f* transform) {
-    DEV_ASSERT(texture);
     if (canSubmit()) {
-        addImageImpl(texture, min, max, uv_min, uv_max, tint, transform);
+        addImageImpl(texture, min, max, tint, uv_min, uv_max, transform);
     }
 }
 
@@ -98,7 +97,7 @@ void Canvas::addBox2(const Vec2f& min,
                      const Vec4f& tint,
                      const Mat4f* transform) {
     if (canSubmit()) {
-        addImageImpl(nullptr, min, max, Vec2f::Zero, Vec2f::Zero, tint, transform);
+        addImageImpl(nullptr, min, max, tint, Vec2f::Zero, Vec2f::Zero, transform);
     }
 }
 
@@ -124,38 +123,39 @@ void Canvas::addBox2Frame(const Vec2f& min,
     addBox2({ max.x - t, min.y + t }, { max.x, max.y - t }, tint, transform);
 }
 
-void Canvas::addImageImpl(GpuTexture* texture,
+void Canvas::addImageImpl(const GpuTexture* texture,
                           const math::Vec2f& min,
                           const math::Vec2f& max,
+                          const math::Vec4f& tint,
                           const math::Vec2f& uv_min,
                           const math::Vec2f& uv_max,
-                          const math::Vec4f& tint,
                           const math::Mat4f* transform) {
-    DEV_ASSERT(min.x < max.x && min.y < max.y);
 
-    Vec3f bottom_left{ min.x, min.y, 0.0f };
-    Vec3f bottom_right{ max.x, min.y, 0.0f };
-    Vec3f top_left{ min.x, max.y, 0.0f };
-    Vec3f top_right{ max.x, max.y, 0.0f };
+    if (DEV_VERIFY(min.x < max.x && min.y < max.y)) {
+        Vec3f bottom_left{ min.x, min.y, 0.0f };
+        Vec3f bottom_right{ max.x, min.y, 0.0f };
+        Vec3f top_left{ min.x, max.y, 0.0f };
+        Vec3f top_right{ max.x, max.y, 0.0f };
 
-    PrimShape shape{
-        .type = PrimShapeType::Rect,
-        .vertices = {
-            PrimVert{ bottom_left, Vec2f(uv_min.x, uv_max.y), tint },
-            PrimVert{ bottom_right, Vec2f(uv_max.x, uv_max.y), tint },
-            PrimVert{ top_left, Vec2f(uv_min.x, uv_min.y), tint },
-            PrimVert{ top_right, Vec2f(uv_max.x, uv_min.y), tint },
-        },
-        .tex = texture,
-    };
+        PrimShape shape{
+            .type = PrimShapeType::Rect,
+            .vertices = {
+                PrimVert{ bottom_left, Vec2f(uv_min.x, uv_max.y), tint },
+                PrimVert{ bottom_right, Vec2f(uv_max.x, uv_max.y), tint },
+                PrimVert{ top_left, Vec2f(uv_min.x, uv_min.y), tint },
+                PrimVert{ top_right, Vec2f(uv_max.x, uv_min.y), tint },
+            },
+            .tex = texture,
+        };
 
-    if (transform) {
-        for (PrimVert& vert : shape.vertices) {
-            vert.pos = ((*transform) * Vec4f(vert.pos, 1.0f)).xyz;
+        if (transform) {
+            for (PrimVert& vert : shape.vertices) {
+                vert.pos = ((*transform) * Vec4f(vert.pos, 1.0f)).xyz;
+            }
         }
-    }
 
-    m_buckets[m_current_idx].shapes.push_back(shape);
+        m_buckets[m_current_idx].shapes.push_back(shape);
+    }
 }
 
 }  // namespace cave

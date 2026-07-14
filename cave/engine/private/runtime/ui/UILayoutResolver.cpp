@@ -14,8 +14,6 @@ using ::cave::ecs::Entity;
 ResolvedUICanvas UILayoutResolver::resolve(const Scene& scene,
                                            Entity canvas,
                                            math::Vec2f canvas_size) const {
-    DEV_ASSERT(scene.count<UIRectTransformComponent>());
-
     HashMap<Entity, Vector<Entity>> tree_lookup;
     for (auto [ent, rect, hier] : scene.view<UIRectTransformComponent, HierarchyComponent>()) {
         DEV_ASSERT(hier.parent_id.valid());

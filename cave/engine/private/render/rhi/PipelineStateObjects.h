@@ -30,7 +30,7 @@ static const InputLayoutDesc s_input_layout_position = {
     }
 };
 
-static const InputLayoutDesc s_input_layout_debug = {
+static const InputLayoutDesc s_input_layout_primitive = {
     .elements = {
         { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, PixelFormat::R32G32_FLOAT, 1, 0, InputClassification::PER_VERTEX_DATA, 0 },

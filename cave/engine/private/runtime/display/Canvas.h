@@ -26,24 +26,25 @@ public:
                  const math::Vec4f& tint,
                  const math::Mat4f* transform) override;
 
-    void addImage(GpuTexture* texture,
+    void addImage(const GpuTexture* texture,
                   const math::Vec2f& min,
                   const math::Vec2f& max,
+                  const math::Vec4f& tint,
                   const math::Vec2f& uv_min,
                   const math::Vec2f& uv_max,
-                  const math::Vec4f& tint,
                   const math::Mat4f* transform) override;
 
     bool takeBucket(ViewId view_id, CanvasBucket& out) override;
 
 private:
-    void addImageImpl(GpuTexture* texture,
+    void addImageImpl(const GpuTexture* texture,
                       const math::Vec2f& min,
                       const math::Vec2f& max,
+                      const math::Vec4f& tint,
                       const math::Vec2f& uv_min,
                       const math::Vec2f& uv_max,
-                      const math::Vec4f& tint,
                       const math::Mat4f* transform);
+
     bool canSubmit() const;
 
     bool m_can_submit = false;

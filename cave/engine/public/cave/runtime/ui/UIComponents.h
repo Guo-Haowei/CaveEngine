@@ -4,6 +4,7 @@
 #pragma once
 #include "cave/core/containers/Containers.h"
 #include "cave/core/math/Vec.h"
+#include "cave/runtime/assets/AssetHandle.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
@@ -54,13 +55,27 @@ struct UIButtonComponent {
     bool interactable = true;
 };
 
-struct UIImageComponent {
+class UIImageComponent {
     CAVE_COMPONENT(UIImageComponent)
 
-    math::Vec4f tint = math::Vec4f::One;
+private:
+    CAVE_PROP(editor = Asset)
+    Guid m_image_guid;
+
+    CAVE_PROP(editor = Color)
+    math::Vec4f m_tint = math::Vec4f::One;
 
     // Non-serialized
-    // AssetHandle texture;
+    Handle<ImageAsset> m_image_handle;
+
+public:
+    const Guid& imageGuid() const { return m_image_guid; }
+
+    const math::Vec4f tint() const { return m_tint; }
+
+    void onDeserialized();
+
+    const Handle<ImageAsset>& handle() const { return m_image_handle; }
 };
 
 struct UITextComponent {

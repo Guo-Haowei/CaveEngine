@@ -4,6 +4,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/ui/UIComponents.h"
 
+#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/view/ResolvedView.h"
@@ -26,8 +27,7 @@ void UIRuntime::endFrame(const UIInput& ui_input) {
 }
 
 void UIRuntime::resolve(const Scene& scene, SceneId scene_id) {
-    auto count = scene.count<UICanvasComponent>();
-    if (!count) {
+    if (!scene.count<UIRectTransformComponent>()) {
         return;
     }
 
@@ -69,11 +69,25 @@ void UIRuntime::buildDrawList(const ResolvedView& resolved_view) {
 
     m_ui_canvas.pushView(resolved_view.view_id);
 
-    for (const auto [ent, canvas] : resolved_view.scene->view<UICanvasComponent>()) {
-        const auto* resolved_canvas = findResolved(resolved_view.scene_id, ent);
+    for (const auto [canvas_ent, canvas] : resolved_view.scene->view<UICanvasComponent>()) {
+        const auto* resolved_canvas = findResolved(resolved_view.scene_id, canvas_ent);
         if (!resolved_canvas) continue;
 
         for (const auto& element : resolved_canvas->elements) {
+            const auto& rect = element.rect;
+            if (const auto* image = resolved_view.scene->component<UIImageComponent>(element.entity)) {
+                const GpuTexture* texture = nullptr;
+                if (const auto* image_asset = image->handle().get()) {
+                    texture = image_asset->gpu_texture.get();
+                }
+
+                m_ui_canvas.addImage(texture,
+                                     rect.min(),
+                                     rect.max(),
+                                     image->tint());
+                continue;
+            }
+
             const UIControlId control_id{ resolved_view.scene_id, element.entity };
 
             Color color = kButtonNormal;
@@ -83,7 +97,6 @@ void UIRuntime::buildDrawList(const ResolvedView& resolved_view) {
                 color = kButtonHover;
             }
 
-            const auto& rect = element.rect;
             m_ui_canvas.addBox2(rect.min(), rect.max(), color);
         }
     }
