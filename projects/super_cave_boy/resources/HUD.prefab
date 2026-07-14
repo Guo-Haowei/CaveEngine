@@ -1,5 +1,5 @@
 version: 20
-seed: 5
+seed: 7
 root: 9
 entities:
   - id: 1
@@ -18,6 +18,10 @@ entities:
     HierarchyComponent:
       parent_id: 1
       local_visible: true
+    NativeScriptComponent:
+      name: HealthHUDController
+      params:
+        {}
     UIRectTransformComponent:
       anchor_min: [0, 0]
       anchor_max: [0, 0]
@@ -62,6 +66,34 @@ entities:
       anchor_max: [0, 0]
       offset_min: [200, 0]
       offset_max: [300, 100]
+    UIImageComponent:
+      image_guid: 285FAD74-CB89-1743-AE29415CCA88473A
+      tint: [1, 1, 1, 1]
+  - id: 6
+    NameComponent:
+      name: Heart4
+    HierarchyComponent:
+      parent_id: 2
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [300, 0]
+      offset_max: [400, 100]
+    UIImageComponent:
+      image_guid: 285FAD74-CB89-1743-AE29415CCA88473A
+      tint: [1, 1, 1, 1]
+  - id: 7
+    NameComponent:
+      name: Heart5
+    HierarchyComponent:
+      parent_id: 2
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [400, 0]
+      offset_max: [500, 100]
     UIImageComponent:
       image_guid: 285FAD74-CB89-1743-AE29415CCA88473A
       tint: [1, 1, 1, 1]
