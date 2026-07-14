@@ -141,7 +141,7 @@ void Scene::flushPendingDestroy() {
     }
 }
 
-bool Scene::has(ComponentId cid, ecs::Entity ent) const {
+bool Scene::has(ComponentId cid, Entity ent) const {
     return m_storage.has(cid, ent);
 }
 
@@ -163,7 +163,7 @@ Entity Scene::findFirstByName(std::string_view name) const {
             return entity;
         }
     }
-    return ecs::Entity::null();
+    return Entity::null();
 }
 
 Entity Scene::findChildByName(std::string_view name, Entity ent) const {
@@ -173,16 +173,16 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
         }
     }
 
-    return ecs::Entity::null();
+    return Entity::null();
 }
 
-void Scene::removeEntity(ecs::Entity ent) {
+void Scene::removeEntity(Entity ent) {
     // @TODO: move it to SceneCommandExecutor
     if (!ent.valid()) {
         return;
     }
 
-    Vector<ecs::Entity> children;
+    Vector<Entity> children;
     for (auto [child, hierarchy] : view<HierarchyComponent>()) {
         if (hierarchy.parent_id == ent) {
             children.emplace_back(child);
@@ -200,7 +200,28 @@ void Scene::removeEntity(ecs::Entity ent) {
     }
 }
 
-void Scene::attachChild(ecs::Entity child, ecs::Entity parent) {
+void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
+    // remap hierarchy
+    for (auto [id, hier] : view<HierarchyComponent>()) {
+        auto it = mapping.find(hier.parent_id);
+        DEV_ASSERT(it != mapping.end());
+        hier.parent_id = it->second;
+    }
+
+    // remap material
+    for (auto [id, renderer] : view<MeshRendererComponent>()) {
+        auto& materials = renderer.GetMaterialInstances();
+        for (size_t i = 0; i < materials.size(); ++i) {
+            const auto it = mapping.find(materials[i]);
+            DEV_ASSERT(it != mapping.end());
+            materials[i] = it->second;
+        }
+
+        CRASH_NOW_MSG("remap skin and skeleton");
+    }
+}
+
+void Scene::attachChild(Entity child, Entity parent) {
     DEV_ASSERT(child != parent);
     DEV_ASSERT(parent.valid());
 
@@ -223,12 +244,12 @@ static void DuplicateComponent(Scene& scene, Entity source, Entity dest) {
     }
 }
 
-ecs::Entity Scene::duplicateEntity(ecs::Entity ent) {
+Entity Scene::duplicateEntity(Entity ent) {
     if (!ent.valid()) {
         return ent;
     }
 
-    ecs::Entity entity = createEntity();
+    Entity entity = createEntity();
 
 #define REGISTER_COMPONENT(COMP, ...) DuplicateComponent<COMP>(*this, ent, entity);
     REGISTER_COMPONENT_SERIALIZED_LIST

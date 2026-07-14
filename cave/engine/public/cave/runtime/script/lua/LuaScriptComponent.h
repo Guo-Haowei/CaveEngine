@@ -34,7 +34,7 @@ public:
 
     int GetInstance() const { return m_instance; }
 
-    void OnDeserialized();
+    void onDeserialized();
 
 private:
     friend class LuaScriptSystem;

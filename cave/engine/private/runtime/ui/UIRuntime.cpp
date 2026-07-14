@@ -69,21 +69,17 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
 
     m_ui_canvas.pushView(resolved_view.view_id);
 
-    // @TODO: refactor this
     auto drawImage = [this](const ResolvedUIElement element,
                             const UIImageComponent& image_component) {
-        const auto& rect = element.rect;
-
         const GpuTexture* texture = nullptr;
+
         if (const auto* image_asset = image_component.handle().get()) {
             texture = image_asset->gpu_texture.get();
-        } else {
-            image_component.onDeserialized();
         }
 
         m_ui_canvas.addImage(texture,
-                             rect.min(),
-                             rect.max(),
+                             element.rect.min(),
+                             element.rect.max(),
                              image_component.tint());
     };
 

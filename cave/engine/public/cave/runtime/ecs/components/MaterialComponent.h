@@ -34,10 +34,10 @@ struct MaterialComponent {
     const Guid& GetResourceGuid() const { return m_material_id; }
     bool SetResourceGuid(const Guid& p_guid);
 
-    void OnDeserialized();
+    void onDeserialized();
 
 private:
-    void OnDeserializedHelper(Handle<MaterialAsset>& p_handle, bool p_override);
+    void onDeserializedHelper(Handle<MaterialAsset>& p_handle, bool p_override);
 };
 
 }  // namespace cave

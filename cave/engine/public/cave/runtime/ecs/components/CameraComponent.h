@@ -100,7 +100,7 @@ public:
     bool dirty() const { return m_flags & DirtyFlag; }
     void setDirty(bool dirty = true) { dirty ? m_flags |= DirtyFlag : m_flags &= ~DirtyFlag; }
 
-    void OnDeserialized() { m_flags |= DirtyFlag; }
+    void onDeserialized() { m_flags |= DirtyFlag; }
 };
 
 }  // namespace cave

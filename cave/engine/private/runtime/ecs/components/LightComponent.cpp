@@ -2,7 +2,7 @@
 
 namespace cave {
 
-void LightComponent::OnDeserialized() {
+void LightComponent::onDeserialized() {
     // @TODO: use common base
     m_dirty = true;
 }

@@ -36,7 +36,7 @@ struct ParticleEmitterComponent {
     uint32_t GetPostIndex() const { return 1 - aliveBufferIndex; }
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() {}
+    void onDeserialized() {}
 };
 #endif
 #pragma endregion PARTICLE_EMITTER_COMPONENT
@@ -100,7 +100,7 @@ struct MeshEmitterComponent {
     void Reset();
 
     void Serialize(Archive& p_archive, uint32_t p_version);
-    void OnDeserialized() { Reset(); }
+    void onDeserialized() { Reset(); }
 };
 #endif
 #pragma endregion MESH_EMITTER_COMPONENT

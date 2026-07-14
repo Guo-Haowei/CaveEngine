@@ -6,7 +6,7 @@
 
 namespace cave {
 
-void MaterialComponent::OnDeserializedHelper(Handle<MaterialAsset>& p_handle, bool p_override) {
+void MaterialComponent::onDeserializedHelper(Handle<MaterialAsset>& p_handle, bool p_override) {
     MaterialAsset* mat = p_handle.get();
     DEV_ASSERT(mat);
     if (p_override) {
@@ -27,16 +27,16 @@ bool MaterialComponent::SetResourceGuid(const Guid& p_guid) {
                                           p_guid,
                                           m_material_id,
                                           m_material_handle.rawHandle())) {
-        OnDeserializedHelper(m_material_handle, true);
+        onDeserializedHelper(m_material_handle, true);
         return true;
     }
     return false;
 }
 
-void MaterialComponent::OnDeserialized() {
+void MaterialComponent::onDeserialized() {
     if (auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id)) {
         m_material_handle = handle.unwrap_unchecked();
-        OnDeserializedHelper(m_material_handle, false);
+        onDeserializedHelper(m_material_handle, false);
     }
 }
 

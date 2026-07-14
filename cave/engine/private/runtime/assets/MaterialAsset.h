@@ -44,7 +44,7 @@ struct MaterialAsset : public IAsset {
     // @TODO: fix
     static const MaterialAsset* Default();
 
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

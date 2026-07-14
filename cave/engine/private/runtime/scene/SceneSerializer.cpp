@@ -45,7 +45,7 @@ constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
 
 template<typename T>
 concept HasOnDeserialized = requires(T& t) {
-    { t.OnDeserialized() } -> std::same_as<void>;
+    { t.onDeserialized() } -> std::same_as<void>;
 };
 
 template<ComponentType T>
@@ -56,7 +56,7 @@ Option<T> DeserializeComponent(IDeserializer& d,
         d.read(component);
         d.leaveKey();
         if constexpr (HasOnDeserialized<T>) {
-            component.OnDeserialized();
+            component.onDeserialized();
         }
         return Some(std::move(component));
     }
@@ -66,14 +66,14 @@ Option<T> DeserializeComponent(IDeserializer& d,
 template<ComponentType T>
 void DeserializeComponent(IDeserializer& d,
                           const char* key,
-                          ecs::Entity ent,
+                          Entity ent,
                           Scene& scene) {
     if (d.tryEnterKey(key)) {
         T& component = scene.create<T>(ent);
         d.read(component);
         d.leaveKey();
         if constexpr (HasOnDeserialized<T>) {
-            component.OnDeserialized();
+            component.onDeserialized();
         }
     }
 }
@@ -82,7 +82,7 @@ template<ComponentType T>
 bool SerializeComponent(ISerializer& s,
                         const char* name,
                         const Scene& scene,
-                        ecs::Entity ent) {
+                        Entity ent) {
 
     const T* component = scene.component<T>(ent);
     if (component) {
@@ -205,7 +205,11 @@ bool SerializeEntity(ISerializer& s,
 
 }  // namespace
 
-void SerializeScene(ISerializer& s, const Scene& scene, AssetRegistry* asset_reg, bool skip_prefab) {
+void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* asset_reg, bool skip_prefab) {
+    Scene scene;
+    scene.copy(source_scene);
+    // @TODO: remap entity
+
     auto entity_array = scene.getSortedEntityArray();
 
     s.beginMap(false)
@@ -270,13 +274,13 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
         }
     };
 
-    std::unordered_map<Entity, OverrideComponents> overrides_map;
+    HashMap<Entity, OverrideComponents> overrides_map;
 
     const int entity_count = d.arraySize().unwrap_or(0);
     for (int i = 0; i < entity_count; ++i) {
         DEV_ASSERT(d.tryEnterIndex(i));
         auto keys = d.getKeys().unwrap();
-        ecs::Entity ent;
+        Entity ent;
         DEV_ASSERT(d.tryEnterKey("id"));
         d.read((uint32_t&)ent);
         d.leaveKey();
@@ -325,7 +329,7 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
     }
 }
 
-void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entity parent) {
+void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity parent) {
     DEV_ASSERT(parent.valid());
 
     // @TODO: remove this
@@ -341,7 +345,7 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entit
 
     // @TODO: add components to parent, instead of link it
     auto new_entities = copy.getSortedEntityArray();
-    std::unordered_map<Entity, Entity> mapping;
+    HashMap<Entity, Entity> mapping;
 
     for (Entity prefab_ent : new_entities) {
         if (prefab_ent == copy.root()) {
@@ -353,22 +357,7 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entit
         }
     }
 
-    // remap hierarchy
-    for (auto [id, hier] : copy.view<HierarchyComponent>()) {
-        auto it = mapping.find(hier.parent_id);
-        DEV_ASSERT(it != mapping.end());
-        hier.parent_id = it->second;
-    }
-
-    // remap material
-    for (auto [id, renderer] : copy.view<MeshRendererComponent>()) {
-        auto& materials = renderer.GetMaterialInstances();
-        for (size_t i = 0; i < materials.size(); ++i) {
-            materials[i] = mapping[materials[i]];
-        }
-
-        CRASH_NOW_MSG("remap skin and skeleton");
-    }
+    copy.remapEntity(mapping);
 
     // merge components
     for (uint16_t cid = 0; cid < (uint16_t)copy.storage().entries().size(); ++cid) {

@@ -82,7 +82,7 @@ public:
         return !(this->operator==(rhs));
     }
 
-    void OnDeserialized() { m_flags |= DirtyFlag; }
+    void onDeserialized() { m_flags |= DirtyFlag; }
 };
 
 }  // namespace cave

@@ -78,7 +78,7 @@ public:
         return { image_guid_ };
     }
 
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

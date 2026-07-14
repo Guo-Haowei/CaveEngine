@@ -72,7 +72,7 @@ public:
     auto& GetMatrices() { return m_light_space_matrices; }
     const auto& GetMatrices() const { return m_light_space_matrices; }
 
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

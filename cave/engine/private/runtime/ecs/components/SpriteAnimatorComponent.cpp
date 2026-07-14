@@ -24,7 +24,7 @@ bool SpriteAnimatorComponent::setAnimGuid(const Guid& guid) {
     return AssetHandle::replaceGuidAndHandle(AssetType::SpriteAnimation, guid, m_anim_id, m_anim_handle.rawHandle());
 }
 
-void SpriteAnimatorComponent::OnDeserialized() {
+void SpriteAnimatorComponent::onDeserialized() {
     if (!m_anim_id.isNull()) {
         m_anim_handle =
             AssetRegistry::singleton().findByGuid<SpriteAnimationAsset>(m_anim_id).unwrap();

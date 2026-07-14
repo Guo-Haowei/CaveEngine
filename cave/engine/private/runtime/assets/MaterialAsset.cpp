@@ -61,11 +61,11 @@ Result<void> MaterialAsset::loadFromDisk(const AssetMetaData& p_meta) {
         deserializer.leaveKey();
     }
 
-    OnDeserialized();
+    onDeserialized();
     return Result<void>();
 }
 
-void MaterialAsset::OnDeserialized() {
+void MaterialAsset::onDeserialized() {
 #if 0
     for (int i = 0; i < TEXTURE_MAX; ++i) {
         const auto& path = textures[i].path;

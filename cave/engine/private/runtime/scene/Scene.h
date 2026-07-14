@@ -103,6 +103,8 @@ public:
     ecs::Entity createEntity() { return ecs::Entity(++m_entity_seed); }
     void removeEntity(ecs::Entity ent);
 
+    void remapEntity(const HashMap<ecs::Entity, ecs::Entity>& mapping);
+
     void attachChild(ecs::Entity child, ecs::Entity parent);
     void attachChild(ecs::Entity child) { attachChild(child, m_root); }
 
