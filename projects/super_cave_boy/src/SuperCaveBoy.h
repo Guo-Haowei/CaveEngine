@@ -9,6 +9,8 @@ public:
     ~SuperCaveBoy();
 
     void registerNativeScripts(cave::NativeScriptRegistry& registry) override;
+
+    bool startSession(cave::GameSession& session) override;
 };
 
 }  // namespace super_cave_boy

@@ -1,6 +1,9 @@
 #include "SuperCaveBoy.h"
 
+#include "SuperCaveBoyDefines.h"
+
 #include "cave/core/diagnostics/Log.h"
+#include "cave/runtime/game/GameSession.h"
 
 #include "controllers/BatController.h"
 #include "controllers/CameraController.h"
@@ -29,6 +32,11 @@ void SuperCaveBoy::registerNativeScripts(NativeScriptRegistry& registry) {
     registry.registerScript<PlayerController>("PlayerController");
     registry.registerScript<SnakeController>("SnakeController");
     registry.registerScript<SpiderController>("SpiderController");
+}
+
+bool SuperCaveBoy::startSession(cave::GameSession& session) {
+    session.setInt(kPlayerHealthID, kPlayerMaxHealth);
+    return true;
 }
 
 }  // namespace super_cave_boy

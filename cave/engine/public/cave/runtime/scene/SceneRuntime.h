@@ -12,8 +12,9 @@
 
 namespace cave {
 
-class Scene;
+class GameSession;
 class ISceneTransitionRequests;
+class Scene;
 
 enum class SceneFeature : uint32_t {
     NativeScript = 1,
@@ -32,6 +33,7 @@ public:
                  RuntimeServices& services,
                  Scene& scene,
                  ViewId view_id,
+                 GameSession* session = nullptr,
                  ISceneTransitionRequests* transition = nullptr);
 
     void start();
@@ -41,6 +43,7 @@ public:
 
     Scene& scene() { return m_scene; }
     RuntimeServices& services() { return m_services; }
+    GameSession& session() { return *m_session; }
     MessageBus& messageBus() { return m_message_bus; }
 
     SceneQuery& query() { return m_query; }
@@ -59,7 +62,9 @@ private:
     Scene& m_scene;
     SceneQuery m_query;
     ViewId m_view_id;
+    GameSession* m_session{};
     ISceneTransitionRequests* m_transition{};
+
     SceneFeature m_features;
     SystemManager m_systems;
     MessageBus m_message_bus;

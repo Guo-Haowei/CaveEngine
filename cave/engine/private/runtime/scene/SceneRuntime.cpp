@@ -17,11 +17,13 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
                            RuntimeServices& services,
                            Scene& scene,
                            ViewId view_id,
+                           GameSession* session,
                            ISceneTransitionRequests* transition)
     : m_services(services)
     , m_scene(scene)
     , m_query(scene)
     , m_view_id(view_id)
+    , m_session(session)
     , m_transition(transition) {
 
     SceneFeature features = SceneFeature::NativeScript;

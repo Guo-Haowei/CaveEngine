@@ -78,13 +78,13 @@ void GuardianController::start() {
     m_state_machine.switchTo(GuardianState::Inactive);
 
     m_begin_fight_listener = message().listen(
-        kGuardianBeginFight,
+        kGuardianBeginFightID,
         [this](const Message&) {
             beginFight();
         });
 
     m_awake_listener = message().listen(
-        kGuardianAwake,
+        kGuardianAwakeID,
         [this](const Message&) {
             playAnimation("move");
         });
@@ -103,7 +103,7 @@ void GuardianController::takeDamageFromPlayer(int damage) {
             return;
         }
 
-        message().emit(kGuardianDefeated, entity());
+        message().emit(kGuardianDefeatedID, entity());
         message().disconnect(m_awake_listener);
         message().disconnect(m_begin_fight_listener);
         query().queueDestroy(entity());

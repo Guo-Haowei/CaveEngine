@@ -17,21 +17,17 @@ public:
     bool loadFromDll(const char* dll_path, NativeScriptRegistry& registry);
 
     void unload();
-    bool loaded() const { return module_ != nullptr; }
+    bool loaded() const { return m_module != nullptr; }
 
-    IGameModule* get() const { return module_; }
+    IGameModule* get() const { return m_module; }
 
 private:
-    struct ModuleDeleter {
-        void operator()(IGameModule* p) const { delete p; }
-    };
+    Dll m_dll{};
 
-    Dll dll_{};
+    CreateFn m_create_func = nullptr;
+    DestroyFn m_destroy_func = nullptr;
 
-    CreateFn create_ = nullptr;
-    DestroyFn destroy_ = nullptr;
-
-    IGameModule* module_ = nullptr;
+    IGameModule* m_module = nullptr;
 };
 
 }  // namespace cave

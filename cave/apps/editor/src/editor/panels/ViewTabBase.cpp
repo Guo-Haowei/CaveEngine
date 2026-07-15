@@ -120,7 +120,7 @@ void ViewTabBase::onDestroy() {
     m_engine_services.sceneScheduler().remove(this);
 }
 
-void ViewTabBase::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
+void ViewTabBase::collectSceneTicks(Vector<SceneTickRequest>& out_requests) {
     if (!m_editor.isPlaying()) {
         out_requests.push_back(SceneTickRequest{
             SceneTickDomain::Editor,
