@@ -1,6 +1,5 @@
 #pragma once
 #include "cave/core/base/Singleton.h"
-#include "cave/core/ids/Entity.h"
 
 #include "cave/runtime/assets/IAsset.h"
 #include "cave/runtime/framework/IService.h"
@@ -34,8 +33,6 @@ public:
 
     virtual Result<Guid> createAsset(AssetType type, const std::filesystem::path& folder, const char* name = nullptr) = 0;
     virtual Result<Guid> createAsset(AssetType type, const std::string& short_path) = 0;
-
-    virtual Result<Guid> exportPrefab(const Scene& scene, ecs::Entity root) = 0;
 
     virtual Result<void> renameAssetOrFolder(const std::filesystem::path& old_path, const std::filesystem::path& new_path) = 0;
 

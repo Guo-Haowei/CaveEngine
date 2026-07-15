@@ -241,9 +241,11 @@ void Scene::attachChild(Entity child, Entity parent) {
 }
 
 bool Scene::isChild(Entity child, Entity parent) const {
-    DEV_ASSERT(child.valid() && parent.valid());
+    if (!DEV_VERIFY(child.valid() && parent.valid())) {
+        return false;
+    }
 
-    if (!DEV_VERIFY(child != parent)) {
+    if (child == parent) {
         return false;
     }
 

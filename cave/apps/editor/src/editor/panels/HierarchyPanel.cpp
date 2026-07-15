@@ -7,20 +7,21 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
-#include "engine/private/runtime/assets/MeshAsset.h"
-#include "engine/private/runtime/framework/IAssetManager.h"
-#include "engine/private/runtime/ecs/components/All.h"
-#include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
-
 #include "editor/edit/ChangePropertyCmd.h"
 #include "editor/edit/EditObjectCmd.h"
+#include "editor/prefab/PrefabExporter.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/DragDropService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
+
+// @TODO: fix
+#include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/ecs/components/All.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 
@@ -82,7 +83,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
                                       std::function<void()> on_right_click) {
     const auto* name_component = scene.component<NameComponent>(ent);
     const auto* hier_component = scene.component<HierarchyComponent>(ent);
-    if (!hier_component || !name_component) return false;
+    if (!DEV_VERIFY(name_component && hier_component)) return false;
 
     std::string_view name = name_component->name();
     if (name.empty()) {
@@ -318,10 +319,10 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
             }
         }
         if (ImGui::MenuItem("Save as Prefab")) {
-            LOG_ERROR("Not implemented");
-            m_engine_services.assetManager().exportPrefab(
-                *preview_scene.scene,
-                selected);
+            PrefabExporter exporter;
+            exporter.exportPrefab("@res://exported.prefab",
+                                  *preview_scene.scene,
+                                  selected);
         }
         ImGui::EndPopup();
     }
