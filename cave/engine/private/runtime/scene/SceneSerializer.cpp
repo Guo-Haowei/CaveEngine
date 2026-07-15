@@ -419,9 +419,15 @@ EntityExportSet CollectEntitySubtree(const Scene& scene, Entity root) {
 }
 
 void ExportSubtree(ISerializer& s,
-                   const Scene& scene,
-                   ecs::Entity root,
+                   const Scene& source_scene,
+                   Entity root,
                    AssetRegistry* asset_reg) {
+    Scene scene;
+    scene.copy(source_scene);
+    if (auto* hier = scene.component<HierarchyComponent>(root)) {
+        hier->parent_id = Entity::null();
+    }
+
     auto result = CollectEntitySubtree(scene, root);
     const uint32_t seed = scene.seed();
 

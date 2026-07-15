@@ -83,7 +83,9 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
                                       std::function<void()> on_right_click) {
     const auto* name_component = scene.component<NameComponent>(ent);
     const auto* hier_component = scene.component<HierarchyComponent>(ent);
-    if (!DEV_VERIFY(name_component && hier_component)) return false;
+    if (!DEV_VERIFY(name_component && hier_component)) {
+        return false;
+    }
 
     std::string_view name = name_component->name();
     if (name.empty()) {
