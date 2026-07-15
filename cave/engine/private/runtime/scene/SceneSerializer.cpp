@@ -34,7 +34,8 @@ namespace {
 // version 17: remove armature.flags
 // version 18: change RigidBodyComponent
 // version 19: serialize scene.m_physicsMode
-// version 20: root must have a hier component
+// version 20: root root must have HierarchyComponent
+// version 21: prefab root must have HierarchyComponent
 constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
 
 #define PREFAB_OVERRIDE_LIST               \
@@ -337,24 +338,28 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
 void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity parent) {
     DEV_ASSERT(parent.valid());
 
-    // @TODO: remove this
+    // @TODO: do not use Singleton
     auto handle_opt = AssetRegistry::singleton().findByGuid<PrefabAsset>(prefab.prefabGuid());
     if (handle_opt.is_none()) {
         return;
     }
 
-    const PrefabAsset* asset = handle_opt.unwrap_unchecked().get();
-    DEV_ASSERT(asset);
-    Scene copy;
-    copy.copy(asset->scene());
+    const PrefabAsset* prefab_asset = handle_opt.unwrap_unchecked().get();
+    DEV_ASSERT(prefab_asset);
+    Scene prefab_scene;
+    prefab_scene.copy(prefab_asset->scene());
 
-    // @TODO: add components to parent, instead of link it
-    auto new_entities = copy.getSortedEntityArray();
+    if (!DEV_VERIFY(prefab_scene.root().valid())) {
+        return;
+    }
+
+    prefab_scene.remove<HierarchyComponent>(prefab_scene.root());
+
+    auto new_entities = prefab_scene.getSortedEntityArray();
     HashMap<Entity, Entity> mapping;
 
-    mapping[Entity::null()] = parent;
     for (Entity prefab_ent : new_entities) {
-        if (prefab_ent == copy.root()) {
+        if (prefab_ent == prefab_scene.root()) {
             mapping[prefab_ent] = parent;
         } else {
             Entity mapped = scene.createEntity();
@@ -363,11 +368,11 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
         }
     }
 
-    copy.remapEntity(mapping);
+    prefab_scene.remapEntity(mapping);
 
     // merge components
-    for (uint16_t cid = 0; cid < static_cast<uint16_t>(copy.storage().entries().size()); ++cid) {
-        auto& entry = copy.storage().entries()[cid];
+    for (uint16_t cid = 0; cid < static_cast<uint16_t>(prefab_scene.storage().entries().size()); ++cid) {
+        auto& entry = prefab_scene.storage().entries()[cid];
         if (!entry.pool) continue;
 
         CRASH_COND(cid >= scene.storage().entries().size());

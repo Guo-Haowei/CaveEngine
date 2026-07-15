@@ -65,6 +65,14 @@ auto SceneContainer::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     YamlDeserializer yaml;
     yaml.Initialize(root);
     DeserializeScene(yaml, *m_scene);
+
+    if (m_scene->version() <= 20) {
+        auto ent = m_scene->root();
+        if (!m_scene->has(HierarchyComponent_Id, ent)) {
+            m_scene->create(HierarchyComponent_Id, ent);
+        }
+    }
+
     return Result<void>();
 }
 

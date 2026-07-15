@@ -281,7 +281,6 @@ void HierarchyPanel::drawUIImpl() {
     }
 }
 
-
 void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
     // @TODO: refactor this
 

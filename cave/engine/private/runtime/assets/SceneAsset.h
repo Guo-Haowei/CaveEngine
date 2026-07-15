@@ -4,7 +4,7 @@
 namespace cave {
 
 class SceneAsset final : public SceneContainer {
-    CAVE_ASSET(SceneAsset, AssetType::Scene, 20)
+    CAVE_ASSET(SceneAsset, AssetType::Scene, 21)
 
 public:
     auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;

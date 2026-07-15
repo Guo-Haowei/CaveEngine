@@ -96,15 +96,23 @@ void DragDropService::dropSceneNode(Entity ent, DocId doc_id, const Scene& scene
         const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadSceneNode);
         if (!payload) return;
 
-        const Entity child_id = *reinterpret_cast<const Entity*>(payload->Data);
-        if (child_id.isNull() || child_id == ent) return;
+        const Entity child = *reinterpret_cast<const Entity*>(payload->Data);
+        if (child.isNull() || child == ent) return;
 
-        auto* child_hier = scene.component<HierarchyComponent>(child_id);
-        if (child_hier->parent_id == ent) return;
+        auto* child_hier = scene.component<HierarchyComponent>(child);
+        if (!DEV_VERIFY(child_hier)) {
+            return;
+        }
+
+        const Entity parent = child_hier->parent_id;
+
+        if (!DEV_VERIFY(parent != ent || !scene.isChild(parent, child))) {
+            return;
+        }
 
         auto cmd = MakeOwner<ChangePropertyCmd>(
             m_scene_reg,
-            child_id,
+            child,
             BuiltinComponentId::HierarchyComponent_Id,
             "parent_id"_sid,
             child_hier->parent_id,
