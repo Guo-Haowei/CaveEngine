@@ -217,12 +217,21 @@ void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* as
     mapping[Entity::null()] = Entity::null();
     for (uint32_t i = 0; i < entity_count; ++i) {
         const Entity old = entity_array[i];
+        if (scene.has<PrefabChildComponent>(old) &&
+            !scene.has<PrefabInstanceComponent>(old)) {
+            --seed;
+        }
 
         const Entity mapped = Entity(i + 1);
         mapping[old] = mapped;
         entity_array[i] = mapped;
     }
+
     scene.remapEntity(mapping);
+    auto it = mapping.find(scene.root());
+    if (DEV_VERIFY(it != mapping.end())) {
+        scene.setRoot(it->second);
+    }
 
     s.beginMap(false)
         .beginKey("version")

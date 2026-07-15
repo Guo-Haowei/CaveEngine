@@ -1,10 +1,13 @@
-version: 20
+version: 21
 seed: 2
 root: 1
 entities:
   - id: 1
     NameComponent:
       name: bat
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]

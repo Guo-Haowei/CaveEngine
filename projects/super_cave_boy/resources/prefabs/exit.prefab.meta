@@ -4,6 +4,6 @@ name: portal.prefab
 import_path: "@res://prefabs/exit.prefab"
 dependencies: []
 source_created_time: 2026-06-30 15:08:16.3242142
-source_last_modified: 2026-07-03 16:44:42.2059062
+source_last_modified: 2026-07-15 09:53:03.6617402
 import_settings:
   {}
