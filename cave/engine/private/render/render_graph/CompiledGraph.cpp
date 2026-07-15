@@ -4,26 +4,26 @@
 
 namespace cave::render {
 
-void CompiledGraph::AddResource(RGTextureId p_handle, const std::shared_ptr<GpuTexture>& p_resource) {
+void CompiledGraph::addResource(RGTextureId handle, const Ref<GpuTexture>& resource) {
     const int idx = static_cast<int>(m_resources.size());
-    m_resources.push_back(p_resource);
-    m_resourceLookup.insert({ p_handle, idx });
+    m_resources.push_back(resource);
+    m_resource_lookup.insert({ handle, idx });
 }
 
-std::shared_ptr<GpuTexture> CompiledGraph::FindResource(RGTextureId p_handle) {
-    auto it = m_resourceLookup.find(p_handle);
-    if (it == m_resourceLookup.end()) {
+Ref<GpuTexture> CompiledGraph::FindResource(RGTextureId handle) {
+    auto it = m_resource_lookup.find(handle);
+    if (it == m_resource_lookup.end()) {
         return nullptr;
     }
 
     return m_resources[it->second];
 }
 
-void CompiledGraph::Resolve(TransientPool& p_pool) {
+void CompiledGraph::resolveTextures(TransientPool& pool) {
     // 1. Create/Import resources
     for (const RGTextureNode& node : m_textures) {
         if (node.external) {
-            AddResource(node.handle, std::move(node.external));
+            addResource(node.handle, node.external);
             continue;
         }
 
@@ -31,24 +31,24 @@ void CompiledGraph::Resolve(TransientPool& p_pool) {
         // @TODO: get rid of the name
         desc.name = node.debug_name;
         ResourceAccess access = node.access_mask;
-        if ((access & ResourceAccess::RTV) != ResourceAccess::NONE) {
+        if ((access & ResourceAccess::RTV) != ResourceAccess::None) {
             desc.bindFlags |= BIND_RENDER_TARGET;
         }
-        if ((access & ResourceAccess::DSV) != ResourceAccess::NONE) {
+        if ((access & ResourceAccess::DSV) != ResourceAccess::None) {
             desc.bindFlags |= BIND_DEPTH_STENCIL;
         }
-        if ((access & ResourceAccess::SRV) != ResourceAccess::NONE) {
+        if ((access & ResourceAccess::SRV) != ResourceAccess::None) {
             desc.bindFlags |= BIND_SHADER_RESOURCE;
         }
-        if ((access & ResourceAccess::UAV) != ResourceAccess::NONE) {
+        if ((access & ResourceAccess::UAV) != ResourceAccess::None) {
             desc.bindFlags |= BIND_UNORDERED_ACCESS;
         }
 
-        auto texture = p_pool.AcquireTexture({
+        auto texture = pool.AcquireTexture({
             .texture = desc,
             .sampler = node.sampler,
         });
-        AddResource(node.handle, texture);
+        addResource(node.handle, texture);
     }
 
     m_compiled_pass.resize(m_order.size());
@@ -57,8 +57,8 @@ void CompiledGraph::Resolve(TransientPool& p_pool) {
     for (int idx : m_order) {
         auto& pass_builder = m_passes[idx];
 
-        std::vector<GpuTextureId> srvs;
-        std::vector<GpuTextureId> uavs;
+        Vector<GpuTextureId> srvs;
+        Vector<GpuTextureId> uavs;
 
         size_t color_idx = 0;
         for (const auto& read : pass_builder.m_reads) {
@@ -120,7 +120,7 @@ void CompiledGraph::Resolve(TransientPool& p_pool) {
     m_passes.clear();
     m_order.clear();
     m_resources.clear();
-    m_resourceLookup.clear();
+    m_resource_lookup.clear();
 }
 
 }  // namespace cave::render

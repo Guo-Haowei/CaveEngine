@@ -65,9 +65,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
         DEV_ASSERT(m_diffuse);
         DEV_ASSERT(m_specular);
 
-        RGTextureId env_cube_id = p_graph.ImportTexture({ m_env_cube });
-        RGTextureId diffuse_id = p_graph.ImportTexture({ m_diffuse });
-        RGTextureId specular_id = p_graph.ImportTexture({ m_specular });
+        RGTextureId env_cube_id = p_graph.importTexture({ m_env_cube });
+        RGTextureId diffuse_id = p_graph.importTexture({ m_diffuse });
+        RGTextureId specular_id = p_graph.importTexture({ m_specular });
         return {
             .skybox = env_cube_id,
             .ibl_diffuse = diffuse_id,
@@ -90,7 +90,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
         DEV_ASSERT(!m_specular);
 
         {
-            GpuTextureDesc desc = RenderGraph::BuildDefaultTextureDesc(
+            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 RT_SIZE_IBL_CUBEMAP,
@@ -104,7 +104,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
         }
         {
 
-            GpuTextureDesc desc = RenderGraph::BuildDefaultTextureDesc(
+            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
@@ -115,7 +115,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
             m_diffuse = m_device.CreateTexture(desc, CubemapNoMipSampler());
         }
         {
-            GpuTextureDesc desc = RenderGraph::BuildDefaultTextureDesc(
+            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 RT_SIZE_IBL_PREFILTERED_CUBEMAP,
@@ -129,21 +129,21 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
         }
     }
 
-    RGTextureId env_hdr = p_graph.ImportTexture({ m_env_texture });
-    RGTextureId env_cube = p_graph.ImportTexture({ m_env_cube });
-    RGTextureId diffuse = p_graph.ImportTexture({ m_diffuse });
-    RGTextureId specular = p_graph.ImportTexture({ m_specular });
+    RGTextureId env_hdr = p_graph.importTexture({ m_env_texture });
+    RGTextureId env_cube = p_graph.importTexture({ m_env_cube });
+    RGTextureId diffuse = p_graph.importTexture({ m_diffuse });
+    RGTextureId specular = p_graph.importTexture({ m_specular });
 
     // bake environment cubemap
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_SKYBOX, face);
-        RenderPass& pass = p_graph.AddPass(pass_name);
+        RenderPass& pass = p_graph.addRenderPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
-        pass.Read(ResourceAccess::SRV, env_hdr)
-            .WriteColor(env_cube, view_desc, LoadOp::Load)
-            .SetExecuteFunc([face](RenderPassExcutionContext& p_context) {
+        pass.read(ResourceAccess::SRV, env_hdr)
+            .writeColor(env_cube, view_desc, LoadOp::Load)
+            .setExecuteFunc([face](RenderPassExcutionContext& p_context) {
                 ConvertToCubemapFunc(p_context, face);
             });
     }
@@ -151,13 +151,13 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
     // bake irradiance map
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_DIFFUSE, face);
-        RenderPass& pass = p_graph.AddPass(pass_name);
+        RenderPass& pass = p_graph.addRenderPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
-        pass.Read(ResourceAccess::SRV, env_cube)
-            .WriteColor(diffuse, view_desc, LoadOp::Load)
-            .SetExecuteFunc([face](RenderPassExcutionContext& p_context) {
+        pass.read(ResourceAccess::SRV, env_cube)
+            .writeColor(diffuse, view_desc, LoadOp::Load)
+            .setExecuteFunc([face](RenderPassExcutionContext& p_context) {
                 DiffuseIrradianceFunc(p_context, face);
             });
     }
@@ -172,11 +172,11 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
                 .array_size = 1,
             };
             std::string pass_name = std::format("{}_{}_{}", RG_PASS_BAKE_PREFILTERED, mip, face);
-            RenderPass& pass = p_graph.AddPass(pass_name);
-            pass.Read(ResourceAccess::SRV, env_cube)
-                .WriteColor(specular, view_desc, LoadOp::Load)
-                .SetViewport(Viewport(w, h))
-                .SetExecuteFunc([mip, face](RenderPassExcutionContext& p_context) {
+            RenderPass& pass = p_graph.addRenderPass(pass_name);
+            pass.read(ResourceAccess::SRV, env_cube)
+                .writeColor(specular, view_desc, LoadOp::Load)
+                .setViewport(Viewport(w, h))
+                .setExecuteFunc([mip, face](RenderPassExcutionContext& p_context) {
                     PrefilteredFunc(p_context, mip, face);
                 });
         }

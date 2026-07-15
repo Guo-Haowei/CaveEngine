@@ -93,7 +93,7 @@ private:
     EnvironmentFeature m_env;
     ShadowFeature shadow_;
     SsaoFeature m_ssao;
-    PathTracerFeature pathtracer_;
+    PathTracerFeature m_pathtracer;
 
     GpuTextureId m_brdf{};
     GpuTextureId m_ltc1{};
@@ -256,7 +256,7 @@ void Renderer::Impl::tick(const FrameTime& time, std::span<const ResolvedView> v
             CRASH_NOW();
         } else {
             auto graph = *res;
-            graph->Resolve(m_transient_pool);
+            graph->resolveTextures(m_transient_pool);
 
             submission->render_graph.push_back(graph);
         }
@@ -341,9 +341,9 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
 
     RenderGraphBuilderExt graph(view.viewport_px);
 
-    RGTextureId brdf = graph.ImportTexture({ m_brdf });
-    RGTextureId ltc1 = graph.ImportTexture({ m_ltc1 });
-    RGTextureId ltc2 = graph.ImportTexture({ m_ltc2 });
+    RGTextureId brdf = graph.importTexture({ m_brdf });
+    RGTextureId ltc1 = graph.importTexture({ m_ltc1 });
+    RGTextureId ltc2 = graph.importTexture({ m_ltc2 });
 
     auto env_outputs = m_env.Build(graph, plan);
 
@@ -381,6 +381,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     });
 
     auto forward_outputs = graph.addForwardPass({
+        .dependency = lighting_outputs.dependency,
         .skybox = env_outputs.skybox,
         .shadow = shadow_outputs.shadow,
         .ibl_diffuse = env_outputs.ibl_diffuse,
@@ -396,14 +397,19 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
         .stencil = prepass_outputs.depth,
     });
 
-    graph.addPostProcessPass({
+    auto post_process_output = graph.addPostProcessPass({
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
         .bloom = 0,
         .color_attachment = view.output,
     });
 
-    return graph.Compile();
+    graph.addOverlayPass({
+        .dependency = post_process_output.dependency,
+        .color_attachment = view.output,
+    });
+
+    return graph.compile();
 }
 
 auto Renderer::Impl::buildRenderGraph2d(const RenderOptions& plan,
@@ -412,18 +418,19 @@ auto Renderer::Impl::buildRenderGraph2d(const RenderOptions& plan,
 
     RenderGraphBuilderExt graph(view.viewport_px);
 
-    graph.add2dPass({ .color_attachment = view.output });
+    auto output = graph.add2dPass({ .color_attachment = view.output });
+    graph.addOverlayPass(output);
 
-    return graph.Compile();
+    return graph.compile();
 }
 
 auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
                                         const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
     RenderGraph graph(view.viewport_px);
 
-    pathtracer_.Build(graph, plan, { view.output });
+    m_pathtracer.Build(graph, plan, { view.output });
 
-    return graph.Compile();
+    return graph.compile();
 }
 
 RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId scene_id) {

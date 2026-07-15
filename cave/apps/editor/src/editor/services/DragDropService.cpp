@@ -1,6 +1,7 @@
 #include "DragDropService.h"
 
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
+#include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -90,25 +91,40 @@ void DragDropService::dragContentEntry(const ContentEntry& source) {
     }
 }
 
-void DragDropService::dropSceneNode(Entity ent, DocId doc_id, const Scene& scene) {
+void DragDropService::dropSceneNode(Entity parent, DocId doc_id, const Scene& scene) {
     auto drop_node = [&]() {
         using namespace cave::literals;
         const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadSceneNode);
         if (!payload) return;
 
-        const Entity child_id = *reinterpret_cast<const Entity*>(payload->Data);
-        if (child_id.isNull() || child_id == ent) return;
+        const Entity child = *reinterpret_cast<const Entity*>(payload->Data);
+        if (child.isNull() || child == parent) return;
 
-        auto* child_hier = scene.component<HierarchyComponent>(child_id);
-        if (child_hier->parent_id == ent) return;
+        auto* child_hier = scene.component<HierarchyComponent>(child);
+        if (!DEV_VERIFY(child_hier) || child_hier->parent_id == parent) {
+            return;
+        }
 
+        if (scene.isChild(parent, child)) {
+#if USING(USE_LOG)
+            const auto* name_parent = scene.component<NameComponent>(parent);
+            const auto* name_child = scene.component<NameComponent>(child);
+            LOG_ERROR(LogChannel::Scene,
+                      "cant' change parent, '{}' is a child of '{}'",
+                      name_parent ? name_parent->name() : "??",
+                      name_child ? name_child->name() : "??");
+#endif
+            return;
+        }
+
+        // @TODO: need to update tree cache, do not call this
         auto cmd = MakeOwner<ChangePropertyCmd>(
             m_scene_reg,
-            child_id,
+            child,
             BuiltinComponentId::HierarchyComponent_Id,
             "parent_id"_sid,
             child_hier->parent_id,
-            ent);
+            parent);
 
         m_edit.submit(doc_id, std::move(cmd));
     };

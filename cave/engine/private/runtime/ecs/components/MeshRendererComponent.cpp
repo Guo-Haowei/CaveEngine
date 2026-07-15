@@ -17,15 +17,15 @@ bool MeshRendererComponent::SetResourceGuid(const Guid& p_guid) {
         return false;
     }
 
-    OnDeserialized();
+    onDeserialized();
     return true;
 }
 
-void MeshRendererComponent::AddMaterial(ecs::Entity p_material) {
-    m_materials.push_back(p_material);
+void MeshRendererComponent::AddMaterial(ecs::Entity material) {
+    m_materials.push_back(material);
 }
 
-void MeshRendererComponent::OnDeserialized() {
+void MeshRendererComponent::onDeserialized() {
     auto handle = AssetRegistry::singleton().findByGuid<MeshAsset>(m_mesh_id);
     if (handle.is_some()) {
         m_mesh_handle = handle.unwrap_unchecked();

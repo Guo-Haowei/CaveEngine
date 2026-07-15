@@ -400,10 +400,12 @@ void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
             cmd.DrawArrays(draw.index.count);
         }
     }
+}
 
+void OverlayDrawFunc(RenderPassExcutionContext& ctx) {
     // @TODO: move this to a different pass
     if (auto overlay = ctx.services.renderer().tryGet<OverlayRenderer>()) {
-        overlay->drawCanvas(cmd,
+        overlay->drawCanvas(ctx.cmd,
                             ctx.services.canvas(),
                             ctx.frameData.view_id);
     }

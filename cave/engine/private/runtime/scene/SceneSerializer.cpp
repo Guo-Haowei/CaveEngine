@@ -34,7 +34,8 @@ namespace {
 // version 17: remove armature.flags
 // version 18: change RigidBodyComponent
 // version 19: serialize scene.m_physicsMode
-// version 20: root must have a hier component
+// version 20: root root must have HierarchyComponent
+// version 21: prefab root must have HierarchyComponent
 constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
 
 #define PREFAB_OVERRIDE_LIST               \
@@ -45,7 +46,7 @@ constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
 
 template<typename T>
 concept HasOnDeserialized = requires(T& t) {
-    { t.OnDeserialized() } -> std::same_as<void>;
+    { t.onDeserialized() } -> std::same_as<void>;
 };
 
 template<ComponentType T>
@@ -56,7 +57,7 @@ Option<T> DeserializeComponent(IDeserializer& d,
         d.read(component);
         d.leaveKey();
         if constexpr (HasOnDeserialized<T>) {
-            component.OnDeserialized();
+            component.onDeserialized();
         }
         return Some(std::move(component));
     }
@@ -66,14 +67,14 @@ Option<T> DeserializeComponent(IDeserializer& d,
 template<ComponentType T>
 void DeserializeComponent(IDeserializer& d,
                           const char* key,
-                          ecs::Entity ent,
+                          Entity ent,
                           Scene& scene) {
     if (d.tryEnterKey(key)) {
         T& component = scene.create<T>(ent);
         d.read(component);
         d.leaveKey();
         if constexpr (HasOnDeserialized<T>) {
-            component.OnDeserialized();
+            component.onDeserialized();
         }
     }
 }
@@ -82,7 +83,7 @@ template<ComponentType T>
 bool SerializeComponent(ISerializer& s,
                         const char* name,
                         const Scene& scene,
-                        ecs::Entity ent) {
+                        Entity ent) {
 
     const T* component = scene.component<T>(ent);
     if (component) {
@@ -190,13 +191,12 @@ bool SerializePrefabEntity(ISerializer& s,
 bool SerializeEntity(ISerializer& s,
                      const Scene& scene,
                      Entity ent,
-                     AssetRegistry* asset_reg,
-                     bool skip_prefab) {
+                     AssetRegistry* asset_reg) {
     if (auto prefab = scene.component<PrefabInstanceComponent>(ent)) {
         return SerializePrefabEntity(s, scene, ent, *prefab, asset_reg);
     }
 
-    if (skip_prefab && scene.has<PrefabChildComponent>(ent)) {
+    if (scene.has<PrefabChildComponent>(ent)) {
         return true;  // skip prefab entities
     }
 
@@ -205,24 +205,47 @@ bool SerializeEntity(ISerializer& s,
 
 }  // namespace
 
-void SerializeScene(ISerializer& s, const Scene& scene, AssetRegistry* asset_reg, bool skip_prefab) {
+void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* asset_reg) {
+    Scene scene;
+    scene.copy(source_scene);
+
     auto entity_array = scene.getSortedEntityArray();
+    const uint32_t entity_count = static_cast<uint32_t>(entity_array.size());
+    uint32_t seed = entity_count;
+
+    HashMap<Entity, Entity> mapping;
+    mapping[Entity::null()] = Entity::null();
+    for (uint32_t i = 0; i < entity_count; ++i) {
+        const Entity old = entity_array[i];
+        if (scene.has<PrefabChildComponent>(old) &&
+            !scene.has<PrefabInstanceComponent>(old)) {
+            --seed;
+        }
+
+        const Entity mapped = Entity(i + 1);
+        mapping[old] = mapped;
+        entity_array[i] = mapped;
+    }
+
+    scene.remapEntity(mapping);
+    auto it = mapping.find(scene.root());
+    if (DEV_VERIFY(it != mapping.end())) {
+        scene.setRoot(it->second);
+    }
 
     s.beginMap(false)
         .beginKey("version")
         .write(kLatestSceneVersion)
         .beginKey("seed")
-        .write(entity_array.back())
+        .write(seed)
         .beginKey("root")
         .write(scene.root())
         .beginKey("entities");
 
     s.beginArray(false);
 
-    // @TODO: remap entities to use a more contact id
-
     for (auto ent : entity_array) {
-        SerializeEntity(s, scene, ent, asset_reg, skip_prefab);
+        SerializeEntity(s, scene, ent, asset_reg);
     }
 
     s.endArray();
@@ -270,13 +293,13 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
         }
     };
 
-    std::unordered_map<Entity, OverrideComponents> overrides_map;
+    HashMap<Entity, OverrideComponents> overrides_map;
 
     const int entity_count = d.arraySize().unwrap_or(0);
     for (int i = 0; i < entity_count; ++i) {
         DEV_ASSERT(d.tryEnterIndex(i));
         auto keys = d.getKeys().unwrap();
-        ecs::Entity ent;
+        Entity ent;
         DEV_ASSERT(d.tryEnterKey("id"));
         d.read((uint32_t&)ent);
         d.leaveKey();
@@ -309,10 +332,6 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
 
     for (auto&& [ent, prefab] : scene.view<PrefabInstanceComponent>()) {
         InstantiatePrefab(scene, prefab, ent);
-
-        if (!scene.has<HierarchyComponent>(ent)) {
-            scene.create<HierarchyComponent>(ent).parent_id = scene.root();
-        }
     }
 
     for (auto&& [ent, overrides] : overrides_map) {
@@ -325,26 +344,31 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
     }
 }
 
-void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entity parent) {
+void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity parent) {
     DEV_ASSERT(parent.valid());
 
-    // @TODO: remove this
+    // @TODO: do not use Singleton
     auto handle_opt = AssetRegistry::singleton().findByGuid<PrefabAsset>(prefab.prefabGuid());
     if (handle_opt.is_none()) {
         return;
     }
 
-    const PrefabAsset* asset = handle_opt.unwrap_unchecked().get();
-    DEV_ASSERT(asset);
-    Scene copy;
-    copy.copy(asset->scene());
+    const PrefabAsset* prefab_asset = handle_opt.unwrap_unchecked().get();
+    DEV_ASSERT(prefab_asset);
+    Scene prefab_scene;
+    prefab_scene.copy(prefab_asset->scene());
 
-    // @TODO: add components to parent, instead of link it
-    auto new_entities = copy.getSortedEntityArray();
-    std::unordered_map<Entity, Entity> mapping;
+    if (!DEV_VERIFY(prefab_scene.root().valid())) {
+        return;
+    }
+
+    prefab_scene.remove<HierarchyComponent>(prefab_scene.root());
+
+    auto new_entities = prefab_scene.getSortedEntityArray();
+    HashMap<Entity, Entity> mapping;
 
     for (Entity prefab_ent : new_entities) {
-        if (prefab_ent == copy.root()) {
+        if (prefab_ent == prefab_scene.root()) {
             mapping[prefab_ent] = parent;
         } else {
             Entity mapped = scene.createEntity();
@@ -353,28 +377,12 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entit
         }
     }
 
-    // remap hierarchy
-    for (auto [id, hier] : copy.view<HierarchyComponent>()) {
-        auto it = mapping.find(hier.parent_id);
-        DEV_ASSERT(it != mapping.end());
-        hier.parent_id = it->second;
-    }
-
-    // remap material
-    for (auto [id, renderer] : copy.view<MeshRendererComponent>()) {
-        auto& materials = renderer.GetMaterialInstances();
-        for (size_t i = 0; i < materials.size(); ++i) {
-            materials[i] = mapping[materials[i]];
-        }
-
-        CRASH_NOW_MSG("remap skin and skeleton");
-    }
+    prefab_scene.remapEntity(mapping);
 
     // merge components
-    for (uint16_t cid = 0; cid < (uint16_t)copy.storage().entries().size(); ++cid) {
-        auto& entry = copy.storage().entries()[cid];
+    for (uint16_t cid = 0; cid < static_cast<uint16_t>(prefab_scene.storage().entries().size()); ++cid) {
+        auto& entry = prefab_scene.storage().entries()[cid];
         if (!entry.pool) continue;
-        entry.pool->remap(mapping);
 
         CRASH_COND(cid >= scene.storage().entries().size());
         auto& my_entry = scene.storage().entries()[cid];
@@ -384,6 +392,63 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entit
         }
         my_entry.pool->merge(std::move(*entry.pool));
     }
+}
+
+struct EntityExportSet {
+    const Scene& scene;
+    Entity root;
+    Vector<Entity> entities;
+};
+
+EntityExportSet CollectEntitySubtree(const Scene& scene, Entity root) {
+    auto entites = scene.getSortedEntityArray();
+
+    EntityExportSet export_set{
+        scene,
+        root,
+        { root },
+    };
+
+    for (Entity e : entites) {
+        if (e != root && scene.isChild(e, root)) {
+            export_set.entities.push_back(e);
+        }
+    }
+
+    return export_set;
+}
+
+void ExportSubtree(ISerializer& s,
+                   const Scene& source_scene,
+                   Entity root,
+                   AssetRegistry* asset_reg) {
+    Scene scene;
+    scene.copy(source_scene);
+    if (auto* hier = scene.component<HierarchyComponent>(root)) {
+        hier->parent_id = Entity::null();
+    }
+
+    auto result = CollectEntitySubtree(scene, root);
+    const uint32_t seed = scene.seed();
+
+    s.beginMap(false)
+        .beginKey("version")
+        .write(kLatestSceneVersion)
+        .beginKey("seed")
+        .write(seed)
+        .beginKey("root")
+        .write(root)
+        .beginKey("entities");
+
+    s.beginArray(false);
+
+    for (auto ent : result.entities) {
+        SerializeEntity(s, scene, ent, asset_reg);
+    }
+
+    s.endArray();
+
+    s.endMap();
 }
 
 }  // namespace cave

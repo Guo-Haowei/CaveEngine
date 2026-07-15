@@ -53,7 +53,7 @@ public:
     void playbackTimer(float timer) { m_playback_timer = timer; }
     float playbackTimer() const { return m_playback_timer; }
 
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

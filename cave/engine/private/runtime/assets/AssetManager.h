@@ -17,6 +17,7 @@ public:
     Result<Guid> createAsset(AssetType type,
                              const std::filesystem::path& folder,
                              const char* name = nullptr) override;
+
     Result<Guid> createAsset(AssetType type,
                              const std::string& short_path) override;
 

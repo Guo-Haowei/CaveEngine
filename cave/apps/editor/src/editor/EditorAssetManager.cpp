@@ -9,6 +9,17 @@
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/VFS.h"
 
+#if USING(PLATFORM_WINDOWS) && defined(CAVE_BUILD_ASSIMP)
+#define USE_IMPORTER_ASSIMP NOT_IN_USE
+#else
+#define USE_IMPORTER_ASSIMP NOT_IN_USE
+#endif
+
+#if USING(USE_IMPORTER_ASSIMP)
+#include "modules/assimp/assimp_importer.h"
+#endif
+#include "modules/tinygltf/tiny_gltf_importer.h"
+
 // @TODO: refactor
 #include "engine/private/drivers/windows/win32_prerequisites.h"
 
@@ -136,6 +147,17 @@ Result<void> EditorAssetManager::InitializeImpl() {
     if (auto res = AssetManager::InitializeImpl(); !res) {
         return CAVE_ERROR(res.error());
     }
+
+    // @TODO: use DLL
+#if USING(USE_IMPORTER_TINYGLTF)
+    AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
+    AssetImporter::RegisterImporter(".glb", TinyGltfImporter::CreateImporter);
+#endif
+
+#if USING(USE_IMPORTER_ASSIMP)
+    AssetImporter::RegisterImporter(".obj", AssimpImporter::CreateImporter);
+    AssetImporter::RegisterImporter(".fbx", AssimpImporter::CreateImporter);
+#endif
 
     m_file_watcher = MakeOwner<FileWatcher>();
 

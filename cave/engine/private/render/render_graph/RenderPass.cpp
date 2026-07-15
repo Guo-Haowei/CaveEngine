@@ -3,20 +3,29 @@
 
 namespace cave::render {
 
-RenderPass& RenderPass::Read(ResourceAccess p_access, RGTextureId p_handle) {
-    m_reads.emplace_back(Resource{ p_handle, p_access });
+RenderPass& RenderPass::writeDependency(RGDependencyId id) {
+    m_writes.emplace_back(id, ResourceAccess::None);
     return *this;
 }
 
-RenderPass& RenderPass::WriteColor(RGTextureId p_handle,
-                                   const TextureViewDesc& p_tex_view_desc,
-                                   LoadOp p_load) {
-    m_writes.emplace_back(Resource{ p_handle, ResourceAccess::RTV });
+RenderPass& RenderPass::readDependency(RGDependencyId id) {
+    return read(ResourceAccess::None, id);
+}
+
+RenderPass& RenderPass::read(ResourceAccess access, RGTextureId id) {
+    m_reads.emplace_back(id, access);
+    return *this;
+}
+
+RenderPass& RenderPass::writeColor(RGTextureId id,
+                                   const TextureViewDesc& tex_view_desc,
+                                   LoadOp load) {
+    m_writes.emplace_back(id, ResourceAccess::RTV);
 
     ColorAttachmentDesc desc{
         .tex = nullptr,
-        .view = p_tex_view_desc,
-        .load = p_load,
+        .view = tex_view_desc,
+        .load = load,
         .clear_color = { 0, 0, 0, 0 },
     };
     m_colors.push_back(desc);
@@ -24,23 +33,23 @@ RenderPass& RenderPass::WriteColor(RGTextureId p_handle,
     return *this;
 }
 
-RenderPass& RenderPass::ReadOrWriteDepth(std::vector<Resource>& p_array,
-                                         RGTextureId p_handle,
-                                         const TextureViewDesc& p_tex_view_desc,
-                                         LoadOp p_depth_load,
-                                         float p_clear_depth,
-                                         LoadOp p_stencil_load,
-                                         uint8_t p_clear_stencil) {
-    p_array.emplace_back(Resource{ p_handle, ResourceAccess::DSV });
+RenderPass& RenderPass::readOrWriteDepth(Vector<Resource>& array,
+                                         RGTextureId id,
+                                         const TextureViewDesc& tex_view_desc,
+                                         LoadOp depth_load,
+                                         float clear_depth,
+                                         LoadOp stencil_load,
+                                         uint8_t clear_stencil) {
+    array.emplace_back(id, ResourceAccess::DSV);
 
     if (DEV_VERIFY(!m_depth)) {
         DepthAttachmentDesc desc{
             .tex = nullptr,
-            .view = p_tex_view_desc,
-            .depth_load = p_depth_load,
-            .clear_depth = p_clear_depth,
-            .stencil_load = p_stencil_load,
-            .clear_stencil = p_clear_stencil,
+            .view = tex_view_desc,
+            .depth_load = depth_load,
+            .clear_depth = clear_depth,
+            .stencil_load = stencil_load,
+            .clear_stencil = clear_stencil,
         };
         m_depth = desc;
     }

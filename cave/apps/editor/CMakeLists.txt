@@ -20,7 +20,12 @@ target_include_directories(${TARGET_NAME} PRIVATE
 set(TARGET_LIBS
     engine
     imnodes
+    importer_tinygltf
 )
+
+if(CAVE_BUILD_ASSIMP)
+    list(APPEND TARGET_LIBS importer_assimp)
+endif()
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_LIBS})
 

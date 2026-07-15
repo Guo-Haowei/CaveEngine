@@ -7,19 +7,21 @@
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
-#include "engine/private/runtime/assets/MeshAsset.h"
-#include "engine/private/runtime/ecs/components/All.h"
-#include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
-
 #include "editor/edit/ChangePropertyCmd.h"
 #include "editor/edit/EditObjectCmd.h"
+#include "editor/prefab/PrefabExporter.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/DragDropService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
+
+// @TODO: fix
+#include "engine/private/runtime/assets/MeshAsset.h"
+#include "engine/private/runtime/ecs/components/All.h"
+#include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 
 namespace cave {
 
@@ -81,7 +83,9 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
                                       std::function<void()> on_right_click) {
     const auto* name_component = scene.component<NameComponent>(ent);
     const auto* hier_component = scene.component<HierarchyComponent>(ent);
-    DEV_ASSERT(name_component && hier_component);
+    if (!DEV_VERIFY(name_component && hier_component)) {
+        return false;
+    }
 
     std::string_view name = name_component->name();
     if (name.empty()) {
@@ -281,6 +285,8 @@ void HierarchyPanel::drawUIImpl() {
 }
 
 void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
+    // @TODO: refactor this
+
     if (ImGui::BeginPopup(kPopupNameId)) {
         SelectionKey selection = m_editor_services.selection().primary(preview_scene.doc_id);
         DEV_ASSERT(selection.doc == preview_scene.doc_id);
@@ -313,6 +319,12 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
                     selected);
                 m_editor_services.edit().submit(preview_scene.doc_id, std::move(cmd));
             }
+        }
+        if (ImGui::MenuItem("Save as Prefab")) {
+            PrefabExporter exporter;
+            exporter.exportPrefab("@res://exported.prefab",
+                                  *preview_scene.scene,
+                                  selected);
         }
         ImGui::EndPopup();
     }

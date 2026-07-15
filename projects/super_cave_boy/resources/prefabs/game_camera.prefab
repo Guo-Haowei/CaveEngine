@@ -1,10 +1,13 @@
-version: 19
+version: 21
 seed: 1
 root: 1
 entities:
   - id: 1
     NameComponent:
       name: game_camera
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [5, 3, 3]
       rotation: [0, 0, 0, 1]

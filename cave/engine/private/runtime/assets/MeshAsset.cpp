@@ -63,7 +63,7 @@ void MeshAsset::SerializeBinary(Archive& p_archive, uint32_t p_version) {
     p_archive.ArchiveValue(color_0);
 }
 
-void MeshAsset::OnDeserialized() {
+void MeshAsset::onDeserialized() {
     CreateRenderData();
 
     RenderDevice* graphics_manager = RenderDevice::singletonPtr();
@@ -100,7 +100,7 @@ Result<void> MeshAsset::loadFromDisk(const AssetMetaData& p_meta) {
     }
 
     SerializeBinary(archive, kVersion);
-    OnDeserialized();
+    onDeserialized();
 
     return Result<void>();
 }

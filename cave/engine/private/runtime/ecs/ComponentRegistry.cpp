@@ -81,7 +81,7 @@ void MeshRenderer_OnEdited(Scene& scene,
     if (pid == "mesh_id"_sid) {
         auto* c = (MeshRendererComponent*)scene.storage().getRaw(MeshRendererComponent_Id, ent);
         if (DEV_VERIFY(c)) {
-            c->OnDeserialized();
+            c->onDeserialized();
         }
     }
 }
@@ -95,7 +95,7 @@ void Materail_OnEdited(Scene& scene,
     if (pid == "material_id"_sid) {
         auto* c = (MaterialComponent*)scene.storage().getRaw(MaterialComponent_Id, ent);
         if (DEV_VERIFY(c)) {
-            c->OnDeserialized();
+            c->onDeserialized();
         }
     }
 }
@@ -109,7 +109,7 @@ void TileMapInstance_OnEdited(Scene& scene,
     if (pid == "tile_map_id"_sid) {
         auto* c = (TileMapInstanceComponent*)scene.storage().getRaw(TileMapInstanceComponent_Id, ent);
         if (DEV_VERIFY(c)) {
-            c->OnDeserialized();
+            c->onDeserialized();
         }
     }
 }

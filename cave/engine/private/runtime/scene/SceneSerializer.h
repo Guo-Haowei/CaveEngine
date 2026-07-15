@@ -9,10 +9,14 @@ class ISerializer;
 class PrefabInstanceComponent;
 class Scene;
 
-void SerializeScene(ISerializer& s, const Scene& scene, AssetRegistry* asset_reg, bool skip_prefab);
+void SerializeScene(ISerializer& s, const Scene& scene, AssetRegistry* asset_reg);
 void DeserializeScene(IDeserializer& d, Scene& scene);
 
-// @TODO: move this somewhere else
 void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, ecs::Entity ent);
+
+void ExportSubtree(ISerializer& s,
+                   const Scene& scene,
+                   ecs::Entity root,
+                   AssetRegistry* asset_reg);
 
 }  // namespace cave

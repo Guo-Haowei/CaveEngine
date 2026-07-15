@@ -26,18 +26,6 @@
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/framework/VFS.h"
 
-#include "modules/tinygltf/tiny_gltf_importer.h"
-
-#if USING(PLATFORM_WINDOWS) && defined(CAVE_BUILD_ASSIMP)
-#define USE_IMPORTER_ASSIMP NOT_IN_USE
-#else
-#define USE_IMPORTER_ASSIMP NOT_IN_USE
-#endif
-
-#if USING(USE_IMPORTER_ASSIMP)
-#include "modules/assimp/assimp_importer.h"
-#endif
-
 namespace cave {
 
 namespace fs = std::filesystem;
@@ -104,16 +92,6 @@ auto LoadAsset(const Ref<AssetEntry>& entry) -> Result<AssetRef> {
 }  // namespace
 
 auto AssetManager::InitializeImpl() -> Result<void> {
-#if USING(USE_IMPORTER_TINYGLTF)
-    AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
-    AssetImporter::RegisterImporter(".glb", TinyGltfImporter::CreateImporter);
-#endif
-
-#if USING(USE_IMPORTER_ASSIMP)
-    AssetImporter::RegisterImporter(".obj", AssimpImporter::CreateImporter);
-    AssetImporter::RegisterImporter(".fbx", AssimpImporter::CreateImporter);
-#endif
-
     return Result<void>();
 }
 
@@ -127,12 +105,12 @@ Result<Guid> AssetManager::createAsset(AssetType type,
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create instance '{}'", short_path);
     }
 
-    auto _meta = AssetMetaData::createMeta(short_path);
-    if (_meta.is_none()) {
+    auto meta_opt = AssetMetaData::createMeta(short_path);
+    if (meta_opt.is_none()) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create meta '{}'", short_path);
     }
 
-    auto meta = std::move(_meta.unwrap_unchecked());
+    auto meta = std::move(meta_opt.unwrap_unchecked());
     if (auto res = asset->saveToDisk(meta); !res) {
         return CAVE_ERROR(res.error());
     }

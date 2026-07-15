@@ -23,15 +23,15 @@ namespace cave::render {
 
 using math::Vec2f;
 
-constexpr const char RG_PASS_2D[] = "p:2d";
-constexpr const char RG_PASS_DEPTH_PREPASS[] = "p:early_z";
-constexpr const char RG_PASS_GBUFFER[] = "p:gbuffer";
-constexpr const char RG_PASS_VOXELIZATION[] = "p:voxelization";
-constexpr const char RG_PASS_LIGHTING[] = "p:lighting";
-constexpr const char RG_PASS_FORWARD[] = "p:forward";
-constexpr const char RG_PASS_BLOOM_SETUP[] = "p:bloom_setup";
-constexpr const char RG_PASS_POST_PROCESS[] = "p:post_process";
-constexpr const char RG_PASS_OUTLINE[] = "p:outline";
+constexpr const char kPass2D[] = "p:2d";
+constexpr const char kPassDepthPrepass[] = "p:depth_prepass";
+constexpr const char kPassGbuffer[] = "p:gbuffer";
+constexpr const char kPassLighting[] = "p:lighting";
+constexpr const char kPassForward[] = "p:forward";
+constexpr const char kPassBloomSetup[] = "p:bloom_setup";
+constexpr const char kPassOutline[] = "p:outline";
+constexpr const char kPassPostProcess[] = "p:post_process";
+constexpr const char kPassOverlay[] = "p:overlay";
 
 constexpr const char RG_RES_DEPTH_STENCIL[] = "r:depth";
 constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
@@ -43,158 +43,180 @@ constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
 constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
 constexpr const char RG_RES_OUTLINE[] = "r:outline";
 
-extern void DepthPrepassFunc(RenderPassExcutionContext& p_ctx);
-extern void GbufferPassFunc(RenderPassExcutionContext& p_ctx);
-extern void HighlightPassFunc(RenderPassExcutionContext& p_ctx);
-extern void LightingPassFunc(RenderPassExcutionContext& p_ctx);
-extern void ForwardPassFunc(RenderPassExcutionContext& p_ctx);
-extern void BloomSetupFunc(RenderPassExcutionContext& p_ctx);
-extern void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx);
-extern void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx);
-extern void TonePassFunc(RenderPassExcutionContext& p_ctx);
+extern void DepthPrepassFunc(RenderPassExcutionContext& ctx);
+extern void GbufferPassFunc(RenderPassExcutionContext& ctx);
+extern void HighlightPassFunc(RenderPassExcutionContext& ctx);
+extern void LightingPassFunc(RenderPassExcutionContext& ctx);
+extern void ForwardPassFunc(RenderPassExcutionContext& ctx);
+extern void BloomSetupFunc(RenderPassExcutionContext& ctx);
+extern void BloomDownSampleFunc(RenderPassExcutionContext& ctx);
+extern void BloomUpSampleFunc(RenderPassExcutionContext& ctx);
+extern void TonePassFunc(RenderPassExcutionContext& ctx);
+extern void Pass2DDrawFunc(RenderPassExcutionContext& ctx);
+extern void OverlayDrawFunc(RenderPassExcutionContext& ctx);
 
 DepthPrepassOutput RenderGraphBuilderExt::addDepthPrepass() {
-    RenderPass& pass = AddPass(RG_PASS_DEPTH_PREPASS);
+    RenderPass& pass = addRenderPass(kPassDepthPrepass);
 
     DepthPrepassOutput out{
-        .depth = CreateTexture({
+        .depth = createTexture({
             RG_RES_DEPTH_STENCIL,
-            BuildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
+            buildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
         }),
     };
 
-    pass.WriteDepth(out.depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear, STENCIL_FLAG_SKY)
-        .SetExecuteFunc(DepthPrepassFunc);
+    pass.writeDepth(out.depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear, STENCIL_FLAG_SKY)
+        .setExecuteFunc(DepthPrepassFunc);
 
     return out;
 }
 
 GbufferOutput RenderGraphBuilderExt::addGbufferPass(const DepthPrepassOutput& p_in) {
-    RenderPass& pass = AddPass(RG_PASS_GBUFFER);
+    RenderPass& pass = addRenderPass(kPassGbuffer);
 
     GbufferOutput out{
-        .color0 = CreateTexture({
+        .color0 = createTexture({
             RG_RES_GBUFFER_COLOR0,
-            BuildDefaultTextureDesc(RT_FMT_GBUFFER_BASE_COLOR, AttachmentType::COLOR_2D),
+            buildDefaultTextureDesc(RT_FMT_GBUFFER_BASE_COLOR, AttachmentType::COLOR_2D),
         }),
-        .color1 = CreateTexture({
+        .color1 = createTexture({
             RG_RES_GBUFFER_COLOR1,
-            BuildDefaultTextureDesc(RT_FMT_GBUFFER_NORMAL, AttachmentType::COLOR_2D),
+            buildDefaultTextureDesc(RT_FMT_GBUFFER_NORMAL, AttachmentType::COLOR_2D),
         }),
-        .color2 = CreateTexture({
+        .color2 = createTexture({
             RG_RES_GBUFFER_COLOR2,
-            BuildDefaultTextureDesc(RT_FMT_GBUFFER_MATERIAL, AttachmentType::COLOR_2D),
+            buildDefaultTextureDesc(RT_FMT_GBUFFER_MATERIAL, AttachmentType::COLOR_2D),
         }),
     };
 
     // @TODO: introduce versioning
-    pass.ReadDepth(p_in.depth, {}, LoadOp::Load)
-        .WriteColor(out.color0, {}, LoadOp::Clear)
-        .WriteColor(out.color1, {}, LoadOp::Clear)
-        .WriteColor(out.color2, {}, LoadOp::Clear)
-        .SetExecuteFunc(GbufferPassFunc);
+    pass.readDepth(p_in.depth, {}, LoadOp::Load)
+        .writeColor(out.color0, {}, LoadOp::Clear)
+        .writeColor(out.color1, {}, LoadOp::Clear)
+        .writeColor(out.color2, {}, LoadOp::Clear)
+        .setExecuteFunc(GbufferPassFunc);
     return out;
 }
 
 LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in) {
+    LightingOutput out = {
+        .dependency = createDependency(),
+        .lighting = createTexture({
+            RG_RES_LIGHTING,
+            buildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
+        }),
+    };
 
-    RGTextureId out = CreateTexture({
-        RG_RES_LIGHTING,
-        BuildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
-    });
 
-    RenderPass& pass = AddPass(RG_PASS_LIGHTING);
+    RenderPass& pass = addRenderPass(kPassLighting);
 
-    pass.Read(ResourceAccess::SRV, p_in.color0)
-        .Read(ResourceAccess::SRV, p_in.color1)
-        .Read(ResourceAccess::SRV, p_in.color2)
-        .Read(ResourceAccess::SRV, p_in.depth)
-        .Read(ResourceAccess::SRV, p_in.ssao)
-        .Read(ResourceAccess::SRV, p_in.shadow)
-        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
-        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
-        .Read(ResourceAccess::SRV, p_in.brdf)
-        .Read(ResourceAccess::SRV, p_in.ltc1)
-        .Read(ResourceAccess::SRV, p_in.ltc2)
-        .WriteColor(out, {}, LoadOp::Clear)
-        .SetExecuteFunc(LightingPassFunc);
+    pass.read(ResourceAccess::SRV, p_in.color0)
+        .read(ResourceAccess::SRV, p_in.color1)
+        .read(ResourceAccess::SRV, p_in.color2)
+        .read(ResourceAccess::SRV, p_in.depth)
+        .read(ResourceAccess::SRV, p_in.ssao)
+        .read(ResourceAccess::SRV, p_in.shadow)
+        .read(ResourceAccess::SRV, p_in.ibl_diffuse)
+        .read(ResourceAccess::SRV, p_in.ibl_prefiltered)
+        .read(ResourceAccess::SRV, p_in.brdf)
+        .read(ResourceAccess::SRV, p_in.ltc1)
+        .read(ResourceAccess::SRV, p_in.ltc2);
 
-    return { out };
+    pass.writeDependency(out.dependency)
+        .writeColor(out.lighting, {}, LoadOp::Clear)
+        .setExecuteFunc(LightingPassFunc);
+
+    return out;
 }
 
-ForwardOutput RenderGraphBuilderExt::addForwardPass(const ForwardInput& p_in) {
-    RenderPass& pass = AddPass(RG_PASS_FORWARD);
-    pass.Read(ResourceAccess::SRV, p_in.skybox)
-        .Read(ResourceAccess::SRV, p_in.shadow)
-        .Read(ResourceAccess::SRV, p_in.ibl_diffuse)
-        .Read(ResourceAccess::SRV, p_in.ibl_prefiltered)
-        .Read(ResourceAccess::SRV, p_in.brdf)
-        .Read(ResourceAccess::SRV, p_in.ltc1)
-        .Read(ResourceAccess::SRV, p_in.ltc2)
-        .Read(ResourceAccess::NONE, p_in.lighting)  // add dependency
-        .ReadDepth(p_in.depth, {}, LoadOp::Load)
-        .WriteColor(p_in.lighting, {}, LoadOp::Load)
-        .SetExecuteFunc(ForwardPassFunc);
+ForwardOutput RenderGraphBuilderExt::addForwardPass(const ForwardInput& in) {
+    RenderPass& pass = addRenderPass(kPassForward);
+
+    pass.readDependency(in.dependency)
+        .read(ResourceAccess::SRV, in.skybox)
+        .read(ResourceAccess::SRV, in.shadow)
+        .read(ResourceAccess::SRV, in.ibl_diffuse)
+        .read(ResourceAccess::SRV, in.ibl_prefiltered)
+        .read(ResourceAccess::SRV, in.brdf)
+        .read(ResourceAccess::SRV, in.ltc1)
+        .read(ResourceAccess::SRV, in.ltc2)
+        .readDepth(in.depth, {}, LoadOp::Load);
+
+    pass.writeColor(in.lighting, {}, LoadOp::Load)
+        .setExecuteFunc(ForwardPassFunc);
 
     return ForwardOutput{};
 }
 
 HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_in) {
-    RenderPass& pass = AddPass(RG_PASS_OUTLINE);
+    RenderPass& pass = addRenderPass(kPassOutline);
 
     HighlightOutput out = {
-        .outline = CreateTexture({
+        .outline = createTexture({
             .debug_name = RG_RES_OUTLINE,
-            .resourceDesc = BuildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT, AttachmentType::COLOR_2D),
+            .resourceDesc = buildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT, AttachmentType::COLOR_2D),
             .samplerDesc = PointClampSampler(),
         }),
     };
 
-    pass.ReadDepth(p_in.stencil, {}, LoadOp::Load)
-        .WriteColor(out.outline, {}, LoadOp::Clear)
-        .SetExecuteFunc(HighlightPassFunc);
+    pass.readDepth(p_in.stencil, {}, LoadOp::Load)
+        .writeColor(out.outline, {}, LoadOp::Clear)
+        .setExecuteFunc(HighlightPassFunc);
 
     return out;
 }
 
 PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInput& in) {
-    RenderPass& pass = AddPass(RG_PASS_POST_PROCESS);
-    auto desc = BuildDefaultTextureDesc(RT_FMT_TONE,
+    RenderPass& pass = addRenderPass(kPassPostProcess);
+    auto desc = buildDefaultTextureDesc(RT_FMT_TONE,
                                         AttachmentType::COLOR_2D);
     desc.bindFlags |= BIND_SHADER_RESOURCE;
 
     PostProcessOutput out{
-        .processed = ImportTexture({ in.color_attachment }),
+        .dependency = createDependency(),
+        .processed = importTexture({ in.color_attachment }),
     };
 
-    pass.Read(ResourceAccess::SRV, in.lighting)
-        .Read(ResourceAccess::SRV, in.outline)
-        .Read(ResourceAccess::SRV, in.bloom);
+    pass.read(ResourceAccess::SRV, in.lighting)
+        .read(ResourceAccess::SRV, in.outline)
+        .read(ResourceAccess::SRV, in.bloom);
 
-    pass.WriteColor(out.processed, {}, LoadOp::Clear)
-        .SetExecuteFunc(TonePassFunc);
+    pass.writeDependency(out.dependency)
+        .writeColor(out.processed, {}, LoadOp::Clear)
+        .setExecuteFunc(TonePassFunc);
 
     return out;
 }
 
-extern void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx);
+Pass2DOutput RenderGraphBuilderExt::add2dPass(const Pass2DInput& in) {
+    RenderPass& pass = addRenderPass(kPass2D);
 
-void RenderGraphBuilderExt::add2dPass(const TwoDInput& in) {
-    RenderPass& pass = AddPass(RG_PASS_2D);
-    auto desc = BuildDefaultTextureDesc(DEFAULT_SURFACE_FORMAT,
-                                        AttachmentType::COLOR_2D);
-    desc.bindFlags |= BIND_SHADER_RESOURCE;
-
-    RGTextureId depth = CreateTexture({
+    RGTextureId depth = createTexture({
         RG_RES_DEPTH_STENCIL,
-        BuildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
+        buildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
     });
 
-    RGTextureId color = ImportTexture({ in.color_attachment });
+    RGTextureId color = importTexture({ in.color_attachment });
+    RGDependencyId dependency = createDependency();
 
-    pass.WriteColor(color, {}, LoadOp::Clear)
-        .WriteDepth(depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear)
-        .SetExecuteFunc(Pass2DDrawFunc);
+    pass.writeDependency(dependency)
+        .writeColor(color, {}, LoadOp::Clear)
+        .writeDepth(depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear)
+        .setExecuteFunc(Pass2DDrawFunc);
+
+    return Pass2DOutput{
+        .dependency = dependency,
+        .color_attachment = in.color_attachment,
+    };
+}
+
+void RenderGraphBuilderExt::addOverlayPass(const OverlayInput& in) {
+    RenderPass& pass = addRenderPass(kPassOverlay);
+
+    RGTextureId color = importTexture({ in.color_attachment });
+    pass.writeColor(color, {}, LoadOp::Load)
+        .readDependency(in.dependency)
+        .setExecuteFunc(OverlayDrawFunc);
 }
 
 #if 0

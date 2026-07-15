@@ -1,10 +1,13 @@
-version: 19
+version: 21
 seed: 2
 root: 1
 entities:
   - id: 1
     NameComponent:
       name: player
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -28,6 +31,8 @@ entities:
       linear: [0, 0, 0]
     NativeScriptComponent:
       name: PlayerController
+      params:
+        {}
     FacingComponent:
       facing: right
   - id: 2
@@ -35,6 +40,7 @@ entities:
       name: animator_node
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 0.0500000007, 0]
       rotation: [0, 0, 0, 1]

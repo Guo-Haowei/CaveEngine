@@ -1,0 +1,17 @@
+version: 21
+seed: 1
+root: 1
+entities:
+  - id: 1
+    NameComponent:
+      name: platformer
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    TileMapInstanceComponent:
+      tile_map_id: FD6F7481-5751-A04A-91D221E2CD687683
+      tint_color: [1, 1, 1, 1]

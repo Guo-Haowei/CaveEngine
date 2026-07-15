@@ -131,31 +131,33 @@ void Canvas::addImageImpl(const GpuTexture* texture,
                           const math::Vec2f& uv_max,
                           const math::Mat4f* transform) {
 
-    if (DEV_VERIFY(min.x < max.x && min.y < max.y)) {
-        Vec3f bottom_left{ min.x, min.y, 0.0f };
-        Vec3f bottom_right{ max.x, min.y, 0.0f };
-        Vec3f top_left{ min.x, max.y, 0.0f };
-        Vec3f top_right{ max.x, max.y, 0.0f };
-
-        PrimShape shape{
-            .type = PrimShapeType::Rect,
-            .vertices = {
-                PrimVert{ bottom_left, Vec2f(uv_min.x, uv_max.y), tint },
-                PrimVert{ bottom_right, Vec2f(uv_max.x, uv_max.y), tint },
-                PrimVert{ top_left, Vec2f(uv_min.x, uv_min.y), tint },
-                PrimVert{ top_right, Vec2f(uv_max.x, uv_min.y), tint },
-            },
-            .tex = texture,
-        };
-
-        if (transform) {
-            for (PrimVert& vert : shape.vertices) {
-                vert.pos = ((*transform) * Vec4f(vert.pos, 1.0f)).xyz;
-            }
-        }
-
-        m_buckets[m_current_idx].shapes.push_back(shape);
+    if (!(min.x < max.x && min.y < max.y)) {
+        return;
     }
+
+    Vec3f bottom_left{ min.x, min.y, 0.0f };
+    Vec3f bottom_right{ max.x, min.y, 0.0f };
+    Vec3f top_left{ min.x, max.y, 0.0f };
+    Vec3f top_right{ max.x, max.y, 0.0f };
+
+    PrimShape shape{
+        .type = PrimShapeType::Rect,
+        .vertices = {
+            PrimVert{ bottom_left, Vec2f(uv_min.x, uv_max.y), tint },
+            PrimVert{ bottom_right, Vec2f(uv_max.x, uv_max.y), tint },
+            PrimVert{ top_left, Vec2f(uv_min.x, uv_min.y), tint },
+            PrimVert{ top_right, Vec2f(uv_max.x, uv_min.y), tint },
+        },
+        .tex = texture,
+    };
+
+    if (transform) {
+        for (PrimVert& vert : shape.vertices) {
+            vert.pos = ((*transform) * Vec4f(vert.pos, 1.0f)).xyz;
+        }
+    }
+
+    m_buckets[m_current_idx].shapes.push_back(shape);
 }
 
 }  // namespace cave

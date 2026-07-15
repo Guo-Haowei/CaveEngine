@@ -118,6 +118,8 @@ entities:
       offset_max: [200, 250]
     UIButtonComponent:
       clicked_event: main_menu.start
+    UIImageComponent:
+      tint: [1, 1, 1, 1]
   - id: 279
     NameComponent:
       name: Button2
@@ -131,6 +133,8 @@ entities:
       offset_max: [200, 425]
     UIButtonComponent:
       clicked_event: ""
+    UIImageComponent:
+      tint: [1, 1, 1, 1]
   - id: 280
     NameComponent:
       name: Button3
@@ -144,3 +148,5 @@ entities:
       offset_max: [200, 600]
     UIButtonComponent:
       clicked_event: ""
+    UIImageComponent:
+      tint: [1, 1, 1, 1]

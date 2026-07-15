@@ -21,7 +21,7 @@ LuaScriptComponent& LuaScriptComponent::SetClassName(std::string_view class_name
     return *this;
 }
 
-void LuaScriptComponent::OnDeserialized() {
+void LuaScriptComponent::onDeserialized() {
     auto res = AssetRegistry::singleton().findByGuid<BlobAsset>(m_source_id);
     m_source_handle = std::move(res.unwrap());
 }

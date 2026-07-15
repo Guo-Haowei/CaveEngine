@@ -62,34 +62,47 @@ const ResolvedUICanvas* UIRuntime::findResolved(SceneId scene_id,
     return &it->second;
 }
 
-void UIRuntime::buildDrawList(const ResolvedView& resolved_view) {
+void UIRuntime::paint(const ResolvedView& resolved_view) {
     constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
     constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
     constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
 
     m_ui_canvas.pushView(resolved_view.view_id);
 
-    for (const auto [canvas_ent, canvas] : resolved_view.scene->view<UICanvasComponent>()) {
+    auto drawImage = [this](const ResolvedUIElement element,
+                            const UIImageComponent& image_component) {
+        const GpuTexture* texture = nullptr;
+
+        if (const auto* image_asset = image_component.handle().get()) {
+            texture = image_asset->gpu_texture.get();
+        }
+
+        m_ui_canvas.addImage(texture,
+                             element.rect.min(),
+                             element.rect.max(),
+                             image_component.tint());
+    };
+
+    const Scene& scene = *(resolved_view.scene);
+
+    for (const auto [canvas_ent, canvas] : scene.view<UICanvasComponent>()) {
         const auto* resolved_canvas = findResolved(resolved_view.scene_id, canvas_ent);
         if (!resolved_canvas) continue;
 
         for (const auto& element : resolved_canvas->elements) {
-            const auto& rect = element.rect;
-            if (const auto* image = resolved_view.scene->component<UIImageComponent>(element.entity)) {
-                const GpuTexture* texture = nullptr;
-                if (const auto* image_asset = image->handle().get()) {
-                    texture = image_asset->gpu_texture.get();
-                }
-
-                m_ui_canvas.addImage(texture,
-                                     rect.min(),
-                                     rect.max(),
-                                     image->tint());
+            const auto* image = scene.component<UIImageComponent>(element.entity);
+            const auto* button = scene.component<UIButtonComponent>(element.entity);
+            if (!image && !button) {
                 continue;
             }
 
-            const UIControlId control_id{ resolved_view.scene_id, element.entity };
+            if (image && !image->imageGuid().isNull()) {
+                drawImage(element, *image);
+                continue;
+            }
 
+            // @TODO: button interactable
+            const UIControlId control_id{ resolved_view.scene_id, element.entity };
             Color color = kButtonNormal;
             if (control_id == m_interaction_state.active.unwrap_or(UIControlId{})) {
                 color = kButtonActive;
@@ -97,7 +110,8 @@ void UIRuntime::buildDrawList(const ResolvedView& resolved_view) {
                 color = kButtonHover;
             }
 
-            m_ui_canvas.addBox2(rect.min(), rect.max(), color);
+            const auto& rect = element.rect;
+            m_ui_canvas.addBox2(rect.min(), rect.max(), color * image->tint());
         }
     }
 

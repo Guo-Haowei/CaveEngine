@@ -61,7 +61,7 @@ public:
     void SetTransparency(bool p_value = true) { m_transparency = p_value; }
     bool Transparency() const { return m_transparency; }
 
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

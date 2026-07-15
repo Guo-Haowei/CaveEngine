@@ -38,12 +38,12 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
 ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const RenderOptions&) {
     constexpr int shadow_res = 1024 * 2;
     DEV_ASSERT(math::IsPowerOfTwo(shadow_res));
-    RenderPass& pass = p_graph.AddPass(RG_PASS_SHADOW);
+    RenderPass& pass = p_graph.addRenderPass(RG_PASS_SHADOW);
 
     Outputs out{
-        .shadow = p_graph.CreateTexture({
+        .shadow = p_graph.createTexture({
             RG_RES_SHADOW_MAP,
-            p_graph.BuildDefaultTextureDesc(PixelFormat::D32_FLOAT,
+            p_graph.buildDefaultTextureDesc(PixelFormat::D32_FLOAT,
                                             AttachmentType::SHADOW_2D,
                                             shadow_res,
                                             shadow_res),
@@ -51,8 +51,8 @@ ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const RenderOp
         })
     };
 
-    pass.WriteDepth(out.shadow, {}, LoadOp::Clear)
-        .SetExecuteFunc(ShadowPassFunc);
+    pass.writeDepth(out.shadow, {}, LoadOp::Clear)
+        .setExecuteFunc(ShadowPassFunc);
 
     return out;
 }

@@ -103,8 +103,12 @@ public:
     ecs::Entity createEntity() { return ecs::Entity(++m_entity_seed); }
     void removeEntity(ecs::Entity ent);
 
+    void remapEntity(const HashMap<ecs::Entity, ecs::Entity>& mapping);
+
     void attachChild(ecs::Entity child, ecs::Entity parent);
     void attachChild(ecs::Entity child) { attachChild(child, m_root); }
+
+    bool isChild(ecs::Entity child, ecs::Entity parent) const;
 
     void begin(Owner<SceneRuntime>&& runtime);
     void end();
@@ -131,6 +135,7 @@ public:
     ecs::Entity root() const { return m_root; }
     void setRoot(ecs::Entity root) { m_root = root; }
 
+    uint32_t seed() const { return m_entity_seed; }
     void setSeed(uint32_t seed) { m_entity_seed = seed; }
 
     uint32_t version() const { return m_version; }

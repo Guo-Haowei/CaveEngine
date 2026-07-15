@@ -50,7 +50,7 @@ public:
     bool flipY() const { return m_flip_y; }
     int zIndex() const { return m_z_index; }
 
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

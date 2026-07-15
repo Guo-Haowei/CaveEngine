@@ -75,7 +75,7 @@ public:
 
     void SerializeBinary(Archive& p_archive, uint32_t p_version);
 
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

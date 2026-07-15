@@ -43,7 +43,7 @@ public:
     CAVE_PROP(editor = Toggle)
     bool destroy_on_finish = false;
 
-    void OnDeserialized() {}
+    void onDeserialized() {}
 };
 
 }  // namespace cave

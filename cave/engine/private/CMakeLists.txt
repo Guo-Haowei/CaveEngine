@@ -94,12 +94,7 @@ set(TARGET_LIBS
     glm::glm
     lua
     yaml-cpp
-    importer_tinygltf
 )
-
-if(CAVE_BUILD_ASSIMP)
-    list(APPEND TARGET_LIBS importer_assimp)
-endif()
 
 if(WIN32)
     list(APPEND TARGET_LIBS

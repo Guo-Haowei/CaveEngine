@@ -51,7 +51,7 @@ void SpriteAnimationAsset::SetGuid(const Guid& guid) {
                                       image_handle_.rawHandle());
 }
 
-void SpriteAnimationAsset::OnDeserialized() {
+void SpriteAnimationAsset::onDeserialized() {
     auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(image_guid_);
     if (handle.is_some()) {
         image_handle_ = handle.unwrap_unchecked();
@@ -106,7 +106,7 @@ auto SpriteAnimationAsset::loadFromDisk(const AssetMetaData& meta) -> Result<voi
         deserializer.leaveKey();
     }
 
-    OnDeserialized();
+    onDeserialized();
     return Result<void>();
 }
 

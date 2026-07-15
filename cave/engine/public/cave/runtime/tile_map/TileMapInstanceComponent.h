@@ -47,7 +47,7 @@ public:
     // @TODO: change to camelCase
     bool SetResourceGuid(const Guid& guid);
     const Guid& GetResourceGuid() const { return m_tile_map_id; }
-    void OnDeserialized();
+    void onDeserialized();
 };
 
 }  // namespace cave

@@ -11,6 +11,7 @@ VS_OUTPUT_COLOR main(VS_INPUT_COLOR input) {
     VS_OUTPUT_COLOR output;
     output.position = pos;
     output.uv = input.uv;
+    output.uv.y = 1.0f - output.uv.y;
     output.color = input.color;
     return output;
 }

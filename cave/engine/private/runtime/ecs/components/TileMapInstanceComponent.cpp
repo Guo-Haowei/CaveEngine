@@ -22,7 +22,7 @@ bool TileMapInstanceComponent::SetResourceGuid(const Guid& guid) {
                                              m_handle.rawHandle());
 }
 
-void TileMapInstanceComponent::OnDeserialized() {
+void TileMapInstanceComponent::onDeserialized() {
     if (m_tile_map_id.isNull()) {
         return;
     }
@@ -32,7 +32,7 @@ void TileMapInstanceComponent::OnDeserialized() {
 
 void TileMapInstanceComponent::createRenderData() {
     if (m_tile_map_id != m_handle.guid()) {
-        OnDeserialized();
+        onDeserialized();
     }
 
     auto tile_map = m_handle.get();
