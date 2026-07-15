@@ -4,6 +4,6 @@ name: HUD.prefab
 import_path: "@res://HUD.prefab"
 dependencies: []
 source_created_time: 2026-07-14 16:37:34.5210347
-source_last_modified: 2026-07-15 09:43:22.0096906
+source_last_modified: 2026-07-15 13:16:45.0658440
 import_settings:
   {}

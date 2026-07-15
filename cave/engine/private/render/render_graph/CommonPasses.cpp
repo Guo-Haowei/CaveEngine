@@ -107,7 +107,6 @@ LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in)
         }),
     };
 
-
     RenderPass& pass = addRenderPass(kPassLighting);
 
     pass.read(ResourceAccess::SRV, p_in.color0)
