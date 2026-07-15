@@ -49,26 +49,26 @@ PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& p_graph,
                                                     const Inputs& p_in) {
     CAVE_PROFILE_EVENT();
 
-    RGTextureId accumulated = p_graph.CreateTexture({
+    RGTextureId accumulated = p_graph.createTexture({
         RG_RES_PATHTRACER,
-        p_graph.BuildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
+        p_graph.buildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
                                         AttachmentType::COLOR_2D),
         LinearClampSampler(),
     });
 
-    RGTextureId out = p_graph.ImportTexture({ p_in.out });
+    RGTextureId out = p_graph.importTexture({ p_in.out });
 
-    RenderPass& compute_pass = p_graph.AddPass(RG_PASS_PATHTRACER_COMPUTE);
+    RenderPass& compute_pass = p_graph.addRenderPass(RG_PASS_PATHTRACER_COMPUTE);
 
     compute_pass
-        .Read(ResourceAccess::UAV, accumulated)
-        .SetExecuteFunc(PathTracerComputeFunc);
+        .read(ResourceAccess::UAV, accumulated)
+        .setExecuteFunc(PathTracerComputeFunc);
 
-    RenderPass& present_pass = p_graph.AddPass(RG_PASS_PATHTRACER_PRESENT);
+    RenderPass& present_pass = p_graph.addRenderPass(RG_PASS_PATHTRACER_PRESENT);
     present_pass
-        .Read(ResourceAccess::SRV, accumulated)
-        .WriteColor(out, {}, LoadOp::Load)
-        .SetExecuteFunc(PathTracerPresentFunc);
+        .read(ResourceAccess::SRV, accumulated)
+        .writeColor(out, {}, LoadOp::Load)
+        .setExecuteFunc(PathTracerPresentFunc);
 
     return {};
 }

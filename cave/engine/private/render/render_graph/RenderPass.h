@@ -12,72 +12,74 @@ public:
         ResourceAccess access;
     };
 
-    RenderPass(std::string_view p_name)
-        : m_name(p_name) {}
+    RenderPass(std::string_view name)
+        : m_name(name) {}
 
-    RenderPass& Read(ResourceAccess p_access, RGTextureId p_handle);
+    RenderPass& read(ResourceAccess access, RGTextureId handle);
 
-    RenderPass& ReadDepth(RGTextureId p_handle,
-                          const TextureViewDesc& p_tex_view_desc,
-                          LoadOp p_depth_load = LoadOp::Load,
-                          float p_clear_depth = 1.0f,
-                          LoadOp p_stencil_load = LoadOp::Load,
-                          uint8_t p_clear_stencil = 0) {
+    RenderPass& ReadDepth(RGTextureId handle,
+                          const TextureViewDesc& tex_view_desc,
+                          LoadOp depth_load = LoadOp::Load,
+                          float clear_depth = 1.0f,
+                          LoadOp stencil_load = LoadOp::Load,
+                          uint8_t clear_stencil = 0) {
 
-        return ReadOrWriteDepth(m_reads,
-                                p_handle,
-                                p_tex_view_desc,
-                                p_depth_load,
-                                p_clear_depth,
-                                p_stencil_load,
-                                p_clear_stencil);
+        return readOrWriteDepth(m_reads,
+                                handle,
+                                tex_view_desc,
+                                depth_load,
+                                clear_depth,
+                                stencil_load,
+                                clear_stencil);
     }
 
-    RenderPass& WriteColor(RGTextureId p_handle,
-                           const TextureViewDesc& p_tex_view_desc,
-                           LoadOp p_load = LoadOp::Load);
+    RenderPass& writeDependency(RGDependencyId id);
+    RenderPass& readDependency(RGDependencyId id);
 
-    RenderPass& WriteDepth(RGTextureId p_handle,
-                           const TextureViewDesc& p_tex_view_desc,
-                           LoadOp p_depth_load = LoadOp::Load,
-                           float p_clear_depth = 1.0f,
-                           LoadOp p_stencil_load = LoadOp::Load,
-                           uint8_t p_clear_stencil = 0) {
+    RenderPass& writeColor(RGTextureId handle,
+                           const TextureViewDesc& tex_view_desc,
+                           LoadOp load = LoadOp::Load);
 
-        return ReadOrWriteDepth(m_writes,
-                                p_handle,
-                                p_tex_view_desc,
-                                p_depth_load,
-                                p_clear_depth,
-                                p_stencil_load,
-                                p_clear_stencil);
+    RenderPass& writeDepth(RGTextureId handle,
+                           const TextureViewDesc& tex_view_desc,
+                           LoadOp depth_load = LoadOp::Load,
+                           float clear_depth = 1.0f,
+                           LoadOp stencil_load = LoadOp::Load,
+                           uint8_t clear_stencil = 0) {
+        return readOrWriteDepth(m_writes,
+                                handle,
+                                tex_view_desc,
+                                depth_load,
+                                clear_depth,
+                                stencil_load,
+                                clear_stencil);
     }
 
-    RenderPass& SetExecuteFunc(ExecuteFunc p_func) {
-        m_func = std::move(p_func);
+    RenderPass& setExecuteFunc(ExecuteFunc func) {
+        m_func = std::move(func);
         return *this;
     }
 
-    RenderPass& SetViewport(const Viewport& p_viewport) {
-        m_viewport = p_viewport;
+    RenderPass& setViewport(const Viewport& viewport) {
+        m_viewport = viewport;
         return *this;
     }
 
-    std::string_view GetName() const { return m_name; }
+    std::string_view name() const { return m_name; }
 
 private:
-    RenderPass& ReadOrWriteDepth(std::vector<Resource>& p_array,
-                                 RGTextureId p_handle,
-                                 const TextureViewDesc& p_tex_view_desc,
-                                 LoadOp p_depth_load,
-                                 float p_clear_depth,
-                                 LoadOp p_stencil_load,
-                                 uint8_t p_clear_stencil);
+    RenderPass& readOrWriteDepth(std::vector<Resource>& array,
+                                 RGTextureId handle,
+                                 const TextureViewDesc& tex_view_desc,
+                                 LoadOp depth_load,
+                                 float clear_depth,
+                                 LoadOp stencil_load,
+                                 uint8_t clear_stencil);
 
-    std::string m_name;
-    std::vector<Resource> m_reads;
-    std::vector<Resource> m_writes;
-    std::vector<ColorAttachmentDesc> m_colors;
+    String m_name;
+    Vector<Resource> m_reads;
+    Vector<Resource> m_writes;
+    Vector<ColorAttachmentDesc> m_colors;
     std::optional<DepthAttachmentDesc> m_depth;
     std::optional<Viewport> m_viewport;
 

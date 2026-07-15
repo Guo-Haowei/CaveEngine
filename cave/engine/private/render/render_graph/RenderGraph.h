@@ -25,51 +25,53 @@ public:
         GpuTextureId external;
     };
 
-    RenderGraph(const math::IntRect& p_rect)
-        : m_viewport(p_rect) {}
+    RenderGraph(const math::IntRect& rect)
+        : m_viewport(rect) {}
 
-    RenderPass& AddPass(std::string_view p_name);
+    RenderPass& addRenderPass(std::string_view name);
 
-    [[nodiscard]] auto Compile() -> Result<std::shared_ptr<CompiledGraph>>;
+    [[nodiscard]]
+    auto compile() -> Result<Ref<CompiledGraph>>;
 
-    static GpuTextureDesc BuildDefaultTextureDesc(PixelFormat p_format,
-                                                  AttachmentType p_type,
-                                                  uint32_t p_width,
-                                                  uint32_t p_height,
-                                                  uint32_t p_array_size = 1,
-                                                  ResourceMiscFlags p_misc_flag = RESOURCE_MISC_NONE,
-                                                  uint32_t p_mips_level = 0);
+    static GpuTextureDesc buildDefaultTextureDesc(PixelFormat format,
+                                                  AttachmentType type,
+                                                  uint32_t width,
+                                                  uint32_t height,
+                                                  uint32_t array_size = 1,
+                                                  ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
+                                                  uint32_t mips_level = 0);
 
-    GpuTextureDesc BuildDefaultTextureDesc(PixelFormat p_format,
-                                           AttachmentType p_type,
-                                           uint32_t p_array_size = 1,
-                                           ResourceMiscFlags p_misc_flag = RESOURCE_MISC_NONE,
-                                           uint32_t p_mips_level = 0) {
+    GpuTextureDesc buildDefaultTextureDesc(PixelFormat format,
+                                           AttachmentType type,
+                                           uint32_t array_size = 1,
+                                           ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
+                                           uint32_t mips_level = 0) {
 
-        return BuildDefaultTextureDesc(p_format,
-                                       p_type,
+        return buildDefaultTextureDesc(format,
+                                       type,
                                        m_viewport.w,
                                        m_viewport.h,
-                                       p_array_size,
-                                       p_misc_flag,
-                                       p_mips_level);
+                                       array_size,
+                                       misc_flag,
+                                       mips_level);
     }
 
-    RGTextureId CreateTexture(CreateDesc&& p_info);
-    RGTextureId ImportTexture(ImportDesc&& p_info);
+    RGTextureId createTexture(CreateDesc&& info);
+    RGTextureId importTexture(ImportDesc&& info);
+    RGDependencyId createDependency();
 
 protected:
     math::IntRect m_viewport;
 
-    std::vector<RenderPass> m_passes;
+    Vector<RenderPass> m_passes;
 
 private:
-    RGTextureNode* GetLogicalTexture(RGTextureId p_handle);
-    const RGTextureNode* GetLogicalTexture(RGTextureId p_handle) const;
+    RGTextureNode* getLogicalTexture(RGTextureId handle);
+    const RGTextureNode* getLogicalTexture(RGTextureId handle) const;
 
-    RGTextureId AllocHandle();
-    std::vector<RGTextureNode> m_textures;
-    RGTextureId::Type m_id{};
+    RGTextureId allocHandle();
+    Vector<RGTextureNode> m_textures;
+    RGTextureId::Type m_handle_id{};
 };
 
 }  // namespace cave::render

@@ -9,23 +9,23 @@
 
 namespace cave::render {
 
-RenderPass& RenderGraph::AddPass(std::string_view p_pass_name) {
-    RenderPass builder{ p_pass_name };
-    m_passes.push_back(builder);
-    return m_passes.back();
-}
-
 #define DEBUG_GRAPH_COMPILE NOT_IN_USE
 #if USING(DEBUG_GRAPH_COMPILE)
-#define DEBUG_PRINT(...) LOG(__VA_ARGS__)
+#define DEBUG_PRINT(...) LOG_INFO(LogChannel::Render, __VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
 
-auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
+RenderPass& RenderGraph::addRenderPass(std::string_view pass_name) {
+    RenderPass builder{ pass_name };
+    m_passes.push_back(builder);
+    return m_passes.back();
+}
+
+auto RenderGraph::compile() -> Result<Ref<CompiledGraph>> {
 #if USING(DEBUG_GRAPH_COMPILE)
     for (const auto& pass : m_passes) {
-        DEBUG_PRINT("found pass: {}", pass.GetName());
+        DEBUG_PRINT("found pass: {}", pass.name());
 
         auto helper = [this](const char* p_string, std::span<const RenderPass::Resource> p_resources) {
             if (p_resources.empty()) {
@@ -33,7 +33,7 @@ auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
             }
             DEBUG_PRINT("  {}", p_string);
             for (const auto& res : p_resources) {
-                const RGTextureNode* node = GetLogicalTexture(res.handle);
+                const RGTextureNode* node = getLogicalTexture(res.handle);
                 if (!node) continue;
                 std::string access;
                 if ((bool)(res.access & ResourceAccess::SRV)) access += " SRV |";
@@ -44,7 +44,8 @@ auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
 
                 DEBUG_PRINT("     {}(id: {}) {}",
                             node->debug_name,
-                            res.handle.Underlying(), access);
+                            res.handle.underlying(),
+                            access);
             }
         };
         helper("in: ", pass.m_reads);
@@ -57,21 +58,23 @@ auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
     }
 
     struct RGPassNode {
-        int id;
+        int id = 0;
 #if USING(DEBUG_GRAPH_COMPILE)
         std::string_view debug_name;
 #endif
-        std::vector<RGTextureId> in_nodes;
-        std::unordered_set<RGTextureId> out_nodes;
+        Vector<RGTextureId> in_nodes;
+        HashSet<RGTextureId> out_nodes;
 
-        bool Needs(const RGPassNode& p_other) const {
-            for (RGTextureId in : in_nodes)
-                if (p_other.out_nodes.find(in) != p_other.out_nodes.end())
+        bool requres(const RGPassNode& other) const {
+            for (RGTextureId in : in_nodes) {
+                if (other.out_nodes.find(in) != other.out_nodes.end()) {
                     return true;
+                }
+            }
             return false;
         }
     };
-    std::vector<RGPassNode> nodes;
+    Vector<RGPassNode> nodes;
     nodes.resize(N);
 
     for (int i = 0; i < N; ++i) {
@@ -79,30 +82,30 @@ auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
         RGPassNode& pass_node = nodes[i];
         pass_node.id = i;
 #if USING(DEBUG_GRAPH_COMPILE)
-        pass_node.debug_name = pass.GetName();
+        pass_node.debug_name = pass.name();
 #endif
 
         for (const auto& read : pass.m_reads) {
-            RGTextureNode* tex = GetLogicalTexture(read.handle);
+            RGTextureNode* tex = getLogicalTexture(read.handle);
             if (!tex) continue;
             pass_node.in_nodes.push_back(read.handle);
             tex->access_mask |= read.access;
         }
         for (const auto& write : pass.m_writes) {
-            RGTextureNode* tex = GetLogicalTexture(write.handle);
+            RGTextureNode* tex = getLogicalTexture(write.handle);
             if (!tex) continue;
             pass_node.out_nodes.insert(write.handle);
             tex->access_mask |= write.access;
         }
     }
 
-    std::vector<std::pair<int, int>> edges;
+    Vector<std::pair<int, int>> edges;
     for (int i = 0; i < N - 1; ++i) {
         for (int j = i + 1; j < N; ++j) {
             const RGPassNode& a = nodes[i];
             const RGPassNode& b = nodes[j];
-            const bool a_needs_b = a.Needs(b);
-            const bool b_needs_a = b.Needs(a);
+            const bool a_needs_b = a.requres(b);
+            const bool b_needs_a = b.requres(a);
             if (a_needs_b && b_needs_a) {
 #if USING(DEBUG_GRAPH_COMPILE)
                 return CAVE_ERROR(ErrorCode::ERR_CYCLIC_LINK, "circular dependency found {} {}", a.debug_name, b.debug_name);
@@ -129,11 +132,11 @@ auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
     DEBUG_PRINT("sorted order:");
     for (int idx : sorted) {
         const auto& pass = m_passes[idx];
-        DEBUG_PRINT("  -- pase: {}", pass.GetName());
+        DEBUG_PRINT("  -- pass: {}", pass.name());
     }
 #endif
 
-    auto compiled_graph = std::make_shared<CompiledGraph>();
+    auto compiled_graph = MakeRef<CompiledGraph>();
     compiled_graph->m_textures = std::move(m_textures);
     compiled_graph->m_order = std::move(sorted);
     compiled_graph->m_passes = std::move(m_passes);
@@ -141,61 +144,69 @@ auto RenderGraph::Compile() -> Result<std::shared_ptr<CompiledGraph>> {
     return compiled_graph;
 }
 
-RGTextureId RenderGraph::AllocHandle() {
-    return { ++m_id };
+RGTextureId RenderGraph::allocHandle() {
+    return { ++m_handle_id };
 }
 
-RGTextureNode* RenderGraph::GetLogicalTexture(RGTextureId p_handle) {
-    if (p_handle.IsNull()) return nullptr;
-    return &m_textures[p_handle.Underlying() - 1];
+RGTextureNode* RenderGraph::getLogicalTexture(RGTextureId handle) {
+    if (handle.isNull()) return nullptr;
+    return &m_textures[handle.underlying() - 1];
 }
 
-const RGTextureNode* RenderGraph::GetLogicalTexture(RGTextureId p_handle) const {
-    if (p_handle.IsNull()) return nullptr;
-    return &m_textures[p_handle.Underlying() - 1];
+const RGTextureNode* RenderGraph::getLogicalTexture(RGTextureId handle) const {
+    if (handle.isNull()) return nullptr;
+    return &m_textures[handle.underlying() - 1];
 }
 
-RGTextureId RenderGraph::CreateTexture(CreateDesc&& p_info) {
-    RGTextureId handle = AllocHandle();
-    m_textures.resize(m_id);
+RGTextureId RenderGraph::createTexture(CreateDesc&& info) {
+    RGTextureId handle = allocHandle();
+    m_textures.resize(m_handle_id);
     RGTextureNode& node = m_textures.back();
     node.handle = handle;
-    node.desc = p_info.resourceDesc;
-    node.sampler = p_info.samplerDesc;
-    node.debug_name = std::move(p_info.debug_name);
+    node.desc = info.resourceDesc;
+    node.sampler = info.samplerDesc;
+    node.debug_name = std::move(info.debug_name);
     return handle;
 }
 
-RGTextureId RenderGraph::ImportTexture(ImportDesc&& p_info) {
-    DEV_ASSERT(p_info.external);
-    RGTextureId handle = AllocHandle();
-    m_textures.resize(m_id);
+RGTextureId RenderGraph::importTexture(ImportDesc&& info) {
+    DEV_ASSERT(info.external);
+    RGTextureId handle = allocHandle();
+    m_textures.resize(m_handle_id);
     RGTextureNode& node = m_textures.back();
     node.handle = handle;
-    node.external = std::move(p_info.external);
+    node.external = std::move(info.external);
     return handle;
+}
+
+RGDependencyId RenderGraph::createDependency() {
+    RGTextureId handle = allocHandle();
+    m_textures.resize(m_handle_id);
+    RGTextureNode& node = m_textures.back();
+    node.is_dependency = true;
+    return RGDependencyId(handle);
 }
 
 ///  @TODO: remove this
-GpuTextureDesc RenderGraph::BuildDefaultTextureDesc(PixelFormat p_format,
-                                                    AttachmentType p_type,
-                                                    uint32_t p_width,
-                                                    uint32_t p_height,
-                                                    uint32_t p_array_size,
-                                                    ResourceMiscFlags p_misc_flag,
-                                                    uint32_t p_mips_level) {
+GpuTextureDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
+                                                    AttachmentType type,
+                                                    uint32_t width,
+                                                    uint32_t height,
+                                                    uint32_t array_size,
+                                                    ResourceMiscFlags misc_flag,
+                                                    uint32_t mips_level) {
     GpuTextureDesc desc{};
-    desc.type = p_type;
-    desc.format = p_format;
-    desc.arraySize = p_array_size;
+    desc.type = type;
+    desc.format = format;
+    desc.arraySize = array_size;
     desc.dimension = Dimension::TEXTURE_2D;
-    desc.width = p_width;
-    desc.height = p_height;
-    desc.mipLevels = p_mips_level ? p_mips_level : 1;
-    desc.miscFlags = p_misc_flag;
+    desc.width = width;
+    desc.height = height;
+    desc.mipLevels = mips_level ? mips_level : 1;
+    desc.miscFlags = misc_flag;
     desc.initialData = nullptr;
 
-    switch (p_type) {
+    switch (type) {
         case AttachmentType::COLOR_2D:
         case AttachmentType::DEPTH_2D:
         case AttachmentType::DEPTH_STENCIL_2D:
@@ -205,12 +216,12 @@ GpuTextureDesc RenderGraph::BuildDefaultTextureDesc(PixelFormat p_format,
         case AttachmentType::COLOR_CUBE:
             desc.dimension = Dimension::TEXTURE_CUBE;
             desc.miscFlags |= RESOURCE_MISC_TEXTURECUBE;
-            DEV_ASSERT(p_array_size == 6);
+            DEV_ASSERT(array_size == 6);
             break;
         case AttachmentType::SHADOW_CUBE_ARRAY:
             desc.dimension = Dimension::TEXTURE_CUBE_ARRAY;
             desc.miscFlags |= RESOURCE_MISC_TEXTURECUBE;
-            DEV_ASSERT(p_array_size / 6 > 0);
+            DEV_ASSERT(array_size / 6 > 0);
             break;
         case AttachmentType::RW_TEXTURE:
             break;

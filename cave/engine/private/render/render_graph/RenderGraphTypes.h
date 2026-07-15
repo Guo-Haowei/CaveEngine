@@ -9,7 +9,7 @@ namespace cave::render {
 
 // clang-format off
 enum class ResourceAccess : uint8_t {
-    NONE   = 0,
+    None   = 0,
     SRV    = BIT(0),
     UAV    = BIT(1),
     RTV    = BIT(2),
@@ -27,8 +27,9 @@ struct RGTextureNode {
     RGTextureId handle;
     GpuTextureDesc desc{};
     SamplerDesc sampler{};
-    ResourceAccess access_mask{ ResourceAccess::NONE };
+    ResourceAccess access_mask{ ResourceAccess::None };
     GpuTextureId external{};
+    bool is_dependency{ false };
 
     std::string debug_name;
 };

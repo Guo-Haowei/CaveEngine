@@ -75,21 +75,21 @@ SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,
         m_ssao_texture = GenerateSsaoNoise(m_device);
     }
 
-    RGTextureId noise = p_graph.ImportTexture({ m_ssao_texture });
+    RGTextureId noise = p_graph.importTexture({ m_ssao_texture });
 
-    RenderPass& pass = p_graph.AddPass(RG_PASS_SSAO);
+    RenderPass& pass = p_graph.addRenderPass(RG_PASS_SSAO);
     Outputs out{
-        .processed = p_graph.CreateTexture({
+        .processed = p_graph.createTexture({
             RG_RES_SSAO,
-            p_graph.BuildDefaultTextureDesc(RT_FMT_SSAO, AttachmentType::COLOR_2D),
+            p_graph.buildDefaultTextureDesc(RT_FMT_SSAO, AttachmentType::COLOR_2D),
         })
     };
 
-    pass.Read(ResourceAccess::SRV, p_in.normal)
-        .Read(ResourceAccess::SRV, p_in.depth)
-        .Read(ResourceAccess::SRV, noise)
-        .WriteColor(out.processed, {}, LoadOp::Clear)
-        .SetExecuteFunc(SsaoPassFunc);
+    pass.read(ResourceAccess::SRV, p_in.normal)
+        .read(ResourceAccess::SRV, p_in.depth)
+        .read(ResourceAccess::SRV, noise)
+        .writeColor(out.processed, {}, LoadOp::Clear)
+        .setExecuteFunc(SsaoPassFunc);
 
     return out;
 }

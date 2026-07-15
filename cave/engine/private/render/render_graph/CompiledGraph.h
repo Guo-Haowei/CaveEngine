@@ -17,28 +17,25 @@ class TransientPool;
 
 class CompiledGraph : public NonCopyable {
 public:
-    struct Edge {
-        int from;
-        int to;
-    };
+    void addResource(RGTextureId handle, const Ref<GpuTexture>& resource);
+    Ref<GpuTexture> FindResource(RGTextureId handle);
 
-    void AddResource(RGTextureId p_handle, const std::shared_ptr<GpuTexture>& p_resource);
-    std::shared_ptr<GpuTexture> FindResource(RGTextureId p_handle);
+    std::span<const CompiledPass> GetCompiledPass() const {
+        return m_compiled_pass;
+    }
 
-    std::span<const CompiledPass> GetCompiledPass() const { return m_compiled_pass; }
-
-    void Resolve(TransientPool& p_pool);
+    void resolveTextures(TransientPool& pool);
 
 private:
-    std::vector<CompiledPass> m_compiled_pass;
+    Vector<CompiledPass> m_compiled_pass;
 
-    std::vector<std::shared_ptr<GpuTexture>> m_resources;
-    std::unordered_map<RGTextureId, int> m_resourceLookup;
+    Vector<Ref<GpuTexture>> m_resources;
+    HashMap<RGTextureId, int> m_resource_lookup;
 
     // transferred from RenderGraph
-    std::vector<RGTextureNode> m_textures;
-    std::vector<RenderPass> m_passes;
-    std::vector<int> m_order;
+    Vector<RGTextureNode> m_textures;
+    Vector<RenderPass> m_passes;
+    Vector<int> m_order;
 
     friend class RenderGraph;
 };
