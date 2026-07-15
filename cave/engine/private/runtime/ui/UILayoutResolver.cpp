@@ -37,12 +37,6 @@ void UILayoutResolver::resolveNode(const Scene& scene,
                                    Entity ent,
                                    const UIRect& parent_rect,
                                    ResolvedUICanvas& out) const {
-    auto* hierarchy = scene.component<HierarchyComponent>(ent);
-    DEV_ASSERT(hierarchy);
-    if (!hierarchy->local_visible) {
-        return;
-    }
-
     auto* transform = scene.component<UIRectTransformComponent>(ent);
     DEV_ASSERT(transform);
     if (!transform) {

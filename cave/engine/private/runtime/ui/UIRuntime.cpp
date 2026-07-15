@@ -1,6 +1,7 @@
 #include "UIRuntime.h"
 
 #include "cave/runtime/display/ICanvas.h"
+#include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/ui/UIComponents.h"
 
@@ -90,6 +91,10 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
         if (!resolved_canvas) continue;
 
         for (const auto& element : resolved_canvas->elements) {
+            auto* hierarchy = scene.component<HierarchyComponent>(element.entity);
+            if (!hierarchy || !hierarchy->local_visible) {
+                continue;
+            }
             const auto* image = scene.component<UIImageComponent>(element.entity);
             const auto* button = scene.component<UIButtonComponent>(element.entity);
             if (!image && !button) {

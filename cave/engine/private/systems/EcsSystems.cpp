@@ -15,18 +15,16 @@ namespace cave {
 using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
-[[maybe_unused]] static constexpr uint32_t SMALL_SUBTASK_GROUP_SIZE = 64;
-
 #define JS_FORCE_PARALLEL_FOR(TYPE, CTX, INDEX, SUBCOUNT, BODY) \
     CTX.Dispatch(                                               \
         static_cast<uint32_t>(scene.count<TYPE>()),             \
         SUBCOUNT,                                               \
         [&](jobsystem::JobArgs args) { const uint32_t INDEX = args.jobIndex; do { BODY; } while(0); })
 
-#define JS_NO_PARALLEL_FOR(TYPE, CTX, INDEX, SUBCOUNT, BODY)          \
-    (void)(CTX);                                                      \
-    for (size_t INDEX = 0; INDEX < scene.GetCount<TYPE>(); ++INDEX) { \
-        BODY;                                                         \
+#define JS_NO_PARALLEL_FOR(TYPE, CTX, INDEX, SUBCOUNT, BODY)       \
+    (void)(CTX);                                                   \
+    for (size_t INDEX = 0; INDEX < scene.count<TYPE>(); ++INDEX) { \
+        BODY;                                                      \
     }
 
 #if USING(ENABLE_JOB_SYSTEM)
@@ -35,16 +33,19 @@ using ::cave::ecs::Entity;
 #define JS_PARALLEL_FOR JS_NO_PARALLEL_FOR
 #endif
 
-// @TODO: refactor
 namespace {
+
+// @TODO: refactor
 template<typename T>
 constexpr float Saturate(T x) { return math::min(T(1), math::max(T(0), x)); }
+
+constexpr uint32_t kSmallSubtaskGroupSize = 64;
 
 // @TODO: fix
 #pragma warning(push)
 #pragma warning(disable : 4996)
 
-void UpdateHierarchy(Scene& scene, size_t idx, float) {
+void UpdateWorldTransform(Scene& scene, size_t idx, float) {
     Entity self_id = scene.getEntityByIndex<HierarchyComponent>(idx);
     TransformComponent* self_transform = scene.component<TransformComponent>(self_id);
 
@@ -53,31 +54,40 @@ void UpdateHierarchy(Scene& scene, size_t idx, float) {
     }
 
     Mat4f world_matrix = self_transform->localMatrix();
-    auto* self_hierarchy = &scene.getComponentByIndex<HierarchyComponent>(idx);
-
-    const auto* hierarchy = self_hierarchy;
-    bool visible = hierarchy->local_visible;
-    Entity parent = hierarchy->parent_id;
+    const auto* self_hierarchy = &scene.getComponentByIndex<HierarchyComponent>(idx);
+    Entity parent = self_hierarchy->parent_id;
 
     while (parent.valid()) {
-        TransformComponent* parent_transform = scene.component<TransformComponent>(parent);
-        if (DEV_VERIFY(parent_transform)) {
-            world_matrix = parent_transform->localMatrix() * world_matrix;
+        const auto* parent_transform = scene.component<TransformComponent>(parent);
+        if (!parent_transform) break;
 
-            if ((hierarchy = scene.component<HierarchyComponent>(parent)) != nullptr) {
-                parent = hierarchy->parent_id;
-                visible = visible && hierarchy->local_visible;
-            } else {
-                parent = Entity::null();
-            }
-        } else {
-            break;
-        }
+        world_matrix = parent_transform->localMatrix() * world_matrix;
+
+        const auto parent_hierarchy = scene.component<HierarchyComponent>(parent);
+        if (!parent_hierarchy) break;
+
+        parent = parent_hierarchy->parent_id;
+    }
+
+    self_transform->setWorldMatrix(world_matrix);
+    self_transform->setDirty(false);
+}
+
+void UpdateHierarchyVisibility(Scene& scene, size_t idx, float) {
+    auto* self_hierarchy = &scene.getComponentByIndex<HierarchyComponent>(idx);
+
+    bool visible = self_hierarchy->local_visible;
+    Entity parent = self_hierarchy->parent_id;
+
+    while (visible && parent.valid()) {
+        const auto* parent_hierarchy = scene.component<HierarchyComponent>(parent);
+        if (!parent_hierarchy) break;
+
+        parent = parent_hierarchy->parent_id;
+        visible &= parent_hierarchy->local_visible;
     }
 
     self_hierarchy->visible = visible;
-    self_transform->setWorldMatrix(world_matrix);
-    self_transform->setDirty(false);
 }
 
 void UpdateSkeleton(Scene& scene, size_t idx, float) {
@@ -305,7 +315,7 @@ void RunLightUpdateSystem(Scene& scene, jobsystem::Context&, float) {
 void RunTransformationUpdateSystem(Scene& scene, jobsystem::Context& p_context, float) {
     CAVE_PROFILE_EVENT();
 
-    JS_PARALLEL_FOR(TransformComponent, p_context, index, SMALL_SUBTASK_GROUP_SIZE, {
+    JS_PARALLEL_FOR(TransformComponent, p_context, index, kSmallSubtaskGroupSize, {
         if (scene.getComponentByIndex<TransformComponent>(index).updateTransform()) {
             scene.dirtyFlags_.fetch_or(SCENE_DIRTY_WORLD);
         }
@@ -324,7 +334,8 @@ void RunSkeletonUpdateSystem(Scene& scene, jobsystem::Context& p_context, float 
 
 void RunHierarchyUpdateSystem(Scene& scene, jobsystem::Context& ctx, float dt) {
     CAVE_PROFILE_EVENT();
-    JS_PARALLEL_FOR(HierarchyComponent, ctx, index, SMALL_SUBTASK_GROUP_SIZE, UpdateHierarchy(scene, index, dt));
+    JS_PARALLEL_FOR(HierarchyComponent, ctx, index, kSmallSubtaskGroupSize, UpdateWorldTransform(scene, index, dt));
+    JS_PARALLEL_FOR(HierarchyComponent, ctx, index, kSmallSubtaskGroupSize, UpdateHierarchyVisibility(scene, index, dt));
 }
 
 void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
