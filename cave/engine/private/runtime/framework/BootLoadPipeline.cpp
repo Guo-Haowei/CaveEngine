@@ -1,8 +1,8 @@
 #include "BootLoadPipeline.h"
 
 #include "cave/core/string/StringUtils.h"
+#include "cave/core/algorithm/Graph.h"
 
-#include "engine/private/algorithm/algorithm.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -91,8 +91,8 @@ auto BootLoadPipeline::requestProject(const std::filesystem::path& project_path)
     }
 
     const int N = static_cast<int>(assets.size());
-    std::vector<TopoSortEdge> edges;
-    std::unordered_map<Guid, int> mapping;
+    Vector<TopoSortEdge> edges;
+    HashMap<Guid, int> mapping;
     for (int i = 0; i < N; ++i) {
         mapping[assets[i].guid] = i;
     }

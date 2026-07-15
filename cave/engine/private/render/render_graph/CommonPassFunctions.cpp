@@ -4,7 +4,6 @@
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/display/ICanvas.h"
 
-#include "engine/private/algorithm/algorithm.h"
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"
