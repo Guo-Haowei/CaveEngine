@@ -381,6 +381,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     });
 
     auto forward_outputs = graph.addForwardPass({
+        .dependency = lighting_outputs.dependency,
         .skybox = env_outputs.skybox,
         .shadow = shadow_outputs.shadow,
         .ibl_diffuse = env_outputs.ibl_diffuse,

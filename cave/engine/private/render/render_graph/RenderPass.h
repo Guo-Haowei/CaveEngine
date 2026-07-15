@@ -17,7 +17,7 @@ public:
 
     RenderPass& read(ResourceAccess access, RGTextureId handle);
 
-    RenderPass& ReadDepth(RGTextureId handle,
+    RenderPass& readDepth(RGTextureId handle,
                           const TextureViewDesc& tex_view_desc,
                           LoadOp depth_load = LoadOp::Load,
                           float clear_depth = 1.0f,

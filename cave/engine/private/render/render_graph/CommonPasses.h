@@ -24,7 +24,6 @@ struct PostProcessOutput {
     RGDependencyId dependency;
 
     RGTextureId processed{};
-    // RGTextureId ds{};
 };
 
 struct LightingInput {
@@ -42,10 +41,14 @@ struct LightingInput {
 };
 
 struct LightingOutput {
+    RGDependencyId dependency;
+
     RGTextureId lighting{};
 };
 
 struct ForwardInput {
+    RGDependencyId dependency;
+
     RGTextureId skybox{};
     RGTextureId shadow{};
     RGTextureId ibl_diffuse{};

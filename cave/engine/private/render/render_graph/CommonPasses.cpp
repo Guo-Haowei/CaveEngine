@@ -90,7 +90,7 @@ GbufferOutput RenderGraphBuilderExt::addGbufferPass(const DepthPrepassOutput& p_
     };
 
     // @TODO: introduce versioning
-    pass.ReadDepth(p_in.depth, {}, LoadOp::Load)
+    pass.readDepth(p_in.depth, {}, LoadOp::Load)
         .writeColor(out.color0, {}, LoadOp::Clear)
         .writeColor(out.color1, {}, LoadOp::Clear)
         .writeColor(out.color2, {}, LoadOp::Clear)
@@ -99,11 +99,14 @@ GbufferOutput RenderGraphBuilderExt::addGbufferPass(const DepthPrepassOutput& p_
 }
 
 LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in) {
+    LightingOutput out = {
+        .dependency = createDependency(),
+        .lighting = createTexture({
+            RG_RES_LIGHTING,
+            buildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
+        }),
+    };
 
-    RGTextureId out = createTexture({
-        RG_RES_LIGHTING,
-        buildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
-    });
 
     RenderPass& pass = addRenderPass(kPassLighting);
 
@@ -117,25 +120,29 @@ LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in)
         .read(ResourceAccess::SRV, p_in.ibl_prefiltered)
         .read(ResourceAccess::SRV, p_in.brdf)
         .read(ResourceAccess::SRV, p_in.ltc1)
-        .read(ResourceAccess::SRV, p_in.ltc2)
-        .writeColor(out, {}, LoadOp::Clear)
+        .read(ResourceAccess::SRV, p_in.ltc2);
+
+    pass.writeDependency(out.dependency)
+        .writeColor(out.lighting, {}, LoadOp::Clear)
         .setExecuteFunc(LightingPassFunc);
 
-    return { out };
+    return out;
 }
 
 ForwardOutput RenderGraphBuilderExt::addForwardPass(const ForwardInput& in) {
     RenderPass& pass = addRenderPass(kPassForward);
-    pass.read(ResourceAccess::SRV, in.skybox)
+
+    pass.readDependency(in.dependency)
+        .read(ResourceAccess::SRV, in.skybox)
         .read(ResourceAccess::SRV, in.shadow)
         .read(ResourceAccess::SRV, in.ibl_diffuse)
         .read(ResourceAccess::SRV, in.ibl_prefiltered)
         .read(ResourceAccess::SRV, in.brdf)
         .read(ResourceAccess::SRV, in.ltc1)
         .read(ResourceAccess::SRV, in.ltc2)
-        .read(ResourceAccess::None, in.lighting)  // add dependency
-        .ReadDepth(in.depth, {}, LoadOp::Load)
-        .writeColor(in.lighting, {}, LoadOp::Load)
+        .readDepth(in.depth, {}, LoadOp::Load);
+
+    pass.writeColor(in.lighting, {}, LoadOp::Load)
         .setExecuteFunc(ForwardPassFunc);
 
     return ForwardOutput{};
@@ -152,7 +159,7 @@ HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_
         }),
     };
 
-    pass.ReadDepth(p_in.stencil, {}, LoadOp::Load)
+    pass.readDepth(p_in.stencil, {}, LoadOp::Load)
         .writeColor(out.outline, {}, LoadOp::Clear)
         .setExecuteFunc(HighlightPassFunc);
 
