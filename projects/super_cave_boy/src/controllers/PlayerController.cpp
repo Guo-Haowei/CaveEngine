@@ -81,6 +81,8 @@ bool CheckWallGrab(
 void PlayerController::start() {
     m_animator = query().findChildByName("animator_node", entity());
 
+    m_health = session().getInt(kPlayerHealthID);
+
     message().listen(kPlayerDamagedID, [this](const Message& message) {
         if (m_state_machine.is(PlayerState::Normal)) {
             PlayerHurtInfo info{

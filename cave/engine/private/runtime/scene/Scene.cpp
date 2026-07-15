@@ -65,14 +65,29 @@ void Scene::update(float dt) {
 
 void Scene::begin(Owner<SceneRuntime>&& runtime) {
     if (m_runtime) {
-        LOG_ERROR(LogChannel::Scene, "onSimBegin already called");
+        LOG_ERROR(LogChannel::Scene, "runtime already created");
         return;
     }
 
     m_runtime = std::move(runtime);
-    m_runtime->start();
+    m_runtime->start(false);
 
     update(0.0f);
+}
+
+void Scene::alwaysRun(Owner<SceneRuntime>&& runtime) {
+    if (m_runtime) {
+        LOG_ERROR(LogChannel::Scene, "runtime already created");
+        return;
+    }
+
+    m_runtime = std::move(runtime);
+    m_runtime->start(true);
+
+    update(0.0f);
+
+    m_runtime->shutdown();
+    m_runtime.reset();
 }
 
 void Scene::end() {

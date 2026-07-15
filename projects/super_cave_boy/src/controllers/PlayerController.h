@@ -60,7 +60,7 @@ private:
 
     Entity m_animator;
     bool m_block_input = false;
-    int m_health = kPlayerMaxHealth;
+    int m_health;
 
     // @TODO: clean up
     bool m_taking_jump = false;

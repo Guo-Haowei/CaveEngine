@@ -36,7 +36,7 @@ public:
                  GameSession* session = nullptr,
                  ISceneTransitionRequests* transition = nullptr);
 
-    void start();
+    void start(bool editor);
     void shutdown();
 
     void update(SceneTickContext& ctx);
