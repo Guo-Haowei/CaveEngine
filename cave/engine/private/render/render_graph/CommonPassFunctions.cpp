@@ -57,6 +57,10 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 }
 #endif
 
+// @TODO: refactor these
+extern void Pass2DDrawFunc(RenderPassExcutionContext& ctx);
+extern void DrawOverlayFunc(RenderPassExcutionContext& ctx);
+
 void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
                          const std::vector<DrawItem>& p_commands,
                          bool p_is_prepass) {
@@ -364,6 +368,22 @@ void TonePassFunc(RenderPassExcutionContext& ctx) {
     cmd.SetPipelineState(PSO_POST_PROCESS);
     cmd.SetMesh(nullptr);
     cmd.DrawArrays(6);
+
+    DrawOverlayFunc(ctx);
+}
+
+void DrawOverlayFunc(RenderPassExcutionContext& ctx) {
+    // @TODO: move this to a different pass
+    if (auto overlay = ctx.services.renderer().tryGet<OverlayRenderer>()) {
+        overlay->drawCanvas(ctx.cmd,
+                            ctx.services.canvas(),
+                            ctx.frameData.view_id);
+    }
+    if (auto ui_renderer = ctx.services.renderer().tryGet<UIRenderer>()) {
+        ui_renderer->drawCanvas(ctx.cmd,
+                                ctx.services.UICanvas(),
+                                ctx.frameData.view_id);
+    }
 }
 
 void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
@@ -401,17 +421,7 @@ void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
         }
     }
 
-    // @TODO: move this to a different pass
-    if (auto overlay = ctx.services.renderer().tryGet<OverlayRenderer>()) {
-        overlay->drawCanvas(cmd,
-                            ctx.services.canvas(),
-                            ctx.frameData.view_id);
-    }
-    if (auto ui_renderer = ctx.services.renderer().tryGet<UIRenderer>()) {
-        ui_renderer->drawCanvas(ctx.cmd,
-                                ctx.services.UICanvas(),
-                                ctx.frameData.view_id);
-    }
+    DrawOverlayFunc(ctx);
 }
 
 }  // namespace cave::render

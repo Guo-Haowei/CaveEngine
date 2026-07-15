@@ -177,7 +177,7 @@ PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInp
     return out;
 }
 
-extern void Pass2DDrawFunc(RenderPassExcutionContext& p_ctx);
+extern void Pass2DDrawFunc(RenderPassExcutionContext& ctx);
 
 void RenderGraphBuilderExt::add2dPass(const TwoDInput& in) {
     RenderPass& pass = AddPass(RG_PASS_2D);

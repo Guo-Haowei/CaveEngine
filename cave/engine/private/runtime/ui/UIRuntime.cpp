@@ -96,7 +96,7 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
                 continue;
             }
 
-            if (image) {
+            if (image && !image->imageGuid().isNull()) {
                 drawImage(element, *image);
                 continue;
             }
