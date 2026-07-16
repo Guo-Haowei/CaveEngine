@@ -5,10 +5,12 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/ui/UIComponents.h"
 
+// @TODO: refactor
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/view/ResolvedView.h"
+#include "engine/private/renderer/graphics_dvars.h"
 
 namespace cave {
 
@@ -64,7 +66,6 @@ const ResolvedUICanvas* UIRuntime::findResolved(SceneId scene_id,
 }
 
 // @TODO: make dvar
-bool dummy_draw_dbg = true;
 
 void UIRuntime::paint(const ResolvedView& resolved_view) {
 
@@ -85,7 +86,7 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
     };
 
     auto drawButton = [this, &resolved_view](const ResolvedUIElement element,
-                             const UIButtonComponent& ui_button) {
+                                             const UIButtonComponent& ui_button) {
         constexpr Color kButtonNormal = Color::Hex(static_cast<ColorCode>(0x303030));
         constexpr Color kButtonHover = Color::Hex(static_cast<ColorCode>(0x505050));
         constexpr Color kButtonActive = Color::Hex(static_cast<ColorCode>(0x707070));
@@ -104,6 +105,8 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
 
     const Scene& scene = *(resolved_view.scene);
 
+    const bool debug_ui_rect = DVAR_GET_BOOL(r_debug_ui);
+
     for (const auto [canvas_ent, canvas] : scene.view<UICanvasComponent>()) {
         const auto* resolved_canvas = findResolved(resolved_view.scene_id, canvas_ent);
         if (!resolved_canvas) continue;
@@ -120,8 +123,13 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
                 drawButton(element, *button);
             }
 
-            if (dummy_draw_dbg) {
-                m_ui_canvas.addBox2Frame(element.rect.min(), element.rect.max(), 1.0f);
+            if (debug_ui_rect) {
+                Vec2f min = element.rect.min();
+                Vec2f max = element.rect.max();
+                if (min.x > max.x) std::swap(min.x, max.x);
+                if (min.y > max.y) std::swap(min.y, max.y);
+
+                m_ui_canvas.addBox2Frame(min, max, 1.0f);
             }
         }
     }

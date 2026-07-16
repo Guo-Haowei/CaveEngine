@@ -41,6 +41,7 @@ void RendererPanel::drawUIImpl() {
     ImGui::TextUnformatted("Debug");
     ImGui::Text("Frame rate:%.2f", ImGui::GetIO().Framerate);
     ImGui::Checkbox("show editor", (bool*)DVAR_GET_POINTER(show_editor));
+    ImGui::Checkbox("debug UI", (bool*)DVAR_GET_POINTER(r_debug_ui));
 
     CollapseWindow("Shadow", []() {
         ImGui::Checkbox("debug", (bool*)DVAR_GET_POINTER(gfx_debug_shadow));
