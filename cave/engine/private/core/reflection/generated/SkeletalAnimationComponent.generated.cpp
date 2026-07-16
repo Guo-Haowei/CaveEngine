@@ -14,8 +14,8 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<SkeletonComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SkeletonComponent, "bone_collection", bone_collection, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletonComponent, "inverse_bind_matrices", inverse_bind_matrices, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletonComponent, "bone_collection", CAVE_SID("bone_collection"), bone_collection, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletonComponent, "inverse_bind_matrices", CAVE_SID("inverse_bind_matrices"), inverse_bind_matrices, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;
@@ -31,9 +31,9 @@ const MetaTableFields& MetaDataTable<SkeletonComponent>::GetFields() {
 template<>
 const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SkeletalAnimationChannel, "path", path, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationChannel, "target_id", target_id, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationChannel, "sampler_index", sampler_index, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationChannel, "path", CAVE_SID("path"), path, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationChannel, "target_id", CAVE_SID("target_id"), target_id, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationChannel, "sampler_index", CAVE_SID("sampler_index"), sampler_index, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;
@@ -48,8 +48,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::GetFields() {
 template<>
 const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SkeletalAnimationSampler, "keyframe_times", keyframe_times, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationSampler, "keyframe_data", keyframe_data, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationSampler, "keyframe_times", CAVE_SID("keyframe_times"), keyframe_times, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationSampler, "keyframe_data", CAVE_SID("keyframe_data"), keyframe_data, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;
@@ -71,15 +71,15 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::GetFields() {
 template<>
 const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SkeletalAnimationComponent, "playing", m_playing, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SkeletalAnimationComponent, "looped", m_looped, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SkeletalAnimationComponent, "speed", m_speed, FieldFlag::Serialize, EditorHint::DragFloat, 0, 1000),
-        REGISTER_FIELD(SkeletalAnimationComponent, "start", m_start, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationComponent, "end", m_end, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationComponent, "timer", m_timer, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationComponent, "blend_amount", m_blend_amount, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationComponent, "channels", m_channels, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SkeletalAnimationComponent, "samplers", m_samplers, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationComponent, "playing", CAVE_SID("playing"), m_playing, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SkeletalAnimationComponent, "looped", CAVE_SID("looped"), m_looped, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SkeletalAnimationComponent, "speed", CAVE_SID("speed"), m_speed, FieldFlag::Serialize, EditorHint::DragFloat, 0, 1000),
+        REGISTER_FIELD(SkeletalAnimationComponent, "start", CAVE_SID("start"), m_start, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationComponent, "end", CAVE_SID("end"), m_end, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationComponent, "timer", CAVE_SID("timer"), m_timer, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationComponent, "blend_amount", CAVE_SID("blend_amount"), m_blend_amount, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationComponent, "channels", CAVE_SID("channels"), m_channels, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SkeletalAnimationComponent, "samplers", CAVE_SID("samplers"), m_samplers, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

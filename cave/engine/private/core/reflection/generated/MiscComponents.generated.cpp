@@ -37,7 +37,7 @@ const MetaTableFields& MetaDataTable<PendingDestroyComponent>::GetFields() {
 template<>
 const MetaTableFields& MetaDataTable<NameComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(NameComponent, "name", m_name, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(NameComponent, "name", CAVE_SID("name"), m_name, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

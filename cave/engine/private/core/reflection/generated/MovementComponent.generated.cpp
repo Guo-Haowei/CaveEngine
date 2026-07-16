@@ -13,7 +13,7 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(VelocityComponent, "linear", linear, FieldFlag::Serialize, EditorHint::Translation),
+        REGISTER_FIELD(VelocityComponent, "linear", CAVE_SID("linear"), linear, FieldFlag::Serialize, EditorHint::Translation),
     };
 
     return s_table;
@@ -29,9 +29,9 @@ const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
 template<>
 const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(MotorComponent, "affected_by_gravity", affected_by_gravity, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(MotorComponent, "terminal_fall_speed", terminal_fall_speed, FieldFlag::Serialize, EditorHint::InputFloat),
-        REGISTER_FIELD(MotorComponent, "gravity", gravity, FieldFlag::Serialize, EditorHint::InputFloat),
+        REGISTER_FIELD(MotorComponent, "affected_by_gravity", CAVE_SID("affected_by_gravity"), affected_by_gravity, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(MotorComponent, "terminal_fall_speed", CAVE_SID("terminal_fall_speed"), terminal_fall_speed, FieldFlag::Serialize, EditorHint::InputFloat),
+        REGISTER_FIELD(MotorComponent, "gravity", CAVE_SID("gravity"), gravity, FieldFlag::Serialize, EditorHint::InputFloat),
     };
 
     return s_table;

@@ -155,7 +155,7 @@ def generate_meta_for_class(f, class_name, fields):
         flags = 'FieldFlag::Serialize'
         if field['extra'].get('serialize', True) is False:
             flags = 'FieldFlag::None'
-        register_field = f'REGISTER_FIELD({class_name}, "{display_name}", {field_name}, {flags}, EditorHint::{editor_hint}'
+        register_field = f'REGISTER_FIELD({class_name}, "{display_name}", CAVE_SID("{display_name}"), {field_name}, {flags}, EditorHint::{editor_hint}'
         if num_min is not None:
             register_field += f', {num_min}'
         if num_max is not None:

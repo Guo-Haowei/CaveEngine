@@ -17,11 +17,11 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteAnimatorComponent, "anim_id", m_anim_id, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(SpriteAnimatorComponent, "current_clip", m_current_clip, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SpriteAnimatorComponent, "looping", m_looping, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SpriteAnimatorComponent, "playing", m_playing, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(SpriteAnimatorComponent, "speed", m_speed, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimatorComponent, "anim_id", CAVE_SID("anim_id"), m_anim_id, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(SpriteAnimatorComponent, "current_clip", CAVE_SID("current_clip"), m_current_clip, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(SpriteAnimatorComponent, "looping", CAVE_SID("looping"), m_looping, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SpriteAnimatorComponent, "playing", CAVE_SID("playing"), m_playing, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(SpriteAnimatorComponent, "speed", CAVE_SID("speed"), m_speed, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

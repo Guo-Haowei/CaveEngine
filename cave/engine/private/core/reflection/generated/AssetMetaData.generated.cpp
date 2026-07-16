@@ -20,14 +20,14 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(AssetMetaData, "type", type, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(AssetMetaData, "guid", guid, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(AssetMetaData, "name", name, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(AssetMetaData, "import_path", import_path, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(AssetMetaData, "dependencies", dependencies, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(AssetMetaData, "source_created_time", source_created_time, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(AssetMetaData, "source_last_modified", source_last_modified, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(AssetMetaData, "import_settings", import_settings, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "type", CAVE_SID("type"), type, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "guid", CAVE_SID("guid"), guid, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "name", CAVE_SID("name"), name, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "import_path", CAVE_SID("import_path"), import_path, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "dependencies", CAVE_SID("dependencies"), dependencies, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "source_created_time", CAVE_SID("source_created_time"), source_created_time, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "source_last_modified", CAVE_SID("source_last_modified"), source_last_modified, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(AssetMetaData, "import_settings", CAVE_SID("import_settings"), import_settings, FieldFlag::Serialize, EditorHint::None),
     };
 
     return s_table;

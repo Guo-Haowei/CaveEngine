@@ -17,11 +17,11 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(MaterialComponent, "base_color", base_color, FieldFlag::Serialize, EditorHint::Color),
-        REGISTER_FIELD(MaterialComponent, "metallic", metallic, FieldFlag::Serialize, EditorHint::DragFloat, 0.00f, 0.99f),
-        REGISTER_FIELD(MaterialComponent, "roughness", roughness, FieldFlag::Serialize, EditorHint::DragFloat, 0.01f, 1),
-        REGISTER_FIELD(MaterialComponent, "emissive", emissive, FieldFlag::Serialize, EditorHint::DragFloat, 0, 1000),
-        REGISTER_FIELD(MaterialComponent, "material_id", m_material_id, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(MaterialComponent, "base_color", CAVE_SID("base_color"), base_color, FieldFlag::Serialize, EditorHint::Color),
+        REGISTER_FIELD(MaterialComponent, "metallic", CAVE_SID("metallic"), metallic, FieldFlag::Serialize, EditorHint::DragFloat, 0.00f, 0.99f),
+        REGISTER_FIELD(MaterialComponent, "roughness", CAVE_SID("roughness"), roughness, FieldFlag::Serialize, EditorHint::DragFloat, 0.01f, 1),
+        REGISTER_FIELD(MaterialComponent, "emissive", CAVE_SID("emissive"), emissive, FieldFlag::Serialize, EditorHint::DragFloat, 0, 1000),
+        REGISTER_FIELD(MaterialComponent, "material_id", CAVE_SID("material_id"), m_material_id, FieldFlag::Serialize, EditorHint::Asset),
     };
 
     return s_table;

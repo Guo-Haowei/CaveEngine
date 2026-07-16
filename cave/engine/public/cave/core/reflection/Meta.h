@@ -23,10 +23,10 @@ namespace cave {
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 
-#define REGISTER_FIELD(TYPE, NAME, FIELD, ...)                                         \
+#define REGISTER_FIELD(TYPE, NAME, ID, FIELD, ...)                                     \
     ::cave::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD,                \
                                                NAME,                                   \
-                                               typeid(((const TYPE*)0)->FIELD).name(), \
+                                               ID,                                     \
                                                offsetof(TYPE, FIELD),                  \
                                                __VA_ARGS__)
 
@@ -64,9 +64,26 @@ DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
 class ISerializer;
 class IDeserializer;
 
+struct FieldMetaBase;
+
+struct FieldChange {
+    void* object;
+    const FieldMetaBase* field;
+    const void* old_value;
+    const void* new_value;
+};
+
+using FieldChangedFn = void (*)(const FieldChange&);
+
+template<typename OwnerT,
+         void (OwnerT::*Method)(const FieldChange&)>
+void InvokeFieldChanged(const FieldChange& change) {
+    auto* object = static_cast<OwnerT*>(change.object);
+    (object->*Method)(change);
+}
+
 struct FieldMetaBase {
     const char* const name;
-    const char* const type;
     const PropertyId id;
     const size_t offset;
     const FieldFlag flags;
@@ -74,21 +91,24 @@ struct FieldMetaBase {
     const float v_min;
     const float v_max;
 
-    constexpr FieldMetaBase(const char* p_name,
-                            const char* p_type,
-                            size_t p_offset,
-                            FieldFlag p_flags,
-                            EditorHint p_hint,
-                            float p_min,
-                            float p_max) noexcept
-        : name(p_name)
-        , type(p_type)
-        , id(PropertyId(p_name))
-        , offset(p_offset)
-        , flags(p_flags)
-        , editor_hint(p_hint)
-        , v_min(p_min)
-        , v_max(p_max) {
+    const FieldChangedFn post_change;
+
+    constexpr FieldMetaBase(const char* name_,
+                            PropertyId id_,
+                            size_t offset_,
+                            FieldFlag flags_,
+                            EditorHint hint_,
+                            float min_,
+                            float max_,
+                            FieldChangedFn post_change_ = nullptr) noexcept
+        : name(name_)
+        , id(id_)
+        , offset(offset_)
+        , flags(flags_)
+        , editor_hint(hint_)
+        , v_min(min_)
+        , v_max(max_)
+        , post_change(post_change_) {
     }
 
     virtual ~FieldMetaBase() = default;
@@ -127,14 +147,14 @@ public:
 private:
     template<typename U>
     static FieldMetaBase* RegisterField(const U&,
-                                        const char* p_name,
-                                        const char* p_type,
-                                        size_t p_offset,
-                                        FieldFlag p_flag,
-                                        EditorHint p_hint,
-                                        float p_min = INT_MIN,
-                                        float p_max = INT_MAX) {
-        return new FieldMeta<U>(p_name, p_type, p_offset, p_flag, p_hint, p_min, p_max);
+                                        const char* name,
+                                        PropertyId id,
+                                        size_t offset,
+                                        FieldFlag flag,
+                                        EditorHint hint,
+                                        float min = INT_MIN,
+                                        float max = INT_MAX) {
+        return new FieldMeta<U>(name, id, offset, flag, hint, min, max);
     }
 };
 
