@@ -33,6 +33,8 @@ struct MaterialComponent {
 
     const Guid& materialGuid() const { return m_material_id; }
 
+    void setMaterialGuid(const Guid& guid);
+
     void onDeserialized();
 
 private:

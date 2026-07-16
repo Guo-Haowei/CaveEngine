@@ -28,9 +28,16 @@ void MaterialComponent::refreshMaterialHandle() {
         return;
     }
 
-    auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id);
-    if (handle.is_some()) {
+    if (auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id)) {
         m_material_handle = std::move(handle.unwrap_unchecked());
+        onDeserializedHelper(m_material_handle, false);
+    }
+}
+
+void MaterialComponent::setMaterialGuid(const Guid& guid) {
+    if (m_material_id != guid) {
+        m_material_id = guid;
+        refreshMaterialHandle();
     }
 }
 
@@ -44,11 +51,6 @@ void MaterialComponent::onMaterialGuidChanged(const FieldChange& change) {
 
 void MaterialComponent::onDeserialized() {
     refreshMaterialHandle();
-
-    if (auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id)) {
-        m_material_handle = handle.unwrap_unchecked();
-        onDeserializedHelper(m_material_handle, false);
-    }
 }
 
 }  // namespace cave

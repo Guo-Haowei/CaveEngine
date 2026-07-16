@@ -516,16 +516,16 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         scene.create<TransformComponent>(mesh_instance);
 
         MeshRendererComponent& renderer = scene.create<MeshRendererComponent>(mesh_instance);
-        renderer.SetResourceGuid(m_meshes.at(node.mesh));
+        renderer.setMeshGuid(m_meshes.at(node.mesh));
 
         const tinygltf::Mesh& mesh = m_model->meshes[node.mesh];
         for (const auto& prim : mesh.primitives) {
             ecs::Entity material_id = scene.createEntity();
-            renderer.AddMaterial(material_id);
+            renderer.addMaterial(material_id);
 
             Guid material_guid = m_materials[prim.material];
             MaterialComponent& material_instance = scene.create<MaterialComponent>(material_id);
-            material_instance.SetResourceGuid(material_guid);
+            material_instance.setMaterialGuid(material_guid);
         }
 
         const bool has_skin = node.skin >= 0;

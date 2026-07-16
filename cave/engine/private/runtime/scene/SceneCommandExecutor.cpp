@@ -52,7 +52,7 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
     }
 
     void* ptr = field->getRaw(comp);
-    if (!DEV_VERIFY(memcmp(ptr, new_value, data_size) != 0)) {
+    if (memcmp(ptr, new_value, data_size) == 0) [[unlikely]] {
         return false;
     }
 

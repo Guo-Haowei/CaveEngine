@@ -25,6 +25,13 @@ void MeshRendererComponent::refreshMeshHandle() {
     }
 }
 
+void MeshRendererComponent::setMeshGuid(const Guid& guid) {
+    if (m_mesh_id != guid) {
+        m_mesh_id = guid;
+        refreshMeshHandle();
+    }
+}
+
 void MeshRendererComponent::onMeshGuidChanged(const FieldChange& change) {
     DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
     DEV_ASSERT(change.object == this);

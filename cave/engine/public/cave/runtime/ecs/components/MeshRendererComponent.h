@@ -43,6 +43,7 @@ public:
     MeshRendererComponent();
 
     const Guid& meshGuid() const { return m_mesh_id; }
+    void setMeshGuid(const Guid& guid);
 
     auto& materialInstances() { return m_materials; }
     const auto& materialInstances() const { return m_materials; }
