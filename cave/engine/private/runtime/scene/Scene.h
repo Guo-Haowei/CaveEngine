@@ -113,6 +113,8 @@ public:
     void begin(Owner<SceneRuntime>&& runtime);
     void end();
 
+    void alwaysRun(Owner<SceneRuntime>&& runtime);
+
     void tick(SceneTickContext ctx);
     void update(float dt);
 

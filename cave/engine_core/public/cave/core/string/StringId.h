@@ -7,7 +7,12 @@
 #include "cave/core/hash/Hash.h"
 #include "cave/core/containers/FixedString.h"
 
+// @TODO: clean up this
 #define STRING_ID_KEEP_SOURCE IN_USE
+
+#define CAVE_SID(x)          ::cave::StringId::fromStringLiteral(x)
+#define CAVE_COMPONENT_ID(x) CAVE_SID(x)
+#define CAVE_PROPERTY_ID(x)  CAVE_SID(x)
 
 namespace cave {
 
@@ -45,6 +50,10 @@ public:
         return m_hash;
     }
 
+    static constexpr StringId fromStringLiteral(std::string_view sv) {
+        return StringId{ sv };
+    }
+
 private:
     uint64_t m_hash{ 0 };
 #if USING(STRING_ID_KEEP_SOURCE)
@@ -54,6 +63,7 @@ private:
 
 #pragma warning(pop)
 
+// @TODO: remove this, use CAVE_SID instead
 namespace literals {
 
 constexpr StringId operator"" _sid(const char* str, std::size_t len) {

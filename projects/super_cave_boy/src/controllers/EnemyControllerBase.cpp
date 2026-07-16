@@ -85,7 +85,7 @@ void EnemyControllerBase::onBodyStay(Entity player) {
     Entity enemy = entity();
 
     if (IsStompingEnemy(query(), player, enemy)) {
-        message().emit(kPlayerBounced, enemy);
+        message().emit(kPlayerBouncedID, enemy);
         takeDamageFromPlayer(1);
         return;
     }
@@ -99,7 +99,7 @@ void EnemyControllerBase::onBodyStay(Entity player) {
 
     const float dir_x = player_x >= enemy_x ? 1.0f : -1.0f;
 
-    message().emit(kPlayerDamaged,
+    message().emit(kPlayerDamagedID,
                    enemy,
                    Variant{
                        dir_x * kPlayerKnockbackX,

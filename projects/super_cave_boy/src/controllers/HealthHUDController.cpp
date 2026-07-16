@@ -1,9 +1,10 @@
 #include "HealthHUDController.h"
 
-#include <format>
-
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
+#include "cave/runtime/game/GameSession.h"
 #include "cave/runtime/ui/UIComponents.h"
+
+#include "SuperCaveBoyDefines.h"
 
 namespace super_cave_boy {
 
@@ -22,9 +23,8 @@ void HealthHUDController::start() {
 }
 
 void HealthHUDController::update(float) {
-    // @TODO: fetch it from session
-    int n = 3;
-    display(n);
+    const int health = session().getInt(kPlayerHealthID, kPlayerMaxHealth);
+    display(health);
 }
 
 void HealthHUDController::display(int n) {

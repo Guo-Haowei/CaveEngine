@@ -1,5 +1,5 @@
 version: 21
-seed: 7
+seed: 10
 root: 1
 entities:
   - id: 1
@@ -26,7 +26,7 @@ entities:
       anchor_min: [0, 0]
       anchor_max: [0, 0]
       offset_min: [25, 25]
-      offset_max: [329.899994, 136.100006]
+      offset_max: [525, 125]
   - id: 3
     NameComponent:
       name: Heart1
@@ -96,4 +96,43 @@ entities:
       offset_max: [500, 100]
     UIImageComponent:
       image_guid: 285FAD74-CB89-1743-AE29415CCA88473A
+      tint: [1, 1, 1, 1]
+  - id: 8
+    NameComponent:
+      name: Loot
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [1, 0]
+      anchor_max: [1, 0]
+      offset_min: [-225, 25]
+      offset_max: [-25, 125]
+  - id: 9
+    NameComponent:
+      name: Gem
+    HierarchyComponent:
+      parent_id: 8
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [0, 0]
+      offset_max: [100, 100]
+    UIImageComponent:
+      image_guid: 9C3D6F1A-7766-2544-9A71767789A4193B
+      tint: [1, 1, 1, 1]
+  - id: 10
+    NameComponent:
+      name: Gem2
+    HierarchyComponent:
+      parent_id: 8
+      local_visible: true
+    UIRectTransformComponent:
+      anchor_min: [0, 0]
+      anchor_max: [0, 0]
+      offset_min: [-100, 0]
+      offset_max: [0, 100]
+    UIImageComponent:
+      image_guid: 9C3D6F1A-7766-2544-9A71767789A4193B
       tint: [1, 1, 1, 1]

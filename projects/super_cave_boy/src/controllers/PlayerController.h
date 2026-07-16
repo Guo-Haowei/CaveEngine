@@ -50,6 +50,7 @@ private:
 
     void tryJump(cave::VelocityComponent& vel,
                  cave::MotorComponent& motor);
+
     bool hurt() const { return m_hurt_timer.active(); }
 
     cave::GameStateMachine<PlayerState> m_state_machine;
@@ -59,6 +60,7 @@ private:
 
     Entity m_animator;
     bool m_block_input = false;
+    int m_health;
 
     // @TODO: clean up
     bool m_taking_jump = false;

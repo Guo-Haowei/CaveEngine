@@ -61,6 +61,11 @@ private:
                          GridPaintAction action,
                          const TileMapAsset& tile_map,
                          const TileSetAsset& tile_set);
+
+    void applyFillCells(GridPaintCell cell,
+                        GridPaintAction action,
+                        const TileMapAsset& tile_map,
+                        const TileSetAsset& tile_set);
     // ---- Paint Tool ----
 
     ICanvas& m_canvas;

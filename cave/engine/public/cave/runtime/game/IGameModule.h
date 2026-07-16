@@ -7,6 +7,8 @@
 
 namespace cave {
 
+class GameSession;
+
 enum class AppMode : uint8_t {
     Client,
     Server,
@@ -18,6 +20,9 @@ public:
     virtual ~IGameModule() = default;
 
     virtual void registerNativeScripts(NativeScriptRegistry&) {}
+
+    virtual bool startSession(GameSession&) { return true; }
+    virtual void endSession(GameSession&) {}
 };
 
 }  // namespace cave

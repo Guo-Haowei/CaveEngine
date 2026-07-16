@@ -6,8 +6,9 @@
 #include "cave/runtime/ecs/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
-#include "cave/runtime/input/IGameInput.h"
+#include "cave/runtime/game/GameSession.h"
 #include "cave/runtime/game/platformer/FacingComponent.h"
+#include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneQuery.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
@@ -80,7 +81,9 @@ bool CheckWallGrab(
 void PlayerController::start() {
     m_animator = query().findChildByName("animator_node", entity());
 
-    message().listen(kPlayerDamaged, [this](const Message& message) {
+    m_health = session().getInt(kPlayerHealthID);
+
+    message().listen(kPlayerDamagedID, [this](const Message& message) {
         if (m_state_machine.is(PlayerState::Normal)) {
             PlayerHurtInfo info{
                 .damage = 1,
@@ -90,22 +93,22 @@ void PlayerController::start() {
         }
     });
 
-    message().listen(kPlayerBounced, [this](const Message&) {
+    message().listen(kPlayerBouncedID, [this](const Message&) {
         if (m_state_machine.is(PlayerState::Normal)) {
             bounceFromEnemy(kPlayerBounceSpeed);
         }
     });
 
-    message().listen(kPlayerLeave, [this](const Message&) {
+    message().listen(kPlayerLeaveID, [this](const Message&) {
         m_block_input = true;
         m_state_machine.switchTo(PlayerState::Exiting);
     });
 
-    message().listen(kCutsceneStart, [this](const Message&) {
+    message().listen(kCutsceneStartID, [this](const Message&) {
         m_block_input = true;
     });
 
-    message().listen(kCutsceneEnd, [this](const Message&) {
+    message().listen(kCutsceneEndID, [this](const Message&) {
         m_block_input = false;
     });
 
@@ -132,8 +135,9 @@ void PlayerController::update(float dt) {
 void PlayerController::updateNormal(float dt) {
     m_hurt_timer.tick(dt);
 
-    // if (health_ <= 0) {
-    // }
+    if (m_health <= 0) {
+        // @TODO: do something
+    }
 
     const IGameInput& input = services().gameInput();
 
@@ -313,7 +317,8 @@ void PlayerController::takeDamage(const PlayerHurtInfo& info) {
         return;
     }
 
-    // health_ -= info.damage;
+    m_health -= 1;
+    session().setInt(kPlayerHealthID, m_health);
 
     m_hurt_timer.start();
 

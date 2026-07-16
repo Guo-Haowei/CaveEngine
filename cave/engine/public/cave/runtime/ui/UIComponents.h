@@ -52,6 +52,9 @@ struct UIButtonComponent {
     CAVE_PROP(editor = InputText)
     String clicked_event;
 
+    CAVE_PROP(editor = Color)
+    math::Vec4f tint = math::Vec4f::One;
+
     bool interactable = true;
 };
 
@@ -88,7 +91,6 @@ struct UITextComponent {
     float font_size = 24.0f;
 
     // Non-serialized
-    // AssetHandle font;
 };
 
 }  // namespace cave

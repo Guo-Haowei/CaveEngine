@@ -17,6 +17,7 @@ enum class GridPaintAction : uint8_t {
 enum class GridPaintEventType : uint8_t {
     Begin,
     Apply,
+    Fill,
     End,
     Cancel,
 };

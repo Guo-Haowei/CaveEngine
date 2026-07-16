@@ -5,46 +5,46 @@ namespace cave {
 bool GameModuleHandle::loadFromDll(const char* dll_path, NativeScriptRegistry& registry) {
     unload();
 
-    if (!dll_.load(dll_path)) {
+    if (!m_dll.load(dll_path)) {
         return false;
     }
 
-    void* create_func = dll_.symbol("CreateGameModule");
+    void* create_func = m_dll.symbol("CreateGameModule");
     if (create_func == nullptr) {
         unload();
         return false;
     }
 
-    void* destroy_func = dll_.symbol("DestroyGameModule");
+    void* destroy_func = m_dll.symbol("DestroyGameModule");
     if (destroy_func == nullptr) {
         unload();
         return false;
     }
 
-    create_ = reinterpret_cast<CreateFn>(create_func);
-    destroy_ = reinterpret_cast<DestroyFn>(destroy_func);
+    m_create_func = reinterpret_cast<CreateFn>(create_func);
+    m_destroy_func = reinterpret_cast<DestroyFn>(destroy_func);
 
-    module_ = create_();
-    if (module_ == nullptr) {
+    m_module = m_create_func();
+    if (m_module == nullptr) {
         unload();
         return false;
     }
 
-    module_->registerNativeScripts(registry);
+    m_module->registerNativeScripts(registry);
 
     return true;
 }
 
 void GameModuleHandle::unload() {
-    if (module_) {
-        destroy_(module_);
+    if (m_module) {
+        m_destroy_func(m_module);
     }
 
-    module_ = nullptr;
-    create_ = nullptr;
-    destroy_ = nullptr;
+    m_module = nullptr;
+    m_create_func = nullptr;
+    m_destroy_func = nullptr;
 
-    dll_.unload();
+    m_dll.unload();
 }
 
 }  // namespace cave

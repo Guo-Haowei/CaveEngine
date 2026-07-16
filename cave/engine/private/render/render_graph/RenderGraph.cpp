@@ -1,11 +1,14 @@
 #include "RenderGraph.h"
 
-#include "engine/private/algorithm/algorithm.h"
-#include "engine/private/renderer/renderer_misc.h"
-#include "engine/private/renderer/sampler.h"
+#include "cave/core/algorithm/Graph.h"
+
 #include "CompiledGraph.h"
 #include "RenderGraphDefines.h"
 #include "RenderPass.h"
+
+// @TODO: refactor
+#include "engine/private/renderer/renderer_misc.h"
+#include "engine/private/renderer/sampler.h"
 
 namespace cave::render {
 

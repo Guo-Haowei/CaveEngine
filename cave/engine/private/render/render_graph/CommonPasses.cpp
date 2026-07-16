@@ -3,7 +3,6 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/display/DisplayService.h"
 
-#include "engine/private/algorithm/algorithm.h"
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/renderer_misc.h"
@@ -106,7 +105,6 @@ LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in)
             buildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
         }),
     };
-
 
     RenderPass& pass = addRenderPass(kPassLighting);
 

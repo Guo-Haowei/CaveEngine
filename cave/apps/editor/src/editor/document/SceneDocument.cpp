@@ -16,7 +16,7 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
 
     auto scene = createPreviewScene();
 
-    scene->begin(MakeOwner<SceneRuntime>(
+    scene->alwaysRun(MakeOwner<SceneRuntime>(
         SceneTickDomain::Editor,
         m_engine_services,
         *scene,
@@ -33,9 +33,6 @@ SceneDocument::SceneDocument(EngineServices& services, const Guid& guid)
 }
 
 SceneDocument::~SceneDocument() {
-    if (Scene* scene = m_scene_reg.resolve(m_preview_scene)) {
-        scene->end();
-    }
 }
 
 bool SceneDocument::save() {

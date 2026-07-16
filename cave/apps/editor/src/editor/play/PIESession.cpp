@@ -2,6 +2,8 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/core/string/StringUtils.h"
+#include "cave/runtime/game/GameModuleHandle.h"
+#include "cave/runtime/game/GameSession.h"
 #include "cave/runtime/game/IGameModule.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 #include "cave/runtime/scene/SceneRuntime.h"
@@ -37,6 +39,7 @@ void PIESession::beginPIEScene(SceneDesc&& desc, const Scene& asset_scene) {
             m_engine_services,
             *scene,
             m_view_id,
+            m_session.get(),
             this));
     }
 }
@@ -63,6 +66,13 @@ bool PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
     if (auto handle_opt = asset_reg.findByGuid<SceneAsset>(guid)) {
         auto handle = handle_opt.unwrap_unchecked();
         if (const SceneAsset* asset = handle.get()) {
+            m_session = MakeOwner<GameSession>();
+
+            IGameModule* game_module = m_engine_services.gameModule().get();
+            if (DEV_VERIFY(game_module)) {
+                game_module->startSession(*m_session);
+            }
+
             beginPIEScene({ SceneSource::Runtime, handle.meta()->name }, asset->scene());
             return true;
         }
@@ -72,6 +82,15 @@ bool PIESession::beginPIESession(const Guid& guid, ViewId view_id) {
 }
 
 bool PIESession::endPIESession() {
+    if (m_session) {
+        IGameModule* game_module = m_engine_services.gameModule().get();
+        if (DEV_VERIFY(game_module)) {
+            game_module->endSession(*m_session);
+        }
+
+        m_session.reset();
+    }
+
     m_engine_services.sceneScheduler().remove(this);
     m_view_id = {};
 
@@ -101,12 +120,12 @@ void PIESession::commitSceneChange(std::string&& path) {
     beginPIEScene(
         {
             .source = SceneSource::Runtime,
-            .debug_name = std::string(StringUtils::fileName(path)),
+            .debug_name = String(StringUtils::fileName(path)),
         },
         asset->scene());
 }
 
-void PIESession::collectSceneTicks(std::vector<SceneTickRequest>& out_requests) {
+void PIESession::collectSceneTicks(Vector<SceneTickRequest>& out_requests) {
     out_requests.push_back({ SceneTickDomain::Simulate,
                              m_pie_scene,
                              m_view_id,

@@ -27,6 +27,7 @@ Entity SceneCommandWriter::nameObject(std::string_view name) {
 Entity SceneCommandWriter::rootObject(std::string_view name) {
     Entity e = nameObject(name);
     addComponent(e, TransformComponent_Id);
+    addComponent(e, HierarchyComponent_Id);
     return e;
 }
 
@@ -186,7 +187,6 @@ Entity SceneCommandWriter::image(std::string_view name) {
     Entity e = nameObject(name);
     addComponent(e, HierarchyComponent_Id);
     addComponent(e, UIRectTransformComponent_Id);
-    addComponent(e, UIImageComponent_Id);
     return e;
 }
 

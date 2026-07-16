@@ -114,12 +114,11 @@ PreviewBuildResult PreviewBuilder::buildSceneImpl(const AssetMetaData* meta,
         camera_source = CameraSource::External(camera);
     }
 
-    scene->begin(MakeOwner<SceneRuntime>(
+    scene->alwaysRun(MakeOwner<SceneRuntime>(
         SceneTickDomain::Editor,
         m_engine_services,
         *scene,
         ViewId{}));
-    scene->end();
 
     return {
         .status = PreviewBuildStatus::Ok,

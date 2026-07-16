@@ -157,13 +157,11 @@ void DocumentBase::reloadPreviewScene() {
         return;
     }
 
-    new_scene->begin(MakeOwner<SceneRuntime>(
+    new_scene->alwaysRun(MakeOwner<SceneRuntime>(
         SceneTickDomain::Editor,
         m_engine_services,
         *new_scene,
         ViewId{}));
-
-    new_scene->end();
 
     Scene* old_scene = m_scene_reg.resolve(m_preview_scene);
     if (DEV_VERIFY(old_scene)) {

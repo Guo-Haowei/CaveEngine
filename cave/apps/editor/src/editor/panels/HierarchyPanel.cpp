@@ -349,7 +349,7 @@ void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::
     EditService& edit = m_editor_services.edit();
 
     auto can_add_canvas_item = [](const Scene& scene, Entity parent) {
-        while (parent != scene.root() && parent.valid()) {
+        while (parent.valid()) {
             if (scene.has(UICanvasComponent_Id, parent)) return true;
             const auto* hier = scene.component<HierarchyComponent>(parent);
             if (DEV_VERIFY(hier)) {

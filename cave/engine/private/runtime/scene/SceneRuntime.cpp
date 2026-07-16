@@ -17,11 +17,13 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
                            RuntimeServices& services,
                            Scene& scene,
                            ViewId view_id,
+                           GameSession* session,
                            ISceneTransitionRequests* transition)
     : m_services(services)
     , m_scene(scene)
     , m_query(scene)
     , m_view_id(view_id)
+    , m_session(session)
     , m_transition(transition) {
 
     SceneFeature features = SceneFeature::NativeScript;
@@ -39,7 +41,7 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
     m_features = features;
 }
 
-void SceneRuntime::start() {
+void SceneRuntime::start(bool editor) {
     if ((int)(m_features & SceneFeature::UI)) {
         m_systems.add<UIInteractionSystem>(*this);
     }
@@ -55,7 +57,9 @@ void SceneRuntime::start() {
         m_systems.add<TileWorldSystem>(*this);
     }
 
-    m_systems.start();
+    if (!editor) {
+        m_systems.start();
+    }
 }
 
 void SceneRuntime::shutdown() {

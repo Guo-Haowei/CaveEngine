@@ -35,6 +35,7 @@ public:
 
 protected:
     SceneRuntime& runtime() { return *m_runtime; }
+    GameSession& session() { return m_runtime->session(); }
     MessageBus& message() { return m_runtime->messageBus(); }
 
     SceneQuery& query() { return m_runtime->query(); }

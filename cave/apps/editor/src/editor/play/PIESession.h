@@ -10,8 +10,9 @@
 
 namespace cave {
 
-class Guid;
 class IGameModule;
+class GameSession;
+class Guid;
 class Scene;
 struct SceneDesc;
 
@@ -29,7 +30,7 @@ public:
     bool running() const { return m_pie_scene.valid(); }
     SceneId getPIESceneId() const { return m_pie_scene; }
 
-    void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) override;
+    void collectSceneTicks(Vector<SceneTickRequest>& out_requests) override;
 
     DebugId debugId() const override { return m_debug_id; }
 
@@ -37,7 +38,7 @@ private:
     void beginPIEScene(SceneDesc&& desc, const Scene& asset_scene);
     void endPIEScene();
 
-    void commitSceneChange(std::string&& path) override;
+    void commitSceneChange(String&& path) override;
     void commitSceneReload() override {}
 
     EngineServices& m_engine_services;
@@ -45,6 +46,8 @@ private:
 
     SceneId m_pie_scene{};
     ViewId m_view_id;
+
+    Owner<GameSession> m_session;
 };
 
 }  // namespace cave

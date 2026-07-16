@@ -38,8 +38,8 @@ void CutsceneController::start() {
     m_state_machine.addState(
         CutsceneState::Wait,
         {
-            .on_enter = [this]() { message().emit(kGuardianAwake, entity()); },
-            .on_exit = [this]() { message().emit(kGuardianBeginFight, entity()); },
+            .on_enter = [this]() { message().emit(kGuardianAwakeID, entity()); },
+            .on_exit = [this]() { message().emit(kGuardianBeginFightID, entity()); },
             .duration = kWaitDuration,
             .next = CutsceneState::MoveToPlayer,
         });
@@ -56,7 +56,7 @@ void CutsceneController::start() {
     m_state_machine.addState(
         CutsceneState::End,
         {
-            .on_enter = [this]() { message().emit(kCutsceneEnd, entity()); },
+            .on_enter = [this]() { message().emit(kCutsceneEndID, entity()); },
         });
 
     m_state_machine.switchTo(CutsceneState::Inactive);
@@ -85,7 +85,7 @@ void CutsceneController::onBodyEntered(Entity player) {
         DEV_ASSERT(player_collider);
         DEV_ASSERT(IsPlayer(*player_collider));
 #endif
-        message().emit(kCutsceneStart, entity());
+        message().emit(kCutsceneStartID, entity());
         m_state_machine.switchTo(CutsceneState::MoveToGuardian);
         m_fired = true;
     }

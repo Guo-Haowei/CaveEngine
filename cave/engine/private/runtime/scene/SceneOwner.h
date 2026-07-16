@@ -17,19 +17,19 @@ class SceneOwner : public ISceneTransitionRequests {
 public:
     virtual ~SceneOwner() = default;
 
-    virtual void collectSceneTicks(std::vector<SceneTickRequest>& out_requests) = 0;
+    virtual void collectSceneTicks(Vector<SceneTickRequest>& out_requests) = 0;
 
-    void requestSceneChange(std::string path) override;
+    void requestSceneChange(String path) override;
     void requestSceneReload();
 
     void flushSceneCommands();
 
 protected:
-    virtual void commitSceneChange(std::string&& path) = 0;
+    virtual void commitSceneChange(String&& path) = 0;
     virtual void commitSceneReload() = 0;
 
 private:
-    Option<std::string> m_pending_change;
+    Option<String> m_pending_change;
     bool m_pending_reload = false;
 };
 

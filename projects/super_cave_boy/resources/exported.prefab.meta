@@ -1,9 +1,0 @@
-type: prefab
-guid: 16741B05-278D-1E44-915744A2C827D76F
-name: ""
-import_path: "@res://exported.prefab"
-dependencies: [FD6F7481-5751-A04A-91D221E2CD687683]
-source_created_time: ""
-source_last_modified: ""
-import_settings:
-  {}
