@@ -14,8 +14,24 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<TileMapInstanceComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TileMapInstanceComponent, "tile_map_id", CAVE_SID("tile_map_id"), m_tile_map_id, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(TileMapInstanceComponent, "tint_color", CAVE_SID("tint_color"), m_tint_color, FieldFlag::Serialize, EditorHint::Color),
+        REGISTER_FIELD(
+            TileMapInstanceComponent,
+            "tile_map_id",
+            CAVE_SID("tile_map_id"),
+            m_tile_map_id,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapInstanceComponent,
+            "tint_color",
+            CAVE_SID("tint_color"),
+            m_tint_color,
+            FieldFlag::Serialize,
+            EditorHint::Color,
+            nullptr
+        ),
     };
 
     return s_table;

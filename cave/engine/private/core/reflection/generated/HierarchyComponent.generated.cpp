@@ -14,8 +14,24 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(HierarchyComponent, "parent_id", CAVE_SID("parent_id"), parent_id, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(HierarchyComponent, "local_visible", CAVE_SID("local_visible"), local_visible, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(
+            HierarchyComponent,
+            "parent_id",
+            CAVE_SID("parent_id"),
+            parent_id,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            HierarchyComponent,
+            "local_visible",
+            CAVE_SID("local_visible"),
+            local_visible,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
     };
 
     return s_table;

@@ -44,6 +44,7 @@ constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
     PREFAB_OVERRIDE(NativeScriptComponent) \
     PREFAB_OVERRIDE(FacingComponent)
 
+// @TODO: rename it to refreshRuntimeState or something
 template<typename T>
 concept HasOnDeserialized = requires(T& t) {
     { t.onDeserialized() } -> std::same_as<void>;

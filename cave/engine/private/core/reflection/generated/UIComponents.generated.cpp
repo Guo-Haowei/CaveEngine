@@ -15,9 +15,33 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(UICanvasComponent, "space", CAVE_SID("space"), space, FieldFlag::Serialize, EditorHint::EnumDropDown),
-        REGISTER_FIELD(UICanvasComponent, "resolution", CAVE_SID("resolution"), resolution, FieldFlag::Serialize, EditorHint::Translation2D),
-        REGISTER_FIELD(UICanvasComponent, "match", CAVE_SID("match"), match, FieldFlag::Serialize, EditorHint::InputFloat),
+        REGISTER_FIELD(
+            UICanvasComponent,
+            "space",
+            CAVE_SID("space"),
+            space,
+            FieldFlag::Serialize,
+            EditorHint::EnumDropDown,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            UICanvasComponent,
+            "resolution",
+            CAVE_SID("resolution"),
+            resolution,
+            FieldFlag::Serialize,
+            EditorHint::Translation2D,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            UICanvasComponent,
+            "match",
+            CAVE_SID("match"),
+            match,
+            FieldFlag::Serialize,
+            EditorHint::InputFloat,
+            nullptr
+        ),
     };
 
     return s_table;
@@ -34,10 +58,42 @@ const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
 template<>
 const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(UIRectTransformComponent, "anchor_min", CAVE_SID("anchor_min"), anchor_min, FieldFlag::Serialize, EditorHint::Translation2D),
-        REGISTER_FIELD(UIRectTransformComponent, "anchor_max", CAVE_SID("anchor_max"), anchor_max, FieldFlag::Serialize, EditorHint::Translation2D),
-        REGISTER_FIELD(UIRectTransformComponent, "offset_min", CAVE_SID("offset_min"), offset_min, FieldFlag::Serialize, EditorHint::Translation2D),
-        REGISTER_FIELD(UIRectTransformComponent, "offset_max", CAVE_SID("offset_max"), offset_max, FieldFlag::Serialize, EditorHint::Translation2D),
+        REGISTER_FIELD(
+            UIRectTransformComponent,
+            "anchor_min",
+            CAVE_SID("anchor_min"),
+            anchor_min,
+            FieldFlag::Serialize,
+            EditorHint::Translation2D,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            UIRectTransformComponent,
+            "anchor_max",
+            CAVE_SID("anchor_max"),
+            anchor_max,
+            FieldFlag::Serialize,
+            EditorHint::Translation2D,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            UIRectTransformComponent,
+            "offset_min",
+            CAVE_SID("offset_min"),
+            offset_min,
+            FieldFlag::Serialize,
+            EditorHint::Translation2D,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            UIRectTransformComponent,
+            "offset_max",
+            CAVE_SID("offset_max"),
+            offset_max,
+            FieldFlag::Serialize,
+            EditorHint::Translation2D,
+            nullptr
+        ),
     };
 
     return s_table;
@@ -52,8 +108,24 @@ const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
 template<>
 const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(UIButtonComponent, "clicked_event", CAVE_SID("clicked_event"), clicked_event, FieldFlag::Serialize, EditorHint::InputText),
-        REGISTER_FIELD(UIButtonComponent, "tint", CAVE_SID("tint"), tint, FieldFlag::Serialize, EditorHint::Color),
+        REGISTER_FIELD(
+            UIButtonComponent,
+            "clicked_event",
+            CAVE_SID("clicked_event"),
+            clicked_event,
+            FieldFlag::Serialize,
+            EditorHint::InputText,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            UIButtonComponent,
+            "tint",
+            CAVE_SID("tint"),
+            tint,
+            FieldFlag::Serialize,
+            EditorHint::Color,
+            nullptr
+        ),
     };
 
     return s_table;
@@ -62,14 +134,30 @@ const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_UIButtonComponent_meta = MetaDataTable<UIButtonComponent>::GetFields();
 
-// Guid m_image_guid (editor = Asset)
+// Guid m_image_guid (editor = Asset, on_change = onImageIdChanged)
 // math::Vec4f m_tint (editor = Color)
 
 template<>
 const MetaTableFields& MetaDataTable<UIImageComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(UIImageComponent, "image_guid", CAVE_SID("image_guid"), m_image_guid, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(UIImageComponent, "tint", CAVE_SID("tint"), m_tint, FieldFlag::Serialize, EditorHint::Color),
+        REGISTER_FIELD(
+            UIImageComponent,
+            "image_guid",
+            CAVE_SID("image_guid"),
+            m_image_guid,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            &::cave::InvokeFieldChanged<UIImageComponent, &UIImageComponent::onImageIdChanged>
+        ),
+        REGISTER_FIELD(
+            UIImageComponent,
+            "tint",
+            CAVE_SID("tint"),
+            m_tint,
+            FieldFlag::Serialize,
+            EditorHint::Color,
+            nullptr
+        ),
     };
 
     return s_table;

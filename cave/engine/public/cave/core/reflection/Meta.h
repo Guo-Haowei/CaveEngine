@@ -23,11 +23,12 @@ namespace cave {
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 
-#define REGISTER_FIELD(TYPE, NAME, ID, FIELD, ...)                                     \
-    ::cave::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD,                \
-                                               NAME,                                   \
-                                               ID,                                     \
-                                               offsetof(TYPE, FIELD),                  \
+#define REGISTER_FIELD(TYPE, NAME, ID, FIELD, ...)                              \
+    ::cave::MetaDataTable<TYPE>::registerField(((const TYPE*)0)->FIELD,         \
+                                               NAME,                            \
+                                               ID,                              \
+                                               offsetof(TYPE, FIELD),           \
+                                               sizeof(((const TYPE*)0)->FIELD), \
                                                __VA_ARGS__)
 
 #if defined(__clang__)
@@ -85,30 +86,33 @@ void InvokeFieldChanged(const FieldChange& change) {
 struct FieldMetaBase {
     const char* const name;
     const PropertyId id;
-    const size_t offset;
+    const uint32_t offset;
+    const uint32_t size;
     const FieldFlag flags;
     const EditorHint editor_hint;
     const float v_min;
     const float v_max;
 
-    const FieldChangedFn post_change;
+    const FieldChangedFn on_change;
 
     constexpr FieldMetaBase(const char* name_,
                             PropertyId id_,
-                            size_t offset_,
+                            uint32_t offset_,
+                            uint32_t size_,
                             FieldFlag flags_,
                             EditorHint hint_,
                             float min_,
                             float max_,
-                            FieldChangedFn post_change_ = nullptr) noexcept
+                            FieldChangedFn on_change_) noexcept
         : name(name_)
         , id(id_)
         , offset(offset_)
+        , size(size_)
         , flags(flags_)
         , editor_hint(hint_)
         , v_min(min_)
         , v_max(max_)
-        , post_change(post_change_) {
+        , on_change(on_change_) {
     }
 
     virtual ~FieldMetaBase() = default;
@@ -117,6 +121,14 @@ struct FieldMetaBase {
     T& GetData(const void* p_object) const {
         char* ptr = (char*)p_object + offset;
         return *reinterpret_cast<T*>(ptr);
+    }
+
+    const void* getRaw(const void* object) const {
+        return reinterpret_cast<const char*>(object) + offset;
+    }
+
+    void* getRaw(void* object) const {
+        return reinterpret_cast<char*>(object) + offset;
     }
 
     virtual ISerializer& Write(ISerializer& p_serializer, const void* p_object) const = 0;
@@ -146,15 +158,17 @@ public:
 
 private:
     template<typename U>
-    static FieldMetaBase* RegisterField(const U&,
+    static FieldMetaBase* registerField(const U&,
                                         const char* name,
                                         PropertyId id,
-                                        size_t offset,
+                                        uint32_t offset,
+                                        uint32_t size,
                                         FieldFlag flag,
                                         EditorHint hint,
+                                        FieldChangedFn on_change,
                                         float min = INT_MIN,
                                         float max = INT_MAX) {
-        return new FieldMeta<U>(name, id, offset, flag, hint, min, max);
+        return new FieldMeta<U>(name, id, offset, size, flag, hint, min, max, on_change);
     }
 };
 

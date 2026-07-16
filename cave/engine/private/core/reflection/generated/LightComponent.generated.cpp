@@ -18,12 +18,66 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(LightComponent, "type", CAVE_SID("type"), m_type, FieldFlag::Serialize, EditorHint::EnumDropDown),
-        REGISTER_FIELD(LightComponent, "atten_constant", CAVE_SID("atten_constant"), m_atten_constant, FieldFlag::Serialize, EditorHint::DragFloat, 0, 1),
-        REGISTER_FIELD(LightComponent, "atten_linear", CAVE_SID("atten_linear"), m_atten_linear, FieldFlag::Serialize, EditorHint::DragFloat, 0, 1),
-        REGISTER_FIELD(LightComponent, "atten_quadratic", CAVE_SID("atten_quadratic"), m_atten_quadratic, FieldFlag::Serialize, EditorHint::DragFloat, 0, 1),
-        REGISTER_FIELD(LightComponent, "shadow_region", CAVE_SID("shadow_region"), m_shadow_region, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(LightComponent, "cast_shadow", CAVE_SID("cast_shadow"), m_cast_shadow, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(
+            LightComponent,
+            "type",
+            CAVE_SID("type"),
+            m_type,
+            FieldFlag::Serialize,
+            EditorHint::EnumDropDown,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            LightComponent,
+            "atten_constant",
+            CAVE_SID("atten_constant"),
+            m_atten_constant,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr,
+            0,
+            1
+        ),
+        REGISTER_FIELD(
+            LightComponent,
+            "atten_linear",
+            CAVE_SID("atten_linear"),
+            m_atten_linear,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr,
+            0,
+            1
+        ),
+        REGISTER_FIELD(
+            LightComponent,
+            "atten_quadratic",
+            CAVE_SID("atten_quadratic"),
+            m_atten_quadratic,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr,
+            0,
+            1
+        ),
+        REGISTER_FIELD(
+            LightComponent,
+            "shadow_region",
+            CAVE_SID("shadow_region"),
+            m_shadow_region,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            LightComponent,
+            "cast_shadow",
+            CAVE_SID("cast_shadow"),
+            m_cast_shadow,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
     };
 
     return s_table;

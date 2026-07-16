@@ -17,7 +17,7 @@ public:
     virtual bool changeProperty(ecs::Entity ent,
                                 ComponentId cid,
                                 const PropertyId& pid,
-                                const void* data,
+                                const void* new_value,
                                 uint32_t data_size) = 0;
 };
 

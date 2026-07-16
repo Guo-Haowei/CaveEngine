@@ -19,13 +19,75 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(CameraComponent, "flags", CAVE_SID("flags"), m_flags, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(CameraComponent, "projection", CAVE_SID("projection"), m_projection, FieldFlag::Serialize, EditorHint::EnumDropDown),
-        REGISTER_FIELD(CameraComponent, "fovy", CAVE_SID("fovy"), m_fovy, FieldFlag::Serialize, EditorHint::DragFloat, 1, 179),
-        REGISTER_FIELD(CameraComponent, "near", CAVE_SID("near"), m_near, FieldFlag::Serialize, EditorHint::DragFloat, 0.1f, 9),
-        REGISTER_FIELD(CameraComponent, "far", CAVE_SID("far"), m_far, FieldFlag::Serialize, EditorHint::DragFloat, 10, 10000),
-        REGISTER_FIELD(CameraComponent, "aspect", CAVE_SID("aspect"), m_aspect, FieldFlag::Serialize, EditorHint::InputFloat),
-        REGISTER_FIELD(CameraComponent, "ortho_height", CAVE_SID("ortho_height"), m_ortho_height, FieldFlag::Serialize, EditorHint::InputFloat),
+        REGISTER_FIELD(
+            CameraComponent,
+            "flags",
+            CAVE_SID("flags"),
+            m_flags,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            CameraComponent,
+            "projection",
+            CAVE_SID("projection"),
+            m_projection,
+            FieldFlag::Serialize,
+            EditorHint::EnumDropDown,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            CameraComponent,
+            "fovy",
+            CAVE_SID("fovy"),
+            m_fovy,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr,
+            1,
+            179
+        ),
+        REGISTER_FIELD(
+            CameraComponent,
+            "near",
+            CAVE_SID("near"),
+            m_near,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr,
+            0.1f,
+            9
+        ),
+        REGISTER_FIELD(
+            CameraComponent,
+            "far",
+            CAVE_SID("far"),
+            m_far,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr,
+            10,
+            10000
+        ),
+        REGISTER_FIELD(
+            CameraComponent,
+            "aspect",
+            CAVE_SID("aspect"),
+            m_aspect,
+            FieldFlag::Serialize,
+            EditorHint::InputFloat,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            CameraComponent,
+            "ortho_height",
+            CAVE_SID("ortho_height"),
+            m_ortho_height,
+            FieldFlag::Serialize,
+            EditorHint::InputFloat,
+            nullptr
+        ),
     };
 
     return s_table;

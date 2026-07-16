@@ -11,10 +11,11 @@
 
 namespace cave {
 
+namespace {
+
 bool DrawAsset(const DrawComponentCtx& ctx,
                const char* name,
                Guid& guid) {
-
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, ui::kDefaultColumnWidth);
     ImGui::Text(ICON_FA_CUBE "  %s", name);
@@ -45,6 +46,20 @@ bool DrawAsset(const DrawComponentCtx& ctx,
         ShowAssetToolTip(ctx.editor_services.thumbnail(), handle);
     }
     return dirty;
+}
+
+}  // namespace
+
+bool AssetEditor(const DrawComponentCtx& ctx,
+                 void* component,
+                 const FieldMetaBase* field) {
+    return EditAndSubmit<Guid>(
+        ctx,
+        component,
+        field,
+        [&ctx](const char* label, Guid& guid) {
+            return DrawAsset(ctx, label, guid);
+        });
 }
 
 }  // namespace cave

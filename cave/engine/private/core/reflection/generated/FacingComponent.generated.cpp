@@ -13,7 +13,15 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<FacingComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(FacingComponent, "facing", CAVE_SID("facing"), facing, FieldFlag::Serialize, EditorHint::EnumDropDown),
+        REGISTER_FIELD(
+            FacingComponent,
+            "facing",
+            CAVE_SID("facing"),
+            facing,
+            FieldFlag::Serialize,
+            EditorHint::EnumDropDown,
+            nullptr
+        ),
     };
 
     return s_table;

@@ -1,6 +1,6 @@
 type: image
 guid: 285FAD74-CB89-1743-AE29415CCA88473A
-name: ""
+name: spr_gui_heart.png
 import_path: "@res://textures/spr_gui_heart.png"
 dependencies: []
 source_created_time: ""

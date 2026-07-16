@@ -14,8 +14,24 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<NativeScriptComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(NativeScriptComponent, "name", CAVE_SID("name"), name, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(NativeScriptComponent, "params", CAVE_SID("params"), params, FieldFlag::Serialize, EditorHint::VariantMap),
+        REGISTER_FIELD(
+            NativeScriptComponent,
+            "name",
+            CAVE_SID("name"),
+            name,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            NativeScriptComponent,
+            "params",
+            CAVE_SID("params"),
+            params,
+            FieldFlag::Serialize,
+            EditorHint::VariantMap,
+            nullptr
+        ),
     };
 
     return s_table;

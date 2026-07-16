@@ -18,12 +18,60 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(MeshRendererComponent, "visibility", CAVE_SID("visibility"), m_visibility, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(MeshRendererComponent, "cast_shadow", CAVE_SID("cast_shadow"), m_cast_shadow, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(MeshRendererComponent, "transparency", CAVE_SID("transparency"), m_transparency, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(MeshRendererComponent, "mesh_id", CAVE_SID("mesh_id"), m_mesh_id, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(MeshRendererComponent, "materials", CAVE_SID("materials"), m_materials, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(MeshRendererComponent, "skeleton_id", CAVE_SID("skeleton_id"), m_skeleton_id, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(
+            MeshRendererComponent,
+            "visibility",
+            CAVE_SID("visibility"),
+            m_visibility,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            MeshRendererComponent,
+            "cast_shadow",
+            CAVE_SID("cast_shadow"),
+            m_cast_shadow,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            MeshRendererComponent,
+            "transparency",
+            CAVE_SID("transparency"),
+            m_transparency,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            MeshRendererComponent,
+            "mesh_id",
+            CAVE_SID("mesh_id"),
+            m_mesh_id,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            MeshRendererComponent,
+            "materials",
+            CAVE_SID("materials"),
+            m_materials,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            MeshRendererComponent,
+            "skeleton_id",
+            CAVE_SID("skeleton_id"),
+            m_skeleton_id,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
     };
 
     return s_table;

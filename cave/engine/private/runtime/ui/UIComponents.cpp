@@ -5,13 +5,27 @@
 
 namespace cave {
 
-void UIImageComponent::onDeserialized() {
-    if (!m_image_guid.isNull()) {
-        auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(m_image_guid);
-        if (handle.is_some()) {
-            m_image_handle = std::move(handle.unwrap_unchecked());
-        }
+void UIImageComponent::refreshImageHandle() {
+    if (m_image_guid.isNull()) {
+        return;
     }
+
+    auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(m_image_guid);
+    if (handle.is_some()) {
+        m_image_handle = std::move(handle.unwrap_unchecked());
+    }
+}
+
+void UIImageComponent::onImageIdChanged(const FieldChange& change) {
+    DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
+    DEV_ASSERT(change.object == this);
+    DEV_ASSERT(change.field->id == CAVE_SID("image_guid"));
+
+    refreshImageHandle();
+}
+
+void UIImageComponent::onDeserialized() {
+    refreshImageHandle();
 }
 
 }  // namespace cave

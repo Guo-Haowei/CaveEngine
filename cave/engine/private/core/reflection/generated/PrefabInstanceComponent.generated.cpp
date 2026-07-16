@@ -13,7 +13,15 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(PrefabInstanceComponent, "prefab_id", CAVE_SID("prefab_id"), m_prefab_id, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(
+            PrefabInstanceComponent,
+            "prefab_id",
+            CAVE_SID("prefab_id"),
+            m_prefab_id,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
     };
 
     return s_table;
