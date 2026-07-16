@@ -28,6 +28,7 @@ void TileMapInstanceComponent::onTileMapIdChanged(const FieldChange& change) {
     DEV_ASSERT(change.field->id == CAVE_SID("tile_map_id"));
 
     refreshTileMapHandle();
+    ++m_revision;
 }
 
 void TileMapInstanceComponent::onDeserialized() {
@@ -76,9 +77,9 @@ void TileMapInstanceComponent::createRenderData() {
 
     m_cache.image = tile_set->handle();
 
-    std::vector<Vec2f> vertices;
-    std::vector<Vec2f> uvs;
-    std::vector<uint32_t> indices;
+    Vector<Vec2f> vertices;
+    Vector<Vec2f> uvs;
+    Vector<uint32_t> indices;
 
     const auto& chunks = tile_map->tiles().chunks();
     if (chunks.empty()) {
