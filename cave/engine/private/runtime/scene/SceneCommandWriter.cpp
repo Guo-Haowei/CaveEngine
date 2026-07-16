@@ -186,7 +186,6 @@ Entity SceneCommandWriter::image(std::string_view name) {
     Entity e = nameObject(name);
     addComponent(e, HierarchyComponent_Id);
     addComponent(e, UIRectTransformComponent_Id);
-    addComponent(e, UIImageComponent_Id);
     return e;
 }
 
