@@ -28,7 +28,7 @@ Vector<Guid> SceneContainer::dependencies() const {
         deps.insert(prefab.prefabGuid());
     }
     for (const auto& [id, tile_map_renderer] : m_scene->view<TileMapInstanceComponent>()) {
-        deps.insert(tile_map_renderer.GetResourceGuid());
+        deps.insert(tile_map_renderer.tileMapId());
     }
     for (const auto& [id, animator] : m_scene->view<SpriteAnimatorComponent>()) {
         deps.insert(animator.animGuid());

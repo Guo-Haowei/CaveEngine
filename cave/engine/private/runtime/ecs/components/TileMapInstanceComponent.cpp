@@ -11,23 +11,27 @@ namespace cave {
 using namespace math;
 using namespace render;
 
-void TileMapInstanceComponent::tintColor(const Vec4f& tint_color) {
-    m_tint_color = tint_color;
-}
-
-bool TileMapInstanceComponent::SetResourceGuid(const Guid& guid) {
-    return AssetHandle::replaceGuidAndHandle(AssetType::TileMap,
-                                             guid,
-                                             m_tile_map_id,
-                                             m_handle.rawHandle());
-}
-
-void TileMapInstanceComponent::onDeserialized() {
+void TileMapInstanceComponent::refreshTileMapHandle() {
     if (m_tile_map_id.isNull()) {
         return;
     }
+
     auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(m_tile_map_id);
-    m_handle = std::move(res.unwrap());
+    if (res.is_some()) {
+        m_handle = std::move(res.unwrap_unchecked());
+    }
+}
+
+void TileMapInstanceComponent::onTileMapIdChanged(const FieldChange& change) {
+    DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
+    DEV_ASSERT(change.object == this);
+    DEV_ASSERT(change.field->id == CAVE_SID("tile_map_id"));
+
+    refreshTileMapHandle();
+}
+
+void TileMapInstanceComponent::onDeserialized() {
+    refreshTileMapHandle();
 }
 
 void TileMapInstanceComponent::createRenderData() {

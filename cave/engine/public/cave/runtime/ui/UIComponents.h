@@ -74,7 +74,6 @@ private:
     Handle<ImageAsset> m_image_handle;
 
     void refreshImageHandle();
-
     void onImageIdChanged(const FieldChange& change);
 
 public:
@@ -82,9 +81,9 @@ public:
 
     const math::Vec4f tint() const { return m_tint; }
 
-    void onDeserialized();
-
     const Handle<ImageAsset>& handle() const { return m_image_handle; }
+
+    void onDeserialized();
 };
 
 struct UITextComponent {

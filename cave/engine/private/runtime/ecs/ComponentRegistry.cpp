@@ -100,20 +100,6 @@ void Materail_OnEdited(Scene& scene,
     }
 }
 
-void TileMapInstance_OnEdited(Scene& scene,
-                              ecs::Entity ent,
-                              ComponentId,
-                              const PropertyId& pid,
-                              const void*,
-                              uint32_t) {
-    if (pid == "tile_map_id"_sid) {
-        auto* c = (TileMapInstanceComponent*)scene.storage().getRaw(TileMapInstanceComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            c->onDeserialized();
-        }
-    }
-}
-
 void PrefabInstance_OnEdited(Scene& scene,
                              ecs::Entity ent,
                              ComponentId,
@@ -153,7 +139,6 @@ void ComponentRegistry::builtin(ComponentRegistry& out) {
     out.getMut(TransformComponent_Id).on_edited = Transform_OnEdited;
     out.getMut(MeshRendererComponent_Id).on_edited = MeshRenderer_OnEdited;
     out.getMut(MaterialComponent_Id).on_edited = Materail_OnEdited;
-    out.getMut(TileMapInstanceComponent_Id).on_edited = TileMapInstance_OnEdited;
     out.getMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
 }
 
