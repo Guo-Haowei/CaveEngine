@@ -134,7 +134,7 @@ const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_UIButtonComponent_meta = MetaDataTable<UIButtonComponent>::GetFields();
 
-// Guid m_image_guid (editor = Asset, on_change = onImageIdChanged)
+// Guid m_image_guid (editor = Asset, on_change = onImageGuidChanged)
 // math::Vec4f m_tint (editor = Color)
 
 template<>
@@ -147,7 +147,7 @@ const MetaTableFields& MetaDataTable<UIImageComponent>::GetFields() {
             m_image_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            &::cave::InvokeFieldChanged<UIImageComponent, &UIImageComponent::onImageIdChanged>
+            &::cave::InvokeFieldChanged<UIImageComponent, &UIImageComponent::onImageGuidChanged>
         ),
         REGISTER_FIELD(
             UIImageComponent,

@@ -394,7 +394,7 @@ void PropertyPanel::drawUIImpl() {
 #endif
         }
 
-        for (ecs::Entity id : p_render.GetMaterialInstances()) {
+        for (ecs::Entity id : p_render.materialInstances()) {
             if (MaterialComponent* material = scene.component<MaterialComponent>(id); material) {
                 DrawComponentCtx copy_ctx = ctx;
                 copy_ctx.entity = id;

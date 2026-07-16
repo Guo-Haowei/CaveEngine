@@ -7,6 +7,7 @@ namespace cave {
 
 void UIImageComponent::refreshImageHandle() {
     if (m_image_guid.isNull()) {
+        m_image_handle = {};
         return;
     }
 
@@ -16,7 +17,7 @@ void UIImageComponent::refreshImageHandle() {
     }
 }
 
-void UIImageComponent::onImageIdChanged(const FieldChange& change) {
+void UIImageComponent::onImageGuidChanged(const FieldChange& change) {
     DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
     DEV_ASSERT(change.object == this);
     DEV_ASSERT(change.field->id == CAVE_SID("image_guid"));

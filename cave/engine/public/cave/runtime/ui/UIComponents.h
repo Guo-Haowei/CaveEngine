@@ -64,7 +64,7 @@ class UIImageComponent {
     CAVE_COMPONENT(UIImageComponent)
 
 private:
-    CAVE_PROP(editor = Asset, on_change = onImageIdChanged)
+    CAVE_PROP(editor = Asset, on_change = onImageGuidChanged)
     Guid m_image_guid;
 
     CAVE_PROP(editor = Color)
@@ -74,7 +74,7 @@ private:
     Handle<ImageAsset> m_image_handle;
 
     void refreshImageHandle();
-    void onImageIdChanged(const FieldChange& change);
+    void onImageGuidChanged(const FieldChange& change);
 
 public:
     const Guid& imageGuid() const { return m_image_guid; }

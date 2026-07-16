@@ -25,19 +25,19 @@ void SpriteAnimationClip::setAnimationLength(float length) {
 }
 
 bool SpriteAnimationAsset::addClip(std::string&& name, std::vector<math::Box2>&& frames) {
-    auto it = clips_.find(name);
-    if (it != clips_.end()) {
+    auto it = m_clips.find(name);
+    if (it != m_clips.end()) {
         LOG_WARN("clip '{}' already exists", name);
         return false;
     }
 
-    clips_.insert(std::make_pair(std::move(name), SpriteAnimationClip(std::move(frames))));
+    m_clips.insert(std::make_pair(std::move(name), SpriteAnimationClip(std::move(frames))));
     return true;
 }
 
 const SpriteAnimationClip* SpriteAnimationAsset::tryGetClip(const std::string& name) {
-    auto it = clips_.find(name);
-    if (it == clips_.end()) {
+    auto it = m_clips.find(name);
+    if (it == m_clips.end()) {
         return nullptr;
     }
 
@@ -47,17 +47,17 @@ const SpriteAnimationClip* SpriteAnimationAsset::tryGetClip(const std::string& n
 void SpriteAnimationAsset::SetGuid(const Guid& guid) {
     AssetHandle::replaceGuidAndHandle(AssetType::Image,
                                       guid,
-                                      image_guid_,
-                                      image_handle_.rawHandle());
+                                      m_image_guid,
+                                      m_image_handle.rawHandle());
 }
 
 void SpriteAnimationAsset::onDeserialized() {
-    auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(image_guid_);
+    auto handle = AssetRegistry::singleton().findByGuid<ImageAsset>(m_image_guid);
     if (handle.is_some()) {
-        image_handle_ = handle.unwrap_unchecked();
+        m_image_handle = handle.unwrap_unchecked();
     }
 
-    for (auto& it : clips_) {
+    for (auto& it : m_clips) {
         float& total = it.second.total_duration_;
         total = 0.0f;
         for (float duration : it.second.durations_) {

@@ -12,20 +12,21 @@ using namespace math;
 using namespace render;
 
 void TileMapInstanceComponent::refreshTileMapHandle() {
-    if (m_tile_map_id.isNull()) {
+    if (m_tile_map_guid.isNull()) {
+        m_handle = {};
         return;
     }
 
-    auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(m_tile_map_id);
+    auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(m_tile_map_guid);
     if (res.is_some()) {
         m_handle = std::move(res.unwrap_unchecked());
     }
 }
 
-void TileMapInstanceComponent::onTileMapIdChanged(const FieldChange& change) {
+void TileMapInstanceComponent::onTileMapGuidChanged(const FieldChange& change) {
     DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
     DEV_ASSERT(change.object == this);
-    DEV_ASSERT(change.field->id == CAVE_SID("tile_map_id"));
+    DEV_ASSERT(change.field->id == CAVE_SID("tile_map_guid"));
 
     refreshTileMapHandle();
     ++m_revision;
@@ -36,7 +37,7 @@ void TileMapInstanceComponent::onDeserialized() {
 }
 
 void TileMapInstanceComponent::createRenderData() {
-    if (m_tile_map_id != m_handle.guid()) {
+    if (m_tile_map_guid != m_handle.guid()) {
         onDeserialized();
     }
 

@@ -24,7 +24,7 @@ private:
     CAVE_PROP(editor = Toggle)
     bool m_transparency = false;
 
-    CAVE_PROP(editor = Asset)
+    CAVE_PROP(editor = Asset, on_change = onMeshGuidChanged)
     Guid m_mesh_id;
 
     CAVE_PROP()
@@ -36,18 +36,20 @@ private:
     // Non-serialized
     Handle<MeshAsset> m_mesh_handle{};
 
+    void refreshMeshHandle();
+    void onMeshGuidChanged(const FieldChange& change);
+
 public:
     MeshRendererComponent();
 
-    const Guid& GetResourceGuid() const { return m_mesh_id; }
-    bool SetResourceGuid(const Guid& p_guid);
+    const Guid& meshGuid() const { return m_mesh_id; }
 
-    auto& GetMaterialInstances() { return m_materials; }
-    const auto& GetMaterialInstances() const { return m_materials; }
+    auto& materialInstances() { return m_materials; }
+    const auto& materialInstances() const { return m_materials; }
 
-    void AddMaterial(ecs::Entity p_material);
+    void addMaterial(ecs::Entity material);
 
-    const auto& GetMeshHandle() const { return m_mesh_handle; }
+    const auto& meshHandle() const { return m_mesh_handle; }
 
     ecs::Entity GetSkeletonId() const { return m_skeleton_id; }
     void SetSkeletonId(ecs::Entity p_id) { m_skeleton_id = p_id; }

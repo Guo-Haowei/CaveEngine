@@ -72,34 +72,6 @@ void Transform_OnEdited(Scene& scene,
     }
 }
 
-void MeshRenderer_OnEdited(Scene& scene,
-                           ecs::Entity ent,
-                           ComponentId,
-                           const PropertyId& pid,
-                           const void*,
-                           uint32_t) {
-    if (pid == "mesh_id"_sid) {
-        auto* c = (MeshRendererComponent*)scene.storage().getRaw(MeshRendererComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            c->onDeserialized();
-        }
-    }
-}
-
-void Materail_OnEdited(Scene& scene,
-                       ecs::Entity ent,
-                       ComponentId,
-                       const PropertyId& pid,
-                       const void*,
-                       uint32_t) {
-    if (pid == "material_id"_sid) {
-        auto* c = (MaterialComponent*)scene.storage().getRaw(MaterialComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            c->onDeserialized();
-        }
-    }
-}
-
 void PrefabInstance_OnEdited(Scene& scene,
                              ecs::Entity ent,
                              ComponentId,
@@ -137,8 +109,6 @@ void ComponentRegistry::builtin(ComponentRegistry& out) {
 #undef REGISTER_COMPONENT
 
     out.getMut(TransformComponent_Id).on_edited = Transform_OnEdited;
-    out.getMut(MeshRendererComponent_Id).on_edited = MeshRenderer_OnEdited;
-    out.getMut(MaterialComponent_Id).on_edited = Materail_OnEdited;
     out.getMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
 }
 

@@ -33,7 +33,7 @@ std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
 
     Entity ent = cb.tileMapObject("tilemap");
     cb.attachChild(ent, root);
-    cb.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, guid());
+    cb.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_guid"_sid, guid());
 
     auto scene = MakeOwner<Scene>();
 

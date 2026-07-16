@@ -19,7 +19,7 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapInstanceComponent:
-      tile_map_id: 70B46582-6BA6-1C45-93E8FC300C40314A
+      tile_map_guid: 70B46582-6BA6-1C45-93E8FC300C40314A
       tint_color: [1, 1, 1, 1]
   - id: 3
     HierarchyComponent:

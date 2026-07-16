@@ -11,7 +11,7 @@ namespace cave {
 // bool m_visibility (editor = Toggle)
 // bool m_cast_shadow (editor = Toggle)
 // bool m_transparency (editor = Toggle)
-// Guid m_mesh_id (editor = Asset)
+// Guid m_mesh_id (editor = Asset, on_change = onMeshGuidChanged)
 // FixedStack<ecs::Entity, kMaxMaterial> m_materials ()
 // ecs::Entity m_skeleton_id ()
 
@@ -52,7 +52,7 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
             m_mesh_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            &::cave::InvokeFieldChanged<MeshRendererComponent, &MeshRendererComponent::onMeshGuidChanged>
         ),
         REGISTER_FIELD(
             MeshRendererComponent,

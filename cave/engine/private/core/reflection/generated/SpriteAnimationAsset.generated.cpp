@@ -50,8 +50,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_SpriteAnimationClip_meta = MetaDataTable<SpriteAnimationClip>::GetFields();
 
-// Guid image_guid_ (editor = Asset, tooltip = "image id")
-// std::map<std::string, SpriteAnimationClip> clips_ ()
+// Guid m_image_guid (editor = Asset)
+// Map<String, SpriteAnimationClip> m_clips ()
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
@@ -60,7 +60,7 @@ const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
             SpriteAnimationAsset,
             "image_guid",
             CAVE_SID("image_guid"),
-            image_guid_,
+            m_image_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
             nullptr
@@ -69,7 +69,7 @@ const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
             SpriteAnimationAsset,
             "clips",
             CAVE_SID("clips"),
-            clips_,
+            m_clips,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr

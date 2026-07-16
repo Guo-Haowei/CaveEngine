@@ -15,8 +15,8 @@ class TileMapInstanceComponent {
     CAVE_COMPONENT(TileMapInstanceComponent)
 
 private:
-    CAVE_PROP(editor = Asset, on_change = onTileMapIdChanged)
-    Guid m_tile_map_id;
+    CAVE_PROP(editor = Asset, on_change = onTileMapGuidChanged)
+    Guid m_tile_map_guid;
 
     CAVE_PROP(editor = Color)
     math::Vec4f m_tint_color = math::Vec4f::One;
@@ -34,7 +34,7 @@ private:
     uint32_t m_revision{ 0 };
 
     void refreshTileMapHandle();
-    void onTileMapIdChanged(const FieldChange& change);
+    void onTileMapGuidChanged(const FieldChange& change);
 
 public:
     // @TODO: better way to create data
@@ -47,7 +47,7 @@ public:
 
     const math::Vec4f& tintColor() const { return m_tint_color; }
 
-    const Guid& tileMapId() const { return m_tile_map_id; }
+    const Guid& tileMapGuid() const { return m_tile_map_guid; }
 
     void onDeserialized();
 };

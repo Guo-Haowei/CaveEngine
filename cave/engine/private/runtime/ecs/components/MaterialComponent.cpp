@@ -22,18 +22,29 @@ void MaterialComponent::onDeserializedHelper(Handle<MaterialAsset>& p_handle, bo
     }
 }
 
-bool MaterialComponent::SetResourceGuid(const Guid& p_guid) {
-    if (AssetHandle::replaceGuidAndHandle(AssetType::Material,
-                                          p_guid,
-                                          m_material_id,
-                                          m_material_handle.rawHandle())) {
-        onDeserializedHelper(m_material_handle, true);
-        return true;
+void MaterialComponent::refreshMaterialHandle() {
+    if (m_material_id.isNull()) {
+        m_material_handle = {};
+        return;
     }
-    return false;
+
+    auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id);
+    if (handle.is_some()) {
+        m_material_handle = std::move(handle.unwrap_unchecked());
+    }
+}
+
+void MaterialComponent::onMaterialGuidChanged(const FieldChange& change) {
+    DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
+    DEV_ASSERT(change.object == this);
+    DEV_ASSERT(change.field->id == CAVE_SID("material_id"));
+
+    refreshMaterialHandle();
 }
 
 void MaterialComponent::onDeserialized() {
+    refreshMaterialHandle();
+
     if (auto handle = AssetRegistry::singleton().findByGuid<MaterialAsset>(m_material_id)) {
         m_material_handle = handle.unwrap_unchecked();
         onDeserializedHelper(m_material_handle, false);

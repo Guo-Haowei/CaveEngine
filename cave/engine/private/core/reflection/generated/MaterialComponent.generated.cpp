@@ -12,7 +12,7 @@ namespace cave {
 // float metallic (editor = DragFloat, min = 0.00f, max = 0.99f)
 // float roughness (editor = DragFloat, min = 0.01f, max = 1)
 // float emissive (editor = DragFloat, min = 0, max = 1000)
-// Guid m_material_id (editor = Asset)
+// Guid m_material_id (editor = Asset, on_change = onMaterialGuidChanged)
 
 template<>
 const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
@@ -66,7 +66,7 @@ const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
             m_material_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            &::cave::InvokeFieldChanged<MaterialComponent, &MaterialComponent::onMaterialGuidChanged>
         ),
     };
 

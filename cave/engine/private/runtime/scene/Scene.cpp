@@ -222,7 +222,7 @@ void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
 
     // remap material
     for (auto [id, renderer] : view<MeshRendererComponent>()) {
-        auto& materials = renderer.GetMaterialInstances();
+        auto& materials = renderer.materialInstances();
         for (size_t i = 0; i < materials.size(); ++i) {
             const auto it = mapping.find(materials[i]);
             DEV_ASSERT(it != mapping.end());

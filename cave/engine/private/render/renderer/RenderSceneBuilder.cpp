@@ -29,7 +29,7 @@ void RenderSceneBuilder::BuildFull(const Scene& scene,
     for (auto [e, renderer, hier, trans] : scene.view<MeshRendererComponent, HierarchyComponent, TransformComponent>()) {
         if (!hier.visible) continue;
 
-        const MeshAsset* mesh_asset = renderer.GetMeshHandle().get();
+        const MeshAsset* mesh_asset = renderer.meshHandle().get();
         if (!mesh_asset) continue;
 
         PayloadRef ref{
@@ -46,7 +46,7 @@ void RenderSceneBuilder::BuildFull(const Scene& scene,
         );
 
         MeshPayload& payload = out_scene.m_meshes.back();
-        const auto& materials = renderer.GetMaterialInstances();
+        const auto& materials = renderer.materialInstances();
         const size_t num_subset = mesh_asset->subsets.size();
         payload.subsets.resize(num_subset);
         payload.materials.reserve(num_subset);
