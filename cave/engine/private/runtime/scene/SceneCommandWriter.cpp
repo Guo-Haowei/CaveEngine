@@ -27,6 +27,7 @@ Entity SceneCommandWriter::nameObject(std::string_view name) {
 Entity SceneCommandWriter::rootObject(std::string_view name) {
     Entity e = nameObject(name);
     addComponent(e, TransformComponent_Id);
+    addComponent(e, HierarchyComponent_Id);
     return e;
 }
 

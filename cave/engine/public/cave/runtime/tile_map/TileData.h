@@ -30,6 +30,8 @@ public:
 
     bool empty() const;
 
+    std::span<const TileId> tileData() const { return m_local_tiles; }
+
 private:
     std::array<TileId, kTileChunkArea> m_local_tiles{};
 };

@@ -78,4 +78,34 @@ TEST(TopologicalSort, LargeGraph) {
     EXPECT_EQ(sorted[8], 8);
 }
 
+TEST(FindConnectedTiles, FillTiles) {
+    constexpr int width = 8;
+    constexpr int height = 6;
+    std::array<uint16_t, width * height> tiles = {
+        1, 1, 1, 1, 1, 1, 1, 1,  // 0-7
+        1, 0, 1, 0, 1, 1, 1, 1,  // 8-15
+        1, 0, 1, 0, 1, 1, 1, 1,  // 16-23
+        1, 0, 1, 0, 0, 1, 1, 1,  // 24-31
+        1, 0, 0, 0, 1, 1, 1, 1,  // 32-39
+        1, 1, 1, 1, 1, 1, 1, 1,  // 40-47
+    };
+
+    auto result = FindConnectedTiles(tiles, width, height, 9);
+    HashSet<uint16_t> set(result.begin(), result.end());
+    EXPECT_EQ(set.size(), 10);
+    EXPECT_TRUE(set.contains(9));
+    EXPECT_TRUE(set.contains(11));
+
+    EXPECT_TRUE(set.contains(17));
+    EXPECT_TRUE(set.contains(19));
+
+    EXPECT_TRUE(set.contains(25));
+    EXPECT_TRUE(set.contains(27));
+    EXPECT_TRUE(set.contains(28));
+
+    EXPECT_TRUE(set.contains(33));
+    EXPECT_TRUE(set.contains(34));
+    EXPECT_TRUE(set.contains(35));
+}
+
 }  // namespace cave

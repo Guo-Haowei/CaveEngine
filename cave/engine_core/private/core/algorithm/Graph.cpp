@@ -1,4 +1,7 @@
 #include "cave/core/algorithm/Graph.h"
+#include "cave/core/error/ErrorMacros.h"
+
+#include <deque>
 
 namespace cave {
 
@@ -39,6 +42,54 @@ Option<Vector<int>> TopologicalSort(int node_count,
     }
 
     return Some(std::move(sorted));
+}
+
+Vector<int> FindConnectedTiles(std::span<const uint16_t> tiles,
+                               int width,
+                               int height,
+                               int tile_idx) {
+    DEV_ASSERT(tiles.size() == width * height);
+    DEV_ASSERT(tile_idx < tiles.size());
+
+    const auto tile_value = tiles[tile_idx];
+
+    Vector<int> result{ tile_idx };
+    std::deque<int> ready{ tile_idx };
+
+    Vector<bool> visited(tiles.size(), false);
+    visited[tile_idx] = true;
+
+    auto check_tile = [&](int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return;
+        }
+
+        const int idx = width * y + x;
+        if (visited[idx]) {
+            return;
+        }
+
+        visited[idx] = true;
+        if (tiles[idx] == tile_value) {
+            ready.push_back(idx);
+            result.push_back(idx);
+        }
+    };
+
+    while (!ready.empty()) {
+        const int idx = ready.front();
+        ready.pop_front();
+
+        const int x = idx % width;
+        const int y = idx / width;
+
+        check_tile(x - 1, y);
+        check_tile(x + 1, y);
+        check_tile(x, y - 1);
+        check_tile(x, y + 1);
+    }
+
+    return result;
 }
 
 }  // namespace cave

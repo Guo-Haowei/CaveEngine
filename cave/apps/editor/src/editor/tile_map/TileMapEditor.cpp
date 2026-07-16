@@ -2,6 +2,7 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "cave/core/algorithm/Graph.h"
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/display/ICanvas.h"
@@ -259,6 +260,7 @@ GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
 
     out.ctrl = st.anyCtrlDown();
     out.shift = st.anyShiftDown();
+    out.alt = st.anyAltDown();
 
     Vec2f cursor = m_cursor.unwrap_or(Vec2f::Zero);
 
@@ -326,6 +328,11 @@ void TileMapEditor::handlePaintEvent(const GridPaintEvent& event,
                 applyPaintCells(*event.cells, event.action, tile_map, tile_set);
             }
             break;
+        case GridPaintEventType::Fill: {
+            if (DEV_VERIFY(event.cells && event.cells->size() == 1)) {
+                applyFillCells(event.cells->at(0), event.action, tile_map, tile_set);
+            }
+        } break;
         case GridPaintEventType::End: {
             finishPaintCommand();
         } break;
@@ -451,6 +458,49 @@ void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
             }
         }
     }
+}
+
+// @TODO: better editor tools, make toolbars
+void TileMapEditor::applyFillCells(GridPaintCell cell,
+                                   GridPaintAction action,
+                                   const TileMapAsset& tile_map,
+                                   const TileSetAsset& tile_set) {
+    const int16_t x = static_cast<int16_t>(cell.coord.x);
+    const int16_t y = static_cast<int16_t>(cell.coord.y);
+
+    TileCoord world_coord{ x, y };
+    TileChunkCoord chunk_coord = ToTileChunkCoord(world_coord);
+    const auto& chunks = tile_map.tiles().chunks();
+    auto it = chunks.find(chunk_coord);
+    if (it == chunks.end()) { return; }
+
+    const int16_t local_x = ToTileLocalX(world_coord);
+    const int16_t local_y = ToTileLocalY(world_coord);
+
+    std::span<const TileId> tile_data = it->second->tileData();
+
+    auto tiles = FindConnectedTiles(tile_data,
+                                    kTileChunkSize,
+                                    kTileChunkSize,
+                                    local_y * kTileChunkSize + local_x);
+
+    if (tiles.empty()) {
+        return;
+    }
+
+    Vector<GridPaintCell> paint_cells;
+    paint_cells.reserve(tiles.size());
+
+    for (int index : tiles) {
+        GridCoord coord{
+            index % kTileChunkSize + chunk_coord.x * kTileChunkSize,
+            index / kTileChunkSize + chunk_coord.y * kTileChunkSize,
+        };
+        paint_cells.push_back({ coord });
+    }
+
+    applyPaintCells(paint_cells, action, tile_map, tile_set);
+    finishPaintCommand();
 }
 
 }  // namespace cave

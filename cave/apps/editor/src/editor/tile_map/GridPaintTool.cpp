@@ -209,6 +209,20 @@ bool GridPaintTool::isStrokeModifierHeld(const GridPaintInput& input) const {
 auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridPaintEvent> {
     m_events.clear();
 
+    if (input.alt && input.has_hover) {
+
+        m_apply_buffer.clear();
+        m_apply_buffer.push_back({ input.hover });
+
+        if (input.right_down) {
+            emit(GridPaintEventType::Fill, GridPaintAction::Erase, &m_apply_buffer);
+            return m_events;
+        } else if (input.left_down) {
+            emit(GridPaintEventType::Fill, GridPaintAction::Paint, &m_apply_buffer);
+            return m_events;
+        }
+    }
+
     if (m_stroke.active && !(input.has_hover && isStrokeModifierHeld(input))) {
         cancelStroke();
         return m_events;
