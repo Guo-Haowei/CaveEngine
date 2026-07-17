@@ -17,13 +17,8 @@ auto GridPaintTool::resolveMode(const GridPaintInput& input) const
 }
 
 void GridPaintTool::emit(GridPaintEventType type,
-                         GridPaintAction action,
                          const GridPaintPreview* cells) {
-    m_events.push_back(GridPaintEvent{
-        .type = type,
-        .action = action,
-        .cells = cells,
-    });
+    m_events.push_back(GridPaintEvent{ type, cells });
 }
 
 void GridPaintTool::appendBrush(GridCoord coord,
@@ -97,13 +92,11 @@ void GridPaintTool::buildHoverPreview(GridCoord coord,
 
 void GridPaintTool::beginStroke(GridCoord coord,
                                 GridPaintMode mode,
-                                GridPaintModifier modifier,
-                                GridPaintAction action) {
+                                GridPaintModifier modifier) {
     m_stroke = {
         .active = true,
         .mode = mode,
         .modifier = modifier,
-        .action = action,
         .start = coord,
         .previous = coord,
         .current = coord,
@@ -112,11 +105,11 @@ void GridPaintTool::beginStroke(GridCoord coord,
 
     buildStrokePreview();
 
-    emit(GridPaintEventType::Begin, action);
+    emit(GridPaintEventType::Begin);
 
     if (mode == GridPaintMode::Brush) {
         m_apply_buffer = m_preview;
-        emit(GridPaintEventType::Apply, action, &m_apply_buffer);
+        emit(GridPaintEventType::Apply, &m_apply_buffer);
     }
 }
 
@@ -143,10 +136,8 @@ void GridPaintTool::updateStroke(GridCoord coord) {
                     m_apply_buffer);
             });
 
-        emit(
-            GridPaintEventType::Apply,
-            m_stroke.action,
-            &m_apply_buffer);
+        emit(GridPaintEventType::Apply,
+             &m_apply_buffer);
 
         // Ghost only shows the current brush footprint.
         buildBrushPreview(
@@ -166,16 +157,14 @@ void GridPaintTool::finishStroke() {
         return;
     }
 
-    const GridPaintAction action = m_stroke.action;
-
     if (m_stroke.mode != GridPaintMode::Brush) {
         buildStrokePreview();
 
         m_apply_buffer = m_preview;
-        emit(GridPaintEventType::Apply, action, &m_apply_buffer);
+        emit(GridPaintEventType::Apply, &m_apply_buffer);
     }
 
-    emit(GridPaintEventType::End, action);
+    emit(GridPaintEventType::End);
 
     m_stroke = {};
     m_preview.clear();
@@ -186,12 +175,10 @@ void GridPaintTool::cancelStroke() {
         return;
     }
 
-    const GridPaintAction action = m_stroke.action;
-
     m_stroke = {};
     m_preview.clear();
 
-    emit(GridPaintEventType::Cancel, action);
+    emit(GridPaintEventType::Cancel);
 }
 
 bool GridPaintTool::isStrokeModifierHeld(const GridPaintInput& input) const {
@@ -214,11 +201,8 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
         m_apply_buffer.clear();
         m_apply_buffer.push_back({ input.hover });
 
-        if (input.right_down) {
-            emit(GridPaintEventType::Fill, GridPaintAction::Erase, &m_apply_buffer);
-            return m_events;
-        } else if (input.left_down) {
-            emit(GridPaintEventType::Fill, GridPaintAction::Paint, &m_apply_buffer);
+        if (input.left_down) {
+            emit(GridPaintEventType::Fill, &m_apply_buffer);
             return m_events;
         }
     }
@@ -237,12 +221,7 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
         const auto [mode, modifier] = resolveMode(input);
 
         if (input.left_pressed) {
-            beginStroke(input.hover, mode, modifier, GridPaintAction::Paint);
-            return m_events;
-        }
-
-        if (input.right_pressed) {
-            beginStroke(input.hover, mode, modifier, GridPaintAction::Erase);
+            beginStroke(input.hover, mode, modifier);
             return m_events;
         }
 
@@ -255,11 +234,7 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
         updateStroke(input.hover);
     }
 
-    const bool released = m_stroke.action == GridPaintAction::Paint
-                              ? input.left_released
-                              : input.right_released;
-
-    if (released) {
+    if (input.left_released) {
         finishStroke();
     }
 

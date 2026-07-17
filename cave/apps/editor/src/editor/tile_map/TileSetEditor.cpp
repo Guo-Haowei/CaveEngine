@@ -20,26 +20,35 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
         index = tile_set.col() * y + x;
     }
 
-    ToolBarButtonDesc add_square_button_desc = { ICON_FA_SQUARE " Box", "Add box collider",
-                                                 [&]() {
-                                                     if (index >= 0 && tile_set.addBoxCollider(index)) {
-                                                         LOG_OK("Box collider added for {}", index);
-                                                     } else {
-                                                         LOG_ERROR("Failed to add box collider for {}", index);
-                                                     }
-                                                 } };
+    ToolBarButtonDesc add_square_button_desc = {
+        "TileSetEditor.physics.box",
+        ICON_FA_SQUARE " Box", "Add box collider",
+        [&]() {
+            if (index >= 0 && tile_set.addBoxCollider(index)) {
+                LOG_OK("Box collider added for {}", index);
+            } else {
+                LOG_ERROR("Failed to add box collider for {}", index);
+            }
+        }
+    };
 
-    ToolBarButtonDesc add_polygon_button_desc = { ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
-                                                  [&]() {
-                                                      LOG_WARN("Not implemented");
-                                                  } };
+    ToolBarButtonDesc add_polygon_button_desc = {
+        "TileSetEditor.physics.polygon",
+        ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
+        [&]() {
+            LOG_WARN("Not implemented");
+        }
+    };
 
-    ToolBarButtonDesc add_circle_button_desc = { ICON_FA_CIRCLE " Circle", "Add circle collider",
-                                                 [&]() {
-                                                     LOG_WARN("Not implemented");
-                                                 } };
+    ToolBarButtonDesc add_circle_button_desc = {
+        "TileSetEditor.circle.polygon",
+        ICON_FA_CIRCLE " Circle", "Add circle collider",
+        [&]() {
+            LOG_WARN("Not implemented");
+        }
+    };
 
-    std::vector<const ToolBarButtonDesc*> tool_bar = {
+    Vector<const ToolBarButtonDesc*> tool_bar = {
         &add_square_button_desc,
         &add_polygon_button_desc,
         &add_circle_button_desc,

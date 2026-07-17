@@ -9,11 +9,6 @@ enum class GridPaintMode : uint8_t {
     Rect,
 };
 
-enum class GridPaintAction : uint8_t {
-    Paint,
-    Erase,
-};
-
 enum class GridPaintEventType : uint8_t {
     Begin,
     Apply,
@@ -61,7 +56,6 @@ using GridPaintPreview = Vector<GridPaintCell>;
 
 struct GridPaintEvent {
     GridPaintEventType type = GridPaintEventType::Apply;
-    GridPaintAction action = GridPaintAction::Paint;
 
     // Only meaningful for Apply.
     const GridPaintPreview* cells = nullptr;
@@ -154,7 +148,6 @@ private:
 
         GridPaintMode mode = GridPaintMode::Brush;
         GridPaintModifier modifier = GridPaintModifier::None;
-        GridPaintAction action = GridPaintAction::Paint;
 
         GridCoord start;
         GridCoord previous;
@@ -168,8 +161,7 @@ private:
 
     void beginStroke(GridCoord coord,
                      GridPaintMode mode,
-                     GridPaintModifier modifier,
-                     GridPaintAction action);
+                     GridPaintModifier modifier);
 
     void updateStroke(GridCoord coord);
     void finishStroke();
@@ -189,9 +181,7 @@ private:
                      const GridBrush& brush,
                      GridPaintPreview& out);
 
-    void emit(GridPaintEventType type,
-              GridPaintAction action,
-              const GridPaintPreview* cells = nullptr);
+    void emit(GridPaintEventType type, const GridPaintPreview* cells = nullptr);
 
 private:
     GridPaintMode m_selected_mode = GridPaintMode::Brush;

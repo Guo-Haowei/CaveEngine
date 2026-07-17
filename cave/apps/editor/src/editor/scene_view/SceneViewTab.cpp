@@ -41,6 +41,7 @@ SceneViewTab::SceneViewTab(EditorState& editor,
     , m_button_tooltips{ "Run Project", "Pause Project" } {
 
     m_play_button = {
+        "SceneViewTab.play",
         ICON_FA_PLAY,
         "Run Project",
         [this]() {

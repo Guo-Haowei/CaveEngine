@@ -172,13 +172,12 @@ void ViewTabBase::updateRect(math::FloatRect& out_rect) {
 }
 
 void ViewTabBase::drawMainView(const math::FloatRect& rect) {
-
     const ImVec2 min{ rect.x, rect.y };
     const ImVec2 max{ rect.Right(), rect.Bottom() };
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-    draw_list->AddRectFilled(min, max, IM_COL32(40, 40, 40, 255));
+    draw_list->AddRectFilled(min, max, IM_COL32(60, 60, 60, 255));
 
     // @TODO: move it somewhere else
     uint64_t tex = m_texture->GetHandle();

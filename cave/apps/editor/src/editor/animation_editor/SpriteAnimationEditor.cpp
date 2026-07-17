@@ -50,17 +50,24 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorState& editor,
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
     , m_debug_id(MakeDebugId(this)) {
 
-    // @TODO:
     // ICON_FA_FORWARD;
     // ICON_FA_BACKWARD;
-    m_play_button = { ICON_FA_PLAY, "Play animation",
-                      [this]() {
-                          m_last_req = Request::Play;
-                      } };
-    m_pause_button = { ICON_FA_PAUSE, "Pause animation",
-                       [this]() {
-                           m_last_req = Request::Pause;
-                       } };
+    m_play_button = {
+        .id = "SpriteAnimationEditor.play_button",
+        .display = ICON_FA_PLAY ,
+        .tooltip = "Play animation",
+        .execute_func = [this]() {
+            m_last_req = Request::Play;
+        }
+    };
+    m_pause_button = {
+        .id = "SpriteAnimationEditor.m_pause_button",
+        .display = ICON_FA_PAUSE,
+        .tooltip = "Pause animation",
+        .execute_func = [this]() {
+            m_last_req = Request::Pause;
+        }
+    };
 }
 
 void SpriteAnimationEditor::onCreate() {
@@ -229,7 +236,7 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
 
     ImGui::NextColumn();
 
-    std::vector<const ToolBarButtonDesc*> buttons = {
+    Vector<const ToolBarButtonDesc*> buttons = {
         animator->playing() ? &m_pause_button : &m_play_button
     };
 

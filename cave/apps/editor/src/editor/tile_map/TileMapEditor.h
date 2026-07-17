@@ -39,6 +39,7 @@ private:
     void tileMapLayerOverview(TileMapAsset& tile_map);
 
     void drawUIImpl() override;
+    void drawMainView(const math::FloatRect& rect);
     void drawGizmo(const math::FloatRect& rect);
     void drawAssetInspector(IDocument& doc) override;
     void drawGhostTiles(const TileSetAsset& tile_set);
@@ -58,12 +59,10 @@ private:
     void cancelPaintCommand();
 
     void applyPaintCells(std::span<const GridPaintCell> cells,
-                         GridPaintAction action,
                          const TileMapAsset& tile_map,
                          const TileSetAsset& tile_set);
 
     void applyFillCells(GridPaintCell cell,
-                        GridPaintAction action,
                         const TileMapAsset& tile_map,
                         const TileSetAsset& tile_set);
     // ---- Paint Tool ----
@@ -74,6 +73,17 @@ private:
 
     HashMap<TileCoord, PendingChange> m_pending_tile_changes;
     Option<math::Vec2f> m_cursor;
+
+    enum class ToolType {
+        None = 0,
+        Pencil,
+        Line,
+        Rect,
+        Fill,
+    } m_tool_type = ToolType::None;
+    bool m_erasing = false;
+
+    std::array<ToolBarButtonDesc, 5> m_toolbar;
 
     // @TODO: review this part
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
