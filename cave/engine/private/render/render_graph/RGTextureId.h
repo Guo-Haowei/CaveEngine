@@ -18,6 +18,10 @@ public:
 
     std::strong_ordering operator<=>(const RGTextureId&) const = default;
 
+    static RGTextureId null() {
+        return RGTextureId{};
+    }
+
 private:
     Type m_value{};
 };
@@ -25,6 +29,10 @@ private:
 struct RGDependencyId : public RGTextureId {
     explicit RGDependencyId(RGTextureId id) noexcept
         : RGTextureId(id) {
+    }
+
+    static RGDependencyId null() {
+        return RGDependencyId(RGTextureId{});
     }
 };
 

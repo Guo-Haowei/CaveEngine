@@ -155,68 +155,83 @@ BloomOut RenderGraphBuilderExt::addBloomPasses(const BloomInput& in) {
     const int height = m_viewport.h;
 
     // @TODO: use mips instead of generate this many resources
-    Vector<RGTextureId> textures;
-    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX; ++i, w /= 2, h /= 2) {
-        DEV_ASSERT(width > 1);
-        DEV_ASSERT(height > 1);
+    struct TextureContext {
+        RGTextureId id;
+        int w, h;
+    };
+
+    Vector<TextureContext> textures;
+    for (int i = 0, w = width, h = height;
+         i < kBloomMipChainMax && w > 1 && h > 1;
+         ++i, w /= 2, h /= 2) {
 
         auto texture_desc = buildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
                                                     AttachmentType::COLOR_2D,
                                                     w, h);
 
-        auto res_name = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
+        auto res_name = std::format(RG_RES_BLOOM_PREFIX "@{}x{}", w, h);
         RGTextureId id = createTexture({
             res_name,
             texture_desc,
             LinearClampSampler(),
         });
-        textures.push_back(id);
+        textures.emplace_back(id, w, h);
     }
 
-    DEV_ASSERT(textures.size());
+    const int num_textures = static_cast<int>(textures.size());
+    DEV_ASSERT(num_textures > 1);
 
     // Setup pass
     RGDependencyId setup_dependency = createDependency();
 
     RenderPass& setup_pass = addRenderPass(kPassBloomSetup);
     setup_pass
+        .readDependency(in.dependency)
         .read(ResourceAccess::SRV, in.color)
-        .read(ResourceAccess::UAV, textures[0])
+        .read(ResourceAccess::UAV, textures[0].id)
         .writeDependency(setup_dependency)
         .setExecuteFunc(BloomSetupFunc);
 
     RGDependencyId last_dep = setup_dependency;
 
     // Down Sample
-    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX - 1; ++i, w /= 2, h /= 2) {
-        auto pass_name = std::format(RG_PASS_BLOOM_DOWN_PREFIX "{}", i);
+    for (int i = 0; i < num_textures - 1; ++i) {
+        const auto& dest = textures[i + 1];
+
+        auto pass_name = std::format(RG_PASS_BLOOM_DOWN_PREFIX "@{}x{}", dest.w, dest.h);
         auto& pass = addRenderPass(pass_name);
         RGDependencyId new_dep = createDependency();
         pass.readDependency(last_dep)
-            .read(ResourceAccess::SRV, textures[i])
-            .read(ResourceAccess::UAV, textures[i + 1])
+            .read(ResourceAccess::SRV, textures[i].id)
+            .read(ResourceAccess::UAV, dest.id)
             .writeDependency(new_dep)
             .setExecuteFunc(BloomDownSampleFunc);
         last_dep = new_dep;
     }
 
+    RenderPass* last_pass = nullptr;
     // Up Sample
-    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX - 1; ++i, w /= 2, h /= 2) {
-        auto mip_low = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w / 2, h / 2);
-        auto mip = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
-
-        auto pass_name = std::format(RG_PASS_BLOOM_UP_PREFIX "{}", i);
+    for (int i = num_textures - 2; i >= 0; --i) {
+        const auto& dest = textures[i];
+        auto pass_name = std::format(RG_PASS_BLOOM_UP_PREFIX "@{}x{}", dest.w, dest.h);
         auto& pass = addRenderPass(pass_name);
+        last_pass = &pass;
         RGDependencyId new_dep = createDependency();
         pass.readDependency(last_dep)
-            .read(ResourceAccess::UAV, textures[textures.size() - 2 - i])
-            .read(ResourceAccess::SRV, textures[textures.size() - 1 - i])
+            .read(ResourceAccess::SRV, textures[i + 1].id)
+            .read(ResourceAccess::UAV, dest.id)
             .writeDependency(new_dep)
             .setExecuteFunc(BloomUpSampleFunc);
         last_dep = new_dep;
     }
 
-    return { textures[0] };
+    auto upsample_dependency = createDependency();
+    last_pass->writeDependency(upsample_dependency);
+
+    return {
+        .dependency = upsample_dependency,
+        .bloom = textures[0].id
+    };
 }
 
 HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_in) {
@@ -248,7 +263,8 @@ PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInp
         .processed = importTexture({ in.color_attachment }),
     };
 
-    pass.read(ResourceAccess::SRV, in.lighting)
+    pass.readDependency(in.dependency)
+        .read(ResourceAccess::SRV, in.lighting)
         .read(ResourceAccess::SRV, in.outline)
         .read(ResourceAccess::SRV, in.bloom);
 

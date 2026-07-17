@@ -97,7 +97,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
                 RT_SIZE_IBL_CUBEMAP,
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
-                IBL_MIP_CHAIN_MAX);
+                kIBLMipChainMax);
             desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_env_cube = m_device.CreateTexture(desc, CubemapSampler());
@@ -122,7 +122,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
                 RT_SIZE_IBL_PREFILTERED_CUBEMAP,
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
-                IBL_MIP_CHAIN_MAX);
+                kIBLMipChainMax);
             desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_specular = m_device.CreateTexture(desc, CubemapLodSampler());
@@ -164,7 +164,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& p_graph, cons
 
     int w = RT_SIZE_IBL_PREFILTERED_CUBEMAP;
     int h = RT_SIZE_IBL_PREFILTERED_CUBEMAP;
-    for (uint16_t mip = 0; mip < IBL_MIP_CHAIN_MAX; ++mip, w /= 2, h /= 2) {
+    for (uint16_t mip = 0; mip < kIBLMipChainMax; ++mip, w /= 2, h /= 2) {
         for (uint16_t face = 0; face < 6; ++face) {
             TextureViewDesc view_desc{
                 .mip_slice = mip,

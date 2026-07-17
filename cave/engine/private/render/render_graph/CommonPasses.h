@@ -14,6 +14,8 @@ struct GbufferOutput {
 };
 
 struct PostProcessInput {
+    RGDependencyId dependency;
+
     RGTextureId lighting{};
     RGTextureId outline{};
     RGTextureId bloom{};
@@ -73,7 +75,9 @@ struct BloomInput {
 };
 
 struct BloomOut {
-    RGTextureId bloom{};
+    RGDependencyId dependency;
+
+    RGTextureId bloom;
 };
 
 struct HighlightInput {

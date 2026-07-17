@@ -3,12 +3,12 @@
 
 namespace cave {
 
-#define RG_PASS_BLOOM_DOWN_PREFIX "p:bloom_downsample_"
-#define RG_PASS_BLOOM_UP_PREFIX   "p:bloom_upsample_"
-#define RG_RES_BLOOM_PREFIX       "r:bloom_"
+#define RG_PASS_BLOOM_DOWN_PREFIX "p:bloom_downsample"
+#define RG_PASS_BLOOM_UP_PREFIX   "p:bloom_upsample"
+#define RG_RES_BLOOM_PREFIX       "r:bloom"
 
-constexpr int BLOOM_MIP_CHAIN_MAX = 7;
-constexpr int IBL_MIP_CHAIN_MAX = 7;
+constexpr int kBloomMipChainMax = 7;
+constexpr int kIBLMipChainMax = 7;
 
 constexpr int RT_SIZE_IBL_CUBEMAP = 512;
 constexpr int RT_SIZE_IBL_IRRADIANCE_CUBEMAP = 32;

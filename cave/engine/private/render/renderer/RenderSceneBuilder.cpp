@@ -42,7 +42,7 @@ void RenderSceneBuilder::BuildFull(const Scene& scene,
             mesh_asset->gpuResource.get(),                      // mesh
             mesh_asset->localBound,                             // bound
             static_cast<uint32_t>(mesh_asset->indices.size()),  // index count
-            renderer.skeletonId()                            // skeleton
+            renderer.skeletonId()                               // skeleton
         );
 
         MeshPayload& payload = out_scene.m_meshes.back();

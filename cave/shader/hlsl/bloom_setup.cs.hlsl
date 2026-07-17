@@ -1,5 +1,6 @@
 /// File: bloom_setup.cs.hlsl
 #include "sampler.hlsl.h"
+#include "cbuffer.hlsl.h"
 
 Texture2D t_TextureLighting : register(t0);
 RWTexture2D<float3> u_BloomOutputImage : register(u0);
@@ -20,8 +21,7 @@ float rgb_to_luma(float3 rgb) {
     float3 color = t_TextureLighting.SampleLevel(s_linearClampSampler, uv, 0).rgb;
     float luma = rgb_to_luma(color);
 
-    const float THRESHOLD = 1.3;
-    if (luma < THRESHOLD) {
+    if (luma < c_bloomThreshold) {
         color = float3(0.0, 0.0, 0.0);
     }
 
