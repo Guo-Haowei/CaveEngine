@@ -73,6 +73,8 @@ void Scene::begin(Owner<SceneRuntime>&& runtime) {
     m_runtime->start(false);
 
     update(0.0f);
+
+    DEV_ASSERT(m_hierarchy.validate(*this));
 }
 
 void Scene::alwaysRun(Owner<SceneRuntime>&& runtime) {
@@ -244,7 +246,9 @@ void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
             materials[i] = it->second;
         }
 
-        CRASH_NOW_MSG("remap skin and skeleton");
+        const auto it = mapping.find(renderer.skeletonId());
+        DEV_ASSERT(it != mapping.end());
+        renderer.setSkeletonId(it->second);
     }
 
     for (uint16_t cid = 0; cid < static_cast<uint16_t>(storage().entries().size()); ++cid) {

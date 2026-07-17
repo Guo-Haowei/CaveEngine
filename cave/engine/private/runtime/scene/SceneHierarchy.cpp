@@ -14,6 +14,8 @@ void SceneHierarchy::rebuild(const Scene& scene) {
     for (const auto& [child, hier] : scene.view<HierarchyComponent>()) {
         addChild(hier.parent(), child);
     }
+
+    DEV_ASSERT(validate(scene));
 }
 
 void SceneHierarchy::beginBulkEdit() {
@@ -106,6 +108,46 @@ Option<Entity> SceneHierarchy::firstRoot() const {
         return None();
     }
     return Some(m_roots[0]);
+}
+
+bool SceneHierarchy::validate(const Scene& scene) const {
+    HashSet<Entity> seen;
+
+    for (Entity root : m_roots) {
+        if (!seen.insert(root).second) {
+            return false;  // duplicate root
+        }
+
+        const auto* hier = scene.component<HierarchyComponent>(root);
+        if (!hier || hier->parent().valid()) {
+            return false;  // cached as root, but component says otherwise
+        }
+    }
+
+    for (const auto& [parent, children] : m_children) {
+        if (!parent.valid()) {
+            return false;  // child, but no valid parent
+        }
+
+        for (Entity child : children) {
+            if (!seen.insert(child).second) {
+                return false;  // appears twice
+            }
+
+            const auto* hier = scene.component<HierarchyComponent>(child);
+            if (!hier || hier->parent() != parent) {
+                return false;  // cached edge disagrees with component
+            }
+        }
+    }
+
+    for (const auto& [entity, hier] : scene.view<HierarchyComponent>()) {
+        if (!seen.contains(entity)) {
+            return false;  // component exists, but cache missed entity
+        }
+    }
+
+    return true;
 }
 
 }  // namespace cave

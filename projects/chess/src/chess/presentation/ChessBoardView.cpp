@@ -32,7 +32,7 @@ void ChessBoardView::drawBoard() {
 
         auto renderer = m_query.component<MeshRendererComponent>(tile);
         if (DEV_VERIFY(renderer)) {
-            renderer->SetVisible(visible);
+            renderer->setVisible(visible);
         }
     }
 

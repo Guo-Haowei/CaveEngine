@@ -262,7 +262,7 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
-      mesh_id: EB78D29C-986D-DE4C-8A0EA50E93A0028E
+      mesh_guid: EB78D29C-986D-DE4C-8A0EA50E93A0028E
       materials: [25]
       skeleton_id: 2
   - id: 25

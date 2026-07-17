@@ -23,7 +23,7 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
-      mesh_id: 935F026E-C054-6046-913DC55FA22DE59C
+      mesh_guid: 935F026E-C054-6046-913DC55FA22DE59C
       materials: [2]
     MaterialComponent:
       base_color: [0.600000024, 0.600000024, 0.600000024, 1]

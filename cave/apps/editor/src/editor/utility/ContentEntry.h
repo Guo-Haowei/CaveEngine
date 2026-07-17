@@ -8,7 +8,7 @@ class DocumentService;
 class ThumbnailService;
 
 struct ContentEntry {
-    AssetType type;
+    AssetType asset_type;
     AssetHandle handle;
 
     bool is_dir;
@@ -33,5 +33,7 @@ void ShowAssetToolTip(ThumbnailService& service, const ContentEntry& node);
 void ShowPopup(const ContentEntry& node,
                DocumentService& document,
                std::function<void(void)> rename_cb = nullptr);
+
+const char* GetContentIcon(const ContentEntry& entry, bool is_open);
 
 }  // namespace cave

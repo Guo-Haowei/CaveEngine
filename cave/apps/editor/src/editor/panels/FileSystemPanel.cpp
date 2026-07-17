@@ -40,13 +40,10 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
 
     auto id = std::format("##{}", entry.virtual_path);
 
-    const bool node_open = ImGui::TreeNodeEx(id.c_str(), flags);
-    const char* icon = ICON_FA_CUBE;
-    if (is_dir) {
-        icon = node_open ? ICON_FA_FOLDER_OPEN : ICON_FA_FOLDER_CLOSED;
-    }
+    const bool expanded = ImGui::TreeNodeEx(id.c_str(), flags);
 
     ImGui::SameLine();
+    const char* icon = GetContentIcon(entry, expanded);
 
     if (m_renaming == entry.sys_path) {
         std::string buffer;
@@ -84,7 +81,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
         }
     }
 
-    if (node_open) {
+    if (expanded) {
         for (const auto& sub_folder : entry.children) {
             drawFolderTreeNode(*sub_folder);
         }

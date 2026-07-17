@@ -41,7 +41,7 @@ DragPayload MakePayloadFolder(const ContentEntry& entry) {
 DragPayload MakePayloadAsset(const ContentEntry& entry) {
     DragPayload payload;
     payload.kind = DragKind::Asset;
-    payload.type = entry.type;
+    payload.type = entry.asset_type;
     payload.guid = entry.handle.guid();
     strncpy(payload.path,
             entry.sys_path.string().c_str(),

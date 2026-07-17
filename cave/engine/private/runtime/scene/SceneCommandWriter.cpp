@@ -109,7 +109,7 @@ Entity SceneCommandWriter::areaLightObject(std::string_view name,
     auto handle = m_asset_reg.findByPath<MeshAsset>("@persist://meshes/plane").unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ e };
-    setProperty(e, MeshRendererComponent_Id, CAVE_SID("mesh_id"), handle.guid());
+    setProperty(e, MeshRendererComponent_Id, CAVE_SID("mesh_guid"), handle.guid());
     setProperty(e, MeshRendererComponent_Id, CAVE_SID("materials"), materials);
 
     return e;
@@ -136,7 +136,7 @@ Entity SceneCommandWriter::meshObject(const std::string& mesh_path,
     auto handle = m_asset_reg.findByPath<MeshAsset>(mesh_path).unwrap();
 
     FixedStack<ecs::Entity, MeshRendererComponent::kMaxMaterial> materials{ mat };
-    setProperty(e, MeshRendererComponent_Id, CAVE_SID("mesh_id"), handle.guid());
+    setProperty(e, MeshRendererComponent_Id, CAVE_SID("mesh_guid"), handle.guid());
     setProperty(e, MeshRendererComponent_Id, CAVE_SID("materials"), materials);
 
     return e;

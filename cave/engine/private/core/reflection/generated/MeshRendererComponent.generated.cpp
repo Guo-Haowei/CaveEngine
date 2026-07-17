@@ -8,10 +8,10 @@
 
 namespace cave {
 
-// bool m_visibility (editor = Toggle)
+// bool m_visible (editor = Toggle)
 // bool m_cast_shadow (editor = Toggle)
-// bool m_transparency (editor = Toggle)
-// Guid m_mesh_id (editor = Asset, on_change = onMeshGuidChanged)
+// bool m_transparent (editor = Toggle)
+// Guid m_mesh_guid (editor = Asset, on_change = onMeshGuidChanged)
 // FixedStack<ecs::Entity, kMaxMaterial> m_materials ()
 // ecs::Entity m_skeleton_id ()
 
@@ -20,9 +20,9 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             MeshRendererComponent,
-            "visibility",
-            CAVE_SID("visibility"),
-            m_visibility,
+            "visible",
+            CAVE_SID("visible"),
+            m_visible,
             FieldFlag::Serialize,
             EditorHint::Toggle,
             nullptr
@@ -38,18 +38,18 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
         ),
         REGISTER_FIELD(
             MeshRendererComponent,
-            "transparency",
-            CAVE_SID("transparency"),
-            m_transparency,
+            "transparent",
+            CAVE_SID("transparent"),
+            m_transparent,
             FieldFlag::Serialize,
             EditorHint::Toggle,
             nullptr
         ),
         REGISTER_FIELD(
             MeshRendererComponent,
-            "mesh_id",
-            CAVE_SID("mesh_id"),
-            m_mesh_id,
+            "mesh_guid",
+            CAVE_SID("mesh_guid"),
+            m_mesh_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
             &::cave::InvokeFieldChanged<MeshRendererComponent, &MeshRendererComponent::onMeshGuidChanged>

@@ -202,16 +202,16 @@ bool OpenSceneLib(lua_State* L) {
     luabridge::getGlobalNamespace(L)
         .beginClass<MeshRendererComponent>("MeshRendererComponent")
         .addFunction("is_visible", [](MeshRendererComponent* p_mesh_renderer) {
-            return p_mesh_renderer->IsVisible();
+            return p_mesh_renderer->visible();
         })
         .addFunction("set_visible", [](MeshRendererComponent* p_mesh_renderer, bool p_visible) {
-            p_mesh_renderer->SetVisible(p_visible);
+            p_mesh_renderer->setVisible(p_visible);
         })
         .addFunction("cast_shadow", [](MeshRendererComponent* p_mesh_renderer) {
-            return p_mesh_renderer->CastShadow();
+            return p_mesh_renderer->castShadow();
         })
         .addFunction("set_cast_shadow", [](MeshRendererComponent* p_mesh_renderer, bool p_cast_shadow) {
-            p_mesh_renderer->SetCastShadow(p_cast_shadow);
+            p_mesh_renderer->setCastShadow(p_cast_shadow);
         })
         .endClass();
 

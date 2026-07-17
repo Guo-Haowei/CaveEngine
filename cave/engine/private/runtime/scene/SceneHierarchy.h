@@ -20,6 +20,8 @@ public:
 
     Option<ecs::Entity> firstRoot() const;
 
+    bool validate(const Scene& scene) const;
+
     std::span<const ecs::Entity> children(ecs::Entity parent) const;
     std::span<const ecs::Entity> roots() const { return m_roots; }
 

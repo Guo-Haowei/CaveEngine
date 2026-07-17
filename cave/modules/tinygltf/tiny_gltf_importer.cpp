@@ -532,7 +532,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
             node_id = mesh_instance;
         } else {
             node_id = scene.getEntityByIndex<SkeletonComponent>(node.skin);
-            renderer.SetSkeletonId(node_id);
+            renderer.setSkeletonId(node_id);
             scene.attachChild(mesh_instance, node_id);
         }
 

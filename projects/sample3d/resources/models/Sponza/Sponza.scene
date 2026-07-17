@@ -23,7 +23,7 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
-      mesh_id: 1426528D-D731-A34A-B688E84232179ACF
+      mesh_guid: 1426528D-D731-A34A-B688E84232179ACF
       materials:
         - 3
         - 4
@@ -895,7 +895,7 @@ entities:
       is_visible: true
       cast_shadow: true
       transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000004
+      mesh_guid: 00000000-0000-0000-0000000000000004
       materials: [107]
     MaterialComponent:
       base_color: [1, 1, 1, 1]

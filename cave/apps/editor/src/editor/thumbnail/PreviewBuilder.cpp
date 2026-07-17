@@ -18,7 +18,6 @@
 
 namespace cave {
 
-using namespace ::cave::literals;
 using namespace ::cave::math;
 using ecs::Entity;
 
@@ -194,7 +193,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetMetaData* meta,
     if constexpr (1) {
         Entity e = cb.transformObject("mesh");
         cb.addComponent(e, MeshRendererComponent_Id);
-        cb.setProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
+        cb.setProperty(e, MeshRendererComponent_Id, CAVE_SID("mesh_guid"), handle.guid());
         cb.attachChild(e, root);
     }
 

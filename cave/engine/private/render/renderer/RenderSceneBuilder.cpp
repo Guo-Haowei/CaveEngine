@@ -42,7 +42,7 @@ void RenderSceneBuilder::BuildFull(const Scene& scene,
             mesh_asset->gpuResource.get(),                      // mesh
             mesh_asset->localBound,                             // bound
             static_cast<uint32_t>(mesh_asset->indices.size()),  // index count
-            renderer.GetSkeletonId()                            // skeleton
+            renderer.skeletonId()                            // skeleton
         );
 
         MeshPayload& payload = out_scene.m_meshes.back();
@@ -58,9 +58,9 @@ void RenderSceneBuilder::BuildFull(const Scene& scene,
 
         // Header
         RenderableFlags flags{};
-        if (renderer.CastShadow()) flags |= RenderableFlags::CastShadow;
-        if (renderer.Transparency()) flags |= RenderableFlags::Transparent;
-        if (renderer.IsVisible()) flags |= RenderableFlags::Visible;
+        if (renderer.castShadow()) flags |= RenderableFlags::CastShadow;
+        if (renderer.transparent()) flags |= RenderableFlags::Transparent;
+        if (renderer.visible()) flags |= RenderableFlags::Visible;
         if (payload.skeleton.valid()) flags |= RenderableFlags::Skinned;
 
         Mat4f world = trans.worldMatrix();

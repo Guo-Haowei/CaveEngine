@@ -83,6 +83,9 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
     if (tree_flags & ImGuiTreeNodeFlags_Leaf) {
         icon = ICON_FA_SQUARE_SHARE_NODES;
     }
+    if (scene.storage().has(PrefabInstanceComponent_Id, ent)) {
+        icon = ICON_FA_CUBE;
+    }
 
     const char* text = hier_component->visible() ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
     const auto node_name = std::format("##tree_node_{}", ent.id());
