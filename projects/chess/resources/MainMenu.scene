@@ -1,6 +1,5 @@
-version: 20
-seed: 280
-root: 1
+version: 22
+seed: 10
 entities:
   - id: 1
     NameComponent:
@@ -41,7 +40,7 @@ entities:
       roughness: 1
       emissive: 5
       material_id: 00000000-0000-0000-0000000000000000
-  - id: 46
+  - id: 3
     NameComponent:
       name: chess_board
     HierarchyComponent:
@@ -52,13 +51,13 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [7.76999998, 7.7699995, 7.7699976]
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
+      transparent: false
       mesh_guid: 6E2C66A5-5D0B-944A-87F91E968231C94A
-      materials: [47]
+      materials: [4]
       skeleton_id: 0
-  - id: 47
+  - id: 4
     NameComponent:
       name: mat_0
     MaterialComponent:
@@ -67,7 +66,7 @@ entities:
       roughness: 1
       emissive: 0
       material_id: 8B43351D-333B-9A4D-8BAAB542CF234B1E
-  - id: 77
+  - id: 5
     NameComponent:
       name: game_camera
     HierarchyComponent:
@@ -85,7 +84,7 @@ entities:
       far: 1000
       aspect: 1.77777779
       ortho_height: 10
-  - id: 81
+  - id: 6
     NameComponent:
       name: transform
     HierarchyComponent:
@@ -95,7 +94,7 @@ entities:
       translation: [-3.5, 0, -3.5]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
-  - id: 147
+  - id: 7
     NameComponent:
       name: UICanvas
     HierarchyComponent:
@@ -105,11 +104,11 @@ entities:
       space: screen
       resolution: [1920, 1080]
       match: 0.5
-  - id: 213
+  - id: 8
     NameComponent:
-      name: MainMenuStart
+      name: LocalGame
     HierarchyComponent:
-      parent_id: 147
+      parent_id: 7
       local_visible: true
     UIRectTransformComponent:
       anchor_min: [0.5, 0]
@@ -117,12 +116,13 @@ entities:
       offset_min: [-200, 150]
       offset_max: [200, 250]
     UIButtonComponent:
-      clicked_event: main_menu.start
-  - id: 279
+      clicked_event: main_menu.local
+      tint: [1, 1, 1, 1]
+  - id: 9
     NameComponent:
-      name: Button2
+      name: OnlineGame
     HierarchyComponent:
-      parent_id: 147
+      parent_id: 7
       local_visible: true
     UIRectTransformComponent:
       anchor_min: [0.5, 0]
@@ -130,12 +130,13 @@ entities:
       offset_min: [-200, 325]
       offset_max: [200, 425]
     UIButtonComponent:
-      clicked_event: ""
-  - id: 280
+      clicked_event: main_menu.online
+      tint: [1, 1, 1, 1]
+  - id: 10
     NameComponent:
-      name: Button3
+      name: QuitApp
     HierarchyComponent:
-      parent_id: 147
+      parent_id: 7
       local_visible: true
     UIRectTransformComponent:
       anchor_min: [0.5, 0]
@@ -143,4 +144,5 @@ entities:
       offset_min: [-200, 500]
       offset_max: [200, 600]
     UIButtonComponent:
-      clicked_event: ""
+      clicked_event: main_menu.quit
+      tint: [1, 1, 1, 1]
