@@ -1,6 +1,5 @@
-version: 20
-seed: 27
-root: 1
+version: 22
+seed: 13
 entities:
   - id: 1
     NameComponent:

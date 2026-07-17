@@ -34,8 +34,9 @@ namespace {
 // version 17: remove armature.flags
 // version 18: change RigidBodyComponent
 // version 19: serialize scene.m_physicsMode
-// version 20: root root must have HierarchyComponent
+// version 20: root must have HierarchyComponent
 // version 21: prefab root must have HierarchyComponent
+// version 22: get rid of root
 constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
 
 #define PREFAB_OVERRIDE_LIST               \

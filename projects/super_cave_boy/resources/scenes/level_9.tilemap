@@ -2,7 +2,7 @@ version: 1
 content:
   name: ""
   tile_set_id: 94FB5794-CF41-1E46-8D6DB1E633C35D85
-  is_visible: true
+  visible: true
   tiles:
     - x: 0
       y: 0

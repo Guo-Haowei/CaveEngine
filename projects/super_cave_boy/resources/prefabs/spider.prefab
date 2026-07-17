@@ -1,6 +1,5 @@
-version: 21
+version: 22
 seed: 2
-root: 1
 entities:
   - id: 1
     NameComponent:
@@ -55,8 +54,8 @@ entities:
       image_id: 5DAAD570-BEFA-9343-A2611349F7AEF10D
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.200000003, 1]
-        max: [0.400000006, 0]
+        min: [0, 1]
+        max: [0.200000003, 0]
       flip_x: false
       flip_y: false
       z_index: 0
