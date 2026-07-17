@@ -1,44 +1,33 @@
+from pathlib import Path
 from PIL import Image
 
-# Load images
-images = [Image.open(path) for path in [
-    'spr_boss.png',
-    'spr_boss_damaged.png',
-]]
 
-widths = [img.width for img in images]
-height = images[0].height  # assuming all are 1px tall
+def append_images_horizontal(
+    left_path: str | Path,
+    right_path: str | Path,
+    output_path: str | Path,
+) -> None:
+    left = Image.open(left_path).convert("RGBA")
+    right = Image.open(right_path).convert("RGBA")
 
-# Step 1: Sort images by width descending
-sorted_images = sorted(images, key=lambda im: im.width, reverse=True)
+    if left.height != right.height:
+        raise ValueError(
+            f"Image heights must match: {left.height} != {right.height}"
+        )
 
-# Step 2: Determine final width
-max_width = sorted_images[0].width
+    output = Image.new(
+        "RGBA",
+        (left.width + right.width, left.height),
+        (0, 0, 0, 0),
+    )
 
-# Step 3: Pack images into rows
-rows = []  # each row is a list of (image, x_offset)
-current_rows = []
+    output.paste(left, (0, 0))
+    output.paste(right, (left.width, 0))
+    output.save(output_path)
 
-for img in sorted_images:
-    placed = False
-    for row in current_rows:
-        used_width = sum(im.width for im, _ in row)
-        if used_width + img.width <= max_width:
-            row.append((img, used_width))
-            placed = True
-            break
-    if not placed:
-        # Start a new row
-        current_rows.append([(img, 0)])
 
-# Step 4: Create final image
-total_height = height * len(current_rows)
-result = Image.new("RGBA", (max_width, total_height), (0, 0, 0, 0))
-
-# Step 5: Paste images
-for row_idx, row in enumerate(current_rows):
-    y = row_idx * height
-    for img, x in row:
-        result.paste(img, (x, y))
-
-result.save("packed.png")
+append_images_horizontal(
+    "spr_1.png",
+    "spr_2.png",
+    "combine.png",
+)
