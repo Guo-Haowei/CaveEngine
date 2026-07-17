@@ -29,7 +29,6 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
-    scene->setRoot(map.resolve(ent));
 
     SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(map.resolve(ent));
     animator->setAnimGuid(guid);

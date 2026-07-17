@@ -115,7 +115,6 @@ void Scene::copy(const Scene& other) {
         ++idx;
     }
 
-    m_root = other.m_root;
     m_world_bound = other.m_world_bound;
     m_entity_seed = other.m_entity_seed;
 

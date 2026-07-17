@@ -156,7 +156,6 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetMetaData* meta,
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->setRoot(map.resolve(root));
     scene->update(0.0f);
 
     Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
@@ -205,7 +204,6 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetMetaData* meta,
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->setRoot(map.resolve(root));
     scene->update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);

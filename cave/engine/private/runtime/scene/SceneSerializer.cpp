@@ -156,8 +156,7 @@ bool SerializePrefabDiff(ISerializer& s,
     }
 
     const PrefabAsset* prefab_asset = handle.unwrap_unchecked().get();
-    DEV_ASSERT(prefab_asset);
-    Entity prefab_root = prefab_asset->scene().root();
+    Entity prefab_root = prefab_asset->scene().hierarchy().firstRoot().unwrap();
 
     s.beginKey("PrefabOverride");
     s.beginMap(false);
@@ -229,18 +228,12 @@ void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* as
     }
 
     scene.remapEntity(mapping);
-    auto it = mapping.find(scene.root());
-    if (DEV_VERIFY(it != mapping.end())) {
-        scene.setRoot(it->second);
-    }
 
     s.beginMap(false)
         .beginKey("version")
         .write(kLatestSceneVersion)
         .beginKey("seed")
         .write(seed)
-        .beginKey("root")
-        .write(scene.root())
         .beginKey("entities");
 
     s.beginArray(false);
@@ -262,13 +255,6 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
         uint32_t seed;
         if (d.read(seed)) {
             scene.setSeed(seed);
-        }
-        d.leaveKey();
-    }
-    if (d.tryEnterKey("root")) {
-        Entity root;
-        if (d.read(root)) {
-            scene.setRoot(root);
         }
         d.leaveKey();
     }
@@ -361,17 +347,16 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
     Scene prefab_scene;
     prefab_scene.copy(prefab_asset->scene());
 
-    if (!DEV_VERIFY(prefab_scene.root().valid())) {
-        return;
-    }
+    DEV_ASSERT(prefab_scene.hierarchy().roots().size() == 1);
 
-    prefab_scene.storage().remove(HierarchyComponent_Id, prefab_scene.root());
+    Entity prefab_root = prefab_scene.hierarchy().firstRoot().unwrap();
+    prefab_scene.storage().remove(HierarchyComponent_Id, prefab_root);
 
     auto new_entities = prefab_scene.getSortedEntityArray();
     HashMap<Entity, Entity> mapping;
 
     for (Entity prefab_ent : new_entities) {
-        if (prefab_ent == prefab_scene.root()) {
+        if (prefab_ent == prefab_root) {
             mapping[prefab_ent] = parent;
         } else {
             Entity mapped = scene.createEntity();
@@ -437,8 +422,6 @@ void ExportSubtree(ISerializer& s,
         .write(kLatestSceneVersion)
         .beginKey("seed")
         .write(seed)
-        .beginKey("root")
-        .write(root)
         .beginKey("entities");
 
     s.beginArray(false);

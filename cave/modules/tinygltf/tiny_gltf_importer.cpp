@@ -66,7 +66,7 @@ Result<void> TinyGltfImporter::Import() {
         return CAVE_ERROR(res.error());
     }
 
-    m_scene_asset = std::make_shared<SceneAsset>();
+    m_scene_asset = MakeRef<SceneAsset>();
 
     Scene& scene = m_scene_asset->sceneMut();
 
@@ -106,7 +106,6 @@ Result<void> TinyGltfImporter::Import() {
     ecs::Entity root = scene.createEntity();
     scene.create<TransformComponent>(root);
     scene.create<NameComponent>(root);
-    scene.setRoot(root);
 
     for (const tinygltf::Material& mat : m_model->materials) {
         m_materials.emplace_back(ProcessMaterial(mat));

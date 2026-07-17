@@ -18,6 +18,8 @@ public:
                          ecs::Entity old_parent,
                          ecs::Entity new_parent);
 
+    Option<ecs::Entity> firstRoot() const;
+
     std::span<const ecs::Entity> children(ecs::Entity parent) const;
     std::span<const ecs::Entity> roots() const { return m_roots; }
 

@@ -106,8 +106,7 @@ public:
 
     void remapEntity(const HashMap<ecs::Entity, ecs::Entity>& mapping);
 
-    bool attachChild(ecs::Entity child, ecs::Entity parent);
-    bool attachChild(ecs::Entity child) { return attachChild(child, m_root); }
+    bool attachChild(ecs::Entity child, ecs::Entity parent = ecs::Entity::null());
 
     bool isChild(ecs::Entity child, ecs::Entity parent) const;
 
@@ -138,9 +137,6 @@ public:
     const math::AABB& bound() const { return m_world_bound; }
     void setBound(const math::AABB& bound) { m_world_bound = bound; }
 
-    ecs::Entity root() const { return m_root; }
-    void setRoot(ecs::Entity root) { m_root = root; }
-
     uint32_t seed() const { return m_entity_seed; }
     void setSeed(uint32_t seed) { m_entity_seed = seed; }
 
@@ -165,8 +161,6 @@ private:
     ecs::ComponentStorage m_storage;
 
     uint32_t m_entity_seed{ 0 };
-    // @TODO: get rid of root
-    ecs::Entity m_root;
     uint32_t m_version;
 
     math::AABB m_world_bound;

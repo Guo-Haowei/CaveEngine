@@ -101,4 +101,11 @@ void SceneHierarchy::removeChild(Entity parent, Entity child) {
     }
 }
 
+Option<Entity> SceneHierarchy::firstRoot() const {
+    if (m_roots.empty()) {
+        return None();
+    }
+    return Some(m_roots[0]);
+}
+
 }  // namespace cave

@@ -38,7 +38,7 @@ void InitializeDefault(Scene& scene) {
     scene.create(HierarchyComponent_Id, root);
     scene.create(TransformComponent_Id, root);
     scene.create<NameComponent>(root).setName("root");
-    scene.setRoot(root);
+    scene.rebuildHierarchy();
 }
 
 AssetRef CreateAssetInstance(AssetType type, bool create) {

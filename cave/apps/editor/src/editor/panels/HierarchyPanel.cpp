@@ -43,7 +43,9 @@ public:
         , m_editor_services(editor_services) {}
 
     void update() {
-        drawNode(m_preview.scene->root(), ImGuiTreeNodeFlags_DefaultOpen);
+        for (Entity root : m_preview.scene->hierarchy().roots()) {
+            drawNode(root, ImGuiTreeNodeFlags_DefaultOpen);
+        }
     }
 
 private:
@@ -239,7 +241,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
         DEV_ASSERT(selection.doc == preview_scene.doc_id);
         ecs::Entity selected = selection.entity;
 
-        ecs::Entity parent = selected.valid() ? selected : preview_scene.scene->root();
+        ecs::Entity parent = selected;
 
         if (ImGui::BeginMenu("Add")) {
             const bool is_ui = preview_scene.scene->has(UICanvasComponent_Id, parent) ||
@@ -359,8 +361,7 @@ void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, e
 #undef DEFINE_OBJECT
 
     ImGui::Separator();
-    const bool is_parent_root = parent == preview_scene.scene->root();
-    if (ImGui::MenuItem("Canvas", nullptr, false, is_parent_root)) {
+    if (ImGui::MenuItem("Canvas", nullptr, false, true)) {
         edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
             Entity temp = writer.canvas("UICanvas");
             writer.attachChild(temp, parent);
