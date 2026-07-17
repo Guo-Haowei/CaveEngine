@@ -2,6 +2,7 @@
 // File: cave/core/reflection/Meta.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/core/reflection/Reflection.h"
 
 #if USING(USE_REFLECTION)
@@ -70,6 +71,7 @@ struct FieldMetaBase;
 
 struct FieldChange {
     Scene* scene;
+    ecs::Entity entity;
     void* object;
     const FieldMetaBase* field;
     const void* old_value;

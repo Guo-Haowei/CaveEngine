@@ -26,7 +26,7 @@ private:
 
 public:
     ecs::Entity parent() const { return m_parent_id; }
-    void setParent(ecs::Entity parent) { m_parent_id = parent; }
+    void setParentRaw(ecs::Entity parent) { m_parent_id = parent; }
 
     bool localVisible() const { return m_local_visible; }
     void setLocalVisible(bool value) { m_local_visible = value; }

@@ -17,7 +17,7 @@ public:
     bool undo(IDocument& doc) override;
 
 private:
-    ComponentId cid_;
+    ComponentId m_cid;
 };
 
 }  // namespace cave

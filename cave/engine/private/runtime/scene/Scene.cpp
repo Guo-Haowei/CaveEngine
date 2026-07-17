@@ -169,7 +169,7 @@ size_t Scene::count(ComponentId cid) const {
     return 0;
 }
 
-bool Scene::removeEntity(ComponentId cid, Entity ent) {
+bool Scene::removeComponent(ComponentId cid, Entity ent) {
     if (cid == HierarchyComponent_Id) {
         // @TODO: update parent
         __debugbreak();
@@ -234,7 +234,7 @@ void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
         auto it = mapping.find(hier.parent());
         DEV_ASSERT(it != mapping.end());
 
-        hier.setParent(it->second);
+        hier.setParentRaw(it->second);
     }
 
     // remap material
@@ -257,19 +257,28 @@ void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
     }
 }
 
-void Scene::attachChild(Entity child, Entity parent) {
-    DEV_ASSERT(child != parent);
-    DEV_ASSERT(parent.valid());
-
-    // @TODO: prevent circular dependency
-
-    HierarchyComponent* hier = component<HierarchyComponent>(child);
-
-    if (hier == nullptr) {
-        hier = &create<HierarchyComponent>(child);
+bool Scene::attachChild(Entity child, Entity parent) {
+    if (!child.valid()) {
+        return false;
     }
 
-    hier->setParent(parent);
+    if (parent.valid()) {
+        if (isChild(parent, child)) {
+            return false;
+        }
+    }
+
+    HierarchyComponent* hier = component<HierarchyComponent>(child);
+    DEV_ASSERT(hier);
+
+    const Entity old_parent = hier ? hier->parent() : Entity::null();
+    if (old_parent == parent) {
+        return false;
+    }
+
+    hier->setParentRaw(parent);
+    m_hierarchy.onParentChanged(child, old_parent, parent);
+    return true;
 }
 
 bool Scene::isChild(Entity child, Entity parent) const {

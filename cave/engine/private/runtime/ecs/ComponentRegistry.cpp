@@ -85,6 +85,7 @@ void PrefabInstance_OnEdited(Scene& scene,
             // @TODO: fix this logic
             if (hier) {
                 InstantiatePrefab(scene, *c, ent);
+                scene.rebuildHierarchy();
             } else {
                 // c->setPrefabGuid(Guid::null());
             }

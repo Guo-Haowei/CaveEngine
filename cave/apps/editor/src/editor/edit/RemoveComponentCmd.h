@@ -40,7 +40,7 @@ protected:
     bool Remove(IDocument& doc) {
         if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
             if (Scene* scene = resolveScene(scene_doc->previewScene())) {
-                scene->remove<T>(m_ent);
+                scene->removeComponent<T>(m_ent);
             }
         }
         return true;

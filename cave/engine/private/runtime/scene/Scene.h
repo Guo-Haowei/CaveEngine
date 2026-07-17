@@ -52,15 +52,16 @@ public:
     }
 
     bool has(ComponentId cid, ecs::Entity ent) const;
-    size_t count(ComponentId cid) const;
-    bool removeEntity(ComponentId cid, ecs::Entity ent);
-
     template<ComponentType T>
     bool has(ecs::Entity ent) const { return has(T::kId, ent); }
+
+    size_t count(ComponentId cid) const;
     template<ComponentType T>
     size_t count() const { return count(T::kId); }
+
+    bool removeComponent(ComponentId cid, ecs::Entity ent);
     template<ComponentType T>
-    bool removeEntity(ecs::Entity ent) { return removeEntity(T::kId, ent); }
+    bool removeComponent(ecs::Entity ent) { return removeComponent(T::kId, ent); }
 
     // @TODO: remove depracated
     template<ComponentType T>
@@ -105,8 +106,8 @@ public:
 
     void remapEntity(const HashMap<ecs::Entity, ecs::Entity>& mapping);
 
-    void attachChild(ecs::Entity child, ecs::Entity parent);
-    void attachChild(ecs::Entity child) { attachChild(child, m_root); }
+    bool attachChild(ecs::Entity child, ecs::Entity parent);
+    bool attachChild(ecs::Entity child) { return attachChild(child, m_root); }
 
     bool isChild(ecs::Entity child, ecs::Entity parent) const;
 
@@ -126,6 +127,8 @@ public:
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
 
+    void rebuildHierarchy() { m_hierarchy.rebuild(*this); }
+
     auto& storage() noexcept { return m_storage; }
     const auto& storage() const noexcept { return m_storage; }
 
@@ -140,6 +143,9 @@ public:
 
     uint32_t seed() const { return m_entity_seed; }
     void setSeed(uint32_t seed) { m_entity_seed = seed; }
+
+    SceneHierarchy& hierarchy() { return m_hierarchy; }
+    const SceneHierarchy& hierarchy() const { return m_hierarchy; }
 
     uint32_t version() const { return m_version; }
     uint32_t& version() { return m_version; }

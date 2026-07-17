@@ -343,6 +343,8 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
         PREFAB_OVERRIDE_LIST
 #undef PREFAB_OVERRIDE
     }
+
+    scene.rebuildHierarchy();
 }
 
 void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity parent) {
@@ -363,7 +365,7 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
         return;
     }
 
-    prefab_scene.removeEntity<HierarchyComponent>(prefab_scene.root());
+    prefab_scene.removeComponent<HierarchyComponent>(prefab_scene.root());
 
     auto new_entities = prefab_scene.getSortedEntityArray();
     HashMap<Entity, Entity> mapping;
@@ -425,9 +427,7 @@ void ExportSubtree(ISerializer& s,
                    AssetRegistry* asset_reg) {
     Scene scene;
     scene.copy(source_scene);
-    if (auto* hier = scene.component<HierarchyComponent>(root)) {
-        hier->parent_id = Entity::null();
-    }
+    scene.attachChild(root, Entity::null());
 
     auto result = CollectEntitySubtree(scene, root);
     const uint32_t seed = scene.seed();
