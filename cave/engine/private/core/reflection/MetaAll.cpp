@@ -21,7 +21,7 @@
 #include "generated/TileMapAsset.generated.cpp"
 #include "generated/TileSetAsset.generated.cpp"
 #include "generated/UIComponents.generated.cpp"
-#include "generated/BackgroundRendererComponent.generated.cpp"
+#include "generated/BackgroundComponent.generated.cpp"
 #include "generated/MeshRendererComponent.generated.cpp"
 #include "generated/SpriteRendererComponent.generated.cpp"
 #include "generated/AssetMetaData.generated.cpp"

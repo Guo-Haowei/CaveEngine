@@ -1,4 +1,4 @@
-#include "cave/render/components/BackgroundRendererComponent.h"
+#include "cave/render/components/BackgroundComponent.h"
 #include "cave/render/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
@@ -48,9 +48,12 @@ void CollectTileMap(Scene& scene, FrameData& framedata) {
 
 void CollectSprites(const Scene& scene, FrameData& framedata) {
     auto& sprites = framedata.sprites;
-    if (scene.count<BackgroundRendererComponent>()) {
-        auto camera_id = scene.activeCamera();
-        DEV_ASSERT(camera_id.valid());
+
+    Vec2f view_min;
+    Vec2f view_max;
+    Mat4f world{};
+    auto camera_id = scene.activeCamera();
+    if (scene.count<BackgroundComponent>() && camera_id.valid()) {
         const auto* camera = scene.component<CameraComponent>(camera_id);
         const auto* camera_transform = scene.component<TransformComponent>(camera_id);
         DEV_ASSERT(camera && camera_transform);
@@ -62,59 +65,37 @@ void CollectSprites(const Scene& scene, FrameData& framedata) {
         const Vec2f camera_pos = camera_transform->translation().xy;
 
         const Vec2f view_size = Vec2f{ half_width * 2.0f, half_height * 2.0f };
-        const Vec2f view_min = camera_pos - Vec2f{ half_width, half_height };
-        const Vec2f view_max = view_min + view_size;
+        view_min = camera_pos - Vec2f{ half_width, half_height };
+        view_max = view_min + view_size;
 
-        for (const auto& [id, background, hier] :
-             scene.view<BackgroundRendererComponent, HierarchyComponent>()) {
-            if (!hier.visible()) continue;
-
-            const ImageAsset* image = background.handle().get();
-            if (!image) {
-                continue;
-            }
-
-            const Mat4f world =
-                glm::translate(glm::vec3(camera_pos.x, camera_pos.y, 0.0f)) *
+        world = glm::translate(glm::vec3(camera_pos.x, camera_pos.y, 0.0f)) *
                 glm::scale(glm::vec3(view_size.x, view_size.y, 1.0f));
-
-            const Vec2f uv_min = view_min * background.parallax() / background.repeatSize();
-            const Vec2f uv_max = view_max * background.parallax() / background.repeatSize();
-
-            PerBatchConstantBuffer batch;
-            batch.c_worldMatrix = world;
-            batch.c_tint_color = background.tint();
-            batch.c_uv_rect = Vec4f(uv_min, uv_max);
-
-            DrawItem draw;
-            draw.index.count = 6;
-            draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch);
-            draw.texture = image->gpu_texture.get();
-            // @TODO: fix this
-            draw.mesh_data = nullptr;
-            draw.z_index = -10;
-
-            sprites.push_back(draw);
-        }
     }
 
-    for (const auto& [id, renderer, transform, hier] :
-         scene.view<SpriteRendererComponent, TransformComponent, HierarchyComponent>()) {
+    auto view = scene.view<SpriteRendererComponent, TransformComponent, HierarchyComponent>();
+    for (const auto& [id, renderer, transform, hier] : view) {
         if (!hier.visible()) continue;
+        ImageAsset* image = renderer.handle().get();
+        if (!image) continue;
 
-        const Mat4f& world_matrix = transform.worldMatrix();
-        PerBatchConstantBuffer batch_buffer;
-        batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_tint_color = renderer.tintColor();
-        const auto& rect = renderer.rect();
-        batch_buffer.c_uv_rect = Vec4f(rect.min(), rect.max());
+        PerBatchConstantBuffer batch;
+        batch.c_tint_color = renderer.tintColor();
+
+        if (const auto* background = scene.component<BackgroundComponent>(id)) {
+            const Vec2f uv_min = view_min * background->parallax / background->repeat_size;
+            const Vec2f uv_max = view_max * background->parallax / background->repeat_size;
+            batch.c_worldMatrix = world;
+            batch.c_uv_rect = Vec4f(uv_min, uv_max);
+        } else {
+            const auto& rect = renderer.rect();
+            batch.c_worldMatrix = transform.worldMatrix();
+            batch.c_uv_rect = Vec4f(rect.min(), rect.max());
+        }
 
         DrawItem draw;
         draw.index.count = 6;
-        draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch_buffer);
+        draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch);
         draw.z_index = renderer.zIndex();
-
-        ImageAsset* image = renderer.handle().get();
         draw.texture = image->gpu_texture.get();
 
         sprites.push_back(draw);

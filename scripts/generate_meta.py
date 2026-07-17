@@ -38,7 +38,7 @@ FILES = [
 
     'public/cave/runtime/ui/UIComponents.h',
 
-    'public/cave/render/components/BackgroundRendererComponent.h',
+    'public/cave/render/components/BackgroundComponent.h',
     'public/cave/render/components/MeshRendererComponent.h',
     'public/cave/render/components/SpriteRendererComponent.h',
 

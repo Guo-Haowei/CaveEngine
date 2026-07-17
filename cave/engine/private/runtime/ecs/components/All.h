@@ -1,7 +1,7 @@
 #pragma once
 
 // @TODO: refactor this
-#include "cave/render/components/BackgroundRendererComponent.h"
+#include "cave/render/components/BackgroundComponent.h"
 #include "cave/render/components/MeshRendererComponent.h"
 #include "cave/render/components/SpriteRendererComponent.h"
 
