@@ -4,7 +4,7 @@
 
 namespace cave {
 
-static void DrawToolBarButton(const ToolBarButtonDesc& desc) {
+static void DrawToolBarButton(const ToolbarButtonDesc& desc) {
     const bool enabled = desc.is_enabled_func ? desc.is_enabled_func() : true;
     const bool selected = desc.is_selected_func ? desc.is_selected_func() : false;
 
@@ -35,7 +35,7 @@ static void DrawToolBarButton(const ToolBarButtonDesc& desc) {
     ImGui::PopID();
 }
 
-void DrawToolBar(std::span<const ToolBarButtonDesc*> button_descs,
+void DrawToolbar(std::span<const ToolbarButtonDesc*> button_descs,
                  bool new_line) {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
     auto& colors = ImGui::GetStyle().Colors;
@@ -45,22 +45,20 @@ void DrawToolBar(std::span<const ToolBarButtonDesc*> button_descs,
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
     for (size_t i = 0; i < button_descs.size(); ++i) {
-        const ToolBarButtonDesc* desc = button_descs[i];
+        const ToolbarButtonDesc* desc = button_descs[i];
 
         if (i != 0) {
             if (!new_line) {
                 ImGui::SameLine();
             }
         }
-
         DrawToolBarButton(*desc);
     }
 
     ImGui::PopStyleColor(3);
 }
 
-void DrawToolBar(std::span<const ToolBarButtonDesc> button_descs,
-                 bool new_line) {
+void DrawToolbar(std::span<const ToolbarButtonDesc> button_descs) {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
     auto& colors = ImGui::GetStyle().Colors;
     const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
@@ -69,15 +67,9 @@ void DrawToolBar(std::span<const ToolBarButtonDesc> button_descs,
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(button_active.x, button_active.y, button_active.z, 0.5f));
 
     for (size_t i = 0; i < button_descs.size(); ++i) {
-        const ToolBarButtonDesc& desc = button_descs[i];
-
-        if (i != 0) {
-            if (!new_line) {
-                ImGui::SameLine();
-            }
-        }
-
+        const ToolbarButtonDesc& desc = button_descs[i];
         DrawToolBarButton(desc);
+        ImGui::SameLine();
     }
 
     ImGui::PopStyleColor(3);

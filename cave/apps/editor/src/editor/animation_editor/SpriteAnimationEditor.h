@@ -37,8 +37,8 @@ private:
     std::string m_text_buffer;
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Multi };
 
-    ToolBarButtonDesc m_play_button;
-    ToolBarButtonDesc m_pause_button;
+    ToolbarButtonDesc m_play_button;
+    ToolbarButtonDesc m_pause_button;
 
     enum class Request {
         None,

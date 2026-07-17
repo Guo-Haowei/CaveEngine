@@ -36,10 +36,11 @@ private:
         Option<TileId> after;
     };
 
+    void drawToolbar() override;
+
     void tileMapLayerOverview(TileMapAsset& tile_map);
 
     void drawUIImpl() override;
-    void drawMainView(const math::FloatRect& rect);
     void drawGizmo(const math::FloatRect& rect);
     void drawAssetInspector(IDocument& doc) override;
     void drawGhostTiles(const TileSetAsset& tile_set);
@@ -83,7 +84,7 @@ private:
     } m_tool_type = ToolType::None;
     bool m_erasing = false;
 
-    std::array<ToolBarButtonDesc, 5> m_toolbar;
+    std::array<ToolbarButtonDesc, 5> m_toolbar;
 
     // @TODO: review this part
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };

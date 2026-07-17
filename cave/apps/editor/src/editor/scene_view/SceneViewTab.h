@@ -34,6 +34,8 @@ private:
     void drawSelection();
     void drawGizmo(const math::FloatRect& rect, bool ortho);
 
+    void drawToolbar() override;
+
     bool onAssetDropped(AssetHandle handle) override;
 
     Scene* getResolvedScene();
@@ -43,11 +45,8 @@ private:
 
     GizmoAction m_gizmo_action{ GizmoAction::Translate };
 
-    std::array<const char*, 2> m_button_displays;
-    std::array<const char*, 2> m_button_tooltips;
-
-    ToolBarButtonDesc m_play_button;
-    int m_button_index{ 0 };
+    ToolbarButtonDesc m_play_button;
+    ToolbarButtonDesc m_pause_button;
 };
 
 }  // namespace cave

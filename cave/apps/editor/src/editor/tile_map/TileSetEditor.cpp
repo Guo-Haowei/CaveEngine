@@ -20,7 +20,7 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
         index = tile_set.col() * y + x;
     }
 
-    ToolBarButtonDesc add_square_button_desc = {
+    ToolbarButtonDesc add_square_button_desc = {
         "TileSetEditor.physics.box",
         ICON_FA_SQUARE " Box", "Add box collider",
         [&]() {
@@ -32,7 +32,7 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
         }
     };
 
-    ToolBarButtonDesc add_polygon_button_desc = {
+    ToolbarButtonDesc add_polygon_button_desc = {
         "TileSetEditor.physics.polygon",
         ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
         [&]() {
@@ -40,7 +40,7 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
         }
     };
 
-    ToolBarButtonDesc add_circle_button_desc = {
+    ToolbarButtonDesc add_circle_button_desc = {
         "TileSetEditor.circle.polygon",
         ICON_FA_CIRCLE " Circle", "Add circle collider",
         [&]() {
@@ -48,13 +48,13 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
         }
     };
 
-    Vector<const ToolBarButtonDesc*> tool_bar = {
+    Vector<const ToolbarButtonDesc*> tool_bar = {
         &add_square_button_desc,
         &add_polygon_button_desc,
         &add_circle_button_desc,
     };
 
-    DrawToolBar(tool_bar);
+    DrawToolbar(tool_bar);
     ImGui::Separator();
 }
 

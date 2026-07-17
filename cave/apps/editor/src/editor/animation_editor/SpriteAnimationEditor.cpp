@@ -54,7 +54,7 @@ SpriteAnimationEditor::SpriteAnimationEditor(EditorState& editor,
     // ICON_FA_BACKWARD;
     m_play_button = {
         .id = "SpriteAnimationEditor.play_button",
-        .display = ICON_FA_PLAY ,
+        .display = ICON_FA_PLAY,
         .tooltip = "Play animation",
         .execute_func = [this]() {
             m_last_req = Request::Play;
@@ -236,11 +236,11 @@ void SpriteAnimationEditor::drawTimeLine(SpriteAnimationAsset& anim, IDocument& 
 
     ImGui::NextColumn();
 
-    Vector<const ToolBarButtonDesc*> buttons = {
+    Vector<const ToolbarButtonDesc*> buttons = {
         animator->playing() ? &m_pause_button : &m_play_button
     };
 
-    DrawToolBar(buttons);
+    DrawToolbar(buttons);
 
     if (m_last_req == Request::Play) {
         animator->play();

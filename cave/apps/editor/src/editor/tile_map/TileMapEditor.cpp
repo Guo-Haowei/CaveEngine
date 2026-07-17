@@ -161,37 +161,13 @@ void TileMapEditor::drawUIImpl() {
 
     updateRect(view->display_rect_os);
     drawMainView(view->display_rect_os);
-
     drawGizmo(view->display_rect_os);
 
     submitView();
 }
 
-void TileMapEditor::drawMainView(const FloatRect& rect) {
-    const ImVec2 viewport_min = ImGui::GetCursorScreenPos();
-    const ImVec2 viewport_size = ImGui::GetContentRegionAvail();
-
-    ViewTabBase::drawMainView(rect);
-
-    ImGui::SetNextWindowPos({
-        viewport_min.x + 8.0f,
-        viewport_min.y + 8.0f,
-    });
-
-    ImGui::SetNextWindowBgAlpha(0.75f);
-
-    const ImGuiWindowFlags flags =
-        ImGuiWindowFlags_NoDecoration |
-        ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoSavedSettings |
-        ImGuiWindowFlags_NoFocusOnAppearing |
-        ImGuiWindowFlags_NoNav;
-
-    if (ImGui::Begin("##TileMapToolbarOverlay", nullptr, flags)) {
-        DrawToolBar(m_toolbar, false);
-    }
-
-    ImGui::End();
+void TileMapEditor::drawToolbar() {
+    DrawToolbar(m_toolbar);
 }
 
 void TileMapEditor::drawAssetInspector(IDocument& doc) {
