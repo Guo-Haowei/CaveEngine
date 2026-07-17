@@ -35,8 +35,7 @@ static void DrawToolBarButton(const ToolbarButtonDesc& desc) {
     ImGui::PopID();
 }
 
-void DrawToolbar(std::span<const ToolbarButtonDesc*> button_descs,
-                 bool new_line) {
+void DrawToolbar(std::span<const ToolbarButtonDesc*> button_descs) {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
     auto& colors = ImGui::GetStyle().Colors;
     const auto& button_hovered = colors[ImGuiCol_ButtonHovered];
@@ -46,13 +45,8 @@ void DrawToolbar(std::span<const ToolbarButtonDesc*> button_descs,
 
     for (size_t i = 0; i < button_descs.size(); ++i) {
         const ToolbarButtonDesc* desc = button_descs[i];
-
-        if (i != 0) {
-            if (!new_line) {
-                ImGui::SameLine();
-            }
-        }
         DrawToolBarButton(*desc);
+        ImGui::SameLine();
     }
 
     ImGui::PopStyleColor(3);

@@ -11,8 +11,7 @@ struct ToolbarButtonDesc {
     std::function<bool()> is_selected_func;
 };
 
-void DrawToolbar(std::span<const ToolbarButtonDesc*> button_descs,
-                 bool new_line = false);
+void DrawToolbar(std::span<const ToolbarButtonDesc*> button_descs);
 
 void DrawToolbar(std::span<const ToolbarButtonDesc> button_descs);
 

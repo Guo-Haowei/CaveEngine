@@ -1,5 +1,7 @@
 #include "GridPaintTool.h"
 
+#include "cave/core/algorithm/Rasterize.h"
+
 namespace cave {
 
 void GridPaintTool::emit(GridPaintEventType type,
@@ -43,8 +45,10 @@ void GridPaintTool::buildStrokePreview() {
 
         case GridPaintMode::Line: {
             ForEachGridLine(
-                m_stroke.start,
-                m_stroke.current,
+                m_stroke.start.x,
+                m_stroke.start.y,
+                m_stroke.current.x,
+                m_stroke.current.y,
                 [&](GridCoord coord) {
                     appendBrush(coord, m_stroke.brush, m_preview);
                 });
@@ -110,8 +114,10 @@ void GridPaintTool::updateStroke(GridCoord coord) {
         m_apply_buffer.clear();
 
         ForEachGridLine(
-            m_stroke.previous,
-            m_stroke.current,
+            m_stroke.previous.x,
+            m_stroke.previous.y,
+            m_stroke.current.x,
+            m_stroke.current.y,
             [&](GridCoord line_cell) {
                 appendBrush(
                     line_cell,

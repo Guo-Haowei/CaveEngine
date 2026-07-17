@@ -39,7 +39,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
         ICON_FA_PEN,
         "Pencil - paint individual tiles",
         [this]() { setPaintMode(GridPaintMode::Brush); },
-        [this]() { return true; },
+        nullptr,
         [this]() { return m_paint_mode == GridPaintMode::Brush; },
     };
     m_toolbar[1] = {
@@ -47,7 +47,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
         ICON_FA_CHART_LINE,
         "Line - paint a straight line",
         [this]() { setPaintMode(GridPaintMode::Line); },
-        [this]() { return true; },
+        nullptr,
         [this]() { return m_paint_mode == GridPaintMode::Line; },
     };
     m_toolbar[2] = {
@@ -55,7 +55,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
         ICON_FA_SQUARE_PEN,
         "Rectangle - paint a filled rectangle",
         [this]() { setPaintMode(GridPaintMode::Rect); },
-        [this]() { return true; },
+        nullptr,
         [this]() { return m_paint_mode == GridPaintMode::Rect; },
     };
     m_toolbar[3] = {
@@ -63,7 +63,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
         ICON_FA_FILL,
         "Fill - replace a connected region",
         [this]() { setPaintMode(GridPaintMode::Fill); },
-        [this]() { return true; },
+        nullptr,
         [this]() { return m_paint_mode == GridPaintMode::Fill; },
     };
     m_toolbar[4] = {
@@ -71,7 +71,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
         ICON_FA_ERASER,
         "Eraser - remove painted tiles",
         [this]() { m_erasing = !m_erasing; },
-        [this]() { return true; },
+        nullptr,
         [this]() { return m_erasing; },
     };
 }

@@ -57,38 +57,6 @@ struct GridPaintEvent {
 };
 
 template<typename Fn>
-void ForEachGridLine(GridCoord from, GridCoord to, Fn&& fn) {
-    int x = from.x;
-    int y = from.y;
-
-    const int dx = std::abs(to.x - from.x);
-    const int sx = from.x < to.x ? 1 : -1;
-
-    const int dy = -std::abs(to.y - from.y);
-    const int sy = from.y < to.y ? 1 : -1;
-
-    int error = dx + dy;
-
-    while (true) {
-        fn(GridCoord{ x, y });
-
-        if (x == to.x && y == to.y) {
-            break;
-        }
-
-        const int twice_error = error * 2;
-        if (twice_error >= dy) {
-            error += dy;
-            x += sx;
-        }
-        if (twice_error <= dx) {
-            error += dx;
-            y += sy;
-        }
-    }
-}
-
-template<typename Fn>
 void ForEachGridRect(GridCoord from, GridCoord to, Fn&& fn) {
     const int min_x = std::min(from.x, to.x);
     const int max_x = std::max(from.x, to.x);
