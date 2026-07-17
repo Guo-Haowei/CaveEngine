@@ -119,8 +119,8 @@ public:
 
     virtual void GenerateMipmap(const GpuTexture* p_texture) = 0;
 
-    virtual void BeginEvent(std::string_view p_event) = 0;
-    virtual void EndEvent() = 0;
+    virtual void beginEvent(std::string_view p_event) = 0;
+    virtual void endEvent() = 0;
 
     virtual void RequestTexture(ImageAsset* p_image) = 0;
     virtual void RequestMesh(MeshAsset* p_mesh) = 0;
@@ -145,8 +145,8 @@ protected:
     virtual void MoveToNextFrame() = 0;
     virtual std::shared_ptr<FrameContext> CreateFrameContext() = 0;
 
-    virtual void BeginPass(const CompiledPass& p_pass) = 0;
-    virtual void EndPass(const CompiledPass& p_pass) = 0;
+    virtual void beginPass(const CompiledPass& p_pass) = 0;
+    virtual void endPass(const CompiledPass& p_pass) = 0;
 
     virtual void OnWindowResize(int p_width, int p_height) = 0;
     virtual void SetPipelineStateImpl(PipelineStateName p_name) = 0;

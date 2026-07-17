@@ -393,6 +393,11 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
         .lighting = lighting_outputs.lighting,
     });
 
+    auto bloom_output = graph.addBloomPasses({
+        .dependency = forward_outputs.dependency,
+        .color = lighting_outputs.lighting,
+    });
+
     auto highlight_outputs = graph.addHighlightPass({
         .stencil = prepass_outputs.depth,
     });
@@ -400,7 +405,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     auto post_process_output = graph.addPostProcessPass({
         .lighting = lighting_outputs.lighting,
         .outline = highlight_outputs.outline,
-        .bloom = 0,
+        .bloom = bloom_output.bloom,
         .color_attachment = view.output,
     });
 

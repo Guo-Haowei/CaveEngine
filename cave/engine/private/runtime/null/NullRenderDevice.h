@@ -69,8 +69,8 @@ public:
     void BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) override {}
     void UnbindTexture(Dimension p_dimension, int p_slot) override {}
 
-    void BeginEvent(std::string_view p_event) override {}
-    void EndEvent() override {}
+    void beginEvent(std::string_view p_event) override {}
+    void endEvent() override {}
 
     void GenerateMipmap(const GpuTexture* p_texture) override {}
 
@@ -97,8 +97,8 @@ protected:
     void MoveToNextFrame() override {}
     std::shared_ptr<FrameContext> CreateFrameContext() override { return nullptr; }
 
-    void BeginPass(const CompiledPass& p_pass) override {}
-    void EndPass(const CompiledPass& p_pass) override {}
+    void beginPass(const CompiledPass& p_pass) override {}
+    void endPass(const CompiledPass& p_pass) override {}
 
     void OnWindowResize(int p_width, int p_height) override {}
     void SetPipelineStateImpl(PipelineStateName p_name) override {}

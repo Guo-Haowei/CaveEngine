@@ -130,6 +130,10 @@ LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in)
 ForwardOutput RenderGraphBuilderExt::addForwardPass(const ForwardInput& in) {
     RenderPass& pass = addRenderPass(kPassForward);
 
+    ForwardOutput out = {
+        .dependency = createDependency(),
+    };
+
     pass.readDependency(in.dependency)
         .read(ResourceAccess::SRV, in.skybox)
         .read(ResourceAccess::SRV, in.shadow)
@@ -143,7 +147,76 @@ ForwardOutput RenderGraphBuilderExt::addForwardPass(const ForwardInput& in) {
     pass.writeColor(in.lighting, {}, LoadOp::Load)
         .setExecuteFunc(ForwardPassFunc);
 
-    return ForwardOutput{};
+    return out;
+}
+
+BloomOut RenderGraphBuilderExt::addBloomPasses(const BloomInput& in) {
+    const int width = m_viewport.w;
+    const int height = m_viewport.h;
+
+    // @TODO: use mips instead of generate this many resources
+    Vector<RGTextureId> textures;
+    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX; ++i, w /= 2, h /= 2) {
+        DEV_ASSERT(width > 1);
+        DEV_ASSERT(height > 1);
+
+        auto texture_desc = buildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
+                                                    AttachmentType::COLOR_2D,
+                                                    w, h);
+
+        auto res_name = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
+        RGTextureId id = createTexture({
+            res_name,
+            texture_desc,
+            LinearClampSampler(),
+        });
+        textures.push_back(id);
+    }
+
+    DEV_ASSERT(textures.size());
+
+    // Setup pass
+    RGDependencyId setup_dependency = createDependency();
+
+    RenderPass& setup_pass = addRenderPass(kPassBloomSetup);
+    setup_pass
+        .read(ResourceAccess::SRV, in.color)
+        .read(ResourceAccess::UAV, textures[0])
+        .writeDependency(setup_dependency)
+        .setExecuteFunc(BloomSetupFunc);
+
+    RGDependencyId last_dep = setup_dependency;
+
+    // Down Sample
+    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX - 1; ++i, w /= 2, h /= 2) {
+        auto pass_name = std::format(RG_PASS_BLOOM_DOWN_PREFIX "{}", i);
+        auto& pass = addRenderPass(pass_name);
+        RGDependencyId new_dep = createDependency();
+        pass.readDependency(last_dep)
+            .read(ResourceAccess::SRV, textures[i])
+            .read(ResourceAccess::UAV, textures[i + 1])
+            .writeDependency(new_dep)
+            .setExecuteFunc(BloomDownSampleFunc);
+        last_dep = new_dep;
+    }
+
+    // Up Sample
+    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX - 1; ++i, w /= 2, h /= 2) {
+        auto mip_low = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w / 2, h / 2);
+        auto mip = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
+
+        auto pass_name = std::format(RG_PASS_BLOOM_UP_PREFIX "{}", i);
+        auto& pass = addRenderPass(pass_name);
+        RGDependencyId new_dep = createDependency();
+        pass.readDependency(last_dep)
+            .read(ResourceAccess::UAV, textures[textures.size() - 2 - i])
+            .read(ResourceAccess::SRV, textures[textures.size() - 1 - i])
+            .writeDependency(new_dep)
+            .setExecuteFunc(BloomUpSampleFunc);
+        last_dep = new_dep;
+    }
+
+    return { textures[0] };
 }
 
 HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_in) {
@@ -245,78 +318,6 @@ void RenderGraphBuilderExt::AddVoxelizationPass() {
         .Read(ResourceAccess::UAV, RG_RES_VOXEL_NORMAL)
         .SetExecuteFunc(VoxelizationPassFunc);
 }
-#endif
-
-/// Bloom
-
-#if 0
-void RenderGraphBuilderExt::AddBloomPass() {
-    // Setup pass
-    const int width = m_config.frameWidth;
-    const int height = m_config.frameHeight;
-
-    auto& setup_pass = AddPass(RG_PASS_BLOOM_SETUP);
-    SamplerDesc sampler = LinearClampSampler();
-
-    // @TODO: use mips instead of generate this many resources
-    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX; ++i, w /= 2, h /= 2) {
-        DEV_ASSERT(width > 1);
-        DEV_ASSERT(height > 1);
-
-        auto texture_desc = BuildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
-                                                    AttachmentType::COLOR_2D,
-                                                    w, h);
-
-        auto res_name = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
-        setup_pass.create(res_name, { texture_desc, sampler });
-    }
-
-    auto bloom_res = std::format(RG_RES_BLOOM_PREFIX "{}x{}", width, height);
-
-    AddDependency(RG_PASS_FORWARD, RG_PASS_BLOOM_SETUP);
-    setup_pass
-        .Read(ResourceAccess::SRV, RG_RES_LIGHTING)
-        .Read(ResourceAccess::UAV, bloom_res)
-        .SetExecuteFunc(BloomSetupFunc);
-
-    // Down Sample
-    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX - 1; ++i, w /= 2, h /= 2) {
-        auto pass_name = std::format(RG_PASS_BLOOM_DOWN_PREFIX "{}", i);
-        auto input = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
-        auto inout = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w / 2, h / 2);
-        auto& pass = AddPass(pass_name);
-        pass.Read(ResourceAccess::SRV, input)
-            .Read(ResourceAccess::UAV, inout)
-            .SetExecuteFunc(BloomDownSampleFunc);
-        if (i == 0) {
-            AddDependency(RG_PASS_BLOOM_SETUP, pass_name);
-        } else {
-            std::string prev_pass = std::format(RG_PASS_BLOOM_DOWN_PREFIX "{}", i - 1);
-            AddDependency(prev_pass, pass_name);
-        }
-    }
-
-    // Up Sample
-    for (int i = 0, w = width, h = height; i < BLOOM_MIP_CHAIN_MAX - 1; ++i, w /= 2, h /= 2) {
-        auto pass_name = std::format(RG_PASS_BLOOM_UP_PREFIX "{}", i);
-        auto mip_low = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w / 2, h / 2);
-        auto mip = std::format(RG_RES_BLOOM_PREFIX "{}x{}", w, h);
-
-        auto& pass = AddPass(pass_name);
-        pass.Read(ResourceAccess::UAV, mip)
-            .Read(ResourceAccess::SRV, mip_low)
-            .SetExecuteFunc(BloomUpSampleFunc);
-
-        if (i == BLOOM_MIP_CHAIN_MAX - 2) {
-            auto down_sample_pass = std::format(RG_PASS_BLOOM_DOWN_PREFIX "{}", BLOOM_MIP_CHAIN_MAX - 2);
-            AddDependency(down_sample_pass, pass_name);
-        } else {
-            auto prev_pass = std::format(RG_PASS_BLOOM_UP_PREFIX "{}", i + 1);
-            AddDependency(prev_pass, pass_name);
-        }
-    }
-}
-
 #endif
 
 }  // namespace cave::render

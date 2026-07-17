@@ -357,25 +357,25 @@ void RenderDevice::DrawSkybox() {
     DrawElements(m_skybox_buffers->desc.drawCount);
 }
 
-void RenderDevice::BeginPass(const CompiledPass& p_pass) {
+void RenderDevice::beginPass(const CompiledPass& pass) {
     // bind srvs
-    for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
-        if (const GpuTexture* srv = p_pass.srvs[i].get()) {
+    for (int i = 0; i < (int)pass.srvs.size(); ++i) {
+        if (const GpuTexture* srv = pass.srvs[i].get()) {
             DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
             BindTexture(srv->desc.dimension, srv->GetHandle(), i);
         }
     }
     // bind uavs
-    for (int i = 0; i < (int)p_pass.uavs.size(); ++i) {
-        if (GpuTexture* uav = p_pass.uavs[i].get()) {
+    for (int i = 0; i < (int)pass.uavs.size(); ++i) {
+        if (GpuTexture* uav = pass.uavs[i].get()) {
             DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
             BindUnorderedAccessView(i, uav);
         }
     }
 
     RenderTargetDesc desc{
-        .colors = p_pass.colors,
-        .depth = p_pass.depth,
+        .colors = pass.colors,
+        .depth = pass.depth,
     };
 
     // @TODO: build render target
@@ -394,11 +394,11 @@ void RenderDevice::BeginPass(const CompiledPass& p_pass) {
 
     if (has_rt_or_ds) {
         SetRenderTargets(desc);
-        SetViewport(p_pass.viewport ? *p_pass.viewport : Viewport(width, height));
+        SetViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
     }
 }
 
-void RenderDevice::EndPass(const CompiledPass& p_pass) {
+void RenderDevice::endPass(const CompiledPass& p_pass) {
     UnsetRenderTargets();
 
     // unbind srvs
@@ -419,19 +419,19 @@ void RenderDevice::EndPass(const CompiledPass& p_pass) {
     }
 }
 
-void RenderDevice::Execute(const FrameData& p_data, const CompiledPass& p_pass) {
+void RenderDevice::Execute(const FrameData& framedata, const CompiledPass& pass) {
     RenderPassExcutionContext ctx = {
-        .frameData = p_data,
-        .pass = p_pass,
+        .frameData = framedata,
+        .pass = pass,
         .cmd = *this,
         .services = m_app->services(),
     };
 
-    BeginEvent(p_pass.name);
-    BeginPass(p_pass);
-    p_pass.func(ctx);
-    EndPass(p_pass);
-    EndEvent();
+    beginEvent(pass.name);
+    beginPass(pass);
+    pass.execute_func(ctx);
+    endPass(pass);
+    endEvent();
 }
 
 }  // namespace cave::render
