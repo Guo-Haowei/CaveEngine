@@ -102,24 +102,10 @@ entities:
     PrefabOverride:
       {}
   - id: 10
-    NameComponent:
-      name: background
     HierarchyComponent:
       parent_id: 1
       local_visible: true
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
-    SpriteRendererComponent:
-      image_id: B235E128-8759-B64F-972F39D6A372D366
-      tint_color: [1, 1, 1, 1]
-      rect:
-        min: [0, 1]
-        max: [1, 0]
-      flip_x: false
-      flip_y: false
-      z_index: -5
-    BackgroundComponent:
-      repeat_size: [1, 1]
-      parallax: [1, 1]
+    PrefabInstanceComponent:
+      prefab_id: B4FA3AB1-CD20-604B-BF0FB2D5D2185AA1
+    PrefabOverride:
+      {}

@@ -1,5 +1,5 @@
 version: 22
-seed: 30
+seed: 13
 entities:
   - id: 1
     NameComponent:
@@ -146,7 +146,7 @@ entities:
       prefab_id: A22D8CBE-B5E7-7043-BE0C35CA9EF76847
     PrefabOverride:
       {}
-  - id: 30
+  - id: 13
     HierarchyComponent:
       parent_id: 1
       local_visible: true
