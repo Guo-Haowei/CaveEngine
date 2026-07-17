@@ -26,6 +26,9 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
             addResource(node.handle, node.external);
             continue;
         }
+        if (node.is_dependency) {
+            continue;
+        }
 
         GpuTextureDesc desc = node.desc;
         // @TODO: get rid of the name

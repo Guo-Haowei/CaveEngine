@@ -9,16 +9,19 @@
 
 namespace cave {
 
+struct FieldChange;
+
 class PrefabInstanceComponent {
     CAVE_COMPONENT(PrefabInstanceComponent)
 
 private:
-    CAVE_PROP(editor = Asset)
+    CAVE_PROP(editor = Asset, on_change = onPrefabGuidChanged)
     Guid m_prefab_id;
+
+    void onPrefabGuidChanged(const FieldChange& change);
 
 public:
     const Guid& prefabGuid() const { return m_prefab_id; }
-    void setPrefabGuid(const Guid& guid) { m_prefab_id = guid; }
 };
 
 }  // namespace cave

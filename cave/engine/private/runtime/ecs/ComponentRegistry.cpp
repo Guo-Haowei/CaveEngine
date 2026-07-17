@@ -1,10 +1,10 @@
 #include "cave/core/reflection/Meta.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ui/UIComponents.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneSerializer.h"
 
 namespace cave::ecs {
 
@@ -72,27 +72,6 @@ void Transform_OnEdited(Scene& scene,
     }
 }
 
-void PrefabInstance_OnEdited(Scene& scene,
-                             ecs::Entity ent,
-                             ComponentId,
-                             const PropertyId& pid,
-                             const void*,
-                             uint32_t) {
-    if (pid == "prefab_id"_sid) {
-        auto* c = (PrefabInstanceComponent*)scene.storage().getRaw(PrefabInstanceComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            auto* hier = (HierarchyComponent*)scene.storage().getRaw(HierarchyComponent_Id, ent);
-            // @TODO: fix this logic
-            if (hier) {
-                InstantiatePrefab(scene, *c, ent);
-                scene.rebuildHierarchy();
-            } else {
-                // c->setPrefabGuid(Guid::null());
-            }
-        }
-    }
-}
-
 }  // namespace
 
 void ComponentRegistry::builtin(ComponentRegistry& out) {
@@ -110,7 +89,6 @@ void ComponentRegistry::builtin(ComponentRegistry& out) {
 #undef REGISTER_COMPONENT
 
     out.getMut(TransformComponent_Id).on_edited = Transform_OnEdited;
-    out.getMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
 }
 
 }  // namespace cave::ecs

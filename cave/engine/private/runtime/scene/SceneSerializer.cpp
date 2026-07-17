@@ -365,7 +365,7 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
         return;
     }
 
-    prefab_scene.removeComponent<HierarchyComponent>(prefab_scene.root());
+    prefab_scene.storage().remove(HierarchyComponent_Id, prefab_scene.root());
 
     auto new_entities = prefab_scene.getSortedEntityArray();
     HashMap<Entity, Entity> mapping;

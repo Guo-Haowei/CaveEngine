@@ -8,7 +8,7 @@
 
 namespace cave {
 
-// Guid m_prefab_id (editor = Asset)
+// Guid m_prefab_id (editor = Asset, on_change = onPrefabGuidChanged)
 
 template<>
 const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
@@ -20,7 +20,7 @@ const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
             m_prefab_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            &::cave::InvokeFieldChanged<PrefabInstanceComponent, &PrefabInstanceComponent::onPrefabGuidChanged>
         ),
     };
 

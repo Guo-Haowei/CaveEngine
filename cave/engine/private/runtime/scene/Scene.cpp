@@ -171,8 +171,7 @@ size_t Scene::count(ComponentId cid) const {
 
 bool Scene::removeComponent(ComponentId cid, Entity ent) {
     if (cid == HierarchyComponent_Id) {
-        // @TODO: update parent
-        __debugbreak();
+        CRASH_NOW_MSG("shouldn't delete Hiearachy from this");
     }
 
     return m_storage.remove(cid, ent);
