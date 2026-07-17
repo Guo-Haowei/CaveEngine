@@ -16,7 +16,21 @@ void SceneHierarchy::rebuild(const Scene& scene) {
     }
 }
 
+void SceneHierarchy::beginBulkEdit() {
+    ++m_edit_depth;
+}
+
+void SceneHierarchy::endBulkEdit(const Scene& scene) {
+    DEV_ASSERT(m_edit_depth > 0);
+
+    if (--m_edit_depth == 0 && m_dirty) {
+        rebuild(scene);
+        m_dirty = false;
+    }
+}
+
 void SceneHierarchy::clear() {
+    m_roots.clear();
     m_children.clear();
 }
 
@@ -27,8 +41,18 @@ bool SceneHierarchy::onParentChanged(Entity child,
         return false;
     }
 
+    if (m_edit_depth > 0) {
+        m_dirty = true;
+        return true;
+    }
+
     if (old_parent.valid()) {
         removeChild(old_parent, child);
+    } else {
+        auto it = std::find(m_roots.begin(), m_roots.end(), child);
+        if (DEV_VERIFY(it != m_roots.end())) {
+            m_roots.erase(it);
+        }
     }
 
     addChild(new_parent, child);
@@ -53,6 +77,12 @@ void SceneHierarchy::addChild(Entity parent, Entity child) {
                              child) == children.end());
 
         children.push_back(child);
+    } else {
+        auto it = std::find(m_roots.begin(), m_roots.end(), child);
+
+        if (DEV_VERIFY(it == m_roots.end())) {
+            m_roots.push_back(child);
+        }
     }
 }
 
