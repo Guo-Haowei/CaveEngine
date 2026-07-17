@@ -38,6 +38,6 @@ DVAR_INT(gfx_shadow_res, DVAR_FLAG_NONE, "Shadow resolution", 1024 * 2);
 DVAR_FLOAT(gfx_bloom_threshold, DVAR_FLAG_CACHE, "", 2.0f);
 
 // render debug
-DVAR_BOOL(r_debug_ui, DVAR_FLAG_NONE, "Display UIRect region", true);
+DVAR_BOOL(r_debug_ui, DVAR_FLAG_NONE, "Display UIRect region", false);
 
 #include "engine/private/core/variant/DvarEnd.h"

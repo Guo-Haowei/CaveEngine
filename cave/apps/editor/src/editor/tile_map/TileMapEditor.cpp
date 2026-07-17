@@ -15,7 +15,6 @@
 #include "editor/services/EditorServices.h"
 #include "editor/services/EditService.h"
 #include "editor/services/IconCache.h"
-#include "editor/tile_map/GridPaintTool.h"
 #include "editor/tile_map/SetTileCommand.h"
 #include "editor/widgets/Image.h"
 
@@ -33,40 +32,39 @@ TileMapEditor::TileMapEditor(EditorState& editor,
                              SceneId scene_id)
     : ViewTabBase(editor, doc_id, scene_id, ViewDimension::Dim2)
     , m_canvas(m_engine_services.canvas())
-    , m_paint_tool(MakeOwner<GridPaintTool>())
     , m_debug_id(MakeDebugId(this)) {
 
     m_toolbar[0] = {
         "TileMapEditor.pencil",
         ICON_FA_PEN,
         "Pencil - paint individual tiles",
-        [this]() { m_tool_type = ToolType::Pencil; },
+        [this]() { setPaintMode(GridPaintMode::Brush); },
         [this]() { return true; },
-        [this]() { return m_tool_type == ToolType::Pencil; },
+        [this]() { return m_paint_mode == GridPaintMode::Brush; },
     };
     m_toolbar[1] = {
         "TileMapEditor.line",
         ICON_FA_CHART_LINE,
         "Line - paint a straight line",
-        [this]() { m_tool_type = ToolType::Line; },
+        [this]() { setPaintMode(GridPaintMode::Line); },
         [this]() { return true; },
-        [this]() { return m_tool_type == ToolType::Line; },
+        [this]() { return m_paint_mode == GridPaintMode::Line; },
     };
     m_toolbar[2] = {
         "TileMapEditor.rect",
         ICON_FA_SQUARE_PEN,
         "Rectangle - paint a filled rectangle",
-        [this]() { m_tool_type = ToolType::Rect; },
+        [this]() { setPaintMode(GridPaintMode::Rect); },
         [this]() { return true; },
-        [this]() { return m_tool_type == ToolType::Rect; },
+        [this]() { return m_paint_mode == GridPaintMode::Rect; },
     };
     m_toolbar[3] = {
         "TileMapEditor.fill",
         ICON_FA_FILL,
         "Fill - replace a connected region",
-        [this]() { m_tool_type = ToolType::Fill; },
+        [this]() { setPaintMode(GridPaintMode::Fill); },
         [this]() { return true; },
-        [this]() { return m_tool_type == ToolType::Fill; },
+        [this]() { return m_paint_mode == GridPaintMode::Fill; },
     };
     m_toolbar[4] = {
         "TileMapEditor.erase",
@@ -104,7 +102,7 @@ void TileMapEditor::drawGhostTiles(const TileSetAsset& tile_set) {
         selection_valid = true;
     }
 
-    for (const GridPaintCell& cell : m_paint_tool->preview()) {
+    for (const GridPaintCell& cell : m_paint_tool.preview()) {
         Vec2f min{ cell.coord.x, cell.coord.y };
         Vec2f max{ cell.coord.x + 1, cell.coord.y + 1 };
 
@@ -134,7 +132,7 @@ void TileMapEditor::onInputEvents(const InputFrame& input) {
     if (!tile_set) return;
 
     GridPaintInput paint_input = buildInput(input);
-    std::span<const GridPaintEvent> events = m_paint_tool->update(paint_input);
+    std::span<const GridPaintEvent> events = m_paint_tool.update(paint_input);
     for (const auto& event : events) {
         handlePaintEvent(event, *tile_map, *tile_set);
     }
@@ -301,12 +299,6 @@ Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {
 GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
     GridPaintInput out{};
 
-    const KeyState& st = m_engine_services.inputService().keyState();
-
-    out.ctrl = st.anyCtrlDown();
-    out.shift = st.anyShiftDown();
-    out.alt = st.anyAltDown();
-
     Vec2f cursor = m_cursor.unwrap_or(Vec2f::Zero);
 
     for (const InputEvent& event : input.events) {
@@ -350,6 +342,11 @@ GridPaintInput TileMapEditor::buildInput(const InputFrame& input) {
     }
 
     return out;
+}
+
+void TileMapEditor::setPaintMode(GridPaintMode mode) {
+    m_paint_mode = mode;
+    m_paint_tool.setMode(mode);
 }
 
 void TileMapEditor::handlePaintEvent(const GridPaintEvent& event,

@@ -3,6 +3,7 @@
 
 #include "editor/panels/ViewTabBase.h"
 #include "editor/tile_map/GridPaintDefines.h"
+#include "editor/tile_map/GridPaintTool.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
@@ -66,22 +67,18 @@ private:
     void applyFillCells(GridPaintCell cell,
                         const TileMapAsset& tile_map,
                         const TileSetAsset& tile_set);
+
+    void setPaintMode(GridPaintMode mode);
     // ---- Paint Tool ----
 
     ICanvas& m_canvas;
-    Owner<GridPaintTool> m_paint_tool;
+    GridPaintTool m_paint_tool;
     const DebugId m_debug_id;
 
     HashMap<TileCoord, PendingChange> m_pending_tile_changes;
     Option<math::Vec2f> m_cursor;
 
-    enum class ToolType {
-        None = 0,
-        Pencil,
-        Line,
-        Rect,
-        Fill,
-    } m_tool_type = ToolType::None;
+    GridPaintMode m_paint_mode = GridPaintMode::Brush;
     bool m_erasing = false;
 
     std::array<ToolbarButtonDesc, 5> m_toolbar;
