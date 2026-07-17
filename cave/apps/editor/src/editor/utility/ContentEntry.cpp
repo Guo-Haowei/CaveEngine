@@ -1,5 +1,7 @@
 #include "ContentEntry.h"
 
+#include <IconsFontAwesome/IconsFontAwesome6.h>
+
 #include "cave/core/string/StringUtils.h"
 
 #include "engine/private/core/os/platform_io.h"
@@ -16,6 +18,9 @@ namespace cave {
 
 namespace fs = std::filesystem;
 
+// @TODO:
+static constexpr int kThumbnailSize = 256;
+
 auto BuildFolderTree(const fs::path& sys_path,
                      ContentEntry* parent) -> std::unique_ptr<ContentEntry> {
     try {
@@ -30,7 +35,7 @@ auto BuildFolderTree(const fs::path& sys_path,
         }
 
         auto node = MakeOwner<ContentEntry>();
-        node->type = AssetType::Unknown;
+        node->asset_type = AssetType::Unknown;
         node->extension = "";
         node->is_dir = is_dir;
         node->sys_path = sys_path;
@@ -57,7 +62,7 @@ auto BuildFolderTree(const fs::path& sys_path,
             const AssetMetaData* meta = node->handle.meta();
 
             DEV_ASSERT(meta);
-            node->type = meta->type;
+            node->asset_type = meta->type;
             node->extension = StringUtils::extension(node->file_name);
 #if 0
             if (node->type == AssetType::Image) {
@@ -84,9 +89,6 @@ auto BuildFolderTree(const fs::path& sys_path,
         return nullptr;
     }
 }
-
-// @TODO:
-static constexpr int kThumbnailSize = 256;
 
 void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
     const AssetMetaData* meta = handle.meta();
@@ -206,6 +208,25 @@ void ShowPopup(const ContentEntry& node,
 
     if (ImGui::MenuItem("Reveal In File Explorer")) {
         cave::os::RevealInFolder(node.sys_path);
+    }
+}
+
+const char* GetContentIcon(const ContentEntry& entry, bool is_open) {
+    if (entry.is_dir) {
+        return is_open ? ICON_FA_FOLDER_OPEN : ICON_FA_FOLDER_CLOSED;
+    }
+
+    switch (entry.asset_type) {
+        case AssetType::TileMap:
+            return ICON_FA_MAP;
+        case AssetType::Scene:
+            return ICON_FA_EARTH_ASIA;
+        case AssetType::Image:
+            return ICON_FA_FILE_IMAGE;
+        case AssetType::SpriteAnimation:
+            return ICON_FA_FILE_VIDEO;
+        default:
+            return ICON_FA_CUBE;
     }
 }
 

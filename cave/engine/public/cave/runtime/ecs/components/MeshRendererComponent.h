@@ -9,6 +9,8 @@
 
 namespace cave {
 
+struct FieldChange;
+
 class MeshRendererComponent {
     CAVE_COMPONENT(MeshRendererComponent)
 
@@ -16,16 +18,16 @@ class MeshRendererComponent {
 
 private:
     CAVE_PROP(editor = Toggle)
-    bool m_visibility = true;
+    bool m_visible = true;
 
     CAVE_PROP(editor = Toggle)
     bool m_cast_shadow = true;
 
     CAVE_PROP(editor = Toggle)
-    bool m_transparency = false;
+    bool m_transparent = false;
 
-    CAVE_PROP(editor = Asset)
-    Guid m_mesh_id;
+    CAVE_PROP(editor = Asset, on_change = onMeshGuidChanged)
+    Guid m_mesh_guid;
 
     CAVE_PROP()
     FixedStack<ecs::Entity, kMaxMaterial> m_materials;
@@ -36,30 +38,33 @@ private:
     // Non-serialized
     Handle<MeshAsset> m_mesh_handle{};
 
+    void refreshMeshHandle();
+    void onMeshGuidChanged(const FieldChange& change);
+
 public:
     MeshRendererComponent();
 
-    const Guid& GetResourceGuid() const { return m_mesh_id; }
-    bool SetResourceGuid(const Guid& p_guid);
+    const Guid& meshGuid() const { return m_mesh_guid; }
+    void setMeshGuid(const Guid& guid);
 
-    auto& GetMaterialInstances() { return m_materials; }
-    const auto& GetMaterialInstances() const { return m_materials; }
+    auto& materialInstances() { return m_materials; }
+    const auto& materialInstances() const { return m_materials; }
 
-    void AddMaterial(ecs::Entity p_material);
+    void addMaterial(ecs::Entity material);
 
-    const auto& GetMeshHandle() const { return m_mesh_handle; }
+    const auto& meshHandle() const { return m_mesh_handle; }
 
-    ecs::Entity GetSkeletonId() const { return m_skeleton_id; }
-    void SetSkeletonId(ecs::Entity p_id) { m_skeleton_id = p_id; }
+    ecs::Entity skeletonId() const { return m_skeleton_id; }
+    void setSkeletonId(ecs::Entity id) { m_skeleton_id = id; }
 
-    void SetVisible(bool p_value = true) { m_visibility = p_value; }
-    bool IsVisible() const { return m_visibility; }
+    bool visible() const { return m_visible; }
+    void setVisible(bool value) { m_visible = value; }
 
-    void SetCastShadow(bool p_value = true) { m_cast_shadow = p_value; }
-    bool CastShadow() const { return m_cast_shadow; }
+    bool castShadow() const { return m_cast_shadow; }
+    void setCastShadow(bool value) { m_cast_shadow = value; }
 
-    void SetTransparency(bool p_value = true) { m_transparency = p_value; }
-    bool Transparency() const { return m_transparency; }
+    bool transparent() const { return m_transparent; }
+    void setTransparent(bool value) { m_transparent = value; }
 
     void onDeserialized();
 };

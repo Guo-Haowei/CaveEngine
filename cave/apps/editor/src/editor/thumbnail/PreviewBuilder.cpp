@@ -18,7 +18,6 @@
 
 namespace cave {
 
-using namespace ::cave::literals;
 using namespace ::cave::math;
 using ecs::Entity;
 
@@ -156,7 +155,6 @@ PreviewBuildResult PreviewBuilder::buildMaterial(const AssetMetaData* meta,
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->setRoot(map.resolve(root));
     scene->update(0.0f);
 
     Mat4f transform = math::Translate(Vec3f(0, 0, 1.5f));
@@ -195,7 +193,7 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetMetaData* meta,
     if constexpr (1) {
         Entity e = cb.transformObject("mesh");
         cb.addComponent(e, MeshRendererComponent_Id);
-        cb.setProperty(e, MeshRendererComponent_Id, "mesh_id"_sid, handle.guid());
+        cb.setProperty(e, MeshRendererComponent_Id, CAVE_SID("mesh_guid"), handle.guid());
         cb.attachChild(e, root);
     }
 
@@ -205,7 +203,6 @@ PreviewBuildResult PreviewBuilder::buildMesh(const AssetMetaData* meta,
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
 
-    scene->setRoot(map.resolve(root));
     scene->update(0.0f);
 
     CameraComponent camera = FitAABBToCamera(mesh->localBound, options);

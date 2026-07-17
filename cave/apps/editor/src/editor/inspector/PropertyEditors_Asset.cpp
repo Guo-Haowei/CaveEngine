@@ -11,20 +11,21 @@
 
 namespace cave {
 
+namespace {
+
 bool DrawAsset(const DrawComponentCtx& ctx,
                const char* name,
                Guid& guid) {
-
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, ui::kDefaultColumnWidth);
     ImGui::Text(ICON_FA_CUBE "  %s", name);
     ImGui::NextColumn();
 
-    AssetHandle handle;
+    AssetHandle asset_handle;
     const AssetMetaData* meta = nullptr;
     if (auto handle_opt = ctx.engine_services.assetRegistry().findByGuid(guid)) {
-        handle = handle_opt.unwrap_unchecked();
-        meta = handle.meta();
+        asset_handle = handle_opt.unwrap_unchecked();
+        meta = asset_handle.meta();
         DEV_ASSERT(meta);
     }
 
@@ -36,15 +37,32 @@ bool DrawAsset(const DrawComponentCtx& ctx,
 
     bool dirty = false;
     if (auto handle_opt = drag_drop.dropAsset(meta ? meta->type : AssetType::All)) {
-        dirty = true;
-        guid = handle_opt.unwrap_unchecked().guid();
+        auto handle = handle_opt.unwrap_unchecked();
+        if (handle.guid() != guid) {
+            dirty = true;
+            guid = handle.guid();
+        }
     }
 
     ImGui::Columns(1);
     if (hovered && meta) {
-        ShowAssetToolTip(ctx.editor_services.thumbnail(), handle);
+        ShowAssetToolTip(ctx.editor_services.thumbnail(), asset_handle);
     }
     return dirty;
+}
+
+}  // namespace
+
+bool AssetEditor(const DrawComponentCtx& ctx,
+                 void* component,
+                 const FieldMetaBase* field) {
+    return EditAndSubmit<Guid>(
+        ctx,
+        component,
+        field,
+        [&ctx](const char* label, Guid& guid) {
+            return DrawAsset(ctx, label, guid);
+        });
 }
 
 }  // namespace cave

@@ -28,7 +28,7 @@ SamplerDesc CubemapSampler() {
 
 SamplerDesc CubemapLodSampler() {
     SamplerDesc desc = CubemapSampler();
-    desc.maxLod = IBL_MIP_CHAIN_MAX - 1.0f;
+    desc.maxLod = kIBLMipChainMax - 1.0f;
     return desc;
 }
 

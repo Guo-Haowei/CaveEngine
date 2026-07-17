@@ -16,8 +16,8 @@ ResolvedUICanvas UILayoutResolver::resolve(const Scene& scene,
                                            math::Vec2f canvas_size) const {
     HashMap<Entity, Vector<Entity>> tree_lookup;
     for (auto [ent, rect, hier] : scene.view<UIRectTransformComponent, HierarchyComponent>()) {
-        DEV_ASSERT(hier.parent_id.valid());
-        tree_lookup[hier.parent_id].push_back(ent);
+        DEV_ASSERT(hier.parent().valid());
+        tree_lookup[hier.parent()].push_back(ent);
     }
 
     UIRect canvas_rect{ Vec2f::Zero, canvas_size };

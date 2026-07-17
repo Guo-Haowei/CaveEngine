@@ -24,20 +24,25 @@ struct MaterialComponent {
     CAVE_PROP(editor = DragFloat, min = 0, max = 1000)
     float emissive = 0.0f;
 
-    CAVE_PROP(editor = Asset)
+    CAVE_PROP(editor = Asset, on_change = onMaterialGuidChanged)
     Guid m_material_id;
 
     // Non-serialized
     Handle<MaterialAsset> m_material_handle{};
     Vector<Handle<ImageAsset>> m_images;
 
-    const Guid& GetResourceGuid() const { return m_material_id; }
-    bool SetResourceGuid(const Guid& p_guid);
+    const Guid& materialGuid() const { return m_material_id; }
+
+    void setMaterialGuid(const Guid& guid);
 
     void onDeserialized();
 
 private:
-    void onDeserializedHelper(Handle<MaterialAsset>& p_handle, bool p_override);
+    void refreshMaterialHandle();
+
+    void onMaterialGuidChanged(const FieldChange& change);
+
+    void onDeserializedHelper(Handle<MaterialAsset>& handle, bool override);
 };
 
 }  // namespace cave

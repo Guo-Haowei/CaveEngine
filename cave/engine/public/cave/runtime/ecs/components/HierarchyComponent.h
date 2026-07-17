@@ -7,17 +7,32 @@
 
 namespace cave {
 
-struct HierarchyComponent {
+struct FieldChange;
+
+class HierarchyComponent {
     CAVE_COMPONENT(HierarchyComponent)
 
-    CAVE_PROP()
-    ecs::Entity parent_id;
+private:
+    CAVE_PROP(on_change = onParentChanged)
+    ecs::Entity m_parent_id;
 
     CAVE_PROP()
-    bool local_visible = true;
+    bool m_local_visible = true;
 
     // Non-serialized attributes
-    bool visible = true;
+    bool m_visible = true;
+
+    void onParentChanged(const FieldChange& change);
+
+public:
+    ecs::Entity parent() const { return m_parent_id; }
+    void setParentRaw(ecs::Entity parent) { m_parent_id = parent; }
+
+    bool localVisible() const { return m_local_visible; }
+    void setLocalVisible(bool value) { m_local_visible = value; }
+
+    bool visible() const { return m_visible; }
+    void setVisible(bool value) { m_visible = value; }
 };
 
 }  // namespace cave

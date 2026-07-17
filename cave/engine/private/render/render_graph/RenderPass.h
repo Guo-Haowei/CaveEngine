@@ -56,7 +56,7 @@ public:
     }
 
     RenderPass& setExecuteFunc(ExecuteFunc func) {
-        m_func = std::move(func);
+        m_execute_func = std::move(func);
         return *this;
     }
 
@@ -83,7 +83,7 @@ private:
     std::optional<DepthAttachmentDesc> m_depth;
     std::optional<Viewport> m_viewport;
 
-    ExecuteFunc m_func;
+    ExecuteFunc m_execute_func;
 
     friend class RenderGraph;
     friend class CompiledGraph;

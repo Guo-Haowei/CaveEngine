@@ -137,7 +137,7 @@ Result<void> TileMapAsset::loadFromDisk(const AssetMetaData& meta) {
     }
 
     YamlDeserializer d;
-    d.Initialize(root);
+    d.initialize(root);
 
     const int version = d.version();
 

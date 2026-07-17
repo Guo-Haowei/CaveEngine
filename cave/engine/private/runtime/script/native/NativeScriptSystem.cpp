@@ -147,6 +147,7 @@ void NativeScriptSystem::alwaysRun() {
 
     SceneCommandExecutor executor(scene);
     EntityMap map(writer.allocationCount());
+
     SceneCommandPlayback::Play(writer, executor, { map, scene });
     m_always_run_called = true;
 }

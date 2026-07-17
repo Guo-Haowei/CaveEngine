@@ -275,7 +275,7 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
                 writer.addComponent(ent, PrefabInstanceComponent_Id);
                 writer.addComponent(ent, HierarchyComponent_Id);
                 writer.setProperty(ent, PrefabInstanceComponent_Id, "prefab_id"_sid, handle.guid());
-                writer.attachChild(ent, scene->root());
+                writer.attachChild(ent, scene->hierarchy().firstRoot().unwrap_or(Entity::null()));
                 return ent;
             });
 
@@ -285,8 +285,8 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
             Scene* scene = getResolvedScene();
             m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
                 Entity ent = writer.tileMapObject("tile_map");
-                writer.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_id"_sid, handle.guid());
-                writer.attachChild(ent, scene->root());
+                writer.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_guid"_sid, handle.guid());
+                writer.attachChild(ent, scene->hierarchy().firstRoot().unwrap_or(Entity::null()));
                 return ent;
             });
             return true;

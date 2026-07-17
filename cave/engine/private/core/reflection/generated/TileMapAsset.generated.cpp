@@ -16,10 +16,42 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<TileMapAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TileMapAsset, "name", m_name, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(TileMapAsset, "tile_set_id", m_tile_set_id, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(TileMapAsset, "visible", m_visible, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(TileMapAsset, "tiles", m_tiles, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(
+            TileMapAsset,
+            "name",
+            CAVE_SID("name"),
+            m_name,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapAsset,
+            "tile_set_id",
+            CAVE_SID("tile_set_id"),
+            m_tile_set_id,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapAsset,
+            "visible",
+            CAVE_SID("visible"),
+            m_visible,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapAsset,
+            "tiles",
+            CAVE_SID("tiles"),
+            m_tiles,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
     };
 
     return s_table;

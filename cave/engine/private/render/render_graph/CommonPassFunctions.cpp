@@ -296,16 +296,12 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
 }
 
 /// Bloom
-void BloomSetupFunc(RenderPassExcutionContext& p_ctx) {
+void BloomSetupFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.options.enable_bloom) {
-        return;
-    }
+    auto& cmd = ctx.cmd;
 
-    auto& cmd = p_ctx.cmd;
-
-    auto uav = p_ctx.pass.uavs[0];
+    auto uav = ctx.pass.uavs[0];
 
     cmd.SetPipelineState(PSO_BLOOM_SETUP);
 
@@ -315,18 +311,14 @@ void BloomSetupFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Dispatch(work_group_x, work_group_y, 1);
 }
 
-void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx) {
+void BloomDownSampleFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.options.enable_bloom) {
-        return;
-    }
-
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = ctx.cmd;
 
     cmd.SetPipelineState(PSO_BLOOM_DOWNSAMPLE);
 
-    auto uav = p_ctx.pass.uavs[0];
+    auto uav = ctx.pass.uavs[0];
 
     const uint32_t work_group_x = CeilingDivision(uav->desc.width, 16);
     const uint32_t work_group_y = CeilingDivision(uav->desc.height, 16);
@@ -334,16 +326,12 @@ void BloomDownSampleFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Dispatch(work_group_x, work_group_y, 1);
 }
 
-void BloomUpSampleFunc(RenderPassExcutionContext& p_ctx) {
+void BloomUpSampleFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    if (!p_ctx.frameData.options.enable_bloom) {
-        return;
-    }
+    auto& cmd = ctx.cmd;
 
-    auto& cmd = p_ctx.cmd;
-
-    auto uav = p_ctx.pass.uavs[0];
+    auto uav = ctx.pass.uavs[0];
 
     cmd.SetPipelineState(PSO_BLOOM_UPSAMPLE);
 

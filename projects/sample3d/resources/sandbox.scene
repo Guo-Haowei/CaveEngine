@@ -1,11 +1,12 @@
-version: 19
-seed: 16
-root: 1
-physics_mode: 0
+version: 22
+seed: 15
 entities:
   - id: 1
     NameComponent:
       name: world
+    HierarchyComponent:
+      parent_id: 0
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -15,15 +16,16 @@ entities:
       name: Torus-1
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0.087155968, -0.408334136, 2.71955037]
       rotation: [0.298842758, -0.0184840318, 0.00907245278, 0.954080224]
       scale: [1, 1.00000036, 0.999999821]
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000009
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000009
       materials: [3]
       skeleton_id: 0
   - id: 3
@@ -40,6 +42,7 @@ entities:
       name: InfiniteLight-2
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
       rotation: [-0.50405097, 0.247044399, 0.635970175, 0.529569149]
@@ -64,15 +67,16 @@ entities:
       name: Plane-3
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, -1.14437366, 2.62466511e-08]
       rotation: [-0.70710665, 0, 0, 0.707106888]
       scale: [6.5899992, 6.58995485, 6.58995485]
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000004
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000004
       materials: [6]
       skeleton_id: 0
   - id: 6
@@ -84,7 +88,7 @@ entities:
       roughness: 0.00999999978
       emissive: 0
       material_id: 00000000-0000-0000-0000000000000000
-  - id: 8
+  - id: 7
     NameComponent:
       name: Cone-4:mat
     MaterialComponent:
@@ -93,11 +97,12 @@ entities:
       roughness: 1
       emissive: 0
       material_id: 00000000-0000-0000-0000000000000000
-  - id: 9
+  - id: 8
     NameComponent:
       name: AreaLight-1
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0, 4.4407773, 5.66806173]
       rotation: [0.961887181, 0, 0, 0.27344662]
@@ -112,35 +117,36 @@ entities:
         max: [-.inf, -.inf, -.inf]
       cast_shadow: false
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000004
-      materials: [9]
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000004
+      materials: [8]
       skeleton_id: 0
     MaterialComponent:
       base_color: [1, 1, 1, 1]
       metallic: 0
       roughness: 1
-      emissive: 5
+      emissive: 12.8000002
       material_id: 00000000-0000-0000-0000000000000000
-  - id: 10
+  - id: 9
     NameComponent:
       name: Cube-1
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [-1.71004605, -0.366723835, 1.78994989]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000005
-      materials: [11]
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000005
+      materials: [10]
       skeleton_id: 0
-  - id: 11
+  - id: 10
     NameComponent:
       name: Cube-1:mat
     MaterialComponent:
@@ -149,23 +155,24 @@ entities:
       roughness: 0.899999976
       emissive: 0
       material_id: 91E06F52-4206-8F43-9C35A6426BAFE568
-  - id: 12
+  - id: 11
     NameComponent:
       name: Cylinder-1
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [-0.809297085, -0.390560061, -1.63956034]
       rotation: [0, 0, 0, 1]
       scale: [1.19000006, 1.19000006, 1.19000006]
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000007
-      materials: [13]
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000007
+      materials: [12]
       skeleton_id: 0
-  - id: 13
+  - id: 12
     NameComponent:
       name: Cylinder-1:mat
     MaterialComponent:
@@ -174,23 +181,24 @@ entities:
       roughness: 1
       emissive: 0
       material_id: 91E06F52-4206-8F43-9C35A6426BAFE568
-  - id: 14
+  - id: 13
     NameComponent:
       name: Sphere-1
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [1.55322409, -0.373219371, 0.400632918]
       rotation: [0, 0, 0, 1]
       scale: [1.16999996, 1.16999996, 1.16999996]
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
-      mesh_id: 00000000-0000-0000-0000000000000006
-      materials: [15]
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000006
+      materials: [14]
       skeleton_id: 0
-  - id: 15
+  - id: 14
     NameComponent:
       name: Sphere-1:mat
     MaterialComponent:
@@ -199,11 +207,12 @@ entities:
       roughness: 0.800000012
       emissive: 0
       material_id: 91E06F52-4206-8F43-9C35A6426BAFE568
-  - id: 16
+  - id: 15
     NameComponent:
       name: camera
     HierarchyComponent:
       parent_id: 1
+      local_visible: true
     TransformComponent:
       translation: [0.03692092, 0.188412517, -3.82644248]
       rotation: [-4.37113883e-08, 1, -4.37113883e-08, 1.91068547e-15]
@@ -214,5 +223,5 @@ entities:
       fovy: 60
       near: 0.100000001
       far: 1000
-      aspect: 1.777778
+      aspect: 1.77777803
       ortho_height: 10

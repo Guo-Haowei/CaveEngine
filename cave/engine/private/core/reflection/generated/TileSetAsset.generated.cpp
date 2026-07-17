@@ -19,13 +19,75 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TileSetAsset, "image_guid", m_image_guid, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(TileSetAsset, "tile_scale", m_tile_scale, FieldFlag::Serialize, EditorHint::DragFloat, 0.01f, 100.0f),
-        REGISTER_FIELD(TileSetAsset, "width", m_width, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(TileSetAsset, "height", m_height, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(TileSetAsset, "row", m_row, FieldFlag::Serialize, EditorHint::InputInt, 1, 1000),
-        REGISTER_FIELD(TileSetAsset, "column", m_column, FieldFlag::Serialize, EditorHint::InputInt, 1, 1000),
-        REGISTER_FIELD(TileSetAsset, "colliders", m_colliders, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(
+            TileSetAsset,
+            "image_guid",
+            CAVE_SID("image_guid"),
+            m_image_guid,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileSetAsset,
+            "tile_scale",
+            CAVE_SID("tile_scale"),
+            m_tile_scale,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr,
+            0.01f,
+            100.0f
+        ),
+        REGISTER_FIELD(
+            TileSetAsset,
+            "width",
+            CAVE_SID("width"),
+            m_width,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileSetAsset,
+            "height",
+            CAVE_SID("height"),
+            m_height,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileSetAsset,
+            "row",
+            CAVE_SID("row"),
+            m_row,
+            FieldFlag::Serialize,
+            EditorHint::InputInt,
+            nullptr,
+            1,
+            1000
+        ),
+        REGISTER_FIELD(
+            TileSetAsset,
+            "column",
+            CAVE_SID("column"),
+            m_column,
+            FieldFlag::Serialize,
+            EditorHint::InputInt,
+            nullptr,
+            1,
+            1000
+        ),
+        REGISTER_FIELD(
+            TileSetAsset,
+            "colliders",
+            CAVE_SID("colliders"),
+            m_colliders,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
     };
 
     return s_table;

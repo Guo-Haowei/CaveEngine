@@ -39,8 +39,8 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     const HierarchyComponent* hier2 = scene.component<HierarchyComponent>(r2);
     ASSERT_TRUE(hier2);
 
-    EXPECT_EQ(hier2->parent_id, r1);
-    EXPECT_NE(hier2->parent_id, e1);
+    EXPECT_EQ(hier2->parent(), r1);
+    EXPECT_NE(hier2->parent(), e1);
 }
 
 }  // namespace cave::scene

@@ -35,7 +35,7 @@ DVAR_INT(gfx_point_shadow_res, DVAR_FLAG_NONE, "Point shadow resolution", 1024);
 DVAR_INT(gfx_shadow_res, DVAR_FLAG_NONE, "Shadow resolution", 1024 * 2);
 
 // Bloom
-DVAR_FLOAT(gfx_bloom_threshold, DVAR_FLAG_NONE, "", 1.3f);
+DVAR_FLOAT(gfx_bloom_threshold, DVAR_FLAG_CACHE, "", 2.0f);
 
 // render debug
 DVAR_BOOL(r_debug_ui, DVAR_FLAG_NONE, "Display UIRect region", true);

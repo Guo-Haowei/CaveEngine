@@ -170,7 +170,7 @@ static void fillConstantBuffer(const FrameTime& p_frame,
 
     // Bloom
     {
-        cache.c_bloomThreshold = 1.3f;
+        cache.c_bloomThreshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
         cache.c_enableBloom = options.enable_bloom;
 
         cache.c_debugVoxelId = options.debugVoxelId;
@@ -198,17 +198,17 @@ static void fillConstantBuffer(const FrameTime& p_frame,
 }
 
 static void fillEnvConstants(FrameData& out_data) {
-    constexpr int count = IBL_MIP_CHAIN_MAX * 6;
+    constexpr int count = kIBLMipChainMax * 6;
     if (out_data.batchCache.buffer.size() < count) {
         out_data.batchCache.buffer.resize(count);
     }
 
     auto matrices = out_data.options.is_opengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vec3f(0)) : BuildCubeMapViewProjectionMatrix(Vec3f(0));
-    for (int mip_idx = 0; mip_idx < IBL_MIP_CHAIN_MAX; ++mip_idx) {
+    for (int mip_idx = 0; mip_idx < kIBLMipChainMax; ++mip_idx) {
         for (int face_id = 0; face_id < 6; ++face_id) {
             auto& batch = out_data.batchCache.buffer[mip_idx * 6 + face_id];
             batch.c_cubeProjectionViewMatrix = matrices[face_id];
-            batch.c_envPassRoughness = (float)mip_idx / (float)(IBL_MIP_CHAIN_MAX - 1);
+            batch.c_envPassRoughness = (float)mip_idx / (float)(kIBLMipChainMax - 1);
         }
     }
 }
@@ -393,14 +393,27 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
         .lighting = lighting_outputs.lighting,
     });
 
-    auto highlight_outputs = graph.addHighlightPass({
+    BloomOut bloom_output = {
+        .dependency = RGDependencyId::null(),
+        .bloom = RGTextureId::null(),
+    };
+
+    if (plan.enable_bloom) {
+        bloom_output = graph.addBloomPasses({
+            .dependency = forward_outputs.dependency,
+            .color = lighting_outputs.lighting,
+        });
+    }
+
+    auto highlight_output = graph.addHighlightPass({
         .stencil = prepass_outputs.depth,
     });
 
     auto post_process_output = graph.addPostProcessPass({
+        .dependency = bloom_output.dependency,
         .lighting = lighting_outputs.lighting,
-        .outline = highlight_outputs.outline,
-        .bloom = 0,
+        .outline = highlight_output.outline,
+        .bloom = bloom_output.bloom,
         .color_attachment = view.output,
     });
 

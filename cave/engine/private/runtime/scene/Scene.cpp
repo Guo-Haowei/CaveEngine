@@ -73,6 +73,8 @@ void Scene::begin(Owner<SceneRuntime>&& runtime) {
     m_runtime->start(false);
 
     update(0.0f);
+
+    DEV_ASSERT(m_hierarchy.validate(*this));
 }
 
 void Scene::alwaysRun(Owner<SceneRuntime>&& runtime) {
@@ -115,9 +117,10 @@ void Scene::copy(const Scene& other) {
         ++idx;
     }
 
-    m_root = other.m_root;
     m_world_bound = other.m_world_bound;
     m_entity_seed = other.m_entity_seed;
+
+    m_hierarchy.rebuild(*this);
 }
 
 Vector<Entity> Scene::getSortedEntityArray() const {
@@ -149,8 +152,10 @@ void Scene::flushPendingDestroy() {
     }
 
     for (auto ent : entities) {
-        removeEntity(ent);
+        removeEntityImpl(ent);
     }
+
+    m_hierarchy.rebuild(*this);
 }
 
 bool Scene::has(ComponentId cid, Entity ent) const {
@@ -165,7 +170,11 @@ size_t Scene::count(ComponentId cid) const {
     return 0;
 }
 
-bool Scene::remove(ComponentId cid, Entity ent) {
+bool Scene::removeComponent(ComponentId cid, Entity ent) {
+    if (cid == HierarchyComponent_Id) {
+        CRASH_NOW_MSG("shouldn't delete Hiearachy from this");
+    }
+
     return m_storage.remove(cid, ent);
 }
 
@@ -180,7 +189,7 @@ Entity Scene::findFirstByName(std::string_view name) const {
 
 Entity Scene::findChildByName(std::string_view name, Entity ent) const {
     for (auto [entity, hier, name_component] : view<HierarchyComponent, NameComponent>()) {
-        if (hier.parent_id == ent && name_component.name() == name) {
+        if (hier.parent() == ent && name_component.name() == name) {
             return entity;
         }
     }
@@ -189,6 +198,13 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
 }
 
 void Scene::removeEntity(Entity ent) {
+    if (ent.valid()) {
+        removeEntityImpl(ent);
+        m_hierarchy.rebuild(*this);
+    }
+}
+
+void Scene::removeEntityImpl(Entity ent) {
     // @TODO: move it to SceneCommandExecutor
     if (!ent.valid()) {
         return;
@@ -196,13 +212,13 @@ void Scene::removeEntity(Entity ent) {
 
     Vector<Entity> children;
     for (auto [child, hierarchy] : view<HierarchyComponent>()) {
-        if (hierarchy.parent_id == ent) {
+        if (hierarchy.parent() == ent) {
             children.emplace_back(child);
         }
     }
 
     for (auto child : children) {
-        removeEntity(child);
+        removeEntityImpl(child);
     }
 
     for (auto& e : m_storage.entries()) {
@@ -215,21 +231,24 @@ void Scene::removeEntity(Entity ent) {
 void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
     // remap hierarchy
     for (auto [id, hier] : view<HierarchyComponent>()) {
-        auto it = mapping.find(hier.parent_id);
+        auto it = mapping.find(hier.parent());
         DEV_ASSERT(it != mapping.end());
-        hier.parent_id = it->second;
+
+        hier.setParentRaw(it->second);
     }
 
     // remap material
     for (auto [id, renderer] : view<MeshRendererComponent>()) {
-        auto& materials = renderer.GetMaterialInstances();
+        auto& materials = renderer.materialInstances();
         for (size_t i = 0; i < materials.size(); ++i) {
             const auto it = mapping.find(materials[i]);
             DEV_ASSERT(it != mapping.end());
             materials[i] = it->second;
         }
 
-        CRASH_NOW_MSG("remap skin and skeleton");
+        const auto it = mapping.find(renderer.skeletonId());
+        DEV_ASSERT(it != mapping.end());
+        renderer.setSkeletonId(it->second);
     }
 
     for (uint16_t cid = 0; cid < static_cast<uint16_t>(storage().entries().size()); ++cid) {
@@ -240,19 +259,28 @@ void Scene::remapEntity(const HashMap<Entity, Entity>& mapping) {
     }
 }
 
-void Scene::attachChild(Entity child, Entity parent) {
-    DEV_ASSERT(child != parent);
-    DEV_ASSERT(parent.valid());
-
-    // @TODO: prevent circular dependency
-
-    HierarchyComponent* hier = component<HierarchyComponent>(child);
-
-    if (hier == nullptr) {
-        hier = &create<HierarchyComponent>(child);
+bool Scene::attachChild(Entity child, Entity parent) {
+    if (!child.valid()) {
+        return false;
     }
 
-    hier->parent_id = parent;
+    if (parent.valid()) {
+        if (isChild(parent, child)) {
+            return false;
+        }
+    }
+
+    HierarchyComponent* hier = component<HierarchyComponent>(child);
+    DEV_ASSERT(hier);
+
+    const Entity old_parent = hier ? hier->parent() : Entity::null();
+    if (old_parent == parent) {
+        return false;
+    }
+
+    hier->setParentRaw(parent);
+    m_hierarchy.onParentChanged(child, old_parent, parent);
+    return true;
 }
 
 bool Scene::isChild(Entity child, Entity parent) const {
@@ -268,8 +296,8 @@ bool Scene::isChild(Entity child, Entity parent) const {
     while (cursor.valid()) {
         const auto* hier = component<HierarchyComponent>(cursor);
         if (DEV_VERIFY(hier)) {
-            if (hier->parent_id == parent) return true;
-            cursor = hier->parent_id;
+            if (hier->parent() == parent) return true;
+            cursor = hier->parent();
         }
     }
     return false;

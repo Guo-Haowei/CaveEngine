@@ -66,7 +66,7 @@ Result<void> TinyGltfImporter::Import() {
         return CAVE_ERROR(res.error());
     }
 
-    m_scene_asset = std::make_shared<SceneAsset>();
+    m_scene_asset = MakeRef<SceneAsset>();
 
     Scene& scene = m_scene_asset->sceneMut();
 
@@ -106,7 +106,6 @@ Result<void> TinyGltfImporter::Import() {
     ecs::Entity root = scene.createEntity();
     scene.create<TransformComponent>(root);
     scene.create<NameComponent>(root);
-    scene.setRoot(root);
 
     for (const tinygltf::Material& mat : m_model->materials) {
         m_materials.emplace_back(ProcessMaterial(mat));
@@ -516,16 +515,16 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
         scene.create<TransformComponent>(mesh_instance);
 
         MeshRendererComponent& renderer = scene.create<MeshRendererComponent>(mesh_instance);
-        renderer.SetResourceGuid(m_meshes.at(node.mesh));
+        renderer.setMeshGuid(m_meshes.at(node.mesh));
 
         const tinygltf::Mesh& mesh = m_model->meshes[node.mesh];
         for (const auto& prim : mesh.primitives) {
             ecs::Entity material_id = scene.createEntity();
-            renderer.AddMaterial(material_id);
+            renderer.addMaterial(material_id);
 
             Guid material_guid = m_materials[prim.material];
             MaterialComponent& material_instance = scene.create<MaterialComponent>(material_id);
-            material_instance.SetResourceGuid(material_guid);
+            material_instance.setMaterialGuid(material_guid);
         }
 
         const bool has_skin = node.skin >= 0;
@@ -533,7 +532,7 @@ void TinyGltfImporter::ProcessNode(int p_node_index, ecs::Entity p_parent) {
             node_id = mesh_instance;
         } else {
             node_id = scene.getEntityByIndex<SkeletonComponent>(node.skin);
-            renderer.SetSkeletonId(node_id);
+            renderer.setSkeletonId(node_id);
             scene.attachChild(mesh_instance, node_id);
         }
 

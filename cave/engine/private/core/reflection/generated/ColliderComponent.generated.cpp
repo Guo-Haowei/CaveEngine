@@ -18,12 +18,60 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(ColliderComponent, "body_type", m_body_type, FieldFlag::Serialize, EditorHint::EnumDropDown),
-        REGISTER_FIELD(ColliderComponent, "shape", m_shape, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(ColliderComponent, "flags", m_flags, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(ColliderComponent, "layer", m_layer, FieldFlag::Serialize, EditorHint::BitMask),
-        REGISTER_FIELD(ColliderComponent, "mask", m_mask, FieldFlag::Serialize, EditorHint::BitMask),
-        REGISTER_FIELD(ColliderComponent, "is_trigger", m_is_trigger, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(
+            ColliderComponent,
+            "body_type",
+            CAVE_SID("body_type"),
+            m_body_type,
+            FieldFlag::Serialize,
+            EditorHint::EnumDropDown,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            ColliderComponent,
+            "shape",
+            CAVE_SID("shape"),
+            m_shape,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            ColliderComponent,
+            "flags",
+            CAVE_SID("flags"),
+            m_flags,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            ColliderComponent,
+            "layer",
+            CAVE_SID("layer"),
+            m_layer,
+            FieldFlag::Serialize,
+            EditorHint::BitMask,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            ColliderComponent,
+            "mask",
+            CAVE_SID("mask"),
+            m_mask,
+            FieldFlag::Serialize,
+            EditorHint::BitMask,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            ColliderComponent,
+            "is_trigger",
+            CAVE_SID("is_trigger"),
+            m_is_trigger,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
     };
 
     return s_table;

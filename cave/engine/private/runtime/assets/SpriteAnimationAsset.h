@@ -48,34 +48,34 @@ class SpriteAnimationAsset : public IAsset {
     CAVE_META(SpriteAnimationAsset)
 
 private:
-    CAVE_PROP(editor = Asset, tooltip = "image id")
-    Guid image_guid_;
+    CAVE_PROP(editor = Asset)
+    Guid m_image_guid;
 
     CAVE_PROP()
-    std::map<std::string, SpriteAnimationClip> clips_;
+    Map<String, SpriteAnimationClip> m_clips;
 
     // Non serialized
-    Handle<ImageAsset> image_handle_;
+    Handle<ImageAsset> m_image_handle;
 
 public:
-    bool addClip(std::string&& name, std::vector<math::Box2>&& frames);
+    bool addClip(String&& name, Vector<math::Box2>&& frames);
 
     const SpriteAnimationClip* tryGetClip(const std::string& name);
 
-    const auto& clips() const { return clips_; }
+    const auto& clips() const { return m_clips; }
 
     void SetGuid(const Guid& guid);
 
-    const Guid& imageGuid() const { return image_guid_; }
+    const Guid& imageGuid() const { return m_image_guid; }
 
-    Handle<ImageAsset> imageHandle() const { return image_handle_; }
+    Handle<ImageAsset> imageHandle() const { return m_image_handle; }
 
     auto saveToDisk(const AssetMetaData& meta) const -> Result<void> override;
 
     auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;
 
     Vector<Guid> dependencies() const override {
-        return { image_guid_ };
+        return { m_image_guid };
     }
 
     void onDeserialized();

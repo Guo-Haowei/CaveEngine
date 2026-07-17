@@ -1,6 +1,6 @@
 type: image
 guid: 9C3D6F1A-7766-2544-9A71767789A4193B
-name: ""
+name: spr_gui_loot.png
 import_path: "@res://textures/spr_gui_loot.png"
 dependencies: []
 source_created_time: ""

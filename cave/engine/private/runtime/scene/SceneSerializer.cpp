@@ -34,8 +34,9 @@ namespace {
 // version 17: remove armature.flags
 // version 18: change RigidBodyComponent
 // version 19: serialize scene.m_physicsMode
-// version 20: root root must have HierarchyComponent
+// version 20: root must have HierarchyComponent
 // version 21: prefab root must have HierarchyComponent
+// version 22: get rid of root
 constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
 
 #define PREFAB_OVERRIDE_LIST               \
@@ -44,6 +45,7 @@ constexpr uint32_t kLatestSceneVersion = SceneAsset::kVersion;
     PREFAB_OVERRIDE(NativeScriptComponent) \
     PREFAB_OVERRIDE(FacingComponent)
 
+// @TODO: rename it to refreshRuntimeState or something
 template<typename T>
 concept HasOnDeserialized = requires(T& t) {
     { t.onDeserialized() } -> std::same_as<void>;
@@ -155,8 +157,7 @@ bool SerializePrefabDiff(ISerializer& s,
     }
 
     const PrefabAsset* prefab_asset = handle.unwrap_unchecked().get();
-    DEV_ASSERT(prefab_asset);
-    Entity prefab_root = prefab_asset->scene().root();
+    Entity prefab_root = prefab_asset->scene().hierarchy().firstRoot().unwrap();
 
     s.beginKey("PrefabOverride");
     s.beginMap(false);
@@ -228,18 +229,12 @@ void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* as
     }
 
     scene.remapEntity(mapping);
-    auto it = mapping.find(scene.root());
-    if (DEV_VERIFY(it != mapping.end())) {
-        scene.setRoot(it->second);
-    }
 
     s.beginMap(false)
         .beginKey("version")
         .write(kLatestSceneVersion)
         .beginKey("seed")
         .write(seed)
-        .beginKey("root")
-        .write(scene.root())
         .beginKey("entities");
 
     s.beginArray(false);
@@ -261,13 +256,6 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
         uint32_t seed;
         if (d.read(seed)) {
             scene.setSeed(seed);
-        }
-        d.leaveKey();
-    }
-    if (d.tryEnterKey("root")) {
-        Entity root;
-        if (d.read(root)) {
-            scene.setRoot(root);
         }
         d.leaveKey();
     }
@@ -342,6 +330,8 @@ void DeserializeScene(IDeserializer& d, Scene& scene) {
         PREFAB_OVERRIDE_LIST
 #undef PREFAB_OVERRIDE
     }
+
+    scene.rebuildHierarchy();
 }
 
 void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity parent) {
@@ -358,17 +348,16 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
     Scene prefab_scene;
     prefab_scene.copy(prefab_asset->scene());
 
-    if (!DEV_VERIFY(prefab_scene.root().valid())) {
-        return;
-    }
+    DEV_ASSERT(prefab_scene.hierarchy().roots().size() == 1);
 
-    prefab_scene.remove<HierarchyComponent>(prefab_scene.root());
+    Entity prefab_root = prefab_scene.hierarchy().firstRoot().unwrap();
+    prefab_scene.storage().remove(HierarchyComponent_Id, prefab_root);
 
     auto new_entities = prefab_scene.getSortedEntityArray();
     HashMap<Entity, Entity> mapping;
 
     for (Entity prefab_ent : new_entities) {
-        if (prefab_ent == prefab_scene.root()) {
+        if (prefab_ent == prefab_root) {
             mapping[prefab_ent] = parent;
         } else {
             Entity mapped = scene.createEntity();
@@ -424,9 +413,7 @@ void ExportSubtree(ISerializer& s,
                    AssetRegistry* asset_reg) {
     Scene scene;
     scene.copy(source_scene);
-    if (auto* hier = scene.component<HierarchyComponent>(root)) {
-        hier->parent_id = Entity::null();
-    }
+    scene.attachChild(root, Entity::null());
 
     auto result = CollectEntitySubtree(scene, root);
     const uint32_t seed = scene.seed();
@@ -436,8 +423,6 @@ void ExportSubtree(ISerializer& s,
         .write(kLatestSceneVersion)
         .beginKey("seed")
         .write(seed)
-        .beginKey("root")
-        .write(root)
         .beginKey("entities");
 
     s.beginArray(false);

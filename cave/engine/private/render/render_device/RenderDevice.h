@@ -66,8 +66,8 @@ public:
     void RequestTexture(ImageAsset* p_image) override;
     void RequestMesh(MeshAsset* p_mesh) override;
 
-    void BeginEvent(std::string_view p_event) override { unused(p_event); }
-    void EndEvent() override {}
+    void beginEvent(std::string_view p_event) override { unused(p_event); }
+    void endEvent() override {}
 
     FrameContext& GetCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
 
@@ -101,8 +101,8 @@ protected:
 protected:
     void UpdateEmitters(const Scene& p_scene) override;
 
-    void BeginPass(const CompiledPass& p_pass) override;
-    void EndPass(const CompiledPass& p_pass) override;
+    void beginPass(const CompiledPass& p_pass) override;
+    void endPass(const CompiledPass& p_pass) override;
 
 private:
     void Execute(const FrameData& p_data, const CompiledPass& p_pass);

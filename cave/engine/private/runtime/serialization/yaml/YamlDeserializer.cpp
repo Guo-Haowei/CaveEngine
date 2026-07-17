@@ -9,7 +9,7 @@ YamlDeserializer::~YamlDeserializer() {
     DEV_ASSERT(m_node_stack.size() == 1);  // only root node is left
 }
 
-bool YamlDeserializer::Initialize(const YAML::Node& node) {
+bool YamlDeserializer::initialize(const YAML::Node& node) {
     const auto& version_node = node["version"];
 
     if (version_node && version_node.IsScalar()) {
@@ -47,14 +47,21 @@ void YamlDeserializer::leaveKey() {
 }
 
 bool YamlDeserializer::tryEnterIndex(int index) {
-    auto node = current()[index];
-    ERR_FAIL_COND_V_MSG(!node, false, "index not found");
+    const YAML::Node& node = current();
+
+    if (!node || !node.IsSequence()) {
+        return false;
+    }
+
+    if (index < 0 || static_cast<std::size_t>(index) >= node.size()) {
+        return false;
+    }
 
 #if USING(VALIDATE_SERIALIZER)
     m_type_stack.push_back(SerializerState::Array);
 #endif
 
-    m_node_stack.push_back(node);
+    m_node_stack.push_back(node[static_cast<std::size_t>(index)]);
     return true;
 }
 

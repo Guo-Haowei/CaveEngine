@@ -106,7 +106,7 @@ void RunTransformAnimationSystem(Scene& scene, jobsystem::Context&, float dt) {
     }
 
     for (ecs::Entity e : pending_removes) {
-        scene.remove<TransformAnimationComponent>(e);
+        scene.removeComponent<TransformAnimationComponent>(e);
     }
 }
 

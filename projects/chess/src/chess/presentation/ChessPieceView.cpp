@@ -80,8 +80,8 @@ void ChessPieceView::redrawPieces(const Position& position) {
             Entity e = entry.pool[i];
             auto renderer = m_query.component<MeshRendererComponent>(e);
             if (DEV_VERIFY(renderer)) {
-                renderer->SetVisible(false);
-                renderer->SetCastShadow(false);
+                renderer->setVisible(false);
+                renderer->setCastShadow(false);
             }
         }
     }
@@ -96,8 +96,8 @@ void ChessPieceView::spawnPiece(Piece piece, Square square) {
 
     auto renderer = m_query.component<MeshRendererComponent>(ent);
     if (DEV_VERIFY(renderer)) {
-        renderer->SetVisible(true);
-        renderer->SetCastShadow(true);
+        renderer->setVisible(true);
+        renderer->setCastShadow(true);
     }
     auto transform = m_query.component<TransformComponent>(ent);
     if (DEV_VERIFY(transform)) {
@@ -113,8 +113,8 @@ void ChessPieceView::removePiece(Square square) {
 
     auto renderer = m_query.component<MeshRendererComponent>(ent);
     if (DEV_VERIFY(renderer)) {
-        renderer->SetVisible(false);
-        renderer->SetCastShadow(false);
+        renderer->setVisible(false);
+        renderer->setCastShadow(false);
     }
 }
 

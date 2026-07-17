@@ -26,18 +26,18 @@ struct RenderPassExcutionContext {
 using ExecuteFunc = std::function<void(RenderPassExcutionContext& ctx)>;
 
 struct CompiledPass {
-    std::string name;
+    String name;
 
-    std::vector<ColorAttachmentDesc> colors;
+    Vector<ColorAttachmentDesc> colors;
     std::optional<DepthAttachmentDesc> depth;
 
     std::optional<Viewport> viewport;
     // @TODO: sissor
 
-    std::vector<GpuTextureId> uavs;
-    std::vector<GpuTextureId> srvs;
+    Vector<GpuTextureId> uavs;
+    Vector<GpuTextureId> srvs;
 
-    ExecuteFunc func;
+    ExecuteFunc execute_func;
 };
 
 }  // namespace cave::render

@@ -5,6 +5,7 @@
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
 #include "chess/core/Square.h"
+#include "chess/presentation/ChessUtils.h"
 
 namespace chess {
 
@@ -12,13 +13,6 @@ using namespace ::cave;
 using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
-
-static constexpr StringId kScaleId = "scale"_sid;
-static constexpr StringId kTranslationId = "translation"_sid;
-static constexpr StringId kRotationId = "rotation"_sid;
-static constexpr StringId kVisibility = "visibility"_sid;
-static constexpr StringId kCastShadow = "cast_shadow"_sid;
-static constexpr StringId kTransparency = "transparency"_sid;
 
 ChessViewFactory::ChessViewFactory(SceneCommandWriter& writer)
     : m_writer(writer) {

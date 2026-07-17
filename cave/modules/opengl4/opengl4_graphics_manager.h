@@ -21,8 +21,8 @@ public:
     auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> final;
     void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) final;
 
-    void BeginEvent(std::string_view p_event) final;
-    void EndEvent() final;
+    void beginEvent(std::string_view p_event) final;
+    void endEvent() final;
 
 protected:
     auto InitializeInternal() -> Result<void> final;

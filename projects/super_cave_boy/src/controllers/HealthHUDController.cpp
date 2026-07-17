@@ -31,7 +31,7 @@ void HealthHUDController::display(int n) {
     for (int i = 0; i < static_cast<int>(m_images.size()); ++i) {
         auto* hier = query().component<HierarchyComponent>(m_images[i]);
         if (DEV_VERIFY(hier)) {
-            hier->local_visible = i < n;
+            hier->setLocalVisible(i < n);
         }
     }
 }

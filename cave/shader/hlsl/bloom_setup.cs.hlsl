@@ -1,11 +1,12 @@
 /// File: bloom_setup.cs.hlsl
 #include "sampler.hlsl.h"
+#include "cbuffer.hlsl.h"
 
 Texture2D t_TextureLighting : register(t0);
 RWTexture2D<float3> u_BloomOutputImage : register(u0);
 
 float rgb_to_luma(float3 rgb) {
-    return sqrt(dot(rgb, float3(0.299, 0.587, 0.114)));
+    return dot(max(rgb, 0.0), float3(0.2126, 0.7152, 0.0722));
 }
 
 [numthreads(16, 16, 1)] void main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
@@ -18,13 +19,10 @@ float rgb_to_luma(float3 rgb) {
                        output_coord.y / output_image_size.y);
 
     float3 color = t_TextureLighting.SampleLevel(s_linearClampSampler, uv, 0).rgb;
-    float luma = rgb_to_luma(color);
+    color = max(color, 0.0);
 
-    const float THRESHOLD = 1.3;
-    if (luma < THRESHOLD) {
-        color = float3(0.0, 0.0, 0.0);
-    }
+    const float luma = rgb_to_luma(color);
+    const float contribution = max(luma - c_bloomThreshold, 0.0) / max(luma, 1e-5);
 
-    // @TODO: fix bloom
-    u_BloomOutputImage[output_coord] = float4(color, 1.0);
+    u_BloomOutputImage[output_coord] = float4(color * contribution, 1.0);
 }

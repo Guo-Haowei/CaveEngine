@@ -45,6 +45,9 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                       void* component,
                       const DrawComponentCtx& ctx) {
     switch (property->editor_hint) {
+        case EditorHint::Asset: {
+            return AssetEditor(ctx, component, property);
+        } break;
         case EditorHint::EnumDropDown:
             return property->DrawEditor(component, ui::kDefaultColumnWidth);
         case EditorHint::Toggle:
@@ -143,13 +146,6 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                 new_v);
             ctx.editor_services.edit().submit(ctx.doc_id, std::move(cmd));
             return true;
-        } break;
-        case EditorHint::Asset: {
-            return EditAndSubmit<Guid>(
-                ctx, component, property,
-                [&ctx](const char* label, Guid& guid) {
-                    return DrawAsset(ctx, label, guid);
-                });
         } break;
         case EditorHint::VariantMap: {
             return EditAndSubmit<VariantMap>(
@@ -398,7 +394,7 @@ void PropertyPanel::drawUIImpl() {
 #endif
         }
 
-        for (ecs::Entity id : p_render.GetMaterialInstances()) {
+        for (ecs::Entity id : p_render.materialInstances()) {
             if (MaterialComponent* material = scene.component<MaterialComponent>(id); material) {
                 DrawComponentCtx copy_ctx = ctx;
                 copy_ctx.entity = id;

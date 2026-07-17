@@ -15,7 +15,7 @@ void RunTileMapRenderSystem(Scene* scene, FrameData& framedata) {
 
     auto view = scene->view<TileMapInstanceComponent, HierarchyComponent>();
     for (const auto& [id, instance, hier] : view) {
-        if (!hier.visible) continue;
+        if (!hier.visible()) continue;
 
         instance.createRenderData();
 

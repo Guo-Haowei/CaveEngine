@@ -14,8 +14,24 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<LuaScriptComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(LuaScriptComponent, "class_name", m_class_name, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(LuaScriptComponent, "source_id", m_source_id, FieldFlag::Serialize, EditorHint::Asset),
+        REGISTER_FIELD(
+            LuaScriptComponent,
+            "class_name",
+            CAVE_SID("class_name"),
+            m_class_name,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            LuaScriptComponent,
+            "source_id",
+            CAVE_SID("source_id"),
+            m_source_id,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
     };
 
     return s_table;

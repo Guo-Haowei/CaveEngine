@@ -31,7 +31,7 @@ bool SceneCommandExecutor::removeComponent(Entity ent, ComponentId cid) {
 bool SceneCommandExecutor::changeProperty(Entity ent,
                                           ComponentId cid,
                                           const PropertyId& pid,
-                                          const void* data,
+                                          const void* new_value,
                                           uint32_t data_size) {
     const ecs::ComponentMeta* meta = m_reg.tryGet(cid);
     if (!meta) {
@@ -51,10 +51,28 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
         return false;
     }
 
-    char* ptr = reinterpret_cast<char*>(comp) + field->offset;
-    std::memcpy(ptr, data, data_size);
+    void* ptr = field->getRaw(comp);
+    if (memcmp(ptr, new_value, data_size) == 0) [[unlikely]] {
+        return false;
+    }
+
+    Vector<uint8_t> old_value(data_size, 0);
+    std::memcpy(old_value.data(), ptr, data_size);
+    std::memcpy(ptr, new_value, data_size);
     if (meta->on_edited) {
-        meta->on_edited(m_scene, ent, cid, pid, data, data_size);
+        meta->on_edited(m_scene, ent, cid, pid, new_value, data_size);
+    }
+
+    if (field->on_change) {
+        FieldChange change{
+            .scene = &m_scene,
+            .entity = ent,
+            .object = comp,
+            .field = field,
+            .old_value = old_value.data(),
+            .new_value = new_value,
+        };
+        field->on_change(change);
     }
 
     return true;

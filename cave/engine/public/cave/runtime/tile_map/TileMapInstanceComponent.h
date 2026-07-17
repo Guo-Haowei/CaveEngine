@@ -8,14 +8,15 @@
 
 namespace cave {
 
+struct FieldChange;
 struct GpuMesh;
 
 class TileMapInstanceComponent {
     CAVE_COMPONENT(TileMapInstanceComponent)
 
 private:
-    CAVE_PROP(editor = Asset, tooltip = "tile map")
-    Guid m_tile_map_id;
+    CAVE_PROP(editor = Asset, on_change = onTileMapGuidChanged)
+    Guid m_tile_map_guid;
 
     CAVE_PROP(editor = Color)
     math::Vec4f m_tint_color = math::Vec4f::One;
@@ -32,6 +33,9 @@ private:
     Cache m_cache;
     uint32_t m_revision{ 0 };
 
+    void refreshTileMapHandle();
+    void onTileMapGuidChanged(const FieldChange& change);
+
 public:
     // @TODO: better way to create data
     void createRenderData();
@@ -41,12 +45,10 @@ public:
 
     const auto& tileMapHandle() const { return m_handle; }
 
-    void tintColor(const math::Vec4f& tint_color);
     const math::Vec4f& tintColor() const { return m_tint_color; }
 
-    // @TODO: change to camelCase
-    bool SetResourceGuid(const Guid& guid);
-    const Guid& GetResourceGuid() const { return m_tile_map_id; }
+    const Guid& tileMapGuid() const { return m_tile_map_guid; }
+
     void onDeserialized();
 };
 

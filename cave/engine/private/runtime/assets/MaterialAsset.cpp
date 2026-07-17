@@ -45,7 +45,7 @@ Result<void> MaterialAsset::loadFromDisk(const AssetMetaData& p_meta) {
     }
 
     YamlDeserializer deserializer;
-    deserializer.Initialize(root);
+    deserializer.initialize(root);
 
     const int version = deserializer.version();
 

@@ -15,9 +15,33 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteAnimationClip, "frames", frames_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SpriteAnimationClip, "durations", durations_, FieldFlag::Serialize, EditorHint::None),
-        REGISTER_FIELD(SpriteAnimationClip, "looping", looping_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(
+            SpriteAnimationClip,
+            "frames",
+            CAVE_SID("frames"),
+            frames_,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            SpriteAnimationClip,
+            "durations",
+            CAVE_SID("durations"),
+            durations_,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            SpriteAnimationClip,
+            "looping",
+            CAVE_SID("looping"),
+            looping_,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
     };
 
     return s_table;
@@ -26,14 +50,30 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_SpriteAnimationClip_meta = MetaDataTable<SpriteAnimationClip>::GetFields();
 
-// Guid image_guid_ (editor = Asset, tooltip = "image id")
-// std::map<std::string, SpriteAnimationClip> clips_ ()
+// Guid m_image_guid (editor = Asset)
+// Map<String, SpriteAnimationClip> m_clips ()
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(SpriteAnimationAsset, "image_guid", image_guid_, FieldFlag::Serialize, EditorHint::Asset),
-        REGISTER_FIELD(SpriteAnimationAsset, "clips", clips_, FieldFlag::Serialize, EditorHint::None),
+        REGISTER_FIELD(
+            SpriteAnimationAsset,
+            "image_guid",
+            CAVE_SID("image_guid"),
+            m_image_guid,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            SpriteAnimationAsset,
+            "clips",
+            CAVE_SID("clips"),
+            m_clips,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
     };
 
     return s_table;

@@ -372,7 +372,7 @@ void CommonOpenGLGraphicsManager::GenerateMipmap(const GpuTexture* p_texture) {
     glBindTexture(dimension, 0);
 }
 
-std::shared_ptr<GpuTexture> CommonOpenGLGraphicsManager::CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+Ref<GpuTexture> CommonOpenGLGraphicsManager::CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     GLuint texture_id = 0;
     glGenTextures(1, &texture_id);
 
@@ -446,7 +446,7 @@ std::shared_ptr<GpuTexture> CommonOpenGLGraphicsManager::CreateTextureImpl(const
     GLuint64 resident_id = 0;
 #endif
 
-    auto texture = std::make_shared<OpenGlGpuTexture>(p_texture_desc);
+    auto texture = MakeRef<OpenGlGpuTexture>(p_texture_desc);
     texture->handle = texture_id;
     texture->residentHandle = resident_id;
     return texture;

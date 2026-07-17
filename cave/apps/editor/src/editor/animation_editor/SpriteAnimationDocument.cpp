@@ -19,10 +19,8 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     : DocumentBase(services, guid) {
 
     SceneCommandWriter cb(services.assetRegistry());
-    Entity root = cb.rootObject();
 
-    Entity ent = cb.transformObject("animation");
-    cb.attachChild(ent, root);
+    Entity ent = cb.rootObject("animation");
     cb.addComponent(ent, SpriteRendererComponent_Id);
     cb.addComponent(ent, SpriteAnimatorComponent_Id);
 
@@ -31,7 +29,6 @@ SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const
     SceneCommandExecutor executor(*scene);
     EntityMap map(cb.allocationCount());
     SceneCommandPlayback::Play(cb, executor, { map, *scene });
-    scene->setRoot(map.resolve(root));
 
     SpriteAnimatorComponent* animator = scene->component<SpriteAnimatorComponent>(map.resolve(ent));
     animator->setAnimGuid(guid);

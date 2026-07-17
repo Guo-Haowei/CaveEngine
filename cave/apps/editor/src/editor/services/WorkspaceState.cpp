@@ -122,7 +122,7 @@ bool WorkspaceState::load(const std::filesystem::path& path) {
     }
 
     YamlDeserializer yaml;
-    yaml.Initialize(root);
+    yaml.initialize(root);
     IDeserializer& d = yaml;
 
     if (d.tryEnterKey("content_browser")) {

@@ -55,7 +55,7 @@ entities:
       visibility: true
       cast_shadow: true
       transparency: false
-      mesh_id: 6E2C66A5-5D0B-944A-87F91E968231C94A
+      mesh_guid: 6E2C66A5-5D0B-944A-87F91E968231C94A
       materials: [47]
       skeleton_id: 0
   - id: 47

@@ -1,10 +1,10 @@
 #include "cave/core/reflection/Meta.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ui/UIComponents.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "engine/private/runtime/scene/SceneSerializer.h"
 
 namespace cave::ecs {
 
@@ -72,82 +72,6 @@ void Transform_OnEdited(Scene& scene,
     }
 }
 
-void MeshRenderer_OnEdited(Scene& scene,
-                           ecs::Entity ent,
-                           ComponentId,
-                           const PropertyId& pid,
-                           const void*,
-                           uint32_t) {
-    if (pid == "mesh_id"_sid) {
-        auto* c = (MeshRendererComponent*)scene.storage().getRaw(MeshRendererComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            c->onDeserialized();
-        }
-    }
-}
-
-void Materail_OnEdited(Scene& scene,
-                       ecs::Entity ent,
-                       ComponentId,
-                       const PropertyId& pid,
-                       const void*,
-                       uint32_t) {
-    if (pid == "material_id"_sid) {
-        auto* c = (MaterialComponent*)scene.storage().getRaw(MaterialComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            c->onDeserialized();
-        }
-    }
-}
-
-void TileMapInstance_OnEdited(Scene& scene,
-                              ecs::Entity ent,
-                              ComponentId,
-                              const PropertyId& pid,
-                              const void*,
-                              uint32_t) {
-    if (pid == "tile_map_id"_sid) {
-        auto* c = (TileMapInstanceComponent*)scene.storage().getRaw(TileMapInstanceComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            c->onDeserialized();
-        }
-    }
-}
-
-void UIImageComponent_OnEdited(Scene& scene,
-                               ecs::Entity ent,
-                               ComponentId,
-                               const PropertyId& pid,
-                               const void*,
-                               uint32_t) {
-    if (pid == "image_guid"_sid) {
-        auto* c = (UIImageComponent*)scene.storage().getRaw(UIImageComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            c->onDeserialized();
-        }
-    }
-}
-
-void PrefabInstance_OnEdited(Scene& scene,
-                             ecs::Entity ent,
-                             ComponentId,
-                             const PropertyId& pid,
-                             const void*,
-                             uint32_t) {
-    if (pid == "prefab_id"_sid) {
-        auto* c = (PrefabInstanceComponent*)scene.storage().getRaw(PrefabInstanceComponent_Id, ent);
-        if (DEV_VERIFY(c)) {
-            auto* hier = (HierarchyComponent*)scene.storage().getRaw(HierarchyComponent_Id, ent);
-            // @TODO: fix this logic
-            if (hier) {
-                InstantiatePrefab(scene, *c, ent);
-            } else {
-                // c->setPrefabGuid(Guid::null());
-            }
-        }
-    }
-}
-
 }  // namespace
 
 void ComponentRegistry::builtin(ComponentRegistry& out) {
@@ -165,11 +89,6 @@ void ComponentRegistry::builtin(ComponentRegistry& out) {
 #undef REGISTER_COMPONENT
 
     out.getMut(TransformComponent_Id).on_edited = Transform_OnEdited;
-    out.getMut(MeshRendererComponent_Id).on_edited = MeshRenderer_OnEdited;
-    out.getMut(MaterialComponent_Id).on_edited = Materail_OnEdited;
-    out.getMut(TileMapInstanceComponent_Id).on_edited = TileMapInstance_OnEdited;
-    out.getMut(PrefabInstanceComponent_Id).on_edited = PrefabInstance_OnEdited;
-    out.getMut(UIImageComponent_Id).on_edited = UIImageComponent_OnEdited;
 }
 
 }  // namespace cave::ecs

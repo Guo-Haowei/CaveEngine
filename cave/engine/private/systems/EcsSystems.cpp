@@ -55,7 +55,7 @@ void UpdateWorldTransform(Scene& scene, size_t idx, float) {
 
     Mat4f world_matrix = self_transform->localMatrix();
     const auto* self_hierarchy = &scene.getComponentByIndex<HierarchyComponent>(idx);
-    Entity parent = self_hierarchy->parent_id;
+    Entity parent = self_hierarchy->parent();
 
     while (parent.valid()) {
         const auto* parent_transform = scene.component<TransformComponent>(parent);
@@ -66,7 +66,7 @@ void UpdateWorldTransform(Scene& scene, size_t idx, float) {
         const auto parent_hierarchy = scene.component<HierarchyComponent>(parent);
         if (!parent_hierarchy) break;
 
-        parent = parent_hierarchy->parent_id;
+        parent = parent_hierarchy->parent();
     }
 
     self_transform->setWorldMatrix(world_matrix);
@@ -76,18 +76,18 @@ void UpdateWorldTransform(Scene& scene, size_t idx, float) {
 void UpdateHierarchyVisibility(Scene& scene, size_t idx, float) {
     auto* self_hierarchy = &scene.getComponentByIndex<HierarchyComponent>(idx);
 
-    bool visible = self_hierarchy->local_visible;
-    Entity parent = self_hierarchy->parent_id;
+    bool visible = self_hierarchy->localVisible();
+    Entity parent = self_hierarchy->parent();
 
     while (visible && parent.valid()) {
         const auto* parent_hierarchy = scene.component<HierarchyComponent>(parent);
         if (!parent_hierarchy) break;
 
-        parent = parent_hierarchy->parent_id;
-        visible &= parent_hierarchy->local_visible;
+        parent = parent_hierarchy->parent();
+        visible &= parent_hierarchy->localVisible();
     }
 
-    self_hierarchy->visible = visible;
+    self_hierarchy->setVisible(visible);
 }
 
 void UpdateSkeleton(Scene& scene, size_t idx, float) {
@@ -349,7 +349,7 @@ void RunMeshAABBUpdateSystem(Scene& scene, jobsystem::Context&, float) {
         }
 
         const TransformComponent& transform = *scene.component<TransformComponent>(id);
-        const MeshAsset* mesh = mesh_renderer.GetMeshHandle().get();
+        const MeshAsset* mesh = mesh_renderer.meshHandle().get();
         if (!mesh) {
             continue;
         }

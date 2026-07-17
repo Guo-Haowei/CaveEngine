@@ -15,9 +15,33 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TransformComponent, "translation", m_translation, FieldFlag::Serialize, EditorHint::Translation),
-        REGISTER_FIELD(TransformComponent, "rotation", m_rotation, FieldFlag::Serialize, EditorHint::Rotation),
-        REGISTER_FIELD(TransformComponent, "scale", m_scale, FieldFlag::Serialize, EditorHint::Scale),
+        REGISTER_FIELD(
+            TransformComponent,
+            "translation",
+            CAVE_SID("translation"),
+            m_translation,
+            FieldFlag::Serialize,
+            EditorHint::Translation,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TransformComponent,
+            "rotation",
+            CAVE_SID("rotation"),
+            m_rotation,
+            FieldFlag::Serialize,
+            EditorHint::Rotation,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TransformComponent,
+            "scale",
+            CAVE_SID("scale"),
+            m_scale,
+            FieldFlag::Serialize,
+            EditorHint::Scale,
+            nullptr
+        ),
     };
 
     return s_table;

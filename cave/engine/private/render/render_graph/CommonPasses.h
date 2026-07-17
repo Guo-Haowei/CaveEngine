@@ -14,6 +14,8 @@ struct GbufferOutput {
 };
 
 struct PostProcessInput {
+    RGDependencyId dependency;
+
     RGTextureId lighting{};
     RGTextureId outline{};
     RGTextureId bloom{};
@@ -63,6 +65,19 @@ struct ForwardInput {
 };
 
 struct ForwardOutput {
+    RGDependencyId dependency;
+};
+
+struct BloomInput {
+    RGDependencyId dependency;
+
+    RGTextureId color;
+};
+
+struct BloomOut {
+    RGDependencyId dependency;
+
+    RGTextureId bloom;
 };
 
 struct HighlightInput {
@@ -100,6 +115,9 @@ public:
     ForwardOutput addForwardPass(const ForwardInput& in);
 
     [[nodiscard]]
+    BloomOut addBloomPasses(const BloomInput& in);
+
+    [[nodiscard]]
     HighlightOutput addHighlightPass(const HighlightInput& in);
 
     [[nodiscard]]
@@ -109,7 +127,6 @@ public:
     PostProcessOutput addPostProcessPass(const PostProcessInput& in);
 
     void addOverlayPass(const OverlayInput& in);
-    // void AddBloomPass();
 };
 
 }  // namespace cave::render

@@ -26,7 +26,6 @@
 namespace cave {
 
 using ::cave::ecs::Entity;
-using namespace ::cave::literals;
 
 namespace {
 
@@ -36,13 +35,6 @@ constexpr char kPopupNameId[] = "SCENE_PANEL_POPUP";
 // @TODO: on scene change instead of build every frame
 class SceneTreeBuilder {
 public:
-    struct HierarchyNode {
-        HierarchyNode* parent = nullptr;
-        Entity entity;
-
-        Vector<HierarchyNode*> children;
-    };
-
     SceneTreeBuilder(const PreviewScene& preview,
                      EngineServices& engine_services,
                      EditorServices& editor_services)
@@ -51,15 +43,13 @@ public:
         , m_editor_services(editor_services) {}
 
     void update() {
-        if (buildSceneTree(*m_preview.scene)) {
-            DEV_ASSERT(m_root);
-            drawNode(m_root, ImGuiTreeNodeFlags_DefaultOpen);
+        for (Entity root : m_preview.scene->hierarchy().roots()) {
+            drawNode(root, ImGuiTreeNodeFlags_DefaultOpen);
         }
     }
 
 private:
-    bool buildSceneTree(const Scene& scene);
-    void drawNode(HierarchyNode* node,
+    void drawNode(Entity node,
                   ImGuiTreeNodeFlags flags = 0);
     bool treeNodeHelper(Scene& scene,
                         Entity ent,
@@ -71,9 +61,6 @@ private:
 
     EngineServices& m_engine_services;
     EditorServices& m_editor_services;
-
-    Map<Entity, Owner<HierarchyNode>> m_nodes;
-    HierarchyNode* m_root = nullptr;
 };
 
 bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
@@ -96,8 +83,11 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
     if (tree_flags & ImGuiTreeNodeFlags_Leaf) {
         icon = ICON_FA_SQUARE_SHARE_NODES;
     }
+    if (scene.storage().has(PrefabInstanceComponent_Id, ent)) {
+        icon = ICON_FA_CUBE;
+    }
 
-    const char* text = hier_component->visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+    const char* text = hier_component->visible() ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
     const auto node_name = std::format("##tree_node_{}", ent.id());
     const auto selectable_name = std::format("{} {}##tree_selectable_{}", icon, name, ent.id());
     const auto visibility_name = std::format("{}##visibility_{}", text, ent.id());
@@ -162,9 +152,9 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
             m_engine_services.sceneRegistry(),
             ent,
             BuiltinComponentId::HierarchyComponent_Id,
-            "local_visible"_sid,
-            hier_component->local_visible,
-            !hier_component->local_visible);
+            CAVE_SID("local_visible"),
+            hier_component->localVisible(),
+            !hier_component->localVisible());
 
         m_editor_services.edit().submit(m_preview.doc_id, std::move(cmd));
     }
@@ -187,13 +177,16 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
 }  // namespace
 
 // @TODO: make it an widget
-void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_flags) {
-    DEV_ASSERT(hier);
-    Entity current_id = hier->entity;
+void SceneTreeBuilder::drawNode(Entity ent, ImGuiTreeNodeFlags tree_flags) {
+    DEV_ASSERT(ent.valid());
+
+    Entity current_id = ent;
 
     SelectionKey selection = m_editor_services.selection().primary(m_preview.doc_id);
 
-    tree_flags |= hier->children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
+    auto children = m_preview.scene->hierarchy().children(ent);
+
+    tree_flags |= children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
     tree_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
 
     const bool expanded = treeNodeHelper(
@@ -224,52 +217,11 @@ void SceneTreeBuilder::drawNode(HierarchyNode* hier, ImGuiTreeNodeFlags tree_fla
         float indentWidth = 8.f;
         ImGui::Indent(indentWidth);
 
-        for (auto& child : hier->children) {
+        for (auto& child : children) {
             drawNode(child);
         }
         ImGui::Unindent(indentWidth);
     }
-}
-
-bool SceneTreeBuilder::buildSceneTree(const Scene& scene) {
-    for (auto [ent, hier] : scene.view<HierarchyComponent>()) {
-        auto find_or_create = [this](Entity ent) -> HierarchyNode* {
-            if (ent.isNull()) {
-                return nullptr;
-            }
-            auto [it, ok] = m_nodes.try_emplace(ent, MakeOwner<HierarchyNode>());
-            return it->second.get();
-        };
-
-        const Entity parent_id = hier.parent_id;
-        HierarchyNode* parent_node = find_or_create(parent_id);
-        HierarchyNode* self_node = find_or_create(ent);
-        if (parent_node) {
-            parent_node->children.push_back(self_node);
-            parent_node->entity = parent_id;
-        }
-        if (DEV_VERIFY(self_node)) {
-            self_node->parent = parent_node;
-            self_node->entity = ent;
-        }
-    }
-
-    int nodes_without_parent = 0;
-    for (auto& it : m_nodes) {
-        if (!it.second->parent) {
-            ++nodes_without_parent;
-            m_root = it.second.get();
-        }
-    }
-
-    if (nodes_without_parent != 1) {
-        static int s_nodes_without_parent = 0;
-        if (nodes_without_parent != s_nodes_without_parent) {
-            LOG_ERROR(LogChannel::Scene, "{} orphan nodes detected", nodes_without_parent - 1);
-            s_nodes_without_parent = nodes_without_parent;
-        }
-    }
-    return true;
 }
 
 void HierarchyPanel::drawUIImpl() {
@@ -292,7 +244,7 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
         DEV_ASSERT(selection.doc == preview_scene.doc_id);
         ecs::Entity selected = selection.entity;
 
-        ecs::Entity parent = selected.valid() ? selected : preview_scene.scene->root();
+        ecs::Entity parent = selected;
 
         if (ImGui::BeginMenu("Add")) {
             const bool is_ui = preview_scene.scene->has(UICanvasComponent_Id, parent) ||
@@ -353,7 +305,7 @@ void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::
             if (scene.has(UICanvasComponent_Id, parent)) return true;
             const auto* hier = scene.component<HierarchyComponent>(parent);
             if (DEV_VERIFY(hier)) {
-                parent = hier->parent_id;
+                parent = hier->parent();
             } else {
                 return false;
             }
@@ -412,8 +364,7 @@ void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, e
 #undef DEFINE_OBJECT
 
     ImGui::Separator();
-    const bool is_parent_root = parent == preview_scene.scene->root();
-    if (ImGui::MenuItem("Canvas", nullptr, false, is_parent_root)) {
+    if (ImGui::MenuItem("Canvas", nullptr, false, true)) {
         edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
             Entity temp = writer.canvas("UICanvas");
             writer.attachChild(temp, parent);

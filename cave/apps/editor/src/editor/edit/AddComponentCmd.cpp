@@ -9,14 +9,14 @@ AddComponentCmd::AddComponentCmd(SceneRegistry& scene_reg,
                                  ecs::Entity ent,
                                  ComponentId cid)
     : EditCmdBase(scene_reg, ent)
-    , cid_(cid) {
+    , m_cid(cid) {
 }
 
 bool AddComponentCmd::apply(IDocument& doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
         if (Scene* scene = resolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
-            executor.addComponent(m_ent, cid_);
+            executor.addComponent(m_ent, m_cid);
             return true;
         }
     }
@@ -27,7 +27,7 @@ bool AddComponentCmd::undo(IDocument& doc) {
     if (SceneDocument* scene_doc = dynamic_cast<SceneDocument*>(&doc)) {
         if (Scene* scene = resolveScene(scene_doc->previewScene())) {
             SceneCommandExecutor executor(*scene);
-            executor.removeComponent(m_ent, cid_);
+            executor.removeComponent(m_ent, m_cid);
             return true;
         }
     }

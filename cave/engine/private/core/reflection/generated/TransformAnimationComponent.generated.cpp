@@ -18,12 +18,60 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TransformAnimationComponent, "begin", begin, FieldFlag::Serialize, EditorHint::Translation),
-        REGISTER_FIELD(TransformAnimationComponent, "end", end, FieldFlag::Serialize, EditorHint::Translation),
-        REGISTER_FIELD(TransformAnimationComponent, "duration", duration, FieldFlag::Serialize, EditorHint::InputFloat),
-        REGISTER_FIELD(TransformAnimationComponent, "elapsed", elapsed, FieldFlag::Serialize, EditorHint::DragFloat),
-        REGISTER_FIELD(TransformAnimationComponent, "playing", playing, FieldFlag::Serialize, EditorHint::Toggle),
-        REGISTER_FIELD(TransformAnimationComponent, "destroy_on_finish", destroy_on_finish, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(
+            TransformAnimationComponent,
+            "begin",
+            CAVE_SID("begin"),
+            begin,
+            FieldFlag::Serialize,
+            EditorHint::Translation,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TransformAnimationComponent,
+            "end",
+            CAVE_SID("end"),
+            end,
+            FieldFlag::Serialize,
+            EditorHint::Translation,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TransformAnimationComponent,
+            "duration",
+            CAVE_SID("duration"),
+            duration,
+            FieldFlag::Serialize,
+            EditorHint::InputFloat,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TransformAnimationComponent,
+            "elapsed",
+            CAVE_SID("elapsed"),
+            elapsed,
+            FieldFlag::Serialize,
+            EditorHint::DragFloat,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TransformAnimationComponent,
+            "playing",
+            CAVE_SID("playing"),
+            playing,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TransformAnimationComponent,
+            "destroy_on_finish",
+            CAVE_SID("destroy_on_finish"),
+            destroy_on_finish,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
     };
 
     return s_table;

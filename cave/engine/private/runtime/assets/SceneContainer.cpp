@@ -22,13 +22,13 @@ Vector<Guid> SceneContainer::dependencies() const {
         deps.insert(material.m_material_id);
     }
     for (const auto& [id, mesh_renderer] : m_scene->view<MeshRendererComponent>()) {
-        deps.insert(mesh_renderer.GetResourceGuid());
+        deps.insert(mesh_renderer.meshGuid());
     }
     for (const auto& [id, prefab] : m_scene->view<PrefabInstanceComponent>()) {
         deps.insert(prefab.prefabGuid());
     }
     for (const auto& [id, tile_map_renderer] : m_scene->view<TileMapInstanceComponent>()) {
-        deps.insert(tile_map_renderer.GetResourceGuid());
+        deps.insert(tile_map_renderer.tileMapGuid());
     }
     for (const auto& [id, animator] : m_scene->view<SpriteAnimatorComponent>()) {
         deps.insert(animator.animGuid());
@@ -63,15 +63,8 @@ auto SceneContainer::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     }
 
     YamlDeserializer yaml;
-    yaml.Initialize(root);
+    yaml.initialize(root);
     DeserializeScene(yaml, *m_scene);
-
-    if (m_scene->version() <= 20) {
-        auto ent = m_scene->root();
-        if (!m_scene->has(HierarchyComponent_Id, ent)) {
-            m_scene->create(HierarchyComponent_Id, ent);
-        }
-    }
 
     return Result<void>();
 }

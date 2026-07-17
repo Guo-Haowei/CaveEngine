@@ -6,12 +6,16 @@ namespace cave {
 
 using ecs::Entity;
 
+namespace {
+bool IsTemp(ecs::Entity ent) noexcept {
+    return ent.id() >= kSceneCmdTmpBase;
+}
+}  // namespace
+
 EntityMap::EntityMap(uint32_t reserve) {
     m_remap.clear();
     m_remap.resize(reserve, Entity::null());
 }
-
-static bool IsTemp(ecs::Entity ent) noexcept { return ent.id() >= kSceneCmdTmpBase; }
 
 Entity EntityMap::resolve(Entity ent) const noexcept {
     if (!IsTemp(ent)) return ent;
@@ -43,6 +47,7 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,
 
     auto& map = ctx.map;
 
+    ctx.scene.hierarchy().beginBulkEdit();
     while (p < end) {
         const SceneCmd_Header* header = reinterpret_cast<const SceneCmd_Header*>(p);
         const uint8_t* payload_raw = reinterpret_cast<const uint8_t*>(header + 1);
@@ -98,6 +103,7 @@ void SceneCommandPlayback::Play(SceneCommandBuffer& cmd_buffer,
         }
         p += header->size;
     }
+    ctx.scene.hierarchy().endBulkEdit(ctx.scene);
 }
 
 }  // namespace cave

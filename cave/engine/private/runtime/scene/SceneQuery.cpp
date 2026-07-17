@@ -67,7 +67,7 @@ static bool RaycastHelper(Ray& ray,
 RayHit SceneQuery::raycast(math::Ray& ray, const RaycastFilter&) const {
     RayHit res{};
     for (auto [entity, mesh, transform] : m_scene.view<MeshRendererComponent, TransformComponent>()) {
-        MeshAsset* mesh_asset = mesh.GetMeshHandle().get();
+        MeshAsset* mesh_asset = mesh.meshHandle().get();
         if (!mesh_asset) continue;
         if (!RaycastHelper(ray, *mesh_asset, transform)) continue;
         res.hit = true;

@@ -4,11 +4,19 @@
 namespace cave::render {
 
 RenderPass& RenderPass::writeDependency(RGDependencyId id) {
+    if (id.isNull()) {
+        return *this;
+    }
+
     m_writes.emplace_back(id, ResourceAccess::None);
     return *this;
 }
 
 RenderPass& RenderPass::readDependency(RGDependencyId id) {
+    if (id.isNull()) {
+        return *this;
+    }
+
     return read(ResourceAccess::None, id);
 }
 
@@ -40,6 +48,10 @@ RenderPass& RenderPass::readOrWriteDepth(Vector<Resource>& array,
                                          float clear_depth,
                                          LoadOp stencil_load,
                                          uint8_t clear_stencil) {
+    if (id.isNull()) {
+        return *this;
+    }
+
     array.emplace_back(id, ResourceAccess::DSV);
 
     if (DEV_VERIFY(!m_depth)) {

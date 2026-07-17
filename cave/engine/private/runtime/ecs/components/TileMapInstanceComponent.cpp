@@ -11,27 +11,33 @@ namespace cave {
 using namespace math;
 using namespace render;
 
-void TileMapInstanceComponent::tintColor(const Vec4f& tint_color) {
-    m_tint_color = tint_color;
+void TileMapInstanceComponent::refreshTileMapHandle() {
+    if (m_tile_map_guid.isNull()) {
+        m_handle = {};
+        return;
+    }
+
+    auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(m_tile_map_guid);
+    if (res.is_some()) {
+        m_handle = std::move(res.unwrap_unchecked());
+    }
 }
 
-bool TileMapInstanceComponent::SetResourceGuid(const Guid& guid) {
-    return AssetHandle::replaceGuidAndHandle(AssetType::TileMap,
-                                             guid,
-                                             m_tile_map_id,
-                                             m_handle.rawHandle());
+void TileMapInstanceComponent::onTileMapGuidChanged(const FieldChange& change) {
+    DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
+    DEV_ASSERT(change.object == this);
+    DEV_ASSERT(change.field->id == CAVE_SID("tile_map_guid"));
+
+    refreshTileMapHandle();
+    ++m_revision;
 }
 
 void TileMapInstanceComponent::onDeserialized() {
-    if (m_tile_map_id.isNull()) {
-        return;
-    }
-    auto res = AssetRegistry::singleton().findByGuid<TileMapAsset>(m_tile_map_id);
-    m_handle = std::move(res.unwrap());
+    refreshTileMapHandle();
 }
 
 void TileMapInstanceComponent::createRenderData() {
-    if (m_tile_map_id != m_handle.guid()) {
+    if (m_tile_map_guid != m_handle.guid()) {
         onDeserialized();
     }
 
@@ -72,9 +78,9 @@ void TileMapInstanceComponent::createRenderData() {
 
     m_cache.image = tile_set->handle();
 
-    std::vector<Vec2f> vertices;
-    std::vector<Vec2f> uvs;
-    std::vector<uint32_t> indices;
+    Vector<Vec2f> vertices;
+    Vector<Vec2f> uvs;
+    Vector<uint32_t> indices;
 
     const auto& chunks = tile_map->tiles().chunks();
     if (chunks.empty()) {

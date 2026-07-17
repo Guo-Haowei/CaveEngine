@@ -13,7 +13,15 @@ namespace cave {
 template<>
 const MetaTableFields& MetaDataTable<TriggerComponent>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(TriggerComponent, "enabled", enabled, FieldFlag::Serialize, EditorHint::Toggle),
+        REGISTER_FIELD(
+            TriggerComponent,
+            "enabled",
+            CAVE_SID("enabled"),
+            enabled,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
     };
 
     return s_table;

@@ -26,6 +26,9 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
             addResource(node.handle, node.external);
             continue;
         }
+        if (node.is_dependency) {
+            continue;
+        }
 
         GpuTextureDesc desc = node.desc;
         // @TODO: get rid of the name
@@ -106,7 +109,7 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
 
         CompiledPass& compiled_pass = m_compiled_pass[pass_idx++];
         compiled_pass.name = std::move(pass_builder.m_name);
-        compiled_pass.func = std::move(pass_builder.m_func);
+        compiled_pass.execute_func = std::move(pass_builder.m_execute_func);
 
         compiled_pass.srvs = std::move(srvs);
         compiled_pass.uavs = std::move(uavs);

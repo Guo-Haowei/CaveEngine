@@ -95,6 +95,8 @@ def parse_extra(meta_data: str):
             extra['max'] = meta[len('max = '):].strip()
         if meta.startswith('serialize = false'):
             extra['serialize'] = False
+        if meta.startswith('on_change = '):
+            extra['on_change'] = meta[len('on_change = '):].strip()
 
     return extra
 
@@ -148,6 +150,14 @@ def generate_meta_for_class(f, class_name, fields):
     f.write("    static MetaTableFields s_table = {\n")
     for field in fields:
         editor_hint = field['extra'].get('editor', 'None')
+        on_change = field['extra'].get('on_change', None)
+        post_change = (
+            f'&::cave::InvokeFieldChanged<'
+            f'{class_name}, '
+            f'&{class_name}::{on_change}>'
+            if on_change else 'nullptr'
+        )
+
         num_min = field['extra'].get('min', None)
         num_max = field['extra'].get('max', None)
         field_name = field['name']
@@ -155,12 +165,23 @@ def generate_meta_for_class(f, class_name, fields):
         flags = 'FieldFlag::Serialize'
         if field['extra'].get('serialize', True) is False:
             flags = 'FieldFlag::None'
-        register_field = f'REGISTER_FIELD({class_name}, "{display_name}", {field_name}, {flags}, EditorHint::{editor_hint}'
+        register_field = (
+            f'REGISTER_FIELD(\n'
+            f'            {class_name},\n'
+            f'            "{display_name}",\n'
+            f'            CAVE_SID("{display_name}"),\n'
+            f'            {field_name},\n'
+            f'            {flags},\n'
+            f'            EditorHint::{editor_hint},\n'
+            f'            {post_change}'
+        )
         if num_min is not None:
-            register_field += f', {num_min}'
+            register_field += f',\n            {num_min}'
         if num_max is not None:
-            register_field += f', {num_max}'
-        f.write(f'        {register_field}),\n')
+            register_field += f',\n            {num_max}'
+        register_field += '\n        )'
+
+        f.write(f'        {register_field},\n')
         continue
     f.write("    };\n\n")
     f.write("    return s_table;\n")

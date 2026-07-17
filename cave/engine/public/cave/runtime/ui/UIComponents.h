@@ -9,6 +9,8 @@
 
 namespace cave {
 
+struct FieldChange;
+
 enum class UICanvasSpace : uint8_t {
     Screen = 0,
     World,
@@ -62,7 +64,7 @@ class UIImageComponent {
     CAVE_COMPONENT(UIImageComponent)
 
 private:
-    CAVE_PROP(editor = Asset)
+    CAVE_PROP(editor = Asset, on_change = onImageGuidChanged)
     Guid m_image_guid;
 
     CAVE_PROP(editor = Color)
@@ -71,14 +73,17 @@ private:
     // Non-serialized
     Handle<ImageAsset> m_image_handle;
 
+    void refreshImageHandle();
+    void onImageGuidChanged(const FieldChange& change);
+
 public:
     const Guid& imageGuid() const { return m_image_guid; }
 
     const math::Vec4f tint() const { return m_tint; }
 
-    void onDeserialized();
-
     const Handle<ImageAsset>& handle() const { return m_image_handle; }
+
+    void onDeserialized();
 };
 
 struct UITextComponent {

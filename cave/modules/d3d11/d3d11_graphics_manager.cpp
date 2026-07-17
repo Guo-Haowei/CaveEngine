@@ -358,14 +358,14 @@ void D3d11GraphicsManager::GenerateMipmap(const GpuTexture* p_texture) {
     m_deviceContext->GenerateMips(texture->srv.Get());
 }
 
-void D3d11GraphicsManager::BeginEvent(std::string_view p_event) {
+void D3d11GraphicsManager::beginEvent(std::string_view p_event) {
     if (m_annotation) {
         std::wstring wideStr(p_event.begin(), p_event.end());
         m_annotation->BeginEvent(wideStr.c_str());
     }
 }
 
-void D3d11GraphicsManager::EndEvent() {
+void D3d11GraphicsManager::endEvent() {
     if (m_annotation) {
         m_annotation->EndEvent();
     }

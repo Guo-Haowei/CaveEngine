@@ -1,6 +1,5 @@
-version: 20
-seed: 27
-root: 1
+version: 22
+seed: 13
 entities:
   - id: 1
     NameComponent:
@@ -23,7 +22,7 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     TileMapInstanceComponent:
-      tile_map_id: 8B4DBABB-43B4-3048-A8F93F43AD349908
+      tile_map_guid: 8B4DBABB-43B4-3048-A8F93F43AD349908
       tint_color: [1, 1, 1, 1]
   - id: 3
     HierarchyComponent:

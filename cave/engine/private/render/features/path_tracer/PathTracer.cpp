@@ -169,7 +169,7 @@ void PathTracer::UpdateAccelStructure(const Scene& p_scene) {
         std::vector<GpuPtMesh> meshes;
         meshes.reserve(p_scene.count<MeshRendererComponent>());
         for (auto [id, renderer, transform] : view) {
-            auto handle = renderer.GetMeshHandle();
+            auto handle = renderer.meshHandle();
             auto mesh = handle.get();
             if (DEV_VERIFY(mesh)) {
                 auto mesh_it = m_meshs.find(handle.guid());
@@ -218,7 +218,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     // meshes
     for (auto [id, renderer] : p_scene.view<MeshRendererComponent>()) {
         auto transform = p_scene.component<TransformComponent>(id);
-        auto handle = renderer.GetMeshHandle();
+        auto handle = renderer.meshHandle();
         auto mesh = handle.get();
         if (DEV_VERIFY(transform && mesh)) {
             auto it = m_meshs.find(handle.guid());
@@ -232,7 +232,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
 
             MeshData meta{
                 .rootBvhId = bvh_count,
-                .materialId = renderer.GetMaterialInstances()[0],
+                .materialId = renderer.materialInstances()[0],
             };
             m_meshs[handle.guid()] = meta;
 

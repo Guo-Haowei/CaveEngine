@@ -2,6 +2,7 @@
 // File: cave/core/reflection/Meta.h
 // =============================================================================
 #pragma once
+#include "cave/core/ids/Entity.h"
 #include "cave/core/reflection/Reflection.h"
 
 #if USING(USE_REFLECTION)
@@ -23,11 +24,12 @@ namespace cave {
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #endif
 
-#define REGISTER_FIELD(TYPE, NAME, FIELD, ...)                                         \
-    ::cave::MetaDataTable<TYPE>::RegisterField(((const TYPE*)0)->FIELD,                \
-                                               NAME,                                   \
-                                               typeid(((const TYPE*)0)->FIELD).name(), \
-                                               offsetof(TYPE, FIELD),                  \
+#define REGISTER_FIELD(TYPE, NAME, ID, FIELD, ...)                              \
+    ::cave::MetaDataTable<TYPE>::registerField(((const TYPE*)0)->FIELD,         \
+                                               NAME,                            \
+                                               ID,                              \
+                                               offsetof(TYPE, FIELD),           \
+                                               sizeof(((const TYPE*)0)->FIELD), \
                                                __VA_ARGS__)
 
 #if defined(__clang__)
@@ -63,32 +65,58 @@ DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
 
 class ISerializer;
 class IDeserializer;
+class Scene;
+
+struct FieldMetaBase;
+
+struct FieldChange {
+    Scene* scene;
+    ecs::Entity entity;
+    void* object;
+    const FieldMetaBase* field;
+    const void* old_value;
+    const void* new_value;
+};
+
+using FieldChangedFn = void (*)(const FieldChange&);
+
+template<typename OwnerT,
+         void (OwnerT::*Method)(const FieldChange&)>
+void InvokeFieldChanged(const FieldChange& change) {
+    auto* object = static_cast<OwnerT*>(change.object);
+    (object->*Method)(change);
+}
 
 struct FieldMetaBase {
     const char* const name;
-    const char* const type;
     const PropertyId id;
-    const size_t offset;
+    const uint32_t offset;
+    const uint32_t size;
     const FieldFlag flags;
     const EditorHint editor_hint;
     const float v_min;
     const float v_max;
 
-    constexpr FieldMetaBase(const char* p_name,
-                            const char* p_type,
-                            size_t p_offset,
-                            FieldFlag p_flags,
-                            EditorHint p_hint,
-                            float p_min,
-                            float p_max) noexcept
-        : name(p_name)
-        , type(p_type)
-        , id(PropertyId(p_name))
-        , offset(p_offset)
-        , flags(p_flags)
-        , editor_hint(p_hint)
-        , v_min(p_min)
-        , v_max(p_max) {
+    const FieldChangedFn on_change;
+
+    constexpr FieldMetaBase(const char* name_,
+                            PropertyId id_,
+                            uint32_t offset_,
+                            uint32_t size_,
+                            FieldFlag flags_,
+                            EditorHint hint_,
+                            float min_,
+                            float max_,
+                            FieldChangedFn on_change_) noexcept
+        : name(name_)
+        , id(id_)
+        , offset(offset_)
+        , size(size_)
+        , flags(flags_)
+        , editor_hint(hint_)
+        , v_min(min_)
+        , v_max(max_)
+        , on_change(on_change_) {
     }
 
     virtual ~FieldMetaBase() = default;
@@ -97,6 +125,14 @@ struct FieldMetaBase {
     T& GetData(const void* p_object) const {
         char* ptr = (char*)p_object + offset;
         return *reinterpret_cast<T*>(ptr);
+    }
+
+    const void* getRaw(const void* object) const {
+        return reinterpret_cast<const char*>(object) + offset;
+    }
+
+    void* getRaw(void* object) const {
+        return reinterpret_cast<char*>(object) + offset;
     }
 
     virtual ISerializer& Write(ISerializer& p_serializer, const void* p_object) const = 0;
@@ -126,15 +162,17 @@ public:
 
 private:
     template<typename U>
-    static FieldMetaBase* RegisterField(const U&,
-                                        const char* p_name,
-                                        const char* p_type,
-                                        size_t p_offset,
-                                        FieldFlag p_flag,
-                                        EditorHint p_hint,
-                                        float p_min = INT_MIN,
-                                        float p_max = INT_MAX) {
-        return new FieldMeta<U>(p_name, p_type, p_offset, p_flag, p_hint, p_min, p_max);
+    static FieldMetaBase* registerField(const U&,
+                                        const char* name,
+                                        PropertyId id,
+                                        uint32_t offset,
+                                        uint32_t size,
+                                        FieldFlag flag,
+                                        EditorHint hint,
+                                        FieldChangedFn on_change,
+                                        float min = INT_MIN,
+                                        float max = INT_MAX) {
+        return new FieldMeta<U>(name, id, offset, size, flag, hint, min, max, on_change);
     }
 };
 
