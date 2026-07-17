@@ -7,6 +7,14 @@ namespace cave {
 struct ImageAsset : IAsset {
     CAVE_ASSET(ImageAsset, AssetType::Image, 0)
 
+    enum class AddressMode : uint8_t {
+        Clamp = 0,
+        Wrap,
+        Mirror,
+        Border,
+        Count,
+    };
+
     enum class Sampler : uint8_t {
         Linear = 0,
         Point,
@@ -20,6 +28,7 @@ struct ImageAsset : IAsset {
     };
 
     PixelFormat format = PixelFormat::UNKNOWN;
+    AddressMode address_mode = AddressMode::Clamp;
     ColorSpace color_space = ColorSpace::Linear;
     Sampler sampler = Sampler::Linear;
 
@@ -39,6 +48,7 @@ struct ImageAsset : IAsset {
     Vector<Guid> dependencies() const override;
 };
 
+DECLARE_ENUM_TRAITS(ImageAsset::AddressMode, "clamp", "wrap", "mirror", "boarder");
 DECLARE_ENUM_TRAITS(ImageAsset::Sampler, "linear", "point");
 DECLARE_ENUM_TRAITS(ImageAsset::ColorSpace, "linear", "srgb");
 

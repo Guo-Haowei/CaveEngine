@@ -1,0 +1,9 @@
+type: image
+guid: B235E128-8759-B64F-972F39D6A372D366
+name: ""
+import_path: "@res://textures/bg_dirt.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  adress_mode: wrap

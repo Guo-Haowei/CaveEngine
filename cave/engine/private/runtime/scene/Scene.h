@@ -125,6 +125,7 @@ public:
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
+    ecs::Entity activeCamera() const;
 
     void rebuildHierarchy() { m_hierarchy.rebuild(*this); }
 

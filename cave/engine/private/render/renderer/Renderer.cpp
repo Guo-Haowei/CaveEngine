@@ -34,9 +34,7 @@
 
 namespace cave {
 
-extern void RunTileMapRenderSystem(Scene* scene, FrameData& framedata);
-
-extern void RunSpriteRenderSystem(const Scene* scene, FrameData& framedata);
+extern void RunSpriteRenderSystem(Scene* scene, FrameData& framedata);
 
 }  // namespace cave
 
@@ -302,7 +300,6 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         fillConstantBuffer(time, view.scene, view, framedata);
 
         runMeshRenderSystem(*view.scene, render_scene, view, framedata);
-        RunTileMapRenderSystem(view.scene, framedata);
         RunSpriteRenderSystem(view.scene, framedata);
         fillEnvConstants(framedata);
 

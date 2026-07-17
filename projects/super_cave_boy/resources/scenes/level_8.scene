@@ -1,5 +1,5 @@
 version: 22
-seed: 9
+seed: 10
 entities:
   - id: 1
     NameComponent:
@@ -101,3 +101,18 @@ entities:
       prefab_id: A22D8CBE-B5E7-7043-BE0C35CA9EF76847
     PrefabOverride:
       {}
+  - id: 10
+    NameComponent:
+      name: background
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    BackgroundRendererComponent:
+      image_guid: B235E128-8759-B64F-972F39D6A372D366
+      repeat_size: [1, 1]
+      parallax: [1, 1]
+      tint: [1, 1, 1, 1]
