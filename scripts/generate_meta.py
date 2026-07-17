@@ -18,12 +18,10 @@ FILES = [
     'public/cave/runtime/ecs/components/HierarchyComponent.h',
     'public/cave/runtime/ecs/components/LightComponent.h',
     'public/cave/runtime/ecs/components/MaterialComponent.h',
-    'public/cave/runtime/ecs/components/MeshRendererComponent.h',
     'public/cave/runtime/ecs/components/MiscComponents.h',
     'public/cave/runtime/ecs/components/PrefabInstanceComponent.h',
     'public/cave/runtime/ecs/components/SkeletalAnimationComponent.h',
     'public/cave/runtime/ecs/components/SpriteAnimatorComponent.h',
-    'public/cave/runtime/ecs/components/SpriteRendererComponent.h',
     'public/cave/runtime/ecs/components/TransformAnimationComponent.h',
     'public/cave/runtime/ecs/components/TransformComponent.h',
     'public/cave/runtime/ecs/components/TriggerComponent.h',
@@ -39,6 +37,10 @@ FILES = [
     'public/cave/runtime/tile_map/TileSetAsset.h',
 
     'public/cave/runtime/ui/UIComponents.h',
+
+    'public/cave/render/components/BackgroundRendererComponent.h',
+    'public/cave/render/components/MeshRendererComponent.h',
+    'public/cave/render/components/SpriteRendererComponent.h',
 
     # assets
     'public/cave/runtime/assets/AssetMetaData.h',

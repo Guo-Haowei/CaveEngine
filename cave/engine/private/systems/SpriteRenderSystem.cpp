@@ -1,6 +1,6 @@
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/render/components/SpriteRendererComponent.h"
 
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/runtime/assets/ImageAsset.h"

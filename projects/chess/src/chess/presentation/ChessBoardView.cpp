@@ -2,7 +2,7 @@
 
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/scene/SceneQuery.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "chess/presentation/ChessUtils.h"

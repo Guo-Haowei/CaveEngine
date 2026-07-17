@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
-#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/render/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/game/GameSession.h"

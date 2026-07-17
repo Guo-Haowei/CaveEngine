@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/diagnostics/Profiler.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/ui/IUIRuntime.h"
