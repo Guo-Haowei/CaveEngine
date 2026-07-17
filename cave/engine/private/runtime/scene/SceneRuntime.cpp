@@ -42,6 +42,9 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
 }
 
 void SceneRuntime::start(bool editor) {
+    if ((int)(m_features & SceneFeature::TileWorld)) {
+        m_systems.add<TileWorldSystem>(*this);
+    }
     if ((int)(m_features & SceneFeature::UI)) {
         m_systems.add<UIInteractionSystem>(*this);
     }
@@ -52,9 +55,6 @@ void SceneRuntime::start(bool editor) {
     }
     if ((int)(m_features & SceneFeature::Motor)) {
         m_systems.add<MotorSystem>(*this);
-    }
-    if ((int)(m_features & SceneFeature::TileWorld)) {
-        m_systems.add<TileWorldSystem>(*this);
     }
 
     if (!editor) {
