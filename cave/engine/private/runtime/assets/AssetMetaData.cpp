@@ -18,7 +18,7 @@ auto AssetMetaData::loadMeta(std::string_view path) -> Result<AssetMetaData> {
     AssetMetaData meta;
 
     YamlDeserializer d;
-    d.Initialize(root);
+    d.initialize(root);
     d.read(meta);
 
     // meta sys path

@@ -63,7 +63,7 @@ auto SceneContainer::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     }
 
     YamlDeserializer yaml;
-    yaml.Initialize(root);
+    yaml.initialize(root);
     DeserializeScene(yaml, *m_scene);
 
     return Result<void>();

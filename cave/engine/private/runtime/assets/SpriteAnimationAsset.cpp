@@ -90,7 +90,7 @@ auto SpriteAnimationAsset::loadFromDisk(const AssetMetaData& meta) -> Result<voi
     }
 
     YamlDeserializer deserializer;
-    deserializer.Initialize(root);
+    deserializer.initialize(root);
 
     const int version = deserializer.version();
 

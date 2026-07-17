@@ -119,7 +119,7 @@ auto TileSetAsset::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     }
 
     YamlDeserializer deserializer;
-    deserializer.Initialize(root);
+    deserializer.initialize(root);
 
     const int version = deserializer.version();
 

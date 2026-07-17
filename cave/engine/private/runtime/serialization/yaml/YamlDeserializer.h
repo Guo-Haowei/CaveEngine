@@ -14,7 +14,7 @@ public:
     using IDeserializer::read;
 
     // @TODO: make it private
-    bool Initialize(const YAML::Node& node);
+    bool initialize(const YAML::Node& node);
 
     ~YamlDeserializer();
 
