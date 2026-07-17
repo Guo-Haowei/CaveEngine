@@ -8,8 +8,8 @@
 
 namespace cave {
 
-// ecs::Entity parent_id ()
-// bool local_visible ()
+// ecs::Entity m_parent_id (on_change = onParentChanged)
+// bool m_local_visible ()
 
 template<>
 const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
@@ -18,16 +18,16 @@ const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
             HierarchyComponent,
             "parent_id",
             CAVE_SID("parent_id"),
-            parent_id,
+            m_parent_id,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            &::cave::InvokeFieldChanged<HierarchyComponent, &HierarchyComponent::onParentChanged>
         ),
         REGISTER_FIELD(
             HierarchyComponent,
             "local_visible",
             CAVE_SID("local_visible"),
-            local_visible,
+            m_local_visible,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr

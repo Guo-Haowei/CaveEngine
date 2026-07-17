@@ -26,7 +26,6 @@
 namespace cave {
 
 using ::cave::ecs::Entity;
-using namespace ::cave::literals;
 
 namespace {
 
@@ -97,7 +96,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
         icon = ICON_FA_SQUARE_SHARE_NODES;
     }
 
-    const char* text = hier_component->visible ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
+    const char* text = hier_component->visible() ? ICON_FA_EYE : ICON_FA_EYE_SLASH;
     const auto node_name = std::format("##tree_node_{}", ent.id());
     const auto selectable_name = std::format("{} {}##tree_selectable_{}", icon, name, ent.id());
     const auto visibility_name = std::format("{}##visibility_{}", text, ent.id());
@@ -162,9 +161,9 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
             m_engine_services.sceneRegistry(),
             ent,
             BuiltinComponentId::HierarchyComponent_Id,
-            "local_visible"_sid,
-            hier_component->local_visible,
-            !hier_component->local_visible);
+            CAVE_SID("local_visible"),
+            hier_component->localVisible(),
+            !hier_component->localVisible());
 
         m_editor_services.edit().submit(m_preview.doc_id, std::move(cmd));
     }
@@ -241,7 +240,7 @@ bool SceneTreeBuilder::buildSceneTree(const Scene& scene) {
             return it->second.get();
         };
 
-        const Entity parent_id = hier.parent_id;
+        const Entity parent_id = hier.parent();
         HierarchyNode* parent_node = find_or_create(parent_id);
         HierarchyNode* self_node = find_or_create(ent);
         if (parent_node) {
@@ -353,7 +352,7 @@ void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::
             if (scene.has(UICanvasComponent_Id, parent)) return true;
             const auto* hier = scene.component<HierarchyComponent>(parent);
             if (DEV_VERIFY(hier)) {
-                parent = hier->parent_id;
+                parent = hier->parent();
             } else {
                 return false;
             }

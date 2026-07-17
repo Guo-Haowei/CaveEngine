@@ -93,7 +93,6 @@ void DragDropService::dragContentEntry(const ContentEntry& source) {
 
 void DragDropService::dropSceneNode(Entity parent, DocId doc_id, const Scene& scene) {
     auto drop_node = [&]() {
-        using namespace cave::literals;
         const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadSceneNode);
         if (!payload) return;
 
@@ -101,7 +100,7 @@ void DragDropService::dropSceneNode(Entity parent, DocId doc_id, const Scene& sc
         if (child.isNull() || child == parent) return;
 
         auto* child_hier = scene.component<HierarchyComponent>(child);
-        if (!DEV_VERIFY(child_hier) || child_hier->parent_id == parent) {
+        if (!DEV_VERIFY(child_hier) || child_hier->parent() == parent) {
             return;
         }
 
@@ -122,8 +121,8 @@ void DragDropService::dropSceneNode(Entity parent, DocId doc_id, const Scene& sc
             m_scene_reg,
             child,
             BuiltinComponentId::HierarchyComponent_Id,
-            "parent_id"_sid,
-            child_hier->parent_id,
+            CAVE_SID("parent_id"),
+            child_hier->parent(),
             parent);
 
         m_edit.submit(doc_id, std::move(cmd));

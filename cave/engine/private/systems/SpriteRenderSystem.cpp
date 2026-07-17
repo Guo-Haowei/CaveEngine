@@ -19,7 +19,7 @@ void RunSpriteRenderSystem(const Scene* scene, FrameData& framedata) {
 
     auto view = scene->view<SpriteRendererComponent, TransformComponent, HierarchyComponent>();
     for (const auto& [id, sprite_renderer, transform, hier] : view) {
-        if (!hier.visible) continue;
+        if (!hier.visible()) continue;
 
         const Mat4f& world_matrix = transform.worldMatrix();
         PerBatchConstantBuffer batch_buffer;

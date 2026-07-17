@@ -27,7 +27,7 @@ bool DeleteObjectCmd::apply(IDocument& doc) {
 }
 
 bool DeleteObjectCmd::undo(IDocument&) {
-    LOG_WARN("TODO: implement DeleteObjectCmd::Undo");
+    LOG_ERROR("TODO: implement DeleteObjectCmd::Undo");
     return false;
 }
 

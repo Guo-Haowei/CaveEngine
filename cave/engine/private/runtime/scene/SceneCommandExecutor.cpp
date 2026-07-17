@@ -64,7 +64,8 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
     }
 
     if (field->on_change) {
-        FieldChange change{
+        FieldChange change {
+            .scene = &m_scene,
             .object = comp,
             .field = field,
             .old_value = old_value.data(),

@@ -9,6 +9,8 @@
 
 namespace cave {
 
+struct FieldChange;
+
 class MeshRendererComponent {
     CAVE_COMPONENT(MeshRendererComponent)
 

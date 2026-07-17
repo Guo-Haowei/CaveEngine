@@ -113,7 +113,7 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
 
         for (const auto& element : resolved_canvas->elements) {
             auto* hierarchy = scene.component<HierarchyComponent>(element.entity);
-            if (!hierarchy || !hierarchy->local_visible) {
+            if (!hierarchy || !hierarchy->localVisible()) {
                 continue;
             }
 

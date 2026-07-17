@@ -27,7 +27,7 @@ void RenderSceneBuilder::BuildFull(const Scene& scene,
     out_scene.m_renderables.reserve(num_renderables);
 
     for (auto [e, renderer, hier, trans] : scene.view<MeshRendererComponent, HierarchyComponent, TransformComponent>()) {
-        if (!hier.visible) continue;
+        if (!hier.visible()) continue;
 
         const MeshAsset* mesh_asset = renderer.meshHandle().get();
         if (!mesh_asset) continue;

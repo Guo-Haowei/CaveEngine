@@ -64,10 +64,12 @@ DEFINE_ENUM_BITWISE_OPERATIONS(FieldFlag);
 
 class ISerializer;
 class IDeserializer;
+class Scene;
 
 struct FieldMetaBase;
 
 struct FieldChange {
+    Scene* scene;
     void* object;
     const FieldMetaBase* field;
     const void* old_value;

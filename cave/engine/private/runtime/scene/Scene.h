@@ -7,6 +7,7 @@
 
 #include "engine/private/runtime/ecs/ComponentPool.h"
 #include "engine/private/runtime/ecs/View.h"
+#include "engine/private/runtime/scene/SceneHierarchy.h"
 
 // clang-format off
 namespace cave::jobsystem { class Context; }
@@ -52,14 +53,14 @@ public:
 
     bool has(ComponentId cid, ecs::Entity ent) const;
     size_t count(ComponentId cid) const;
-    bool remove(ComponentId cid, ecs::Entity ent);
+    bool removeEntity(ComponentId cid, ecs::Entity ent);
 
     template<ComponentType T>
     bool has(ecs::Entity ent) const { return has(T::kId, ent); }
     template<ComponentType T>
     size_t count() const { return count(T::kId); }
     template<ComponentType T>
-    bool remove(ecs::Entity ent) { return remove(T::kId, ent); }
+    bool removeEntity(ecs::Entity ent) { return removeEntity(T::kId, ent); }
 
     // @TODO: remove depracated
     template<ComponentType T>
@@ -101,7 +102,6 @@ public:
     }
 
     ecs::Entity createEntity() { return ecs::Entity(++m_entity_seed); }
-    void removeEntity(ecs::Entity ent);
 
     void remapEntity(const HashMap<ecs::Entity, ecs::Entity>& mapping);
 
@@ -121,6 +121,7 @@ public:
     void copy(const Scene& other);
 
     ecs::Entity duplicateEntity(ecs::Entity ent);
+    void removeEntity(ecs::Entity ent);
 
     ecs::Entity findFirstByName(std::string_view name) const;
     ecs::Entity findChildByName(std::string_view name, ecs::Entity ent) const;
@@ -152,17 +153,21 @@ public:
 
 private:
     void flushPendingDestroy();
+    void removeEntityImpl(ecs::Entity ent);
 
     ecs::ComponentRegistry& m_component_registry;
     ecs::ComponentStorage m_storage;
 
     uint32_t m_entity_seed{ 0 };
+    // @TODO: get rid of root
     ecs::Entity m_root;
     uint32_t m_version;
 
     math::AABB m_world_bound;
 
     Owner<SceneRuntime> m_runtime;
+
+    SceneHierarchy m_hierarchy;
 };
 
 }  // namespace cave
