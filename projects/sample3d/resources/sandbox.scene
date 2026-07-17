@@ -127,7 +127,7 @@ entities:
       base_color: [1, 1, 1, 1]
       metallic: 0
       roughness: 1
-      emissive: 5
+      emissive: 12.8000002
       material_id: 00000000-0000-0000-0000000000000000
   - id: 9
     NameComponent:

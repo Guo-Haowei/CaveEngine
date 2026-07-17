@@ -398,8 +398,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
         .bloom = RGTextureId::null(),
     };
 
-    if (plan.enable_bloom)
-    {
+    if (plan.enable_bloom) {
         bloom_output = graph.addBloomPasses({
             .dependency = forward_outputs.dependency,
             .color = lighting_outputs.lighting,
