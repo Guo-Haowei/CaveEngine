@@ -10,6 +10,7 @@ namespace cave {
 
 // std::string m_name (editor = InputText)
 // Guid m_tile_set_guid (editor = Asset)
+// int m_z_index (editor = InputInt)
 // bool m_visible (editor = Toggle)
 // ChunkedTileData m_chunks ()
 
@@ -32,6 +33,15 @@ const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
             m_tile_set_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapLayer,
+            "z_index",
+            CAVE_SID("z_index"),
+            m_z_index,
+            FieldFlag::Serialize,
+            EditorHint::InputInt,
             nullptr
         ),
         REGISTER_FIELD(

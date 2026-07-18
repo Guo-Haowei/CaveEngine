@@ -42,6 +42,7 @@ void CollectTileMap(Scene& scene, FrameData& framedata) {
             draw.index.count = layer.mesh->desc.drawCount;
             draw.mesh_data = layer.mesh.get();
             draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch);
+            draw.z_index = layer.z_index;
 
             draw.texture = image->gpu_texture.get();
             framedata.sprites.push_back(draw);

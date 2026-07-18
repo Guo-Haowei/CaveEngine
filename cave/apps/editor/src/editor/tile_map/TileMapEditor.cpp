@@ -153,12 +153,21 @@ void TileMapEditor::drawTileMap() {
 
     m_canvas.pushView(m_view_id);
 
+    Vector<const TileMapLayer*> layers;
     for (const auto& layer : tile_map->layers()) {
-        if (!layer.visible()) {
+        layers.push_back(&layer);
+    }
+
+    std::sort(layers.begin(), layers.end(), [](const TileMapLayer* a, const TileMapLayer* b) {
+        return a->zIndex() < b->zIndex();
+    });
+
+    for (const auto& layer : layers) {
+        if (!layer->visible()) {
             continue;
         }
 
-        const TileSetAsset* tile_set = layer.handle().get();
+        const TileSetAsset* tile_set = layer->handle().get();
         if (!tile_set) {
             continue;
         }
@@ -169,7 +178,7 @@ void TileMapEditor::drawTileMap() {
         }
 
         const auto& frames = tile_set->frames();
-        const auto& chunks = layer.chunks().chunks();
+        const auto& chunks = layer->chunks().chunks();
         for (const auto& [key, chunk] : chunks) {
             const int16_t offset_x = key.x * kTileChunkSize;
             const int16_t offset_y = key.y * kTileChunkSize;

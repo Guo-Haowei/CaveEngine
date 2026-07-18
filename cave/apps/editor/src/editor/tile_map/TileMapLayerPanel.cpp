@@ -133,6 +133,13 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
             notify_changed();
         }
 
+        int z_index = layer.zIndex();
+        if (ui::InputInt("z_index", z_index)) {
+            layer.setZIndex(z_index);
+            m_selected_layer = Some(layer_id);
+            notify_changed();
+        }
+
         const ImageAsset* image = nullptr;
         if (const TileSetAsset* tile_set = layer.handle().get()) {
             image = tile_set->handle().get();

@@ -8,7 +8,7 @@ class SpriteSelector;
 
 class TileMapLayerPanel {
 public:
-    TileMapLayerPanel(SpriteSelector& sprite_selector) noexcept 
+    TileMapLayerPanel(SpriteSelector& sprite_selector) noexcept
         : m_sprite_selector(sprite_selector) {}
 
     void draw(TileMapAsset& tile_map, DrawComponentCtx& ctx);

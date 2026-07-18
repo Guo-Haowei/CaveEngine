@@ -38,21 +38,20 @@ void TileMapInstanceComponent::onDeserialized() {
     refreshTileMapHandle();
 }
 
-bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, Cache& cache) {
+bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache& layer_cache) {
+
     auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(layer.tileSetGuid());
     if (tile_set_handle) {
-        cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
+        layer_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
     } else {
-        cache.tile_set_handle.invalidate();
+        layer_cache.tile_set_handle.invalidate();
     }
 
-    TileSetAsset* tile_set = cache.tile_set_handle.get();
+    TileSetAsset* tile_set = layer_cache.tile_set_handle.get();
     if (!DEV_VERIFY(tile_set)) {
-        cache.mesh = nullptr;
+        layer_cache.mesh = nullptr;
         return true;
     }
-
-    cache.image = tile_set->handle();
 
     Vector<Vec2f> vertices;
     Vector<Vec2f> uvs;
@@ -60,7 +59,7 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, Cache& cac
 
     const auto& chunks = layer.chunks().chunks();
     if (chunks.empty()) {
-        cache.mesh = nullptr;
+        layer_cache.mesh = nullptr;
         return true;
     }
 
@@ -119,7 +118,7 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, Cache& cac
 
     const uint32_t count = static_cast<uint32_t>(indices.size());
     if (count == 0) {
-        cache.mesh = nullptr;
+        layer_cache.mesh = nullptr;
         return true;
     }
 
@@ -153,7 +152,9 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, Cache& cac
                                                          buffers,
                                                          &index_desc);
 
-    cache.mesh = mesh.value_or(nullptr);
+    layer_cache.z_index = layer.zIndex();
+    layer_cache.image = tile_set->handle();
+    layer_cache.mesh = mesh.value_or(nullptr);
     return true;
 }
 

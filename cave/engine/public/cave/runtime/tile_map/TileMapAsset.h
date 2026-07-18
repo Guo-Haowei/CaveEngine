@@ -32,6 +32,9 @@ private:
     CAVE_PROP(editor = Asset)
     Guid m_tile_set_guid;
 
+    CAVE_PROP(editor = InputInt)
+    int m_z_index = 0;
+
     CAVE_PROP(editor = Toggle)
     bool m_visible = true;
 
@@ -57,6 +60,9 @@ public:
 
     const Guid& tileSetGuid() const { return m_tile_set_guid; }
     void setTileSetGuid(const Guid& guid);
+
+    int zIndex() const { return m_z_index; }
+    void setZIndex(int value) { m_z_index = value; }
 
     const auto& handle() const { return m_tile_set_handle; }
 
