@@ -35,7 +35,7 @@ TileMapEditor::TileMapEditor(EditorState& editor,
     , m_canvas(m_engine_services.canvas())
     , m_debug_id(MakeDebugId(this)) {
 
-    m_tile_map_layer_panel = MakeOwner<TileMapLayerPanel>();
+    m_tile_map_layer_panel = MakeOwner<TileMapLayerPanel>(m_sprite_selector);
 
     m_toolbar[0] = {
         "TileMapEditor.pencil",
@@ -240,38 +240,16 @@ void TileMapEditor::drawToolbar() {
 
 void TileMapEditor::drawAssetInspector(IDocument& doc) {
     TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
-    if (!DEV_VERIFY(tile_map)) {
-        return;
+    if (DEV_VERIFY(tile_map)) {
+        DrawComponentCtx ctx = {
+            .engine_services = m_engine_services,
+            .editor_services = m_editor_services,
+            .scene = nullptr,
+            .entity = ecs::Entity::null(),
+        };
+
+        m_tile_map_layer_panel->draw(*tile_map, ctx);
     }
-
-    if (ImGui::BeginTabBar("##MyTabs1")) {
-        if (ImGui::BeginTabItem("Layer")) {
-            DrawComponentCtx ctx = {
-                .engine_services = m_engine_services,
-                .editor_services = m_editor_services,
-                .scene = nullptr,
-                .entity = ecs::Entity::null(),
-            };
-
-            m_tile_map_layer_panel->draw(*tile_map, ctx);
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-
-    ImGui::Separator();
-
-#if 0
-    TileSetAsset* tile_set = tile_map->tileSetHandle().get();
-    if (tile_set) {
-        auto handle = tile_set->handle();
-        const int column = tile_set->col();
-        const int row = tile_set->row();
-        if (auto image = handle.get(); image) {
-            m_sprite_selector.SelectSprite(*image, &column, &row);
-        }
-    }
-#endif
 }
 
 Option<TileCoord> TileMapEditor::pointToTile(math::Vec2f point_os) {

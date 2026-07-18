@@ -9,12 +9,36 @@
 #include "editor/services/EditorServices.h"
 #include "editor/services/IconCache.h"
 #include "editor/widgets/Image.h"
+#include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
 
 using namespace ::cave::math;
 
 void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
+    if (ImGui::BeginTabBar("##MyTabs1")) {
+        if (ImGui::BeginTabItem("Layer")) {
+            drawLayers(tile_map, ctx);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::Separator();
+
+    if (const TileMapLayer* layer = selectedLayer(tile_map)) {
+        if (TileSetAsset* tile_set = layer->handle().get()) {
+            auto handle = tile_set->handle();
+            const int column = tile_set->col();
+            const int row = tile_set->row();
+            if (auto image = handle.get(); image) {
+                m_sprite_selector.SelectSprite(*image, &column, &row);
+            }
+        }
+    }
+}
+
+void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
     const IconCache& icons = ctx.editor_services.iconCache();
 
     auto notify_changed = [&]() {
