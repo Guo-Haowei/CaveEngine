@@ -51,7 +51,7 @@ entities:
         params:
           level:
             type: string
-            value: end
+            value: level_10
           initial_state:
             type: string
             value: hidden

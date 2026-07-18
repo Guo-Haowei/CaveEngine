@@ -153,6 +153,10 @@ Result<void> TileMapAsset::loadFromDisk(const AssetMetaData& meta) {
         d.leaveKey();
     }
 
+    if (version <= 1) {
+        DEV_ASSERT(0);
+    }
+
     tileSetGuid(m_tile_set_id, true);
     return Result<void>();
 }

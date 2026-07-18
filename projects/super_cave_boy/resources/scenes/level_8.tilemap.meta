@@ -4,6 +4,6 @@ name: level_8.tilemap
 import_path: "@res://scenes/level_8.tilemap"
 dependencies: [94FB5794-CF41-1E46-8D6DB1E633C35D85]
 source_created_time: 2026-07-17 17:00:37.1156473
-source_last_modified: 2026-07-17 17:17:08.4588274
+source_last_modified: 2026-07-17 17:21:07.0900990
 import_settings:
   {}

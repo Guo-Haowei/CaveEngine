@@ -22,8 +22,32 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data);
 
 static_assert(Serializable<ChunkedTileData>);
 
+struct TileMapLayer {
+    CAVE_META(TileMapLayer)
+
+    CAVE_PROP(editor = InputText)
+    std::string name;
+
+    CAVE_PROP(editor = Asset)
+    Guid tile_set_guid;
+
+    CAVE_PROP(editor = Toggle)
+    bool visible = true;
+
+    CAVE_PROP()
+    ChunkedTileData chunks;
+
+    TileMapLayer() = default;
+
+    TileMapLayer(const TileMapLayer&) = delete;
+    TileMapLayer& operator=(const TileMapLayer&) = delete;
+
+    TileMapLayer(TileMapLayer&&) = default;
+    TileMapLayer& operator=(TileMapLayer&&) = default;
+};
+
 class TileMapAsset : public IAsset {
-    CAVE_ASSET(TileMapAsset, AssetType::TileMap, 1)
+    CAVE_ASSET(TileMapAsset, AssetType::TileMap, 2)
 
     CAVE_META(TileMapAsset)
 
@@ -40,11 +64,15 @@ private:
     CAVE_PROP()
     ChunkedTileData m_tiles;
 
+    CAVE_PROP()
+    Vector<TileMapLayer> m_layers;
+
     // Non serialized
     Handle<TileSetAsset> m_tile_set_handle;
     uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
+
     const Handle<TileSetAsset>& tileSetHandle() const { return m_tile_set_handle; }
 
     std::string& name() { return m_name; }

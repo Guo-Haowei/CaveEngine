@@ -8,10 +8,63 @@
 
 namespace cave {
 
+// std::string name (editor = InputText)
+// Guid tile_set_guid (editor = Asset)
+// bool visible (editor = Toggle)
+// ChunkedTileData chunks ()
+
+template<>
+const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
+    static MetaTableFields s_table = {
+        REGISTER_FIELD(
+            TileMapLayer,
+            "name",
+            CAVE_SID("name"),
+            name,
+            FieldFlag::Serialize,
+            EditorHint::InputText,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapLayer,
+            "tile_set_guid",
+            CAVE_SID("tile_set_guid"),
+            tile_set_guid,
+            FieldFlag::Serialize,
+            EditorHint::Asset,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapLayer,
+            "visible",
+            CAVE_SID("visible"),
+            visible,
+            FieldFlag::Serialize,
+            EditorHint::Toggle,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapLayer,
+            "chunks",
+            CAVE_SID("chunks"),
+            chunks,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_TileMapLayer_meta = MetaDataTable<TileMapLayer>::GetFields();
+
 // std::string m_name ()
 // Guid m_tile_set_id (editor = Asset)
 // bool m_visible (editor = Toggle)
 // ChunkedTileData m_tiles ()
+// Vector<TileMapLayer> m_layers ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileMapAsset>::GetFields() {
@@ -48,6 +101,15 @@ const MetaTableFields& MetaDataTable<TileMapAsset>::GetFields() {
             "tiles",
             CAVE_SID("tiles"),
             m_tiles,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileMapAsset,
+            "layers",
+            CAVE_SID("layers"),
+            m_layers,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr
