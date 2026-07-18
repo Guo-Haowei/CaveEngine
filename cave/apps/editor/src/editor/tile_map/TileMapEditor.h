@@ -1,4 +1,3 @@
-#if 0
 #pragma once
 #include "cave/runtime/tile_map/TileMapAsset.h"
 
@@ -14,6 +13,7 @@ enum class GridPaintAction : uint8_t;
 struct GridPaintEvent;
 class GridPaintTool;
 class ICanvas;
+class TileMapLayerPanel;
 
 class TileMapEditor final : public ViewTabBase {
     enum class Mode : uint8_t {
@@ -40,8 +40,7 @@ private:
 
     void drawToolbar() override;
 
-    void tileMapLayerOverview(TileMapAsset& tile_map);
-
+    void drawTileMap();
     void drawUIImpl() override;
     void drawGizmo(const math::FloatRect& rect);
     void drawAssetInspector(IDocument& doc) override;
@@ -84,9 +83,10 @@ private:
 
     std::array<ToolbarButtonDesc, 5> m_toolbar;
 
+    Owner<TileMapLayerPanel> m_tile_map_layer_panel;
+
     // @TODO: review this part
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
 };
 
 }  // namespace cave
-#endif

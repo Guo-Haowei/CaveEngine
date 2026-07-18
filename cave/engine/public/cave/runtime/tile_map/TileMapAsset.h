@@ -62,6 +62,9 @@ public:
 
     ChunkedTileData& chunks() { return m_chunks; }
     const ChunkedTileData& chunks() const { return m_chunks; }
+
+    bool visible() const { return m_visible; }
+    void setVisible(bool value) { m_visible = value; }
 };
 
 class TileMapAsset : public IAsset {

@@ -11,8 +11,6 @@
 
 namespace cave {
 
-namespace {
-
 bool DrawAsset(const DrawComponentCtx& ctx,
                const char* name,
                Guid& guid) {
@@ -50,8 +48,6 @@ bool DrawAsset(const DrawComponentCtx& ctx,
     }
     return dirty;
 }
-
-}  // namespace
 
 bool AssetEditor(const DrawComponentCtx& ctx,
                  void* component,
