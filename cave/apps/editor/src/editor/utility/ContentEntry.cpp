@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/string/StringUtils.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "engine/private/core/os/platform_io.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
@@ -101,13 +102,25 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
 
         switch (meta->type) {
             case AssetType::Image: {
-                auto texture = reinterpret_cast<const ImageAsset&>(*handle.get());
-                if (texture.gpu_texture) {
-                    ui::CenteredImage(texture.gpu_texture->GetHandle(),
+                const auto* texture = dynamic_cast<const ImageAsset*>(handle.get());
+                if (texture && texture->gpu_texture) {
+                    ui::CenteredImage(texture->gpu_texture->GetHandle(),
                                       kThumbnailSize,
-                                      texture.width,
-                                      texture.height,
+                                      texture->width,
+                                      texture->height,
                                       false);
+                }
+            } break;
+            case AssetType::TileSet: {
+                if (const auto* tile_set = dynamic_cast<const TileSetAsset*>(handle.get())) {
+                    const auto* texture = dynamic_cast<const ImageAsset*>(tile_set->handle().get());
+                    if (texture && texture->gpu_texture) {
+                        ui::CenteredImage(texture->gpu_texture->GetHandle(),
+                                          kThumbnailSize,
+                                          texture->width,
+                                          texture->height,
+                                          false);
+                    }
                 }
             } break;
             case AssetType::Material:
