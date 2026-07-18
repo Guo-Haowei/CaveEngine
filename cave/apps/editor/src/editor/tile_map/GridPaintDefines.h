@@ -24,14 +24,6 @@ struct GridPaintInput {
     bool left_pressed = false;
     bool left_down = false;
     bool left_released = false;
-
-    bool right_pressed = false;
-    bool right_down = false;
-    bool right_released = false;
-
-    bool ctrl = false;
-    bool shift = false;
-    bool alt = false;
 };
 
 }  // namespace cave

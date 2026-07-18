@@ -105,6 +105,10 @@ static void DrawComponent(std::string_view name,
     }
 }
 
+bool DrawAsset(const DrawComponentCtx& ctx,
+               const char* name,
+               Guid& guid);
+
 bool AssetEditor(const DrawComponentCtx& ctx,
                  void* component,
                  const FieldMetaBase* property);

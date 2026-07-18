@@ -53,15 +53,31 @@ void CameraController::start() {
     message().listen(kCutsceneEndID, [this](const Message&) {
         m_target = query().findFirstByName("player");
     });
+
+    auto camera_transform = component<TransformComponent>();
+    if (DEV_VERIFY(camera_transform)) {
+        camera_transform->setTranslation(ensureInBound(camera_transform->translation()));
+    }
 }
 
 void CameraController::update(float dt) {
     followTarget(dt);
 }
 
+Vec3f CameraController::ensureInBound(const Vec3f& position) {
+    auto camera = component<CameraComponent>();
+    auto tile_world = system<TileWorldSystem>();
+    auto bound = tile_world->worldBound();
+    Vec2f xy = ClampCameraToTileMap(position.xy, bound.min(), bound.max(), camera->orthoHeight(), camera->aspect());
+    return Vec3f{ xy, position.z };
+}
+
 void CameraController::followTarget(float dt) {
     auto camera_transform = component<TransformComponent>();
-    DEV_ASSERT(camera_transform);
+
+    if (!DEV_VERIFY(camera_transform)) {
+        return;
+    }
 
     Vec3f new_pos = camera_transform->translation();
     const float z = new_pos.z;
@@ -72,14 +88,10 @@ void CameraController::followTarget(float dt) {
 
         const Vec3f target_pos = target_transform->translation();
         new_pos += (target_pos - new_pos) * speed;
+        new_pos.z = z;
     }
 
-    auto camera = component<CameraComponent>();
-    auto tile_world = system<TileWorldSystem>();
-    auto bound = tile_world->worldBound();
-    Vec2f xy = ClampCameraToTileMap(new_pos.xy, bound.min(), bound.max(), camera->orthoHeight(), camera->aspect());
-
-    camera_transform->setTranslation(Vec3f{ xy, z });
+    camera_transform->setTranslation(ensureInBound(new_pos));
 }
 
 }  // namespace super_cave_boy

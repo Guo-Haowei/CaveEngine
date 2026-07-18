@@ -1,7 +1,7 @@
 #include "AnimationSystem.h"
 
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
-#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/render/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
@@ -38,7 +38,7 @@ public:
             return;
         }
 
-        renderer.SetResourceGuid(asset->imageGuid());
+        renderer.setImageGuid(asset->imageGuid());
 
         const auto& clip_name = animator.currentClip();
         const auto& clips = asset->clips();

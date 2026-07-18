@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/ecs/components/SpriteRendererComponent.h
+// File: cave/render/components/SpriteRendererComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/math/Box.h"
@@ -7,6 +7,8 @@
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
+
+struct FieldChange;
 
 class SpriteRendererComponent {
     CAVE_COMPONENT(SpriteRendererComponent)
@@ -33,9 +35,12 @@ private:
     // Non serialized
     Handle<ImageAsset> m_image_handle;
 
+    void refreshImageHandle();
+    void onImageGuidChanged(const FieldChange& change);
+
 public:
-    bool SetResourceGuid(const Guid& guid);
     const Guid& imageGuid() const { return m_image_id; }
+    void setImageGuid(const Guid& guid);
 
     const Handle<ImageAsset> handle() const { return m_image_handle; }
 

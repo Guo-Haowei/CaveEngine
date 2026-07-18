@@ -17,7 +17,12 @@ using ecs::Entity;
 TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
-    auto scene = createPreviewScene();
+    // @HACK: overlay requires a scene
+    // this should be changed at some point
+    // create a dummy scene to trigger render graph
+
+    auto scene = MakeOwner<Scene>();
+    scene->update(0.0f);
 
     m_preview_scene = m_scene_reg.registerScene(
         {
@@ -25,23 +30,6 @@ TileMapDocument::TileMapDocument(EngineServices& services, const Guid& guid)
             .debug_name = m_handle.meta()->name,
         },
         std::move(scene));
-}
-
-std::unique_ptr<Scene> TileMapDocument::createPreviewScene() const {
-    SceneCommandWriter cb(m_asset_reg);
-
-    Entity ent = cb.rootObject("tile_map");
-    cb.addComponent(ent, TileMapInstanceComponent_Id);
-    cb.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_guid"_sid, guid());
-
-    auto scene = MakeOwner<Scene>();
-
-    SceneCommandExecutor executor(*scene);
-    EntityMap map(cb.allocationCount());
-    SceneCommandPlayback::Play(cb, executor, { map, *scene });
-    scene->update(0.0f);
-
-    return scene;
 }
 
 }  // namespace cave

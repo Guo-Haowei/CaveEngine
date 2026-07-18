@@ -175,11 +175,13 @@ auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
 }
 
 // @TODO: refactor this
-static void FillTextureAndSamplerDesc(const ImageAsset* p_image, GpuTextureDesc& p_texture_desc, SamplerDesc& p_sampler_desc) {
-    DEV_ASSERT(p_image);
+static void FillTextureAndSamplerDesc(const ImageAsset* image,
+                                      GpuTextureDesc& texture_desc,
+                                      SamplerDesc& sampler_desc) {
+    DEV_ASSERT(image);
     bool is_hdr_file = false;
 
-    switch (p_image->format) {
+    switch (image->format) {
         case PixelFormat::R32_FLOAT:
         case PixelFormat::R32G32_FLOAT:
         case PixelFormat::R32G32B32_FLOAT:
@@ -190,30 +192,40 @@ static void FillTextureAndSamplerDesc(const ImageAsset* p_image, GpuTextureDesc&
         } break;
     }
 
-    p_texture_desc.format = p_image->format;
-    p_texture_desc.dimension = Dimension::TEXTURE_2D;
-    p_texture_desc.width = p_image->width;
-    p_texture_desc.height = p_image->height;
-    p_texture_desc.arraySize = 1;
-    p_texture_desc.bindFlags |= BIND_SHADER_RESOURCE | BIND_RENDER_TARGET;
-    p_texture_desc.initialData = p_image->buffer.data();
-    p_texture_desc.mipLevels = 1;
-    p_texture_desc.miscFlags |= RESOURCE_MISC_GENERATE_MIPS;
+    texture_desc.format = image->format;
+    texture_desc.dimension = Dimension::TEXTURE_2D;
+    texture_desc.width = image->width;
+    texture_desc.height = image->height;
+    texture_desc.arraySize = 1;
+    texture_desc.bindFlags |= BIND_SHADER_RESOURCE | BIND_RENDER_TARGET;
+    texture_desc.initialData = image->buffer.data();
+    texture_desc.mipLevels = 1;
+    texture_desc.miscFlags |= RESOURCE_MISC_GENERATE_MIPS;
 
     if (is_hdr_file) {
-        p_sampler_desc.minFilter = MinFilter::LINEAR;
-        p_sampler_desc.magFilter = MagFilter::LINEAR;
-        p_sampler_desc.addressU = p_sampler_desc.addressV = AddressMode::CLAMP;
+        sampler_desc.minFilter = MinFilter::LINEAR;
+        sampler_desc.magFilter = MagFilter::LINEAR;
+        sampler_desc.addressU = sampler_desc.addressV = AddressMode::CLAMP;
         // p_texture_desc.bindFlags &= (~BIND_RENDER_TARGET);
     } else {
-        p_sampler_desc.minFilter = MinFilter::LINEAR_MIPMAP_LINEAR;
-        p_sampler_desc.magFilter = MagFilter::LINEAR;
+        sampler_desc.minFilter = MinFilter::LINEAR_MIPMAP_LINEAR;
+        sampler_desc.magFilter = MagFilter::LINEAR;
     }
 
     // override sampler
-    if (p_image->sampler == ImageAsset::Sampler::Point) {
-        p_sampler_desc.minFilter = MinFilter::POINT;
-        p_sampler_desc.magFilter = MagFilter::POINT;
+    if (image->sampler == ImageAsset::Sampler::Point) {
+        sampler_desc.minFilter = MinFilter::POINT;
+        sampler_desc.magFilter = MagFilter::POINT;
+    }
+
+    switch (image->address_mode) {
+        case ImageAsset::AddressMode::Wrap: {
+            sampler_desc.addressU = AddressMode::WRAP;
+            sampler_desc.addressV = AddressMode::WRAP;
+            sampler_desc.addressW = AddressMode::WRAP;
+        } break;
+        default:
+            break;
     }
 }
 

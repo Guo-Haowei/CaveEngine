@@ -1,5 +1,5 @@
 // =============================================================================
-// File: cave/runtime/ecs/components/MeshRendererComponent.h
+// File: cave/render/components/MeshRendererComponent.h
 // =============================================================================
 #pragma once
 #include "cave/core/containers/FixedStack.h"

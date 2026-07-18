@@ -39,6 +39,9 @@ private:
     void commitSceneChange(String&&) override {}
     void commitSceneReload() override;
 
+    void drawMainViewImpl(const math::FloatRect& rect);
+    virtual void drawToolbar() {}
+
 protected:
     void submitView(bool support_pie);
     void drawMainView(const math::FloatRect& rect);

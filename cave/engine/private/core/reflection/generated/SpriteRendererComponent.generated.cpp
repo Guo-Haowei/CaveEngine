@@ -2,7 +2,7 @@
 // Auto-generated metadata for SpriteRendererComponent.h
 // Check generate_meta.py for more details
 
-#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/render/components/SpriteRendererComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 

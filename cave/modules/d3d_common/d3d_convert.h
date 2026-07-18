@@ -157,8 +157,8 @@ static inline D3D_(TEXTURE_ADDRESS_MODE) Convert(AddressMode p_mode) {
     }
 }
 
-static inline D3D_(BLEND) Convert(Blend p_blend) {
-    switch (p_blend) {
+static inline D3D_(BLEND) Convert(Blend blend) {
+    switch (blend) {
         case Blend::BLEND_ZERO:
             return D3D_BLEND_(ZERO);
         case Blend::BLEND_ONE:

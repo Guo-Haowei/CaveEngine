@@ -8,6 +8,7 @@
 
 namespace cave {
 
+class TileMapLayer;
 struct FieldChange;
 struct GpuMesh;
 
@@ -18,36 +19,32 @@ private:
     CAVE_PROP(editor = Asset, on_change = onTileMapGuidChanged)
     Guid m_tile_map_guid;
 
-    CAVE_PROP(editor = Color)
-    math::Vec4f m_tint_color = math::Vec4f::One;
-
-    struct Cache {
+    struct LayerCache {
+        int z_index = 0;
         Handle<ImageAsset> image;
         Handle<TileSetAsset> tile_set_handle;
-        mutable std::shared_ptr<GpuMesh> mesh;
+        mutable Ref<GpuMesh> mesh;
     };
 
     // Non serialize
-    bool m_visible;
     Handle<TileMapAsset> m_handle;
-    Cache m_cache;
+    Vector<LayerCache> m_layers;
     uint32_t m_revision{ 0 };
 
     void refreshTileMapHandle();
     void onTileMapGuidChanged(const FieldChange& change);
 
+    bool updateLayer(const TileMapLayer& layer, LayerCache& cache);
+
 public:
     // @TODO: better way to create data
     void createRenderData();
 
-    bool visible() const { return m_visible; }
-    const Cache& cache() const { return m_cache; }
-
     const auto& tileMapHandle() const { return m_handle; }
 
-    const math::Vec4f& tintColor() const { return m_tint_color; }
-
     const Guid& tileMapGuid() const { return m_tile_map_guid; }
+
+    std::span<const LayerCache> layers() const { return m_layers; }
 
     void onDeserialized();
 };

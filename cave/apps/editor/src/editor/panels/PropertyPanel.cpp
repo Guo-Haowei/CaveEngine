@@ -36,6 +36,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(Trigger)        \
     COMPONENT_DECL(Velocity)       \
     COMPONENT_DECL(Motor)          \
+    COMPONENT_DECL(Background)     \
     COMPONENT_DECL(MeshRenderer)   \
     COMPONENT_DECL(SpriteRenderer) \
     COMPONENT_DECL(Facing)         \
@@ -354,6 +355,7 @@ void PropertyPanel::drawUIImpl() {
     DrawComponentAuto<VelocityComponent>("Velocity", ctx);
     DrawComponentAuto<MotorComponent>("Motor", ctx);
     DrawComponentAuto<SpriteRendererComponent>("SpriteRenderer", ctx);
+    DrawComponentAuto<BackgroundComponent>("Background", ctx);
     DrawComponentAuto<TileMapInstanceComponent>("TileMapInstance", ctx);
     DrawComponentAuto<SpriteAnimatorComponent>("SpriteAnimator", ctx);
 

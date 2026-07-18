@@ -10,8 +10,8 @@
 namespace cave::render {
 
 // @TODO: maybe centralize the pass name
-constexpr const char RG_PASS_SHADOW[] = "p:shadow";
-constexpr const char RG_RES_SHADOW_MAP[] = "r:shadow";
+constexpr const char kPassShadow[] = "p:shadow";
+constexpr const char kResShadowMap[] = "r:shadow";
 
 extern void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
                                 const std::vector<DrawItem>& p_commands,
@@ -38,11 +38,11 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
 ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const RenderOptions&) {
     constexpr int shadow_res = 1024 * 2;
     DEV_ASSERT(math::IsPowerOfTwo(shadow_res));
-    RenderPass& pass = p_graph.addRenderPass(RG_PASS_SHADOW);
+    RenderPass& pass = p_graph.addRenderPass(kPassShadow);
 
     Outputs out{
         .shadow = p_graph.createTexture({
-            RG_RES_SHADOW_MAP,
+            kResShadowMap,
             p_graph.buildDefaultTextureDesc(PixelFormat::D32_FLOAT,
                                             AttachmentType::SHADOW_2D,
                                             shadow_res,

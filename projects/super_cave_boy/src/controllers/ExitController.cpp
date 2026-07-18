@@ -1,7 +1,7 @@
 #include "ExitController.h"
 
 #include "cave/core/diagnostics/Log.h"
-#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/render/components/SpriteRendererComponent.h"
 #include "cave/runtime/scene/ISceneTransitionRequests.h"
 #include "cave/runtime/scene/SceneQuery.h"
 

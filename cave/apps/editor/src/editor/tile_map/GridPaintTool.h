@@ -7,11 +7,7 @@ enum class GridPaintMode : uint8_t {
     Brush,
     Line,
     Rect,
-};
-
-enum class GridPaintAction : uint8_t {
-    Paint,
-    Erase,
+    Fill,
 };
 
 enum class GridPaintEventType : uint8_t {
@@ -20,12 +16,6 @@ enum class GridPaintEventType : uint8_t {
     Fill,
     End,
     Cancel,
-};
-
-enum class GridPaintModifier : uint8_t {
-    None,
-    Ctrl,
-    Shift,
 };
 
 struct GridBrush {
@@ -61,43 +51,10 @@ using GridPaintPreview = Vector<GridPaintCell>;
 
 struct GridPaintEvent {
     GridPaintEventType type = GridPaintEventType::Apply;
-    GridPaintAction action = GridPaintAction::Paint;
 
     // Only meaningful for Apply.
     const GridPaintPreview* cells = nullptr;
 };
-
-template<typename Fn>
-void ForEachGridLine(GridCoord from, GridCoord to, Fn&& fn) {
-    int x = from.x;
-    int y = from.y;
-
-    const int dx = std::abs(to.x - from.x);
-    const int sx = from.x < to.x ? 1 : -1;
-
-    const int dy = -std::abs(to.y - from.y);
-    const int sy = from.y < to.y ? 1 : -1;
-
-    int error = dx + dy;
-
-    while (true) {
-        fn(GridCoord{ x, y });
-
-        if (x == to.x && y == to.y) {
-            break;
-        }
-
-        const int twice_error = error * 2;
-        if (twice_error >= dy) {
-            error += dy;
-            x += sx;
-        }
-        if (twice_error <= dx) {
-            error += dx;
-            y += sy;
-        }
-    }
-}
 
 template<typename Fn>
 void ForEachGridRect(GridCoord from, GridCoord to, Fn&& fn) {
@@ -153,8 +110,6 @@ private:
         bool active = false;
 
         GridPaintMode mode = GridPaintMode::Brush;
-        GridPaintModifier modifier = GridPaintModifier::None;
-        GridPaintAction action = GridPaintAction::Paint;
 
         GridCoord start;
         GridCoord previous;
@@ -163,19 +118,11 @@ private:
         GridBrush brush;
     };
 
-    auto resolveMode(const GridPaintInput& input) const
-        -> std::pair<GridPaintMode, GridPaintModifier>;
-
-    void beginStroke(GridCoord coord,
-                     GridPaintMode mode,
-                     GridPaintModifier modifier,
-                     GridPaintAction action);
+    void beginStroke(GridCoord coord, GridPaintMode mode);
 
     void updateStroke(GridCoord coord);
     void finishStroke();
     void cancelStroke();
-
-    bool isStrokeModifierHeld(const GridPaintInput& input) const;
 
     void buildHoverPreview(GridCoord coord,
                            GridPaintMode mode);
@@ -189,9 +136,7 @@ private:
                      const GridBrush& brush,
                      GridPaintPreview& out);
 
-    void emit(GridPaintEventType type,
-              GridPaintAction action,
-              const GridPaintPreview* cells = nullptr);
+    void emit(GridPaintEventType type, const GridPaintPreview* cells = nullptr);
 
 private:
     GridPaintMode m_selected_mode = GridPaintMode::Brush;

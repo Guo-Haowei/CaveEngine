@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/diagnostics/Profiler.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/ui/IUIRuntime.h"
@@ -34,9 +34,7 @@
 
 namespace cave {
 
-extern void RunTileMapRenderSystem(Scene* scene, FrameData& framedata);
-
-extern void RunSpriteRenderSystem(const Scene* scene, FrameData& framedata);
+extern void RunSpriteRenderSystem(Scene* scene, FrameData& framedata);
 
 }  // namespace cave
 
@@ -121,7 +119,7 @@ void Renderer::setMode(bool is_2d) {
 }
 
 // @TODO: remove this
-extern void runMeshRenderSystem(const Scene& scene,
+extern void RunMeshRenderSystem(const Scene& scene,
                                 const RenderScene& rscene,
                                 const ResolvedView& view,
                                 FrameData& out_data);
@@ -144,7 +142,7 @@ static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Mat4f* p_matrix) {
 #endif
 
 // @TODO: refactor
-static void fillConstantBuffer(const FrameTime& p_frame,
+static void FillConstantBuffer(const FrameTime& p_frame,
                                const Scene* p_scene,
                                const ResolvedView& p_view,
                                FrameData& p_out_data) {
@@ -197,7 +195,7 @@ static void fillConstantBuffer(const FrameTime& p_frame,
     cache.c_scene_dirty = true;
 }
 
-static void fillEnvConstants(FrameData& out_data) {
+static void FillEnvConstants(FrameData& out_data) {
     constexpr int count = kIBLMipChainMax * 6;
     if (out_data.batchCache.buffer.size() < count) {
         out_data.batchCache.buffer.resize(count);
@@ -299,12 +297,12 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;
 
-        fillConstantBuffer(time, view.scene, view, framedata);
+        FillConstantBuffer(time, view.scene, view, framedata);
 
-        runMeshRenderSystem(*view.scene, render_scene, view, framedata);
-        RunTileMapRenderSystem(view.scene, framedata);
+        RunMeshRenderSystem(*view.scene, render_scene, view, framedata);
         RunSpriteRenderSystem(view.scene, framedata);
-        fillEnvConstants(framedata);
+
+        FillEnvConstants(framedata);
 
         // @HACK: only support first scene
         if (view_idx == 0) {

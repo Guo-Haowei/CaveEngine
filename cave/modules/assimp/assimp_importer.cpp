@@ -6,7 +6,7 @@
 
 #include "cave/core/diagnostics/Log.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 

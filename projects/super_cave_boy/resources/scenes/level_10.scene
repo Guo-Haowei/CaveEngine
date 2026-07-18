@@ -1,5 +1,5 @@
 version: 22
-seed: 9
+seed: 10
 entities:
   - id: 1
     NameComponent:
@@ -51,7 +51,7 @@ entities:
         params:
           level:
             type: string
-            value: end
+            value: level_10
           initial_state:
             type: string
             value: hidden
@@ -116,5 +116,13 @@ entities:
       local_visible: true
     PrefabInstanceComponent:
       prefab_id: A22D8CBE-B5E7-7043-BE0C35CA9EF76847
+    PrefabOverride:
+      {}
+  - id: 10
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    PrefabInstanceComponent:
+      prefab_id: B4FA3AB1-CD20-604B-BF0FB2D5D2185AA1
     PrefabOverride:
       {}

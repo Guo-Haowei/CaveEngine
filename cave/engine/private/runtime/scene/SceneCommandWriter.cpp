@@ -1,5 +1,5 @@
 #include "cave/runtime/ecs/components/LightComponent.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/scene/SceneCommandBuffer.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 

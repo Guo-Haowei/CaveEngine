@@ -1,0 +1,9 @@
+type: prefab
+guid: B4FA3AB1-CD20-604B-BF0FB2D5D2185AA1
+name: background.prefab
+import_path: "@res://background.prefab"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

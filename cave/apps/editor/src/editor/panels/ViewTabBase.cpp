@@ -164,21 +164,53 @@ void ViewTabBase::updateRect(math::FloatRect& out_rect) {
         FitAspect(aspect, size.x, size.y);
     }
 
-    out_rect = math::FloatRect::FromMinMax(
+    out_rect = FloatRect::FromMinMax(
         cursor_screen_pos.x,
         cursor_screen_pos.y,
         cursor_screen_pos.x + size.x,
         cursor_screen_pos.y + size.y);
 }
 
-void ViewTabBase::drawMainView(const math::FloatRect& rect) {
+void ViewTabBase::drawMainView(const FloatRect& rect) {
+    const ImVec2 viewport_min = ImGui::GetCursorScreenPos();
+    const ImVec2 viewport_size = ImGui::GetContentRegionAvail();
 
+    drawMainViewImpl(rect);
+
+    const ImVec2 viewport_center_top{
+        viewport_min.x + viewport_size.x * 0.5f,
+        viewport_min.y + 16.0f,
+    };
+
+    ImGui::SetNextWindowPos(
+        viewport_center_top,
+        ImGuiCond_Always,
+        { 0.5f, 0.0f });
+
+    ImGui::SetNextWindowBgAlpha(0.75f);
+
+    const ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoNav;
+
+    auto window_id = std::format("##{}_Toolbar", m_window_id);
+    if (ImGui::Begin(window_id.c_str(), nullptr, flags)) {
+        drawToolbar();
+    }
+
+    ImGui::End();
+}
+
+void ViewTabBase::drawMainViewImpl(const FloatRect& rect) {
     const ImVec2 min{ rect.x, rect.y };
     const ImVec2 max{ rect.Right(), rect.Bottom() };
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-    draw_list->AddRectFilled(min, max, IM_COL32(40, 40, 40, 255));
+    draw_list->AddRectFilled(min, max, IM_COL32(60, 60, 60, 255));
 
     // @TODO: move it somewhere else
     uint64_t tex = m_texture->GetHandle();

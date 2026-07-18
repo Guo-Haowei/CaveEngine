@@ -89,23 +89,14 @@ std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) co
 void TileWorldSystem::rebuildCollision() {
     m_world_bound.invalidate();
 
-    auto view = m_runtime.scene().view<TileMapInstanceComponent, TransformComponent>();
-    for (auto [ent, instance, transform] : view) {
-        TileMapAsset* tile_map = instance.tileMapHandle().get();
-        Vec2f offset = transform.translation().xy;
-
-        if (!tile_map) {
-            CRASH_NOW_MSG("TileMapAsset is null");
-            continue;
-        }
-
-        TileSetAsset* tile_set = tile_map->tileSetHandle().get();
-        if (!tile_map) {
+    auto rebuild_layer = [this](const TileMapLayer& layer, Vec2f offset) {
+        TileSetAsset* tile_set = layer.handle().get();
+        if (!tile_set) {
             CRASH_NOW_MSG("TileSetAsset is null");
-            continue;
+            return;
         }
 
-        for (auto&& [chunk_coord, chunk] : tile_map->tiles().chunks()) {
+        for (auto&& [chunk_coord, chunk] : layer.chunks().chunks()) {
             if (!chunk) {
                 continue;
             }
@@ -127,6 +118,20 @@ void TileWorldSystem::rebuildCollision() {
                     m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
                 }
             }
+        }
+    };
+
+    auto view = m_runtime.scene().view<TileMapInstanceComponent, TransformComponent>();
+    for (auto [ent, instance, transform] : view) {
+        TileMapAsset* tile_map = instance.tileMapHandle().get();
+        Vec2f offset = transform.translation().xy;
+
+        if (!DEV_VERIFY(tile_map)) {
+            continue;
+        }
+
+        for (const TileMapLayer& layer : tile_map->layers()) {
+            rebuild_layer(layer, offset);
         }
     }
 

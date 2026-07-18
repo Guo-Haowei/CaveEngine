@@ -1,5 +1,5 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/scene/SceneQuery.h"
 

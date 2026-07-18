@@ -2,13 +2,17 @@
 
 namespace cave {
 
-struct ToolBarButtonDesc {
+struct ToolbarButtonDesc {
+    const char* id{ nullptr };
     const char* display{ nullptr };
     const char* tooltip{ nullptr };
     std::function<void()> execute_func;
     std::function<bool()> is_enabled_func;
+    std::function<bool()> is_selected_func;
 };
 
-void DrawToolBar(const std::vector<const ToolBarButtonDesc*>& p_button_descs, bool p_new_line = false);
+void DrawToolbar(std::span<const ToolbarButtonDesc*> button_descs);
+
+void DrawToolbar(std::span<const ToolbarButtonDesc> button_descs);
 
 }  // namespace cave

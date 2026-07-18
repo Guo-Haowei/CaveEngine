@@ -3,7 +3,7 @@
 #if USING(USE_IMPORTER_TINYGLTF)
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"

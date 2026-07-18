@@ -89,29 +89,29 @@ struct FrameData {
     PerFrameConstantBuffer perFrameCache;
     BufferCache<PerBatchConstantBuffer> batchCache;
     BufferCache<MaterialConstantBuffer> materialCache;
-    std::vector<PerPassConstantBuffer> passCache;
+    Vector<PerPassConstantBuffer> passCache;
     std::array<PointShadowConstantBuffer, MAX_POINT_LIGHT_SHADOW_COUNT * 6> pointShadowCache;
     BufferCache<BoneConstantBuffer> boneCache;
     // std::vector<EmitterConstantBuffer> emitterCache;
 
     // @TODO: rename
-    std::array<std::unique_ptr<PassContext>, MAX_POINT_LIGHT_SHADOW_COUNT> pointShadowPasses;
+    std::array<Owner<PassContext>, MAX_POINT_LIGHT_SHADOW_COUNT> pointShadowPasses;
     std::array<PassContext, 1> shadowPasses;  // @TODO: support multi ortho light
 
     PassContext voxelPass;
     PassContext mainPass;
 
-    std::array<std::vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
-    std::vector<DrawItem> tile_maps;
-    std::vector<DrawItem> sprites;
+    std::array<Vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
+
+    Vector<DrawItem> sprites;
 
     // std::vector<InstanceContext> instances;
 
     // std::vector<ParticleEmitterComponent> emitters;
 
     struct UpdateBuffer {
-        std::vector<math::Vec3f> positions;
-        std::vector<math::Vec3f> normals;
+        Vector<math::Vec3f> positions;
+        Vector<math::Vec3f> normals;
         const void* id;
     };
 

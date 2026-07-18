@@ -12,8 +12,11 @@ using namespace math;
 using namespace render;
 
 void TileMapInstanceComponent::refreshTileMapHandle() {
+    m_revision = 0;
+    m_handle.invalidate();
+    m_layers.clear();
+
     if (m_tile_map_guid.isNull()) {
-        m_handle = {};
         return;
     }
 
@@ -29,63 +32,35 @@ void TileMapInstanceComponent::onTileMapGuidChanged(const FieldChange& change) {
     DEV_ASSERT(change.field->id == CAVE_SID("tile_map_guid"));
 
     refreshTileMapHandle();
-    ++m_revision;
 }
 
 void TileMapInstanceComponent::onDeserialized() {
     refreshTileMapHandle();
 }
 
-void TileMapInstanceComponent::createRenderData() {
-    if (m_tile_map_guid != m_handle.guid()) {
-        onDeserialized();
+bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache& layer_cache) {
+
+    auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(layer.tileSetGuid());
+    if (tile_set_handle) {
+        layer_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
+    } else {
+        layer_cache.tile_set_handle.invalidate();
     }
 
-    auto tile_map = m_handle.get();
-
-    if (!tile_map) {
-        return;
+    TileSetAsset* tile_set = layer_cache.tile_set_handle.get();
+    if (!DEV_VERIFY(tile_set)) {
+        layer_cache.mesh = nullptr;
+        return true;
     }
-
-    m_visible = tile_map->visible();
-
-    // @TODO: update guid
-    if (m_cache.tile_set_handle.guid() == Guid::null()) {
-        auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(tile_map->tileSetGuid());
-        if (tile_set_handle.is_some()) {
-            m_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
-        }
-    }
-
-    TileSetAsset* tile_set = m_cache.tile_set_handle.get();
-    if (!tile_set) {
-        return;
-    }
-
-    bool need_update = false;
-    if (tile_set->dirty()) {
-        tile_set->dirty(false);
-        need_update = true;
-    }
-
-    if (tile_map->revision() != m_revision) {
-        need_update = true;
-    }
-
-    if (!need_update) {
-        return;
-    }
-
-    m_cache.image = tile_set->handle();
 
     Vector<Vec2f> vertices;
     Vector<Vec2f> uvs;
     Vector<uint32_t> indices;
 
-    const auto& chunks = tile_map->tiles().chunks();
+    const auto& chunks = layer.chunks().chunks();
     if (chunks.empty()) {
-        m_visible = false;
-        return;
+        layer_cache.mesh = nullptr;
+        return true;
     }
 
     const auto& frames = tile_set->frames();
@@ -143,9 +118,8 @@ void TileMapInstanceComponent::createRenderData() {
 
     const uint32_t count = static_cast<uint32_t>(indices.size());
     if (count == 0) {
-        m_revision = tile_map->revision();
-        m_cache.mesh = nullptr;
-        return;
+        layer_cache.mesh = nullptr;
+        return true;
     }
 
     std::array<GpuBufferDesc, 2> buffers;
@@ -174,9 +148,41 @@ void TileMapInstanceComponent::createRenderData() {
 
     // @TODO: refactor this part
     // @NOTE: shouldn't call RenderDevice here
-    auto mesh = RenderDevice::singleton().CreateMeshImpl(desc, buffers, &index_desc);
+    auto mesh = RenderDevice::singleton().CreateMeshImpl(desc,
+                                                         buffers,
+                                                         &index_desc);
 
-    m_cache.mesh = mesh.value_or(nullptr);
+    layer_cache.z_index = layer.zIndex();
+    layer_cache.image = tile_set->handle();
+    layer_cache.mesh = mesh.value_or(nullptr);
+    return true;
+}
+
+void TileMapInstanceComponent::createRenderData() {
+    if (m_tile_map_guid != m_handle.guid()) {
+        onDeserialized();
+    }
+
+    auto tile_map = m_handle.get();
+
+    if (!tile_map) {
+        return;
+    }
+
+    if (m_revision == tile_map->revision()) {
+        DEV_ASSERT(m_revision <= tile_map->revision());
+        return;
+    }
+
+    m_layers.clear();
+    m_layers.resize(tile_map->layers().size());
+
+    int counter = 0;
+    for (const TileMapLayer& layer : tile_map->layers()) {
+        if (!updateLayer(layer, m_layers[counter++])) {
+            return;
+        }
+    }
 
     m_revision = tile_map->revision();
 }

@@ -23,19 +23,19 @@ FORCE_INLINE float SrgbToLinear(float s) {
     return std::pow((s + 0.055f) / 1.055f, 2.4f);
 }
 
-static Vec3f Sample(ImageAsset* p_image, Vec2f uv) {
-    const int x = static_cast<int>(uv.x * p_image->width);
-    const int y = static_cast<int>(uv.y * p_image->height);
-    if (x < 0 || x >= p_image->width || y < 0 || y >= p_image->height) {
+static Vec3f Sample(ImageAsset* image, Vec2f uv) {
+    const int x = static_cast<int>(uv.x * image->width);
+    const int y = static_cast<int>(uv.y * image->height);
+    if (x < 0 || x >= image->width || y < 0 || y >= image->height) {
         return Vec3f::Zero;
     }
 
-    const int index = y * p_image->width + x;
+    const int index = y * image->width + x;
     Vec3f color;
-    color.r = p_image->buffer[index * 4 + 0];
-    color.g = p_image->buffer[index * 4 + 1];
-    color.b = p_image->buffer[index * 4 + 2];
-    if (p_image->color_space == ImageAsset::ColorSpace::SRGB) {
+    color.r = image->buffer[index * 4 + 0];
+    color.g = image->buffer[index * 4 + 1];
+    color.b = image->buffer[index * 4 + 2];
+    if (image->color_space == ImageAsset::ColorSpace::SRGB) {
         color.r = SrgbToLinear(color.r / 255.5f);
         color.g = SrgbToLinear(color.g / 255.5f);
         color.b = SrgbToLinear(color.b / 255.5f);

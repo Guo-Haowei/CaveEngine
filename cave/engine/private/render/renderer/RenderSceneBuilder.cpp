@@ -3,8 +3,8 @@
 #include "RenderScene.h"
 
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
-#include "cave/runtime/ecs/components/MeshRendererComponent.h"
-#include "cave/runtime/ecs/components/SpriteRendererComponent.h"
+#include "cave/render/components/MeshRendererComponent.h"
+#include "cave/render/components/SpriteRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/runtime/scene/Scene.h"

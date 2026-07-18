@@ -197,6 +197,15 @@ Entity Scene::findChildByName(std::string_view name, Entity ent) const {
     return Entity::null();
 }
 
+Entity Scene::activeCamera() const {
+    for (auto [entity, camera, transform] : view<CameraComponent, TransformComponent>()) {
+        if (entity.valid())
+            return entity;
+    }
+
+    return Entity::null();
+}
+
 void Scene::removeEntity(Entity ent) {
     if (ent.valid()) {
         removeEntityImpl(ent);

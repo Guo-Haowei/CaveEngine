@@ -11,6 +11,7 @@
 
 // @TODO: remove private include
 #include "engine/private/core/os/platform_io.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/VFS.h"
@@ -43,12 +44,18 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
     const bool expanded = ImGui::TreeNodeEx(id.c_str(), flags);
 
     ImGui::SameLine();
-    const char* icon = GetContentIcon(entry, expanded);
+    if (const auto* image = entry.handle.get<ImageAsset>()) {
+        const float icon_size = ImGui::GetFrameHeight();
+        const uint64_t tex = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
+        ImGui::Image(tex, ImVec2(icon_size, icon_size));
+    } else {
+        const char* icon = GetContentIcon(entry, expanded);
+        ImGui::Text("%s", icon);
+    }
 
+    ImGui::SameLine();
     if (m_renaming == entry.sys_path) {
         std::string buffer;
-        ImGui::Text("%s", icon);
-        ImGui::SameLine();
         if (ui::TextBox(nullptr, buffer)) {
             fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
@@ -59,7 +66,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
             m_renaming = "";
         }
     } else {
-        auto text = std::format("{} {}", icon, entry.file_name);
+        auto text = std::format("{}", entry.file_name);
         ImGui::Selectable(text.c_str());
         const bool hovered = ImGui::IsItemHovered();
 

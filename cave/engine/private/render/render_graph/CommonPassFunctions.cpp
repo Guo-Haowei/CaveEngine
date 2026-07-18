@@ -362,28 +362,17 @@ void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
 
     cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
-    if (!ctx.frameData.tile_maps.empty()) {
-        cmd.SetPipelineState(PSO_SPRITE);
-        for (const DrawItem& draw : ctx.frameData.tile_maps) {
-            const auto tile = draw.mesh_data;
-            if (draw.texture) {
-                cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
-            }
-            cmd.SetMesh(tile);
-            cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
-            cmd.DrawElementsInstanced(1, draw.index.count);
+    for (const DrawItem& draw : ctx.frameData.sprites) {
+        if (draw.texture) {
+            cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
         }
-    }
-
-    if (!ctx.frameData.sprites.empty()) {
-        cmd.SetMesh(nullptr);
-        cmd.SetPipelineState(PSO_SPRITE_NO_VERT);
-        for (const DrawItem& draw : ctx.frameData.sprites) {
-            DEV_ASSERT(draw.mesh_data == nullptr);
-            if (draw.texture) {
-                cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
-            }
-            cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
+        cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
+        cmd.SetMesh(draw.mesh_data);
+        if (draw.mesh_data) {
+            cmd.SetPipelineState(PSO_SPRITE);
+            cmd.DrawElementsInstanced(1, draw.index.count);
+        } else {
+            cmd.SetPipelineState(PSO_SPRITE_NO_VERT);
             cmd.DrawArrays(draw.index.count);
         }
     }

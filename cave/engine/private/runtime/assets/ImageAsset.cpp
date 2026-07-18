@@ -96,6 +96,7 @@ static Result<void> LoadImage(const AssetMetaData& meta, ImageAsset& image) {
 }
 
 Result<void> ImageAsset::loadFromDisk(const AssetMetaData& meta) {
+    address_mode = EnumTraits<AddressMode>::FromString(meta.import_settings["address_mode"]).unwrap_or(AddressMode::Clamp);
     sampler = EnumTraits<Sampler>::FromString(meta.import_settings["sampler"]).unwrap_or(Sampler::Linear);
     color_space = EnumTraits<ColorSpace>::FromString(meta.import_settings["color_space"]).unwrap_or(ColorSpace::Linear);
 

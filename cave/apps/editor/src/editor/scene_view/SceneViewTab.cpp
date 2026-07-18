@@ -36,19 +36,29 @@ SceneViewTab::SceneViewTab(EditorState& editor,
                            ViewDimension dim)
     : ViewTabBase(editor, doc_id, scene_id, dim)
     , m_editor(editor)
-    , m_debug_id(MakeDebugId(this))
-    , m_button_displays{ ICON_FA_PLAY, ICON_FA_PAUSE }
-    , m_button_tooltips{ "Run Project", "Pause Project" } {
+    , m_debug_id(MakeDebugId(this)) {
 
     m_play_button = {
+        "SceneViewTab.play",
         ICON_FA_PLAY,
         "Run Project",
         [this]() {
             m_editor.requestModeSwitch();
-            m_button_index = 1 - m_button_index;
-            m_play_button.display = m_button_displays[m_button_index];
-            m_play_button.tooltip = m_button_tooltips[m_button_index];
-        }
+        },
+        [this]() {
+            return !m_editor.isPlaying();
+        },
+    };
+    m_pause_button = {
+        "SceneViewTab.pause",
+        ICON_FA_PAUSE,
+        "Pause Project",
+        [this]() {
+            m_editor.requestModeSwitch();
+        },
+        [this]() {
+            return m_editor.isPlaying();
+        },
     };
 }
 
@@ -83,6 +93,15 @@ Option<PickData> SceneViewTab::getPickData(const Vec2f& point_os) {
         .scene_id = m_preview_scene_id,
         .doc_id = m_doc_id,
     });
+}
+
+void SceneViewTab::drawToolbar() {
+    std::array<const ToolbarButtonDesc*, 2> descs = {
+        &m_play_button,
+        &m_pause_button,
+    };
+
+    DrawToolbar(descs);
 }
 
 void SceneViewTab::onInputEvents(const InputFrame& input) {

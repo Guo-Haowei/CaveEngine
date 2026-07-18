@@ -218,8 +218,7 @@ void SerializeScene(ISerializer& s, const Scene& source_scene, AssetRegistry* as
     mapping[Entity::null()] = Entity::null();
     for (uint32_t i = 0; i < entity_count; ++i) {
         const Entity old = entity_array[i];
-        if (scene.has<PrefabChildComponent>(old) &&
-            !scene.has<PrefabInstanceComponent>(old)) {
+        if (scene.has<PrefabChildComponent>(old) && !scene.has<PrefabInstanceComponent>(old)) {
             --seed;
         }
 

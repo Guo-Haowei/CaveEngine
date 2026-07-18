@@ -15,23 +15,31 @@ int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
 
 }  // namespace
 
-void TileMapAsset::tileSetGuid(const Guid& guid, bool force_update) {
-    const bool should_update = force_update || m_tile_set_id != guid;
-    if (should_update) {
-        if (auto handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(guid)) {
-            m_tile_set_id = guid;
-            m_tile_set_handle = std::move(handle.unwrap());
-        } else {
-            m_tile_set_id = Guid::null();
-            m_tile_set_handle.invalidate();
-        }
-
-        incRevision();
+void TileMapLayer::setTileSetGuid(const Guid& guid) {
+    if (m_tile_set_guid == guid) {
+        return;
     }
+
+    m_tile_set_guid = guid;
+    refreshTileSetHandle();
+}
+
+void TileMapLayer::refreshTileSetHandle() {
+    if (auto handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(m_tile_set_guid)) {
+        m_tile_set_handle = std::move(handle.unwrap());
+    } else {
+        m_tile_set_handle.invalidate();
+    }
+
+    // @TODO: set dirty
 }
 
 Vector<Guid> TileMapAsset::dependencies() const {
-    return { m_tile_set_id };
+    HashSet<Guid> guids;
+    for (const TileMapLayer& layer : m_layers) {
+        guids.insert(layer.tileSetGuid());
+    }
+    return Vector<Guid>(guids.begin(), guids.end());
 }
 
 ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
@@ -139,21 +147,18 @@ Result<void> TileMapAsset::loadFromDisk(const AssetMetaData& meta) {
     YamlDeserializer d;
     d.initialize(root);
 
-    const int version = d.version();
-
     if (d.tryEnterKey("content")) {
-        switch (version) {
-            case 1:
-                [[fallthrough]];
-            default:
-                d.read(*this);
-                break;
+        if (!d.read(*this)) {
+            return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA,
+                              "failed to read content of {}",
+                              meta.name);
         }
-
         d.leaveKey();
     }
 
-    tileSetGuid(m_tile_set_id, true);
+    for (auto& layer : m_layers) {
+        layer.refreshTileSetHandle();
+    }
     return Result<void>();
 }
 
