@@ -1,3 +1,4 @@
+#if 0
 #include "TileMapEditor.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
@@ -525,3 +526,4 @@ void TileMapEditor::applyFillCells(GridPaintCell cell,
 }
 
 }  // namespace cave
+#endif

@@ -22,27 +22,30 @@ void CollectTileMap(Scene& scene, FrameData& framedata) {
 
         instance.createRenderData();
 
-        const auto& cache = instance.cache();
-        if (!instance.visible()) continue;
-
-        if (!cache.mesh) continue;
+        auto layers = instance.layers();
+        if (layers.empty()) continue;
 
         const TransformComponent& transform = *scene.component<TransformComponent>(id);
 
-        const math::Mat4f& world_matrix = transform.worldMatrix();
-        PerBatchConstantBuffer batch_buffer;
-        batch_buffer.c_worldMatrix = world_matrix;
-        batch_buffer.c_tint_color = instance.tintColor();
+        const Mat4f& world_matrix = transform.worldMatrix();
+        PerBatchConstantBuffer batch;
+        batch.c_worldMatrix = world_matrix;
+        batch.c_tint_color = Vec4f::One;
 
-        DrawItem draw;
-        draw.index.count = cache.mesh->desc.drawCount;
-        draw.mesh_data = cache.mesh.get();
-        draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch_buffer);
+        for (const auto& layer : layers) {
+            if (!layer.mesh) continue;
+            if (layer.mesh->desc.drawCount == 0) continue;
+            ImageAsset* image = layer.image.get();
+            if (!image) continue;
 
-        ImageAsset* image = cache.image.get();
-        draw.texture = image ? image->gpu_texture.get() : nullptr;
+            DrawItem draw;
+            draw.index.count = layer.mesh->desc.drawCount;
+            draw.mesh_data = layer.mesh.get();
+            draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch);
 
-        framedata.sprites.push_back(draw);
+            draw.texture = image->gpu_texture.get();
+            framedata.sprites.push_back(draw);
+        }
     }
 }
 

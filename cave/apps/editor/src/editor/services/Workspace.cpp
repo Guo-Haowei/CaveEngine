@@ -193,9 +193,9 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
                                           doc->previewScene(),
                                           dim);
         } break;
-        case AssetType::TileMap: {
-            tab = MakeOwner<TileMapEditor>(m_editor, doc_id, doc->previewScene());
-        } break;
+        // case AssetType::TileMap: {
+        //     tab = MakeOwner<TileMapEditor>(m_editor, doc_id, doc->previewScene());
+        // } break;
         case AssetType::TileSet: {
             tab = MakeOwner<TileSetEditor>(m_editor, doc_id);
         } break;

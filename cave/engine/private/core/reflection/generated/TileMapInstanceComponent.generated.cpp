@@ -9,7 +9,6 @@
 namespace cave {
 
 // Guid m_tile_map_guid (editor = Asset, on_change = onTileMapGuidChanged)
-// math::Vec4f m_tint_color (editor = Color)
 
 template<>
 const MetaTableFields& MetaDataTable<TileMapInstanceComponent>::GetFields() {
@@ -22,15 +21,6 @@ const MetaTableFields& MetaDataTable<TileMapInstanceComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::Asset,
             &::cave::InvokeFieldChanged<TileMapInstanceComponent, &TileMapInstanceComponent::onTileMapGuidChanged>
-        ),
-        REGISTER_FIELD(
-            TileMapInstanceComponent,
-            "tint_color",
-            CAVE_SID("tint_color"),
-            m_tint_color,
-            FieldFlag::Serialize,
-            EditorHint::Color,
-            nullptr
         ),
     };
 

@@ -67,7 +67,7 @@ public:
     const auto& frames() const { return m_frames; }
 
     bool dirty() const { return m_dirty; }
-    void dirty(bool dirty) { m_dirty = dirty; }
+    void setDirty(bool dirty) { m_dirty = dirty; }
 
     auto saveToDisk(const AssetMetaData& meta) const -> Result<void> override;
     auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;

@@ -6,6 +6,7 @@
 
 namespace cave {
 
+#if 0
 bool SetTileCommand::apply(IDocument& doc) {
     TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
     if (!tile_map) {
@@ -45,5 +46,6 @@ bool SetTileCommand::undo(IDocument& doc) {
     tile_map->incRevision();
     return true;
 }
+#endif
 
 }  // namespace cave

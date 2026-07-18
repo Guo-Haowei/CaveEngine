@@ -8,10 +8,10 @@
 
 namespace cave {
 
-// std::string name (editor = InputText)
-// Guid tile_set_guid (editor = Asset)
-// bool visible (editor = Toggle)
-// ChunkedTileData chunks ()
+// std::string m_name (editor = InputText)
+// Guid m_tile_set_guid (editor = Asset)
+// bool m_visible (editor = Toggle)
+// ChunkedTileData m_chunks ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
@@ -20,7 +20,7 @@ const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
             TileMapLayer,
             "name",
             CAVE_SID("name"),
-            name,
+            m_name,
             FieldFlag::Serialize,
             EditorHint::InputText,
             nullptr
@@ -29,7 +29,7 @@ const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
             TileMapLayer,
             "tile_set_guid",
             CAVE_SID("tile_set_guid"),
-            tile_set_guid,
+            m_tile_set_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
             nullptr
@@ -38,7 +38,7 @@ const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
             TileMapLayer,
             "visible",
             CAVE_SID("visible"),
-            visible,
+            m_visible,
             FieldFlag::Serialize,
             EditorHint::Toggle,
             nullptr
@@ -47,7 +47,7 @@ const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
             TileMapLayer,
             "chunks",
             CAVE_SID("chunks"),
-            chunks,
+            m_chunks,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr
@@ -60,51 +60,11 @@ const MetaTableFields& MetaDataTable<TileMapLayer>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_TileMapLayer_meta = MetaDataTable<TileMapLayer>::GetFields();
 
-// std::string m_name ()
-// Guid m_tile_set_id (editor = Asset)
-// bool m_visible (editor = Toggle)
-// ChunkedTileData m_tiles ()
 // Vector<TileMapLayer> m_layers ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileMapAsset>::GetFields() {
     static MetaTableFields s_table = {
-        REGISTER_FIELD(
-            TileMapAsset,
-            "name",
-            CAVE_SID("name"),
-            m_name,
-            FieldFlag::Serialize,
-            EditorHint::None,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            TileMapAsset,
-            "tile_set_id",
-            CAVE_SID("tile_set_id"),
-            m_tile_set_id,
-            FieldFlag::Serialize,
-            EditorHint::Asset,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            TileMapAsset,
-            "visible",
-            CAVE_SID("visible"),
-            m_visible,
-            FieldFlag::Serialize,
-            EditorHint::Toggle,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            TileMapAsset,
-            "tiles",
-            CAVE_SID("tiles"),
-            m_tiles,
-            FieldFlag::Serialize,
-            EditorHint::None,
-            nullptr
-        ),
         REGISTER_FIELD(
             TileMapAsset,
             "layers",

@@ -22,28 +22,46 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data);
 
 static_assert(Serializable<ChunkedTileData>);
 
-struct TileMapLayer {
+class TileMapLayer {
     CAVE_META(TileMapLayer)
 
+private:
     CAVE_PROP(editor = InputText)
-    std::string name;
+    std::string m_name;
 
     CAVE_PROP(editor = Asset)
-    Guid tile_set_guid;
+    Guid m_tile_set_guid;
 
     CAVE_PROP(editor = Toggle)
-    bool visible = true;
+    bool m_visible = true;
 
     CAVE_PROP()
-    ChunkedTileData chunks;
+    ChunkedTileData m_chunks;
 
-    TileMapLayer() = default;
+    // Non serialized
+    Handle<TileSetAsset> m_tile_set_handle;
 
     TileMapLayer(const TileMapLayer&) = delete;
     TileMapLayer& operator=(const TileMapLayer&) = delete;
 
+public:
+    TileMapLayer() = default;
+
     TileMapLayer(TileMapLayer&&) = default;
     TileMapLayer& operator=(TileMapLayer&&) = default;
+
+    void refreshTileSetHandle();
+
+    std::string& name() { return m_name; }
+    std::string_view name() const { return m_name; }
+
+    const Guid& tileSetGuid() const { return m_tile_set_guid; }
+    void setTileSetGuid(const Guid& guid);
+
+    const auto& handle() const { return m_tile_set_handle; }
+
+    ChunkedTileData& chunks() { return m_chunks; }
+    const ChunkedTileData& chunks() const { return m_chunks; }
 };
 
 class TileMapAsset : public IAsset {
@@ -53,43 +71,17 @@ class TileMapAsset : public IAsset {
 
 private:
     CAVE_PROP()
-    std::string m_name;
-
-    CAVE_PROP(editor = Asset)
-    Guid m_tile_set_id;
-
-    CAVE_PROP(editor = Toggle)
-    bool m_visible = true;
-
-    CAVE_PROP()
-    ChunkedTileData m_tiles;
-
-    CAVE_PROP()
     Vector<TileMapLayer> m_layers;
 
     // Non serialized
-    Handle<TileSetAsset> m_tile_set_handle;
     uint32_t m_revision{ 1 };  // make sure revision is ahead of renderer the first frame
 
 public:
-
-    const Handle<TileSetAsset>& tileSetHandle() const { return m_tile_set_handle; }
-
-    std::string& name() { return m_name; }
-    const std::string& name() const { return m_name; }
-    void name(std::string&& name) { m_name = std::move(name); }
-
-    const Guid& tileSetGuid() const { return m_tile_set_id; }
-    void tileSetGuid(const Guid& guid, bool force = false);
-
-    ChunkedTileData& tiles() { return m_tiles; }
-    const ChunkedTileData& tiles() const { return m_tiles; }
+    Vector<TileMapLayer>& layers() { return m_layers; }
+    std::span<const TileMapLayer> layers() const { return m_layers; }
 
     uint32_t revision() const { return m_revision; }
     void incRevision() { ++m_revision; }
-
-    bool visible() const { return m_visible; }
-    void visible(bool visible) { m_visible = visible; }
 
     Result<void> saveToDisk(const AssetMetaData& meta) const override;
     Result<void> loadFromDisk(const AssetMetaData& meta) override;
