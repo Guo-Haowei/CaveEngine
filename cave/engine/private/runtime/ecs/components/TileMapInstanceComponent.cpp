@@ -43,7 +43,7 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, Cache& cac
     if (tile_set_handle) {
         cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
     } else {
-        cache.tile_set_handle.invalidate(); 
+        cache.tile_set_handle.invalidate();
     }
 
     TileSetAsset* tile_set = cache.tile_set_handle.get();
