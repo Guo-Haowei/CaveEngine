@@ -13,6 +13,10 @@ struct TileCoord {
     int16_t x, y;
 
     bool operator==(const TileCoord&) const = default;
+
+    TileCoord operator+(const TileCoord& rhs) const {
+        return TileCoord{ x + rhs.x, y + rhs.y };
+    }
 };
 
 struct TileChunkCoord {

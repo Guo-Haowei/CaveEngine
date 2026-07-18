@@ -14,6 +14,8 @@ struct TileHit {
     math::Box2 aabb;
 };
 
+using TilePath = Vector<TileCoord>;
+
 class TileWorldSystem final : public ISceneSystem {
     CAVE_SCENE_SYSTEM(SceneSystemId::TileWorld)
 
@@ -27,11 +29,14 @@ public:
         return m_rigid_tiles.tileAt(coord).is_some();
     }
 
-    std::vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
+    Vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
 
-    const math::Box2 worldBound() const { return m_world_bound; }
+    TilePath findPath(TileCoord start, TileCoord goal) const;
+
+    const math::Box2& worldBound() const { return m_world_bound; }
 
     static TileCoord worldToTile(math::Vec2f world_pos, float tile_size = 1.0f);
+    static math::Vec2f tileToWorld(TileCoord coord, float tile_size = 1.0f);
 
 private:
     void update(SceneTickContext&) override {}

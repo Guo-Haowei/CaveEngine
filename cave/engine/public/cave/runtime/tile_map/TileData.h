@@ -4,7 +4,9 @@
 #pragma once
 #include <array>
 
+#include "cave/core/Option.h"
 #include "cave/core/containers/Containers.h"
+#include "cave/core/memory/Pointer.h"
 #include "cave/runtime/tile_map/TileCoord.h"
 
 namespace cave {

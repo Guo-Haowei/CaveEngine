@@ -1,5 +1,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 
+#include <deque>
+
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
@@ -54,8 +56,15 @@ TileCoord TileWorldSystem::worldToTile(Vec2f world_pos, float tile_size) {
     };
 }
 
-std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) const {
-    std::vector<TileHit> result;
+Vec2f TileWorldSystem::tileToWorld(TileCoord coord, float tile_size) {
+    return {
+        (coord.x + 0.5f) * tile_size,
+        (coord.y + 0.5f) * tile_size,
+    };
+}
+
+Vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) const {
+    Vector<TileHit> result;
 
     const float tile_size = 1.0f;
     TileRange range = GetTileRangeFromAABB(aabb, tile_size);
@@ -84,6 +93,61 @@ std::vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) co
     }
 
     return result;
+}
+
+TilePath TileWorldSystem::findPath(TileCoord start, TileCoord goal) const {
+    if (start == goal) {
+        return {};
+    }
+
+    HashMap<TileCoord, Option<TileCoord>> visited;
+    visited[start] = Some(start);
+
+    std::deque<TileCoord> ready{ start };
+
+    constexpr std::array<TileCoord, 4> directions = {
+        TileCoord{ -1, 0 },
+        TileCoord{ +1, 0 },
+        TileCoord{ 0, -1 },
+        TileCoord{ 0, +1 },
+    };
+
+    while (!ready.empty()) {
+        TileCoord coord = ready.front();
+        if (coord == goal) break;
+
+        ready.pop_front();
+
+        for (TileCoord dir : directions) {
+            const TileCoord next = coord + dir;
+
+            if (m_rigid_tiles.tileAt(next).is_some()) continue;
+
+            auto [it, ok] = visited.try_emplace(next, Some(coord));
+            if (!ok) continue;
+
+            ready.push_back(next);
+        }
+    }
+
+    TilePath path;
+    for (TileCoord cursor = goal; cursor != start;) {
+        path.push_back(cursor);
+
+        auto it = visited.find(cursor);
+        if (it == visited.end()) {
+            return {};
+        }
+
+        if (!DEV_VERIFY(it->second.is_some())) {
+            return {};
+        }
+
+        cursor = it->second.unwrap_unchecked();
+    }
+
+    std::reverse(path.begin(), path.end());
+    return path;
 }
 
 void TileWorldSystem::rebuildCollision() {
