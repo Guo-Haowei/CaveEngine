@@ -6,14 +6,17 @@
 
 namespace cave {
 
-#if 0
 bool SetTileCommand::apply(IDocument& doc) {
     TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
     if (!tile_map) {
         return false;
     }
 
-    ChunkedTileData& tiles = tile_map->tiles();
+    if (layer_id >= tile_map->layers().size()) {
+        return false;
+    }
+
+    ChunkedTileData& tiles = tile_map->layers()[layer_id].chunks();
 
     for (const auto& cmd : m_cmds) {
         [[maybe_unused]]
@@ -33,7 +36,11 @@ bool SetTileCommand::undo(IDocument& doc) {
         return false;
     }
 
-    ChunkedTileData& tiles = tile_map->tiles();
+    if (layer_id >= tile_map->layers().size()) {
+        return false;
+    }
+
+    ChunkedTileData& tiles = tile_map->layers()[layer_id].chunks();
 
     for (auto cmd = m_cmds.rbegin(); cmd != m_cmds.rend(); ++cmd) {
         [[maybe_unused]]
@@ -46,6 +53,5 @@ bool SetTileCommand::undo(IDocument& doc) {
     tile_map->incRevision();
     return true;
 }
-#endif
 
 }  // namespace cave

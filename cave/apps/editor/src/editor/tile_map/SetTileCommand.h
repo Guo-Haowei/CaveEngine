@@ -15,8 +15,10 @@ class SetTileCommand : public EditCmdBase {
     };
 
 public:
-    SetTileCommand(SceneRegistry& scene_reg, ecs::Entity ent)
-        : EditCmdBase(scene_reg, ent) {
+    SetTileCommand(SceneRegistry& scene_reg, int layer_id)
+        : EditCmdBase(scene_reg, ecs::Entity::null())
+        , layer_id(layer_id) {
+        DEV_ASSERT(layer_id >= 0);
     }
 
     void add(TileCoord coord, Option<TileId> before, Option<TileId> after) {
@@ -33,6 +35,7 @@ public:
 
 private:
     Vector<Command> m_cmds;
+    int layer_id;
 };
 
 }  // namespace cave

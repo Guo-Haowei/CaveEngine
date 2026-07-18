@@ -126,25 +126,20 @@ void TileMapEditor::drawGhostTiles(const TileSetAsset& tile_set) {
 void TileMapEditor::onInputEvents(const InputFrame& input) {
     m_camera_controller->update(input);
 
-#if 0
     IDocument* doc = m_editor_services.document().resolve(m_doc_id);
     DEV_ASSERT(doc);
 
     const TileMapAsset* tile_map = doc->handle<TileMapAsset>().get();
     if (!tile_map) return;
-    const TileSetAsset* tile_set = tile_map->tileSetHandle().get();
-    if (!tile_set) return;
+
+    const TileMapLayer* layer = m_tile_map_layer_panel->selectedLayer(*tile_map);
+    if (!layer) return;
 
     GridPaintInput paint_input = buildInput(input);
     std::span<const GridPaintEvent> events = m_paint_tool.update(paint_input);
     for (const auto& event : events) {
-        handlePaintEvent(event, *tile_map, *tile_set);
+        handlePaintEvent(event, *layer);
     }
-
-    m_canvas.pushView(m_view_id);
-    drawGhostTiles(*tile_set);
-    m_canvas.popView();
-#endif
 }
 
 void TileMapEditor::drawTileMap() {
@@ -203,6 +198,12 @@ void TileMapEditor::drawTileMap() {
                                       uv_max);
                 }
             }
+        }
+    }
+
+    if (const TileMapLayer* layer = m_tile_map_layer_panel->selectedLayer(*tile_map)) {
+        if (const TileSetAsset* tile_set = layer->handle().get()) {
+            drawGhostTiles(*tile_set);
         }
     }
 
@@ -349,25 +350,21 @@ void TileMapEditor::setPaintMode(GridPaintMode mode) {
 }
 
 void TileMapEditor::handlePaintEvent(const GridPaintEvent& event,
-                                     const TileMapAsset& tile_map,
-                                     const TileSetAsset& tile_set) {
-    unused(tile_set);
-    unused(tile_map);
-
+                                     const TileMapLayer& layer) {
     switch (event.type) {
         case GridPaintEventType::Begin: {
             beginPaintCommand();
         } break;
-        // case GridPaintEventType::Apply:
-        //     if (event.cells) {
-        //         applyPaintCells(*event.cells, tile_map, tile_set);
-        //     }
-        //     break;
-        // case GridPaintEventType::Fill: {
-        //     if (DEV_VERIFY(event.cells && event.cells->size() == 1)) {
-        //         applyFillCells(event.cells->at(0), tile_map, tile_set);
-        //     }
-        // } break;
+        case GridPaintEventType::Apply:
+            if (event.cells) {
+                applyPaintCells(*event.cells, layer);
+            }
+            break;
+        case GridPaintEventType::Fill: {
+            if (DEV_VERIFY(event.cells && event.cells->size() == 1)) {
+                applyFillCells(event.cells->at(0), layer);
+            }
+        } break;
         case GridPaintEventType::End: {
             finishPaintCommand();
         } break;
@@ -387,9 +384,14 @@ void TileMapEditor::finishPaintCommand() {
         return;
     }
 
-#if 0
-    auto composite = MakeOwner<SetTileCommand>(m_engine_services.sceneRegistry(),
-                                               ecs::Entity::null());
+    int layer_id = m_tile_map_layer_panel->selectedIndex().unwrap_or(-1);
+    if (!DEV_VERIFY(layer_id >= 0)) {
+        m_pending_tile_changes.clear();
+        return;
+    }
+
+    auto composite = MakeOwner<SetTileCommand>(
+        m_engine_services.sceneRegistry(), layer_id);
 
     for (const auto& [coord, change] : m_pending_tile_changes) {
         if (change.before == change.after) {
@@ -406,7 +408,6 @@ void TileMapEditor::finishPaintCommand() {
     }
 
     m_editor_services.edit().submit(m_doc_id, std::move(composite));
-#endif
 }
 
 void TileMapEditor::cancelPaintCommand() {
@@ -414,11 +415,12 @@ void TileMapEditor::cancelPaintCommand() {
 }
 
 void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
-                                    const TileMapAsset& tile_map,
-                                    const TileSetAsset& tile_set) {
+                                    const TileMapLayer& layer) {
     const auto selections = m_sprite_selector.GetSelections();
     uint32_t tile_id = std::numeric_limits<uint32_t>::max();
-    unused(tile_map);
+
+    const TileSetAsset* tile_set = layer.handle().get();
+    DEV_ASSERT(tile_set);
 
     if (!m_erasing) {
         if (selections.empty()) {
@@ -430,10 +432,10 @@ void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
             return;
         }
 
-        tile_id = static_cast<uint32_t>(y) * tile_set.col() +
+        tile_id = static_cast<uint32_t>(y) * tile_set->col() +
                   static_cast<uint32_t>(x);
 
-        if (tile_id >= tile_set.frames().size()) {
+        if (tile_id >= tile_set->frames().size()) {
             return;
         }
     }
@@ -459,10 +461,9 @@ void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
             new_tile = None();
         }
 
-#if 0
         auto pending_it = m_pending_tile_changes.find(coord);
         if (pending_it == m_pending_tile_changes.end()) {
-            const Option<TileId> old_tile = tile_map.tiles().tileAt(coord);
+            const Option<TileId> old_tile = layer.chunks().tileAt(coord);
 
             if (old_tile == new_tile) {
                 continue;
@@ -485,21 +486,18 @@ void TileMapEditor::applyPaintCells(std::span<const GridPaintCell> cells,
                 m_pending_tile_changes.erase(pending_it);
             }
         }
-#endif
     }
 }
 
 // @TODO: better editor tools, make toolbars
-#if 0
 void TileMapEditor::applyFillCells(GridPaintCell cell,
-                                   const TileMapAsset& tile_map,
-                                   const TileSetAsset& tile_set) {
+                                   const TileMapLayer& layer) {
     const int16_t x = static_cast<int16_t>(cell.coord.x);
     const int16_t y = static_cast<int16_t>(cell.coord.y);
 
     TileCoord world_coord{ x, y };
     TileChunkCoord chunk_coord = ToTileChunkCoord(world_coord);
-    const auto& chunks = tile_map.tiles().chunks();
+    const auto& chunks = layer.chunks().chunks();
     auto it = chunks.find(chunk_coord);
     if (it == chunks.end()) { return; }
 
@@ -528,9 +526,8 @@ void TileMapEditor::applyFillCells(GridPaintCell cell,
         paint_cells.push_back({ coord });
     }
 
-    applyPaintCells(paint_cells, tile_map, tile_set);
+    applyPaintCells(paint_cells, layer);
     finishPaintCommand();
 }
-#endif
 
 }  // namespace cave

@@ -2,7 +2,6 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/inspector/PropertyEditors.h"
@@ -150,6 +149,20 @@ void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
         m_selected_layer = None();
         notify_changed();
     }
+}
+
+const TileMapLayer* TileMapLayerPanel::selectedLayer(const TileMapAsset& tile_map) {
+    if (m_selected_layer.is_none()) {
+        return nullptr;
+    }
+
+    const int idx = m_selected_layer.unwrap_unchecked();
+    auto layers = tile_map.layers();
+    if (idx < 0 || idx > layers.size()) {
+        return nullptr;
+    }
+
+    return &layers[idx];
 }
 
 }  // namespace cave

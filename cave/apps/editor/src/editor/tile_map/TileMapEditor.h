@@ -13,6 +13,7 @@ enum class GridPaintAction : uint8_t;
 struct GridPaintEvent;
 class GridPaintTool;
 class ICanvas;
+class TileMapLayer;
 class TileMapLayerPanel;
 
 class TileMapEditor final : public ViewTabBase {
@@ -53,20 +54,16 @@ private:
     // ---- Paint Tool ----
     GridPaintInput buildInput(const InputFrame& input);
     void handlePaintEvent(const GridPaintEvent& event,
-                          const TileMapAsset& tile_map,
-                          const TileSetAsset& tile_set);
+                          const TileMapLayer& layer);
 
     void beginPaintCommand();
     void finishPaintCommand();
     void cancelPaintCommand();
 
     void applyPaintCells(std::span<const GridPaintCell> cells,
-                         const TileMapAsset& tile_map,
-                         const TileSetAsset& tile_set);
+                         const TileMapLayer& layer);
 
-    void applyFillCells(GridPaintCell cell,
-                        const TileMapAsset& tile_map,
-                        const TileSetAsset& tile_set);
+    void applyFillCells(GridPaintCell cell, const TileMapLayer& layer);
 
     void setPaintMode(GridPaintMode mode);
     // ---- Paint Tool ----
