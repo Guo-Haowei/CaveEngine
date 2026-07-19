@@ -1,10 +1,11 @@
 #pragma once
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/ecs/ComponentRegistry.h"
 
-#include "EditCmdBase.h"
+#include "editor/edit/EditCmdBase.h"
+#include "editor/document/IDocument.h"
 
 #include "engine/private/runtime/scene/Scene.h"
-#include "editor/document/IDocument.h"
 #include "engine/private/runtime/framework/Engine.h"
 
 namespace cave {
@@ -19,10 +20,10 @@ public:
                             ValueT&& old_value,
                             ValueT&& new_value)
         : EditCmdBase(scene_reg, ent)
-        , cid_(cid)
-        , pid_(pid)
-        , old_(std::move(old_value))
-        , new_(std::move(new_value)) {
+        , m_cid(cid)
+        , m_pid(pid)
+        , m_old(std::move(old_value))
+        , m_new(std::move(new_value)) {
     }
 
     const char* label() const override {
@@ -30,11 +31,11 @@ public:
     }
 
     bool apply(IDocument& doc) override {
-        return setValue(doc, new_);
+        return setValue(doc, m_new);
     }
 
     bool undo(IDocument& doc) override {
-        return setValue(doc, old_);
+        return setValue(doc, m_old);
     }
 
 private:
@@ -44,14 +45,14 @@ private:
         Scene* scene = resolveScene(scene_id);
         if (!scene) return false;
 
-        void* component = scene->storage().getRaw(cid_, m_ent);
+        void* component = scene->storage().getRaw(m_cid, m_ent);
         if (!component) return false;
 
         const auto& reg = engine::GetComponentRegistry();
-        const auto* meta = reg.tryGet(cid_);
+        const auto* meta = reg.tryGet(m_cid);
         if (!meta) return false;
 
-        const auto* prop = meta->find(pid_);
+        const auto* prop = meta->find(m_pid);
         if (!prop) return false;
 
         prop->template GetData<ValueT>(component) = value;
@@ -59,11 +60,11 @@ private:
     }
 
 private:
-    ComponentId cid_;
-    PropertyId pid_;
+    ComponentId m_cid;
+    PropertyId m_pid;
 
-    ValueT old_;
-    ValueT new_;
+    ValueT m_old;
+    ValueT m_new;
 };
 
 }  // namespace cave

@@ -255,6 +255,8 @@ void TileMapEditor::drawAssetInspector(IDocument& doc) {
             .editor_services = m_editor_services,
             .scene = nullptr,
             .entity = ecs::Entity::null(),
+            .doc_id = m_doc_id,
+            .cid = StringId{},
         };
 
         m_tile_map_layer_panel->draw(*tile_map, ctx);

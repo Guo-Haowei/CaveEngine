@@ -120,7 +120,7 @@ void DragDropService::dropSceneNode(Entity parent, DocId doc_id, const Scene& sc
         auto cmd = MakeOwner<ChangePropertyCmd>(
             m_scene_reg,
             child,
-            BuiltinComponentId::HierarchyComponent_Id,
+            HierarchyComponent_Id,
             CAVE_SID("parent_id"),
             child_hier->parent(),
             parent);

@@ -242,6 +242,7 @@ void PropertyPanel::drawUIImpl() {
         .scene = &scene,
         .entity = id,
         .doc_id = doc_id,
+        .cid = StringId{},
     };
 
     {
@@ -264,11 +265,11 @@ void PropertyPanel::drawUIImpl() {
         ImGui::OpenPopup("AddComponentPopup");
     }
 
-    auto create_component = [&](BuiltinComponentId cid) {
+    auto create_component = [&](ComponentId cid) {
         if (scene.storage().has(cid, id)) {
             LOG_ERROR("object {} already has component {}",
                       name_component->name(),
-                      std::to_underlying(cid));
+                      cid.hash());
             return;
         }
         auto cmd = MakeOwner<AddComponentCmd>(

@@ -151,7 +151,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
         auto cmd = MakeOwner<ChangePropertyCmd>(
             m_engine_services.sceneRegistry(),
             ent,
-            BuiltinComponentId::HierarchyComponent_Id,
+            HierarchyComponent_Id,
             CAVE_SID("local_visible"),
             hier_component->localVisible(),
             !hier_component->localVisible());

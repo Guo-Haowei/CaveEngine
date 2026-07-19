@@ -108,13 +108,11 @@ void Scene::tick(SceneTickContext ctx) {
 }
 
 void Scene::copy(const Scene& other) {
-    ComponentId idx = 0;
     for (auto& entry : other.m_storage.entries()) {
         if (entry.pool) {
-            m_storage.ensure(idx);
+            const uint32_t idx = m_storage.ensure(entry.type_id);
             m_storage.m_entries[idx].pool = std::move(entry.pool->clone());
         }
-        ++idx;
     }
 
     m_world_bound = other.m_world_bound;

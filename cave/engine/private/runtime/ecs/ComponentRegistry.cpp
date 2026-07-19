@@ -9,10 +9,9 @@ namespace cave::ecs {
 
 using namespace cave::literals;
 
-#define DEBUG_COMPONENT_REGISTRY NOT_IN_USE
-// #define DEBUG_COMPONENT_REGISTRY NOT_IN_USE
+#define DEBUG_COMPONENT_REGISTRY IN_USE
 #if USING(DEBUG_COMPONENT_REGISTRY)
-#define DEBUG_PRINT(...) LOG_VERBOSE(__VA_ARGS__)
+#define DEBUG_PRINT(...) LOG_INFO(LogChannel::Core, __VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
@@ -27,34 +26,42 @@ const FieldMetaBase* ComponentMeta::find(const PropertyId& pid) const {
 }
 
 void ComponentRegistry::registerMeta(const ComponentMeta& meta) {
-    const size_t idx = meta.cid;
+    const size_t idx = m_table.size();
+    auto [it, inserted] = m_lookup.try_emplace(meta.cid, idx);
 
-    if (m_table.size() <= idx) {
-        m_table.resize(idx + 1);
-        m_present.resize(idx + 1, 0);
-    }
-
-    if (m_present[idx]) {
-        LOG_FATAL("ComponentRegistry::Register: component '{}'(id:{}) already registered",
-                  meta.name, meta.cid);
+    if (inserted) {
+        LOG_FATAL(LogChannel::Core,
+                  "meta '{}'(id:{}) already registered",
+                  meta.name, meta.cid.hash());
         return;
     }
-    DEV_ASSERT(m_present[idx] == 0);
+
+    m_table.resize(idx + 1);
     m_table[idx] = meta;
-    m_present[idx] = 1;
 
-    DEBUG_PRINT("Registered component '{}', id: {}", meta.name, meta.cid);
+    DEBUG_PRINT("Registered component '{}', id: {}",
+                meta.name,
+                meta.cid.hash());
 }
 
-const ComponentMeta* ComponentRegistry::tryGet(ComponentId pid) const {
-    const size_t idx = (size_t)pid;
-    if (idx >= m_present.size() || m_present[idx] == 0) return nullptr;
-    return &m_table[idx];
+const ComponentMeta* ComponentRegistry::tryGet(ComponentId cid) const {
+    auto it = m_lookup.find(cid);
+    if (it == m_lookup.end()) return nullptr;
+
+    const size_t idx = it->second;
+    if (DEV_VERIFY(idx < m_table.size())) {
+        return &m_table[idx];
+    }
+    return nullptr;
 }
 
-ComponentMeta& ComponentRegistry::getMut(ComponentId pid) {
-    DEV_ASSERT_INDEX(pid, m_present.size());
-    return m_table[pid];
+ComponentMeta& ComponentRegistry::getMut(ComponentId cid) {
+    auto it = m_lookup.find(cid);
+    DEV_ASSERT(it != m_lookup.end());
+
+    const size_t idx = it->second;
+    DEV_ASSERT(idx < m_table.size());
+    return m_table[idx];
 }
 
 void ComponentRegistry::builtin(ComponentRegistry& out) {

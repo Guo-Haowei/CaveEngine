@@ -4,7 +4,8 @@
 #pragma once
 #include "cave/core/containers/Containers.h"
 #include "cave/core/ids/Entity.h"
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/string/StringId.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 // clang-format off
 namespace cave { class Scene; }
@@ -19,6 +20,7 @@ class ComponentPool;
 
 class ComponentStorage {
     struct Entry {
+        StringId type_id;
         Owner<IComponentPool> pool;
     };
 
@@ -56,8 +58,9 @@ private:
     ComponentStorage(ComponentStorage&) = delete;
     ComponentStorage& operator=(ComponentStorage&) = delete;
 
-    void ensure(ComponentId cid);
+    uint32_t ensure(ComponentId cid);
 
+    HashMap<ComponentId, uint32_t> m_lookup;
     Vector<Entry> m_entries;
 
     friend class ::cave::Scene;

@@ -46,7 +46,7 @@ public:
 
 private:
     Vector<ComponentMeta> m_table;
-    Vector<uint8_t> m_present;
+    HashMap<StringId, size_t> m_lookup;
 };
 
 }  // namespace cave::ecs

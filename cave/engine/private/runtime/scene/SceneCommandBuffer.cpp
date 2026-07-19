@@ -17,16 +17,16 @@ void SceneCommandBuffer::destroyEntity(Entity ent) {
     writeEntityRecord(SceneCmd_Op::DestroyEntity, ent);
 }
 
-void SceneCommandBuffer::addComponent(Entity ent, BuiltinComponentId cid) {
+void SceneCommandBuffer::addComponent(Entity ent, ComponentId cid) {
     writeComponentRecord(SceneCmd_Op::AddComponent, ent, cid);
 }
 
-void SceneCommandBuffer::removeComponent(Entity ent, BuiltinComponentId cid) {
+void SceneCommandBuffer::removeComponent(Entity ent, ComponentId cid) {
     writeComponentRecord(SceneCmd_Op::RemoveComponent, ent, cid);
 }
 
 void SceneCommandBuffer::setProperty(Entity ent,
-                                     BuiltinComponentId cid,
+                                     ComponentId cid,
                                      const PropertyId& pid,
                                      const Entity& value) {
     writePropertyRecord(SceneCmd_Op::AssignProperty,
@@ -54,7 +54,7 @@ void SceneCommandBuffer::writeEntityRecord(SceneCmd_Op op, Entity ent) {
 
 void SceneCommandBuffer::writeComponentRecord(SceneCmd_Op op,
                                               Entity ent,
-                                              BuiltinComponentId cid) {
+                                              ComponentId cid) {
     SceneCmd_Header header{
         .op = op,
         .flags = 0,
@@ -74,7 +74,7 @@ void SceneCommandBuffer::writeComponentRecord(SceneCmd_Op op,
 
 void SceneCommandBuffer::writePropertyRecord(SceneCmd_Op op,
                                              Entity ent,
-                                             BuiltinComponentId cid,
+                                             ComponentId cid,
                                              PropertyId pid,
                                              const void* data,
                                              uint32_t data_size,

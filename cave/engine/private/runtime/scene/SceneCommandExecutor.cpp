@@ -35,7 +35,7 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
                                           uint32_t data_size) {
     const ecs::ComponentMeta* meta = m_reg.tryGet(cid);
     if (!meta) {
-        LOG_WARN("Can't find meta for component '{}'", cid);
+        LOG_WARN("Can't find meta for component '{}'", meta->name);
         return false;
     }
 
