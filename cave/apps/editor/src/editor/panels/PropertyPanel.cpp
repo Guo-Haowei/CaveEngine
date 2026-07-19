@@ -42,7 +42,6 @@ using namespace ::cave::math;
     COMPONENT_DECL(Facing)         \
     COMPONENT_DECL(TileMapInstance)
 
-
 template<ComponentType T>
 void DrawComponentAuto(std::string_view name, const DrawObjectCtx& ctx) {
     T* component = ctx.scene->component<T>(ctx.entity);

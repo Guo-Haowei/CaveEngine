@@ -15,13 +15,14 @@ public:
 
     const TileMapLayer* selectedLayer(const TileMapAsset& tile_map);
 
-    Option<int> selectedIndex() const { return m_selected_layer; }
+    Option<int> selectedIndex() const { return m_selected; }
 
 private:
+    void drawToolbar(TileMapAsset& tile_map);
     void drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx);
 
     SpriteSelector& m_sprite_selector;
-    Option<int> m_selected_layer;
+    Option<int> m_selected;
 };
 
 }  // namespace cave
