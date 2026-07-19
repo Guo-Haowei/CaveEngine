@@ -9,7 +9,8 @@
 #include "cave/core/math/Vec.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/reflection/MetaRegistry.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 
@@ -45,12 +46,12 @@ struct SceneCmd_PayloadEntity {
 
 struct SceneCmd_PayloadComponent {
     ecs::Entity ent;
-    BuiltinComponentId cid;
+    ComponentId cid;
 };
 
 struct SceneCmd_PayloadProperty {
     ecs::Entity ent;
-    BuiltinComponentId cid;
+    ComponentId cid;
     SceneCmd_PropType ptype;
     PropertyId pid;
     uint32_t data_size;
@@ -69,17 +70,17 @@ public:
     ecs::Entity createEntity();
     void destroyEntity(ecs::Entity ent);
 
-    void addComponent(ecs::Entity ent, BuiltinComponentId cid);
-    void removeComponent(ecs::Entity ent, BuiltinComponentId cid);
+    void addComponent(ecs::Entity ent, ComponentId cid);
+    void removeComponent(ecs::Entity ent, ComponentId cid);
 
     void setProperty(ecs::Entity ent,
-                     BuiltinComponentId cid,
+                     ComponentId cid,
                      const PropertyId& pid,
                      const ecs::Entity& value);
 
     template<size_t N>
     void setProperty(ecs::Entity ent,
-                     BuiltinComponentId cid,
+                     ComponentId cid,
                      const PropertyId& pid,
                      const FixedStack<ecs::Entity, N>& value) {
         writePropertyRecord(SceneCmd_Op::AssignProperty,
@@ -94,7 +95,7 @@ public:
 
     template<typename T>
     void setProperty(ecs::Entity ent,
-                     BuiltinComponentId cid,
+                     ComponentId cid,
                      const PropertyId& pid,
                      const T& value) {
         static_assert(std::is_trivially_copyable_v<T>);
@@ -119,11 +120,11 @@ private:
 
     void writeComponentRecord(SceneCmd_Op op,
                               ecs::Entity ent,
-                              BuiltinComponentId cid);
+                              ComponentId cid);
 
     void writePropertyRecord(SceneCmd_Op op,
                              ecs::Entity ent,
-                             BuiltinComponentId cid,
+                             ComponentId cid,
                              PropertyId pid,
                              const void* data,
                              uint32_t data_size,
@@ -132,7 +133,7 @@ private:
 
     void writePropertyRecord(SceneCmd_Op op,
                              ecs::Entity ent,
-                             BuiltinComponentId cid,
+                             ComponentId cid,
                              PropertyId pid,
                              const void* data,
                              uint32_t data_size,

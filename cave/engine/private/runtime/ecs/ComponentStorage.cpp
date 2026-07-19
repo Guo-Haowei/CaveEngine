@@ -18,20 +18,21 @@ void ComponentStorage::clearAll() {
 }
 
 IComponentPool& ComponentStorage::getOrCreate(ComponentId cid) {
-    ensure(cid);
-    Entry& e = m_entries[cid];
+    const uint32_t idx = ensure(cid);
+    Entry& e = m_entries[idx];
+    DEV_ASSERT(e.type_id == cid);
 
-    // @TODO: instead of this, make pool typeless
+    // @TODO: make pool typeless
     if (!e.pool) {
-        switch (cid) {
-#define REGISTER_COMPONENT(TYPE, ...)                     \
-    case TYPE##_Id: {                                     \
-        e.pool = std::make_unique<ComponentPool<TYPE>>(); \
+        switch (cid.hash()) {
+#define REGISTER_COMPONENT(TYPE, ...)              \
+    case TYPE##_hash: {                            \
+        e.pool = MakeOwner<ComponentPool<TYPE>>(); \
     } break;
             REGISTER_COMPONENT_LIST
 #undef REGISTER_COMPONENT
             default:
-                CRASH_NOW();
+                CRASH_NOW_MSG("Unkown component type");
                 break;
         }
     }
@@ -40,20 +41,33 @@ IComponentPool& ComponentStorage::getOrCreate(ComponentId cid) {
 }
 
 bool ComponentStorage::isRegistered(ComponentId cid) const {
-    const size_t idx = cid;
+    auto it = m_lookup.find(cid);
+    if (it == m_lookup.end()) return false;
+
+    const size_t idx = it->second;
     return idx < m_entries.size() && m_entries[idx].pool != nullptr;
 }
 
 IComponentPool* ComponentStorage::tryGet(ComponentId cid) {
-    const size_t idx = (size_t)cid;
-    if (idx >= m_entries.size()) return nullptr;
-    return m_entries[idx].pool.get();
+    auto it = m_lookup.find(cid);
+    if (it == m_lookup.end()) return nullptr;
+
+    const size_t idx = it->second;
+    if (DEV_VERIFY(idx < m_entries.size())) {
+        return m_entries[idx].pool.get();
+    }
+    return nullptr;
 }
 
 const IComponentPool* ComponentStorage::tryGet(ComponentId cid) const {
-    const size_t idx = (size_t)cid;
-    if (idx >= m_entries.size()) return nullptr;
-    return m_entries[idx].pool.get();
+    auto it = m_lookup.find(cid);
+    if (it == m_lookup.end()) return nullptr;
+
+    const size_t idx = it->second;
+    if (DEV_VERIFY(idx < m_entries.size())) {
+        return m_entries[idx].pool.get();
+    }
+    return nullptr;
 }
 
 bool ComponentStorage::has(ComponentId cid, Entity ent) const {
@@ -85,9 +99,14 @@ bool ComponentStorage::remove(ComponentId cid, Entity ent) {
     return true;
 }
 
-void ComponentStorage::ensure(ComponentId cid) {
-    const size_t need = cid + 1;
-    if (m_entries.size() < need) m_entries.resize(need);
+uint32_t ComponentStorage::ensure(ComponentId cid) {
+    const uint32_t size = static_cast<uint32_t>(m_entries.size());
+    auto [it, inserted] = m_lookup.try_emplace(cid, size);
+
+    if (inserted) {
+        m_entries.emplace_back(cid);
+    }
+    return it->second;
 }
 
 }  // namespace cave::ecs

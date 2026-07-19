@@ -15,8 +15,6 @@ namespace cave {
 class Scene;
 enum class SceneSystemId : uint32_t;
 
-using ComponentId = uint16_t;
-
 struct RayHit {
     bool hit{ false };
     ecs::Entity entity{};

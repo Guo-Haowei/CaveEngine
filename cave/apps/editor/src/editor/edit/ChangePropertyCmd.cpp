@@ -1,29 +1,20 @@
 #pragma once
 #include "ChangePropertyCmd.h"
 
-#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 #include "editor/document/IDocument.h"
 
 namespace cave {
 
-// #define DEBUG_EDIT_PROPERTY USE_IF(USING(USE_LOG) && USING(STRING_ID_KEEKP_SOURCE))
-#define DEBUG_EDIT_PROPERTY NOT_IN_USE
-#if USING(DEBUG_EDIT_PROPERTY)
-#define DEBUG_PRINT(FMT, ...) LOG_VERBOSE("ChangePropertyCmd::" FMT, __VA_ARGS__)
-#else
-#define DEBUG_PRINT(...) (void)0
-#endif
-
 ChangePropertyCmd::ChangePropertyCmd(SceneRegistry& scene_reg,
-                                     ecs::Entity ent,
-                                     ComponentId cid,
-                                     const PropertyId& pid,
+                                     PropertyTarget target,
                                      const void* old_data,
                                      const void* new_data,
                                      uint32_t data_size)
-    : EditCmdBase(scene_reg, ent)
-    , m_cid(cid)
-    , m_pid(pid) {
+    : EditCmdBase(scene_reg)
+    , m_target(target) {
+    CRASH_COND_MSG(!new_data, "New property data cannot be null");
+    CRASH_COND_MSG(data_size == 0, "Property data cannot be empty");
+
     m_old.resize(data_size);
     m_new.resize(data_size);
 
@@ -33,47 +24,21 @@ ChangePropertyCmd::ChangePropertyCmd(SceneRegistry& scene_reg,
 }
 
 bool ChangePropertyCmd::apply(IDocument& doc) {
-    SceneId scene_id = doc.previewScene();
-    if (!scene_id.valid()) return false;
-    Scene* scene = resolveScene(scene_id);
-    if (!scene) return false;
-
-    SceneCommandExecutor executor(*scene);
-    bool res = executor.changeProperty(m_ent,
-                                       m_cid,
-                                       m_pid,
-                                       m_new.data(),
-                                       (uint32_t)m_new.size());
-    DEBUG_PRINT("Do: changed '{}' of entity {}", m_pid.debugName(), m_ent.id());
-    return res;
+    return doc.changeProperty(m_target, m_new.data(), m_new.size());
 }
 
 bool ChangePropertyCmd::undo(IDocument& doc) {
-    SceneId scene_id = doc.previewScene();
-    if (!scene_id.valid()) return false;
-    Scene* scene = resolveScene(scene_id);
-    if (!scene) return false;
-
-    SceneCommandExecutor executor(*scene);
-    bool res = executor.changeProperty(m_ent,
-                                       m_cid,
-                                       m_pid,
-                                       m_old.data(),
-                                       (uint32_t)m_old.size());
-    DEBUG_PRINT("Undo: changed '{}' of entity {}", m_pid.debugName(), m_ent.id());
-    return res;
+    return doc.changeProperty(m_target, m_old.data(), m_old.size());
 }
 
 bool ChangePropertyCmd::canCoalesceWith(const IEditCmd* edit_cmd) const {
-    if (const Self* cmd = dynamic_cast<const Self*>(edit_cmd)) {
-        return cmd->m_ent == cmd->m_ent &&
-               m_cid == cmd->m_cid &&
-               m_pid == cmd->m_pid;
-    }
-    return false;
+    const Self* cmd = dynamic_cast<const Self*>(edit_cmd);
+    return cmd &&
+           m_target == cmd->m_target &&
+           m_new.size() == cmd->m_new.size();
 }
 
-void ChangePropertyCmd::coalesceFrom(std::unique_ptr<IEditCmd> edit_cmd) {
+void ChangePropertyCmd::coalesceFrom(Owner<IEditCmd> edit_cmd) {
     Self& cmd = dynamic_cast<Self&>(*edit_cmd);
     m_new = std::move(cmd.m_new);
 }

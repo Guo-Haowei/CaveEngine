@@ -2,8 +2,9 @@
 #include "DocId.h"
 
 #include "cave/core/ids/SceneId.h"
-
 #include "cave/runtime/assets/AssetHandle.h"
+
+#include "editor/edit/ChangePropertyCmd.h"
 
 namespace cave {
 
@@ -52,6 +53,10 @@ public:
 
     virtual Owner<Scene> createPreviewScene() const = 0;
     virtual void reloadPreviewScene() = 0;
+
+    virtual bool changeProperty(const PropertyTarget& target,
+                                const uint8_t* data,
+                                size_t data_size) = 0;
 
 protected:
     AssetHandle m_handle;

@@ -37,8 +37,8 @@ bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
     }
 
     const bool can_coalesce =
-        coalesce != 0 &&
-        coalesce == m_last_coalesce &&
+        // coalesce != 0 &&
+        // coalesce == m_last_coalesce &&
         !m_undo.empty() &&
         m_undo.back().cmd->canCoalesceWith(cmd.get());
 
@@ -169,6 +169,16 @@ void DocumentBase::reloadPreviewScene() {
     }
 
     m_scene_reg.replaceScene(m_preview_scene, std::move(new_scene));
+}
+
+bool DocumentBase::changeProperty(const PropertyTarget& target,
+                                  const uint8_t* data,
+                                  size_t data_size) {
+    CRASH_NOW();
+    unused(target);
+    unused(data);
+    unused(data_size);
+    return false;
 }
 
 }  // namespace cave

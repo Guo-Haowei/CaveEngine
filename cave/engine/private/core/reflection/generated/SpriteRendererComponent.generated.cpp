@@ -8,7 +8,7 @@
 
 namespace cave {
 
-// Guid m_image_id (editor = Asset)
+// Guid m_image_id (editor = Asset, on_change = onImageGuidChanged)
 // math::Vec4f m_tint_color (editor = Color)
 // math::Box2 m_rect ()
 // bool m_flip_x (editor = Toggle)
@@ -25,7 +25,7 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
             m_image_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            &::cave::InvokeFieldChanged<SpriteRendererComponent, &SpriteRendererComponent::onImageGuidChanged>
         ),
         REGISTER_FIELD(
             SpriteRendererComponent,

@@ -23,7 +23,6 @@ entities:
       scale: [1, 1, 1]
     TileMapInstanceComponent:
       tile_map_guid: A3917A01-7FDE-4541-93078879A7370AFC
-      tint_color: [1, 1, 1, 1]
   - id: 3
     HierarchyComponent:
       parent_id: 1

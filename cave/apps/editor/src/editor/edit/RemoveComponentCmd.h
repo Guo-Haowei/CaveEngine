@@ -11,15 +11,16 @@ template<typename T>
 class RemoveComponentCmd : public EditCmdBase {
 public:
     RemoveComponentCmd(SceneRegistry& scene_reg, ecs::Entity ent, T& origin)
-        : EditCmdBase(scene_reg, ent)
-        , origin_(origin) {
+        : EditCmdBase(scene_reg)
+        , m_ent(ent)
+        , m_origin(origin) {
     }
 
     const char* label() const override { return "RemoveComponentCmd"; }
 
     bool apply(IDocument& doc) override { return Remove(doc); }
 
-    bool undo(IDocument& doc) override { return Add(doc, &origin_); }
+    bool undo(IDocument& doc) override { return Add(doc, &m_origin); }
 
 protected:
     bool Add(IDocument& doc, T* value) {
@@ -46,7 +47,8 @@ protected:
         return true;
     }
 
-    T origin_;
+    ecs::Entity m_ent;
+    T m_origin;
 };
 
 }  // namespace cave

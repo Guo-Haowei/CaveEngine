@@ -53,10 +53,10 @@ Application::Application(const AppSpec& spec, AppType type)
 
 Application::~Application() = default;
 
-void Application::registerModule(IService* p_module) {
-    DEV_ASSERT(p_module);
-    p_module->SetApp(this);
-    m_subsystems.push_back(p_module);
+void Application::registerModule(IService* service) {
+    DEV_ASSERT(service);
+    service->SetApp(this);
+    m_subsystems.push_back(service);
 }
 
 auto Application::setupModules() -> Result<void> {

@@ -11,6 +11,10 @@ public:
     bool save() override;
 
     Owner<Scene> createPreviewScene() const override;
+
+    bool changeProperty(const PropertyTarget& target,
+                        const uint8_t* data,
+                        size_t data_size) override;
 };
 
 }  // namespace cave

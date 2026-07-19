@@ -11,11 +11,11 @@
 
 // clang-format off
 namespace cave::jobsystem { class Context; }
-namespace cave::ecs { class ComponentRegistry; }
 // clang-format on
 
 namespace cave {
 
+class MetaRegistry;
 class SceneRuntime;
 
 enum SceneDirtyFlags : uint32_t {
@@ -28,7 +28,7 @@ DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 
 class Scene final : public NonCopyable {
 public:
-    explicit Scene(ecs::ComponentRegistry& reg) noexcept;
+    explicit Scene(const MetaRegistry& reg) noexcept;
     explicit Scene() noexcept;
     ~Scene();
 
@@ -158,7 +158,7 @@ private:
     void flushPendingDestroy();
     void removeEntityImpl(ecs::Entity ent);
 
-    ecs::ComponentRegistry& m_component_registry;
+    const MetaRegistry& m_component_registry;
     ecs::ComponentStorage m_storage;
 
     uint32_t m_entity_seed{ 0 };

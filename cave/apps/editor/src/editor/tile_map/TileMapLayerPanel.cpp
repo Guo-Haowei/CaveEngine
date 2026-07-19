@@ -15,9 +15,10 @@ namespace cave {
 
 using namespace ::cave::math;
 
-void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
+void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Layer")) {
+            drawToolbar(tile_map);
             drawLayers(tile_map, ctx);
             ImGui::EndTabItem();
         }
@@ -38,7 +39,47 @@ void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
     }
 }
 
-void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
+void TileMapLayerPanel::drawToolbar(TileMapAsset& tile_map) {
+    const float button_width = ImGui::GetFrameHeight();
+    auto& layers = tile_map.layers();
+
+    ImGui::BeginGroup();
+
+    if (ImGui::Button(ICON_FA_PLUS, ImVec2{ button_width, 0.0f })) {
+        layers.emplace_back();
+        const int new_index = static_cast<int>(layers.size()) - 1;
+        layers.back().name() = std::format("Layer {}", layers.size());
+        m_selected = Some(new_index);
+        // @TODO: mark dirty
+    }
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip("Add a new layer");
+    }
+
+    ImGui::SameLine();
+
+    ImGui::BeginDisabled(!m_selected);
+
+    if (ImGui::Button(ICON_FA_TRASH_CAN, ImVec2{ button_width, 0.0f })) {
+        if (m_selected) {
+            const int deleted = m_selected.unwrap_unchecked();
+            layers.erase(layers.begin() + deleted);
+            m_selected = None();
+            // @TODO: mark dirty
+        }
+    }
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip(m_selected ? "Delete selected layer" : "Select a layer first");
+    }
+
+    ImGui::EndDisabled();
+
+    ImGui::EndGroup();
+}
+
+void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
     const IconCache& icons = ctx.editor_services.iconCache();
 
     auto notify_changed = [&]() {
@@ -46,24 +87,18 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
     };
 
     auto& layers = tile_map.layers();
-    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
-        layers.resize(layers.size() + 1);
-        layers.back().name() = std::move(std::format("Layer {}", layers.size()));
 
-        m_selected_layer = Some(static_cast<int>(layers.size()) - 1);
+    constexpr float kLayerCardHeight = 230.0f;
 
-        notify_changed();
-    }
-
-    ImGui::Separator();
-
-    Option<int> pending_delete;
+    ImGui::BeginChild("##LayerList",
+                      ImVec2{ 0.0f, kLayerCardHeight * (float)layers.size() },
+                      ImGuiChildFlags_Borders);
 
     for (int layer_id = 0; layer_id < static_cast<int>(layers.size()); ++layer_id) {
         TileMapLayer& layer = layers[layer_id];
 
         const bool selected =
-            m_selected_layer.unwrap_or(-1) == layer_id;
+            m_selected.unwrap_or(-1) == layer_id;
 
         ImGui::PushID(layer_id);
 
@@ -84,14 +119,8 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
 
         const bool card_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
-        // ImGui::AlignTextToFramePadding();
-        // ImGui::TextUnformatted("Name");
-        // ImGui::SameLine(72.0f);
-
-        // ImGui::SetNextItemWidth( -2.0f * ImGui::GetFrameHeightWithSpacing());
-
         if (ui::TextBox("Name", layer.name())) {
-            m_selected_layer = Some(layer_id);
+            m_selected = Some(layer_id);
             notify_changed();
         }
 
@@ -102,7 +131,7 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
 
         if (ImGui::Button(visibility_icon)) {
             layer.setVisible(!visible);
-            m_selected_layer = Some(layer_id);
+            m_selected = Some(layer_id);
             notify_changed();
         }
 
@@ -110,15 +139,7 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
             ImGui::SetTooltip(visible ? "Hide layer" : "Show layer");
         }
 
-        ImGui::SameLine();
-
-        ImGui::BeginDisabled(layers.size() <= 1);
-
-        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
-            pending_delete = Some(layer_id);
-        }
-
-        ImGui::EndDisabled();
+        // ImGui::SameLine();
 
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
             ImGui::SetTooltip(layers.size() <= 1
@@ -129,14 +150,14 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
         if (Guid tile_set_guid = layer.tileSetGuid();
             DrawAsset(ctx, "Tile Set", tile_set_guid)) {
             layer.setTileSetGuid(tile_set_guid);
-            m_selected_layer = Some(layer_id);
+            m_selected = Some(layer_id);
             notify_changed();
         }
 
         int z_index = layer.zIndex();
         if (ui::InputInt("z_index", z_index)) {
             layer.setZIndex(z_index);
-            m_selected_layer = Some(layer_id);
+            m_selected = Some(layer_id);
             notify_changed();
         }
 
@@ -150,13 +171,13 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
         ui::CenteredImage(image, preview_size, icons.getIconHandle(IconName::Checkerboard));
 
         if (ImGui::IsItemClicked()) {
-            m_selected_layer = Some(layer_id);
+            m_selected = Some(layer_id);
         }
 
         if (card_hovered &&
             ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
             !ImGui::IsAnyItemHovered()) {
-            m_selected_layer = Some(layer_id);
+            m_selected = Some(layer_id);
         }
 
         ImGui::EndChild();
@@ -172,22 +193,15 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
         ImGui::Spacing();
     }
 
-    if (pending_delete) {
-        const int deleted = pending_delete.unwrap_unchecked();
-
-        layers.erase(layers.begin() + deleted);
-
-        m_selected_layer = None();
-        notify_changed();
-    }
+    ImGui::EndChild();
 }
 
 const TileMapLayer* TileMapLayerPanel::selectedLayer(const TileMapAsset& tile_map) {
-    if (m_selected_layer.is_none()) {
+    if (m_selected.is_none()) {
         return nullptr;
     }
 
-    const int idx = m_selected_layer.unwrap_unchecked();
+    const int idx = m_selected.unwrap_unchecked();
     auto layers = tile_map.layers();
     if (idx < 0 || idx > layers.size()) {
         return nullptr;

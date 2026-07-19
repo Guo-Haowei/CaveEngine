@@ -8,6 +8,7 @@
 #include "engine/private/runtime/assets/SceneAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
+#include "engine/private/runtime/scene/SceneCommandExecutor.h"
 
 namespace cave {
 
@@ -52,6 +53,28 @@ Owner<Scene> SceneDocument::createPreviewScene() const {
     }
 
     return nullptr;
+}
+
+bool SceneDocument::changeProperty(const PropertyTarget& target,
+                                   const uint8_t* data,
+                                   size_t data_size) {
+    SceneId scene_id = m_preview_scene;
+    if (!scene_id.valid()) return false;
+    Scene* scene = m_engine_services.sceneRegistry().resolve(scene_id);
+    if (!scene) return false;
+
+    const auto* component = std::get_if<ComponentPropertyTarget>(&target);
+    if (!component) {
+        return false;
+    }
+
+    SceneCommandExecutor executor(*scene);
+    bool res = executor.changeProperty(component->entity,
+                                       component->cid,
+                                       component->pid,
+                                       data,
+                                       (uint32_t)data_size);
+    return res;
 }
 
 }  // namespace cave

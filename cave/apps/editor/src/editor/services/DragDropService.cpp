@@ -119,9 +119,9 @@ void DragDropService::dropSceneNode(Entity parent, DocId doc_id, const Scene& sc
         // @TODO: need to update tree cache, do not call this
         auto cmd = MakeOwner<ChangePropertyCmd>(
             m_scene_reg,
-            child,
-            BuiltinComponentId::HierarchyComponent_Id,
-            CAVE_SID("parent_id"),
+            ComponentPropertyTarget{ child,
+                                     HierarchyComponent_Id,
+                                     CAVE_SID("parent_id") },
             child_hier->parent(),
             parent);
 

@@ -26,7 +26,6 @@
 
 namespace cave {
 
-using namespace ::cave::literals;
 using namespace ::cave::math;
 using ecs::Entity;
 
@@ -230,27 +229,30 @@ void SceneViewTab::drawGizmo(const math::FloatRect& rect, bool ortho) {
                 if (operation & ImGuizmo::TRANSLATE) {
                     auto cmd = MakeOwner<ChangePropertyCmd>(
                         scene_reg,
-                        id,
-                        TransformComponent_Id,
-                        "translation"_sid,
+                        ComponentPropertyTarget{
+                            id,
+                            TransformComponent_Id,
+                            CAVE_SID("translation") },
                         pos_1,
                         pos_2);
                     edit_service.submit(doc_id, std::move(cmd));
                 } else if (operation & ImGuizmo::ROTATE) {
                     auto cmd = MakeOwner<ChangePropertyCmd>(
                         scene_reg,
-                        id,
-                        TransformComponent_Id,
-                        "rotation"_sid,
+                        ComponentPropertyTarget{
+                            id,
+                            TransformComponent_Id,
+                            CAVE_SID("rotation") },
                         rot_1,
                         rot_2);
                     edit_service.submit(doc_id, std::move(cmd));
                 } else if (operation & ImGuizmo::SCALE) {
                     auto cmd = (MakeOwner<ChangePropertyCmd>(
                         scene_reg,
-                        id,
-                        TransformComponent_Id,
-                        "scale"_sid,
+                        ComponentPropertyTarget{
+                            id,
+                            TransformComponent_Id,
+                            CAVE_SID("scale") },
                         scale_1,
                         scale_2));
                     edit_service.submit(doc_id, std::move(cmd));
@@ -293,7 +295,7 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
                 Entity ent = writer.createEntity();
                 writer.addComponent(ent, PrefabInstanceComponent_Id);
                 writer.addComponent(ent, HierarchyComponent_Id);
-                writer.setProperty(ent, PrefabInstanceComponent_Id, "prefab_id"_sid, handle.guid());
+                writer.setProperty(ent, PrefabInstanceComponent_Id, CAVE_SID("prefab_id"), handle.guid());
                 writer.attachChild(ent, scene->hierarchy().firstRoot().unwrap_or(Entity::null()));
                 return ent;
             });
@@ -304,7 +306,7 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
             Scene* scene = getResolvedScene();
             m_editor_services.edit().submit(m_doc_id, [&](SceneCommandWriter& writer) {
                 Entity ent = writer.tileMapObject("tile_map");
-                writer.setProperty(ent, TileMapInstanceComponent_Id, "tile_map_guid"_sid, handle.guid());
+                writer.setProperty(ent, TileMapInstanceComponent_Id, CAVE_SID("tile_map_guid"), handle.guid());
                 writer.attachChild(ent, scene->hierarchy().firstRoot().unwrap_or(Entity::null()));
                 return ent;
             });

@@ -368,17 +368,11 @@ void InstantiatePrefab(Scene& scene, PrefabInstanceComponent& prefab, Entity par
     prefab_scene.remapEntity(mapping);
 
     // merge components
-    for (uint16_t cid = 0; cid < static_cast<uint16_t>(prefab_scene.storage().entries().size()); ++cid) {
-        auto& entry = prefab_scene.storage().entries()[cid];
-        if (!entry.pool) continue;
-
-        CRASH_COND(cid >= scene.storage().entries().size());
-        auto& my_entry = scene.storage().entries()[cid];
-
-        if (!my_entry.pool) {
-            scene.storage().getOrCreate(cid);
+    for (auto& entry : prefab_scene.storage().entries()) {
+        if (entry.pool) {
+            auto& dst_pool = scene.storage().getOrCreate(entry.type_id);
+            dst_pool.merge(std::move(*entry.pool));
         }
-        my_entry.pool->merge(std::move(*entry.pool));
     }
 }
 

@@ -12,6 +12,8 @@ class Degree;
 
 namespace cave {
 
+struct FieldChange;
+
 class TransformComponent {
     CAVE_COMPONENT(TransformComponent)
 
@@ -21,19 +23,21 @@ class TransformComponent {
     };
 
 private:
-    CAVE_PROP(editor = Translation)
+    CAVE_PROP(editor = Translation, on_change = onTransformChanged)
     math::Vec3f m_translation;
 
-    CAVE_PROP(editor = Rotation)
+    CAVE_PROP(editor = Rotation, on_change = onTransformChanged)
     math::Vec4f m_rotation;
 
-    CAVE_PROP(editor = Scale)
+    CAVE_PROP(editor = Scale, on_change = onTransformChanged)
     math::Vec3f m_scale;
 
     // Non-serialized attributes
     math::Mat4f m_world;
 
     uint32_t m_flags = DirtyFlag;
+
+    void onTransformChanged(const FieldChange& change);
 
 public:
     TransformComponent();

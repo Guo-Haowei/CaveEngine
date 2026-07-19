@@ -250,9 +250,11 @@ void TileMapEditor::drawToolbar() {
 void TileMapEditor::drawAssetInspector(IDocument& doc) {
     TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
     if (DEV_VERIFY(tile_map)) {
-        DrawComponentCtx ctx = {
+        DrawObjectCtx ctx = {
             .engine_services = m_engine_services,
             .editor_services = m_editor_services,
+            .doc_id = m_doc_id,
+            .type_id = StringId{},
             .scene = nullptr,
             .entity = ecs::Entity::null(),
         };

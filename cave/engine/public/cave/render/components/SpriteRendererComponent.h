@@ -14,7 +14,7 @@ class SpriteRendererComponent {
     CAVE_COMPONENT(SpriteRendererComponent)
 
 private:
-    CAVE_PROP(editor = Asset)
+    CAVE_PROP(editor = Asset, on_change = onImageGuidChanged)
     Guid m_image_id;
 
     CAVE_PROP(editor = Color)
