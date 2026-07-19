@@ -31,7 +31,8 @@ public:
 
     Vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
 
-    TilePath findPath(TileCoord start, TileCoord goal) const;
+    TilePath findPathBfs(TileCoord start, TileCoord goal) const;
+    TilePath findPathAstar(TileCoord start, TileCoord goal) const;
 
     const math::Box2& worldBound() const { return m_world_bound; }
 

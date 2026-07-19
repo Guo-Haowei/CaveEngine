@@ -1,6 +1,7 @@
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 
 #include <deque>
+#include <queue>
 
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/tile_map/TileMapAsset.h"
@@ -17,6 +18,13 @@ namespace cave {
 using namespace ::cave::math;
 
 namespace {
+
+constexpr std::array<TileCoord, 4> kPathFindingDirections = {
+    TileCoord{ -1, 0 },
+    TileCoord{ +1, 0 },
+    TileCoord{ 0, -1 },
+    TileCoord{ 0, +1 },
+};
 
 struct TileRange {
     int16_t min_x = 0;
@@ -95,7 +103,7 @@ Vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) const {
     return result;
 }
 
-TilePath TileWorldSystem::findPath(TileCoord start, TileCoord goal) const {
+TilePath TileWorldSystem::findPathBfs(TileCoord start, TileCoord goal) const {
     if (start == goal) {
         return {};
     }
@@ -105,20 +113,13 @@ TilePath TileWorldSystem::findPath(TileCoord start, TileCoord goal) const {
 
     std::deque<TileCoord> ready{ start };
 
-    constexpr std::array<TileCoord, 4> directions = {
-        TileCoord{ -1, 0 },
-        TileCoord{ +1, 0 },
-        TileCoord{ 0, -1 },
-        TileCoord{ 0, +1 },
-    };
-
     while (!ready.empty()) {
         TileCoord coord = ready.front();
         if (coord == goal) break;
 
         ready.pop_front();
 
-        for (TileCoord dir : directions) {
+        for (TileCoord dir : kPathFindingDirections) {
             const TileCoord next = coord + dir;
 
             if (m_rigid_tiles.tileAt(next).is_some()) continue;
@@ -144,6 +145,100 @@ TilePath TileWorldSystem::findPath(TileCoord start, TileCoord goal) const {
         }
 
         cursor = it->second.unwrap_unchecked();
+    }
+
+    std::reverse(path.begin(), path.end());
+    return path;
+}
+
+TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
+    if (start == goal) {
+        return {};
+    }
+
+    struct OpenNode {
+        TileCoord coord;
+        int priority = 0;  // f = g + h
+        int cost = 0;      // g
+    };
+
+    struct CompareOpenNode {
+        bool operator()(const OpenNode& lhs, const OpenNode& rhs) const {
+            // std::priority_queue is a max-heap by default,
+            // so reverse the comparison for a min-heap.
+            return lhs.priority > rhs.priority;
+        }
+    };
+
+    auto heuristic = [](TileCoord a, TileCoord b) -> int {
+        return std::abs(a.x - b.x) + std::abs(a.y - b.y);
+    };
+
+    struct Node {
+        int cost = 0;
+        Option<TileCoord> parent;
+    };
+
+    HashMap<TileCoord, Node> visited;
+    visited[start] = { Node{ 0, Some(start) } };
+
+    std::priority_queue<OpenNode, Vector<OpenNode>, CompareOpenNode> ready;
+    ready.push(OpenNode{ start, heuristic(start, goal), 0 });
+
+    while (!ready.empty()) {
+        OpenNode open_node = ready.top();
+
+        auto current_it = visited.find(open_node.coord);
+        DEV_ASSERT(current_it != visited.end());
+
+        // An improved route was inserted after this queue entry.
+        if (open_node.cost != current_it->second.cost) {
+            continue;
+        }
+
+        if (open_node.coord == goal) break;
+
+        ready.pop();
+
+        for (TileCoord dir : kPathFindingDirections) {
+            const TileCoord next = open_node.coord + dir;
+
+            if (m_rigid_tiles.tileAt(next).is_some()) continue;
+
+            const int new_cost = open_node.cost + 1;
+            const int priority = new_cost + heuristic(next, goal);
+
+            auto [it, ok] = visited.try_emplace(next, Node{ new_cost, Some(open_node.coord) });
+            // not visited before
+            if (ok) {
+                ready.emplace(next, priority, new_cost);
+                continue;
+            }
+
+            // visited
+            Node& node = it->second;
+            if (node.cost > new_cost) {
+                node.cost = new_cost;
+                node.parent = Some(open_node.coord);
+                ready.emplace(next, priority, new_cost);
+            }
+        }
+    }
+
+    TilePath path;
+    for (TileCoord cursor = goal; cursor != start;) {
+        path.push_back(cursor);
+
+        auto it = visited.find(cursor);
+        if (it == visited.end()) {
+            return {};
+        }
+
+        if (!DEV_VERIFY(it->second.parent.is_some())) {
+            return {};
+        }
+
+        cursor = it->second.parent.unwrap_unchecked();
     }
 
     std::reverse(path.begin(), path.end());

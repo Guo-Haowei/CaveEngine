@@ -124,7 +124,7 @@ void BatController::updateMove(float dt) {
     // Important: do not assign goal_tile before this check.
     // Otherwise target_changed will always be false.
     if (shouldRecomputePath(goal)) {
-        auto path = tile_world->findPath(start, goal);
+        auto path = tile_world->findPathAstar(start, goal);
 
         m_path_ctx.path = std::move(path);
         m_path_ctx.goal_tile = goal;

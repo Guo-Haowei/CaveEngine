@@ -1,6 +1,5 @@
 #pragma once
-#include <stack>
-
+#include "cave/runtime/view/ViewRecord.h"
 #include "cave/runtime/display/ICanvas.h"
 
 namespace cave {

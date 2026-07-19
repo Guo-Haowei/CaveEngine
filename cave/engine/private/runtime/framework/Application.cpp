@@ -91,13 +91,14 @@ auto Application::setupModules() -> Result<void> {
     // @TODO: dependency injection?
     m_scene_registry = MakeOwner<SceneRegistry>();
 
+    m_view_manager = MakeOwner<ViewManager>(*m_scene_registry,
+                                            m_app_spec.backend == rhi::Backend::OpenGL);
+    m_engine_services.view_manager = m_view_manager.get();
+
     m_renderer = MakeOwner<render::Renderer>(m_engine_services);
     m_engine_services.renderer_ = m_renderer.get();
 
     m_scene_scheduler = MakeOwner<SceneScheduler>(m_engine_services);
-
-    m_view_manager = MakeOwner<ViewManager>(*m_scene_registry,
-                                            m_render_device->backend() == rhi::Backend::OpenGL);
 
     m_project_manager = MakeOwner<ProjectManager>(m_vfs,
                                                   *m_task_manager,
@@ -114,7 +115,6 @@ auto Application::setupModules() -> Result<void> {
     m_engine_services.native_scripts = &m_native_scripts;
     m_engine_services.scene_registry = m_scene_registry.get();
     m_engine_services.scene_scheduler = m_scene_scheduler.get();
-    m_engine_services.view_manager = m_view_manager.get();
     m_engine_services.vfs = &m_vfs;
     m_engine_services.game_module = &m_game_module_handle;
 
