@@ -110,17 +110,13 @@ void Canvas::addBox2Frame(const Vec2f& min,
         return;
     }
 
-    // @TODO: probably need to know aspect ratio to adjust thickness
-    const float t = thickness;
+    const float tx = thickness;
+    const float ty = thickness;
 
-    // Top
-    addBox2({ min.x, max.y - t }, { max.x, max.y }, tint, transform);
-    // Bottom
-    addBox2({ min.x, min.y }, { max.x, min.y + t }, tint, transform);
-    // Left
-    addBox2({ min.x, min.y + t }, { min.x + t, max.y - t }, tint, transform);
-    // Right
-    addBox2({ max.x - t, min.y + t }, { max.x, max.y - t }, tint, transform);
+    addBox2(min, { min.x + tx, max.y }, tint, transform);
+    addBox2({ max.x - tx, min.y }, max, tint, transform);
+    addBox2(min, { max.x, min.y + ty }, tint, transform);
+    addBox2({ min.x, max.y - ty }, max, tint, transform);
 }
 
 void Canvas::addImageImpl(const GpuTexture* texture,

@@ -2,12 +2,12 @@
 
 #include "cave/core/diagnostics/Log.h"
 #include "cave/core/error/ErrorMacros.h"
+#include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/scene/SceneRuntime.h"
-#include "cave/runtime/tile_map/TileWorldSystem.h"
 
 namespace super_cave_boy {
 
@@ -27,10 +27,6 @@ float SignWithDeadZone(float value, float eps) {
     }
 
     return 0.0f;
-}
-
-bool OverlapsSolidTiles(const Box2& aabb, const TileWorldSystem& world) {
-    return !world.querySolidTiles(aabb).empty();
 }
 
 }  // namespace
@@ -83,39 +79,134 @@ void BatController::updateIdle(float) {
     }
 }
 
-void BatController::updateMove(float) {
+bool BatController::shouldRecomputePath(TileCoord player_tile) const {
+    const bool no_path = m_path_ctx.path.empty() && !m_path_ctx.recompute_timer.active();
+
+    const bool target_changed = player_tile != m_path_ctx.goal_tile;
+
+    return no_path ||
+           target_changed ||
+           m_path_ctx.recompute_timer.finished();
+}
+
+void BatController::updateMove(float dt) {
     const TileWorldSystem* tile_world = system<TileWorldSystem>();
     DEV_ASSERT(tile_world);
 
     auto transform = component<TransformComponent>();
     auto collider = component<ColliderComponent>();
-    auto vel = component<VelocityComponent>();
     auto player_transform = query().component<TransformComponent>(m_player);
 
-    DEV_ASSERT(transform && collider && vel && player_transform);
+    DEV_ASSERT(transform && collider && player_transform);
 
     const Vec2f bat_pos = transform->translation().xy;
     const Vec2f player_pos = player_transform->translation().xy;
 
-    const float diff_x = bat_pos.x - player_pos.x;
-    const float diff_y = bat_pos.y - player_pos.y;
+    const TileCoord start = TileWorldSystem::worldToTile(bat_pos);
+    const TileCoord goal = TileWorldSystem::worldToTile(player_pos);
 
-    const float xsign = SignWithDeadZone(diff_x, m_align_epsilon);
-    const float ysign = SignWithDeadZone(diff_y, m_align_epsilon);
+    if (!m_path_ctx.path.empty()) {
+        auto& canvas = services().canvas();
 
-    Vec2f desired_dir{
-        -xsign,
-        -ysign,
+        canvas.pushView(runtime().viewId());
+        for (TileCoord coord : m_path_ctx.path) {
+            canvas.addBox2Frame(
+                Vec2f(coord.x, coord.y),
+                Vec2f(coord.x + 1.0f, coord.y + 1.0f),
+                0.04f,
+                Vec4f(0, 1, 0, 0.4f));
+        }
+        canvas.popView();
+    }
+
+    m_path_ctx.recompute_timer.tick(dt);
+
+    // Important: do not assign goal_tile before this check.
+    // Otherwise target_changed will always be false.
+    if (shouldRecomputePath(goal)) {
+        auto path = tile_world->findPathAstar(start, goal);
+
+        m_path_ctx.path = std::move(path);
+        m_path_ctx.goal_tile = goal;
+        m_path_ctx.recompute_timer.start();
+
+        if (m_path_ctx.path.empty()) {
+            m_path_ctx.index = -1;
+        } else {
+            // findPath normally includes the starting tile.
+            // The bat is already there, so target the next tile.
+            m_path_ctx.index =
+                m_path_ctx.path.size() > 1 ? 1 : 0;
+        }
+    }
+
+    // No path to follow.
+    if (m_path_ctx.index < 0 ||
+        m_path_ctx.index >=
+            static_cast<int>(m_path_ctx.path.size())) {
+
+        stopMoving();
+        return;
+    }
+
+    // Skip waypoints that the bat has already reached.
+    while (m_path_ctx.index < static_cast<int>(m_path_ctx.path.size())) {
+        const TileCoord waypoint_tile = m_path_ctx.path[m_path_ctx.index];
+        const Vec2f waypoint = TileWorldSystem::tileToWorld(waypoint_tile);
+        const Vec2f delta = waypoint - bat_pos;
+        const float distance_squared = delta.x * delta.x + delta.y * delta.y;
+
+        constexpr float kWaypointEpsilon = 0.1f;  // world units
+
+        if (distance_squared > kWaypointEpsilon * kWaypointEpsilon) {
+            moveTowards(bat_pos, waypoint);
+            return;
+        }
+        ++m_path_ctx.index;
+    }
+
+    // Reached the end of the current path.
+    m_path_ctx.index = -1;
+    stopMoving();
+}
+
+void BatController::moveTowards(Vec2f from, Vec2f to) {
+    auto velocity = component<VelocityComponent>();
+    DEV_ASSERT(velocity);
+
+    const Vec2f delta = to - from;
+
+    const float x_sign =
+        SignWithDeadZone(delta.x, m_align_epsilon);
+
+    const float y_sign =
+        SignWithDeadZone(delta.y, m_align_epsilon);
+
+    Vec2f desired_direction{
+        x_sign,
+        y_sign,
     };
 
     float speed = m_speed;
 
-    if (desired_dir.x == 0.0f || desired_dir.y == 0.0f) {
+    // Preserve your existing slower movement when aligned
+    // with one axis.
+    if (desired_direction.x == 0.0f ||
+        desired_direction.y == 0.0f) {
+
         speed = m_close_speed;
     }
 
-    vel->linear.x = desired_dir.x * speed;
-    vel->linear.y = desired_dir.y * speed;
+    velocity->linear.x = desired_direction.x * speed;
+    velocity->linear.y = desired_direction.y * speed;
+}
+
+void BatController::stopMoving() {
+    auto velocity = component<VelocityComponent>();
+    DEV_ASSERT(velocity);
+
+    velocity->linear.x = 0.0f;
+    velocity->linear.y = 0.0f;
 }
 
 }  // namespace super_cave_boy
