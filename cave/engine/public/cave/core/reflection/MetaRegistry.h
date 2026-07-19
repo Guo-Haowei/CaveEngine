@@ -19,13 +19,12 @@ struct MetaTable {
 
     std::span<const FieldMetaBase* const> props;
 
-    const FieldMetaBase* find(const PropertyId& pid) const;
+    const FieldMetaBase* find(const PropertyId& property_type) const;
 };
 
 class MetaRegistry {
 public:
-    void registerMeta(const MetaTable& meta);
-    const MetaTable* tryGet(StringId pid) const;
+    const MetaTable* tryGet(StringId type_id) const;
 
     static void builtin(MetaRegistry& out);
 
@@ -37,6 +36,8 @@ public:
     }
 
 private:
+    void registerMeta(const MetaTable& meta);
+
     Vector<MetaTable> m_table;
     HashMap<StringId, size_t> m_lookup;
 };

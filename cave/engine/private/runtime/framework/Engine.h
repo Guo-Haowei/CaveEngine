@@ -10,6 +10,6 @@ bool InitializeCore();
 
 void FinalizeCore();
 
-MetaRegistry& GetComponentRegistry();
+const MetaRegistry& GetMetaRegistry();
 
 }  // namespace cave::engine

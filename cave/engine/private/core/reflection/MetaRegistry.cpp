@@ -1,23 +1,22 @@
 #include "cave/core/reflection/Meta.h"
 #include "cave/core/reflection/MetaRegistry.h"
+#include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/ui/UIComponents.h"
-// #include "cave/runtime/ecs/ComponentDefines.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
-
 namespace cave {
 
-#define DEBUG_COMPONENT_REGISTRY IN_USE
+#define DEBUG_COMPONENT_REGISTRY NOT_IN_USE
 #if USING(DEBUG_COMPONENT_REGISTRY)
 #define DEBUG_PRINT(...) LOG_INFO(LogChannel::Core, __VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) ((void)0)
 #endif
 
-const FieldMetaBase* MetaTable::find(const PropertyId& pid) const {
+const FieldMetaBase* MetaTable::find(const PropertyId& property_type) const {
     for (const FieldMetaBase* meta : props) {
-        if (meta->id == pid) {
+        if (meta->id == property_type) {
             return meta;
         }
     }
@@ -55,7 +54,6 @@ const MetaTable* MetaRegistry::tryGet(StringId type_id) const {
 }
 
 void MetaRegistry::builtin(MetaRegistry& out) {
-    // register components
 #define REGISTER_COMPONENT(T, ...)              \
     out.registerMeta({                          \
         .type_id = T##_Id,                      \
@@ -66,8 +64,21 @@ void MetaRegistry::builtin(MetaRegistry& out) {
         .props = MetaDataTable<T>::GetFields(), \
     });
 
+    // register components
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
+
+#define REGISTER_META(T, ID)                    \
+    out.registerMeta({                          \
+        .type_id = ID,                          \
+        .name = #T,                             \
+        .size = sizeof(T),                      \
+        .align = alignof(T),                    \
+        .version = 0,                           \
+        .props = MetaDataTable<T>::GetFields(), \
+    });
+
+    REGISTER_META(TileMapLayer, CAVE_SID("TileMapLayer"));
 }
 
 }  // namespace cave

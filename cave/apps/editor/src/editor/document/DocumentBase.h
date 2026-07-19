@@ -55,6 +55,10 @@ public:
     Owner<Scene> createPreviewScene() const override;
     void reloadPreviewScene() override;
 
+    bool changeProperty(const PropertyTarget& target,
+                        const uint8_t* data,
+                        size_t data_size) override;
+
 private:
     void touchDirtyAfterEdit() {
         // nothing required here beyond marker comparison;

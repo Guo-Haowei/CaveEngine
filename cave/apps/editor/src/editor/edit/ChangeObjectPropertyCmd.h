@@ -19,7 +19,8 @@ public:
                             PropertyId pid,
                             ValueT&& old_value,
                             ValueT&& new_value)
-        : EditCmdBase(scene_reg, ent)
+        : EditCmdBase(scene_reg)
+        , m_ent(ent)
         , m_cid(cid)
         , m_pid(pid)
         , m_old(std::move(old_value))
@@ -48,7 +49,7 @@ private:
         void* component = scene->storage().getRaw(m_cid, m_ent);
         if (!component) return false;
 
-        const auto& reg = engine::GetComponentRegistry();
+        const auto& reg = engine::GetMetaRegistry();
         const auto* meta = reg.tryGet(m_cid);
         if (!meta) return false;
 
@@ -60,6 +61,7 @@ private:
     }
 
 private:
+    ecs::Entity m_ent;
     ComponentId m_cid;
     PropertyId m_pid;
 

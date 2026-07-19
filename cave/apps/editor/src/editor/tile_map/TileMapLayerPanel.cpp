@@ -15,7 +15,7 @@ namespace cave {
 
 using namespace ::cave::math;
 
-void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
+void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Layer")) {
             drawLayers(tile_map, ctx);
@@ -38,7 +38,7 @@ void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
     }
 }
 
-void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx) {
+void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
     const IconCache& icons = ctx.editor_services.iconCache();
 
     auto notify_changed = [&]() {
@@ -83,12 +83,6 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawComponentCtx& ctx
                           ImGuiWindowFlags_NoScrollbar);
 
         const bool card_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
-
-        // ImGui::AlignTextToFramePadding();
-        // ImGui::TextUnformatted("Name");
-        // ImGui::SameLine(72.0f);
-
-        // ImGui::SetNextItemWidth( -2.0f * ImGui::GetFrameHeightWithSpacing());
 
         if (ui::TextBox("Name", layer.name())) {
             m_selected_layer = Some(layer_id);

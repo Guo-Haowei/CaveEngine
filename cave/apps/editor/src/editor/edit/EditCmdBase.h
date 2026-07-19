@@ -11,7 +11,9 @@ class SceneRegistry;
 
 class EditCmdBase : public IEditCmd {
 public:
-    EditCmdBase(SceneRegistry& scene_reg, ecs::Entity ent);
+    EditCmdBase(SceneRegistry& scene_reg)
+        : m_scene_reg(scene_reg) {
+    }
 
     bool canCoalesceWith(const IEditCmd*) const override {
         return false;
@@ -23,8 +25,6 @@ public:
 
 protected:
     Scene* resolveScene(SceneId scene_id) const;
-
-    ecs::Entity m_ent;
 
 private:
     SceneRegistry& m_scene_reg;

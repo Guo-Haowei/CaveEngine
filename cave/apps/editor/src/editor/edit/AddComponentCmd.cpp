@@ -8,7 +8,8 @@ namespace cave {
 AddComponentCmd::AddComponentCmd(SceneRegistry& scene_reg,
                                  ecs::Entity ent,
                                  ComponentId cid)
-    : EditCmdBase(scene_reg, ent)
+    : EditCmdBase(scene_reg)
+    , m_ent(ent)
     , m_cid(cid) {
 }
 

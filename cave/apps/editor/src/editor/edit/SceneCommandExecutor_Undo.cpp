@@ -36,9 +36,7 @@ bool SceneCommandExecutor_Undo::changeProperty(Entity ent,
                                                uint32_t data_size) {
     auto cmd = MakeOwner<ChangePropertyCmd>(
         m_scene_reg,
-        ent,
-        cid,
-        pid,
+        ComponentPropertyTarget{ ent, cid, pid },
         nullptr,  // composite command, don't care about old value
         data,
         data_size);

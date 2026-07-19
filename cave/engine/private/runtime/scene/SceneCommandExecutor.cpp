@@ -16,7 +16,7 @@ SceneCommandExecutor::SceneCommandExecutor(Scene& scene, MetaRegistry& reg) noex
 
 SceneCommandExecutor::SceneCommandExecutor(Scene& scene) noexcept
     : m_scene(scene)
-    , m_reg(engine::GetComponentRegistry()) {
+    , m_reg(engine::GetMetaRegistry()) {
 }
 
 void SceneCommandExecutor::addComponent(Entity ent, ComponentId cid) {

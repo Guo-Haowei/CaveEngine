@@ -17,6 +17,7 @@ public:
     bool undo(IDocument& doc) override;
 
 private:
+    ecs::Entity m_ent;
     ComponentId m_cid;
 };
 

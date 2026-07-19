@@ -17,12 +17,12 @@ namespace cave {
 using namespace ::cave::math;
 using ecs::Entity;
 
-Scene::Scene(MetaRegistry& reg) noexcept
+Scene::Scene(const MetaRegistry& reg) noexcept
     : m_component_registry(reg) {
 }
 
 Scene::Scene() noexcept
-    : Scene(engine::GetComponentRegistry()) {
+    : Scene(engine::GetMetaRegistry()) {
 }
 
 Scene::~Scene() = default;

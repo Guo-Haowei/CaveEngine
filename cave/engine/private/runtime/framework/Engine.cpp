@@ -9,7 +9,7 @@
 namespace cave::engine {
 
 static OS* s_os;
-static MetaRegistry s_component_reg;
+static MetaRegistry s_meta_reg;
 
 bool InitializeCore() {
     if (s_os) {
@@ -19,7 +19,7 @@ bool InitializeCore() {
     s_os = new OS;
     s_os->Initialize();
 
-    MetaRegistry::builtin(s_component_reg);
+    MetaRegistry::builtin(s_meta_reg);
 
     thread::Initialize();
     jobsystem::Initialize();
@@ -40,8 +40,8 @@ void FinalizeCore() {
     s_os = nullptr;
 }
 
-MetaRegistry& GetComponentRegistry() {
-    return s_component_reg;
+const MetaRegistry& GetMetaRegistry() {
+    return s_meta_reg;
 }
 
 }  // namespace cave::engine

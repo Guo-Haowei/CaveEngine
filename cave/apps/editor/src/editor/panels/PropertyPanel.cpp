@@ -5,8 +5,8 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/ui/UIComponents.h"
 
-#include "editor/inspector/PropertyEditors.h"
 #include "editor/EditorState.h"
+#include "editor/inspector/PropertyEditors.h"
 #include "editor/utility/ContentEntry.h"
 #include "editor/services/DragDropService.h"
 #include "editor/services/SelectionService.h"
@@ -42,139 +42,9 @@ using namespace ::cave::math;
     COMPONENT_DECL(Facing)         \
     COMPONENT_DECL(TileMapInstance)
 
-bool DrawPropertyAuto(const FieldMetaBase* property,
-                      void* component,
-                      const DrawComponentCtx& ctx) {
-    switch (property->editor_hint) {
-        case EditorHint::Asset: {
-            return AssetEditor(ctx, component, property);
-        } break;
-        case EditorHint::EnumDropDown:
-            return property->DrawEditor(component, ui::kDefaultColumnWidth);
-        case EditorHint::Toggle:
-            return EditAndSubmit<bool>(
-                ctx, component, property,
-                [](const char* label, bool& value) {
-                    return ui::CheckBox(label, value);
-                });
-        case EditorHint::InputText:
-            return EditAndSubmit<String>(
-                ctx, component, property,
-                [](const char* label, String& value) {
-                    return ui::TextBox(label, value);
-                });
-        case EditorHint::InputInt:
-            return EditAndSubmit<int>(
-                ctx, component, property,
-                [](const char* label, int& value) {
-                    return ui::InputInt(label, value);
-                });
-        case EditorHint::InputFloat:
-            return EditAndSubmit<float>(
-                ctx, component, property,
-                [](const char* label, float& value) {
-                    return ui::InputFloat(label, value);
-                });
-        case EditorHint::BitMask: {
-            return EditAndSubmit<uint32_t>(
-                ctx, component, property,
-                [](const char* label, uint32_t& value) {
-                    return ui::DrawBitMask32(label, value);
-                });
-        } break;
-        case EditorHint::DragInt:
-            BreakIfDebug();
-            return false;
-        case EditorHint::DragFloat:
-            return EditAndSubmit<float>(
-                ctx, component, property,
-                [&](const char* label, float& value) {
-                    return ui::DragFloat(label,
-                                         value,
-                                         0.01f,
-                                         property->v_min,
-                                         property->v_max);
-                });
-        case EditorHint::Color:
-            return EditAndSubmit<Vec4f>(
-                ctx, component, property,
-                [](const char* label, Vec4f& value) {
-                    return ui::ColorPicker4(label, value);
-                });
-        case EditorHint::Translation2D:
-            return EditAndSubmit<Vec2f>(
-                ctx, component, property,
-                [](const char* label, Vec2f& value) {
-                    return ui::Float2(label, value, 0.0f);
-                });
-        case EditorHint::Translation:
-            return EditAndSubmit<Vec3f>(
-                ctx, component, property,
-                [](const char* label, Vec3f& value) {
-                    return ui::Float3(label, value, 0.0f);
-                });
-        case EditorHint::Scale:
-            return EditAndSubmit<Vec3f>(
-                ctx, component, property,
-                [](const char* label, Vec3f& value) {
-                    return ui::Float3(label, value, 1.0f);
-                });
-        case EditorHint::Rotation: {
-            // @TODO: fix this
-            Vec4f& q = property->template GetData<Vec4f>(component);
-            glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
-            Vec3f euler = *reinterpret_cast<Vec3f*>(&euler_);
-            constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
-            constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
-            euler *= RAD_TO_DEG;
-
-            if (!ui::Float3(property->name, euler, 0.0f)) {
-                return false;
-            }
-
-            euler *= DEG_TO_RAD;
-            glm::quat q2 = glm::quat(reinterpret_cast<glm::vec3&>(euler));
-
-            Vec4f old_v = q;
-            Vec4f new_v{ q2.x, q2.y, q2.z, q2.w };
-
-            auto cmd = MakeOwner<ChangePropertyCmd>(
-                ctx.engine_services.sceneRegistry(),
-                ctx.entity,
-                ctx.cid,
-                property->id,
-                old_v,
-                new_v);
-            ctx.editor_services.edit().submit(ctx.doc_id, std::move(cmd));
-            return true;
-        } break;
-        case EditorHint::VariantMap: {
-            return EditAndSubmit<VariantMap>(
-                ctx, component, property,
-                [](const char* label, VariantMap& map) {
-                    return DrawVariantMap(label, map);
-                });
-        } break;
-        default:
-            return false;
-    }
-}
-
-template<typename T>
-bool DrawComponentAuto(T* component, const DrawComponentCtx& ctx) {
-    const MetaTableFields& meta_table = MetaDataTable<T>::GetFields();
-    DrawComponentCtx ctx2 = ctx;
-    ctx2.cid = T::kId;
-
-    int dirty = 0;
-    for (const auto& field : meta_table) {
-        dirty |= (int)DrawPropertyAuto(field, component, ctx2);
-    }
-    return (int)dirty;
-}
 
 template<ComponentType T>
-void DrawComponentAuto(std::string_view name, const DrawComponentCtx& ctx) {
+void DrawComponentAuto(std::string_view name, const DrawObjectCtx& ctx) {
     T* component = ctx.scene->component<T>(ctx.entity);
     if (!component) return;
 
@@ -206,7 +76,7 @@ void DrawComponentAuto(std::string_view name, const DrawComponentCtx& ctx) {
     }
 
     if (open) {
-        DrawComponentAuto(component, ctx);
+        DrawObjectAuto<T>(component, ctx);
         ImGui::TreePop();
     }
 }
@@ -236,13 +106,13 @@ void PropertyPanel::drawUIImpl() {
 
     EditService& edit_service = m_editor_services.edit();
 
-    const DrawComponentCtx ctx{
+    const DrawObjectCtx ctx{
         .engine_services = m_engine_services,
         .editor_services = m_editor_services,
+        .doc_id = doc_id,
+        .type_id = StringId{},
         .scene = &scene,
         .entity = id,
-        .doc_id = doc_id,
-        .cid = StringId{},
     };
 
     {
@@ -250,9 +120,7 @@ void PropertyPanel::drawUIImpl() {
         if (ui::TextBox("Name", name)) {
             auto cmd = MakeOwner<ChangePropertyCmd>(
                 m_engine_services.sceneRegistry(),
-                id,
-                NameComponent_Id,
-                "name"_sid,
+                ComponentPropertyTarget{ id, NameComponent_Id, CAVE_SID("name") },
                 name_component->nameRef(),
                 name);
             edit_service.submit(doc_id, std::move(cmd));
@@ -309,20 +177,20 @@ void PropertyPanel::drawUIImpl() {
         const math::Mat4f old_transform = p_transform.localMatrix();
 
         TransformComponent copy = p_transform;
-        const bool dirty = DrawComponentAuto<TransformComponent>(&copy, ctx);
+        const bool dirty = DrawObjectAuto<TransformComponent>(&copy, ctx);
         if (dirty && camera) {
             camera->setDirty();
         }
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Light"), light, [&](LightComponent& p_light) {
-        bool dirty = DrawComponentAuto<LightComponent>(&p_light, ctx);
+        bool dirty = DrawObjectAuto<LightComponent>(&p_light, ctx);
         if (dirty) {
             p_light.SetDirty();
         }
 
         if (material) {
-            DrawComponentAuto<MaterialComponent>(material, ctx);
+            DrawObjectAuto<MaterialComponent>(material, ctx);
         }
     });
 
@@ -331,11 +199,11 @@ void PropertyPanel::drawUIImpl() {
         FixedString<32>& name = script.name;
         ui::TextBox("class_name", name);
 
-        DrawComponentAuto<NativeScriptComponent>(&script, ctx);
+        DrawObjectAuto<NativeScriptComponent>(&script, ctx);
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Collider"), collider, [&](ColliderComponent& collider) {
-        DrawComponentAuto(&collider, ctx);
+        DrawObjectAuto<ColliderComponent>(&collider, ctx);
 
         Shape& shape = collider.shape();
         DrawEnumDropDown("shape", shape.type, ui::kDefaultColumnWidth);
@@ -369,7 +237,7 @@ void PropertyPanel::drawUIImpl() {
         DRAW_COMPONENT_ARGS("SkeletalAnimation"),
         scene.component<SkeletalAnimationComponent>(id),
         [&](SkeletalAnimationComponent& p_anim) {
-            DrawComponentAuto<SkeletalAnimationComponent>(&p_anim, ctx);
+            DrawObjectAuto<SkeletalAnimationComponent>(&p_anim, ctx);
             ImGui::Separator();
             const float start = p_anim.GetStart();
             const float end = p_anim.GetEnd();
@@ -383,7 +251,7 @@ void PropertyPanel::drawUIImpl() {
 
     MeshRendererComponent* mesh_renderer = scene.component<MeshRendererComponent>(id);
     DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {
-        DrawComponentAuto<MeshRendererComponent>(&p_render, ctx);
+        DrawObjectAuto<MeshRendererComponent>(&p_render, ctx);
 
         if (ImGui::Button("+")) {
             // @TODO: command
@@ -399,15 +267,15 @@ void PropertyPanel::drawUIImpl() {
 
         for (ecs::Entity id : p_render.materialInstances()) {
             if (MaterialComponent* material = scene.component<MaterialComponent>(id); material) {
-                DrawComponentCtx copy_ctx = ctx;
+                DrawObjectCtx copy_ctx = ctx;
                 copy_ctx.entity = id;
-                DrawComponentAuto<MaterialComponent>(material, copy_ctx);
+                DrawObjectAuto<MaterialComponent>(material, copy_ctx);
             }
         }
     });
 
     DrawComponent(DRAW_COMPONENT_ARGS("Camera"), camera, [&](CameraComponent& p_camera) {
-        if (DrawComponentAuto<CameraComponent>(&p_camera, ctx)) {
+        if (DrawObjectAuto<CameraComponent>(&p_camera, ctx)) {
             p_camera.setDirty();
         }
     });

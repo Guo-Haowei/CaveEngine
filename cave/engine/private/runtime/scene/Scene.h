@@ -28,7 +28,7 @@ DEFINE_ENUM_BITWISE_OPERATIONS(SceneDirtyFlags);
 
 class Scene final : public NonCopyable {
 public:
-    explicit Scene(MetaRegistry& reg) noexcept;
+    explicit Scene(const MetaRegistry& reg) noexcept;
     explicit Scene() noexcept;
     ~Scene();
 
@@ -158,7 +158,7 @@ private:
     void flushPendingDestroy();
     void removeEntityImpl(ecs::Entity ent);
 
-    MetaRegistry& m_component_registry;
+    const MetaRegistry& m_component_registry;
     ecs::ComponentStorage m_storage;
 
     uint32_t m_entity_seed{ 0 };

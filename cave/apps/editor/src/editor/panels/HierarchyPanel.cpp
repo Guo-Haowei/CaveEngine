@@ -150,9 +150,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
     if (ImGui::Button(visibility_name.c_str(), ImVec2(kVisibilityColumnWidth, 0.0f))) {
         auto cmd = MakeOwner<ChangePropertyCmd>(
             m_engine_services.sceneRegistry(),
-            ent,
-            HierarchyComponent_Id,
-            CAVE_SID("local_visible"),
+            ComponentPropertyTarget{ ent, HierarchyComponent_Id, CAVE_SID("local_visible") },
             hier_component->localVisible(),
             !hier_component->localVisible());
 

@@ -10,26 +10,24 @@
 #include "editor/edit/AddComponentCmd.h"
 #include "editor/edit/RemoveComponentCmd.h"
 
-//
 #include "engine/private/runtime/ui/Inputs.h"
 
 namespace cave {
 
 class Scene;
 
-struct DrawComponentCtx {
+struct DrawObjectCtx {
     EngineServices& engine_services;
     EditorServices& editor_services;
+    DocId doc_id;
+    StringId type_id;
 
     Scene* scene;
     ecs::Entity entity;
-    DocId doc_id;
-
-    ComponentId cid;
 };
 
 template<typename ValueT, typename UIFunc>
-bool EditAndSubmit(const DrawComponentCtx& ctx,
+bool EditAndSubmit(const DrawObjectCtx& ctx,
                    void* component,
                    const FieldMetaBase* field,
                    UIFunc&& ui_func) {
@@ -44,9 +42,7 @@ bool EditAndSubmit(const DrawComponentCtx& ctx,
     if constexpr (std::is_trivially_copyable_v<ValueT>) {
         auto cmd = MakeOwner<ChangePropertyCmd>(
             ctx.engine_services.sceneRegistry(),
-            ctx.entity,
-            ctx.cid,
-            field->id,
+            ComponentPropertyTarget{ ctx.entity, ctx.type_id, field->id },
             old_v,
             new_v);
         edit.submit(ctx.doc_id, std::move(cmd));
@@ -54,7 +50,7 @@ bool EditAndSubmit(const DrawComponentCtx& ctx,
         auto cmd = MakeOwner<ChangeObjectPropertyCmd<ValueT>>(
             ctx.engine_services.sceneRegistry(),
             ctx.entity,
-            ctx.cid,
+            ctx.type_id,
             field->id,
             std::move(old_v),
             std::move(new_v));
@@ -67,7 +63,7 @@ bool EditAndSubmit(const DrawComponentCtx& ctx,
 // @TODO: refactor DrawComponent
 template<ComponentType T, typename UIFunction>
 static void DrawComponent(std::string_view name,
-                          const DrawComponentCtx& ctx,
+                          const DrawObjectCtx& ctx,
                           T* component,
                           UIFunction function) {
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
@@ -105,14 +101,25 @@ static void DrawComponent(std::string_view name,
     }
 }
 
-bool DrawAsset(const DrawComponentCtx& ctx,
+bool DrawAsset(const DrawObjectCtx& ctx,
                const char* name,
                Guid& guid);
 
-bool AssetEditor(const DrawComponentCtx& ctx,
-                 void* component,
+bool AssetEditor(const DrawObjectCtx& ctx,
+                 void* object,
                  const FieldMetaBase* property);
 
 bool DrawVariantMap(const char* label, VariantMap& map);
+
+bool DrawPropertyAuto(const FieldMetaBase* property,
+                      void* object,
+                      const DrawObjectCtx& ctx);
+
+bool DrawObjectAuto(StringId type_id, void* object, const DrawObjectCtx& ctx);
+
+template<ComponentType T>
+bool DrawObjectAuto(void* object, const DrawObjectCtx& ctx) {
+    return DrawObjectAuto(T::kId, object, ctx);
+}
 
 }  // namespace cave

@@ -16,7 +16,7 @@ class SetTileCommand : public EditCmdBase {
 
 public:
     SetTileCommand(SceneRegistry& scene_reg, int layer_id)
-        : EditCmdBase(scene_reg, ecs::Entity::null())
+        : EditCmdBase(scene_reg)
         , layer_id(layer_id) {
         DEV_ASSERT(layer_id >= 0);
     }
