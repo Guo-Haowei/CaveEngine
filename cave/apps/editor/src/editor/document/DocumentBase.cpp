@@ -37,8 +37,8 @@ bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
     }
 
     const bool can_coalesce =
-        coalesce != 0 &&
-        coalesce == m_last_coalesce &&
+        // coalesce != 0 &&
+        // coalesce == m_last_coalesce &&
         !m_undo.empty() &&
         m_undo.back().cmd->canCoalesceWith(cmd.get());
 
