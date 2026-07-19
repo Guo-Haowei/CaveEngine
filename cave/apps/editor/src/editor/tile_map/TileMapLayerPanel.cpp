@@ -46,11 +46,47 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
     };
 
     auto& layers = tile_map.layers();
+    const float button_width = ImGui::GetFrameHeight();
 
-    ImGui::BeginChild(
-        "##LayerList",
-        ImVec2{ 0.0f, -ImGui::GetFrameHeightWithSpacing() },
-        ImGuiChildFlags_Borders);
+    ImGui::BeginGroup();
+
+    if (ImGui::Button( ICON_FA_PLUS, ImVec2{ button_width, 0.0f })) {
+        layers.emplace_back();
+        const int new_index = static_cast<int>(layers.size()) - 1;
+        layers.back().name() = std::format("Layer {}", layers.size());
+        m_selected_layer = Some(new_index);
+        notify_changed();
+    }
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip("Add a new layer");
+    }
+
+    ImGui::SameLine();
+
+    ImGui::BeginDisabled(!m_selected_layer);
+
+    Option<int> pending_delete ;
+
+    if (ImGui::Button(ICON_FA_TRASH_CAN, ImVec2{ button_width, 0.0f })) {
+        pending_delete = m_selected_layer;
+    }
+
+    if (ImGui::IsItemHovered( ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip(m_selected_layer
+                              ? "Delete selected layer"
+                              : "Select a layer first");
+    }
+
+    ImGui::EndDisabled();
+
+    ImGui::EndGroup();
+
+    constexpr float kLayerCardHeight = 230.0f;
+
+    ImGui::BeginChild("##LayerList",
+                      ImVec2{ 0.0f, kLayerCardHeight * (float)layers.size() },
+                      ImGuiChildFlags_Borders);
 
     for (int layer_id = 0; layer_id < static_cast<int>(layers.size()); ++layer_id) {
         TileMapLayer& layer = layers[layer_id];
@@ -97,7 +133,7 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
             ImGui::SetTooltip(visible ? "Hide layer" : "Show layer");
         }
 
-        ImGui::SameLine();
+        //ImGui::SameLine();
 
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
             ImGui::SetTooltip(layers.size() <= 1
@@ -152,47 +188,6 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
     }
 
     ImGui::EndChild();
-
-    const float button_width = ImGui::GetFrameHeight();
-
-    ImGui::BeginGroup();
-
-    ImGui::BeginDisabled(!m_selected_layer);
-
-    if (ImGui::Button(
-            ICON_FA_TRASH_CAN,
-            ImVec2{ button_width, 0.0f })) {
-        //pending_delete = m_selected_layer;
-    }
-
-    if (ImGui::IsItemHovered(
-            ImGuiHoveredFlags_AllowWhenDisabled)) {
-        ImGui::SetTooltip(
-            m_selected_layer
-                ? "Delete selected layer"
-                : "Select a layer first");
-    }
-
-    ImGui::EndDisabled();
-
-    ImGui::SameLine();
-
-    if (ImGui::Button(
-            ICON_FA_PLUS,
-            ImVec2{ button_width, 0.0f })) {
-        layers.emplace_back();
-
-        const int new_index =
-            static_cast<int>(layers.size()) - 1;
-
-        layers.back().name() =
-            std::format("Layer {}", layers.size());
-
-        m_selected_layer = Some(new_index);
-        notify_changed();
-    }
-
-    ImGui::EndGroup();
 
     //if (pending_delete) {
     //    const int deleted = pending_delete.unwrap_unchecked();
