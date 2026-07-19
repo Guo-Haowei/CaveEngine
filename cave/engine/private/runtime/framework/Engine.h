@@ -1,8 +1,8 @@
 #pragma once
 
-namespace cave::ecs {
-class ComponentRegistry;
-}  // namespace cave::ecs
+namespace cave {
+class MetaRegistry;
+}  // namespace cave
 
 namespace cave::engine {
 
@@ -10,6 +10,6 @@ bool InitializeCore();
 
 void FinalizeCore();
 
-ecs::ComponentRegistry& GetComponentRegistry();
+MetaRegistry& GetComponentRegistry();
 
 }  // namespace cave::engine

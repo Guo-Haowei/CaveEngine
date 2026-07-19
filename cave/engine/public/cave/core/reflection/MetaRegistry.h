@@ -1,23 +1,17 @@
 // =============================================================================
-// File: cave/runtime/ecs/ComponentRegistry.h
+// File: cave/core/reflection/MetaRegistry.h
 // =============================================================================
 #pragma once
 #include <span>
 #include <string_view>
 
 #include "cave/core/containers/Containers.h"
-#include "cave/core/ids/Entity.h"
 #include "cave/core/reflection/Reflection.h"
-#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
-class Scene;
-}  // namespace cave
 
-namespace cave::ecs {
-
-struct ComponentMeta {
-    ComponentId cid;
+struct MetaTable {
+    StringId type_id;
     const char* name;
     uint32_t size;
     uint32_t align;
@@ -28,25 +22,23 @@ struct ComponentMeta {
     const FieldMetaBase* find(const PropertyId& pid) const;
 };
 
-class ComponentRegistry {
+class MetaRegistry {
 public:
-    void registerMeta(const ComponentMeta& meta);
-    const ComponentMeta* tryGet(ComponentId pid) const;
+    void registerMeta(const MetaTable& meta);
+    const MetaTable* tryGet(StringId pid) const;
 
-    // For mutating on_edited only
-    ComponentMeta& getMut(ComponentId pid);
+    static void builtin(MetaRegistry& out);
 
-    static void builtin(ComponentRegistry& out);
-
-    static ComponentRegistry builtin() {
-        ComponentRegistry reg;
+    // only used for debug
+    static MetaRegistry builtin() {
+        MetaRegistry reg;
         builtin(reg);
         return reg;
     }
 
 private:
-    Vector<ComponentMeta> m_table;
+    Vector<MetaTable> m_table;
     HashMap<StringId, size_t> m_lookup;
 };
 
-}  // namespace cave::ecs
+}  // namespace cave

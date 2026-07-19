@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/reflection/MetaRegistry.h"
 #include "cave/runtime/scene/ISceneCommandExecutor.h"
 
 namespace cave {
@@ -8,7 +8,7 @@ class Scene;
 
 class SceneCommandExecutor : public ISceneCommandExecutor {
 public:
-    explicit SceneCommandExecutor(Scene& scene, ecs::ComponentRegistry& reg) noexcept;
+    explicit SceneCommandExecutor(Scene& scene, MetaRegistry& reg) noexcept;
     explicit SceneCommandExecutor(Scene& scene) noexcept;
 
     void addComponent(ecs::Entity ent, ComponentId id) override;
@@ -23,7 +23,7 @@ public:
 
 protected:
     Scene& m_scene;
-    const ecs::ComponentRegistry& m_reg;
+    const MetaRegistry& m_reg;
 };
 
 }  // namespace cave

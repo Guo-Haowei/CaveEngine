@@ -2,14 +2,14 @@
 
 #include "cave/core/threading/JobSystem.h"
 #include "cave/core/threading/Threads.h"
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/reflection/MetaRegistry.h"
 
 #include "engine/private/core/os/os.h"
 
 namespace cave::engine {
 
 static OS* s_os;
-static ecs::ComponentRegistry s_component_reg;
+static MetaRegistry s_component_reg;
 
 bool InitializeCore() {
     if (s_os) {
@@ -19,7 +19,7 @@ bool InitializeCore() {
     s_os = new OS;
     s_os->Initialize();
 
-    ecs::ComponentRegistry::builtin(s_component_reg);
+    MetaRegistry::builtin(s_component_reg);
 
     thread::Initialize();
     jobsystem::Initialize();
@@ -40,7 +40,7 @@ void FinalizeCore() {
     s_os = nullptr;
 }
 
-ecs::ComponentRegistry& GetComponentRegistry() {
+MetaRegistry& GetComponentRegistry() {
     return s_component_reg;
 }
 

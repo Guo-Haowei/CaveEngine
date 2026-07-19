@@ -17,7 +17,7 @@ namespace cave {
 using namespace ::cave::math;
 using ecs::Entity;
 
-Scene::Scene(ecs::ComponentRegistry& reg) noexcept
+Scene::Scene(MetaRegistry& reg) noexcept
     : m_component_registry(reg) {
 }
 

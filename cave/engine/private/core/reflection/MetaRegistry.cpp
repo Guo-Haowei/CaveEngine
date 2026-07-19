@@ -1,13 +1,12 @@
 #include "cave/core/reflection/Meta.h"
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/reflection/MetaRegistry.h"
 #include "cave/runtime/ui/UIComponents.h"
+// #include "cave/runtime/ecs/ComponentDefines.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-namespace cave::ecs {
-
-using namespace cave::literals;
+namespace cave {
 
 #define DEBUG_COMPONENT_REGISTRY IN_USE
 #if USING(DEBUG_COMPONENT_REGISTRY)
@@ -16,7 +15,7 @@ using namespace cave::literals;
 #define DEBUG_PRINT(...) ((void)0)
 #endif
 
-const FieldMetaBase* ComponentMeta::find(const PropertyId& pid) const {
+const FieldMetaBase* MetaTable::find(const PropertyId& pid) const {
     for (const FieldMetaBase* meta : props) {
         if (meta->id == pid) {
             return meta;
@@ -25,14 +24,14 @@ const FieldMetaBase* ComponentMeta::find(const PropertyId& pid) const {
     return nullptr;
 }
 
-void ComponentRegistry::registerMeta(const ComponentMeta& meta) {
+void MetaRegistry::registerMeta(const MetaTable& meta) {
     const size_t idx = m_table.size();
-    auto [it, inserted] = m_lookup.try_emplace(meta.cid, idx);
+    auto [it, inserted] = m_lookup.try_emplace(meta.type_id, idx);
 
     if (!inserted) {
         LOG_FATAL(LogChannel::Core,
                   "meta '{}'(id:{}) already registered",
-                  meta.name, meta.cid.hash());
+                  meta.name, meta.type_id.hash());
         return;
     }
 
@@ -41,11 +40,11 @@ void ComponentRegistry::registerMeta(const ComponentMeta& meta) {
 
     DEBUG_PRINT("Registered component '{}', id: {}",
                 meta.name,
-                meta.cid.hash());
+                meta.type_id.hash());
 }
 
-const ComponentMeta* ComponentRegistry::tryGet(ComponentId cid) const {
-    auto it = m_lookup.find(cid);
+const MetaTable* MetaRegistry::tryGet(StringId type_id) const {
+    auto it = m_lookup.find(type_id);
     if (it == m_lookup.end()) return nullptr;
 
     const size_t idx = it->second;
@@ -55,19 +54,11 @@ const ComponentMeta* ComponentRegistry::tryGet(ComponentId cid) const {
     return nullptr;
 }
 
-ComponentMeta& ComponentRegistry::getMut(ComponentId cid) {
-    auto it = m_lookup.find(cid);
-    DEV_ASSERT(it != m_lookup.end());
-
-    const size_t idx = it->second;
-    DEV_ASSERT(idx < m_table.size());
-    return m_table[idx];
-}
-
-void ComponentRegistry::builtin(ComponentRegistry& out) {
+void MetaRegistry::builtin(MetaRegistry& out) {
+    // register components
 #define REGISTER_COMPONENT(T, ...)              \
     out.registerMeta({                          \
-        .cid = T##_Id,                          \
+        .type_id = T##_Id,                      \
         .name = #T,                             \
         .size = sizeof(T),                      \
         .align = alignof(T),                    \
@@ -79,4 +70,4 @@ void ComponentRegistry::builtin(ComponentRegistry& out) {
 #undef REGISTER_COMPONENT
 }
 
-}  // namespace cave::ecs
+}  // namespace cave

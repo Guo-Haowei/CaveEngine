@@ -9,7 +9,8 @@
 #include "cave/core/math/Vec.h"
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/reflection/MetaRegistry.h"
+#include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
 

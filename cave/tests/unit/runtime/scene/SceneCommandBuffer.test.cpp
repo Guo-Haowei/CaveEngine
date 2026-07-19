@@ -1,4 +1,4 @@
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/reflection/MetaRegistry.h"
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 
@@ -27,7 +27,7 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     cb.setProperty(e2, NameComponent_Id, "name"_sid, FixedString<64>("e2"));
     cb.setProperty(e2, HierarchyComponent_Id, "parent_id"_sid, e1);
 
-    ComponentRegistry reg = ComponentRegistry::builtin();
+    MetaRegistry reg = MetaRegistry::builtin();
 
     SceneCommandExecutor executor(scene, reg);
     EntityMap map(cb.allocationCount());

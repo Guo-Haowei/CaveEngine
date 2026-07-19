@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/runtime/ecs/ComponentDefines.h"
-#include "cave/runtime/ecs/ComponentRegistry.h"
+#include "cave/core/reflection/MetaRegistry.h"
 
 #include "editor/edit/EditCmdBase.h"
 #include "editor/document/IDocument.h"

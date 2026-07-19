@@ -9,13 +9,13 @@ namespace cave {
 
 using ecs::Entity;
 
-SceneCommandExecutor::SceneCommandExecutor(Scene& p_scene, ecs::ComponentRegistry& p_reg) noexcept
-    : m_scene(p_scene)
-    , m_reg(p_reg) {
+SceneCommandExecutor::SceneCommandExecutor(Scene& scene, MetaRegistry& reg) noexcept
+    : m_scene(scene)
+    , m_reg(reg) {
 }
 
-SceneCommandExecutor::SceneCommandExecutor(Scene& p_scene) noexcept
-    : m_scene(p_scene)
+SceneCommandExecutor::SceneCommandExecutor(Scene& scene) noexcept
+    : m_scene(scene)
     , m_reg(engine::GetComponentRegistry()) {
 }
 
@@ -33,13 +33,13 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
                                           const PropertyId& pid,
                                           const void* new_value,
                                           uint32_t data_size) {
-    const ecs::ComponentMeta* meta = m_reg.tryGet(cid);
+    const MetaTable* meta = m_reg.tryGet(cid);
     if (!meta) {
         LOG_WARN("Can't find meta for component '{}'", meta->name);
         return false;
     }
 
-    void* comp = m_scene.storage().getRaw(meta->cid, ent);
+    void* comp = m_scene.storage().getRaw(meta->type_id, ent);
     if (!comp) {
         LOG_WARN("Can't find '{}' for ent {}", meta->name, ent.id());
         return false;
