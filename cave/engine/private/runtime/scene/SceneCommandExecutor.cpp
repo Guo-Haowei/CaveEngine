@@ -59,9 +59,6 @@ bool SceneCommandExecutor::changeProperty(Entity ent,
     Vector<uint8_t> old_value(data_size, 0);
     std::memcpy(old_value.data(), ptr, data_size);
     std::memcpy(ptr, new_value, data_size);
-    if (meta->on_edited) {
-        meta->on_edited(m_scene, ent, cid, pid, new_value, data_size);
-    }
 
     if (field->on_change) {
         FieldChange change{

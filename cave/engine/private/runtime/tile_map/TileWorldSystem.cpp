@@ -164,8 +164,6 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
 
     struct CompareOpenNode {
         bool operator()(const OpenNode& lhs, const OpenNode& rhs) const {
-            // std::priority_queue is a max-heap by default,
-            // so reverse the comparison for a min-heap.
             return lhs.priority > rhs.priority;
         }
     };

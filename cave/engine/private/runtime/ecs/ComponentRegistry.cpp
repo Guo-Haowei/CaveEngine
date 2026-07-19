@@ -1,6 +1,5 @@
 #include "cave/core/reflection/Meta.h"
 #include "cave/runtime/ecs/ComponentRegistry.h"
-#include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/ui/UIComponents.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
@@ -58,22 +57,6 @@ ComponentMeta& ComponentRegistry::getMut(ComponentId pid) {
     return m_table[pid];
 }
 
-namespace {
-
-void Transform_OnEdited(Scene& scene,
-                        ecs::Entity ent,
-                        ComponentId,
-                        const PropertyId&,
-                        const void*,
-                        uint32_t) {
-    auto* c = (TransformComponent*)scene.storage().getRaw(TransformComponent_Id, ent);
-    if (DEV_VERIFY(c)) {
-        c->setDirty();
-    }
-}
-
-}  // namespace
-
 void ComponentRegistry::builtin(ComponentRegistry& out) {
 #define REGISTER_COMPONENT(T, ...)              \
     out.registerMeta({                          \
@@ -87,8 +70,6 @@ void ComponentRegistry::builtin(ComponentRegistry& out) {
 
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
-
-    out.getMut(TransformComponent_Id).on_edited = Transform_OnEdited;
 }
 
 }  // namespace cave::ecs

@@ -14,6 +14,10 @@ TransformComponent::TransformComponent()
     setDirty();
 }
 
+void TransformComponent::onTransformChanged(const FieldChange&) {
+    setDirty();
+}
+
 void TransformComponent::setTranslation(const math::Vec3f& v) {
     setDirty();
     m_translation = v;

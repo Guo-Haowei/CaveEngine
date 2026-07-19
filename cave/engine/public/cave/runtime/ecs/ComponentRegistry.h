@@ -16,13 +16,6 @@ class Scene;
 
 namespace cave::ecs {
 
-using OnComponentEditedFn = void (*)(Scene&,
-                                     ecs::Entity,
-                                     ComponentId,
-                                     const PropertyId&,
-                                     const void*,
-                                     uint32_t);
-
 struct ComponentMeta {
     ComponentId cid;
     const char* name;
@@ -31,7 +24,6 @@ struct ComponentMeta {
     uint64_t version;
 
     std::span<const FieldMetaBase* const> props;
-    OnComponentEditedFn on_edited{ nullptr };
 
     const FieldMetaBase* find(const PropertyId& pid) const;
 };
