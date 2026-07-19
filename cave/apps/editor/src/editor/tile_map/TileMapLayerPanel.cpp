@@ -46,18 +46,11 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
     };
 
     auto& layers = tile_map.layers();
-    if (ImGui::Button(ICON_FA_SQUARE_PLUS " Add Layer")) {
-        layers.resize(layers.size() + 1);
-        layers.back().name() = std::move(std::format("Layer {}", layers.size()));
 
-        m_selected_layer = Some(static_cast<int>(layers.size()) - 1);
-
-        notify_changed();
-    }
-
-    ImGui::Separator();
-
-    Option<int> pending_delete;
+    ImGui::BeginChild(
+        "##LayerList",
+        ImVec2{ 0.0f, -ImGui::GetFrameHeightWithSpacing() },
+        ImGuiChildFlags_Borders);
 
     for (int layer_id = 0; layer_id < static_cast<int>(layers.size()); ++layer_id) {
         TileMapLayer& layer = layers[layer_id];
@@ -105,14 +98,6 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
         }
 
         ImGui::SameLine();
-
-        ImGui::BeginDisabled(layers.size() <= 1);
-
-        if (ImGui::Button(ICON_FA_TRASH_CAN)) {
-            pending_delete = Some(layer_id);
-        }
-
-        ImGui::EndDisabled();
 
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
             ImGui::SetTooltip(layers.size() <= 1
@@ -166,14 +151,57 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
         ImGui::Spacing();
     }
 
-    if (pending_delete) {
-        const int deleted = pending_delete.unwrap_unchecked();
+    ImGui::EndChild();
 
-        layers.erase(layers.begin() + deleted);
+    const float button_width = ImGui::GetFrameHeight();
 
-        m_selected_layer = None();
+    ImGui::BeginGroup();
+
+    ImGui::BeginDisabled(!m_selected_layer);
+
+    if (ImGui::Button(
+            ICON_FA_TRASH_CAN,
+            ImVec2{ button_width, 0.0f })) {
+        //pending_delete = m_selected_layer;
+    }
+
+    if (ImGui::IsItemHovered(
+            ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip(
+            m_selected_layer
+                ? "Delete selected layer"
+                : "Select a layer first");
+    }
+
+    ImGui::EndDisabled();
+
+    ImGui::SameLine();
+
+    if (ImGui::Button(
+            ICON_FA_PLUS,
+            ImVec2{ button_width, 0.0f })) {
+        layers.emplace_back();
+
+        const int new_index =
+            static_cast<int>(layers.size()) - 1;
+
+        layers.back().name() =
+            std::format("Layer {}", layers.size());
+
+        m_selected_layer = Some(new_index);
         notify_changed();
     }
+
+    ImGui::EndGroup();
+
+    //if (pending_delete) {
+    //    const int deleted = pending_delete.unwrap_unchecked();
+
+    //    layers.erase(layers.begin() + deleted);
+
+    //    m_selected_layer = None();
+    //    notify_changed();
+    //}
 }
 
 const TileMapLayer* TileMapLayerPanel::selectedLayer(const TileMapAsset& tile_map) {
