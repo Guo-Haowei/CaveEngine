@@ -29,7 +29,7 @@ void ComponentRegistry::registerMeta(const ComponentMeta& meta) {
     const size_t idx = m_table.size();
     auto [it, inserted] = m_lookup.try_emplace(meta.cid, idx);
 
-    if (inserted) {
+    if (!inserted) {
         LOG_FATAL(LogChannel::Core,
                   "meta '{}'(id:{}) already registered",
                   meta.name, meta.cid.hash());

@@ -20,11 +20,7 @@ void ComponentStorage::clearAll() {
 IComponentPool& ComponentStorage::getOrCreate(ComponentId cid) {
     const uint32_t idx = ensure(cid);
     Entry& e = m_entries[idx];
-    if (e.type_id.hash() == 0) {
-        e.type_id = cid;
-    } else {
-        DEV_ASSERT(e.type_id == cid);
-    }
+    DEV_ASSERT(e.type_id == cid);
 
     // @TODO: make pool typeless
     if (!e.pool) {
@@ -108,7 +104,7 @@ uint32_t ComponentStorage::ensure(ComponentId cid) {
     auto [it, inserted] = m_lookup.try_emplace(cid, size);
 
     if (inserted) {
-        m_entries.resize(size + 1);
+        m_entries.emplace_back(cid);
     }
     return it->second;
 }

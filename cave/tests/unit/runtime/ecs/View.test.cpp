@@ -5,11 +5,9 @@
 
 namespace cave {
 
-enum {
-    C1_Id,
-    C2_Id,
-    C3_Id,
-};
+constexpr StringId C1_Id = CAVE_SID("C1_Id");
+constexpr StringId C2_Id = CAVE_SID("C2_Id");
+constexpr StringId C3_Id = CAVE_SID("C3_Id");
 
 struct C1 {
     CAVE_COMPONENT(C1);

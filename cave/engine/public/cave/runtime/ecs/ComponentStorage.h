@@ -20,6 +20,9 @@ class ComponentPool;
 
 class ComponentStorage {
     struct Entry {
+        Entry(StringId type_id)
+            : type_id(type_id) {}
+
         StringId type_id;
         Owner<IComponentPool> pool;
     };
