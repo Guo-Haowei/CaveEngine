@@ -14,13 +14,13 @@ content:
       trigger: ""
       animation: []
     - id: 1
-      collision: Solid
-      collision_shape:
-        type: box
-        data: [0.5, 0.5, 0.5]
+      collision: Trigger
+      # collision_shape:
+      #   type: box
+      #   data: [0.5, 0.5, 0.5]
       trigger: ""
       animation:
         - atlas_index: 1
-          duration: 0.1
+          duration: 0.4
         - atlas_index: 2
-          duration: 0.1
+          duration: 0.4

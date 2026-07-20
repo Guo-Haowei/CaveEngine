@@ -265,6 +265,7 @@ void TileWorldSystem::rebuildCollision() {
                     const TileDefinition* def = tile_set->getTileDefinition(tile_id);
                     if (!def) continue;
                     Shape shape = def->collision_shape;
+                    if (shape.type == ShapeType::Null) continue;
                     DEV_ASSERT(shape.type == ShapeType::Box);
 
                     TileCoord coord;
