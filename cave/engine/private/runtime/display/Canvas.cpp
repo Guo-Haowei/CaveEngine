@@ -83,29 +83,30 @@ bool Canvas::takeBucket(ViewId view_id, CanvasBucket& out) {
 void Canvas::addImage(const GpuTexture* texture,
                       const math::Vec2f& min,
                       const math::Vec2f& max,
-                      const math::Vec4f& tint,
-                      const math::Vec2f& uv_min,
-                      const math::Vec2f& uv_max,
-                      const math::Mat4f* transform) {
+                      const ImageDrawOptions& options) {
     if (canSubmit()) {
-        addImageImpl(texture, min, max, tint, uv_min, uv_max, transform);
+        addImageImpl(texture, min, max, options);
     }
 }
 
 void Canvas::addBox2(const Vec2f& min,
                      const Vec2f& max,
-                     const Vec4f& tint,
-                     const Mat4f* transform) {
+                     const Draw2DOptions& options) {
     if (canSubmit()) {
-        addImageImpl(nullptr, min, max, tint, Vec2f::Zero, Vec2f::Zero, transform);
+        ImageDrawOptions opt;
+        opt.z_index = options.z_index;
+        opt.tint = options.tint;
+        opt.transform = options.transform;
+        opt.uv_min = Vec2f::Zero;
+        opt.uv_max = Vec2f::Zero;
+        addImageImpl(nullptr, min, max, opt);
     }
 }
 
 void Canvas::addBox2Frame(const Vec2f& min,
                           const Vec2f& max,
                           float thickness,
-                          const Vec4f& tint,
-                          const Mat4f* transform) {
+                          const Draw2DOptions& options) {
     if (!canSubmit()) {
         return;
     }
@@ -113,19 +114,16 @@ void Canvas::addBox2Frame(const Vec2f& min,
     const float tx = thickness;
     const float ty = thickness;
 
-    addBox2(min, { min.x + tx, max.y }, tint, transform);
-    addBox2({ max.x - tx, min.y }, max, tint, transform);
-    addBox2(min, { max.x, min.y + ty }, tint, transform);
-    addBox2({ min.x, max.y - ty }, max, tint, transform);
+    addBox2(min, { min.x + tx, max.y }, options);
+    addBox2({ max.x - tx, min.y }, max, options);
+    addBox2(min, { max.x, min.y + ty }, options);
+    addBox2({ min.x, max.y - ty }, max, options);
 }
 
 void Canvas::addImageImpl(const GpuTexture* texture,
                           const math::Vec2f& min,
                           const math::Vec2f& max,
-                          const math::Vec4f& tint,
-                          const math::Vec2f& uv_min,
-                          const math::Vec2f& uv_max,
-                          const math::Mat4f* transform) {
+                          const ImageDrawOptions& options) {
 
     if (!(min.x < max.x && min.y < max.y)) {
         return;
@@ -139,17 +137,18 @@ void Canvas::addImageImpl(const GpuTexture* texture,
     PrimShape shape{
         .type = PrimShapeType::Rect,
         .vertices = {
-            PrimVert{ bottom_left, Vec2f(uv_min.x, uv_max.y), tint },
-            PrimVert{ bottom_right, Vec2f(uv_max.x, uv_max.y), tint },
-            PrimVert{ top_left, Vec2f(uv_min.x, uv_min.y), tint },
-            PrimVert{ top_right, Vec2f(uv_max.x, uv_min.y), tint },
+            PrimVert{ bottom_left, Vec2f(options.uv_min.x, options.uv_max.y), options.tint },
+            PrimVert{ bottom_right, Vec2f(options.uv_max.x, options.uv_max.y), options.tint },
+            PrimVert{ top_left, Vec2f(options.uv_min.x, options.uv_min.y), options.tint },
+            PrimVert{ top_right, Vec2f(options.uv_max.x, options.uv_min.y), options.tint },
         },
         .tex = texture,
+        .z_index = options.z_index,
     };
 
-    if (transform) {
+    if (options.transform) {
         for (PrimVert& vert : shape.vertices) {
-            vert.pos = ((*transform) * Vec4f(vert.pos, 1.0f)).xyz;
+            vert.pos = ((*options.transform) * Vec4f(vert.pos, 1.0f)).xyz;
         }
     }
 

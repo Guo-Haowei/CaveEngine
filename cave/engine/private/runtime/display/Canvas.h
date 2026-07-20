@@ -17,21 +17,16 @@ public:
     void addBox2Frame(const math::Vec2f& min,
                       const math::Vec2f& max,
                       float thickness,
-                      const math::Vec4f& tint,
-                      const math::Mat4f* transform) override;
+                      const Draw2DOptions& options) override;
 
     void addBox2(const math::Vec2f& min,
                  const math::Vec2f& max,
-                 const math::Vec4f& tint,
-                 const math::Mat4f* transform) override;
+                 const Draw2DOptions& options) override;
 
     void addImage(const GpuTexture* texture,
                   const math::Vec2f& min,
                   const math::Vec2f& max,
-                  const math::Vec4f& tint,
-                  const math::Vec2f& uv_min,
-                  const math::Vec2f& uv_max,
-                  const math::Mat4f* transform) override;
+                  const ImageDrawOptions& options) override;
 
     bool takeBucket(ViewId view_id, CanvasBucket& out) override;
 
@@ -39,10 +34,7 @@ private:
     void addImageImpl(const GpuTexture* texture,
                       const math::Vec2f& min,
                       const math::Vec2f& max,
-                      const math::Vec4f& tint,
-                      const math::Vec2f& uv_min,
-                      const math::Vec2f& uv_max,
-                      const math::Mat4f* transform);
+                      const ImageDrawOptions& options);
 
     bool canSubmit() const;
 

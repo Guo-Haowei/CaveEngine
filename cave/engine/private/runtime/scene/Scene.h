@@ -15,6 +15,7 @@ namespace cave::jobsystem { class Context; }
 
 namespace cave {
 
+class ICanvas;
 class MetaRegistry;
 class SceneRuntime;
 
@@ -153,6 +154,8 @@ public:
     std::atomic<uint32_t> dirtyFlags_{ SCENE_DIRTY_NONE };
 
     Vector<ecs::Entity> getSortedEntityArray() const;
+
+    void submit2D(float dt, ICanvas& canvas);
 
 private:
     void flushPendingDestroy();

@@ -4,7 +4,6 @@
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/AABB.h"
-#include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "RenderPackets.h"
@@ -82,7 +81,6 @@ enum class DrawPhase : uint8_t {
 };
 
 struct FrameData {
-    ICanvas& canvas;
     ViewId view_id;
     render::RenderOptions options;
     // @TODO: multi camera & viewport

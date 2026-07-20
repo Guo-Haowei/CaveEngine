@@ -5,54 +5,14 @@
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
 
 #include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 
 namespace cave {
 
 using namespace cave::math;
 
 namespace {
-
-void CollectTileMap(Scene& scene, FrameData& framedata) {
-    auto view = scene.view<TileMapInstanceComponent, HierarchyComponent>();
-
-    for (const auto& [id, instance, hier] : view) {
-        if (!hier.visible()) continue;
-
-        instance.createRenderData();
-
-        auto layers = instance.layers();
-        if (layers.empty()) continue;
-
-        const TransformComponent& transform = *scene.component<TransformComponent>(id);
-
-        const Mat4f& world_matrix = transform.worldMatrix();
-        PerBatchConstantBuffer batch;
-        batch.c_worldMatrix = world_matrix;
-        batch.c_tint_color = Vec4f::One;
-
-        for (const auto& layer : layers) {
-            if (!layer.isStatic()) {
-                // CRASH_NOW();
-            }
-            if (!layer.visible) continue;
-            if (!layer.mesh) continue;
-            if (layer.mesh->desc.drawCount == 0) continue;
-            ImageAsset* image = layer.image.get();
-            if (!image) continue;
-
-            DrawItem draw;
-            draw.index.count = layer.mesh->desc.drawCount;
-            draw.mesh_data = layer.mesh.get();
-            draw.batch_idx = framedata.batchCache.FindOrAdd(id, batch);
-            draw.z_index = layer.z_index;
-
-            draw.texture = image->gpu_texture.get();
-            framedata.sprites.push_back(draw);
-        }
-    }
-}
 
 void CollectSprites(const Scene& scene, FrameData& framedata) {
     auto& sprites = framedata.sprites;
@@ -117,7 +77,6 @@ void RunSpriteRenderSystem(Scene* scene, FrameData& framedata) {
         return;
     }
 
-    CollectTileMap(*scene, framedata);
     CollectSprites(*scene, framedata);
 
     std::sort(framedata.sprites.begin(), framedata.sprites.end(),

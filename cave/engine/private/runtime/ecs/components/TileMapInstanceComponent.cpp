@@ -57,47 +57,6 @@ void AppendTileQuad(int16_t x,
     indices.push_back(2 + offset);
 }
 
-Ref<GpuMesh> CreateGpuMesh(std::span<const Vec2f> vertices,
-                   std::span<const Vec2f> uvs,
-                   std::span<const uint32_t> indices) {
-
-    const uint32_t count = static_cast<uint32_t>(indices.size());
-    if (count == 0) {
-        return nullptr;
-    }
-
-    std::array<GpuBufferDesc, 2> buffers;
-    GpuBufferDesc buffer_desc;
-    buffer_desc.type = GpuBufferType::Vertex;
-    buffer_desc.element_size = sizeof(Vec2f);
-    buffer_desc.element_count = (uint32_t)vertices.size();
-    buffer_desc.initial_data = vertices.data();
-
-    buffers[0] = buffer_desc;
-
-    buffer_desc.initial_data = uvs.data();
-    buffers[1] = buffer_desc;
-
-    GpuBufferDesc index_desc;
-    index_desc.type = GpuBufferType::Index;
-    index_desc.element_size = sizeof(uint32_t);
-    index_desc.element_count = count;
-    index_desc.initial_data = indices.data();
-
-    GpuMeshDesc desc;
-    desc.drawCount = count;
-    desc.enabledVertexCount = 2;
-    desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
-    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
-
-    // @TODO: refactor this part
-    // @NOTE: shouldn't call RenderDevice here
-    auto mesh = RenderDevice::singleton().CreateMeshImpl(desc,
-                                                         buffers,
-                                                         &index_desc);
-    return mesh.value_or(nullptr);
-}
-
 }  // namespace
 
 void TileMapInstanceComponent::refreshTileMapHandle() {
@@ -128,17 +87,14 @@ void TileMapInstanceComponent::onDeserialized() {
 }
 
 bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache& layer_cache) {
-    // @TODO: use canvas and get rid of this shit
-    layer_cache.mesh = nullptr;
-
     auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(layer.tileSetGuid());
     if (tile_set_handle) {
-        layer_cache.tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
+        layer_cache.tile_set = std::move(tile_set_handle.unwrap_unchecked());
     } else {
-        layer_cache.tile_set_handle.invalidate();
+        layer_cache.tile_set.invalidate();
     }
 
-    TileSetAsset* tile_set = layer_cache.tile_set_handle.get();
+    TileSetAsset* tile_set = layer_cache.tile_set.get();
     if (!DEV_VERIFY(tile_set)) {
         return true;
     }
@@ -147,14 +103,6 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache
     if (chunks.empty()) {
         return true;
     }
-
-    struct TileInfo {
-        int16_t x, y;
-        const TileDefinition* definition;
-    };
-
-    Vector<TileInfo> static_info;
-    Vector<TileInfo> animated_info;
 
     auto collect_tiles = [&]() {
         for (const auto& [key, chunk] : chunks) {
@@ -166,11 +114,7 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache
                     const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
                     const auto* definition = tile_set->getTileDefinition(tile_id);
                     if (definition) {
-                        if (definition->animation.empty()) {
-                            static_info.emplace_back(x, y, definition);
-                        } else {
-                            animated_info.emplace_back(x, y, definition);
-                        }
+                        layer_cache.tiles.emplace_back(x, y, tile_id, 0.0f);
                     }
                 }
             }
@@ -179,27 +123,9 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache
 
     collect_tiles();
 
-    const auto& frames = tile_set->frames();
-
     layer_cache.visible = layer.visible();
     layer_cache.z_index = layer.zIndex();
     layer_cache.image = tile_set->handle();
-
-    if (!static_info.empty())
-    {
-        Vector<Vec2f> vertices;
-        Vector<Vec2f> uvs;
-        Vector<uint32_t> indices;
-
-        for (const auto& tile : static_info) {
-            const auto atlas_index = tile.definition->id;
-            if (DEV_VERIFY(atlas_index < frames.size())) {
-                AppendTileQuad(tile.x, tile.y, frames[atlas_index], vertices, uvs, indices);
-            }
-        }
-
-        layer_cache.mesh = CreateGpuMesh(vertices, uvs, indices);
-    }
 
     return true;
 }
