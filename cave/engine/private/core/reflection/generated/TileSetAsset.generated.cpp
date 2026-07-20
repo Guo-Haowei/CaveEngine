@@ -8,13 +8,105 @@
 
 namespace cave {
 
+// uint32_t atlas_index ()
+// float duration ()
+
+template<>
+const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
+    static MetaTableFields s_table = {
+        REGISTER_FIELD(
+            TileFrame,
+            "atlas_index",
+            CAVE_SID("atlas_index"),
+            atlas_index,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileFrame,
+            "duration",
+            CAVE_SID("duration"),
+            duration,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_TileFrame_meta = MetaDataTable<TileFrame>::GetFields();
+
+// uint32_t id ()
+// CollisionType collision ()
+// Shape collision_shape ()
+// String trigger ()
+// Vector<TileFrame> animation ()
+
+template<>
+const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
+    static MetaTableFields s_table = {
+        REGISTER_FIELD(
+            TileDefinition,
+            "id",
+            CAVE_SID("id"),
+            id,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
+            "collision",
+            CAVE_SID("collision"),
+            collision,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
+            "collision_shape",
+            CAVE_SID("collision_shape"),
+            collision_shape,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
+            "trigger",
+            CAVE_SID("trigger"),
+            trigger,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
+            "animation",
+            CAVE_SID("animation"),
+            animation,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr
+        ),
+    };
+
+    return s_table;
+}
+
+// Avoid lazy init
+[[maybe_unused]] static const auto& s_TileDefinition_meta = MetaDataTable<TileDefinition>::GetFields();
+
 // Guid m_image_guid (editor = Asset)
 // float m_tile_scale (editor = DragFloat, min = 0.01f, max = 100.0f)
-// uint32_t m_width ()
-// uint32_t m_height ()
 // uint32_t m_row (editor = InputInt, min = 1, max = 1000)
 // uint32_t m_column (editor = InputInt, min = 1, max = 1000)
-// std::map<uint32_t, Shape> m_colliders ()
+// Vector<TileDefinition> m_tiles ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
@@ -41,24 +133,6 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
         ),
         REGISTER_FIELD(
             TileSetAsset,
-            "width",
-            CAVE_SID("width"),
-            m_width,
-            FieldFlag::Serialize,
-            EditorHint::None,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            TileSetAsset,
-            "height",
-            CAVE_SID("height"),
-            m_height,
-            FieldFlag::Serialize,
-            EditorHint::None,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            TileSetAsset,
             "row",
             CAVE_SID("row"),
             m_row,
@@ -81,9 +155,9 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
         ),
         REGISTER_FIELD(
             TileSetAsset,
-            "colliders",
-            CAVE_SID("colliders"),
-            m_colliders,
+            "tiles",
+            CAVE_SID("tiles"),
+            m_tiles,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr

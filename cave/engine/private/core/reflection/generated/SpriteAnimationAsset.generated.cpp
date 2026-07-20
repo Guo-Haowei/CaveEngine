@@ -8,9 +8,9 @@
 
 namespace cave {
 
-// std::vector<math::Box2> frames_ (type = box2[])
-// std::vector<float> durations_ (type = f32[])
-// bool looping_ (type = boolean, hint = toggle)
+// Vector<math::Box2> m_frames ()
+// Vector<float> m_durations ()
+// bool m_looping ()
 
 template<>
 const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
@@ -19,7 +19,7 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
             SpriteAnimationClip,
             "frames",
             CAVE_SID("frames"),
-            frames_,
+            m_frames,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr
@@ -28,7 +28,7 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
             SpriteAnimationClip,
             "durations",
             CAVE_SID("durations"),
-            durations_,
+            m_durations,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr
@@ -37,7 +37,7 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
             SpriteAnimationClip,
             "looping",
             CAVE_SID("looping"),
-            looping_,
+            m_looping,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr

@@ -30,18 +30,9 @@ void TileSetAsset::tileScale(float scale) {
     }
 }
 
-bool TileSetAsset::addBoxCollider(uint32_t tile_id) {
-    if (tile_id < static_cast<uint32_t>(m_frames.size())) {
-        m_colliders[tile_id] = Shape::makeBox(Vec2f(0.5f));
-        return true;
-    }
-    return false;
-}
-
 Option<Shape> TileSetAsset::getCollider(uint32_t tile_id) const {
-    if (auto it = m_colliders.find(tile_id); it != m_colliders.end()) {
-        return Some(it->second);
-    }
+    unused(tile_id);
+    DEV_ASSERT(0);
     return None();
 }
 

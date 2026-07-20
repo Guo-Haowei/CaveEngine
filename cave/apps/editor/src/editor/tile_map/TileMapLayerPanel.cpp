@@ -139,14 +139,6 @@ void TileMapLayerPanel::drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
             ImGui::SetTooltip(visible ? "Hide layer" : "Show layer");
         }
 
-        // ImGui::SameLine();
-
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
-            ImGui::SetTooltip(layers.size() <= 1
-                                  ? "A tile map must contain at least one layer"
-                                  : "Delete layer");
-        }
-
         if (Guid tile_set_guid = layer.tileSetGuid();
             DrawAsset(ctx, "Tile Set", tile_set_guid)) {
             layer.setTileSetGuid(tile_set_guid);
