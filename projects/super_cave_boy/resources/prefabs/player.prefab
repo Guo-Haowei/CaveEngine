@@ -12,14 +12,12 @@ entities:
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:
-      body_type: dynamic
       shape:
         type: box
         data: [0.25, 0.5, 0.5]
-      flags: 0
       layer: 1
-      mask: 14
-      is_trigger: false
+      mask: 62
+      is_trigger: true
     ContactComponent:
       {}
     MotorComponent:

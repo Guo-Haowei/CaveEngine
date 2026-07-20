@@ -43,6 +43,8 @@ const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
 // uint32_t id ()
 // CollisionType collision ()
 // math::Box2 collision_shape ()
+// uint32_t layer (editor = BitMask)
+// uint32_t mask (editor = BitMask)
 // Vector<TileFrame> animation ()
 
 template<>
@@ -73,6 +75,24 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             collision_shape,
             FieldFlag::Serialize,
             EditorHint::None,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
+            "layer",
+            CAVE_SID("layer"),
+            layer,
+            FieldFlag::Serialize,
+            EditorHint::BitMask,
+            nullptr
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
+            "mask",
+            CAVE_SID("mask"),
+            mask,
+            FieldFlag::Serialize,
+            EditorHint::BitMask,
             nullptr
         ),
         REGISTER_FIELD(

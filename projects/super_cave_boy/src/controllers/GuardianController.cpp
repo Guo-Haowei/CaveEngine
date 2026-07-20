@@ -24,7 +24,6 @@ constexpr float kWallDistance = 1.0f;
 
 GuardianController::GuardianController() noexcept {
     m_health = 3;
-    m_health = 1;
 }
 
 void GuardianController::start() {
@@ -96,7 +95,7 @@ void GuardianController::update(float dt) {
     m_state_machine.update(dt);
 }
 
-void GuardianController::takeDamageFromPlayer(int damage) {
+void GuardianController::takeDamage(int damage) {
     if (DEV_VERIFY(m_health > 0)) {
         m_health -= damage;
         if (alive()) {

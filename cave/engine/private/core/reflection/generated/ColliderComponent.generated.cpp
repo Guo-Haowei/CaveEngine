@@ -8,9 +8,7 @@
 
 namespace cave {
 
-// BodyType m_body_type (editor = EnumDropDown)
 // Shape m_shape ()
-// uint32_t m_flags ()
 // uint32_t m_layer (editor = BitMask)
 // uint32_t m_mask (editor = BitMask)
 // bool m_is_trigger (editor = Toggle)
@@ -20,27 +18,9 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             ColliderComponent,
-            "body_type",
-            CAVE_SID("body_type"),
-            m_body_type,
-            FieldFlag::Serialize,
-            EditorHint::EnumDropDown,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            ColliderComponent,
             "shape",
             CAVE_SID("shape"),
             m_shape,
-            FieldFlag::Serialize,
-            EditorHint::None,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            ColliderComponent,
-            "flags",
-            CAVE_SID("flags"),
-            m_flags,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr

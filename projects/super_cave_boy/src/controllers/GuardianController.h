@@ -27,7 +27,7 @@ private:
 
     void update(float dt) override;
 
-    void takeDamageFromPlayer(int damage) override;
+    void takeDamage(int damage) override;
 
     void enterFollow();
     void updateFollow(float dt);

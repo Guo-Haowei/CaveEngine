@@ -41,6 +41,12 @@ struct TileDefinition {
     CAVE_PROP()
     math::Box2 collision_shape = { math::Vec2f::Zero, math::Vec2f::One };
 
+    CAVE_PROP(editor = BitMask)
+    uint32_t layer = 0;
+
+    CAVE_PROP(editor = BitMask)
+    uint32_t mask = 0;
+
     CAVE_PROP()
     Vector<TileFrame> animation;
 };
