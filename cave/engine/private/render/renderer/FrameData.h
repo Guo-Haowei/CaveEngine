@@ -4,6 +4,7 @@
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/AABB.h"
+#include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "RenderPackets.h"
@@ -48,8 +49,8 @@ struct PassContext {
 // @TODO: refactor this
 template<typename BUFFER, typename ID = ::cave::ecs::Entity>
 struct BufferCache {
-    std::vector<BUFFER> buffer;
-    std::unordered_map<ID, uint32_t> lookup;
+    Vector<BUFFER> buffer;
+    HashMap<ID, uint32_t> lookup;
 
     uint32_t FindOrAdd(ID p_ent, const BUFFER& p_buffer) {
         auto it = lookup.find(p_ent);
@@ -81,8 +82,8 @@ enum class DrawPhase : uint8_t {
 };
 
 struct FrameData {
+    ICanvas& canvas;
     ViewId view_id;
-
     render::RenderOptions options;
     // @TODO: multi camera & viewport
 

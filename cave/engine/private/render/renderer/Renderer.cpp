@@ -283,7 +283,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
     };
 
-    plan.frame_data.resize(views.size());
+    plan.frame_data.reserve(views.size());
     plan.views.reserve(views.size());
 
     int view_idx = 0;
@@ -292,7 +292,8 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         RenderScene& render_scene = getOrCreateRenderScene(view.scene_id);
         scene_builder_.BuildFull(*view.scene, render_scene);
 
-        plan.views.push_back(view);
+        plan.views.emplace_back(view);
+        plan.frame_data.emplace_back(m_services.canvas());
 
         FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;

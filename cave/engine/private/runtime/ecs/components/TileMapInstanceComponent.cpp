@@ -57,6 +57,47 @@ void AppendTileQuad(int16_t x,
     indices.push_back(2 + offset);
 }
 
+Ref<GpuMesh> CreateGpuMesh(std::span<const Vec2f> vertices,
+                   std::span<const Vec2f> uvs,
+                   std::span<const uint32_t> indices) {
+
+    const uint32_t count = static_cast<uint32_t>(indices.size());
+    if (count == 0) {
+        return nullptr;
+    }
+
+    std::array<GpuBufferDesc, 2> buffers;
+    GpuBufferDesc buffer_desc;
+    buffer_desc.type = GpuBufferType::Vertex;
+    buffer_desc.element_size = sizeof(Vec2f);
+    buffer_desc.element_count = (uint32_t)vertices.size();
+    buffer_desc.initial_data = vertices.data();
+
+    buffers[0] = buffer_desc;
+
+    buffer_desc.initial_data = uvs.data();
+    buffers[1] = buffer_desc;
+
+    GpuBufferDesc index_desc;
+    index_desc.type = GpuBufferType::Index;
+    index_desc.element_size = sizeof(uint32_t);
+    index_desc.element_count = count;
+    index_desc.initial_data = indices.data();
+
+    GpuMeshDesc desc;
+    desc.drawCount = count;
+    desc.enabledVertexCount = 2;
+    desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
+    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
+
+    // @TODO: refactor this part
+    // @NOTE: shouldn't call RenderDevice here
+    auto mesh = RenderDevice::singleton().CreateMeshImpl(desc,
+                                                         buffers,
+                                                         &index_desc);
+    return mesh.value_or(nullptr);
+}
+
 }  // namespace
 
 void TileMapInstanceComponent::refreshTileMapHandle() {
@@ -87,6 +128,7 @@ void TileMapInstanceComponent::onDeserialized() {
 }
 
 bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache& layer_cache) {
+    // @TODO: use canvas and get rid of this shit
     layer_cache.mesh = nullptr;
 
     auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(layer.tileSetGuid());
@@ -123,7 +165,7 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache
                 for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
                     const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
                     const auto* definition = tile_set->getTileDefinition(tile_id);
-                    if (DEV_VERIFY(definition)) {
+                    if (definition) {
                         if (definition->animation.empty()) {
                             static_info.emplace_back(x, y, definition);
                         } else {
@@ -137,58 +179,28 @@ bool TileMapInstanceComponent::updateLayer(const TileMapLayer& layer, LayerCache
 
     collect_tiles();
 
-    Vector<Vec2f> vertices;
-    Vector<Vec2f> uvs;
-    Vector<uint32_t> indices;
-
     const auto& frames = tile_set->frames();
-
-    for (const auto& tile : static_info) {
-        const auto tile_id = tile.definition->id;
-        if (DEV_VERIFY(tile_id < frames.size())) {
-            AppendTileQuad(tile.x, tile.y, frames[tile_id], vertices, uvs, indices);
-        }
-    }
-
-    const uint32_t count = static_cast<uint32_t>(indices.size());
-    if (count == 0) {
-        return true;
-    }
-
-    std::array<GpuBufferDesc, 2> buffers;
-    GpuBufferDesc buffer_desc;
-    buffer_desc.type = GpuBufferType::Vertex;
-    buffer_desc.element_size = sizeof(Vec2f);
-    buffer_desc.element_count = (uint32_t)vertices.size();
-    buffer_desc.initial_data = vertices.data();
-
-    buffers[0] = buffer_desc;
-
-    buffer_desc.initial_data = uvs.data();
-    buffers[1] = buffer_desc;
-
-    GpuBufferDesc index_desc;
-    index_desc.type = GpuBufferType::Index;
-    index_desc.element_size = sizeof(uint32_t);
-    index_desc.element_count = count;
-    index_desc.initial_data = indices.data();
-
-    GpuMeshDesc desc;
-    desc.drawCount = count;
-    desc.enabledVertexCount = 2;
-    desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec2f), 0 };
-    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
-
-    // @TODO: refactor this part
-    // @NOTE: shouldn't call RenderDevice here
-    auto mesh = RenderDevice::singleton().CreateMeshImpl(desc,
-                                                         buffers,
-                                                         &index_desc);
 
     layer_cache.visible = layer.visible();
     layer_cache.z_index = layer.zIndex();
     layer_cache.image = tile_set->handle();
-    layer_cache.mesh = mesh.value_or(nullptr);
+
+    if (!static_info.empty())
+    {
+        Vector<Vec2f> vertices;
+        Vector<Vec2f> uvs;
+        Vector<uint32_t> indices;
+
+        for (const auto& tile : static_info) {
+            const auto atlas_index = tile.definition->id;
+            if (DEV_VERIFY(atlas_index < frames.size())) {
+                AppendTileQuad(tile.x, tile.y, frames[atlas_index], vertices, uvs, indices);
+            }
+        }
+
+        layer_cache.mesh = CreateGpuMesh(vertices, uvs, indices);
+    }
+
     return true;
 }
 

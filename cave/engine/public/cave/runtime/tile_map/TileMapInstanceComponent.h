@@ -34,6 +34,7 @@ private:
         Handle<ImageAsset> image;
 
         Ref<GpuMesh> mesh;
+        Ref<GpuMesh> animated_mesh;
 
         Vector<AnimationFrame> animation;
 
