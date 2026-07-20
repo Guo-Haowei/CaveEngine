@@ -14,6 +14,7 @@ enum class GuardianState : uint8_t {
     Wait,
     Falling,
     Landed,
+    Defeated,
 
     Count,
     Invalid = Count,

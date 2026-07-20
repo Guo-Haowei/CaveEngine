@@ -8,12 +8,10 @@ namespace super_cave_boy {
 
 using namespace ::cave::literals;
 
-constexpr float kPlayerBounceSpeed = 10.f;
 constexpr float kPlayerKnockbackX = 7.f;
 constexpr float kPlayerKnockbackY = 8.f;
 constexpr float kPlayerMoveX = 5.9f;
 constexpr float kPlayerHurtCountDown = 0.5f;
-constexpr float kPlayerStompTolerance = 0.12f;
 constexpr float kPlayerJumpForce = 13.0f;
 constexpr float kPlayerWallJumpForce = 11.5f;
 constexpr float kPlayerGrabEps = 0.03f;

@@ -19,11 +19,12 @@ constexpr float kFallSpeed = -7.0f;
 constexpr float kRaiseSpeed = 5.0f;
 constexpr float kAlignEpsilon = 0.4f;
 constexpr float kWallDistance = 1.0f;
+constexpr int kGuardianHealth = 3;
 
 }  // namespace
 
 GuardianController::GuardianController() noexcept {
-    m_health = 3;
+    m_health = kGuardianHealth;
 }
 
 void GuardianController::start() {
@@ -39,7 +40,6 @@ void GuardianController::start() {
         GuardianState::Raising,
         {
             .update = [this](float dt) { updateRaising(dt); },
-            //.on_enter = [this]() { enterRaising(); },
         });
 
     m_state_machine.addState(
@@ -74,6 +74,12 @@ void GuardianController::start() {
             .next = GuardianState::Raising,
         });
 
+    m_state_machine.addState(
+        GuardianState::Defeated,
+        {
+            .on_enter = [this]() { playAnimation("idle"); },
+        });
+
     m_state_machine.switchTo(GuardianState::Inactive);
 
     m_begin_fight_listener = message().listen(
@@ -96,7 +102,8 @@ void GuardianController::update(float dt) {
 
     m_state_machine.update(dt);
 
-    if (!m_state_machine.is(GuardianState::Inactive)) {
+    if (!m_state_machine.is(GuardianState::Inactive) &&
+        !m_state_machine.is(GuardianState::Defeated)) {
         playAnimation(m_hurt_timer.active() ? "hurt" : "move");
     }
 }
@@ -106,9 +113,8 @@ void GuardianController::takeDamage(int damage) {
         return;
     }
 
-    m_hurt_timer.start();
-
-    if (DEV_VERIFY(m_health > 0)) {
+    if (m_health > 0) {
+        m_hurt_timer.start();
         m_health -= damage;
         if (alive()) {
             return;
@@ -117,7 +123,8 @@ void GuardianController::takeDamage(int damage) {
         message().emit(kGuardianDefeatedID, entity());
         message().disconnect(m_awake_listener);
         message().disconnect(m_begin_fight_listener);
-        query().queueDestroy(entity());
+
+        m_state_machine.switchTo(GuardianState::Defeated);
     }
 }
 

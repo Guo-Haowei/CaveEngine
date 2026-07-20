@@ -23,6 +23,8 @@ using ::cave::ecs::Entity;
 
 namespace {
 
+constexpr float kPlayerBounceSpeed = 10.f;
+
 bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     TileCoord above = hit.coord;
     above.y += 1;

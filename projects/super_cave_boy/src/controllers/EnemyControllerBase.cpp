@@ -17,6 +17,8 @@ using ::cave::ecs::Entity;
 
 namespace {
 
+constexpr float kPlayerStompTolerance = 0.2f;
+
 bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
     auto* player_transform = query.component<TransformComponent>(player);
     auto* player_collider = query.component<ColliderComponent>(player);
@@ -30,20 +32,12 @@ bool IsStompingEnemy(SceneQuery& query, Entity player, Entity enemy) {
         return false;
     }
 
-    // Y-up convention:
-    // falling downward means velocity.y < 0.
-    if (player_velocity->linear.y >= 0.0f) {
-        return false;
-    }
-
     const Box2 player_box = ComputeWorldAABB(*player_transform, *player_collider);
     const Box2 enemy_box = ComputeWorldAABB(*enemy_transform, *enemy_collider);
 
     const float player_feet_y = player_box.min().y;
     const float enemy_top_y = enemy_box.max().y;
 
-    // Since this runs after overlap is already detected, player's feet may
-    // already be slightly inside enemy's box.
     return player_feet_y >= enemy_top_y - kPlayerStompTolerance;
 }
 
