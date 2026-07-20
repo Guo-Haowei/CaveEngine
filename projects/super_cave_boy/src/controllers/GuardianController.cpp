@@ -12,7 +12,7 @@ using ::cave::ecs::Entity;
 
 namespace {
 
-constexpr float kFollowDuration = 2.0f;
+constexpr float kFollowDuration = 3.0f;
 constexpr float kLandedCooldown = 0.5f;
 constexpr float kDropDelay = 0.35f;
 constexpr float kFallSpeed = -7.0f;
@@ -92,10 +92,22 @@ void GuardianController::start() {
 }
 
 void GuardianController::update(float dt) {
+    m_hurt_timer.tick(dt);
+
     m_state_machine.update(dt);
+
+    if (!m_state_machine.is(GuardianState::Inactive)) {
+        playAnimation(m_hurt_timer.active() ? "hurt" : "move");
+    }
 }
 
 void GuardianController::takeDamage(int damage) {
+    if (m_hurt_timer.active()) {
+        return;
+    }
+
+    m_hurt_timer.start();
+
     if (DEV_VERIFY(m_health > 0)) {
         m_health -= damage;
         if (alive()) {
