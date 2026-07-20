@@ -102,8 +102,6 @@ struct FrameData {
 
     std::array<Vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
 
-    Vector<DrawItem> sprites;
-
     // std::vector<InstanceContext> instances;
 
     // std::vector<ParticleEmitterComponent> emitters;

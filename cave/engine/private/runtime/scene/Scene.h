@@ -155,8 +155,6 @@ public:
 
     Vector<ecs::Entity> getSortedEntityArray() const;
 
-    void submit2D(float dt, ICanvas& canvas);
-
 private:
     void flushPendingDestroy();
     void removeEntityImpl(ecs::Entity ent);

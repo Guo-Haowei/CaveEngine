@@ -2,14 +2,10 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/threading/JobSystem.h"
-#include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneRuntime.h"
-#include "cave/runtime/tile_map/TileSetAsset.h"
 #include "cave/runtime/ui/UIComponents.h"
 
-#include "engine/private/core/io/archive.h"
-#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/Engine.h"
 #include "engine/private/systems/AnimationSystem.h"
@@ -333,112 +329,6 @@ Entity Scene::duplicateEntity(Entity ent) {
 #undef REGISTER_COMPONENT
 
     return entity;
-}
-
-namespace {
-
-const TileFrame* FindTileFrame(const TileDefinition& definition,
-                               float elapsed_time) {
-    if (definition.animation.empty()) {
-        return nullptr;
-    }
-
-    float total_duration = 0.0f;
-    for (const TileFrame& frame : definition.animation) {
-        total_duration += std::max(frame.duration, 0.0f);
-    }
-
-    if (total_duration <= 0.0f) {
-        return &definition.animation.front();
-    }
-
-    float local_time = std::fmod(elapsed_time, total_duration);
-    if (local_time < 0.0f) {
-        local_time += total_duration;
-    }
-
-    for (const TileFrame& frame : definition.animation) {
-        const float duration = std::max(frame.duration, 0.0f);
-
-        if (local_time < duration) {
-            return &frame;
-        }
-
-        local_time -= duration;
-    }
-
-    // Handles floating-point precision near total_duration.
-    return &definition.animation.back();
-}
-
-// @TODO: move to animation system
-void SubmitTileLayer(float dt, ICanvas& canvas,
-                     const TileMapInstanceComponent::LayerCache& layer,
-                     const TransformComponent& transform) {
-    const ImageAsset* image = layer.image.get();
-    const TileSetAsset* tile_set = layer.tile_set.get();
-    if (!image || !tile_set) {
-        return;
-    }
-
-    const auto& frames = tile_set->frames();
-    for (const auto& tile : layer.tiles) {
-        tile.elapsed += dt;
-        const auto* definition = tile_set->getTileDefinition(tile.tile_id);
-        if (!definition) continue;
-
-        uint32_t atlas_index = definition->id;
-        if (!definition->animation.empty()) {
-            auto* frame = FindTileFrame(*definition, tile.elapsed);
-            if (!frame) continue;
-            atlas_index = frame->atlas_index;
-        }
-
-        if (atlas_index >= frames.size()) continue;
-        const auto frame = frames[atlas_index];
-
-        ImageDrawOptions options;
-        options.z_index = layer.z_index;
-        options.transform = &transform.worldMatrix();
-        options.uv_min = frame.min();
-        options.uv_max = frame.max();
-
-        const float s = 1.0f;
-        float x0 = s * tile.x;
-        float y0 = s * tile.y;
-        float x1 = s * (tile.x + 1);
-        float y1 = s * (tile.y + 1);
-
-        canvas.addImage(image->gpu_texture.get(),
-                        Vec2f(x0, y0),
-                        Vec2f(x1, y1),
-                        options);
-    }
-}
-
-void SubmitTileMap(float dt, Scene& scene, ICanvas& canvas) {
-    auto view = scene.view<TileMapInstanceComponent, TransformComponent, HierarchyComponent>();
-
-    for (const auto& [id, instance, transform, hier] : view) {
-        if (!hier.visible()) continue;
-
-        instance.createRenderData();
-
-        instance.tileMapHandle();
-
-        auto layers = instance.layers();
-        if (layers.empty()) continue;
-
-        for (const auto& layer : layers) {
-            SubmitTileLayer(dt, canvas, layer, transform);
-        }
-    }
-}
-
-}  // namespace
-
-void Scene::submit2D(float dt, ICanvas& canvas) {
-    SubmitTileMap(dt, *this, canvas);
 }
 
 }  // namespace cave

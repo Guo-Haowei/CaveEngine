@@ -105,6 +105,8 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
         m_ui_canvas.addBox2(rect.min(), rect.max(), options);
     };
 
+    m_ui_canvas.pushView(resolved_view.view_id);
+
     const Scene& scene = *(resolved_view.scene);
 
     const bool debug_ui_rect = DVAR_GET_BOOL(r_debug_ui);
@@ -135,6 +137,8 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
             }
         }
     }
+
+    m_ui_canvas.popView();
 }
 
 }  // namespace cave

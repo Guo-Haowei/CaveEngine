@@ -75,6 +75,11 @@ bool Canvas::takeBucket(ViewId view_id, CanvasBucket& out) {
     }
     if (DEV_VERIFY(it->second < static_cast<int>(m_buckets.size()))) {
         out = std::move(m_buckets[it->second]);
+
+        std::sort(out.shapes.begin(), out.shapes.end(),
+                  [](const PrimShape& a, const PrimShape& b) {
+                      return a.z_index < b.z_index;
+                  });
         return true;
     }
     return false;

@@ -8,7 +8,7 @@ Texture2D t_Sprite : register(t0);
 float4 main(VS_OUTPUT_COLOR input)
     : SV_TARGET {
 
-    float4 color = t_Sprite.Sample(s_pointClampSampler, input.uv);
+    float4 color = t_Sprite.Sample(s_pointWrapSampler, input.uv);
     color *= input.color;
 
     if (color.a < 0.01f) {

@@ -51,7 +51,6 @@ extern void BloomSetupFunc(RenderPassExcutionContext& ctx);
 extern void BloomDownSampleFunc(RenderPassExcutionContext& ctx);
 extern void BloomUpSampleFunc(RenderPassExcutionContext& ctx);
 extern void TonePassFunc(RenderPassExcutionContext& ctx);
-extern void Pass2DDrawFunc(RenderPassExcutionContext& ctx);
 extern void OverlayDrawFunc(RenderPassExcutionContext& ctx);
 
 DepthPrepassOutput RenderGraphBuilderExt::addDepthPrepass() {
@@ -288,8 +287,7 @@ Pass2DOutput RenderGraphBuilderExt::add2dPass(const Pass2DInput& in) {
 
     pass.writeDependency(dependency)
         .writeColor(color, {}, LoadOp::Clear)
-        .writeDepth(depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear)
-        .setExecuteFunc(Pass2DDrawFunc);
+        .writeDepth(depth, {}, LoadOp::Clear, 0.0f, LoadOp::Clear);
 
     return Pass2DOutput{
         .dependency = dependency,
