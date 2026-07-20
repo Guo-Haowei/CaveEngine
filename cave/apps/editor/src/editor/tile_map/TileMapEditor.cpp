@@ -94,8 +94,8 @@ void TileMapEditor::drawGhostTiles(const TileSetAsset& tile_set) {
     auto selections = m_sprite_selector.GetSelections();
 
     bool selection_valid = false;
-    Vec2f uv_min;
-    Vec2f uv_max;
+    Vec2f uv_min{ 0, 0 };
+    Vec2f uv_max{ 0, 0 };
     if (!selections.empty()) {
         auto [x, y] = selections[0];
         uint32_t tile_id = y * tile_set.col() + x;
@@ -110,15 +110,21 @@ void TileMapEditor::drawGhostTiles(const TileSetAsset& tile_set) {
         Vec2f max{ cell.coord.x + 1, cell.coord.y + 1 };
 
         if (m_erasing) {
-            m_canvas.addBox2(min, max, kEraseColor);
+            Draw2DOptions options = {
+                .z_index = 0,
+                .tint = kEraseColor,
+            };
+            m_canvas.addBox2(min, max, options);
             continue;
         }
 
         if (selection_valid) {
-            m_canvas.addImage(image->gpu_texture.get(),
-                              min, max,
-                              Vec4f(Vec3f::One, 0.9f),
-                              uv_min, uv_max);
+            ImageDrawOptions options{};
+            options.tint = Vec4f(Vec3f::One, 0.9f);
+            options.uv_min = uv_min;
+            options.uv_max = uv_max;
+
+            m_canvas.addImage(image->gpu_texture.get(), min, max, options);
         }
     }
 }
@@ -199,12 +205,13 @@ void TileMapEditor::drawTileMap() {
                     Vec2f uv_min = frames[tile_id].min();
                     Vec2f uv_max = frames[tile_id].max();
 
+                    ImageDrawOptions options{};
+                    options.uv_min = uv_min;
+                    options.uv_max = uv_max;
                     m_canvas.addImage(image->gpu_texture.get(),
                                       Vec2f(x0, y0),
                                       Vec2f(x1, y1),
-                                      Vec4f::One,
-                                      uv_min,
-                                      uv_max);
+                                      options);
                 }
             }
         }

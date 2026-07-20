@@ -32,12 +32,6 @@
 
 #include "engine/private/renderer/graphics_dvars.h"
 
-namespace cave {
-
-extern void RunSpriteRenderSystem(Scene* scene, FrameData& framedata);
-
-}  // namespace cave
-
 namespace cave::render {
 
 using math::Vec2f;
@@ -292,7 +286,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         RenderScene& render_scene = getOrCreateRenderScene(view.scene_id);
         scene_builder_.BuildFull(*view.scene, render_scene);
 
-        plan.views.push_back(view);
+        plan.views.emplace_back(view);
 
         FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;
@@ -300,7 +294,6 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         FillConstantBuffer(time, view.scene, view, framedata);
 
         RunMeshRenderSystem(*view.scene, render_scene, view, framedata);
-        RunSpriteRenderSystem(view.scene, framedata);
 
         FillEnvConstants(framedata);
 

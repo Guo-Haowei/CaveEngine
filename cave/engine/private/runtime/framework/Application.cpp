@@ -23,6 +23,7 @@
 #include "engine/private/runtime/framework/IPhysicsManager.h"
 #include "engine/private/runtime/framework/TaskManager.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
+#include "engine/private/runtime/scene/SceneSubmission.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
@@ -247,8 +248,9 @@ bool Application::mainLoop() {
     // update scene after ImGui, physics and script updates
     m_scene_scheduler->tick(time);
 
-    // build UI data
+    // submit 2d draws
     for (const ResolvedView& view : views) {
+        SubmitScene(view, { m_canvas, time.dt });
         m_ui_runtime->paint(view);
     }
 

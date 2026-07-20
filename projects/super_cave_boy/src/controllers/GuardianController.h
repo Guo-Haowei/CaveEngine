@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/time/CountdownTimer.h"
 #include "cave/runtime/game/StateMachine.h"
 
 #include "EnemyControllerBase.h"
@@ -13,6 +14,7 @@ enum class GuardianState : uint8_t {
     Wait,
     Falling,
     Landed,
+    Defeated,
 
     Count,
     Invalid = Count,
@@ -27,7 +29,7 @@ private:
 
     void update(float dt) override;
 
-    void takeDamageFromPlayer(int damage) override;
+    void takeDamage(int damage) override;
 
     void enterFollow();
     void updateFollow(float dt);
@@ -48,6 +50,8 @@ private:
 
     cave::ListenerId m_begin_fight_listener = 0;
     cave::ListenerId m_awake_listener = 0;
+
+    cave::CountdownTimer m_hurt_timer{ 1.f };
 
     float m_ground_y = 0.0f;
     float m_hover_y = 0.0f;

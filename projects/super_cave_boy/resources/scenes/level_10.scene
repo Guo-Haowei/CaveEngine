@@ -100,7 +100,7 @@ entities:
         type: box
         data: [0.5, 6.30000019, 0.5]
       flags: 0
-      layer: 4
+      layer: 5
       mask: 1
       is_trigger: true
     TriggerComponent:

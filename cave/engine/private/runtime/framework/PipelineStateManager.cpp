@@ -266,31 +266,6 @@ Result<void> PipelineStateManager::initialize() {
                               });
 #pragma endregion PSO_ENV
 
-    CREATE_PSO(PSO_SPRITE,
-               {
-                   .vs = "sprite.vs",
-                   .ps = "sprite.ps",
-                   .rasterizer_desc = &s_rasterizer_double_sided,
-                   .depth_stencil_desc = &s_depth_stencil_off,
-                   .input_layout_desc = &s_input_layout_sprite,
-                   .blend_desc = &s_transparent,
-                   .num_render_targets = 1,
-                   .rtv_formats = { RT_FMT_TONE },
-                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-               });
-
-    CREATE_PSO(PSO_SPRITE_NO_VERT,
-               {
-                   .vs = "sprite_no_vert.vs",
-                   .ps = "sprite.ps",
-                   .rasterizer_desc = &s_rasterizer_double_sided,
-                   .depth_stencil_desc = &s_depth_stencil_off,
-                   .blend_desc = &s_transparent,
-                   .num_render_targets = 1,
-                   .rtv_formats = { RT_FMT_TONE },
-                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-               });
-
     // @TODO: merge primitive and overlay
     CREATE_PSO(PSO_PRIMITIVE,
                {

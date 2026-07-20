@@ -353,33 +353,7 @@ void TonePassFunc(RenderPassExcutionContext& ctx) {
     cmd.DrawArrays(6);
 }
 
-void Pass2DDrawFunc(RenderPassExcutionContext& ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = ctx.cmd;
-    auto& frame = cmd.GetCurrentFrame();
-    const PassContext& pass = ctx.frameData.mainPass;
-
-    cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
-
-    for (const DrawItem& draw : ctx.frameData.sprites) {
-        if (draw.texture) {
-            cmd.BindTexture(Dimension::TEXTURE_2D, draw.texture->GetHandle(), 0);
-        }
-        cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
-        cmd.SetMesh(draw.mesh_data);
-        if (draw.mesh_data) {
-            cmd.SetPipelineState(PSO_SPRITE);
-            cmd.DrawElementsInstanced(1, draw.index.count);
-        } else {
-            cmd.SetPipelineState(PSO_SPRITE_NO_VERT);
-            cmd.DrawArrays(draw.index.count);
-        }
-    }
-}
-
 void OverlayDrawFunc(RenderPassExcutionContext& ctx) {
-    // @TODO: move this to a different pass
     if (auto overlay = ctx.services.renderer().tryGet<OverlayRenderer>()) {
         overlay->drawCanvas(ctx.cmd,
                             ctx.services.canvas(),

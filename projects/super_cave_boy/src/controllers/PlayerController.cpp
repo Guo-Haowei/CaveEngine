@@ -23,6 +23,8 @@ using ::cave::ecs::Entity;
 
 namespace {
 
+constexpr float kPlayerBounceSpeed = 10.f;
+
 bool IsLedgeTile(const TileWorldSystem& world, const TileHit& hit) {
     TileCoord above = hit.coord;
     above.y += 1;
@@ -85,10 +87,8 @@ void PlayerController::start() {
 
     message().listen(kPlayerDamagedID, [this](const Message& message) {
         if (m_state_machine.is(PlayerState::Normal)) {
-            PlayerHurtInfo info{
-                .damage = 1,
-                .knockback = message.payload.asVec2f(),
-            };
+            PlayerHurtInfo info{ .damage = 1,
+                                 .entity = message.sender };
             takeDamage(info);
         }
     });
@@ -322,11 +322,20 @@ void PlayerController::takeDamage(const PlayerHurtInfo& info) {
 
     m_hurt_timer.start();
 
+    const auto* enemy_transform = query().component<TransformComponent>(info.entity);
+    const auto* transform = component<TransformComponent>();
     auto* vel = component<VelocityComponent>();
     auto* motor = component<MotorComponent>();
+    if (!DEV_VERIFY(enemy_transform && transform && vel && motor)) {
+        return;
+    }
 
-    vel->linear.x = info.knockback.x;
-    vel->linear.y = info.knockback.y;
+    const float source_x = enemy_transform->translation().x;
+    const float player_x = transform->translation().x;
+    const float direction = player_x >= source_x ? 1.0f : -1.0f;
+
+    vel->linear.x = direction * kPlayerKnockbackX;
+    vel->linear.y = kPlayerKnockbackY;
 
     motor->affected_by_gravity = true;
 
@@ -345,6 +354,20 @@ void PlayerController::bounceFromEnemy(float bounce_speed) {
 
     m_grabbing = false;
     m_taking_jump = false;
+}
+
+void PlayerController::onBodyEntered(Entity ent) {
+    onBodyStay(ent);
+}
+
+void PlayerController::onBodyStay(Entity ent) {
+    const auto* collider = query().component<ColliderComponent>(ent);
+    const auto* transform = query().component<TransformComponent>(ent);
+    if (collider && transform && IsLava(*collider)) {
+        Vec2f lava_center = transform->translation().xy;
+        PlayerHurtInfo info{ 1, ent };
+        takeDamage(info);
+    }
 }
 
 }  // namespace super_cave_boy

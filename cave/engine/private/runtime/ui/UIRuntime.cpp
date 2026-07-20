@@ -68,9 +68,6 @@ const ResolvedUICanvas* UIRuntime::findResolved(SceneId scene_id,
 // @TODO: make dvar
 
 void UIRuntime::paint(const ResolvedView& resolved_view) {
-
-    m_ui_canvas.pushView(resolved_view.view_id);
-
     auto drawImage = [this](const ResolvedUIElement element,
                             const UIImageComponent& ui_image) {
         const GpuTexture* texture = nullptr;
@@ -79,10 +76,13 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
             texture = image_asset->gpu_texture.get();
         }
 
+        ImageDrawOptions options{};
+        options.tint = ui_image.tint();
+
         m_ui_canvas.addImage(texture,
                              element.rect.min(),
                              element.rect.max(),
-                             ui_image.tint());
+                             options);
     };
 
     auto drawButton = [this, &resolved_view](const ResolvedUIElement element,
@@ -100,8 +100,12 @@ void UIRuntime::paint(const ResolvedView& resolved_view) {
         }
 
         const auto& rect = element.rect;
-        m_ui_canvas.addBox2(rect.min(), rect.max(), color * ui_button.tint);
+        ImageDrawOptions options{};
+        options.tint = color * ui_button.tint;
+        m_ui_canvas.addBox2(rect.min(), rect.max(), options);
     };
+
+    m_ui_canvas.pushView(resolved_view.view_id);
 
     const Scene& scene = *(resolved_view.scene);
 

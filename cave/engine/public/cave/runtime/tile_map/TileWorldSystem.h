@@ -9,6 +9,8 @@
 
 namespace cave {
 
+struct TileDefinition;
+
 struct TileHit {
     TileCoord coord{};
     math::Box2 aabb;
@@ -31,7 +33,6 @@ public:
 
     Vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
 
-    TilePath findPathBfs(TileCoord start, TileCoord goal) const;
     TilePath findPathAstar(TileCoord start, TileCoord goal) const;
 
     const math::Box2& worldBound() const { return m_world_bound; }
@@ -48,7 +49,8 @@ private:
 
     SceneTickDomain domain() const override { return SceneTickDomain::Simulate; }
 
-    void rebuildCollision();
+    void rebuildTiles();
+    void handleTile(const TileDefinition& definition, TileCoord coord);
 
     const DebugId m_debug_id;
 

@@ -5,11 +5,51 @@
 #include "cave/core/math/Box.h"
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/assets/AssetHandle.h"
-#include "cave/runtime/ecs/components/ColliderComponent.h"
-
-// @TODO: move layer & mask to shape, and rename it collision shape
 
 namespace cave {
+
+// @TODO: move layer & mask to collision
+enum class CollisionType {
+    None,
+    Solid,
+    Trigger,
+    Count,
+};
+
+DECLARE_ENUM_TRAITS(CollisionType, "None", "Solid", "Trigger");
+
+// @TODO: refactor this to use with SpriteAnimationClip as well
+struct TileFrame {
+    CAVE_META(TileFrame)
+
+    CAVE_PROP()
+    uint32_t atlas_index = 0;
+
+    CAVE_PROP()
+    float duration = 0.1f;
+};
+
+struct TileDefinition {
+    CAVE_META(TileDefinition)
+
+    CAVE_PROP()
+    uint32_t id = 0;
+
+    CAVE_PROP()
+    CollisionType collision = CollisionType::None;
+
+    CAVE_PROP()
+    math::Box2 collision_shape = { math::Vec2f::Zero, math::Vec2f::One };
+
+    CAVE_PROP(editor = BitMask)
+    uint32_t layer = 0;
+
+    CAVE_PROP(editor = BitMask)
+    uint32_t mask = 0;
+
+    CAVE_PROP()
+    Vector<TileFrame> animation;
+};
 
 class TileSetAsset : public IAsset {
     CAVE_ASSET(TileSetAsset, AssetType::TileSet, 0)
@@ -23,12 +63,6 @@ private:
     CAVE_PROP(editor = DragFloat, min = 0.01f, max = 100.0f)
     float m_tile_scale = 1.0f;
 
-    CAVE_PROP()
-    uint32_t m_width = 0;
-
-    CAVE_PROP()
-    uint32_t m_height = 0;
-
     CAVE_PROP(editor = InputInt, min = 1, max = 1000)
     uint32_t m_row = 1;
 
@@ -36,11 +70,14 @@ private:
     uint32_t m_column = 1;
 
     CAVE_PROP()
-    std::map<uint32_t, Shape> m_colliders;
+    Vector<TileDefinition> m_tiles;
 
     /// Non serialized
-    std::vector<math::Box2> m_frames;  // frames are calculated
+    Vector<math::Box2> m_frames;  // frames are calculated
     Handle<ImageAsset> m_image_handle;
+    uint32_t m_width = 0;
+    uint32_t m_height = 0;
+
     bool m_dirty;
 
 public:
@@ -56,8 +93,7 @@ public:
     float tileScale() const { return m_tile_scale; }
     void tileScale(float scale);
 
-    bool addBoxCollider(uint32_t tile_id);
-    Option<Shape> getCollider(uint32_t tile_id) const;
+    const TileDefinition* getTileDefinition(uint32_t tile_id) const;
 
     const Guid& imageGuid() const { return m_image_guid; }
     void setImageGuid(const Guid& guid);

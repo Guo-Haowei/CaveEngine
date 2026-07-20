@@ -27,7 +27,7 @@ enum class PlayerNormalState : uint8_t {
 
 struct PlayerHurtInfo {
     int damage{ 1 };
-    cave::math::Vec2f knockback{};
+    cave::ecs::Entity entity;
 };
 
 class PlayerController final : public ::cave::NativeScript {
@@ -50,6 +50,9 @@ private:
 
     void tryJump(cave::VelocityComponent& vel,
                  cave::MotorComponent& motor);
+
+    void onBodyEntered(cave::ecs::Entity ent) override;
+    void onBodyStay(cave::ecs::Entity ent) override;
 
     bool hurt() const { return m_hurt_timer.active(); }
 

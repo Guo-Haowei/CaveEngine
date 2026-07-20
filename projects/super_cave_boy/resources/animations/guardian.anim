@@ -3,14 +3,14 @@ content:
   image_guid: 7818D22F-10AE-8A4C-920D20A0BC525661
   clips:
     hurt:
-      frames: [{min: [0, 1], max: [0.5, 0.5]}]
+      frames: [{min: [0, 0.5], max: [0.5, 1]}]
       durations: [1]
       looping: true
     move:
-      frames: [{min: [0, 0.5], max: [0.5, 0]}, {min: [0.5, 0.5], max: [1, 0]}]
+      frames: [{min: [0, 0], max: [0.5, 0.5]}, {min: [0.5, 0], max: [1, 0.5]}]
       durations: [0.5, 0.5]
       looping: true
     idle:
-      frames: [{min: [0, 0.5], max: [0.5, 0]}]
+      frames: [{min: [0, 0], max: [0.5, 0.5]}]
       durations: [1]
       looping: true

@@ -8,21 +8,23 @@ namespace super_cave_boy {
 
 using namespace ::cave::literals;
 
-constexpr uint32_t kPlayerLayer = 1;
-constexpr uint32_t kEnemyLayer = 2;
-
-constexpr float kPlayerBounceSpeed = 10.f;
 constexpr float kPlayerKnockbackX = 7.f;
 constexpr float kPlayerKnockbackY = 8.f;
 constexpr float kPlayerMoveX = 5.9f;
 constexpr float kPlayerHurtCountDown = 0.5f;
-constexpr float kPlayerStompTolerance = 0.12f;
 constexpr float kPlayerJumpForce = 13.0f;
 constexpr float kPlayerWallJumpForce = 11.5f;
 constexpr float kPlayerGrabEps = 0.03f;
 constexpr float kExitAnimationDuration = 0.5f;
 
 constexpr int kPlayerMaxHealth = 5;
+
+constexpr uint32_t kPlayerLayer = 1;
+constexpr uint32_t kEnemyLayer = 2;
+constexpr uint32_t kLootLayer = 3;
+constexpr uint32_t kExitLayer = 4;
+constexpr uint32_t kCutsceneLayer = 5;
+constexpr uint32_t kLavaLayer = 6;
 
 constexpr cave::StringId kPlayerDamagedID = "player.damaged"_sid;
 constexpr cave::StringId kPlayerBouncedID = "player.bounced"_sid;
@@ -37,11 +39,15 @@ constexpr cave::StringId kPlayerHealthID = "player.health"_sid;
 constexpr cave::StringId kLootCountID = "loot.count"_sid;
 
 inline bool IsPlayer(const cave::ColliderComponent& collider) {
-    return collider.layer() & kPlayerLayer;
+    return collider.layer() == kPlayerLayer;
 }
 
 inline bool IsEnemy(const cave::ColliderComponent& collider) {
-    return collider.layer() & kEnemyLayer;
+    return collider.layer() == kEnemyLayer;
+}
+
+inline bool IsLava(const cave::ColliderComponent& collider) {
+    return collider.layer() == kLavaLayer;
 }
 
 }  // namespace super_cave_boy

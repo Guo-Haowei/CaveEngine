@@ -277,7 +277,7 @@ void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext& 
     }
 
     TriggerCache cache;
-    std::vector<CollisionPair> pairs;
+    Vector<CollisionPair> pairs;
 
     for (size_t i = 0; i < colliders.size(); ++i) {
         for (size_t j = i + 1; j < colliders.size(); ++j) {
@@ -287,8 +287,8 @@ void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext& 
             const bool b_is_trigger = b.collider->isTrigger();
 
             bool passes_filter =
-                ((a.collider->mask() & b.collider->layer()) != 0) &&
-                ((b.collider->mask() & a.collider->layer()) != 0) &&
+                (((a.collider->mask() & b.collider->layer()) != 0) ||
+                 ((b.collider->mask() & a.collider->layer()) != 0)) &&
                 (a_is_trigger || b_is_trigger);
 
             if (!passes_filter) {

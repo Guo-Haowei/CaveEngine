@@ -11,33 +11,33 @@ class SpriteAnimationClip {
     CAVE_META(SpriteAnimationClip)
 
 private:
-    CAVE_PROP(type = box2[])
-    std::vector<math::Box2> frames_;
+    CAVE_PROP()
+    Vector<math::Box2> m_frames;
 
-    CAVE_PROP(type = f32[])
-    std::vector<float> durations_;
+    CAVE_PROP()
+    Vector<float> m_durations;
 
-    CAVE_PROP(type = boolean, hint = toggle)
-    bool looping_ = true;
+    CAVE_PROP()
+    bool m_looping = true;
 
-    float total_duration_ = 1.0f;
+    float m_total_duration = 1.0f;
 
 public:
     SpriteAnimationClip() = default;
 
-    SpriteAnimationClip(std::vector<math::Box2>&& frames, float length = 1.0f);
+    SpriteAnimationClip(Vector<math::Box2>&& frames, float length = 1.0f);
 
-    bool looping() const { return looping_; }
+    bool looping() const { return m_looping; }
 
-    void setFrames(std::vector<math::Box2>&& frames);
+    void setFrames(Vector<math::Box2>&& frames);
 
     void setAnimationLength(float length);
 
-    float totalDuration() const { return total_duration_; }
+    float totalDuration() const { return m_total_duration; }
 
-    std::span<const math::Box2> frames() const { return frames_; }
+    std::span<const math::Box2> frames() const { return m_frames; }
 
-    std::span<const float> durations() const { return durations_; }
+    std::span<const float> durations() const { return m_durations; }
 
     friend class SpriteAnimationAsset;
 };

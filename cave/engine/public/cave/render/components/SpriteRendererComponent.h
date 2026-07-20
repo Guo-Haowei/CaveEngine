@@ -21,7 +21,7 @@ private:
     math::Vec4f m_tint_color = math::Vec4f::One;
 
     CAVE_PROP()
-    math::Box2 m_rect = { { 0.0f, 1.0f }, { 1.0f, 0.0f } };
+    math::Box2 m_rect = { math::Vec2f::Zero, math::Vec2f::One };
 
     CAVE_PROP(editor = Toggle)
     bool m_flip_x = false;

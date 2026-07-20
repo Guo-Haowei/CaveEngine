@@ -113,8 +113,7 @@ void BatController::updateMove(float dt) {
             canvas.addBox2Frame(
                 Vec2f(coord.x, coord.y),
                 Vec2f(coord.x + 1.0f, coord.y + 1.0f),
-                0.04f,
-                Vec4f(0, 1, 0, 0.4f));
+                0.02f);
         }
         canvas.popView();
     }

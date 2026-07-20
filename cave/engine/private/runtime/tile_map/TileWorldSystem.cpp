@@ -3,6 +3,7 @@
 #include <deque>
 #include <queue>
 
+#include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileMapInstanceComponent.h"
@@ -54,7 +55,7 @@ TileWorldSystem::TileWorldSystem(SceneRuntime& runtime)
 TileWorldSystem::~TileWorldSystem() = default;
 
 void TileWorldSystem::start() {
-    rebuildCollision();
+    rebuildTiles();
 }
 
 TileCoord TileWorldSystem::worldToTile(Vec2f world_pos, float tile_size) {
@@ -103,54 +104,6 @@ Vector<TileHit> TileWorldSystem::querySolidTiles(const math::Box2& aabb) const {
     return result;
 }
 
-TilePath TileWorldSystem::findPathBfs(TileCoord start, TileCoord goal) const {
-    if (start == goal) {
-        return {};
-    }
-
-    HashMap<TileCoord, Option<TileCoord>> visited;
-    visited[start] = Some(start);
-
-    std::deque<TileCoord> ready{ start };
-
-    while (!ready.empty()) {
-        TileCoord coord = ready.front();
-        if (coord == goal) break;
-
-        ready.pop_front();
-
-        for (TileCoord dir : kPathFindingDirections) {
-            const TileCoord next = coord + dir;
-
-            if (m_rigid_tiles.tileAt(next).is_some()) continue;
-
-            auto [it, ok] = visited.try_emplace(next, Some(coord));
-            if (!ok) continue;
-
-            ready.push_back(next);
-        }
-    }
-
-    TilePath path;
-    for (TileCoord cursor = goal; cursor != start;) {
-        path.push_back(cursor);
-
-        auto it = visited.find(cursor);
-        if (it == visited.end()) {
-            return {};
-        }
-
-        if (!DEV_VERIFY(it->second.is_some())) {
-            return {};
-        }
-
-        cursor = it->second.unwrap_unchecked();
-    }
-
-    std::reverse(path.begin(), path.end());
-    return path;
-}
-
 TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
     if (start == goal) {
         return {};
@@ -184,40 +137,49 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
     ready.push(OpenNode{ start, heuristic(start, goal), 0 });
 
     while (!ready.empty()) {
-        OpenNode open_node = ready.top();
+        const OpenNode open_node = ready.top();
+        ready.pop();
 
         auto current_it = visited.find(open_node.coord);
         DEV_ASSERT(current_it != visited.end());
 
-        // An improved route was inserted after this queue entry.
+        // Ignore an outdated queue entry.
         if (open_node.cost != current_it->second.cost) {
             continue;
         }
 
-        if (open_node.coord == goal) break;
-
-        ready.pop();
+        if (open_node.coord == goal) {
+            break;
+        }
 
         for (TileCoord dir : kPathFindingDirections) {
             const TileCoord next = open_node.coord + dir;
 
-            if (m_rigid_tiles.tileAt(next).is_some()) continue;
+            if (m_rigid_tiles.tileAt(next).is_some()) {
+                continue;
+            }
 
             const int new_cost = open_node.cost + 1;
             const int priority = new_cost + heuristic(next, goal);
 
-            auto [it, ok] = visited.try_emplace(next, Node{ new_cost, Some(open_node.coord) });
-            // not visited before
-            if (ok) {
+            auto [it, inserted] = visited.try_emplace(
+                next,
+                Node{
+                    .cost = new_cost,
+                    .parent = Some(open_node.coord),
+                });
+
+            if (inserted) {
                 ready.emplace(next, priority, new_cost);
                 continue;
             }
 
-            // visited
             Node& node = it->second;
-            if (node.cost > new_cost) {
+
+            if (new_cost < node.cost) {
                 node.cost = new_cost;
                 node.parent = Some(open_node.coord);
+
                 ready.emplace(next, priority, new_cost);
             }
         }
@@ -243,13 +205,42 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
     return path;
 }
 
-void TileWorldSystem::rebuildCollision() {
+void TileWorldSystem::handleTile(const TileDefinition& definition, TileCoord coord) {
+    switch (definition.collision) {
+        case CollisionType::Solid: {
+            m_rigid_tiles.addTile(coord, static_cast<TileId>(definition.id));
+            m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
+        } break;
+        case CollisionType::Trigger: {
+            Scene& scene = m_runtime.scene();
+            const Vec2f local_min = definition.collision_shape.min();
+            const Vec2f local_max = definition.collision_shape.max();
+            const Vec2f local_center = (local_min + local_max) * 0.5f;
+            const Vec2f local_size = local_max - local_min;
+
+            const Vec2f world_center = { coord.x + local_center.x,
+                                         coord.y + local_center.y };
+
+            auto ent = scene.createEntity();
+            auto& transform = scene.create<TransformComponent>(ent);
+            transform.setTranslation(Vec3f(world_center, 0.0f));
+            auto& collider = scene.create<ColliderComponent>(ent);
+            collider.setLayer(definition.layer);
+            collider.setMask(definition.mask);
+            collider.setTrigger();
+            collider.shape().data.half = Vec3f(0.5f * local_size, 0.5f);
+        } break;
+        default:
+            break;
+    }
+}
+
+void TileWorldSystem::rebuildTiles() {
     m_world_bound.invalidate();
 
-    auto rebuild_layer = [this](const TileMapLayer& layer, Vec2f offset) {
+    auto rebuild_layer = [this](const TileMapLayer& layer, int16_t offset_x, int16_t offset_y) {
         TileSetAsset* tile_set = layer.handle().get();
-        if (!tile_set) {
-            CRASH_NOW_MSG("TileSetAsset is null");
+        if (!DEV_VERIFY(tile_set)) {
             return;
         }
 
@@ -262,17 +253,15 @@ void TileWorldSystem::rebuildCollision() {
                 for (int16_t x = 0; x < kTileChunkSize; ++x) {
                     TileId tile_id = chunk->at(x, y);
                     if (tile_id == kEmptyTileId) continue;
-                    auto res = tile_set->getCollider(tile_id);
-                    if (res.is_none()) continue;
-                    Shape shape = res.unwrap_unchecked();
-                    DEV_ASSERT(shape.type == ShapeType::Box);
-
-                    TileCoord coord;
-                    coord.x = chunk_coord.x * kTileChunkSize + (int16_t)offset.x + x;
-                    coord.y = chunk_coord.y * kTileChunkSize + (int16_t)offset.y + y;
-                    m_rigid_tiles.addTile(coord, tile_id);
-
-                    m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
+                    const TileDefinition* def = tile_set->getTileDefinition(tile_id);
+                    if (!def) {
+                        continue;
+                    }
+                    TileCoord coord{
+                        chunk_coord.x * kTileChunkSize + offset_x + x,
+                        chunk_coord.y * kTileChunkSize + offset_y + y,
+                    };
+                    handleTile(*def, coord);
                 }
             }
         }
@@ -288,7 +277,7 @@ void TileWorldSystem::rebuildCollision() {
         }
 
         for (const TileMapLayer& layer : tile_map->layers()) {
-            rebuild_layer(layer, offset);
+            rebuild_layer(layer, (int16_t)offset.x, (int16_t)offset.y);
         }
     }
 

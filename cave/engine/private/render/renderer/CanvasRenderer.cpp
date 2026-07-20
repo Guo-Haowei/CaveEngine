@@ -34,11 +34,6 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         return result;
     }
 
-    std::sort(bucket.shapes.begin(), bucket.shapes.end(),
-              [](const PrimShape& a, const PrimShape& b) {
-                  return a.tex < b.tex;
-              });
-
     Vector<uint32_t> indices;
     Vector<Vec3f> positions;
     Vector<Vec2f> uvs;

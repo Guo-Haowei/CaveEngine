@@ -15,29 +15,25 @@ struct GpuMesh;
 class TileMapInstanceComponent {
     CAVE_COMPONENT(TileMapInstanceComponent)
 
-private:
-    CAVE_PROP(editor = Asset, on_change = onTileMapGuidChanged)
-    Guid m_tile_map_guid;
+public:
+    struct TileCache {
+        int16_t x, y;
+        uint32_t tile_id;
 
-    struct LayerCache {
-        int z_index = 0;
-        Handle<ImageAsset> image;
-        Handle<TileSetAsset> tile_set_handle;
-        mutable Ref<GpuMesh> mesh;
+        mutable float elapsed;
     };
 
-    // Non serialize
-    Handle<TileMapAsset> m_handle;
-    Vector<LayerCache> m_layers;
-    uint32_t m_revision{ 0 };
+    struct LayerCache {
+        bool visible = true;
+        int z_index = 0;
 
-    void refreshTileMapHandle();
-    void onTileMapGuidChanged(const FieldChange& change);
+        Handle<TileSetAsset> tile_set;
+        Handle<ImageAsset> image;
 
-    bool updateLayer(const TileMapLayer& layer, LayerCache& cache);
+        Vector<TileCache> tiles;
+    };
 
-public:
-    // @TODO: better way to create data
+    // @TODO: remove this
     void createRenderData();
 
     const auto& tileMapHandle() const { return m_handle; }
@@ -47,6 +43,20 @@ public:
     std::span<const LayerCache> layers() const { return m_layers; }
 
     void onDeserialized();
+
+private:
+    void refreshTileMapHandle();
+    void onTileMapGuidChanged(const FieldChange& change);
+
+    bool updateLayer(const TileMapLayer& layer, LayerCache& cache);
+
+    CAVE_PROP(editor = Asset, on_change = onTileMapGuidChanged)
+    Guid m_tile_map_guid;
+
+    // Non serialize
+    Handle<TileMapAsset> m_handle;
+    Vector<LayerCache> m_layers;
+    uint32_t m_revision{ 0 };
 };
 
 }  // namespace cave

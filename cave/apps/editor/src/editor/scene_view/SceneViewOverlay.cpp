@@ -53,7 +53,12 @@ void SceneViewOverlay::drawSelectionHighlightImpl(ICanvas& canvas,
             case ShapeType::Box: {
                 Vec2f min = Vec2f::Zero - Vec2f(shape.data.half.xy);
                 Vec2f max = Vec2f::Zero + Vec2f(shape.data.half.xy);
-                canvas.addBox2Frame(min, max, 0.04f, kColliderColor, &m);
+                Draw2DOptions options{
+                    .z_index = 0,
+                    .tint = kColliderColor,
+                    .transform = &m,
+                };
+                canvas.addBox2Frame(min, max, 0.04f, options);
             } break;
             default:
                 break;
@@ -63,7 +68,12 @@ void SceneViewOverlay::drawSelectionHighlightImpl(ICanvas& canvas,
     if (const auto camera = scene.component<CameraComponent>(ent)) {
         if (camera->isOrtho()) {
             Box2 box = CameraOrthoAABB2(*camera);
-            canvas.addBox2Frame(box.min(), box.max(), 0.2f, kCameraColor, &m);
+            Draw2DOptions options{
+                .z_index = 0,
+                .tint = kCameraColor,
+                .transform = &m,
+            };
+            canvas.addBox2Frame(box.min(), box.max(), 0.2f, options);
         }
     }
 

@@ -6,8 +6,8 @@
 namespace cave::render {
 
 struct FramePlan {
-    std::vector<ResolvedView> views;
-    std::vector<FrameData> frame_data;
+    Vector<ResolvedView> views;
+    Vector<FrameData> frame_data;
 };
 
 }  // namespace cave::render

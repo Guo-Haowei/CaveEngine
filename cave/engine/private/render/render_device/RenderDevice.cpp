@@ -441,7 +441,9 @@ void RenderDevice::Execute(const FrameData& framedata, const CompiledPass& pass)
 
     beginEvent(pass.name);
     beginPass(pass);
-    pass.execute_func(ctx);
+    if (pass.execute_func) {
+        pass.execute_func(ctx);
+    }
     endPass(pass);
     endEvent();
 }

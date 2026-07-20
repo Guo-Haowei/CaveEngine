@@ -2,11 +2,8 @@ version: 0
 content:
   image_guid: A1130333-79C5-9E43-A95F006D4AA71D4F
   tile_scale: 1
-  width: 192
-  height: 64
   row: 1
   column: 3
-  colliders:
-    0:
-      type: box
-      data: [0.5, 0.5, 0.5]
+  tiles:
+    - {id: 0, collision: Solid, collision_shape: {min: [0, 0], max: [1, 1]}, layer: 0, mask: 0, animation: []}
+    - {id: 1, collision: Trigger, collision_shape: {min: [0, 0], max: [1, 0.75]}, layer: 6, mask: 3, animation: [{atlas_index: 1, duration: 0.400000006}, {atlas_index: 2, duration: 0.400000006}]}

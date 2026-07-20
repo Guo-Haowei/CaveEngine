@@ -6,25 +6,25 @@
 
 namespace cave {
 
-SpriteAnimationClip::SpriteAnimationClip(std::vector<math::Box2>&& frames, float length) {
-    frames_ = std::move(frames);
+SpriteAnimationClip::SpriteAnimationClip(Vector<math::Box2>&& frames, float length) {
+    m_frames = std::move(frames);
     setAnimationLength(length);
 }
 
-void SpriteAnimationClip::setFrames(std::vector<math::Box2>&& frames) {
-    frames_ = std::move(frames);
+void SpriteAnimationClip::setFrames(Vector<math::Box2>&& frames) {
+    m_frames = std::move(frames);
 }
 
 void SpriteAnimationClip::setAnimationLength(float length) {
     DEV_ASSERT(length > 0.0f);
-    const float frame_duration = length / std::max(1, static_cast<int>(frames_.size()));  // avoid divide by 0
-    durations_.resize(frames_.size());
-    for (float& duration : durations_) {
+    const float frame_duration = length / std::max(1, static_cast<int>(m_frames.size()));  // avoid divide by 0
+    m_durations.resize(m_frames.size());
+    for (float& duration : m_durations) {
         duration = frame_duration;
     }
 }
 
-bool SpriteAnimationAsset::addClip(std::string&& name, std::vector<math::Box2>&& frames) {
+bool SpriteAnimationAsset::addClip(String&& name, Vector<math::Box2>&& frames) {
     auto it = m_clips.find(name);
     if (it != m_clips.end()) {
         LOG_WARN("clip '{}' already exists", name);
@@ -58,9 +58,9 @@ void SpriteAnimationAsset::onDeserialized() {
     }
 
     for (auto& it : m_clips) {
-        float& total = it.second.total_duration_;
+        float& total = it.second.m_total_duration;
         total = 0.0f;
-        for (float duration : it.second.durations_) {
+        for (float duration : it.second.m_durations) {
             total += duration;
         }
     }

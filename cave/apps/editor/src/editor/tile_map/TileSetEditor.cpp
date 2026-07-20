@@ -24,11 +24,11 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
         "TileSetEditor.physics.box",
         ICON_FA_SQUARE " Box", "Add box collider",
         [&]() {
-            if (index >= 0 && tile_set.addBoxCollider(index)) {
-                LOG_OK("Box collider added for {}", index);
-            } else {
-                LOG_ERROR("Failed to add box collider for {}", index);
-            }
+            // if (index >= 0 && tile_set.addBoxCollider(index)) {
+            //     LOG_OK("Box collider added for {}", index);
+            // } else {
+            //     LOG_ERROR("Failed to add box collider for {}", index);
+            // }
         }
     };
 

@@ -15,6 +15,7 @@ namespace cave::jobsystem { class Context; }
 
 namespace cave {
 
+class ICanvas;
 class MetaRegistry;
 class SceneRuntime;
 
