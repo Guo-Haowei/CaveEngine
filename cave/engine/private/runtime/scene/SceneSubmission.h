@@ -11,7 +11,6 @@ struct SceneSubmitContext {
     float dt;
 };
 
-void SubmitScene(const ResolvedView& view,
-                 const SceneSubmitContext& ctx);
+void SubmitScene(const ResolvedView& view, const SceneSubmitContext& ctx);
 
 }  // namespace cave

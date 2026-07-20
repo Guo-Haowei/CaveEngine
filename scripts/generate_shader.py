@@ -36,9 +36,6 @@ input_shaders = [
     'skybox.ps',
     'shadow.vs',
     'screenspace_quad.vs',
-    'sprite_no_vert.vs',
-    'sprite.vs',
-    'sprite.ps',
     'primitive.vs',
     'primitive.ps',
     # @TODO: get rid of ui_overlay shaders, they are the same as primitive shaders

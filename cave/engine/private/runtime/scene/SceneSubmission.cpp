@@ -122,10 +122,13 @@ void SubmitTileMaps(const SceneSubmitContext& ctx, Scene& scene) {
 }
 
 void SubmitSprites(const SceneSubmitContext& ctx, Scene& scene) {
-    Vec2f view_min;
-    Vec2f view_max;
+    Vec2f view_min{};
+    Vec2f view_max{};
+    Vec2f view_size{};
     Mat4f world{};
     auto camera_id = scene.activeCamera();
+
+    // @TODO: refactor this part
     if (scene.count<BackgroundComponent>() && camera_id.valid()) {
         const auto* camera = scene.component<CameraComponent>(camera_id);
         const auto* camera_transform = scene.component<TransformComponent>(camera_id);
@@ -137,7 +140,7 @@ void SubmitSprites(const SceneSubmitContext& ctx, Scene& scene) {
 
         const Vec2f camera_pos = camera_transform->translation().xy;
 
-        const Vec2f view_size = Vec2f{ half_width * 2.0f, half_height * 2.0f };
+        view_size = Vec2f{ half_width * 2.0f, half_height * 2.0f };
         view_min = camera_pos - Vec2f{ half_width, half_height };
         view_max = view_min + view_size;
 
@@ -157,32 +160,38 @@ void SubmitSprites(const SceneSubmitContext& ctx, Scene& scene) {
         options.z_index = renderer.zIndex();
 
         if (const auto* background = scene.component<BackgroundComponent>(id)) {
-            const Vec2f uv_min = view_min * background->parallax / background->repeat_size;
-            const Vec2f uv_max = view_max * background->parallax / background->repeat_size;
+            const Vec2f world_to_uv{
+                1.0f / background->repeat_size.x,
+                -1.0f / background->repeat_size.y
+            };
 
-            options.transform = &world;
-            options.uv_min = uv_min;
-            options.uv_max = uv_max;
-            continue;
+            const Vec2f uv_offset = view_min * background->parallax * world_to_uv;
+
+            const Vec2f uv_extent{ view_size.x / background->repeat_size.x,
+                                   view_size.y / background->repeat_size.y };
+
+            options.uv_min = uv_offset;
+            options.uv_max = uv_offset + uv_extent;
+
+            ctx.canvas.addImage(image->gpu_texture.get(), view_min, view_max, options);
         } else {
             const auto& rect = renderer.rect();
 
             options.transform = &transform.worldMatrix();
             options.uv_min = rect.min();
             options.uv_max = rect.max();
-        }
 
-        ctx.canvas.addImage(image->gpu_texture.get(),
-                            Vec2f(-0.5f, -0.5f),
-                            Vec2f(0.5f, 0.5f),
-                            options);
+            ctx.canvas.addImage(image->gpu_texture.get(),
+                                Vec2f(-0.5f),
+                                Vec2f(+0.5f),
+                                options);
+        }
     }
 }
 
 }  // namespace
 
-void SubmitScene(const ResolvedView& view,
-                 const SceneSubmitContext& ctx) {
+void SubmitScene(const ResolvedView& view, const SceneSubmitContext& ctx) {
 
     if (!view.scene) {
         return;
@@ -192,11 +201,6 @@ void SubmitScene(const ResolvedView& view,
     SubmitTileMaps(ctx, *view.scene);
     SubmitSprites(ctx, *view.scene);
     ctx.canvas.popView();
-
-    // std::sort(framedata.sprites.begin(), framedata.sprites.end(),
-    //           [](const DrawItem& a, const DrawItem& b) {
-    //               return a.z_index < b.z_index;
-    //           });
 }
 
 }  // namespace cave
