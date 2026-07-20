@@ -42,8 +42,7 @@ const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
 
 // uint32_t id ()
 // CollisionType collision ()
-// Shape collision_shape ()
-// String trigger ()
+// math::Box2 collision_shape ()
 // Vector<TileFrame> animation ()
 
 template<>
@@ -72,15 +71,6 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             "collision_shape",
             CAVE_SID("collision_shape"),
             collision_shape,
-            FieldFlag::Serialize,
-            EditorHint::None,
-            nullptr
-        ),
-        REGISTER_FIELD(
-            TileDefinition,
-            "trigger",
-            CAVE_SID("trigger"),
-            trigger,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr

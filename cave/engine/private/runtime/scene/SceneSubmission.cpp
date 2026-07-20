@@ -160,10 +160,8 @@ void SubmitSprites(const SceneSubmitContext& ctx, Scene& scene) {
         options.z_index = renderer.zIndex();
 
         if (const auto* background = scene.component<BackgroundComponent>(id)) {
-            const Vec2f world_to_uv{
-                1.0f / background->repeat_size.x,
-                -1.0f / background->repeat_size.y
-            };
+            const Vec2f world_to_uv{ 1.0f / background->repeat_size.x,
+                                     -1.0f / background->repeat_size.y };
 
             const Vec2f uv_offset = view_min * background->parallax * world_to_uv;
 

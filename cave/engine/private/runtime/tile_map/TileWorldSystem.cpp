@@ -246,7 +246,7 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
 void TileWorldSystem::rebuildCollision() {
     m_world_bound.invalidate();
 
-    auto rebuild_layer = [this](const TileMapLayer& layer, Vec2f offset) {
+    auto rebuild_layer = [this](const TileMapLayer& layer, int16_t offset_x, int16_t offset_y) {
         TileSetAsset* tile_set = layer.handle().get();
         if (!tile_set) {
             CRASH_NOW_MSG("TileSetAsset is null");
@@ -263,16 +263,12 @@ void TileWorldSystem::rebuildCollision() {
                     TileId tile_id = chunk->at(x, y);
                     if (tile_id == kEmptyTileId) continue;
                     const TileDefinition* def = tile_set->getTileDefinition(tile_id);
-                    if (!def) continue;
-                    Shape shape = def->collision_shape;
-                    if (shape.type == ShapeType::Null) continue;
-                    DEV_ASSERT(shape.type == ShapeType::Box);
+                    if (!def || def->collision != CollisionType::Solid) continue;
 
-                    TileCoord coord;
-                    coord.x = chunk_coord.x * kTileChunkSize + (int16_t)offset.x + x;
-                    coord.y = chunk_coord.y * kTileChunkSize + (int16_t)offset.y + y;
+                    TileCoord coord{ chunk_coord.x * kTileChunkSize + offset_x + x,
+                                     chunk_coord.y * kTileChunkSize + offset_y + y };
+
                     m_rigid_tiles.addTile(coord, tile_id);
-
                     m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
                 }
             }
@@ -289,7 +285,7 @@ void TileWorldSystem::rebuildCollision() {
         }
 
         for (const TileMapLayer& layer : tile_map->layers()) {
-            rebuild_layer(layer, offset);
+            rebuild_layer(layer, (int16_t)offset.x, (int16_t)offset.y);
         }
     }
 

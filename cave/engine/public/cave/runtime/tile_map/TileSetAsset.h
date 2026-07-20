@@ -5,7 +5,6 @@
 #include "cave/core/math/Box.h"
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/assets/AssetHandle.h"
-#include "cave/runtime/ecs/components/ColliderComponent.h"
 
 namespace cave {
 
@@ -40,10 +39,7 @@ struct TileDefinition {
     CollisionType collision = CollisionType::None;
 
     CAVE_PROP()
-    Shape collision_shape;
-
-    CAVE_PROP()
-    String trigger;
+    math::Box2 collision_shape = { math::Vec2f::Zero, math::Vec2f::One };
 
     CAVE_PROP()
     Vector<TileFrame> animation;
