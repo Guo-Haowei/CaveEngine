@@ -30,10 +30,14 @@ void TileSetAsset::tileScale(float scale) {
     }
 }
 
-Option<Shape> TileSetAsset::getCollider(uint32_t tile_id) const {
-    unused(tile_id);
-    DEV_ASSERT(0);
-    return None();
+const TileDefinition* TileSetAsset::getTileDefinition(uint32_t tile_id) const {
+    for (const auto& def : m_tiles) {
+        if (def.id == tile_id) {
+            return &def;
+        }
+    }
+
+    return nullptr;
 }
 
 void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {

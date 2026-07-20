@@ -262,9 +262,9 @@ void TileWorldSystem::rebuildCollision() {
                 for (int16_t x = 0; x < kTileChunkSize; ++x) {
                     TileId tile_id = chunk->at(x, y);
                     if (tile_id == kEmptyTileId) continue;
-                    auto res = tile_set->getCollider(tile_id);
-                    if (res.is_none()) continue;
-                    Shape shape = res.unwrap_unchecked();
+                    const TileDefinition* def = tile_set->getTileDefinition(tile_id);
+                    if (!def) continue;
+                    Shape shape = def->collision_shape;
                     DEV_ASSERT(shape.type == ShapeType::Box);
 
                     TileCoord coord;

@@ -33,6 +33,10 @@ void CollectTileMap(Scene& scene, FrameData& framedata) {
         batch.c_tint_color = Vec4f::One;
 
         for (const auto& layer : layers) {
+            if (!layer.isStatic()) {
+                // CRASH_NOW();
+            }
+            if (!layer.visible) continue;
             if (!layer.mesh) continue;
             if (layer.mesh->desc.drawCount == 0) continue;
             ImageAsset* image = layer.image.get();

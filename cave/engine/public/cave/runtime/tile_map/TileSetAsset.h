@@ -9,7 +9,7 @@
 
 namespace cave {
 
-// @TODO: move layer & mask to shape, and rename it collision shape
+// @TODO: move layer & mask to collision
 enum class CollisionType {
     None,
     Solid,
@@ -19,7 +19,7 @@ enum class CollisionType {
 
 DECLARE_ENUM_TRAITS(CollisionType, "None", "Solid", "Trigger");
 
-// @TODO: merge this with SpriteAnimationClip
+// @TODO: refactor this to use with SpriteAnimationClip as well
 struct TileFrame {
     CAVE_META(TileFrame)
 
@@ -91,8 +91,7 @@ public:
     float tileScale() const { return m_tile_scale; }
     void tileScale(float scale);
 
-    // @TODO: fix this
-    Option<Shape> getCollider(uint32_t tile_id) const;
+    const TileDefinition* getTileDefinition(uint32_t tile_id) const;
 
     const Guid& imageGuid() const { return m_image_guid; }
     void setImageGuid(const Guid& guid);

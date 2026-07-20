@@ -19,14 +19,27 @@ private:
     CAVE_PROP(editor = Asset, on_change = onTileMapGuidChanged)
     Guid m_tile_map_guid;
 
-    struct LayerCache {
-        int z_index = 0;
-        Handle<ImageAsset> image;
-        Handle<TileSetAsset> tile_set_handle;
-        mutable Ref<GpuMesh> mesh;
+    // Non serialize
+    struct AnimationFrame {
+        float duration;
+        uint32_t offset;
+        uint32_t count;
     };
 
-    // Non serialize
+    struct LayerCache {
+        bool visible = true;
+        int z_index = 0;
+
+        Handle<TileSetAsset> tile_set_handle;
+        Handle<ImageAsset> image;
+
+        Ref<GpuMesh> mesh;
+
+        Vector<AnimationFrame> animation;
+
+        bool isStatic() const { return animation.empty(); }
+    };
+
     Handle<TileMapAsset> m_handle;
     Vector<LayerCache> m_layers;
     uint32_t m_revision{ 0 };
