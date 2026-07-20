@@ -4,6 +4,6 @@ name: snake.prefab
 import_path: "@res://prefabs/snake.prefab"
 dependencies: [9C019531-38B4-F44A-9F1A715A0D2D67E7]
 source_created_time: 2026-06-21 06:53:56.0540336
-source_last_modified: 2026-07-15 13:16:45.0730472
+source_last_modified: 2026-07-20 12:36:24.4150992
 import_settings:
   {}

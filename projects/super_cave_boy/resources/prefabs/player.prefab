@@ -54,8 +54,8 @@ entities:
       image_id: 7AA74195-1D78-4841-9920E8650E8DE22A
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0.625, 1]
-        max: [0.75, 0.5]
+        min: [0.625, 0.5]
+        max: [0.75, 1]
       flip_x: false
       flip_y: false
       z_index: 99

@@ -25,8 +25,8 @@ entities:
       image_id: 900112E5-AECA-0049-A2A2B565F78CCA67
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0, 1]
-        max: [1, 0]
+        min: [0, 0]
+        max: [1, 1]
       flip_x: false
       flip_y: false
       z_index: -1

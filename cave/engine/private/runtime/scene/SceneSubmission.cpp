@@ -193,10 +193,10 @@ void SubmitScene(const ResolvedView& view,
     SubmitSprites(ctx, *view.scene);
     ctx.canvas.popView();
 
-    //std::sort(framedata.sprites.begin(), framedata.sprites.end(),
-    //          [](const DrawItem& a, const DrawItem& b) {
-    //              return a.z_index < b.z_index;
-    //          });
+    // std::sort(framedata.sprites.begin(), framedata.sprites.end(),
+    //           [](const DrawItem& a, const DrawItem& b) {
+    //               return a.z_index < b.z_index;
+    //           });
 }
 
 }  // namespace cave

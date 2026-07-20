@@ -52,8 +52,8 @@ entities:
       image_id: 7818D22F-10AE-8A4C-920D20A0BC525661
       tint_color: [1, 1, 1, 1]
       rect:
-        min: [0, 0.5]
-        max: [0.5, 0]
+        min: [0, 0]
+        max: [0.5, 0.5]
       flip_x: false
       flip_y: false
       z_index: 0

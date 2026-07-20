@@ -4,6 +4,6 @@ name: player.prefab
 import_path: "@res://prefabs/player.prefab"
 dependencies: [A19D178A-EFC6-A346-815793EC6AB97322]
 source_created_time: 2025-08-01 13:11:01.7557723
-source_last_modified: 2026-07-15 13:16:45.0720155
+source_last_modified: 2026-07-20 12:36:27.6419603
 import_settings:
   {}

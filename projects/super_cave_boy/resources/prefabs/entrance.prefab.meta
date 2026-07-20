@@ -4,6 +4,6 @@ name: entrance.prefab
 import_path: "@res://prefabs/entrance.prefab"
 dependencies: []
 source_created_time: 2026-07-05 06:11:32.8967976
-source_last_modified: 2026-07-15 13:16:45.0679297
+source_last_modified: 2026-07-20 12:36:11.6105195
 import_settings:
   {}
