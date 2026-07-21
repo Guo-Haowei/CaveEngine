@@ -63,6 +63,8 @@ void TileMapLayerComponent::onDeserialized() {
 }
 
 void TileMapLayerComponent::updateTileCache() {
+    m_tile_cache.clear();
+
     const TileSetAsset* tile_set = m_tile_set_handle.get();
     if (!tile_set) {
         return;

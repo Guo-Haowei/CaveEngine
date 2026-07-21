@@ -38,13 +38,12 @@ public:
 
     std::span<const TileCache> getTileCache() const { return m_tile_cache; }
 
+    void updateTileCache();
     void onDeserialized();
 
 private:
     void refreshTileSetHandle();
     void onTileSetGuidChanged(const FieldChange& change);
-
-    void updateTileCache();
 
     CAVE_PROP(editor = Asset, on_change = onTileSetGuidChanged)
     Guid m_tile_set;

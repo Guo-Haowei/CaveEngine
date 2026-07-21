@@ -156,19 +156,19 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
 
 void TilePaintTool::drawAssetInspector(IDocument& doc) {
     unused(doc);
-     //TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
-     //if (DEV_VERIFY(tile_map)) {
-     //    DrawObjectCtx ctx = {
-     //        .engine_services = m_ctx.engine_services,
-     //        .editor_services = m_ctx.editor_services,
-     //        .doc_id = m_ctx.doc_id,
-     //        .type_id = StringId{},
-     //        .scene = nullptr,
-     //        .entity = ecs::Entity::null(),
-     //    };
+    // TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
+    // if (DEV_VERIFY(tile_map)) {
+    //     DrawObjectCtx ctx = {
+    //         .engine_services = m_ctx.engine_services,
+    //         .editor_services = m_ctx.editor_services,
+    //         .doc_id = m_ctx.doc_id,
+    //         .type_id = StringId{},
+    //         .scene = nullptr,
+    //         .entity = ecs::Entity::null(),
+    //     };
 
-     //    m_tile_map_layer_panel->draw(*tile_map, ctx);
-     //}
+    //    m_tile_map_layer_panel->draw(*tile_map, ctx);
+    //}
 }
 
 Option<TileCoord> TilePaintTool::pointToTile(math::Vec2f point_os) {
@@ -279,14 +279,9 @@ void TilePaintTool::finishPaintCommand() {
         return;
     }
 
-    int layer_id = m_tile_map_layer_panel->selectedIndex().unwrap_or(-1);
-    if (!DEV_VERIFY(layer_id >= 0)) {
-        m_pending_tile_changes.clear();
-        return;
-    }
-
-    auto composite = MakeOwner<SetTileCommand>(
-        m_ctx.engine_services.sceneRegistry(), layer_id);
+    auto composite = MakeOwner<SetTileCommand>(m_ctx.engine_services.sceneRegistry(),
+                                               m_ctx.scene_id,
+                                               m_layer_id);
 
     for (const auto& [coord, change] : m_pending_tile_changes) {
         if (change.before == change.after) {
