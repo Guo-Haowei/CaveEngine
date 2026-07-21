@@ -260,30 +260,7 @@ bool DrawTileDefinition(TileDefinition& definition) {
     ImGui::Text("Tile %u", definition.id);
     ImGui::Separator();
 
-    // DrawEnumDropDown<CollisionType>("collision_type", definition.collision, ui::kDefaultColumnWidth);
-    // ui::DrawBitMask32("layer", definition.layer);
-    // ui::DrawBitMask32("mask", definition.mask);
-
-    // Collision type
-    {
-        int collision = static_cast<int>(definition.collision);
-
-        constexpr const char* items[] = {
-            "None",
-            "Solid",
-            "Trigger",
-        };
-
-        ImGui::SetNextItemWidth(-1.0f);
-
-        if (ImGui::Combo("Collision",
-                         &collision,
-                         items,
-                         IM_ARRAYSIZE(items))) {
-            definition.collision = static_cast<CollisionType>(collision);
-            changed = true;
-        }
-    }
+    DrawEnumDropDown<CollisionType>("Type", definition.collision, ui::kDefaultColumnWidth);
 
     if (definition.collision != CollisionType::None) {
         ImGui::Spacing();
@@ -310,27 +287,14 @@ bool DrawTileDefinition(TileDefinition& definition) {
         if (clamped_min != definition.collision_shape.min() ||
             clamped_max != definition.collision_shape.max()) {
             definition.collision_shape = Box2{ clamped_min, clamped_max };
-
             changed = true;
         }
 
         ImGui::Spacing();
 
-        if (ui::DrawBitMask32("##TileCollisionLayer",
-                              definition.layer)) {
+        if (ui::DrawBitMask32("Mask", definition.mask)) {
             changed = true;
         }
-
-        ImGui::SameLine();
-        ImGui::TextUnformatted("Layer");
-
-        if (ui::DrawBitMask32("##TileCollisionMask",
-                              definition.mask)) {
-            changed = true;
-        }
-
-        ImGui::SameLine();
-        ImGui::TextUnformatted("Mask");
     }
 
     ImGui::Spacing();
@@ -417,11 +381,6 @@ void TileSetEditor::drawAssetInspector(IDocument&) {
         }
         ImGui::EndTabBar();
     }
-
-    ImGui::Separator();
-    const int column = tile_set.col();
-    const int row = tile_set.row();
-    m_sprite_selector.SelectSprite(*assets.image, &column, &row);
 
     ImGui::Separator();
 
