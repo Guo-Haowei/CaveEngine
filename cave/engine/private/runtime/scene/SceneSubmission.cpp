@@ -102,76 +102,12 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
     }
 }
 
-void SubmitTileLayer(const SceneSubmitContext& ctx,
-                     const TileMapInstanceComponent::LayerCache& layer,
-                     const TransformComponent& transform) {
-    const ImageAsset* image = layer.image.get();
-    const TileSetAsset* tile_set = layer.tile_set.get();
-    if (!image || !tile_set) {
-        return;
-    }
-
-    const auto& frames = tile_set->frames();
-    for (const auto& tile : layer.tiles) {
-        // @TODO: move to somewhere else
-        tile.elapsed += ctx.dt;
-        const auto* definition = tile_set->getTileDefinition(tile.tile_id);
-        if (!definition) continue;
-
-        uint32_t atlas_index = definition->id;
-        if (!definition->animation.empty()) {
-            auto* frame = FindTileFrame(*definition, tile.elapsed);
-            if (!frame) continue;
-            atlas_index = frame->atlas_index;
-        }
-
-        if (atlas_index >= frames.size()) continue;
-        const auto frame = frames[atlas_index];
-
-        ImageDrawOptions options;
-        options.z_index = layer.z_index;
-        options.transform = &transform.worldMatrix();
-        options.uv_min = frame.min();
-        options.uv_max = frame.max();
-
-        const float s = 1.0f;
-        float x0 = s * tile.x;
-        float y0 = s * tile.y;
-        float x1 = s * (tile.x + 1);
-        float y1 = s * (tile.y + 1);
-
-        ctx.canvas.addImage(image->gpu_texture.get(),
-                            Vec2f(x0, y0),
-                            Vec2f(x1, y1),
-                            options);
-    }
-}
-
 void SubmitTileMapLayers(const SceneSubmitContext& ctx, Scene& scene) {
     auto view = scene.view<TileMapLayerComponent, TransformComponent, HierarchyComponent>();
 
     for (const auto& [id, layer, transform, hier] : view) {
         if (!hier.visible()) continue;
         SubmitTileLayer(ctx, layer, transform);
-    }
-}
-
-void SubmitTileMaps(const SceneSubmitContext& ctx, Scene& scene) {
-    auto view = scene.view<TileMapInstanceComponent, TransformComponent, HierarchyComponent>();
-
-    for (const auto& [id, instance, transform, hier] : view) {
-        if (!hier.visible()) continue;
-
-        instance.createRenderData();
-
-        instance.tileMapHandle();
-
-        auto layers = instance.layers();
-        if (layers.empty()) continue;
-
-        for (const auto& layer : layers) {
-            SubmitTileLayer(ctx, layer, transform);
-        }
     }
 }
 
@@ -244,13 +180,11 @@ void SubmitSprites(const SceneSubmitContext& ctx, Scene& scene) {
 }  // namespace
 
 void SubmitScene(const ResolvedView& view, const SceneSubmitContext& ctx) {
-
     if (!view.scene) {
         return;
     }
 
     ctx.canvas.pushView(view.view_id);
-    SubmitTileMaps(ctx, *view.scene);
     SubmitTileMapLayers(ctx, *view.scene);
     SubmitSprites(ctx, *view.scene);
     ctx.canvas.popView();

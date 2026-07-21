@@ -1,9 +1,0 @@
-type: tilemap
-guid: FD6F7481-5751-A04A-91D221E2CD687683
-name: level_8.tilemap
-import_path: "@res://scenes/level_8.tilemap"
-dependencies: [94FB5794-CF41-1E46-8D6DB1E633C35D85]
-source_created_time: 2026-07-17 17:00:37.1156473
-source_last_modified: 2026-07-18 05:06:38.0711030
-import_settings:
-  {}
