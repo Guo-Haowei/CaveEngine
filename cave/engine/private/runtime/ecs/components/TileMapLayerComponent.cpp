@@ -3,6 +3,7 @@
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
@@ -22,13 +23,31 @@ void TileMapLayerComponent::setTileSetGuid(const Guid& guid) {
 void TileMapLayerComponent::refreshTileSetHandle() {
     if (m_tile_set.isNull()) {
         m_tile_set_handle = {};
+        m_image_handle = {};
         return;
     }
 
-    auto handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(m_tile_set);
-    if (handle.is_some()) {
-        m_tile_set_handle = std::move(handle.unwrap_unchecked());
+    auto tile_set_handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(m_tile_set);
+    if (!tile_set_handle) {
+        return;
     }
+
+    m_tile_set_handle = std::move(tile_set_handle.unwrap_unchecked());
+    const TileSetAsset* tile_set = m_tile_set_handle.get();
+    if (!tile_set) {
+        m_tile_set_handle = {};
+        return;
+    }
+
+    auto image_handle = AssetRegistry::singleton().findByGuid<ImageAsset>(tile_set->imageGuid());
+    if (!image_handle) {
+        m_tile_set_handle = {};
+        return;
+    }
+
+    m_image_handle = std::move(image_handle.unwrap_unchecked());
+
+    updateTileCache();
 }
 
 void TileMapLayerComponent::onTileSetGuidChanged(const FieldChange& change) {
@@ -43,6 +62,29 @@ void TileMapLayerComponent::onDeserialized() {
     refreshTileSetHandle();
 }
 
+void TileMapLayerComponent::updateTileCache() {
+    const TileSetAsset* tile_set = m_tile_set_handle.get();
+    if (!tile_set) {
+        return;
+    }
+
+    for (const auto& [key, chunk] : m_chunks.chunks()) {
+        const int16_t offset_x = key.x * kTileChunkSize;
+        const int16_t offset_y = key.y * kTileChunkSize;
+
+        for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
+            for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
+                const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
+                const auto* definition = tile_set->getTileDefinition(tile_id);
+                if (definition) {
+                    m_tile_cache.emplace_back(x, y, tile_id, 0.0f);
+                }
+            }
+        }
+    }
+}
+
+// --------------------
 void TileMapInstanceComponent::refreshTileMapHandle() {
     m_revision = 0;
     m_handle.invalidate();

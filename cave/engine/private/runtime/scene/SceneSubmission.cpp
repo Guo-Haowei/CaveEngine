@@ -58,6 +58,51 @@ const TileFrame* FindTileFrame(const TileDefinition& definition,
 
 // @TODO: move to animation system
 void SubmitTileLayer(const SceneSubmitContext& ctx,
+                     const TileMapLayerComponent& layer,
+                     const TransformComponent& transform) {
+    const ImageAsset* image = layer.imageHandle().get();
+    const TileSetAsset* tile_set = layer.tileSetHndle().get();
+    if (!image || !tile_set) {
+        return;
+    }
+
+    const auto& frames = tile_set->frames();
+    for (const auto& tile : layer.getTileCache()) {
+        // @TODO: move to somewhere else
+        tile.elapsed += ctx.dt;
+        const auto* definition = tile_set->getTileDefinition(tile.tile_id);
+        if (!definition) continue;
+
+        uint32_t atlas_index = definition->id;
+        if (!definition->animation.empty()) {
+            auto* frame = FindTileFrame(*definition, tile.elapsed);
+            if (!frame) continue;
+            atlas_index = frame->atlas_index;
+        }
+
+        if (atlas_index >= frames.size()) continue;
+        const auto frame = frames[atlas_index];
+
+        ImageDrawOptions options;
+        options.z_index = layer.zIndex();
+        options.transform = &transform.worldMatrix();
+        options.uv_min = frame.min();
+        options.uv_max = frame.max();
+
+        const float s = 1.0f;
+        float x0 = s * tile.x;
+        float y0 = s * tile.y;
+        float x1 = s * (tile.x + 1);
+        float y1 = s * (tile.y + 1);
+
+        ctx.canvas.addImage(image->gpu_texture.get(),
+                            Vec2f(x0, y0),
+                            Vec2f(x1, y1),
+                            options);
+    }
+}
+
+void SubmitTileLayer(const SceneSubmitContext& ctx,
                      const TileMapInstanceComponent::LayerCache& layer,
                      const TransformComponent& transform) {
     const ImageAsset* image = layer.image.get();
@@ -99,6 +144,15 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
                             Vec2f(x0, y0),
                             Vec2f(x1, y1),
                             options);
+    }
+}
+
+void SubmitTileMapLayers(const SceneSubmitContext& ctx, Scene& scene) {
+    auto view = scene.view<TileMapLayerComponent, TransformComponent, HierarchyComponent>();
+
+    for (const auto& [id, layer, transform, hier] : view) {
+        if (!hier.visible()) continue;
+        SubmitTileLayer(ctx, layer, transform);
     }
 }
 
@@ -197,6 +251,7 @@ void SubmitScene(const ResolvedView& view, const SceneSubmitContext& ctx) {
 
     ctx.canvas.pushView(view.view_id);
     SubmitTileMaps(ctx, *view.scene);
+    SubmitTileMapLayers(ctx, *view.scene);
     SubmitSprites(ctx, *view.scene);
     ctx.canvas.popView();
 }

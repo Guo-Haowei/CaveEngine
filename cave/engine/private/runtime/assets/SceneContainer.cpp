@@ -30,6 +30,9 @@ Vector<Guid> SceneContainer::dependencies() const {
     for (const auto& [id, tile_map_renderer] : m_scene->view<TileMapInstanceComponent>()) {
         deps.insert(tile_map_renderer.tileMapGuid());
     }
+    for (const auto& [id, tile_map_layer] : m_scene->view<TileMapLayerComponent>()) {
+        deps.insert(tile_map_layer.tileSetGuid());
+    }
     for (const auto& [id, animator] : m_scene->view<SpriteAnimatorComponent>()) {
         deps.insert(animator.animGuid());
     }

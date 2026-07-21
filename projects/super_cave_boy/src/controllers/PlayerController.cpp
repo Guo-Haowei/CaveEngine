@@ -11,7 +11,6 @@
 #include "cave/runtime/input/IGameInput.h"
 #include "cave/runtime/scene/MotorSystem.h"
 #include "cave/runtime/scene/SceneQuery.h"
-#include "cave/runtime/tile_map/TileMapLayerComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 
 namespace super_cave_boy {

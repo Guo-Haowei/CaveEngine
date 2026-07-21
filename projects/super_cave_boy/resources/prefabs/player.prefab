@@ -56,4 +56,4 @@ entities:
         max: [0.75, 1]
       flip_x: false
       flip_y: false
-      z_index: 99
+      z_index: 1

@@ -17,7 +17,12 @@ class TileMapLayerComponent {
     CAVE_COMPONENT(TileMapLayerComponent)
 
 public:
-    const Handle<TileSetAsset>& handle() const { return m_tile_set_handle; }
+    struct TileCache {
+        int16_t x, y;
+        uint32_t tile_id;
+
+        mutable float elapsed;
+    };
 
     const Guid& tileSetGuid() const { return m_tile_set; }
     void setTileSetGuid(const Guid& guid);
@@ -28,11 +33,17 @@ public:
     int zIndex() const { return m_z_index; }
     void setZIndex(int value) { m_z_index = value; }
 
-    void onDeserialized();
+    const Handle<TileSetAsset>& tileSetHndle() const { return m_tile_set_handle; }
+    const Handle<ImageAsset>& imageHandle() const { return m_image_handle; }
 
+    std::span<const TileCache> getTileCache() const { return m_tile_cache; }
+
+    void onDeserialized();
 private:
     void refreshTileSetHandle();
     void onTileSetGuidChanged(const FieldChange& change);
+
+    void updateTileCache();
 
     CAVE_PROP(editor = Asset, on_change = onTileSetGuidChanged)
     Guid m_tile_set;
@@ -45,18 +56,15 @@ private:
 
     // Non serialized
     Handle<TileSetAsset> m_tile_set_handle;
+    Handle<ImageAsset> m_image_handle;
+
+    Vector<TileCache> m_tile_cache;
 };
 
 class TileMapInstanceComponent {
     CAVE_COMPONENT(TileMapInstanceComponent)
 
 public:
-    struct TileCache {
-        int16_t x, y;
-        uint32_t tile_id;
-
-        mutable float elapsed;
-    };
 
     struct LayerCache {
         bool visible = true;
@@ -65,7 +73,7 @@ public:
         Handle<TileSetAsset> tile_set;
         Handle<ImageAsset> image;
 
-        Vector<TileCache> tiles;
+        Vector<TileMapLayerComponent::TileCache> tiles;
     };
 
     // @TODO: remove this
