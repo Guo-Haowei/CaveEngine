@@ -260,46 +260,51 @@ bool DrawTileDefinition(TileDefinition& definition) {
     ImGui::Text("Tile %u", definition.id);
     ImGui::Separator();
 
-    DrawEnumDropDown<CollisionType>("Type", definition.collision, ui::kDefaultColumnWidth);
+    if (ImGui::CollapsingHeader("Physics", 0)) {
+        ImGui::Indent();
 
-    if (definition.collision != CollisionType::None) {
-        ImGui::Spacing();
+        DrawEnumDropDown<CollisionType>("Type", definition.collision, ui::kDefaultColumnWidth);
 
-        Vec2f min = definition.collision_shape.min();
-        Vec2f max = definition.collision_shape.max();
+        if (definition.collision != CollisionType::None) {
+            ImGui::Spacing();
 
-        if (ui::Float2("Min", min)) {
-            max = math::max(max, min);
-            definition.collision_shape = Box2{ min, max };
-            changed = true;
+            Vec2f min = definition.collision_shape.min();
+            Vec2f max = definition.collision_shape.max();
+
+            if (ui::Float2("Min", min)) {
+                max = math::max(max, min);
+                definition.collision_shape = Box2{ min, max };
+                changed = true;
+            }
+
+            if (ui::Float2("Max", max, 1.0f)) {
+                min = math::min(min, max);
+                definition.collision_shape = Box2{ min, max };
+                changed = true;
+            }
+
+            // Optional normalization to tile-local coordinates.
+            Vec2f clamped_min = math::clamp(definition.collision_shape.min(), Vec2f::Zero, Vec2f::One);
+            Vec2f clamped_max = math::clamp(definition.collision_shape.max(), Vec2f::Zero, Vec2f::One);
+
+            if (clamped_min != definition.collision_shape.min() ||
+                clamped_max != definition.collision_shape.max()) {
+                definition.collision_shape = Box2{ clamped_min, clamped_max };
+                changed = true;
+            }
+
+            ImGui::Spacing();
+
+            if (ui::DrawBitMask32("Mask", definition.mask)) {
+                changed = true;
+            }
         }
-
-        if (ui::Float2("Max", max, 1.0f)) {
-            min = math::min(min, max);
-            definition.collision_shape = Box2{ min, max };
-            changed = true;
-        }
-
-        // Optional normalization to tile-local coordinates.
-        Vec2f clamped_min = math::clamp(definition.collision_shape.min(), Vec2f::Zero, Vec2f::One);
-        Vec2f clamped_max = math::clamp(definition.collision_shape.max(), Vec2f::Zero, Vec2f::One);
-
-        if (clamped_min != definition.collision_shape.min() ||
-            clamped_max != definition.collision_shape.max()) {
-            definition.collision_shape = Box2{ clamped_min, clamped_max };
-            changed = true;
-        }
-
-        ImGui::Spacing();
-
-        if (ui::DrawBitMask32("Mask", definition.mask)) {
-            changed = true;
-        }
+        ImGui::Unindent();
     }
 
     ImGui::Spacing();
 
-    if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Animation", 0)) {
         ImGui::Indent();
 
         Option<int> pending_delete;
@@ -309,7 +314,7 @@ bool DrawTileDefinition(TileDefinition& definition) {
 
             ImGui::PushID(i);
 
-            ImGui::SeparatorText( std::format("Frame {}", i).c_str());
+            ImGui::SeparatorText(std::format("Frame {}", i).c_str());
 
             int atlas_index = static_cast<int>(frame.atlas_index);
 
