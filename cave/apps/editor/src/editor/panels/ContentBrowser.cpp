@@ -84,7 +84,6 @@ void ContentBrowser::onAttach() {
     m_thumbnail_lut[".prefab"] = icons.getIconHandle(IconName::Scene);
     m_thumbnail_lut[".sprite_anim"] = icons.getIconHandle(IconName::Anim);
     m_thumbnail_lut[".lua"] = icons.getIconHandle(IconName::Lua);
-    m_thumbnail_lut[".tilemap"] = icons.getIconHandle(IconName::TileMap);
     m_thumbnail_lut[".tileset"] = icons.getIconHandle(IconName::TileSet);
 
     DEV_ASSERT(m_folder_iamge && m_fallback_iamge);

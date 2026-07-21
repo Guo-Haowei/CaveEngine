@@ -30,7 +30,6 @@ enum PayloadKind : uint16_t {
     None = 0,
     Mesh,
     Sprite,
-    TileMap,
     Debug,
 };
 

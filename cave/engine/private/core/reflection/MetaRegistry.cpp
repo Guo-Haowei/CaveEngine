@@ -1,6 +1,5 @@
 #include "cave/core/reflection/Meta.h"
 #include "cave/core/reflection/MetaRegistry.h"
-#include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/ui/UIComponents.h"
 
 #include "engine/private/runtime/ecs/components/All.h"
@@ -67,18 +66,6 @@ void MetaRegistry::builtin(MetaRegistry& out) {
     // register components
     REGISTER_COMPONENT_SERIALIZED_LIST
 #undef REGISTER_COMPONENT
-
-#define REGISTER_META(T, ID)                    \
-    out.registerMeta({                          \
-        .type_id = ID,                          \
-        .name = #T,                             \
-        .size = sizeof(T),                      \
-        .align = alignof(T),                    \
-        .version = 0,                           \
-        .props = MetaDataTable<T>::GetFields(), \
-    });
-
-    REGISTER_META(TileMapLayer, CAVE_SID("TileMapLayer"));
 }
 
 }  // namespace cave

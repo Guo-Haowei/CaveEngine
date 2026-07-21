@@ -68,7 +68,7 @@ entities:
       material_id: 8B43351D-333B-9A4D-8BAAB542CF234B1E
   - id: 5
     NameComponent:
-      name: game_camera
+      name: GameCamera
     HierarchyComponent:
       parent_id: 1
       local_visible: true

@@ -1,5 +1,7 @@
 #include "cave/runtime/tile_map/TileData.h"
 
+#include "engine/private/runtime/serialization/YamlInclude.h"
+
 namespace cave {
 
 namespace {
@@ -45,6 +47,28 @@ TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local
 
 TileChunk::TileChunk() {
     m_local_tiles.fill(kEmptyTileId);
+}
+
+ChunkedTileData::ChunkedTileData(const ChunkedTileData& other) {
+    for (const auto& [coord, chunk] : other.m_chunks) {
+        if (chunk) {
+            m_chunks.emplace(
+                coord,
+                std::make_unique<TileChunk>(*chunk));
+        } else {
+            m_chunks.emplace(coord, nullptr);
+        }
+    }
+}
+
+ChunkedTileData& ChunkedTileData::operator=(const ChunkedTileData& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    ChunkedTileData copy(other);
+    std::swap(copy.m_chunks, m_chunks);
+    return *this;
 }
 
 bool TileChunk::empty() const {
@@ -123,6 +147,87 @@ bool ChunkedTileData::addChunk(TileChunkCoord coord, Owner<TileChunk>&& chunk) {
     auto [it, inserted] = m_chunks.insert(std::make_pair(coord, std::move(chunk)));
 
     return inserted;
+}
+
+static_assert(Serializable<ChunkedTileData>);
+
+ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
+    s.beginArray(false);
+
+    for (const auto& [index, chunk] : tile_data.chunks()) {
+        if (chunk->empty()) {
+            continue;
+        }
+
+        s.beginMap(false)
+            .beginKey("x")
+            .write(index.x)
+            .beginKey("y")
+            .write(index.y)
+            .beginKey("tiles")
+            .beginArray(true);
+
+        for (int16_t y = 0; y < kTileChunkSize; ++y) {
+            for (int16_t x = 0; x < kTileChunkSize; ++x) {
+                s.write(chunk->at(x, y));
+            }
+        }
+
+        s.endArray()
+            .endMap();
+    }
+
+    return s.endArray();
+}
+
+bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
+    const int chunk_size = d.arraySize().unwrap_or(-1);
+    if (chunk_size < 0) {
+        return false;
+    }
+
+    for (int chunk_idx = 0; chunk_idx < chunk_size; ++chunk_idx) {
+        DEV_ASSERT(d.tryEnterIndex(chunk_idx));
+        constexpr int16_t kMaxIndex = std::numeric_limits<int16_t>::max();
+        int16_t x = kMaxIndex;
+        int16_t y = kMaxIndex;
+        if (DEV_VERIFY(d.tryEnterKey("x"))) {
+            d.read(x);
+            d.leaveKey();
+        }
+        if (DEV_VERIFY(d.tryEnterKey("y"))) {
+            d.read(y);
+            d.leaveKey();
+        }
+
+        if (x != kMaxIndex && y != kMaxIndex) {
+            if (d.tryEnterKey("tiles")) {
+                auto chunk = MakeOwner<TileChunk>();
+
+                DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileChunkArea);
+                for (int16_t local_y = 0; local_y < kTileChunkSize; ++local_y) {
+                    for (int16_t local_x = 0; local_x < kTileChunkSize; ++local_x) {
+                        const int16_t tile_idx = local_y * kTileChunkSize + local_x;
+                        if (DEV_VERIFY(d.tryEnterIndex(tile_idx))) {
+                            d.read(chunk->at(local_x, local_y));
+                            d.leaveIndex();
+                        }
+                    }
+                }
+
+                if (!chunk->empty()) {
+                    [[maybe_unused]]
+                    const bool inserted = tile_data.addChunk(TileChunkCoord(x, y), std::move(chunk));
+                    DEV_ASSERT(inserted);
+                }
+                d.leaveKey();
+            }
+        }
+
+        d.leaveIndex();
+    }
+
+    return true;
 }
 
 }  // namespace cave

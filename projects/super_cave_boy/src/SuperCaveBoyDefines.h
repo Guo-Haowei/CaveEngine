@@ -6,8 +6,6 @@
 
 namespace super_cave_boy {
 
-using namespace ::cave::literals;
-
 constexpr float kPlayerKnockbackX = 7.f;
 constexpr float kPlayerKnockbackY = 8.f;
 constexpr float kPlayerMoveX = 5.9f;
@@ -26,17 +24,17 @@ constexpr uint32_t kExitLayer = 4;
 constexpr uint32_t kCutsceneLayer = 5;
 constexpr uint32_t kLavaLayer = 6;
 
-constexpr cave::StringId kPlayerDamagedID = "player.damaged"_sid;
-constexpr cave::StringId kPlayerBouncedID = "player.bounced"_sid;
-constexpr cave::StringId kPlayerLeaveID = "player.leave"_sid;
-constexpr cave::StringId kCutsceneStartID = "cutscene.start"_sid;
-constexpr cave::StringId kCutsceneEndID = "cutscene.end"_sid;
-constexpr cave::StringId kGuardianAwakeID = "guardian.awake"_sid;
-constexpr cave::StringId kGuardianBeginFightID = "guardian.begin_fight"_sid;
-constexpr cave::StringId kGuardianDefeatedID = "guardian.defeated"_sid;
+constexpr cave::StringId kPlayerDamagedID = CAVE_SID("player.damaged");
+constexpr cave::StringId kPlayerBouncedID = CAVE_SID("player.bounced");
+constexpr cave::StringId kPlayerLeaveID = CAVE_SID("player.leave");
+constexpr cave::StringId kCutsceneStartID = CAVE_SID("cutscene.start");
+constexpr cave::StringId kCutsceneEndID = CAVE_SID("cutscene.end");
+constexpr cave::StringId kGuardianAwakeID = CAVE_SID("guardian.awake");
+constexpr cave::StringId kGuardianBeginFightID = CAVE_SID("guardian.begin_fight");
+constexpr cave::StringId kGuardianDefeatedID = CAVE_SID("guardian.defeated");
 
-constexpr cave::StringId kPlayerHealthID = "player.health"_sid;
-constexpr cave::StringId kLootCountID = "loot.count"_sid;
+constexpr cave::StringId kPlayerHealthID = CAVE_SID("player.health");
+constexpr cave::StringId kLootCountID = CAVE_SID("loot.count");
 
 inline bool IsPlayer(const cave::ColliderComponent& collider) {
     return collider.layer() == kPlayerLayer;

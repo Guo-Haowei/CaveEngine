@@ -32,7 +32,7 @@ ChessGridSelectorAdapter::ChessGridSelectorAdapter(SceneRuntime& runtime,
     , m_client(game)
     , m_board_view(board_view) {
 
-    m_camera_id = m_runtime.query().findFirstByName("game_camera");
+    m_camera_id = m_runtime.query().findFirstByName("GameCamera");
     assert(m_camera_id.valid());
 }
 

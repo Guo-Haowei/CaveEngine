@@ -11,6 +11,9 @@
 
 namespace cave {
 
+class ISerializer;
+class IDeserializer;
+
 using TileId = uint16_t;
 constexpr TileId kEmptyTileId = 0xFFFF;
 
@@ -45,6 +48,12 @@ TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local
 
 class ChunkedTileData {
 public:
+    ChunkedTileData() = default;
+
+    ChunkedTileData(const ChunkedTileData& other);
+
+    ChunkedTileData& operator=(const ChunkedTileData& other);
+
     Option<TileId> tileAt(TileCoord coord) const;
 
     bool addTile(TileCoord coord, TileId id);
@@ -58,5 +67,9 @@ public:
 private:
     HashMap<TileChunkCoord, Owner<TileChunk>> m_chunks;
 };
+
+ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data);
+
+bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data);
 
 }  // namespace cave

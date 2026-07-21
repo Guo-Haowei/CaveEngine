@@ -1,10 +1,11 @@
 #pragma once
-#include "cave/runtime/tile_map/TileMapAsset.h"
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"
 
-#include "editor/panels/ViewTabBase.h"
+#include "editor/scene_view/ISceneViewTool.h"
 #include "editor/tile_map/GridPaintDefines.h"
 #include "editor/tile_map/GridPaintTool.h"
 #include "editor/widgets/SpriteSelector.h"
+#include "editor/widgets/ToolBar.h"
 
 namespace cave {
 
@@ -13,10 +14,9 @@ enum class GridPaintAction : uint8_t;
 struct GridPaintEvent;
 class GridPaintTool;
 class ICanvas;
-class TileMapLayer;
 class TileMapLayerPanel;
 
-class TileMapEditor final : public ViewTabBase {
+class TilePaintTool : public ISceneViewTool {
     enum class Mode : uint8_t {
         None,
         Painting,
@@ -24,14 +24,16 @@ class TileMapEditor final : public ViewTabBase {
     };
 
 public:
-    TileMapEditor(EditorState& editor,
-                  DocId doc_id,
-                  SceneId preview_scene_id);
-    ~TileMapEditor();
+    TilePaintTool(const SceneToolContext& ctx);
+    ~TilePaintTool() override;
 
-    void onInputEvents(const InputFrame& input) override;
+    void onInputEvents(const InputFrame& input, const WindowState& state) override;
 
-    DebugId debugId() const override { return m_debug_id; }
+    void draw(const math::FloatRect& rect) override;
+
+    void drawAssetInspector(IDocument& doc) override;
+
+    void setLayerId(ecs::Entity id) { m_layer_id = id; }
 
 private:
     struct PendingChange {
@@ -39,51 +41,45 @@ private:
         Option<TileId> after;
     };
 
-    void drawToolbar() override;
-
-    void drawTileMap();
-    void drawUIImpl() override;
-    void drawGizmo(const math::FloatRect& rect);
-    void drawAssetInspector(IDocument& doc) override;
     void drawGhostTiles(const TileSetAsset& tile_set);
-
-    void submitView();
 
     Option<TileCoord> pointToTile(math::Vec2f point_os);
 
     // ---- Paint Tool ----
-    GridPaintInput buildInput(const InputFrame& input);
+    GridPaintInput buildInput(const InputFrame& input, const WindowState& state);
     void handlePaintEvent(const GridPaintEvent& event,
-                          const TileMapLayer& layer);
+                          const TileMapLayerComponent& layer);
 
     void beginPaintCommand();
     void finishPaintCommand();
     void cancelPaintCommand();
 
     void applyPaintCells(std::span<const GridPaintCell> cells,
-                         const TileMapLayer& layer);
+                         const TileMapLayerComponent& layer);
 
-    void applyFillCells(GridPaintCell cell, const TileMapLayer& layer);
+    void applyFillCells(GridPaintCell cell, const TileMapLayerComponent& layer);
 
     void setPaintMode(GridPaintMode mode);
     // ---- Paint Tool ----
 
-    ICanvas& m_canvas;
+    TileSetAsset* getTileSet(ecs::Entity entity);
+    TileMapLayerComponent* getTileMapLayer(ecs::Entity entity);
+
     GridPaintTool m_paint_tool;
-    const DebugId m_debug_id;
 
     HashMap<TileCoord, PendingChange> m_pending_tile_changes;
     Option<math::Vec2f> m_cursor;
 
     GridPaintMode m_paint_mode = GridPaintMode::Brush;
-    bool m_erasing = false;
-
-    std::array<ToolbarButtonDesc, 5> m_toolbar;
+    bool m_erasing = true;
 
     Owner<TileMapLayerPanel> m_tile_map_layer_panel;
 
-    // @TODO: review this part
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
+
+    ecs::Entity m_layer_id;
+
+    std::array<ToolbarButtonDesc, 5> m_toolbar;
 };
 
 }  // namespace cave

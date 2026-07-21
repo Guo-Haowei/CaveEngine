@@ -4,6 +4,6 @@ name: game_camera.prefab
 import_path: "@res://prefabs/game_camera.prefab"
 dependencies: []
 source_created_time: 2026-07-11 01:53:38.4590823
-source_last_modified: 2026-07-15 13:16:45.0699529
+source_last_modified: 2026-07-17 10:49:49.6004000
 import_settings:
   {}

@@ -42,7 +42,7 @@ public:
     const Guid& imageGuid() const { return m_image_id; }
     void setImageGuid(const Guid& guid);
 
-    const Handle<ImageAsset> handle() const { return m_image_handle; }
+    const Handle<ImageAsset>& handle() const { return m_image_handle; }
 
     void setTintColor(const math::Vec4f& color) { m_tint_color = color; }
     const math::Vec4f& tintColor() const { return m_tint_color; }

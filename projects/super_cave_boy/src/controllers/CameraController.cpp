@@ -45,13 +45,13 @@ Vec2f ClampCameraToTileMap(Vec2f camera_pos,
 }  // namespace
 
 void CameraController::start() {
-    m_target = query().findFirstByName("player");
+    m_target = query().findFirstByName("Player");
 
     message().listen(kCutsceneStartID, [this](const Message&) {
-        m_target = query().findFirstByName("cutscene");
+        m_target = query().findFirstByName("Cutscene");
     });
     message().listen(kCutsceneEndID, [this](const Message&) {
-        m_target = query().findFirstByName("player");
+        m_target = query().findFirstByName("Player");
     });
 
     auto camera_transform = component<TransformComponent>();

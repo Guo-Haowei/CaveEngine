@@ -5,8 +5,6 @@
 
 namespace cave {
 
-class TileMapAsset;
-
 class SetTileCommand : public EditCmdBase {
     struct Command {
         TileCoord coord;
@@ -15,10 +13,13 @@ class SetTileCommand : public EditCmdBase {
     };
 
 public:
-    SetTileCommand(SceneRegistry& scene_reg, int layer_id)
+    SetTileCommand(SceneRegistry& scene_reg,
+                   SceneId scene_id,
+                   ecs::Entity entity)
         : EditCmdBase(scene_reg)
-        , layer_id(layer_id) {
-        DEV_ASSERT(layer_id >= 0);
+        , m_scene_id(scene_id)
+        , m_enity(entity) {
+        DEV_ASSERT(entity.valid());
     }
 
     void add(TileCoord coord, Option<TileId> before, Option<TileId> after) {
@@ -35,7 +36,8 @@ public:
 
 private:
     Vector<Command> m_cmds;
-    int layer_id;
+    SceneId m_scene_id;
+    ecs::Entity m_enity;
 };
 
 }  // namespace cave

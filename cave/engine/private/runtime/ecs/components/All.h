@@ -24,4 +24,4 @@
 #include "cave/runtime/script/lua/LuaScriptComponent.h"
 #include "cave/runtime/script/native/NativeScriptComponent.h"
 
-#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"

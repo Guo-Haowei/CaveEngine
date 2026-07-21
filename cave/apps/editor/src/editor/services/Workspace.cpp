@@ -14,7 +14,6 @@
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
-#include "editor/tile_map/TileMapEditor.h"
 #include "editor/tile_map/TileSetEditor.h"
 
 // @TODO: refactor
@@ -192,9 +191,6 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
                                           doc_id,
                                           doc->previewScene(),
                                           dim);
-        } break;
-        case AssetType::TileMap: {
-            tab = MakeOwner<TileMapEditor>(m_editor, doc_id, doc->previewScene());
         } break;
         case AssetType::TileSet: {
             tab = MakeOwner<TileSetEditor>(m_editor, doc_id);

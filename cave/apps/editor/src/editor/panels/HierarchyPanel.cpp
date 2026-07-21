@@ -44,7 +44,7 @@ public:
 
     void update() {
         for (Entity root : m_preview.scene->hierarchy().roots()) {
-            drawNode(root, ImGuiTreeNodeFlags_DefaultOpen);
+            drawNode(root, 0);
         }
     }
 
@@ -133,10 +133,9 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
     m_editor_services.dragDrop().dragSceneNode(ent, name);
     m_editor_services.dragDrop().dropSceneNode(ent, m_preview.doc_id, scene);
 
-    const float visibility_x =
-        ImGui::GetWindowContentRegionMax().x -
-        kVisibilityColumnWidth -
-        kRightPadding;
+    const float visibility_x = ImGui::GetWindowContentRegionMax().x -
+                               kVisibilityColumnWidth -
+                               kRightPadding;
 
     ImGui::SameLine();
     ImGui::SetCursorPosX(visibility_x);

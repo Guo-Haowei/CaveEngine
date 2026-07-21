@@ -7,7 +7,6 @@
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/framework/IApplication.h"
-#include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "engine/private/core/io/file_access.h"
@@ -52,8 +51,6 @@ AssetRef CreateAssetInstance(AssetType type, bool create) {
             return std::make_shared<TileSetAsset>();
         case AssetType::SpriteAnimation:
             return std::make_shared<SpriteAnimationAsset>();
-        case AssetType::TileMap:
-            return std::make_shared<TileMapAsset>();
         case AssetType::Material:
             return std::make_shared<MaterialAsset>();
         case AssetType::Mesh:

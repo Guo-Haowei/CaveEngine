@@ -1,23 +1,19 @@
 #include "SetTileCommand.h"
 
-#include "editor/document/IDocument.h"
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"
 
-#include "cave/runtime/tile_map/TileMapAsset.h"
+#include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
 
-bool SetTileCommand::apply(IDocument& doc) {
-    TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
-    if (!tile_map) {
+bool SetTileCommand::apply(IDocument&) {
+    Scene* scene = resolveScene(m_scene_id);
+    TileMapLayerComponent* layer = scene->component<TileMapLayerComponent>(m_enity);
+    if (!layer) {
         return false;
     }
 
-    if (layer_id >= tile_map->layers().size()) {
-        return false;
-    }
-
-    ChunkedTileData& tiles = tile_map->layers()[layer_id].chunks();
-
+    ChunkedTileData& tiles = layer->chunks();
     for (const auto& cmd : m_cmds) {
         [[maybe_unused]]
         bool ok = cmd.after.is_some()
@@ -26,22 +22,18 @@ bool SetTileCommand::apply(IDocument& doc) {
         DEV_ASSERT(ok);
     }
 
-    tile_map->incRevision();
+    layer->updateTileCache();
     return true;
 }
 
-bool SetTileCommand::undo(IDocument& doc) {
-    TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
-    if (!tile_map) {
+bool SetTileCommand::undo(IDocument&) {
+    Scene* scene = resolveScene(m_scene_id);
+    TileMapLayerComponent* layer = scene->component<TileMapLayerComponent>(m_enity);
+    if (!layer) {
         return false;
     }
 
-    if (layer_id >= tile_map->layers().size()) {
-        return false;
-    }
-
-    ChunkedTileData& tiles = tile_map->layers()[layer_id].chunks();
-
+    ChunkedTileData& tiles = layer->chunks();
     for (auto cmd = m_cmds.rbegin(); cmd != m_cmds.rend(); ++cmd) {
         [[maybe_unused]]
         bool ok = cmd->before.is_some()
@@ -50,7 +42,7 @@ bool SetTileCommand::undo(IDocument& doc) {
         DEV_ASSERT(ok);
     }
 
-    tile_map->incRevision();
+    layer->updateTileCache();
     return true;
 }
 

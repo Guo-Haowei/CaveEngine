@@ -66,8 +66,6 @@ auto AssetMetaData::createMeta(std::string_view path) -> Option<AssetMetaData> {
         type = AssetType::Blob;
     } else if (extension == ".tileset") {
         type = AssetType::TileSet;
-    } else if (extension == ".tilemap") {
-        type = AssetType::TileMap;
     } else if (extension == ".sprite_anim") {
         type = AssetType::SpriteAnimation;
     } else if (extension == ".scene") {

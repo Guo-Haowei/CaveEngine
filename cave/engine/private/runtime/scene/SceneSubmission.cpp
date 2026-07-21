@@ -7,7 +7,7 @@
 #include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 // private
@@ -58,16 +58,15 @@ const TileFrame* FindTileFrame(const TileDefinition& definition,
 
 // @TODO: move to animation system
 void SubmitTileLayer(const SceneSubmitContext& ctx,
-                     const TileMapInstanceComponent::LayerCache& layer,
-                     const TransformComponent& transform) {
-    const ImageAsset* image = layer.image.get();
-    const TileSetAsset* tile_set = layer.tile_set.get();
+                     const TileMapLayerComponent& layer) {
+    const ImageAsset* image = layer.imageHandle().get();
+    const TileSetAsset* tile_set = layer.tileSetHandle().get();
     if (!image || !tile_set) {
         return;
     }
 
     const auto& frames = tile_set->frames();
-    for (const auto& tile : layer.tiles) {
+    for (const auto& tile : layer.getTileCache()) {
         // @TODO: move to somewhere else
         tile.elapsed += ctx.dt;
         const auto* definition = tile_set->getTileDefinition(tile.tile_id);
@@ -84,8 +83,7 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
         const auto frame = frames[atlas_index];
 
         ImageDrawOptions options;
-        options.z_index = layer.z_index;
-        options.transform = &transform.worldMatrix();
+        options.z_index = layer.zIndex();
         options.uv_min = frame.min();
         options.uv_max = frame.max();
 
@@ -102,22 +100,12 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
     }
 }
 
-void SubmitTileMaps(const SceneSubmitContext& ctx, Scene& scene) {
-    auto view = scene.view<TileMapInstanceComponent, TransformComponent, HierarchyComponent>();
+void SubmitTileMapLayers(const SceneSubmitContext& ctx, Scene& scene) {
+    auto view = scene.view<TileMapLayerComponent, HierarchyComponent>();
 
-    for (const auto& [id, instance, transform, hier] : view) {
+    for (const auto& [id, layer, hier] : view) {
         if (!hier.visible()) continue;
-
-        instance.createRenderData();
-
-        instance.tileMapHandle();
-
-        auto layers = instance.layers();
-        if (layers.empty()) continue;
-
-        for (const auto& layer : layers) {
-            SubmitTileLayer(ctx, layer, transform);
-        }
+        SubmitTileLayer(ctx, layer);
     }
 }
 
@@ -190,13 +178,12 @@ void SubmitSprites(const SceneSubmitContext& ctx, Scene& scene) {
 }  // namespace
 
 void SubmitScene(const ResolvedView& view, const SceneSubmitContext& ctx) {
-
     if (!view.scene) {
         return;
     }
 
     ctx.canvas.pushView(view.view_id);
-    SubmitTileMaps(ctx, *view.scene);
+    SubmitTileMapLayers(ctx, *view.scene);
     SubmitSprites(ctx, *view.scene);
     ctx.canvas.popView();
 }

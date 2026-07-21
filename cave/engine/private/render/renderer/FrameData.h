@@ -75,8 +75,6 @@ enum class DrawPhase : uint8_t {
     Deferred,
     Forward,
     Voxelization,
-    // TileMap,
-    // Sprite,
     Count,
 };
 

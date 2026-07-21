@@ -15,7 +15,8 @@ namespace cave {
 
 using namespace ::cave::math;
 
-void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
+void TileMapLayerPanel::draw(TileSetAsset& tile_set) {
+#if 0
     if (ImGui::BeginTabBar("##MyTabs1")) {
         if (ImGui::BeginTabItem("Layer")) {
             drawToolbar(tile_map);
@@ -24,22 +25,19 @@ void TileMapLayerPanel::draw(TileMapAsset& tile_map, DrawObjectCtx& ctx) {
         }
         ImGui::EndTabBar();
     }
-
     ImGui::Separator();
+#endif
 
-    if (const TileMapLayer* layer = selectedLayer(tile_map)) {
-        if (TileSetAsset* tile_set = layer->handle().get()) {
-            auto handle = tile_set->handle();
-            const int column = tile_set->col();
-            const int row = tile_set->row();
-            if (auto image = handle.get(); image) {
-                m_sprite_selector.SelectSprite(*image, &column, &row);
-            }
-        }
+    auto handle = tile_set.handle();
+    const int column = tile_set.col();
+    const int row = tile_set.row();
+    if (auto image = handle.get(); image) {
+        m_sprite_selector.SelectSprite(*image, &column, &row);
     }
 }
 
-void TileMapLayerPanel::drawToolbar(TileMapAsset& tile_map) {
+#if 0
+void TileMapLayerPanel::drawToolbar(TileSetAsset& tile_set) {
     const float button_width = ImGui::GetFrameHeight();
     auto& layers = tile_map.layers();
 
@@ -201,5 +199,6 @@ const TileMapLayer* TileMapLayerPanel::selectedLayer(const TileMapAsset& tile_ma
 
     return &layers[idx];
 }
+#endif
 
 }  // namespace cave

@@ -5,8 +5,7 @@
 
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/tile_map/TileMapAsset.h"
-#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 #include "cave/runtime/scene/SceneRuntime.h"
@@ -238,8 +237,10 @@ void TileWorldSystem::handleTile(const TileDefinition& definition, TileCoord coo
 void TileWorldSystem::rebuildTiles() {
     m_world_bound.invalidate();
 
-    auto rebuild_layer = [this](const TileMapLayer& layer, int16_t offset_x, int16_t offset_y) {
-        TileSetAsset* tile_set = layer.handle().get();
+    auto rebuild_layer = [this](const TileMapLayerComponent& layer,
+                                int16_t offset_x,
+                                int16_t offset_y) {
+        TileSetAsset* tile_set = layer.tileSetHandle().get();
         if (!DEV_VERIFY(tile_set)) {
             return;
         }
@@ -267,18 +268,11 @@ void TileWorldSystem::rebuildTiles() {
         }
     };
 
-    auto view = m_runtime.scene().view<TileMapInstanceComponent, TransformComponent>();
-    for (auto [ent, instance, transform] : view) {
-        TileMapAsset* tile_map = instance.tileMapHandle().get();
+    auto view = m_runtime.scene().view<TileMapLayerComponent, TransformComponent>();
+    for (auto [ent, layer, transform] : view) {
         Vec2f offset = transform.translation().xy;
 
-        if (!DEV_VERIFY(tile_map)) {
-            continue;
-        }
-
-        for (const TileMapLayer& layer : tile_map->layers()) {
-            rebuild_layer(layer, (int16_t)offset.x, (int16_t)offset.y);
-        }
+        rebuild_layer(layer, (int16_t)offset.x, (int16_t)offset.y);
     }
 
     if (m_world_bound.valid()) {
