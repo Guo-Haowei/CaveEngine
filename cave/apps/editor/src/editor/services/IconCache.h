@@ -13,7 +13,6 @@ enum class IconName {
     Scene,
     Anim,
     Lua,
-    TileMap,
     TileSet,
     Count,
 };

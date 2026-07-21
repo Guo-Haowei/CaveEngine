@@ -170,7 +170,6 @@ static void ShowFolderPopup(const ContentEntry& node) {
         ADD_ASSET_MENU(SpriteAnimation);
         ADD_ASSET_MENU(Material);
         ADD_ASSET_MENU(TileSet);
-        ADD_ASSET_MENU(TileMap);
 
         ImGui::EndMenu();
     }
@@ -230,10 +229,8 @@ const char* GetContentIcon(const ContentEntry& entry, bool is_open) {
     }
 
     switch (entry.asset_type) {
-        case AssetType::TileMap:
-            return ICON_FA_MAP;
         case AssetType::Scene:
-            return ICON_FA_EARTH_ASIA;
+            return ICON_FA_MAP;
         case AssetType::Image:
             return ICON_FA_FILE_IMAGE;
         case AssetType::SpriteAnimation:

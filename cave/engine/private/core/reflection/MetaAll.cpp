@@ -18,7 +18,6 @@
 #include "generated/LuaScriptComponent.generated.cpp"
 #include "generated/NativeScriptComponent.generated.cpp"
 #include "generated/TileMapLayerComponent.generated.cpp"
-#include "generated/TileMapAsset.generated.cpp"
 #include "generated/TileSetAsset.generated.cpp"
 #include "generated/UIComponents.generated.cpp"
 #include "generated/BackgroundComponent.generated.cpp"

@@ -34,7 +34,7 @@ TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
     m_tile_map_layer_panel = MakeOwner<TileMapLayerPanel>(m_sprite_selector);
 
     m_toolbar[0] = {
-        "TileMapEditor.pencil",
+        "TilePaintTool.pencil",
         ICON_FA_PEN,
         "Pencil - paint individual tiles",
         [this]() { setPaintMode(GridPaintMode::Brush); },
@@ -42,7 +42,7 @@ TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
         [this]() { return m_paint_mode == GridPaintMode::Brush; },
     };
     m_toolbar[1] = {
-        "TileMapEditor.line",
+        "TilePaintTool.line",
         ICON_FA_CHART_LINE,
         "Line - paint a straight line",
         [this]() { setPaintMode(GridPaintMode::Line); },
@@ -50,7 +50,7 @@ TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
         [this]() { return m_paint_mode == GridPaintMode::Line; },
     };
     m_toolbar[2] = {
-        "TileMapEditor.rect",
+        "TilePaintTool.rect",
         ICON_FA_SQUARE_PEN,
         "Rectangle - paint a filled rectangle",
         [this]() { setPaintMode(GridPaintMode::Rect); },
@@ -58,7 +58,7 @@ TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
         [this]() { return m_paint_mode == GridPaintMode::Rect; },
     };
     m_toolbar[3] = {
-        "TileMapEditor.fill",
+        "TilePaintTool.fill",
         ICON_FA_FILL,
         "Fill - replace a connected region",
         [this]() { setPaintMode(GridPaintMode::Fill); },
@@ -66,7 +66,7 @@ TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
         [this]() { return m_paint_mode == GridPaintMode::Fill; },
     };
     m_toolbar[4] = {
-        "TileMapEditor.erase",
+        "TilePaintTool.erase",
         ICON_FA_ERASER,
         "Eraser - remove painted tiles",
         [this]() { m_erasing = !m_erasing; },

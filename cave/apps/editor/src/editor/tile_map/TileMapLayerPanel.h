@@ -1,9 +1,9 @@
 #pragma once
-#include "cave/runtime/tile_map/TileMapAsset.h"
 
 namespace cave {
 
 class SpriteSelector;
+class TileSetAsset;
 
 class TileMapLayerPanel {
 public:

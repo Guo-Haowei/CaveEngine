@@ -5,7 +5,6 @@
 
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/tile_map/TileMapAsset.h"
 #include "cave/runtime/tile_map/TileMapLayerComponent.h"
 #include "cave/runtime/tile_map/TileWorldSystem.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"

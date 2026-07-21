@@ -17,7 +17,6 @@ struct MaterialAsset;
 class MeshAsset;
 class SpriteAnimationAsset;
 class TileSetAsset;
-class TileMapAsset;
 
 class AssetHandle {
 public:

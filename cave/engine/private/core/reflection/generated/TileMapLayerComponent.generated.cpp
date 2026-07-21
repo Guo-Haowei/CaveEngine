@@ -50,26 +50,4 @@ const MetaTableFields& MetaDataTable<TileMapLayerComponent>::GetFields() {
 // Avoid lazy init
 [[maybe_unused]] static const auto& s_TileMapLayerComponent_meta = MetaDataTable<TileMapLayerComponent>::GetFields();
 
-// Guid m_tile_map_guid (editor = Asset, on_change = onTileMapGuidChanged)
-
-template<>
-const MetaTableFields& MetaDataTable<TileMapInstanceComponent>::GetFields() {
-    static MetaTableFields s_table = {
-        REGISTER_FIELD(
-            TileMapInstanceComponent,
-            "tile_map_guid",
-            CAVE_SID("tile_map_guid"),
-            m_tile_map_guid,
-            FieldFlag::Serialize,
-            EditorHint::Asset,
-            &::cave::InvokeFieldChanged<TileMapInstanceComponent, &TileMapInstanceComponent::onTileMapGuidChanged>
-        ),
-    };
-
-    return s_table;
-}
-
-// Avoid lazy init
-[[maybe_unused]] static const auto& s_TileMapInstanceComponent_meta = MetaDataTable<TileMapInstanceComponent>::GetFields();
-
 }  // namespace cave

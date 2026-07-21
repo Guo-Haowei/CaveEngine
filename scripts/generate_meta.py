@@ -33,7 +33,6 @@ FILES = [
     'public/cave/runtime/script/native/NativeScriptComponent.h',
 
     'public/cave/runtime/tile_map/TileMapLayerComponent.h',
-    'public/cave/runtime/tile_map/TileMapAsset.h',
     'public/cave/runtime/tile_map/TileSetAsset.h',
 
     'public/cave/runtime/ui/UIComponents.h',

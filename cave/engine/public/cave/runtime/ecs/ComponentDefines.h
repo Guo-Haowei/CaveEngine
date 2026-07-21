@@ -43,7 +43,6 @@ concept ComponentType = requires(T& t) {
     REGISTER_COMPONENT(FacingComponent, CAVE_SID("World::FacingComponent"), 0)                         \
     REGISTER_COMPONENT(SpriteRendererComponent, CAVE_SID("World::SpriteRendererComponent"), 0)         \
     REGISTER_COMPONENT(BackgroundComponent, CAVE_SID("World::BackgroundComponent"), 0)                 \
-    REGISTER_COMPONENT(TileMapInstanceComponent, CAVE_SID("World::TileMapInstanceComponent"), 0)       \
     REGISTER_COMPONENT(TileMapLayerComponent, CAVE_SID("World::TileMapLayerComponent"), 0)             \
     REGISTER_COMPONENT(UICanvasComponent, CAVE_SID("UI::UICanvasComponent"), 0)                        \
     REGISTER_COMPONENT(UIRectTransformComponent, CAVE_SID("UI::UIRectTransformComponent"), 0)          \

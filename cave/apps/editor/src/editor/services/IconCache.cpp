@@ -25,7 +25,6 @@ void IconCache::init() {
         "anim@256x256.png",
         "script@256x256.png",
         "tileset@256x256.png",
-        "tileset@256x256.png",
     };
 
     for (int i = 0; i < std::to_underlying(IconName::Folder); ++i) {

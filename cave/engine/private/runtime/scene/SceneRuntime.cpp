@@ -34,8 +34,7 @@ SceneRuntime::SceneRuntime(SceneTickDomain domain,
         if (scene.count<MotorComponent>()) {
             features |= SceneFeature::Motor;
         }
-        if (scene.count<TileMapLayerComponent>() ||
-            scene.count<TileMapInstanceComponent>()) {
+        if (scene.count<TileMapLayerComponent>()) {
             features |= SceneFeature::TileWorld;
         }
     }

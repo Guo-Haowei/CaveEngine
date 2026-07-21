@@ -27,9 +27,6 @@ Vector<Guid> SceneContainer::dependencies() const {
     for (const auto& [id, prefab] : m_scene->view<PrefabInstanceComponent>()) {
         deps.insert(prefab.prefabGuid());
     }
-    for (const auto& [id, tile_map_renderer] : m_scene->view<TileMapInstanceComponent>()) {
-        deps.insert(tile_map_renderer.tileMapGuid());
-    }
     for (const auto& [id, tile_map_layer] : m_scene->view<TileMapLayerComponent>()) {
         deps.insert(tile_map_layer.tileSetGuid());
     }
