@@ -61,7 +61,7 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
                      const TileMapLayerComponent& layer,
                      const TransformComponent& transform) {
     const ImageAsset* image = layer.imageHandle().get();
-    const TileSetAsset* tile_set = layer.tileSetHndle().get();
+    const TileSetAsset* tile_set = layer.tileSetHandle().get();
     if (!image || !tile_set) {
         return;
     }

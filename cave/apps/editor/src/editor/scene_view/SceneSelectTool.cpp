@@ -34,7 +34,7 @@ Option<PickData> SceneSelectTool::getPickData(const math::Vec2f& point_os) {
     });
 }
 
-void SceneSelectTool::onInputEvents(const InputFrame& input) {
+void SceneSelectTool::onInputEvents(const InputFrame& input, const WindowState&) {
     bool skip_camera = false;
     for (const InputEvent& e : input.events) {
         if (e.consumed) {

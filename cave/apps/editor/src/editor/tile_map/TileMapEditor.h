@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include "cave/runtime/tile_map/TileMapAsset.h"
 
@@ -87,3 +88,4 @@ private:
 };
 
 }  // namespace cave
+#endif

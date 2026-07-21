@@ -23,6 +23,8 @@ public:
     bool isFocused() const { return m_window_state.focused; }
     bool isHovered() const { return m_window_state.hovered; }
 
+    const WindowState& windowState() const { return m_window_state; }
+
 protected:
     virtual void drawUIImpl() = 0;
     void resetState();

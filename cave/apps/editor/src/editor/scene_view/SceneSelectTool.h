@@ -14,7 +14,7 @@ public:
 
     Option<PickData> getPickData(const math::Vec2f&) override;
 
-    void onInputEvents(const InputFrame& input) override;
+    void onInputEvents(const InputFrame& input, const WindowState& state) override;
 
     void draw(const math::FloatRect& rect) override;
 

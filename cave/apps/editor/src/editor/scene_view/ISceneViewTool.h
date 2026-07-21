@@ -30,6 +30,8 @@ struct SceneToolContext {
     DocId doc_id;
 };
 
+struct WindowState;
+
 class ISceneViewTool {
 public:
     ISceneViewTool(const SceneToolContext& ctx) noexcept
@@ -39,9 +41,11 @@ public:
 
     virtual Option<PickData> getPickData(const math::Vec2f&) { return None(); }
 
-    virtual void onInputEvents(const InputFrame& input) = 0;
+    virtual void onInputEvents(const InputFrame& input, const WindowState& state) = 0;
 
     virtual void draw(const math::FloatRect& rect) = 0;
+
+    virtual void drawAssetInspector(IDocument&) {}
 
     Scene* getResolvedScene() {
         return m_ctx.engine_services.sceneRegistry().resolve(m_ctx.scene_id);

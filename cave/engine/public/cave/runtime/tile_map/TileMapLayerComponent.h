@@ -33,7 +33,7 @@ public:
     int zIndex() const { return m_z_index; }
     void setZIndex(int value) { m_z_index = value; }
 
-    const Handle<TileSetAsset>& tileSetHndle() const { return m_tile_set_handle; }
+    const Handle<TileSetAsset>& tileSetHandle() const { return m_tile_set_handle; }
     const Handle<ImageAsset>& imageHandle() const { return m_image_handle; }
 
     std::span<const TileCache> getTileCache() const { return m_tile_cache; }

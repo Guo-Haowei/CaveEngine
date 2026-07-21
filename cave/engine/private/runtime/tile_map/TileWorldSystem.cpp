@@ -241,7 +241,7 @@ void TileWorldSystem::rebuildTiles() {
     auto rebuild_layer = [this](const TileMapLayerComponent& layer,
                                 int16_t offset_x,
                                 int16_t offset_y) {
-        TileSetAsset* tile_set = layer.tileSetHndle().get();
+        TileSetAsset* tile_set = layer.tileSetHandle().get();
         if (!DEV_VERIFY(tile_set)) {
             return;
         }

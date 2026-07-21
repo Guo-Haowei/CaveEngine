@@ -77,6 +77,7 @@ void SceneViewTab::onCreate() {
         MakeOwner<SceneSelectTool>(ctx);
     m_scene_tools[std::to_underlying(SceneViewToolType::TilePaint)] =
         MakeOwner<TilePaintTool>(ctx);
+    m_tile_paint_tool = static_cast<TilePaintTool*>(m_scene_tools[std::to_underlying(SceneViewToolType::TilePaint)].get());
 
     m_editor_services.picking().addConsumer(this);
 }
@@ -111,12 +112,16 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
         return;
     }
 
-    activeTool()->onInputEvents(input);
+    activeTool()->onInputEvents(input, windowState());
 
     const KeyState& st = m_engine_services.inputService().keyState();
     if (!st.anyAltDown() && !st.anyCtrlDown() && !st.anyShiftDown()) {
         m_camera_controller->update(input);
     }
+}
+
+void SceneViewTab::drawAssetInspector(IDocument& doc) {
+    activeTool()->drawAssetInspector(doc);
 }
 
 void SceneViewTab::drawUIImpl() {
@@ -129,7 +134,7 @@ void SceneViewTab::drawUIImpl() {
             if (Scene* scene = getResolvedScene()) {
                 if (scene->has(TileMapLayerComponent_Id, selection.entity)) {
                     m_current_tool = SceneViewToolType::TilePaint;
-                    // @TODO: set it
+                    m_tile_paint_tool->setLayerId(selection.entity);
                     return;
                 }
             }

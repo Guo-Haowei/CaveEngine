@@ -7,6 +7,8 @@
 
 namespace cave {
 
+class TilePaintTool;
+
 class SceneViewTab : public ViewTabBase,
                      public IPickConsumer {
 public:
@@ -21,6 +23,8 @@ public:
     Option<PickData> getPickData(const math::Vec2f& pos_screen) override;
 
     void onInputEvents(const InputFrame& input) override;
+
+    void drawAssetInspector(IDocument& doc) override;
 
     DebugId debugId() const override { return m_debug_id; }
 
@@ -43,6 +47,7 @@ private:
     ToolbarButtonDesc m_play_button;
     ToolbarButtonDesc m_pause_button;
 
+    TilePaintTool* m_tile_paint_tool = nullptr;
     std::array<Owner<ISceneViewTool>, std::to_underlying(SceneViewToolType::Count)> m_scene_tools;
     SceneViewToolType m_current_tool = SceneViewToolType::Select;
 };
