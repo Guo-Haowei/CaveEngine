@@ -1,6 +1,7 @@
 #include "TileSetDocument.h"
 
 #include "cave/render/components/SpriteRendererComponent.h"
+#include "cave/runtime/assets/Builtin.h"
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
@@ -33,13 +34,13 @@ TileSetDocument::TileSetDocument(EngineServices& services, const Guid& guid)
     auto& transform = scene->create<TransformComponent>(ent);
     auto& sprite = scene->create<SpriteRendererComponent>(ent);
 
-    const Vec2f size{ tile_set->col(), tile_set->row() };
-    transform.setScale(Vec3f(size, 1.0f));
+    const Vec2f size{ tile_set->width(), tile_set->height() };
+    transform.setScale(Vec3f(size / TileSetAsset::kDefaultCellSizePx, 1.0f));
+    transform.setTranslation(Vec3f(0.5f * size / TileSetAsset::kDefaultCellSizePx, 0.0f));
 
-    constexpr auto GUID3 = std::string_view("00000000-0000-0000-0000000000000003");
-    sprite.setImageGuid(Guid::parse(GUID3).unwrap());
-    sprite.setRect(Box2(Vec2f::Zero, size));
+    sprite.setRect(Box2(Vec2f::Zero, size * (1.0f / CheckerboardInfo::kCellSizePx)));
     sprite.setZIndex(-5);
+    sprite.setImageGuid(Guid::parse(std::string_view(builtin::GUID3)).unwrap());
 
     scene->hierarchy().rebuild(*scene);
     scene->update(0.0f);

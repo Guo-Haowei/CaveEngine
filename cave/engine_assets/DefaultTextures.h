@@ -1,9 +1,13 @@
 #pragma once
+#include "cave/runtime/assets/Builtin.h"
+
 #include "engine/private/runtime/assets/ImageAsset.h"
 
 namespace cave {
 
-static Ref<ImageAsset> CreateWhite1x1Image() {
+namespace {
+
+Ref<ImageAsset> CreateWhite1x1Image() {
     auto image = std::make_shared<ImageAsset>();
     image->format = PixelFormat::R8G8B8A8_UNORM;
     image->width = image->height = 1;
@@ -12,25 +16,24 @@ static Ref<ImageAsset> CreateWhite1x1Image() {
     return image;
 }
 
-static Ref<ImageAsset> CreateCheckerBoardImage() {
-    constexpr int kNumChannels = 4;
-
-    constexpr int kGridSize = 8 * 4;
-    constexpr int kTexSize = 64 * 4;
+Ref<ImageAsset> CreateCheckerBoardImage() {
+    using Info = CheckerboardInfo;
 
     struct Pixel {
         uint8_t r, g, b, a;
     };
 
-    constexpr Pixel light{ 204, 204, 204, 255 };
-    constexpr Pixel dark{ 136, 136, 136, 255 };
+    constexpr int kChannelCount = 4;
+    constexpr Pixel kLight{ 204, 204, 204, 255 };
+    constexpr Pixel kDark{ 136, 136, 136, 255 };
 
-    std::vector<uint8_t> pixels;
-    pixels.reserve(kTexSize * kTexSize);
-    for (int y = 0; y < kTexSize; ++y) {
-        for (int x = 0; x < kTexSize; ++x) {
-            bool light_tile = ((x / kGridSize) + (y / kGridSize)) % 2 == 0;
-            Pixel pixel = light_tile ? light : dark;
+    Vector<uint8_t> pixels;
+    pixels.reserve(Info::kTextureSizePx * Info::kTextureSizePx * kChannelCount);
+
+    for (int y = 0; y < Info::kTextureSizePx; ++y) {
+        for (int x = 0; x < Info::kTextureSizePx; ++x) {
+            const bool is_light = ((x / Info::kCellSizePx) + (y / Info::kCellSizePx)) % 2 == 0;
+            const Pixel pixel = is_light ? kLight : kDark; 
             pixels.push_back(pixel.r);
             pixels.push_back(pixel.g);
             pixels.push_back(pixel.b);
@@ -40,10 +43,12 @@ static Ref<ImageAsset> CreateCheckerBoardImage() {
 
     auto image = std::make_shared<ImageAsset>();
     image->format = PixelFormat::R8G8B8A8_UNORM;
-    image->width = image->height = kTexSize;
-    image->num_channels = kNumChannels;
+    image->width = image->height = Info::kTextureSizePx;
+    image->num_channels = kChannelCount;
     image->buffer = std::move(pixels);
     return image;
 }
+
+}  // namespace
 
 }  // namespace cave

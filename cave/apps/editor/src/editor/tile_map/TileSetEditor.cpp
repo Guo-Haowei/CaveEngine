@@ -78,7 +78,7 @@ TileSetEditor::~TileSetEditor() = default;
 void TileSetEditor::onCreate() {
     ViewTabBase::onCreate();
 
-    m_camera_controller->setMoveSpeed(0.2f * CameraController2DEditor::kDefaultPanSpeed);
+    m_camera_controller->setMoveSpeed(CameraController2DEditor::kDefaultPanSpeed);
 }
 
 void TileSetEditor::onDestroy() {
@@ -119,17 +119,34 @@ void TileSetEditor::drawTiles() {
     ICanvas& canvas = m_engine_services.canvas();
 
     auto assets = getAssets();
-    if (assets.image && assets.tile_set) {
+    if (const TileSetAsset* tile_set = assets.tile_set; assets.image && tile_set) {
         canvas.pushView(m_view_id);
 
-        const auto w = 0.5f * assets.tile_set->col();
-        const auto h = 0.5f * assets.tile_set->row();
+        const Vec2f image_size_px{ tile_set->width(), tile_set->height() };
 
-        Box2 box = Box2::fromCenterHalfExtent(Vec2f::Zero, Vec2f(w, h));
+        const Vec2f preview_size = image_size_px / TileSetAsset::kDefaultCellSizePx;
 
-        canvas.addImage(assets.image->gpu_texture.get(),
-                        box.min(),
-                        box.max());
+        canvas.addImage(assets.image->gpu_texture.get(), Vec2f::Zero, preview_size);
+
+        const auto& frames = tile_set->frames();
+
+        for (const TileDefinition& definition : tile_set->getTileDefinitions()) {
+            const uint32_t atlas_index = definition.id;
+
+            if (atlas_index >= frames.size()) {
+                continue;
+            }
+
+            const Box2& uv = frames[atlas_index];
+
+            const Vec2f local_min = uv.min() * preview_size;
+            const Vec2f local_max = uv.max() * preview_size;
+
+            Draw2DOptions options;
+            options.tint = Vec4f(1.f, 1.f, 0.f, 0.5f);
+
+            canvas.addBox2Frame(local_min, local_max, 0.4f, options);
+        }
         canvas.popView();
     }
 }
