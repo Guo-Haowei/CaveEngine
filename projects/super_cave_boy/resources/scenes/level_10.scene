@@ -19,7 +19,7 @@ entities:
       prefab_id: 047C7919-D652-BB4D-AC7FABC1E5B563E9
     PrefabOverride:
       TransformComponent:
-        translation: [2.02448869, 4.5, 0]
+        translation: [3, 4.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 3
@@ -50,7 +50,7 @@ entities:
       prefab_id: 24327C8F-E23F-A845-834C6F3E8CEEC6E9
     PrefabOverride:
       TransformComponent:
-        translation: [2.03732395, 2.5, 0]
+        translation: [3, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 5

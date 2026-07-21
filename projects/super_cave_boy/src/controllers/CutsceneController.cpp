@@ -11,9 +11,9 @@ using namespace ::cave;
 using namespace ::cave::math;
 
 namespace {
-constexpr float kMoveDuration = 1.8f;
-constexpr float kWaitDuration = 1.2f;
-constexpr float kMoveSpeed = 6.0f;
+constexpr float kMoveDuration = 1.7f;
+constexpr float kWaitDuration = 1.0f;
+constexpr float kMoveSpeed = 5.4f;
 }  // namespace
 
 void CutsceneController::start() {
