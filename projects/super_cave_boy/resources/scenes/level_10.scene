@@ -30,7 +30,7 @@ entities:
       prefab_id: 12A6DE1E-A30C-3244-865A6322C20EA5A3
     PrefabOverride:
       TransformComponent:
-        translation: [17.4846458, 2.5, 0]
+        translation: [15.3925095, 2.5, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
       NativeScriptComponent:
@@ -69,7 +69,7 @@ entities:
       prefab_id: 0CC56972-64AF-3A43-BFB41CFF39705652
     PrefabOverride:
       TransformComponent:
-        translation: [16.9236126, 3.20000005, 0]
+        translation: [15.4020596, 3.20000005, 0]
         rotation: [0, 0, 0, 1]
         scale: [1, 1, 1]
   - id: 7
@@ -79,7 +79,7 @@ entities:
       parent_id: 1
       local_visible: true
     TransformComponent:
-      translation: [3.95339108, 2.39098144, 0]
+      translation: [6.78901434, 2.39098144, 0]
       rotation: [0, 0, 0, 1]
       scale: [1, 1, 1]
     ColliderComponent:

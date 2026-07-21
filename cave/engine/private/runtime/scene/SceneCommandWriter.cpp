@@ -154,9 +154,9 @@ Entity SceneCommandWriter::meshObject(const std::string& mesh_path,
     return meshObject(mesh_path, name, MaterialContext{ nullptr });
 }
 
-Entity SceneCommandWriter::tileMapObject(std::string_view name) {
+Entity SceneCommandWriter::tileMapLayerObject(std::string_view name) {
     Entity e = transformObject(name);
-    addComponent(e, TileMapInstanceComponent_Id);
+    addComponent(e, TileMapLayerComponent_Id);
     return e;
 }
 

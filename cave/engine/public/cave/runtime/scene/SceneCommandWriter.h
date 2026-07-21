@@ -81,7 +81,7 @@ public:
         return meshObject("@persist://meshes/torus", name, mat_ctx);
     }
 
-    Entity tileMapObject(std::string_view name);
+    Entity tileMapLayerObject(std::string_view name);
 
     Entity canvas(std::string_view name);
     Entity rect(std::string_view name);
