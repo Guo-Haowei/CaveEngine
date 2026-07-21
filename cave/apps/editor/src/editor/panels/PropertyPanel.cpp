@@ -40,7 +40,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(MeshRenderer)   \
     COMPONENT_DECL(SpriteRenderer) \
     COMPONENT_DECL(TileMapLayer)   \
-    COMPONENT_DECL(Facing)         
+    COMPONENT_DECL(Facing)
 
 template<ComponentType T>
 void DrawComponentAuto(std::string_view name, const DrawObjectCtx& ctx) {

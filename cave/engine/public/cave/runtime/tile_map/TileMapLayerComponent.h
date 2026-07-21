@@ -39,6 +39,7 @@ public:
     std::span<const TileCache> getTileCache() const { return m_tile_cache; }
 
     void onDeserialized();
+
 private:
     void refreshTileSetHandle();
     void onTileSetGuidChanged(const FieldChange& change);
@@ -65,7 +66,6 @@ class TileMapInstanceComponent {
     CAVE_COMPONENT(TileMapInstanceComponent)
 
 public:
-
     struct LayerCache {
         bool visible = true;
         int z_index = 0;

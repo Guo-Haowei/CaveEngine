@@ -55,7 +55,7 @@ protected:
     SceneId m_preview_scene_id;
 
     // @TODO: refactor
-    std::unique_ptr<ICameraController> m_camera_controller;
+    Owner<ICameraController> m_camera_controller;
     CameraComponent m_camera;
     TransformComponent m_camera_transform;
     GpuTextureId m_texture;

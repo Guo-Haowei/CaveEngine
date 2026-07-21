@@ -61,7 +61,7 @@ ChunkedTileData::ChunkedTileData(const ChunkedTileData& other) {
     }
 }
 
-ChunkedTileData& ChunkedTileData::operator = (const ChunkedTileData& other) {
+ChunkedTileData& ChunkedTileData::operator=(const ChunkedTileData& other) {
     if (this == &other) {
         return *this;
     }
