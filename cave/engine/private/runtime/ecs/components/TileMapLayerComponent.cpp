@@ -1,63 +1,47 @@
 #include "cave/runtime/tile_map/TileMapAsset.h"
-#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
-
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
-#include "engine/private/runtime/framework/AssetRegistry.h"
+
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
 
 using namespace math;
 using namespace render;
 
-namespace {
+void TileMapLayerComponent::setTileSetGuid(const Guid& guid) {
+    if (m_tile_set == guid) {
+        return;
+    }
 
-void AppendTileQuad(int16_t x,
-                    int16_t y,
-                    const math::Box2& frame,
-                    Vector<Vec2f>& vertices,
-                    Vector<Vec2f>& uvs,
-                    Vector<uint32_t>& indices) {
-    const float s = 1.0f;
-    float x0 = s * x;
-    float y0 = s * y;
-    float x1 = s * (x + 1);
-    float y1 = s * (y + 1);
-
-    Vec2f bottom_left{ x0, y0 };
-    Vec2f bottom_right{ x1, y0 };
-    Vec2f top_left{ x0, y1 };
-    Vec2f top_right{ x1, y1 };
-    Vec2f uv_min = frame.min();
-    Vec2f uv_max = frame.max();
-
-    Vec2f uv0 = { uv_min.x, uv_max.y };
-    Vec2f uv1 = { uv_max.x, uv_max.y };
-    Vec2f uv2 = { uv_min.x, uv_min.y };
-    Vec2f uv3 = { uv_max.x, uv_min.y };
-
-    const uint32_t offset = (uint32_t)vertices.size();
-    vertices.push_back(bottom_left);
-    vertices.push_back(bottom_right);
-    vertices.push_back(top_left);
-    vertices.push_back(top_right);
-
-    uvs.push_back(uv0);
-    uvs.push_back(uv1);
-    uvs.push_back(uv2);
-    uvs.push_back(uv3);
-
-    indices.push_back(0 + offset);
-    indices.push_back(1 + offset);
-    indices.push_back(3 + offset);
-
-    indices.push_back(0 + offset);
-    indices.push_back(3 + offset);
-    indices.push_back(2 + offset);
+    m_tile_set = guid;
+    refreshTileSetHandle();
 }
 
-}  // namespace
+void TileMapLayerComponent::refreshTileSetHandle() {
+    if (m_tile_set.isNull()) {
+        m_tile_set_handle = {};
+        return;
+    }
+
+    auto handle = AssetRegistry::singleton().findByGuid<TileSetAsset>(m_tile_set);
+    if (handle.is_some()) {
+        m_tile_set_handle = std::move(handle.unwrap_unchecked());
+    }
+}
+
+void TileMapLayerComponent::onTileSetGuidChanged(const FieldChange& change) {
+    DEV_ASSERT((*(const Guid*)(change.old_value)) != (*(const Guid*)(change.new_value)));
+    DEV_ASSERT(change.object == this);
+    DEV_ASSERT(change.field->id == CAVE_SID("tile_set"));
+
+    refreshTileSetHandle();
+}
+
+void TileMapLayerComponent::onDeserialized() {
+    refreshTileSetHandle();
+}
 
 void TileMapInstanceComponent::refreshTileMapHandle() {
     m_revision = 0;

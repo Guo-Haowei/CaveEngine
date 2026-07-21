@@ -13,15 +13,6 @@
 
 namespace cave {
 
-class ISerializer;
-class IDeserializer;
-
-ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data);
-
-bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data);
-
-static_assert(Serializable<ChunkedTileData>);
-
 class TileMapLayer {
     CAVE_META(TileMapLayer)
 

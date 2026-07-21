@@ -7,7 +7,7 @@
 #include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/tile_map/TileMapInstanceComponent.h"
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 // private

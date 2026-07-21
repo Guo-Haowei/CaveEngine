@@ -39,6 +39,7 @@ using namespace ::cave::math;
     COMPONENT_DECL(Background)     \
     COMPONENT_DECL(MeshRenderer)   \
     COMPONENT_DECL(SpriteRenderer) \
+    COMPONENT_DECL(TileMapLayer)   \
     COMPONENT_DECL(Facing)         \
     COMPONENT_DECL(TileMapInstance)
 

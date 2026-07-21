@@ -1,5 +1,5 @@
 version: 22
-seed: 13
+seed: 14
 entities:
   - id: 1
     NameComponent:
@@ -153,3 +153,15 @@ entities:
       prefab_id: B4FA3AB1-CD20-604B-BF0FB2D5D2185AA1
     PrefabOverride:
       {}
+  - id: 31
+    NameComponent:
+      name: Wall
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    TransformComponent:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    TileMapInstanceComponent:
+      tile_map_guid: 94FB5794-CF41-1E46-8D6DB1E633C35D85

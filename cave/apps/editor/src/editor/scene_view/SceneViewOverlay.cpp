@@ -54,7 +54,7 @@ void SceneViewOverlay::drawSelectionHighlightImpl(ICanvas& canvas,
                 Vec2f min = Vec2f::Zero - Vec2f(shape.data.half.xy);
                 Vec2f max = Vec2f::Zero + Vec2f(shape.data.half.xy);
                 Draw2DOptions options{
-                    .z_index = 0,
+                    .z_index = INT_MAX,
                     .tint = kColliderColor,
                     .transform = &m,
                 };
@@ -69,7 +69,7 @@ void SceneViewOverlay::drawSelectionHighlightImpl(ICanvas& canvas,
         if (camera->isOrtho()) {
             Box2 box = CameraOrthoAABB2(*camera);
             Draw2DOptions options{
-                .z_index = 0,
+                .z_index = INT_MAX,
                 .tint = kCameraColor,
                 .transform = &m,
             };

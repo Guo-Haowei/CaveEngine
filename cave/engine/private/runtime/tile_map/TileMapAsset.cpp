@@ -7,14 +7,6 @@
 
 namespace cave {
 
-namespace {
-
-int16_t DivFloor(int16_t a, int16_t b = kTileChunkSize) {
-    return (a >= 0) ? (a / b) : ((a - b + 1) / b);
-}
-
-}  // namespace
-
 void TileMapLayer::setTileSetGuid(const Guid& guid) {
     if (m_tile_set_guid == guid) {
         return;
@@ -40,85 +32,6 @@ Vector<Guid> TileMapAsset::dependencies() const {
         guids.insert(layer.tileSetGuid());
     }
     return Vector<Guid>(guids.begin(), guids.end());
-}
-
-ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
-    s.beginArray(false);
-
-    for (const auto& [index, chunk] : tile_data.chunks()) {
-        if (chunk->empty()) {
-            continue;
-        }
-
-        s.beginMap(false)
-            .beginKey("x")
-            .write(index.x)
-            .beginKey("y")
-            .write(index.y)
-            .beginKey("tiles")
-            .beginArray(true);
-
-        for (int16_t y = 0; y < kTileChunkSize; ++y) {
-            for (int16_t x = 0; x < kTileChunkSize; ++x) {
-                s.write(chunk->at(x, y));
-            }
-        }
-
-        s.endArray()
-            .endMap();
-    }
-
-    return s.endArray();
-}
-
-bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
-    const int chunk_size = d.arraySize().unwrap_or(-1);
-    if (chunk_size < 0) {
-        return false;
-    }
-
-    for (int chunk_idx = 0; chunk_idx < chunk_size; ++chunk_idx) {
-        DEV_ASSERT(d.tryEnterIndex(chunk_idx));
-        constexpr int16_t kMaxIndex = std::numeric_limits<int16_t>::max();
-        int16_t x = kMaxIndex;
-        int16_t y = kMaxIndex;
-        if (DEV_VERIFY(d.tryEnterKey("x"))) {
-            d.read(x);
-            d.leaveKey();
-        }
-        if (DEV_VERIFY(d.tryEnterKey("y"))) {
-            d.read(y);
-            d.leaveKey();
-        }
-
-        if (x != kMaxIndex && y != kMaxIndex) {
-            if (d.tryEnterKey("tiles")) {
-                auto chunk = MakeOwner<TileChunk>();
-
-                DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileChunkArea);
-                for (int16_t local_y = 0; local_y < kTileChunkSize; ++local_y) {
-                    for (int16_t local_x = 0; local_x < kTileChunkSize; ++local_x) {
-                        const int16_t tile_idx = local_y * kTileChunkSize + local_x;
-                        if (DEV_VERIFY(d.tryEnterIndex(tile_idx))) {
-                            d.read(chunk->at(local_x, local_y));
-                            d.leaveIndex();
-                        }
-                    }
-                }
-
-                if (!chunk->empty()) {
-                    [[maybe_unused]]
-                    const bool inserted = tile_data.addChunk(TileChunkCoord(x, y), std::move(chunk));
-                    DEV_ASSERT(inserted);
-                }
-                d.leaveKey();
-            }
-        }
-
-        d.leaveIndex();
-    }
-
-    return true;
 }
 
 Result<void> TileMapAsset::saveToDisk(const AssetMetaData& meta) const {
