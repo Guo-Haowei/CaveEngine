@@ -8,6 +8,10 @@
 
 #include "editor/services/DocumentService.h"
 
+// @TODO: move these to editor
+#include "engine/private/runtime/ui/Inputs.h"
+#include "engine/private/core/reflection/MetaEditor.h"
+
 // @TODO: remove
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/input/InputService.h"
@@ -248,6 +252,146 @@ TileSetEditor::Assets TileSetEditor::getAssets() const {
     return { image, tile_set };
 }
 
+bool DrawTileDefinition(TileDefinition& definition) {
+    bool changed = false;
+
+    ImGui::PushID(static_cast<int>(definition.id));
+
+    ImGui::Text("Tile %u", definition.id);
+    ImGui::Separator();
+
+    // DrawEnumDropDown<CollisionType>("collision_type", definition.collision, ui::kDefaultColumnWidth);
+    // ui::DrawBitMask32("layer", definition.layer);
+    // ui::DrawBitMask32("mask", definition.mask);
+
+    // Collision type
+    {
+        int collision = static_cast<int>(definition.collision);
+
+        constexpr const char* items[] = {
+            "None",
+            "Solid",
+            "Trigger",
+        };
+
+        ImGui::SetNextItemWidth(-1.0f);
+
+        if (ImGui::Combo("Collision",
+                         &collision,
+                         items,
+                         IM_ARRAYSIZE(items))) {
+            definition.collision = static_cast<CollisionType>(collision);
+            changed = true;
+        }
+    }
+
+    if (definition.collision != CollisionType::None) {
+        ImGui::Spacing();
+
+        Vec2f min = definition.collision_shape.min();
+        Vec2f max = definition.collision_shape.max();
+
+        if (ui::Float2("Min", min)) {
+            max = math::max(max, min);
+            definition.collision_shape = Box2{ min, max };
+            changed = true;
+        }
+
+        if (ui::Float2("Max", max, 1.0f)) {
+            min = math::min(min, max);
+            definition.collision_shape = Box2{ min, max };
+            changed = true;
+        }
+
+        // Optional normalization to tile-local coordinates.
+        Vec2f clamped_min = math::clamp(definition.collision_shape.min(), Vec2f::Zero, Vec2f::One);
+        Vec2f clamped_max = math::clamp(definition.collision_shape.max(), Vec2f::Zero, Vec2f::One);
+
+        if (clamped_min != definition.collision_shape.min() ||
+            clamped_max != definition.collision_shape.max()) {
+            definition.collision_shape = Box2{ clamped_min, clamped_max };
+
+            changed = true;
+        }
+
+        ImGui::Spacing();
+
+        if (ui::DrawBitMask32("##TileCollisionLayer",
+                              definition.layer)) {
+            changed = true;
+        }
+
+        ImGui::SameLine();
+        ImGui::TextUnformatted("Layer");
+
+        if (ui::DrawBitMask32("##TileCollisionMask",
+                              definition.mask)) {
+            changed = true;
+        }
+
+        ImGui::SameLine();
+        ImGui::TextUnformatted("Mask");
+    }
+
+    ImGui::Spacing();
+
+    if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Indent();
+
+        Option<int> pending_delete;
+
+        for (int i = 0; i < static_cast<int>(definition.animation.size()); ++i) {
+            TileFrame& frame = definition.animation[i];
+
+            ImGui::PushID(i);
+
+            ImGui::SeparatorText( std::format("Frame {}", i).c_str());
+
+            int atlas_index = static_cast<int>(frame.atlas_index);
+
+            if (ui::InputInt("Atlas Index", atlas_index)) {
+                frame.atlas_index = static_cast<uint32_t>(std::max(atlas_index, 0));
+
+                changed = true;
+            }
+
+            if (ui::DragFloat("Duration", frame.duration, 0.01f, 0.01f, 10.0f)) {
+                changed = true;
+            }
+
+            if (ImGui::Button(ICON_FA_TRASH_CAN " Remove")) {
+                pending_delete = Some(i);
+            }
+
+            ImGui::PopID();
+        }
+
+        if (pending_delete) {
+            definition.animation.erase(definition.animation.begin() + pending_delete.unwrap_unchecked());
+            changed = true;
+        }
+
+        if (ImGui::Button(ICON_FA_PLUS " Add Frame")) {
+            TileFrame frame;
+
+            if (!definition.animation.empty()) {
+                frame.atlas_index = definition.animation.back().atlas_index;
+                frame.duration = definition.animation.back().duration;
+            } else {
+                frame.atlas_index = definition.id;
+            }
+
+            definition.animation.push_back(frame);
+            changed = true;
+        }
+
+        ImGui::Unindent();
+    }
+
+    ImGui::PopID();
+    return changed;
+}
+
 void TileSetEditor::drawAssetInspector(IDocument&) {
     auto assets = getAssets();
     if (!DEV_VERIFY(assets.image && assets.tile_set)) {
@@ -278,6 +422,12 @@ void TileSetEditor::drawAssetInspector(IDocument&) {
     const int column = tile_set.col();
     const int row = tile_set.row();
     m_sprite_selector.SelectSprite(*assets.image, &column, &row);
+
+    ImGui::Separator();
+
+    for (TileDefinition& definition : tile_set.getTileDefinitionsMut()) {
+        DrawTileDefinition(definition);
+    }
 }
 
 }  // namespace cave

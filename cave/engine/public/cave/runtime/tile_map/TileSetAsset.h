@@ -77,6 +77,10 @@ public:
         return m_tiles;
     }
 
+    Vector<TileDefinition>& getTileDefinitionsMut() {
+        return m_tiles;
+    }
+
     const Guid& imageGuid() const { return m_image_guid; }
     void setImageGuid(const Guid& guid);
 

@@ -65,7 +65,7 @@ Option<Vec2f> ScreenPointToWorld2D(const ViewRecord& view,
 
     return Some(Vec2f{ world.x, world.y });
 }
- 
+
 ViewTabBase::ViewTabBase(EditorState& editor,
                          DocId doc_id,
                          SceneId scene_id,
