@@ -3,7 +3,7 @@ seed: 1
 entities:
   - id: 1
     NameComponent:
-      name: game_camera
+      name: GameCamera
     HierarchyComponent:
       parent_id: 0
       local_visible: true

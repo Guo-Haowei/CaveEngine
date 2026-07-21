@@ -58,8 +58,7 @@ const TileFrame* FindTileFrame(const TileDefinition& definition,
 
 // @TODO: move to animation system
 void SubmitTileLayer(const SceneSubmitContext& ctx,
-                     const TileMapLayerComponent& layer,
-                     const TransformComponent& transform) {
+                     const TileMapLayerComponent& layer) {
     const ImageAsset* image = layer.imageHandle().get();
     const TileSetAsset* tile_set = layer.tileSetHandle().get();
     if (!image || !tile_set) {
@@ -85,7 +84,6 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
 
         ImageDrawOptions options;
         options.z_index = layer.zIndex();
-        options.transform = &transform.worldMatrix();
         options.uv_min = frame.min();
         options.uv_max = frame.max();
 
@@ -103,11 +101,11 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
 }
 
 void SubmitTileMapLayers(const SceneSubmitContext& ctx, Scene& scene) {
-    auto view = scene.view<TileMapLayerComponent, TransformComponent, HierarchyComponent>();
+    auto view = scene.view<TileMapLayerComponent, HierarchyComponent>();
 
-    for (const auto& [id, layer, transform, hier] : view) {
+    for (const auto& [id, layer, hier] : view) {
         if (!hier.visible()) continue;
-        SubmitTileLayer(ctx, layer, transform);
+        SubmitTileLayer(ctx, layer);
     }
 }
 

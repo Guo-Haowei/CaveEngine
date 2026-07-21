@@ -11,16 +11,16 @@ using namespace ::cave;
 using namespace ::cave::math;
 
 namespace {
-constexpr float kMoveDuration = 1.3f;
-constexpr float kWaitDuration = 2.0f;
-constexpr float kMoveSpeed = 8.0f;
+constexpr float kMoveDuration = 1.8f;
+constexpr float kWaitDuration = 1.2f;
+constexpr float kMoveSpeed = 6.0f;
 }  // namespace
 
 void CutsceneController::start() {
-    m_camera = query().findFirstByName("game_camera");
+    m_camera = query().findFirstByName("GameCamera");
 
     m_initial_x = component<TransformComponent>()->translation().x;
-    auto guardian = query().findFirstByName("guardian");
+    auto guardian = query().findFirstByName("Guardian");
     if (DEV_VERIFY(guardian.valid())) {
         auto* transform = query().component<TransformComponent>(guardian);
         DEV_ASSERT(transform);

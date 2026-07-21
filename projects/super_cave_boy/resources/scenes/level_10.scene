@@ -74,7 +74,7 @@ entities:
         scale: [1, 1, 1]
   - id: 7
     NameComponent:
-      name: cutscene
+      name: Cutscene
     HierarchyComponent:
       parent_id: 1
       local_visible: true

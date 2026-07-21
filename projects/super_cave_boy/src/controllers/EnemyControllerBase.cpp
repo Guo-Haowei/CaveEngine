@@ -85,7 +85,7 @@ void EnemyControllerBase::onBodyStay(Entity player) {
 }
 
 Entity EnemyControllerBase::findPlayer() const {
-    return query().findFirstByName("player");
+    return query().findFirstByName("Player");
 }
 
 void EnemyControllerBase::playAnimation(std::string_view name) {

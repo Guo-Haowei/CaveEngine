@@ -3,7 +3,7 @@ seed: 2
 entities:
   - id: 1
     NameComponent:
-      name: bat
+      name: Bat
     HierarchyComponent:
       parent_id: 0
       local_visible: true
