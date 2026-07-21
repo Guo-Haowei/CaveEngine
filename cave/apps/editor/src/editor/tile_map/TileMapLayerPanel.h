@@ -3,7 +3,6 @@
 
 namespace cave {
 
-struct DrawObjectCtx;
 class SpriteSelector;
 
 class TileMapLayerPanel {
@@ -11,18 +10,12 @@ public:
     TileMapLayerPanel(SpriteSelector& sprite_selector) noexcept
         : m_sprite_selector(sprite_selector) {}
 
-    void draw(TileMapAsset& tile_map, DrawObjectCtx& ctx);
-
-    const TileMapLayer* selectedLayer(const TileMapAsset& tile_map);
-
-    Option<int> selectedIndex() const { return m_selected; }
+    void draw(TileSetAsset& tile_set);
 
 private:
-    void drawToolbar(TileMapAsset& tile_map);
-    void drawLayers(TileMapAsset& tile_map, DrawObjectCtx& ctx);
+    void drawToolbar(TileSetAsset& tile_set);
 
     SpriteSelector& m_sprite_selector;
-    Option<int> m_selected;
 };
 
 }  // namespace cave

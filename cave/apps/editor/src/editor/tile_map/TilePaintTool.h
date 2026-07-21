@@ -5,6 +5,7 @@
 #include "editor/tile_map/GridPaintDefines.h"
 #include "editor/tile_map/GridPaintTool.h"
 #include "editor/widgets/SpriteSelector.h"
+#include "editor/widgets/ToolBar.h"
 
 namespace cave {
 
@@ -77,6 +78,8 @@ private:
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
 
     ecs::Entity m_layer_id;
+
+    std::array<ToolbarButtonDesc, 5> m_toolbar;
 };
 
 }  // namespace cave

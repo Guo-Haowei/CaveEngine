@@ -33,7 +33,6 @@ TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
 
     m_tile_map_layer_panel = MakeOwner<TileMapLayerPanel>(m_sprite_selector);
 
-#if 0
     m_toolbar[0] = {
         "TileMapEditor.pencil",
         ICON_FA_PEN,
@@ -74,7 +73,6 @@ TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
         nullptr,
         [this]() { return m_erasing; },
     };
-#endif
 }
 
 TilePaintTool::~TilePaintTool() = default;
@@ -154,21 +152,14 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     canvas.popView();
 }
 
-void TilePaintTool::drawAssetInspector(IDocument& doc) {
-    unused(doc);
-    // TileMapAsset* tile_map = doc.handle<TileMapAsset>().get();
-    // if (DEV_VERIFY(tile_map)) {
-    //     DrawObjectCtx ctx = {
-    //         .engine_services = m_ctx.engine_services,
-    //         .editor_services = m_ctx.editor_services,
-    //         .doc_id = m_ctx.doc_id,
-    //         .type_id = StringId{},
-    //         .scene = nullptr,
-    //         .entity = ecs::Entity::null(),
-    //     };
+void TilePaintTool::drawAssetInspector(IDocument&) {
+    DrawToolbar(m_toolbar);
 
-    //    m_tile_map_layer_panel->draw(*tile_map, ctx);
-    //}
+    ImGui::Separator();
+
+    if (TileSetAsset* tile_set = getTileSet(m_layer_id)) {
+        m_tile_map_layer_panel->draw(*tile_set);
+    }
 }
 
 Option<TileCoord> TilePaintTool::pointToTile(math::Vec2f point_os) {
