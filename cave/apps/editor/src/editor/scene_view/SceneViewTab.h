@@ -17,18 +17,18 @@ public:
                  SceneId preview_scene_id,
                  ViewDimension dim);
 
+    Option<PickData> getPickData(const math::Vec2f& pos_screen) override;
+
+    DebugId debugId() const override { return m_debug_id; }
+
+private:
     void onCreate() override;
     void onDestroy() override;
-
-    Option<PickData> getPickData(const math::Vec2f& pos_screen) override;
 
     void onInputEvents(const InputFrame& input) override;
 
     void drawAssetInspector(IDocument& doc) override;
 
-    DebugId debugId() const override { return m_debug_id; }
-
-private:
     void submitView();
 
     void drawUIImpl() override;

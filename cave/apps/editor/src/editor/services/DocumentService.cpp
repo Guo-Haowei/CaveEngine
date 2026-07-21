@@ -5,6 +5,7 @@
 #include "editor/animation_editor/SpriteAnimationDocument.h"
 #include "editor/document/MaterialDocument.h"
 #include "editor/document/SceneDocument.h"
+#include "editor/document/TileSetDocument.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/Workspace.h"
 
@@ -20,6 +21,8 @@ static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const Open
             return MakeOwner<MaterialDocument>(services, desc.guid);
         case AssetType::SpriteAnimation:
             return MakeOwner<SpriteAnimationDocument>(services, desc.guid);
+        case AssetType::TileSet:
+            return MakeOwner<TileSetDocument>(services, desc.guid);
         default:
             return MakeOwner<DocumentBase>(services, desc.guid);
     }

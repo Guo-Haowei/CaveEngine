@@ -44,16 +44,18 @@ public:
 
     const Handle<ImageAsset>& handle() const { return m_image_handle; }
 
-    void setTintColor(const math::Vec4f& color) { m_tint_color = color; }
-    const math::Vec4f& tintColor() const { return m_tint_color; }
     math::Vec4f& tintColor() { return m_tint_color; }
+    const math::Vec4f& tintColor() const { return m_tint_color; }
+    void setTintColor(const math::Vec4f& color) { m_tint_color = color; }
 
-    void setRect(const math::Box2& rect) { m_rect = rect; }
     const math::Box2& rect() const { return m_rect; }
+    void setRect(const math::Box2& rect) { m_rect = rect; }
+
+    int zIndex() const { return m_z_index; }
+    void setZIndex(int z_index) { m_z_index = z_index; }
 
     bool flipX() const { return m_flip_x; }
     bool flipY() const { return m_flip_y; }
-    int zIndex() const { return m_z_index; }
 
     void onDeserialized();
 };

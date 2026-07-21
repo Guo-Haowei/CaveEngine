@@ -193,7 +193,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
                                           dim);
         } break;
         case AssetType::TileSet: {
-            tab = MakeOwner<TileSetEditor>(m_editor, doc_id);
+            tab = MakeOwner<TileSetEditor>(m_editor, doc_id, doc->previewScene());
         } break;
         case AssetType::SpriteAnimation: {
             tab = MakeOwner<SpriteAnimationEditor>(m_editor, doc_id, doc->previewScene());
