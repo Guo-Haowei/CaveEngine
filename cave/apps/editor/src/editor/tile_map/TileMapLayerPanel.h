@@ -13,8 +13,6 @@ public:
     void draw(TileSetAsset& tile_set);
 
 private:
-    void drawToolbar(TileSetAsset& tile_set);
-
     SpriteSelector& m_sprite_selector;
 };
 

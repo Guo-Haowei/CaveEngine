@@ -42,7 +42,7 @@ public:
         , m_engine_services(engine_services)
         , m_editor_services(editor_services) {}
 
-    void update() {
+    void draw() {
         for (Entity root : m_preview.scene->hierarchy().roots()) {
             drawNode(root, 0);
         }
@@ -221,21 +221,69 @@ void SceneTreeBuilder::drawNode(Entity ent, ImGuiTreeNodeFlags tree_flags) {
     }
 }
 
+void HierarchyPanel::drawToolbar() {
+    const ImGuiStyle& style = ImGui::GetStyle();
+    const float button_width = ImGui::GetFrameHeight();
+    const float toolbar_width = button_width * 3.5f + style.ItemSpacing.x;
+
+    const float avail_width = ImGui::GetContentRegionAvail().x;
+    const float cursor_x = ImGui::GetCursorPosX();
+
+    ImGui::SetCursorPosX(
+        cursor_x + std::max(0.0f, avail_width - toolbar_width));
+
+    ImGui::BeginGroup();
+
+    if (ImGui::Button(ICON_FA_PLUS, ImVec2{ button_width, 0.0f })) {
+    }
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip("Add a new object");
+    }
+
+    ImGui::SameLine();
+
+    // ImGui::BeginDisabled(!m_selected);
+    bool m_selected = true;
+
+    if (ImGui::Button(ICON_FA_TRASH_CAN, ImVec2{ button_width, 0.0f })) {
+    }
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip(m_selected ? "Delete selected object" : "Select an object first");
+    }
+
+    // ImGui::EndDisabled();
+
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_FA_ELLIPSIS, ImVec2{ button_width, 0.0f })) {
+    }
+
+    ImGui::EndGroup();
+}
+
 void HierarchyPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
-    PreviewScene preview = m_editor_services.workspace().focusedPreviewScene();
-    if (preview.scene) {
+
+    const float footer_size = ImGui::GetFrameHeight() + 10.f;
+    ImGui::BeginChild("##SceneTree",
+                      ImVec2{ 0.0f, -footer_size },
+                      ImGuiChildFlags_Borders);
+
+    if (PreviewScene preview = m_editor_services.workspace().focusedPreviewScene(); preview.scene) {
         SceneTreeBuilder sceneTree(preview,
                                    m_engine_services,
                                    m_editor_services);
         drawPopup(preview);
-        sceneTree.update();
+        sceneTree.draw();
     }
+
+    ImGui::EndChild();
+
+    drawToolbar();
 }
 
 void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
-    // @TODO: refactor this
-
     if (ImGui::BeginPopup(kPopupNameId)) {
         SelectionKey selection = m_editor_services.selection().primary(preview_scene.doc_id);
         DEV_ASSERT(selection.doc == preview_scene.doc_id);

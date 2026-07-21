@@ -17,10 +17,10 @@ public:
 
     const char* windowId() const override { return "Hierarchy"; }
 
-protected:
-    void drawUIImpl() override;
-
 private:
+    void drawUIImpl() override;
+    void drawToolbar();
+
     void drawPopup(const PreviewScene& preview_scene);
     void openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
     void openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
