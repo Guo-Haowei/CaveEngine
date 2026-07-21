@@ -35,6 +35,6 @@ constexpr const char GUID18[] = "00000000-0000-0000-0000000000000018";
 constexpr const char GUID19[] = "00000000-0000-0000-0000000000000019";
 constexpr const char GUID20[] = "00000000-0000-0000-0000000000000020";
 
-}  // namespace
+}  // namespace builtin
 
 }  // namespace cave

@@ -19,6 +19,10 @@ enum class ViewDimension : uint8_t {
     Dim3,
 };
 
+Option<math::Vec2f> ScreenPointToWorld2D(const ViewRecord& view,
+                                         const math::Mat4f& projection_view,
+                                         math::Vec2f point_os);
+
 class ViewTabBase : public Tab,
                     public SceneOwner {
 public:

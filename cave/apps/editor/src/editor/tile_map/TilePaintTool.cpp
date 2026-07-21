@@ -23,6 +23,7 @@
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "editor/utility/ImGuizmo.h"
+#include "editor/panels/ViewTabBase.h"
 
 namespace cave {
 
@@ -164,20 +165,18 @@ void TilePaintTool::drawAssetInspector(IDocument&) {
 
 Option<TileCoord> TilePaintTool::pointToTile(math::Vec2f point_os) {
     const ViewRecord* view = m_ctx.engine_services.viewManager().resolve(m_ctx.view_id);
-    if (!view->display_rect_os.Contains(point_os.x, point_os.y)) {
+    if (!view) {
         return None();
     }
 
-    Vec2f ndc = view->screenToNDC(point_os);
-
-    Mat4f pv_inv = glm::inverse(m_ctx.camera.projectionViewMatrix());
-
-    Vec4f pos = pv_inv * Vec4f(ndc, 0.0f, 1.0f);
-    pos /= pos.w;
+    auto res = ScreenPointToWorld2D(*view, m_ctx.camera.projectionViewMatrix(), point_os);
+    if (res.is_none()) {
+        return None();
+    }
 
     TileCoord index;
-    index.x = static_cast<int16_t>(std::floor(pos.x));
-    index.y = static_cast<int16_t>(std::floor(pos.y));
+    index.x = static_cast<int16_t>(std::floor(res.unwrap_unchecked().x));
+    index.y = static_cast<int16_t>(std::floor(res.unwrap_unchecked().y));
     return Some(index);
 }
 

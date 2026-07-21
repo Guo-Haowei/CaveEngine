@@ -36,11 +36,16 @@ private:
     void drawTiles();
     void drawAssetInspector(IDocument& doc) override;
 
+    Option<math::Vec2i> worldPointToCell(math::Vec2f point_os,
+                                         const TileSetAsset& tile_set) const;
+
     Assets getAssets() const;
 
     const DebugId m_debug_id;
 
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
+    Option<math::Vec2f> m_cursor;
+    Option<uint32_t> m_atlas;
 };
 
 }  // namespace cave

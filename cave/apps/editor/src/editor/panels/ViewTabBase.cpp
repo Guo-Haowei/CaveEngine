@@ -44,6 +44,28 @@ void FitAspect(float aspect, float& w, float& h) {
 
 }  // namespace
 
+Option<Vec2f> ScreenPointToWorld2D(const ViewRecord& view,
+                                   const Mat4f& projection_view,
+                                   Vec2f point_os) {
+    if (!view.display_rect_os.Contains(point_os.x, point_os.y)) {
+        return None();
+    }
+
+    const Vec2f ndc = view.screenToNDC(point_os);
+
+    const Mat4f pv_inv = glm::inverse(projection_view);
+
+    Vec4f world = pv_inv * Vec4f(ndc, 0.0f, 1.0f);
+
+    if (math::abs(world.w) <= 0.000001f) {
+        return None();
+    }
+
+    world /= world.w;
+
+    return Some(Vec2f{ world.x, world.y });
+}
+ 
 ViewTabBase::ViewTabBase(EditorState& editor,
                          DocId doc_id,
                          SceneId scene_id,

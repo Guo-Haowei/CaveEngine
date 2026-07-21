@@ -3,6 +3,7 @@
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
+#include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/display/ICanvas.h"
 
 #include "editor/services/DocumentService.h"
@@ -98,6 +99,50 @@ void TileSetEditor::onInputEvents(const InputFrame& input) {
     if (!st.anyAltDown() && !st.anyCtrlDown() && !st.anyShiftDown()) {
         m_camera_controller->update(input);
     }
+
+    Vec2f cursor = m_cursor.unwrap_or(Vec2f::Zero);
+
+    for (const InputEvent& event : input.events) {
+        Key key = static_cast<Key>(event.code);
+        switch (event.type) {
+            case InputEventType::ButtonDown:
+                if (key == Key::LMB) {
+                    // out.left_down = true;
+                    // out.left_pressed = true;
+                    event.consumed = true;
+                    cursor = { event.x, event.y };
+                }
+                break;
+            case InputEventType::ButtonUp:
+                if (key == Key::LMB) {
+                    // out.left_down = false;
+                    // out.left_released = true;
+                    event.consumed = true;
+                }
+                break;
+            case InputEventType::MouseMove:
+                cursor = { event.x, event.y };
+                break;
+            default:
+                break;
+        }
+    }
+
+    Vec2f point_os = cursor + m_engine_services.displayService().windowPos();
+
+    m_atlas = None();
+    if (auto assets = getAssets(); assets.tile_set) {
+        if (auto res = worldPointToCell(point_os, *assets.tile_set)) {
+            auto pos = res.unwrap_unchecked();
+            m_atlas = Some(pos.x + pos.y * assets.tile_set->col());
+        }
+    }
+
+    if (isHovered()) {
+        m_cursor = Some(cursor);
+    } else {
+        m_cursor = None();
+    }
 }
 
 void TileSetEditor::submitView() {
@@ -115,6 +160,39 @@ void TileSetEditor::drawUIImpl() {
     submitView();
 }
 
+Option<math::Vec2i> TileSetEditor::worldPointToCell(math::Vec2f point_os,
+                                                    const TileSetAsset& tile_set) const {
+    const ViewRecord* view = m_engine_services.viewManager().resolve(m_view_id);
+    if (!view) {
+        return None();
+    }
+
+    auto res = ScreenPointToWorld2D(*view, m_camera.projectionViewMatrix(), point_os);
+    if (!res) {
+        return None();
+    }
+
+    const Vec2f point_ws = res.unwrap_unchecked();
+
+    const Vec2f preview_size{
+        static_cast<float>(tile_set.width()) / TileSetAsset::kDefaultCellSizePx,
+        static_cast<float>(tile_set.height()) / TileSetAsset::kDefaultCellSizePx,
+    };
+
+    const Vec2f cell_size{
+        preview_size.x / static_cast<float>(tile_set.col()),
+        preview_size.y / static_cast<float>(tile_set.row()),
+    };
+
+    if (point_ws.x < 0.0f || point_ws.y < 0.0f || point_ws.x >= preview_size.x || point_ws.y >= preview_size.y) {
+        return None();
+    }
+
+    const float x = std::floor(point_ws.x / cell_size.x);
+    const float y = std::floor(point_ws.y / cell_size.y);
+    return Some(Vec2i{ x, y });
+}
+
 void TileSetEditor::drawTiles() {
     ICanvas& canvas = m_engine_services.canvas();
 
@@ -129,6 +207,7 @@ void TileSetEditor::drawTiles() {
         canvas.addImage(assets.image->gpu_texture.get(), Vec2f::Zero, preview_size);
 
         const auto& frames = tile_set->frames();
+        const uint32_t hovered_index = m_atlas.unwrap_or(std::numeric_limits<uint32_t>::max());
 
         for (const TileDefinition& definition : tile_set->getTileDefinitions()) {
             const uint32_t atlas_index = definition.id;
@@ -143,7 +222,8 @@ void TileSetEditor::drawTiles() {
             const Vec2f local_max = uv.max() * preview_size;
 
             Draw2DOptions options;
-            options.tint = Vec4f(1.f, 1.f, 0.f, 0.5f);
+            options.tint = atlas_index == hovered_index ? Vec4f(1.f, 1.f, 0.f, 0.7f)
+                                                        : Vec4f(0.5f, 0.5f, 0.f, 0.7f);
 
             canvas.addBox2Frame(local_min, local_max, 0.4f, options);
         }
