@@ -66,6 +66,27 @@ void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
 }
 #endif
 
+bool EditSprite(int* colomn, int* row) {
+    bool dirty = false;
+    if (ImGui::BeginTabBar("TileSetModes")) {
+        if (ImGui::BeginTabItem("Setup")) {
+            if (ImGui::InputInt("column", colomn)) {
+                *colomn = std::max(*colomn, 1);
+                dirty = true;
+            }
+            if (ImGui::InputInt("row", row)) {
+                *row = std::max(*row, 1);
+                dirty = true;
+            }
+
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    return dirty;
+}
+
 bool DrawTileDefinition(TileDefinition& definition) {
     bool changed = false;
 
@@ -185,7 +206,7 @@ TileSetPanel::TileSetPanel(EngineServices& engine_services,
         m_editor_services.iconCache().getIconHandle(IconName::Checkerboard);
 }
 
-void TileSetPanel::drawTileSource() {
+void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
     ImGui::TableSetColumnIndex(0);
 
     ImGui::BeginChild("##TileSourcesColumn", ImVec2{ 0.0f, 0.0f });
@@ -206,11 +227,17 @@ void TileSetPanel::drawTileSource() {
                       ImVec2{ 0.0f, -ImGui::GetFrameHeightWithSpacing() },
                       ImGuiChildFlags_Borders);
 
-    if (m_context && m_context->tile.layer_entity.valid()) {
-        if (auto* tile_set = m_context->tile.tile_set.get()) {
-            for (TileDefinition& definition : tile_set->getTileDefinitionsMut()) {
-                DrawTileDefinition(definition);
-            }
+    if (tile_set) {
+        int col = tile_set->col();
+        int row = tile_set->row();
+
+        if (EditSprite(&col, &row)) {
+            tile_set->col(col);
+            tile_set->row(row);
+        }
+
+        for (TileDefinition& definition : tile_set->getTileDefinitionsMut()) {
+            DrawTileDefinition(definition);
         }
     }
 
@@ -280,7 +307,7 @@ void TileSetPanel::drawPaint() {
     ImGui::EndChild();
 }
 
-void TileSetPanel::drawAtlas() {
+void TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
     ImGui::TableSetColumnIndex(2);
 
     ImGui::BeginChild("##TileAtlasColumn");
@@ -294,15 +321,13 @@ void TileSetPanel::drawAtlas() {
     desc.show_toolbar = true;
     desc.show_checkerboard = true;
 
-    if (m_context) {
-        if (const auto* tile_set = m_context->tile.tile_set.get()) {
-            desc.layout.grid_size = Vec2i(tile_set->col(), tile_set->row());
-        }
+    if (tile_set) {
+        desc.layout.grid_size = Vec2i(tile_set->col(), tile_set->row());
+    }
 
-        if (const auto* image = m_context->tile.image.get(); image && image->gpu_texture) {
-            desc.texture = image->gpu_texture->GetHandle();
-            desc.layout.image_size_px = Vec2f(image->width, image->height);
-        }
+    if (image && image->gpu_texture) {
+        desc.texture = image->gpu_texture->GetHandle();
+        desc.layout.image_size_px = Vec2f(image->width, image->height);
     }
 
     m_atlas_widget.draw(desc, m_atlas_selection);
@@ -310,7 +335,7 @@ void TileSetPanel::drawAtlas() {
     ImGui::EndChild();
 }
 
-void TileSetPanel::draw() {
+void TileSetPanel::draw(SceneEditContext* context) {
     constexpr ImGuiTableFlags flags = ImGuiTableFlags_Resizable |
                                       ImGuiTableFlags_BordersInnerV |
                                       ImGuiTableFlags_SizingStretchProp;
@@ -321,15 +346,21 @@ void TileSetPanel::draw() {
         return;
     }
 
-    m_context = m_editor_services.sceneEdit().current();
+    ImageAsset* image = nullptr;
+    TileSetAsset* tile_set = nullptr;
+    if (context && context->tile.layer_entity.valid()) {
+        tile_set = context->tile.tile_set.get();
+        image = context->tile.image.get();
+    }
+
     ImGui::TableSetupColumn("##Sources", ImGuiTableColumnFlags_WidthFixed, 280.0f);
     ImGui::TableSetupColumn("##Tools", ImGuiTableColumnFlags_WidthFixed, 360.0f);
     ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
     ImGui::TableNextRow();
 
-    drawTileSource();
+    drawTileSource(tile_set);
     drawPaint();
-    drawAtlas();
+    drawAtlas(tile_set, image);
 
     ImGui::EndTable();
 }

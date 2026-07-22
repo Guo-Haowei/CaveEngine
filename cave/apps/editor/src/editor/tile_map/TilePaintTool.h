@@ -4,8 +4,6 @@
 #include "editor/scene_view/ISceneViewTool.h"
 #include "editor/tile_map/GridPaintDefines.h"
 #include "editor/tile_map/GridPaintTool.h"
-#include "editor/widgets/SpriteSelector.h"
-#include "editor/widgets/ToolBar.h"
 
 namespace cave {
 
@@ -14,7 +12,7 @@ enum class GridPaintAction : uint8_t;
 struct GridPaintEvent;
 class GridPaintTool;
 class ICanvas;
-class TileMapLayerPanel;
+class TileMapPanel;
 
 class TilePaintTool : public ISceneViewTool {
     enum class Mode : uint8_t {
@@ -57,7 +55,6 @@ private:
 
     void applyFillCells(GridPaintCell cell, const TileMapLayerComponent& layer);
 
-    void setPaintMode(GridPaintMode mode);
     // ---- Paint Tool ----
 
     TileSetAsset* getTileSet(ecs::Entity entity);
@@ -68,16 +65,8 @@ private:
     HashMap<TileCoord, PendingChange> m_pending_tile_changes;
     Option<math::Vec2f> m_cursor;
 
-    GridPaintMode m_paint_mode = GridPaintMode::Brush;
-    bool m_erasing = true;
-
-    Owner<TileMapLayerPanel> m_tile_map_layer_panel;
-
-    SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
-
     ecs::Entity m_layer_id;
-
-    std::array<ToolbarButtonDesc, 5> m_toolbar;
+    bool m_erasing = true;
 };
 
 }  // namespace cave

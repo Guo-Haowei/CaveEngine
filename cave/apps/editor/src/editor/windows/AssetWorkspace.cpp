@@ -1,7 +1,9 @@
 #include "AssetWorkspace.h"
 
+#include "editor/services/SceneEditService.h"
 #include "editor/workspaces/AnimationPanel.h"
 #include "editor/workspaces/LogPanel.h"
+#include "editor/workspaces/TileMapPanel.h"
 #include "editor/workspaces/TileSetPanel.h"
 
 #include "editor/EditorState.h"
@@ -14,6 +16,7 @@ AssetWorkspace::AssetWorkspace(EditorState& editor)
 
     m_log = MakeOwner<LogPanel>(engine_services, editor.services());
     m_tile_set = MakeOwner<TileSetPanel>(engine_services, editor.services());
+    m_tile_map = MakeOwner<TileMapPanel>();
 }
 
 AssetWorkspace::~AssetWorkspace() = default;
@@ -25,6 +28,8 @@ void AssetWorkspace::drawUIImpl() {
     if (!ImGui::BeginTabBar("##AssetTools")) {
         return;
     }
+
+    auto* context = m_editor_services.sceneEdit().current();
 
     if (ImGui::BeginTabItem("Output")) {
         m_log->draw();
@@ -42,12 +47,12 @@ void AssetWorkspace::drawUIImpl() {
     }
 
     if (ImGui::BeginTabItem("TileMap")) {
-        // drawTileMapWorkspace();
+        m_tile_map->draw(context);
         ImGui::EndTabItem();
     }
 
     if (ImGui::BeginTabItem("TileSet")) {
-        m_tile_set->draw();
+        m_tile_set->draw(context);
         ImGui::EndTabItem();
     }
 

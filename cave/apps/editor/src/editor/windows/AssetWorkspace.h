@@ -6,6 +6,7 @@ namespace cave {
 struct EditorServices;
 
 class LogPanel;
+class TileMapPanel;
 class TileSetPanel;
 
 class AssetWorkspace final : public EditorWindow {
@@ -23,6 +24,7 @@ private:
     void drawUIImpl() override;
 
     Owner<LogPanel> m_log;
+    Owner<TileMapPanel> m_tile_map;
     Owner<TileSetPanel> m_tile_set;
 };
 

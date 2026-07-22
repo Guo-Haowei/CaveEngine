@@ -5,6 +5,7 @@
 #include "cave/runtime/tile_map/TileData.h"
 
 #include "editor/document/DocId.h"
+#include "editor/tile_map/GridPaintTool.h"
 
 namespace cave {
 
@@ -16,7 +17,8 @@ struct TileEditContext {
 
     Handle<TileSetAsset> tile_set;
     Handle<ImageAsset> image;
-    // TilePaintToolType tool = TilePaintToolType::Pencil;
+    GridPaintMode paint_mode = GridPaintMode::Brush;
+    bool erasing = true;
 
     bool valid() const {
         return layer_entity.valid();
@@ -26,7 +28,8 @@ struct TileEditContext {
         layer_entity = ecs::Entity::null();
         selected_tile = kEmptyTileId;
         hovered_tile = kEmptyTileId;
-        // tool = TilePaintToolType::Pencil;
+        paint_mode = GridPaintMode::Brush;
+        erasing = true;
     }
 };
 

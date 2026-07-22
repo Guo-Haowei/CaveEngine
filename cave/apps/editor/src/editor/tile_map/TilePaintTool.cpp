@@ -1,7 +1,5 @@
 #include "TilePaintTool.h"
 
-#include "TileMapLayerPanel.h"
-
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "cave/core/algorithm/Graph.h"
@@ -16,6 +14,7 @@
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/EditService.h"
+#include "editor/services/SceneEditService.h"
 #include "editor/tile_map/SetTileCommand.h"
 
 // @TODO: remove
@@ -31,54 +30,17 @@ using namespace ::cave::math;
 
 TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
     : ISceneViewTool(ctx) {
-
-    m_tile_map_layer_panel = MakeOwner<TileMapLayerPanel>(m_sprite_selector);
-
-    m_toolbar[0] = {
-        "TilePaintTool.pencil",
-        ICON_FA_PEN,
-        "Pencil - paint individual tiles",
-        [this]() { setPaintMode(GridPaintMode::Brush); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Brush; },
-    };
-    m_toolbar[1] = {
-        "TilePaintTool.line",
-        ICON_FA_CHART_LINE,
-        "Line - paint a straight line",
-        [this]() { setPaintMode(GridPaintMode::Line); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Line; },
-    };
-    m_toolbar[2] = {
-        "TilePaintTool.rect",
-        ICON_FA_SQUARE_PEN,
-        "Rectangle - paint a filled rectangle",
-        [this]() { setPaintMode(GridPaintMode::Rect); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Rect; },
-    };
-    m_toolbar[3] = {
-        "TilePaintTool.fill",
-        ICON_FA_FILL,
-        "Fill - replace a connected region",
-        [this]() { setPaintMode(GridPaintMode::Fill); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Fill; },
-    };
-    m_toolbar[4] = {
-        "TilePaintTool.erase",
-        ICON_FA_ERASER,
-        "Eraser - remove painted tiles",
-        [this]() { m_erasing = !m_erasing; },
-        nullptr,
-        [this]() { return m_erasing; },
-    };
 }
 
 TilePaintTool::~TilePaintTool() = default;
 
 void TilePaintTool::onInputEvents(const InputFrame& input, const WindowState& state) {
+    const auto* context = m_ctx.editor_services.sceneEdit().current();
+    if (context && context->tile.valid()) {
+        m_erasing = context->tile.erasing;
+        m_paint_tool.setMode(context->tile.paint_mode);
+    }
+
     const TileMapLayerComponent* layer = getTileMapLayer(m_layer_id);
     if (!layer) return;
 
@@ -110,7 +72,7 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
 
     constexpr Vec4f kEraseColor{ 1.0f, 0.5f, 0.5f, 0.7f };
 
-    auto selections = m_sprite_selector.GetSelections();
+    Vector<std::pair<uint16_t, uint16_t>> selections;
 
     bool selection_valid = false;
     Vec2f uv_min{ 0, 0 };
@@ -152,19 +114,6 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
 
     canvas.popView();
 }
-
-#if 0
-void TilePaintTool::drawAssetInspector(IDocument&) {
-    // @TODO: move to AssetWorkspace
-    DrawToolbar(m_toolbar);
-
-    ImGui::Separator();
-
-    if (TileSetAsset* tile_set = getTileSet(m_layer_id)) {
-        m_tile_map_layer_panel->draw(*tile_set);
-    }
-}
-#endif
 
 Option<TileCoord> TilePaintTool::pointToTile(math::Vec2f point_os) {
     const ViewRecord* view = m_ctx.engine_services.viewManager().resolve(m_ctx.view_id);
@@ -232,11 +181,6 @@ GridPaintInput TilePaintTool::buildInput(const InputFrame& input, const WindowSt
     return out;
 }
 
-void TilePaintTool::setPaintMode(GridPaintMode mode) {
-    m_paint_mode = mode;
-    m_paint_tool.setMode(mode);
-}
-
 void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
                                      const TileMapLayerComponent& layer) {
     switch (event.type) {
@@ -299,7 +243,8 @@ void TilePaintTool::cancelPaintCommand() {
 
 void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
                                     const TileMapLayerComponent& layer) {
-    const auto selections = m_sprite_selector.GetSelections();
+    Vector<std::pair<uint16_t, uint16_t>> selections;
+
     uint32_t tile_id = std::numeric_limits<uint32_t>::max();
 
     const TileSetAsset* tile_set = layer.tileSetHandle().get();

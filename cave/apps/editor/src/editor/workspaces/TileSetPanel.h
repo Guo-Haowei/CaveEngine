@@ -5,24 +5,24 @@ namespace cave {
 
 struct EngineServices;
 struct EditorServices;
+struct ImageAsset;
 struct SceneEditContext;
+class TileSetAsset;
 
 class TileSetPanel {
 public:
     explicit TileSetPanel(EngineServices& engine_services,
                           EditorServices& editor_services);
 
-    void draw();
+    void draw(SceneEditContext* context);
 
 private:
-    void drawTileSource();
+    void drawTileSource(TileSetAsset* tile_set);
     void drawPaint();
-    void drawAtlas();
+    void drawAtlas(TileSetAsset* tile_set, ImageAsset* image);
 
     EngineServices& m_engine_services;
     EditorServices& m_editor_services;
-
-    SceneEditContext* m_context = nullptr;
 
     AtlasWidget m_atlas_widget;
     AtlasSelection m_atlas_selection;
