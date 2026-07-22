@@ -195,6 +195,7 @@ bool DrawTileDefinition(TileDefinition& definition) {
     ImGui::PopID();
     return changed;
 }
+
 }  // namespace
 
 TileSetPanel::TileSetPanel(EngineServices& engine_services,
@@ -202,11 +203,12 @@ TileSetPanel::TileSetPanel(EngineServices& engine_services,
     : m_engine_services(engine_services)
     , m_editor_services(editor_services) {
 
-    m_checkerboard_texture =
-        m_editor_services.iconCache().getIconHandle(IconName::Checkerboard);
+    m_checkerboard = editor_services.iconCache().getIconHandle(IconName::Checkerboard);
 }
 
 void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
+    unused(tile_set);
+
     ImGui::TableSetColumnIndex(0);
 
     ImGui::BeginChild("##TileSourcesColumn", ImVec2{ 0.0f, 0.0f });
@@ -227,20 +229,6 @@ void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
                       ImVec2{ 0.0f, -ImGui::GetFrameHeightWithSpacing() },
                       ImGuiChildFlags_Borders);
 
-    if (tile_set) {
-        int col = tile_set->col();
-        int row = tile_set->row();
-
-        if (EditSprite(&col, &row)) {
-            tile_set->col(col);
-            tile_set->row(row);
-        }
-
-        for (TileDefinition& definition : tile_set->getTileDefinitionsMut()) {
-            DrawTileDefinition(definition);
-        }
-    }
-
     ImGui::EndChild();
 
     const float button_size = ImGui::GetFrameHeight();
@@ -258,12 +246,12 @@ void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
     ImGui::EndChild();
 }
 
-void TileSetPanel::drawPaint() {
+void TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
     ImGui::TableSetColumnIndex(1);
 
     ImGui::BeginChild("##TileToolsColumn", ImVec2{ 0.0f, 0.0f });
 
-    auto mode_button = [&](int value, const char* label) {
+    auto mode_button = [&](Property value, const char* label) {
         const bool active = m_mode == value;
         if (active) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
@@ -278,29 +266,39 @@ void TileSetPanel::drawPaint() {
         }
     };
 
-    mode_button(0, ICON_FA_SCREWDRIVER_WRENCH " Setup");
+    mode_button(Property::Setup, ICON_FA_SCREWDRIVER_WRENCH " Setup");
     ImGui::SameLine();
-    mode_button(1, ICON_FA_ARROW_POINTER " Select");
+    mode_button(Property::SelectedTile, ICON_FA_ARROW_POINTER " Select");
     ImGui::SameLine();
-    mode_button(2, ICON_FA_PAINTBRUSH " Paint");
+    mode_button(Property::Paint, ICON_FA_PAINTBRUSH " Paint");
     ImGui::Separator();
 
     switch (m_mode) {
-        case 0: {
+        case Property::Setup: {
             ImGui::TextUnformatted("Setup Properties");
+            if (tile_set) {
+                int col = tile_set->col();
+                int row = tile_set->row();
+
+                if (EditSprite(&col, &row)) {
+                    tile_set->col(col);
+                    tile_set->row(row);
+                }
+            }
         } break;
-        case 1: {
+        case Property::SelectedTile: {
             ImGui::TextUnformatted("Selected Tile Properties");
+            if (tile_set) {
+                for (TileDefinition& definition : tile_set->getTileDefinitionsMut()) {
+                    DrawTileDefinition(definition);
+                }
+            }
         } break;
-        case 2: {
+        case Property::Paint: {
             ImGui::TextUnformatted("Paint Properties");
-
             ImGui::Spacing();
-
             ImGui::SetNextItemWidth(-1.0f);
-            ImGui::Combo("##PaintProperty",
-                         &m_paint_property,
-                         "Physics\0Terrain\0Animation\0");
+            ImGui::Combo("##PaintProperty", &m_paint_property, "Physics\0Terrain\0Animation\0");
         } break;
     }
 
@@ -314,9 +312,9 @@ void TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
 
     AtlasWidgetDesc desc;
     desc.id = "##TileAtlas";
-    desc.texture = m_checkerboard_texture;
-    desc.layout.image_size_px = { 32.0f, 32.0f };
-    desc.layout.grid_size = { 3, 1 };
+    desc.texture = 0;
+    desc.layout.image_size_px = { 64.0f, 64.0f };
+    desc.layout.grid_size = { 1, 1 };
     desc.widget_size = { 0.0f, 0.0f };
     desc.show_toolbar = true;
     desc.show_checkerboard = true;
@@ -359,7 +357,7 @@ void TileSetPanel::draw(SceneEditContext* context) {
     ImGui::TableNextRow();
 
     drawTileSource(tile_set);
-    drawPaint();
+    drawTileProperties(tile_set);
     drawAtlas(tile_set, image);
 
     ImGui::EndTable();

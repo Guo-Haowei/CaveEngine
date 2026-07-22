@@ -1,4 +1,4 @@
-#include "SceneViewTab.h"
+#include "SceneTab.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 

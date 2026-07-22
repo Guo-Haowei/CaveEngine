@@ -10,12 +10,12 @@
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
+#include "editor/scene_view/SceneTab.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/projects/ProjectManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-#include "editor/scene_view/SceneViewTab.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {

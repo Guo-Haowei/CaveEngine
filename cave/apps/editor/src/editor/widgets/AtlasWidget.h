@@ -24,11 +24,9 @@ struct AtlasLayout {
     math::Box2 cellRectPx(math::Vec2i cell) const;
     math::Box2 cellRectPx(uint32_t index) const;
 
-    Option<math::Vec2i> pointToCell(
-        math::Vec2f point_image_px) const;
+    Option<math::Vec2i> pointToCell(math::Vec2f point_image_px) const;
 
-    Option<uint32_t> pointToIndex(
-        math::Vec2f point_image_px) const;
+    Option<uint32_t> pointToIndex(math::Vec2f point_image_px) const;
 };
 
 struct AtlasSelection {
@@ -37,14 +35,9 @@ struct AtlasSelection {
 };
 
 struct AtlasStyle {
-    ImU32 grid_color =
-        IM_COL32(120, 130, 145, 150);
-
-    ImU32 hover_color =
-        IM_COL32(235, 240, 250, 255);
-
-    ImU32 selected_color =
-        IM_COL32(95, 155, 235, 255);
+    ImU32 grid_color = IM_COL32(120, 130, 145, 150);
+    ImU32 hover_color = IM_COL32(235, 240, 250, 255); 
+    ImU32 selected_color = IM_COL32(95, 155, 235, 255);
 
     float grid_thickness = 1.0f;
     float hover_thickness = 2.0f;
@@ -80,36 +73,28 @@ struct AtlasWidgetResult {
 
 class AtlasWidget {
 public:
-    AtlasWidgetResult draw(
-        const AtlasWidgetDesc& desc,
-        AtlasSelection& selection);
+    AtlasWidgetResult draw(const AtlasWidgetDesc& desc,
+                           AtlasSelection& selection);
 
-    ImageCanvas& canvas() {
-        return m_canvas;
-    }
+    ImageCanvas& canvas() { return m_canvas; }
 
-    const ImageCanvas& canvas() const {
-        return m_canvas;
-    }
+    const ImageCanvas& canvas() const { return m_canvas; }
 
 private:
-    static ImVec2 imagePointToScreen(
-        const ImageCanvasResult& canvas_result,
-        float zoom,
-        math::Vec2f point_image_px);
+    static ImVec2 imagePointToScreen(const ImageCanvasResult& canvas_result,
+                                     float zoom,
+                                     math::Vec2f point_image_px);
 
-    static void drawGrid(
-        const AtlasWidgetDesc& desc,
-        const ImageCanvasResult& canvas_result,
-        float zoom);
+    static void drawGrid(const AtlasWidgetDesc& desc,
+                         const ImageCanvasResult& canvas_result,
+                         float zoom);
 
-    static void drawCellOutline(
-        const AtlasWidgetDesc& desc,
-        const ImageCanvasResult& canvas_result,
-        float zoom,
-        uint32_t index,
-        ImU32 color,
-        float thickness);
+    static void drawCellOutline(const AtlasWidgetDesc& desc,
+                                const ImageCanvasResult& canvas_result,
+                                float zoom,
+                                uint32_t index,
+                                ImU32 color,
+                                float thickness);
 
 private:
     ImageCanvas m_canvas;
