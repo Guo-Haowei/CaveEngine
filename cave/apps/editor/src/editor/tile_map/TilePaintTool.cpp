@@ -153,7 +153,9 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     canvas.popView();
 }
 
+#if 0
 void TilePaintTool::drawAssetInspector(IDocument&) {
+    // @TODO: move to AssetWorkspace
     DrawToolbar(m_toolbar);
 
     ImGui::Separator();
@@ -162,6 +164,7 @@ void TilePaintTool::drawAssetInspector(IDocument&) {
         m_tile_map_layer_panel->draw(*tile_set);
     }
 }
+#endif
 
 Option<TileCoord> TilePaintTool::pointToTile(math::Vec2f point_os) {
     const ViewRecord* view = m_ctx.engine_services.viewManager().resolve(m_ctx.view_id);

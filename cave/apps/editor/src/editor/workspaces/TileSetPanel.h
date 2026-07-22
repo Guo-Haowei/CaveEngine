@@ -5,6 +5,7 @@ namespace cave {
 
 struct EngineServices;
 struct EditorServices;
+struct SceneEditContext;
 
 class TileSetPanel {
 public:
@@ -20,6 +21,8 @@ private:
 
     EngineServices& m_engine_services;
     EditorServices& m_editor_services;
+
+    SceneEditContext* m_context = nullptr;
 
     AtlasWidget m_atlas_widget;
     AtlasSelection m_atlas_selection;

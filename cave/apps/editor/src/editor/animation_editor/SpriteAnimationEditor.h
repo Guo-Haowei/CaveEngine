@@ -24,7 +24,6 @@ public:
 
 private:
     void drawUIImpl() override;
-    void drawAssetInspector(IDocument& doc) override;
 
     void drawFrameSelector(SpriteAnimationAsset& anim, ImageAsset& image_asset);
     void drawTimeLine(SpriteAnimationAsset& anim, IDocument& doc);

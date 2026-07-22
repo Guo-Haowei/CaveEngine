@@ -103,22 +103,49 @@ void Workspace::requestClose(DocId doc_id) {
 }
 
 void Workspace::drawTabs() {
+    TabId newly_focused;
+
     for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
         auto& slot = m_slots[idx];
-        if (slot.storage) {
-            Tab& tab = *slot.storage;
-            TabId current_id = tab.tabId();
-            DEV_ASSERT(current_id == TabId(idx, slot.gen));
-            if (m_request_focus == current_id) {
-                ImGui::SetNextWindowFocus();
-                m_request_focus = TabId();
-            }
-            tab.drawUI();
-
-            if (tab.isFocused()) {
-                m_focused_tab = current_id;
-            }
+        if (!slot.storage) {
+            continue;
         }
+
+        Tab& tab = *slot.storage;
+        const TabId current_id{ idx, slot.gen };
+
+        DEV_ASSERT(tab.tabId() == current_id);
+
+        if (m_request_focus == current_id) {
+            ImGui::SetNextWindowFocus();
+            m_request_focus = {};
+        }
+
+        tab.drawUI();
+
+        if (tab.isFocused()) {
+            newly_focused = current_id;
+        }
+    }
+
+    // No document tab is focused because the user clicked Hierarchy,
+    // Inspector, Tile Palette, etc. Preserve the active document.
+    if (!newly_focused.valid() ||
+        newly_focused == m_focused_tab) {
+        return;
+    }
+
+    Tab* old_tab = resolve(m_focused_tab);
+    Tab* new_tab = resolve(newly_focused);
+
+    if (old_tab) {
+        old_tab->onDeactivated();
+    }
+
+    m_focused_tab = newly_focused;
+
+    if (new_tab) {
+        new_tab->onActivated();
     }
 }
 
@@ -187,7 +214,7 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         case AssetType::Material:
         case AssetType::Prefab:
         case AssetType::Scene: {
-            tab = MakeOwner<SceneViewTab>(m_editor,
+            tab = MakeOwner<SceneTab>(m_editor,
                                           doc_id,
                                           doc->previewScene(),
                                           dim);

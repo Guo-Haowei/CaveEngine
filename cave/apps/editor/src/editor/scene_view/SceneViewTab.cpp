@@ -4,6 +4,8 @@
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
+#include "cave/runtime/tile_map/TileMapLayerComponent.h"
+#include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/scene_view/SceneSelectTool.h"
 #include "editor/services/EditService.h"
@@ -24,7 +26,7 @@ namespace cave {
 using namespace ::cave::math;
 using ecs::Entity;
 
-SceneViewTab::SceneViewTab(EditorState& editor,
+SceneTab::SceneTab(EditorState& editor,
                            DocId doc_id,
                            SceneId scene_id,
                            ViewDimension dim)
@@ -33,7 +35,7 @@ SceneViewTab::SceneViewTab(EditorState& editor,
     , m_debug_id(MakeDebugId(this)) {
 
     m_play_button = {
-        "SceneViewTab.play",
+        "SceneTab.play",
         ICON_FA_PLAY,
         "Run Project",
         [this]() {
@@ -44,7 +46,7 @@ SceneViewTab::SceneViewTab(EditorState& editor,
         },
     };
     m_pause_button = {
-        "SceneViewTab.pause",
+        "SceneTab.pause",
         ICON_FA_PAUSE,
         "Pause Project",
         [this]() {
@@ -57,11 +59,11 @@ SceneViewTab::SceneViewTab(EditorState& editor,
 }
 
 // @TODO: game view tab
-void SceneViewTab::submitView() {
+void SceneTab::submitView() {
     ViewTabBase::submitView(true);
 }
 
-void SceneViewTab::onCreate() {
+void SceneTab::onCreate() {
     ViewTabBase::onCreate();
 
     SceneToolContext ctx = {
@@ -80,21 +82,55 @@ void SceneViewTab::onCreate() {
     m_tile_paint_tool = static_cast<TilePaintTool*>(m_scene_tools[std::to_underlying(SceneViewToolType::TilePaint)].get());
 
     m_editor_services.picking().addConsumer(this);
+
+    updateSceneEditContext();
 }
 
-void SceneViewTab::onDestroy() {
+void SceneTab::onDestroy() {
     ViewTabBase::onDestroy();
 
     m_editor_services.picking().removeConsumer(this);
+    m_editor_services.sceneEdit().deactivate(&m_edit_context);
 }
 
-Option<PickData> SceneViewTab::getPickData(const Vec2f& point_os) {
+void SceneTab::onActivated() {
+    m_editor_services.sceneEdit().activate(&m_edit_context);
+}
+
+void SceneTab::onDeactivated() {
+    m_editor_services.sceneEdit().deactivate(&m_edit_context);
+}
+
+void SceneTab::updateSceneEditContext() {
+    m_edit_context.doc_id = m_doc_id;
+    m_edit_context.scene_id = m_preview_scene_id;
+
+    auto selection = m_editor_services.selection().primary(m_doc_id);
+    auto entity = selection.entity;
+    m_edit_context.selected_entity = entity;
+
+    const Scene* scene = m_engine_services.sceneRegistry().resolve(m_preview_scene_id);
+    if (scene) {
+        if (const auto* layer = scene->component<TileMapLayerComponent>(entity)) {
+            auto& tile = m_edit_context.tile;
+            tile.layer_entity = entity;
+            tile.tile_set_guid = layer->tileSetGuid();
+            tile.tile_set = layer->tileSetHandle();
+            if (const auto* tile_set = tile.tile_set.get()) {
+                tile.image_guid = tile_set->imageGuid();
+                tile.image = tile_set->handle();
+            }
+        }
+    }
+}
+
+Option<PickData> SceneTab::getPickData(const Vec2f& point_os) {
     if (!isVisible()) return None();
 
     return activeTool()->getPickData(point_os);
 }
 
-void SceneViewTab::drawToolbar() {
+void SceneTab::drawToolbar() {
     std::array<const ToolbarButtonDesc*, 2> descs = {
         &m_play_button,
         &m_pause_button,
@@ -103,7 +139,7 @@ void SceneViewTab::drawToolbar() {
     DrawToolbar(descs);
 }
 
-void SceneViewTab::onInputEvents(const InputFrame& input) {
+void SceneTab::onInputEvents(const InputFrame& input) {
     if (!isHovered()) {
         return;
     }
@@ -120,11 +156,9 @@ void SceneViewTab::onInputEvents(const InputFrame& input) {
     }
 }
 
-void SceneViewTab::drawAssetInspector(IDocument& doc) {
-    activeTool()->drawAssetInspector(doc);
-}
+void SceneTab::drawUIImpl() {
+    updateSceneEditContext();
 
-void SceneViewTab::drawUIImpl() {
     ViewRecord* view = m_view_manager.resolve(m_view_id);
     DEV_ASSERT(view);
 
@@ -153,7 +187,7 @@ void SceneViewTab::drawUIImpl() {
     submitView();
 }
 
-bool SceneViewTab::onAssetDropped(AssetHandle handle) {
+bool SceneTab::onAssetDropped(AssetHandle handle) {
     if (ViewTabBase::onAssetDropped(handle)) {
         return true;
     }
@@ -178,11 +212,11 @@ bool SceneViewTab::onAssetDropped(AssetHandle handle) {
     }
 }
 
-Scene* SceneViewTab::getResolvedScene() {
+Scene* SceneTab::getResolvedScene() {
     return m_engine_services.sceneRegistry().resolve(m_preview_scene_id);
 }
 
-ISceneViewTool* SceneViewTab::activeTool() {
+ISceneViewTool* SceneTab::activeTool() {
     return m_scene_tools[std::to_underlying(m_current_tool)].get();
 }
 

@@ -45,8 +45,6 @@ public:
 
     virtual void draw(const math::FloatRect& rect) = 0;
 
-    virtual void drawAssetInspector(IDocument&) {}
-
     Scene* getResolvedScene() {
         return m_ctx.engine_services.sceneRegistry().resolve(m_ctx.scene_id);
     }

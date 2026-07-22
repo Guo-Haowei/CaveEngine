@@ -361,6 +361,7 @@ bool DrawTileDefinition(TileDefinition& definition) {
     return changed;
 }
 
+#if 0
 void TileSetEditor::drawAssetInspector(IDocument&) {
     auto assets = getAssets();
     if (!DEV_VERIFY(assets.image && assets.tile_set)) {
@@ -393,5 +394,6 @@ void TileSetEditor::drawAssetInspector(IDocument&) {
         DrawTileDefinition(definition);
     }
 }
+#endif
 
 }  // namespace cave

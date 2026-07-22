@@ -1,0 +1,79 @@
+#pragma once
+#include "cave/core/ids/Entity.h"
+#include "cave/core/ids/SceneId.h"
+#include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/tile_map/TileData.h"
+
+#include "editor/document/DocId.h"
+
+namespace cave {
+
+struct TileEditContext {
+    ecs::Entity layer_entity{};
+
+    TileId selected_tile = kEmptyTileId;
+    TileId hovered_tile = kEmptyTileId;
+
+    Guid tile_set_guid;
+    Handle<TileSetAsset> tile_set;
+    Guid image_guid;
+    Handle<ImageAsset> image;
+    // TilePaintToolType tool = TilePaintToolType::Pencil;
+
+    bool valid() const {
+        return layer_entity.valid() && !tile_set_guid.isNull();
+    }
+
+    void clear() {
+        layer_entity = ecs::Entity::null();
+        tile_set_guid = Guid{};
+        selected_tile = kEmptyTileId;
+        hovered_tile = kEmptyTileId;
+        // tool = TilePaintToolType::Pencil;
+    }
+};
+
+struct SceneEditContext {
+    DocId doc_id;
+    SceneId scene_id;
+
+    ecs::Entity selected_entity{};
+
+    // SceneToolType active_tool = SceneToolType::Select;
+
+    TileEditContext tile;
+
+    bool valid() const {
+        return doc_id.valid() && scene_id.valid();
+    }
+};
+
+class SceneEditService {
+public:
+    void activate(SceneEditContext* context) {
+        m_active = context;
+    }
+
+    void deactivate(const SceneEditContext* context) {
+        if (m_active == context) {
+            m_active = nullptr;
+        }
+    }
+
+    SceneEditContext* current() {
+        return m_active;
+    }
+
+    const SceneEditContext* current() const {
+        return m_active;
+    }
+
+    bool hasActiveScene() const {
+        return m_active && m_active->valid();
+    }
+
+private:
+    SceneEditContext* m_active = nullptr;
+};
+
+}  // namespace cave

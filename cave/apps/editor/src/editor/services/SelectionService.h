@@ -37,7 +37,7 @@ public:
     SelectionKey primary(DocId doc_id);
 
 private:
-    std::unordered_map<DocId, SelectionKey> m_selections;
+    HashMap<DocId, SelectionKey> m_selections;
 };
 
 }  // namespace cave

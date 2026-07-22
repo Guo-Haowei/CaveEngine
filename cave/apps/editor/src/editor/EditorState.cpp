@@ -19,6 +19,7 @@
 #include "editor/services/EditService.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/PickingService.h"
+#include "editor/services/SceneEditService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
 #include "editor/services/ThumbnailService.h"
@@ -54,6 +55,9 @@ EditorState::EditorState(IApplication& app)
     EngineServices& engine_services = app.services();
 
     // services
+    m_scene_edit = MakeOwner<SceneEditService>();
+    m_editor_services.scene_edit = m_scene_edit.get();
+
     m_document = MakeOwner<DocumentService>(engine_services, services());
     m_editor_services.document_service = m_document.get();
 

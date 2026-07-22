@@ -69,6 +69,7 @@ private:
     Owner<EditService> m_edit;
     Owner<IconCache> m_icon_cache;
     Owner<PickingService> m_picking;
+    Owner<SceneEditService> m_scene_edit;
     Owner<SelectionService> m_selection;
     Owner<ShortcutService> m_shortcut;
     Owner<Workspace> m_workspace;

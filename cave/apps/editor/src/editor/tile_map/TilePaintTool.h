@@ -31,8 +31,6 @@ public:
 
     void draw(const math::FloatRect& rect) override;
 
-    void drawAssetInspector(IDocument& doc) override;
-
     void setLayerId(ecs::Entity id) { m_layer_id = id; }
 
 private:

@@ -36,12 +36,14 @@ public:
     Tab(EditorState& editor, DocId doc_id);
 
     void drawUI() override;
-    virtual void drawAssetInspector(IDocument&) {}
 
     const char* windowId() const override;
 
     virtual void onCreate();
     virtual void onDestroy();
+
+    virtual void onActivated();
+    virtual void onDeactivated();
 
     virtual void onInputEvents(const InputFrame&) {}
 
@@ -56,6 +58,7 @@ public:
 protected:
     void drawUIImpl() override {}
 
+    bool m_focused_last_frame = false;
     DocId m_doc_id;
     TabId m_tab_id;
     mutable std::string m_window_id;

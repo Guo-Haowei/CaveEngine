@@ -34,7 +34,6 @@ private:
     void onInputEvents(const InputFrame& input) override;
 
     void drawTiles();
-    void drawAssetInspector(IDocument& doc) override;
 
     Option<math::Vec2i> worldPointToCell(math::Vec2f point_os,
                                          const TileSetAsset& tile_set) const;

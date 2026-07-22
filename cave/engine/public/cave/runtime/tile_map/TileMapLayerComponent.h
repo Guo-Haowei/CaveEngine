@@ -9,7 +9,6 @@
 
 namespace cave {
 
-class TileMapLayer;
 struct FieldChange;
 struct GpuMesh;
 

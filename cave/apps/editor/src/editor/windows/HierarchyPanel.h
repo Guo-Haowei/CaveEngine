@@ -6,9 +6,8 @@
 
 namespace cave {
 
-class ViewerTab;
-
-struct PreviewScene;
+class Scene;
+struct SceneEditContext;
 
 class HierarchyPanel : public EditorWindow {
 public:
@@ -21,9 +20,16 @@ private:
     void drawUIImpl() override;
     void drawToolbar();
 
-    void drawPopup(const PreviewScene& preview_scene);
-    void openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
-    void openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent);
+    void drawPopup(const SceneEditContext& context,
+                   const Scene& scene);
+
+    void openAddEntityPopupImpl(const SceneEditContext& context,
+                                const Scene& scene,
+                                ecs::Entity parent);
+
+    void openAddUIPopupImpl(const SceneEditContext& context,
+                            const Scene& scene,
+                            ecs::Entity parent);
 };
 
 }  // namespace cave

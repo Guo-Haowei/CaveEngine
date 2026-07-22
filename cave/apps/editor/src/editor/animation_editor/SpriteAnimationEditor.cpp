@@ -92,6 +92,7 @@ void SpriteAnimationEditor::drawUIImpl() {
     submitView();
 }
 
+#if 0
 void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
     auto sprite_animation = doc.handle<SpriteAnimationAsset>().get();
     DEV_ASSERT(sprite_animation);
@@ -122,6 +123,7 @@ void SpriteAnimationEditor::drawAssetInspector(IDocument& doc) {
 
     drawTimeLine(*sprite_animation, doc);
 }
+#endif
 
 void SpriteAnimationEditor::drawFrameSelector(SpriteAnimationAsset& anim, ImageAsset& image_asset) {
     // @TODO: refactor this, this is the same as ViewerTab::DrawToolBar

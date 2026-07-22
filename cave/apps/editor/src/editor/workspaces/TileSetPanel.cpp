@@ -2,10 +2,15 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "cave/runtime/tile_map/TileSetAsset.h"
+
 #include "editor/services/EditorServices.h"
 #include "editor/services/IconCache.h"
+#include "editor/services/SceneEditService.h"
 
 namespace cave {
+
+using namespace ::cave::math;
 
 TileSetPanel::TileSetPanel(EngineServices& engine_services,
                            EditorServices& editor_services)
@@ -117,11 +122,23 @@ void TileSetPanel::drawAtlas() {
     AtlasWidgetDesc desc;
     desc.id = "##TileAtlas";
     desc.texture = m_checkerboard_texture;
-    desc.layout.image_size_px = { 192.0f, 64.0f };
+    desc.layout.image_size_px = { 32.0f, 32.0f };
     desc.layout.grid_size = { 3, 1 };
     desc.widget_size = { 0.0f, 0.0f };
     desc.show_toolbar = true;
     desc.show_checkerboard = true;
+
+    if (m_context) {
+        if (const auto* tile_set = m_context->tile.tile_set.get()) {
+            desc.layout.grid_size = Vec2i(tile_set->col(), tile_set->row());
+        }
+
+        if (const auto* image = m_context->tile.image.get(); image && image->gpu_texture) {
+            desc.texture = image->gpu_texture->GetHandle();
+            desc.layout.image_size_px = Vec2f(image->width, image->height);
+        }
+    }
+
     m_atlas_widget.draw(desc, m_atlas_selection);
 
     ImGui::EndChild();
@@ -132,21 +149,23 @@ void TileSetPanel::draw() {
                                       ImGuiTableFlags_BordersInnerV |
                                       ImGuiTableFlags_SizingStretchProp;
 
-    if (ImGui::BeginTable("##TileSetEditorLayout", 3,
-                           flags,
-                           ImGui::GetContentRegionAvail())) {
-        ImGui::TableSetupColumn("##Sources", ImGuiTableColumnFlags_WidthFixed, 280.0f);
-        ImGui::TableSetupColumn("##Tools", ImGuiTableColumnFlags_WidthFixed, 360.0f);
-        ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
-
-        ImGui::TableNextRow();
-
-        drawTileSource();
-        drawPaint();
-        drawAtlas();
-
-        ImGui::EndTable();
+    if (!ImGui::BeginTable("##TileSetEditorLayout", 3,
+                          flags,
+                          ImGui::GetContentRegionAvail())) {
+        return;
     }
+
+    m_context = m_editor_services.sceneEdit().current();
+    ImGui::TableSetupColumn("##Sources", ImGuiTableColumnFlags_WidthFixed, 280.0f);
+    ImGui::TableSetupColumn("##Tools", ImGuiTableColumnFlags_WidthFixed, 360.0f);
+    ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableNextRow();
+
+    drawTileSource();
+    drawPaint();
+    drawAtlas();
+
+    ImGui::EndTable();
 }
 
 }  // namespace cave

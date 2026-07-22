@@ -32,6 +32,12 @@ CloseDecision AskCloseUnsaved(const char* title) {
     }
 }
 
+void Tab::onActivated() {
+}
+
+void Tab::onDeactivated() {
+}
+
 void Tab::drawUI() {
     EditService& edit = m_editor_services.edit();
     if (const bool dirty = edit.isDirty(m_doc_id)) {
