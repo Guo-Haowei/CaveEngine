@@ -1,6 +1,6 @@
 #pragma once
 #include "editor/panels/EditorWindow.h"
-#include "editor/widgets/SpriteSelector.h"
+#include "editor/widgets/AtlasWidget.h"
 
 namespace cave {
 
@@ -10,7 +10,7 @@ class IDocument;
 
 class AssetInspector : public EditorWindow {
 public:
-    AssetInspector(EditorState& editor);
+    explicit AssetInspector(EditorState& editor);
 
     const char* windowId() const override {
         return "Asset Inspector";
@@ -20,6 +20,8 @@ public:
 
 protected:
     void drawUIImpl() override;
+
+    ImageCanvas m_image_canvas;
 };
 
 }  // namespace cave
