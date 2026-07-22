@@ -174,10 +174,10 @@ void DocumentBase::reloadPreviewScene() {
 bool DocumentBase::changeProperty(const PropertyTarget& target,
                                   const uint8_t* data,
                                   size_t data_size) {
-    CRASH_NOW();
     unused(target);
     unused(data);
     unused(data_size);
+    LOG_WARN("can't change property of DocumentBase");
     return false;
 }
 

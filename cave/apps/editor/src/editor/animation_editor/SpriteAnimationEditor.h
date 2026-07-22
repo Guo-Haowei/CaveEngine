@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/runtime/assets/AssetHandle.h"
 
-#include "editor/panels/ViewTabBase.h"
+#include "editor/windows/ViewTabBase.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {
@@ -24,7 +24,6 @@ public:
 
 private:
     void drawUIImpl() override;
-    void drawAssetInspector(IDocument& doc) override;
 
     void drawFrameSelector(SpriteAnimationAsset& anim, ImageAsset& image_asset);
     void drawTimeLine(SpriteAnimationAsset& anim, IDocument& doc);

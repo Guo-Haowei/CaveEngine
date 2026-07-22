@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/panels/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 struct ImGuiInputTextCallbackData;
 
@@ -11,7 +11,7 @@ class ConsolePanel {
     static constexpr int kCmdBufferSize = 512;
 
 public:
-    ConsolePanel(EditorState& p_editor);
+    ConsolePanel(Console& console);
 
     void DrawConsole();
 

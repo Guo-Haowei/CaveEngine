@@ -45,8 +45,8 @@ bool SpriteSelector::EditSprite(int* p_colomn, int* p_row) {
     return dirty;
 }
 
-std::vector<std::pair<uint16_t, uint16_t>> SpriteSelector::GetSelections() const {
-    std::vector<std::pair<uint16_t, uint16_t>> selections;
+Vector<std::pair<uint16_t, uint16_t>> SpriteSelector::GetSelections() const {
+    Vector<std::pair<uint16_t, uint16_t>> selections;
     selections.reserve(m_selections.size());
     for (uint32_t key : m_selections) {
         selections.push_back(Unpack(key));

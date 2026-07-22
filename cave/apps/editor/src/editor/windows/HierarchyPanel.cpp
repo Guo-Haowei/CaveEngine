@@ -14,6 +14,7 @@
 #include "editor/services/DragDropService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/EditorServices.h"
+#include "editor/services/SceneEditService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
 
@@ -35,15 +36,17 @@ constexpr char kPopupNameId[] = "SCENE_PANEL_POPUP";
 // @TODO: on scene change instead of build every frame
 class SceneTreeBuilder {
 public:
-    SceneTreeBuilder(const PreviewScene& preview,
+    SceneTreeBuilder(const SceneEditContext& context,
+                     Scene& scene,
                      EngineServices& engine_services,
                      EditorServices& editor_services)
-        : m_preview(preview)
+        : m_context(context)
+        , m_scene(scene)
         , m_engine_services(engine_services)
         , m_editor_services(editor_services) {}
 
-    void update() {
-        for (Entity root : m_preview.scene->hierarchy().roots()) {
+    void draw() {
+        for (Entity root : m_scene.hierarchy().roots()) {
             drawNode(root, 0);
         }
     }
@@ -56,9 +59,9 @@ private:
                         ImGuiTreeNodeFlags tree_flags,
                         std::function<void()> on_left_click,
                         std::function<void()> on_right_click);
+    const SceneEditContext& m_context;
 
-    const PreviewScene& m_preview;
-
+    Scene& m_scene;
     EngineServices& m_engine_services;
     EditorServices& m_editor_services;
 };
@@ -131,7 +134,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
     }
 
     m_editor_services.dragDrop().dragSceneNode(ent, name);
-    m_editor_services.dragDrop().dropSceneNode(ent, m_preview.doc_id, scene);
+    m_editor_services.dragDrop().dropSceneNode(ent, m_context.doc_id, scene);
 
     const float visibility_x = ImGui::GetWindowContentRegionMax().x -
                                kVisibilityColumnWidth -
@@ -153,7 +156,7 @@ bool SceneTreeBuilder::treeNodeHelper(Scene& scene,
             hier_component->localVisible(),
             !hier_component->localVisible());
 
-        m_editor_services.edit().submit(m_preview.doc_id, std::move(cmd));
+        m_editor_services.edit().submit(m_context.doc_id, std::move(cmd));
     }
 
     ImGui::PopStyleVar();
@@ -179,34 +182,34 @@ void SceneTreeBuilder::drawNode(Entity ent, ImGuiTreeNodeFlags tree_flags) {
 
     Entity current_id = ent;
 
-    SelectionKey selection = m_editor_services.selection().primary(m_preview.doc_id);
+    SelectionKey selection = m_editor_services.selection().primary(m_context.doc_id);
 
-    auto children = m_preview.scene->hierarchy().children(ent);
+    auto children = m_scene.hierarchy().children(ent);
 
     tree_flags |= children.empty() ? ImGuiTreeNodeFlags_Leaf : 0;
     tree_flags |= current_id == selection.entity ? ImGuiTreeNodeFlags_Selected : 0;
 
     const bool expanded = treeNodeHelper(
-        *m_preview.scene,
+        m_scene,
         current_id,
         tree_flags,
         [this, current_id]() {
             SelectionKey selection;
             selection.kind = SelectionKind::Entity;
-            selection.doc = m_preview.doc_id;
-            selection.scene = m_preview.scene_id;
+            selection.doc = m_context.doc_id;
+            selection.scene = m_context.scene_id;
             selection.entity = current_id;
 
-            m_editor_services.selection().setSelection(m_preview.doc_id, selection);
+            m_editor_services.selection().setSelection(m_context.doc_id, selection);
         },
         [this, current_id]() {
             SelectionKey selection;
             selection.kind = SelectionKind::Entity;
-            selection.doc = m_preview.doc_id;
-            selection.scene = m_preview.scene_id;
+            selection.doc = m_context.doc_id;
+            selection.scene = m_context.scene_id;
             selection.entity = current_id;
 
-            m_editor_services.selection().setSelection(m_preview.doc_id, selection);
+            m_editor_services.selection().setSelection(m_context.doc_id, selection);
             ImGui::OpenPopup(kPopupNameId);
         });
 
@@ -221,35 +224,84 @@ void SceneTreeBuilder::drawNode(Entity ent, ImGuiTreeNodeFlags tree_flags) {
     }
 }
 
-void HierarchyPanel::drawUIImpl() {
-    CAVE_PROFILE_EVENT();
-    PreviewScene preview = m_editor_services.workspace().focusedPreviewScene();
-    if (preview.scene) {
-        SceneTreeBuilder sceneTree(preview,
-                                   m_engine_services,
-                                   m_editor_services);
-        drawPopup(preview);
-        sceneTree.update();
+void HierarchyPanel::drawToolbar() {
+    const ImGuiStyle& style = ImGui::GetStyle();
+    const float button_width = ImGui::GetFrameHeight();
+    const float toolbar_width = button_width * 3.5f + style.ItemSpacing.x;
+
+    const float avail_width = ImGui::GetContentRegionAvail().x;
+    const float cursor_x = ImGui::GetCursorPosX();
+
+    ImGui::SetCursorPosX(
+        cursor_x + std::max(0.0f, avail_width - toolbar_width));
+
+    ImGui::BeginGroup();
+
+    if (ImGui::Button(ICON_FA_PLUS, ImVec2{ button_width, 0.0f })) {
     }
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip("Add a new object");
+    }
+
+    ImGui::SameLine();
+
+    // ImGui::BeginDisabled(!m_selected);
+    bool m_selected = true;
+
+    if (ImGui::Button(ICON_FA_TRASH_CAN, ImVec2{ button_width, 0.0f })) {
+    }
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip(m_selected ? "Delete selected object" : "Select an object first");
+    }
+
+    // ImGui::EndDisabled();
+
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_FA_ELLIPSIS, ImVec2{ button_width, 0.0f })) {
+    }
+
+    ImGui::EndGroup();
 }
 
-void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
-    // @TODO: refactor this
+void HierarchyPanel::drawUIImpl() {
+    CAVE_PROFILE_EVENT();
 
+    const float footer_size = ImGui::GetFrameHeight() + 10.f;
+    ImGui::BeginChild("##SceneTree",
+                      ImVec2{ 0.0f, -footer_size },
+                      ImGuiChildFlags_Borders);
+
+    if (SceneEditContext* ctx = m_editor_services.sceneEdit().current()) {
+        if (Scene* scene = m_engine_services.sceneRegistry().resolve(ctx->scene_id)) {
+            SceneTreeBuilder sceneTree(*ctx, *scene, m_engine_services, m_editor_services);
+            drawPopup(*ctx, *scene);
+            sceneTree.draw();
+        }
+    }
+
+    ImGui::EndChild();
+
+    drawToolbar();
+}
+
+void HierarchyPanel::drawPopup(const SceneEditContext& context,
+                               const Scene& scene) {
     if (ImGui::BeginPopup(kPopupNameId)) {
-        SelectionKey selection = m_editor_services.selection().primary(preview_scene.doc_id);
-        DEV_ASSERT(selection.doc == preview_scene.doc_id);
+        SelectionKey selection = m_editor_services.selection().primary(context.doc_id);
+        DEV_ASSERT(selection.doc == context.doc_id);
         ecs::Entity selected = selection.entity;
 
         ecs::Entity parent = selected;
 
         if (ImGui::BeginMenu("Add")) {
-            const bool is_ui = preview_scene.scene->has(UICanvasComponent_Id, parent) ||
-                               preview_scene.scene->has(UIRectTransformComponent_Id, parent);
+            const bool is_ui = scene.has(UICanvasComponent_Id, parent) ||
+                               scene.has(UIRectTransformComponent_Id, parent);
             if (is_ui) {
-                openAddUIPopupImpl(preview_scene, parent);
+                openAddUIPopupImpl(context, scene, parent);
             } else {
-                openAddEntityPopupImpl(preview_scene, parent);
+                openAddEntityPopupImpl(context, scene, parent);
             }
             ImGui::EndMenu();
         }
@@ -266,14 +318,12 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
                 auto cmd = MakeOwner<DeleteObjectCmd>(
                     m_engine_services.sceneRegistry(),
                     selected);
-                m_editor_services.edit().submit(preview_scene.doc_id, std::move(cmd));
+                m_editor_services.edit().submit(context.doc_id, std::move(cmd));
             }
         }
         if (ImGui::MenuItem("Save as Prefab")) {
             PrefabExporter exporter;
-            exporter.exportPrefab("@res://exported.prefab",
-                                  *preview_scene.scene,
-                                  selected);
+            exporter.exportPrefab("@res://exported.prefab", scene, selected);
         }
         ImGui::EndPopup();
     }
@@ -294,7 +344,9 @@ void HierarchyPanel::drawPopup(const PreviewScene& preview_scene) {
     DEFINE_OBJECT(torus,          true )
 // clang-format on
 
-void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
+void HierarchyPanel::openAddUIPopupImpl(const SceneEditContext& context,
+                                        const Scene& scene,
+                                        Entity parent) {
     EditService& edit = m_editor_services.edit();
 
     auto can_add_canvas_item = [](const Scene& scene, Entity parent) {
@@ -310,24 +362,24 @@ void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::
         return false;
     };
 
-    const bool can_add_ui = can_add_canvas_item(*preview_scene.scene, parent);
+    const bool can_add_ui = can_add_canvas_item(scene, parent);
 
     if (ImGui::MenuItem("UIRect", nullptr, false, can_add_ui)) {
-        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+        edit.submit(context.doc_id, [&](SceneCommandWriter& writer) {
             Entity temp = writer.rect("UIRect");
             writer.attachChild(temp, parent);
             return temp;
         });
     }
     if (ImGui::MenuItem("UIButton", nullptr, false, can_add_ui)) {
-        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+        edit.submit(context.doc_id, [&](SceneCommandWriter& writer) {
             Entity temp = writer.button("UIButton");
             writer.attachChild(temp, parent);
             return temp;
         });
     }
     if (ImGui::MenuItem("UIImage", nullptr, false, can_add_ui)) {
-        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+        edit.submit(context.doc_id, [&](SceneCommandWriter& writer) {
             Entity temp = writer.image("UIImage");
             writer.attachChild(temp, parent);
             return temp;
@@ -335,13 +387,15 @@ void HierarchyPanel::openAddUIPopupImpl(const PreviewScene& preview_scene, ecs::
     }
 }
 
-void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, ecs::Entity parent) {
+void HierarchyPanel::openAddEntityPopupImpl(const SceneEditContext& context,
+                                            const Scene&,
+                                            Entity parent) {
     EditService& edit = m_editor_services.edit();
 
     using CreateFunc = Entity (*)(SceneCommandWriter&, std::string_view);
     auto add_object = [&](const char* name, bool separate, CreateFunc&& create_func) {
         if (ImGui::MenuItem(name)) {
-            edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+            edit.submit(context.doc_id, [&](SceneCommandWriter& writer) {
                 Entity temp = create_func(writer, name);
                 writer.attachChild(temp, parent);
                 return temp;
@@ -362,7 +416,7 @@ void HierarchyPanel::openAddEntityPopupImpl(const PreviewScene& preview_scene, e
 
     ImGui::Separator();
     if (ImGui::MenuItem("Canvas", nullptr, false, true)) {
-        edit.submit(preview_scene.doc_id, [&](SceneCommandWriter& writer) {
+        edit.submit(context.doc_id, [&](SceneCommandWriter& writer) {
             Entity temp = writer.canvas("UICanvas");
             writer.attachChild(temp, parent);
             return temp;

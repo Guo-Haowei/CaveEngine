@@ -6,20 +6,20 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/game/GameModuleHandle.h"
 
-#include "editor/panels/AssetInspector.h"
-#include "editor/panels/ContentBrowser.h"
-#include "editor/panels/FileSystemPanel.h"
-#include "editor/panels/HierarchyPanel.h"
-#include "editor/panels/LogPanel.h"
-#include "editor/panels/MenuBar.h"
-#include "editor/panels/PropertyPanel.h"
-#include "editor/panels/RendererPanel.h"
+#include "editor/windows/AssetWorkspace.h"
+#include "editor/windows/ContentBrowser.h"
+#include "editor/windows/FileSystemPanel.h"
+#include "editor/windows/HierarchyPanel.h"
+#include "editor/windows/MenuBar.h"
+#include "editor/windows/PropertyPanel.h"
+#include "editor/windows/RendererPanel.h"
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/DragDropService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/PickingService.h"
+#include "editor/services/SceneEditService.h"
 #include "editor/services/SelectionService.h"
 #include "editor/services/ShortcutService.h"
 #include "editor/services/ThumbnailService.h"
@@ -55,6 +55,9 @@ EditorState::EditorState(IApplication& app)
     EngineServices& engine_services = app.services();
 
     // services
+    m_scene_edit = MakeOwner<SceneEditService>();
+    m_editor_services.scene_edit = m_scene_edit.get();
+
     m_document = MakeOwner<DocumentService>(engine_services, services());
     m_editor_services.document_service = m_document.get();
 
@@ -85,12 +88,10 @@ EditorState::EditorState(IApplication& app)
     // panels
     m_content_browser = MakeRef<ContentBrowser>(*this);
     m_menu_bar = MakeRef<MenuBar>(*this);
-    m_log_panel = MakeRef<LogPanel>(*this);
     m_file_system_panel = MakeRef<FileSystemPanel>(*this);
-    m_asset_inspector = MakeRef<AssetInspector>(*this);
+    m_asset_workspace = MakeRef<AssetWorkspace>(*this);
 
-    addPanel(m_log_panel);
-    addPanel(m_asset_inspector);
+    addPanel(m_asset_workspace);
     addPanel(MakeRef<RendererPanel>(*this));
     addPanel(MakeRef<HierarchyPanel>(*this));
     addPanel(MakeRef<PropertyPanel>(*this));

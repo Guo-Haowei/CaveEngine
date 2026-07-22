@@ -5,7 +5,7 @@
 
 #include "editor/camera/CameraController.h"
 #include "editor/document/SceneDocument.h"
-#include "editor/panels/Tab.h"
+#include "editor/windows/Tab.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/SceneOwner.h"
@@ -18,6 +18,10 @@ enum class ViewDimension : uint8_t {
     Dim2,
     Dim3,
 };
+
+Option<math::Vec2f> ScreenPointToWorld2D(const ViewRecord& view,
+                                         const math::Mat4f& projection_view,
+                                         math::Vec2f point_os);
 
 class ViewTabBase : public Tab,
                     public SceneOwner {

@@ -11,6 +11,8 @@ namespace cave::render { class IRenderDevice; }
 namespace cave {
 
 class AssetRegistry;
+class CommandRegistry;
+class Console;
 class DisplayService;
 class IAssetManager;
 class ICanvas;
@@ -31,6 +33,8 @@ class GameModuleHandle;
 
 struct RuntimeServices {
     AssetRegistry* asset_registry{};
+    Console* console_{};
+    CommandRegistry* command_registry{};
     DisplayService* display_service{};
     ICanvas* canvas_{};
     IGameInput* game_input{};
@@ -47,6 +51,8 @@ struct RuntimeServices {
     ImGuiService* imgui{};
 
     AssetRegistry& assetRegistry() { return *asset_registry; }
+    Console& console() { return *console_; }
+    CommandRegistry& commandRegistry() { return *command_registry; }
     DisplayService& displayService() { return *display_service; }
     ICanvas& canvas() { return *canvas_; }
     IGameInput& gameInput() { return *game_input; }

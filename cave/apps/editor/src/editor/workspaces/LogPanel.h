@@ -1,27 +1,26 @@
 #pragma once
 #include "cave/core/containers/FixedString.h"
+#include "cave/runtime/framework/EngineServices.h"
 
-#include "editor/panels/EditorWindow.h"
+#include "editor/services/EditorServices.h"
 
 namespace cave {
 
 class ConsolePanel;
 
-class LogPanel : public EditorWindow {
+class LogPanel {
 public:
-    explicit LogPanel(EditorState& editor);
+    explicit LogPanel(EngineServices& engine_services,
+                      EditorServices& editor_services);
     ~LogPanel();
 
-    const char* windowId() const override;
+    void draw();
 
 protected:
-    void drawUIImpl() override;
     void drawFilter();
     void drawLogHistroy();
 
-    bool allChannels() const {
-        return m_channel_filter == LogChannel::Count;
-    }
+    bool allChannels() const { return m_channel_filter == LogChannel::Count; }
 
     bool passSearchFilter(const LogEvent& log) const;
 

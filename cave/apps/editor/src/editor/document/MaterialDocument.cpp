@@ -3,7 +3,6 @@
 #include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
-#include "cave/runtime/framework/EngineServices.h"
 #include "cave/runtime/scene/SceneCommandPlayback.h"
 #include "cave/runtime/scene/SceneCommandWriter.h"
 
@@ -19,7 +18,7 @@ using ecs::Entity;
 MaterialDocument::MaterialDocument(EngineServices& services, const Guid& guid)
     : DocumentBase(services, guid) {
 
-    SceneCommandWriter cb(services.assetRegistry());
+    SceneCommandWriter cb(m_asset_reg);
     Entity root = cb.rootObject();
 
     if constexpr (1) {

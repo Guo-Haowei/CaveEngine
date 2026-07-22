@@ -1,11 +1,13 @@
 #pragma once
 #include "cave/core/base/NonCopyable.h"
+#include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/game/GameModuleHandle.h"
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/intent/IntentBus.h"
 #include "cave/runtime/script/native/NativeScriptRegistry.h"
 
+#include "engine/private/core/diagnostics/console/Console.h"
 #include "engine/private/runtime/display/Canvas.h"
 #include "engine/private/runtime/framework/AppState.h"
 #include "engine/private/runtime/framework/EventQueue.h"
@@ -55,12 +57,14 @@ protected:
 
     Canvas m_canvas;
     Canvas m_ui_canvas;
+    CommandRegistry m_command_registry;
     IntentBus m_intent_bus;
     VFS m_vfs;
     NativeScriptRegistry m_native_scripts;
     // @TODO: module manager?
     GameModuleHandle m_game_module_handle;
 
+    Owner<Console> m_console;
     Owner<ProjectManager> m_project_manager;
     Owner<SceneRegistry> m_scene_registry;
     Owner<SceneScheduler> m_scene_scheduler;

@@ -1,7 +1,5 @@
 #include "TilePaintTool.h"
 
-#include "TileMapLayerPanel.h"
-
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
 #include "cave/core/algorithm/Graph.h"
@@ -12,10 +10,11 @@
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/inspector/PropertyEditors.h"
-#include "editor/panels/AssetInspector.h"
+#include "editor/windows/AssetWorkspace.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/EditService.h"
+#include "editor/services/SceneEditService.h"
 #include "editor/tile_map/SetTileCommand.h"
 
 // @TODO: remove
@@ -23,6 +22,7 @@
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "editor/utility/ImGuizmo.h"
+#include "editor/windows/ViewTabBase.h"
 
 namespace cave {
 
@@ -30,54 +30,17 @@ using namespace ::cave::math;
 
 TilePaintTool::TilePaintTool(const SceneToolContext& ctx)
     : ISceneViewTool(ctx) {
-
-    m_tile_map_layer_panel = MakeOwner<TileMapLayerPanel>(m_sprite_selector);
-
-    m_toolbar[0] = {
-        "TilePaintTool.pencil",
-        ICON_FA_PEN,
-        "Pencil - paint individual tiles",
-        [this]() { setPaintMode(GridPaintMode::Brush); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Brush; },
-    };
-    m_toolbar[1] = {
-        "TilePaintTool.line",
-        ICON_FA_CHART_LINE,
-        "Line - paint a straight line",
-        [this]() { setPaintMode(GridPaintMode::Line); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Line; },
-    };
-    m_toolbar[2] = {
-        "TilePaintTool.rect",
-        ICON_FA_SQUARE_PEN,
-        "Rectangle - paint a filled rectangle",
-        [this]() { setPaintMode(GridPaintMode::Rect); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Rect; },
-    };
-    m_toolbar[3] = {
-        "TilePaintTool.fill",
-        ICON_FA_FILL,
-        "Fill - replace a connected region",
-        [this]() { setPaintMode(GridPaintMode::Fill); },
-        nullptr,
-        [this]() { return m_paint_mode == GridPaintMode::Fill; },
-    };
-    m_toolbar[4] = {
-        "TilePaintTool.erase",
-        ICON_FA_ERASER,
-        "Eraser - remove painted tiles",
-        [this]() { m_erasing = !m_erasing; },
-        nullptr,
-        [this]() { return m_erasing; },
-    };
 }
 
 TilePaintTool::~TilePaintTool() = default;
 
 void TilePaintTool::onInputEvents(const InputFrame& input, const WindowState& state) {
+    const auto* context = m_ctx.editor_services.sceneEdit().current();
+    if (context && context->tile.valid()) {
+        m_erasing = context->tile.erasing;
+        m_paint_tool.setMode(context->tile.paint_mode);
+    }
+
     const TileMapLayerComponent* layer = getTileMapLayer(m_layer_id);
     if (!layer) return;
 
@@ -109,7 +72,12 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
 
     constexpr Vec4f kEraseColor{ 1.0f, 0.5f, 0.5f, 0.7f };
 
-    auto selections = m_sprite_selector.GetSelections();
+    std::span<const std::pair<uint16_t, uint16_t>> selections;
+    if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
+        if (ctx->tile.valid()) {
+            selections = ctx->tile.selected_tile;
+        }
+    }
 
     bool selection_valid = false;
     Vec2f uv_min{ 0, 0 };
@@ -152,32 +120,20 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     canvas.popView();
 }
 
-void TilePaintTool::drawAssetInspector(IDocument&) {
-    DrawToolbar(m_toolbar);
-
-    ImGui::Separator();
-
-    if (TileSetAsset* tile_set = getTileSet(m_layer_id)) {
-        m_tile_map_layer_panel->draw(*tile_set);
-    }
-}
-
 Option<TileCoord> TilePaintTool::pointToTile(math::Vec2f point_os) {
     const ViewRecord* view = m_ctx.engine_services.viewManager().resolve(m_ctx.view_id);
-    if (!view->display_rect_os.Contains(point_os.x, point_os.y)) {
+    if (!view) {
         return None();
     }
 
-    Vec2f ndc = view->screenToNDC(point_os);
-
-    Mat4f pv_inv = glm::inverse(m_ctx.camera.projectionViewMatrix());
-
-    Vec4f pos = pv_inv * Vec4f(ndc, 0.0f, 1.0f);
-    pos /= pos.w;
+    auto res = ScreenPointToWorld2D(*view, m_ctx.camera.projectionViewMatrix(), point_os);
+    if (res.is_none()) {
+        return None();
+    }
 
     TileCoord index;
-    index.x = static_cast<int16_t>(std::floor(pos.x));
-    index.y = static_cast<int16_t>(std::floor(pos.y));
+    index.x = static_cast<int16_t>(std::floor(res.unwrap_unchecked().x));
+    index.y = static_cast<int16_t>(std::floor(res.unwrap_unchecked().y));
     return Some(index);
 }
 
@@ -228,11 +184,6 @@ GridPaintInput TilePaintTool::buildInput(const InputFrame& input, const WindowSt
     }
 
     return out;
-}
-
-void TilePaintTool::setPaintMode(GridPaintMode mode) {
-    m_paint_mode = mode;
-    m_paint_tool.setMode(mode);
 }
 
 void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
@@ -297,7 +248,13 @@ void TilePaintTool::cancelPaintCommand() {
 
 void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
                                     const TileMapLayerComponent& layer) {
-    const auto selections = m_sprite_selector.GetSelections();
+    std::span<const std::pair<uint16_t, uint16_t>> selections;
+    if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
+        if (ctx->tile.valid()) {
+            selections = ctx->tile.selected_tile;
+        }
+    }
+
     uint32_t tile_id = std::numeric_limits<uint32_t>::max();
 
     const TileSetAsset* tile_set = layer.tileSetHandle().get();

@@ -5,10 +5,10 @@
 
 namespace cave {
 
-IconCache::IconCache(AssetRegistry& p_asset_reg,
-                     IAssetManager& p_asset_manager)
-    : m_asset_reg(p_asset_reg)
-    , m_asset_manager(p_asset_manager) {
+IconCache::IconCache(AssetRegistry& asset_reg,
+                     IAssetManager& asset_manager)
+    : m_asset_reg(asset_reg)
+    , m_asset_manager(asset_manager) {
     init();
 }
 
@@ -49,14 +49,14 @@ void IconCache::clear() {
     }
 }
 
-GpuTextureId IconCache::getIcon(IconName p_name) const {
-    DEV_ASSERT_INDEX(p_name, IconName::Count);
-    const auto& image = m_cache[std::to_underlying(p_name)];
+GpuTextureId IconCache::getIcon(IconName name) const {
+    DEV_ASSERT_INDEX(name, IconName::Count);
+    const auto& image = m_cache[std::to_underlying(name)];
     return image ? image->gpu_texture : nullptr;
 }
 
-uint64_t IconCache::getIconHandle(IconName p_name) const {
-    auto texture = getIcon(p_name);
+uint64_t IconCache::getIconHandle(IconName name) const {
+    auto texture = getIcon(name);
     return texture ? texture->GetHandle() : 0;
 }
 

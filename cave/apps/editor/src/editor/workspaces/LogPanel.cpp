@@ -18,21 +18,11 @@
 
 namespace cave {
 
-static constexpr float kLogFilterWidth = 150.0f;
+namespace {
 
-LogPanel::LogPanel(EditorState& editor)
-    : EditorWindow(editor)
-    , m_level_filter{ LOG_LEVEL_ALL & ~(LOG_LEVEL_TRACE) } {
-    m_console = MakeOwner<ConsolePanel>(editor);
-}
+constexpr float kLogFilterWidth = 150.0f;
 
-LogPanel::~LogPanel() = default;
-
-const char* LogPanel::windowId() const {
-    return ICON_FA_TERMINAL "  Output Log";
-}
-
-static void DrawLog(const LogEvent& log) {
+void DrawLog(const LogEvent& log) {
     using ui::IconType;
 
     ColorCode color = ColorCode::Silver;
@@ -70,6 +60,17 @@ static void DrawLog(const LogEvent& log) {
     }
     ImGui::PopStyleColor();
 }
+}  // namespace
+
+LogPanel::LogPanel(EngineServices& engine_services,
+                   EditorServices& editor_services) {
+    unused(editor_services);
+
+    m_level_filter = LOG_LEVEL_ALL & ~(LOG_LEVEL_TRACE);
+    m_console = MakeOwner<ConsolePanel>(engine_services.console());
+}
+
+LogPanel::~LogPanel() = default;
 
 void LogPanel::drawFilter() {
     searchBar();
@@ -171,9 +172,15 @@ void LogPanel::drawLogHistroy() {
 
     ImVec2 window_size = ImGui::GetWindowSize();
 
+#if 0
     constexpr ImU32 colors[] = {
         IM_COL32(57, 57, 57, 255),  // light
         IM_COL32(41, 42, 44, 255),  // dark
+    };
+#endif
+    constexpr ImU32 colors[] = {
+        IM_COL32(76, 80, 88, 255),  // light
+        IM_COL32(52, 56, 64, 255),  // dark
     };
 
     constexpr float padding = 3;
@@ -233,7 +240,7 @@ void LogPanel::drawLogHistroy() {
     ImGui::EndChild();
 }
 
-void LogPanel::drawUIImpl() {
+void LogPanel::draw() {
     CAVE_PROFILE_EVENT();
 
     drawFilter();

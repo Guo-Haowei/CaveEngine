@@ -56,7 +56,50 @@ class TileSetAsset : public IAsset {
 
     CAVE_META(TileSetAsset)
 
+public:
+    static constexpr float kDefaultCellSizePx = 8.f;
+
+    uint32_t row() const { return m_row; }
+    void row(uint32_t row);
+
+    uint32_t col() const { return m_column; }
+    void col(uint32_t col);
+
+    uint32_t width() const { return m_width; }
+    uint32_t height() const { return m_height; }
+
+    float tileScale() const { return m_tile_scale; }
+    void tileScale(float scale);
+
+    const TileDefinition* getTileDefinition(uint32_t tile_id) const;
+
+    std::span<const TileDefinition> getTileDefinitions() const {
+        return m_tiles;
+    }
+
+    Vector<TileDefinition>& getTileDefinitionsMut() {
+        return m_tiles;
+    }
+
+    const Guid& imageGuid() const { return m_image_guid; }
+    void setImageGuid(const Guid& guid);
+
+    const Handle<ImageAsset>& handle() const { return m_image_handle; }
+
+    std::span<const math::Box2> frames() const { return m_frames; }
+
+    bool dirty() const { return m_dirty; }
+    void setDirty(bool dirty) { m_dirty = dirty; }
+
+    auto saveToDisk(const AssetMetaData& meta) const -> Result<void> override;
+    auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;
+
+    Vector<Guid> dependencies() const override;
+
 private:
+    void setHandle(Handle<ImageAsset>&& handle);
+    void updateFrames();
+
     CAVE_PROP(editor = Asset)
     Guid m_image_guid;
 
@@ -79,40 +122,6 @@ private:
     uint32_t m_height = 0;
 
     bool m_dirty;
-
-public:
-    uint32_t row() const { return m_row; }
-    void row(uint32_t row);
-
-    uint32_t col() const { return m_column; }
-    void col(uint32_t col);
-
-    uint32_t width() const { return m_width; }
-    uint32_t height() const { return m_height; }
-
-    float tileScale() const { return m_tile_scale; }
-    void tileScale(float scale);
-
-    const TileDefinition* getTileDefinition(uint32_t tile_id) const;
-
-    const Guid& imageGuid() const { return m_image_guid; }
-    void setImageGuid(const Guid& guid);
-
-    const Handle<ImageAsset>& handle() const { return m_image_handle; }
-
-    const auto& frames() const { return m_frames; }
-
-    bool dirty() const { return m_dirty; }
-    void setDirty(bool dirty) { m_dirty = dirty; }
-
-    auto saveToDisk(const AssetMetaData& meta) const -> Result<void> override;
-    auto loadFromDisk(const AssetMetaData& meta) -> Result<void> override;
-
-    Vector<Guid> dependencies() const override;
-
-private:
-    void setHandle(Handle<ImageAsset>&& handle);
-    void updateFrames();
 };
 
 }  // namespace cave

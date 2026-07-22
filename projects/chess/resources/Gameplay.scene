@@ -1,22 +1,11 @@
-version: 20
-seed: 81
-root: 1
+version: 22
+seed: 6
 entities:
-  - id: 1
-    NameComponent:
-      name: root
-    HierarchyComponent:
-      parent_id: 0
-      local_visible: true
-    TransformComponent:
-      translation: [0, 0, 0]
-      rotation: [0, 0, 0, 1]
-      scale: [1, 1, 1]
   - id: 2
     NameComponent:
       name: light
     HierarchyComponent:
-      parent_id: 1
+      parent_id: 0
       local_visible: true
     TransformComponent:
       translation: [0, 0, 0]
@@ -37,11 +26,11 @@ entities:
       roughness: 1
       emissive: 5
       material_id: 00000000-0000-0000-0000000000000000
-  - id: 46
+  - id: 3
     NameComponent:
       name: chess_board
     HierarchyComponent:
-      parent_id: 1
+      parent_id: 0
       local_visible: true
     TransformComponent:
       translation: [0, -0.120999999, 0]
@@ -52,13 +41,13 @@ entities:
       params:
         {}
     MeshRendererComponent:
-      visibility: true
+      visible: true
       cast_shadow: true
-      transparency: false
+      transparent: false
       mesh_guid: 6E2C66A5-5D0B-944A-87F91E968231C94A
-      materials: [47]
+      materials: [4]
       skeleton_id: 0
-  - id: 47
+  - id: 4
     NameComponent:
       name: mat_0
     MaterialComponent:
@@ -67,29 +56,29 @@ entities:
       roughness: 1
       emissive: 0
       material_id: 8B43351D-333B-9A4D-8BAAB542CF234B1E
-  - id: 77
+  - id: 5
     NameComponent:
       name: GameCamera
     HierarchyComponent:
-      parent_id: 1
+      parent_id: 0
       local_visible: true
     TransformComponent:
       translation: [-5.80000019, 6.69999981, 0]
       rotation: [-0.31498, -0.632995546, -0.314871162, 0.633214235]
       scale: [1, 1, 1]
     CameraComponent:
-      flags: 1
+      flags: 0
       projection: perspective
       fovy: 60
       near: 0.100000001
       far: 1000
       aspect: 1.77777779
       ortho_height: 10
-  - id: 81
+  - id: 6
     NameComponent:
       name: transform
     HierarchyComponent:
-      parent_id: 1
+      parent_id: 0
       local_visible: true
     TransformComponent:
       translation: [-3.5, 0, -3.5]

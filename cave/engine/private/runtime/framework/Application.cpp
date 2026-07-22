@@ -9,7 +9,6 @@
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/display/DisplayService.h"
 
-#include "engine/private/core/diagnostics/console/Console.h"
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/core/os/os.h"
 #include "engine/private/render/renderer/Renderer.h"
@@ -65,9 +64,10 @@ auto Application::setupModules() -> Result<void> {
     m_engine_services.canvas_ = &m_canvas;
     m_engine_services.ui_canvas = &m_ui_canvas;
     m_engine_services.intent_bus = &m_intent_bus;
+    m_engine_services.command_registry = &m_command_registry;
 
-    m_cmd_reg_ = new cave::CommandRegistry();
-    m_console = new cave::Console(*this);
+    m_console = MakeOwner<Console>(services());
+    m_engine_services.console_ = m_console.get();
 
     m_task_manager = new TaskManager();
     m_engine_services.task_manager = m_task_manager;
@@ -136,7 +136,7 @@ auto Application::setupModules() -> Result<void> {
     m_event_queue.RegisterListener(m_render_device);
 
     // @TODO: move to registerCommands
-    RegisterCommands(*m_cmd_reg_);
+    RegisterCommands(m_command_registry);
     return Result<void>();
 }
 
