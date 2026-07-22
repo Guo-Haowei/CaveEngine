@@ -11,10 +11,10 @@ namespace cave {
 AssetWorkspace::AssetWorkspace(EditorState& editor)
     : EditorWindow(editor) {
 
-    m_log = MakeOwner<LogPanel>(editor.app().services(),
-                                editor.services());
+    EngineServices& engine_services = editor.app().services();
 
-    m_tile_set = MakeOwner<TileSetPanel>();
+    m_log = MakeOwner<LogPanel>(engine_services, editor.services());
+    m_tile_set = MakeOwner<TileSetPanel>(engine_services, editor.services());
 }
 
 AssetWorkspace::~AssetWorkspace() = default;

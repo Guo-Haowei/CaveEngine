@@ -85,9 +85,9 @@ EditorState::EditorState(IApplication& app)
     m_content_browser = MakeRef<ContentBrowser>(*this);
     m_menu_bar = MakeRef<MenuBar>(*this);
     m_file_system_panel = MakeRef<FileSystemPanel>(*this);
-    m_asset_inspector = MakeRef<AssetWorkspace>(*this);
+    m_asset_workspace = MakeRef<AssetWorkspace>(*this);
 
-    addPanel(m_asset_inspector);
+    addPanel(m_asset_workspace);
     addPanel(MakeRef<RendererPanel>(*this));
     addPanel(MakeRef<HierarchyPanel>(*this));
     addPanel(MakeRef<PropertyPanel>(*this));

@@ -43,7 +43,7 @@ public:
 #endif
 
     // @TODO: dependency injection?
-    AssetWorkspace& assetInspector() { return *m_asset_inspector; }
+    AssetWorkspace& assetInspector() { return *m_asset_workspace; }
 
     EditorServices& services() { return m_editor_services; }
 
@@ -75,7 +75,7 @@ private:
     Owner<ThumbnailService> m_thumbnail;
 
     // @TODO: use unique_ptr
-    Ref<AssetWorkspace> m_asset_inspector;
+    Ref<AssetWorkspace> m_asset_workspace;
     Ref<ContentBrowser> m_content_browser;
     Ref<FileSystemPanel> m_file_system_panel;
     Ref<MenuBar> m_menu_bar;

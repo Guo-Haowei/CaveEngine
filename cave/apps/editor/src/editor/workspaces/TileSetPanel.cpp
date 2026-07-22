@@ -2,95 +2,21 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
+#include "editor/services/EditorServices.h"
+#include "editor/services/IconCache.h"
+
 namespace cave {
 
-namespace {
+TileSetPanel::TileSetPanel(EngineServices& engine_services,
+                           EditorServices& editor_services)
+    : m_engine_services(engine_services)
+    , m_editor_services(editor_services) {
 
-#if 0
-void DrawImageCanvasTest(
-    ImageCanvas& canvas,
-    ImTextureID checkerboard_handle) {
-
-    constexpr Vec2f kTileSizePx{
-        32.0f,
-        32.0f,
-    };
-
-    constexpr Vec2f kGridSize{
-        1.0f,
-        1.0f,
-    };
-
-    constexpr Vec2f kImageSizePx{
-        kTileSizePx.x * kGridSize.x,
-        kTileSizePx.y * kGridSize.y,
-    };
-
-    ImageCanvasDesc desc;
-    desc.id = "##ImageCanvasTest";
-    desc.texture = checkerboard_handle;
-    desc.image_size_px = kImageSizePx;
-    desc.widget_size = {
-        0.0f,
-        320.0f,
-    };
-
-    desc.min_zoom = 0.25f;
-    desc.max_zoom = 16.0f;
-    desc.zoom_step = 2.0f;
-
-    desc.show_toolbar = true;
-    desc.allow_mouse_wheel_zoom = true;
-    desc.show_checkerboard = false;
-
-    const ImageCanvasResult result =
-        canvas.draw(desc);
-
-    if (result.mouse_image_px) {
-        const Vec2f point = result.mouse_image_px.unwrap_unchecked();
-
-        const int tile_x = static_cast<int>(point.x / kTileSizePx.x);
-        const int tile_y = static_cast<int>(point.y / kTileSizePx.y);
-
-        ImGui::Text( "Pixel: %.1f, %.1f    Tile: %d, %d    Zoom: %.0f%%",
-            point.x,
-            point.y,
-            tile_x,
-            tile_y,
-            canvas.zoom() * 100.0f);
-    } else {
-        ImGui::Text(
-            "Pixel: --, --    Zoom: %.0f%%",
-            canvas.zoom() * 100.0f);
-    }
+    m_checkerboard_texture =
+        m_editor_services.iconCache().getIconHandle(IconName::Checkerboard);
 }
-#endif
 
-}  // namespace
-void TileSetPanel::draw() {
-    constexpr ImGuiTableFlags flags =
-        ImGuiTableFlags_Resizable |
-        ImGuiTableFlags_BordersInnerV |
-        ImGuiTableFlags_SizingStretchProp;
-
-    if (!ImGui::BeginTable("##TileSetEditorLayout", 3,
-                           flags,
-                           ImGui::GetContentRegionAvail())) {
-        return;
-    }
-
-    ImGui::TableSetupColumn("##Sources", ImGuiTableColumnFlags_WidthFixed, 280.0f);
-
-    ImGui::TableSetupColumn("##Tools", ImGuiTableColumnFlags_WidthFixed, 360.0f);
-
-    ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
-
-    ImGui::TableNextRow();
-
-    // ---------------------------------------------------------------------
-    // Column 1: Tile Sources
-    // ---------------------------------------------------------------------
-
+void TileSetPanel::drawTileSource() {
     ImGui::TableSetColumnIndex(0);
 
     ImGui::BeginChild("##TileSourcesColumn", ImVec2{ 0.0f, 0.0f });
@@ -132,11 +58,9 @@ void TileSetPanel::draw() {
     ImGui::Button(ICON_FA_ELLIPSIS_VERTICAL, ImVec2{ button_size, 0.0f });
 
     ImGui::EndChild();
+}
 
-    // ---------------------------------------------------------------------
-    // Column 2: Setup / Select / Paint + properties
-    // ---------------------------------------------------------------------
-
+void TileSetPanel::drawPaint() {
     ImGui::TableSetColumnIndex(1);
 
     ImGui::BeginChild(
@@ -199,33 +123,46 @@ void TileSetPanel::draw() {
     }
 
     ImGui::EndChild();
+}
 
-    // ---------------------------------------------------------------------
-    // Column 3: Atlas
-    // ---------------------------------------------------------------------
-
+void TileSetPanel::drawAtlas() {
     ImGui::TableSetColumnIndex(2);
 
-    ImGui::BeginChild(
-        "##TileAtlasColumn",
-        ImVec2{ 0.0f, 0.0f });
+    ImGui::BeginChild("##TileAtlasColumn");
 
     AtlasWidgetDesc desc;
     desc.id = "##TileAtlas";
     desc.texture = m_checkerboard_texture;
-
     desc.layout.image_size_px = { 192.0f, 64.0f };
-
     desc.layout.grid_size = { 3, 1 };
-
     desc.widget_size = { 0.0f, 0.0f };
-
     desc.show_toolbar = true;
-    desc.show_checkerboard = false;
-
+    desc.show_checkerboard = true;
     m_atlas_widget.draw(desc, m_atlas_selection);
 
     ImGui::EndChild();
+}
+
+void TileSetPanel::draw() {
+    constexpr ImGuiTableFlags flags = ImGuiTableFlags_Resizable |
+                                      ImGuiTableFlags_BordersInnerV |
+                                      ImGuiTableFlags_SizingStretchProp;
+
+    if (!ImGui::BeginTable("##TileSetEditorLayout", 3,
+                           flags,
+                           ImGui::GetContentRegionAvail())) {
+        return;
+    }
+
+    ImGui::TableSetupColumn("##Sources", ImGuiTableColumnFlags_WidthFixed, 280.0f);
+    ImGui::TableSetupColumn("##Tools", ImGuiTableColumnFlags_WidthFixed, 360.0f);
+    ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
+
+    ImGui::TableNextRow();
+
+    drawTileSource();
+    drawPaint();
+    drawAtlas();
 
     ImGui::EndTable();
 }
