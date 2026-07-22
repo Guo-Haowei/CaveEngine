@@ -72,7 +72,7 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
 
     constexpr Vec4f kEraseColor{ 1.0f, 0.5f, 0.5f, 0.7f };
 
-    std::span<const std::pair<uint16_t, uint16_t>> selections;
+    std::span<const uint32_t> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
         if (ctx->tile.valid()) {
             selections = ctx->tile.selected_tile;
@@ -83,8 +83,7 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     Vec2f uv_min{ 0, 0 };
     Vec2f uv_max{ 0, 0 };
     if (!selections.empty()) {
-        auto [x, y] = selections[0];
-        uint32_t tile_id = y * tile_set.col() + x;
+        uint32_t tile_id = selections[0];
         const auto& frames = tile_set.frames();
         uv_min = frames[tile_id].min();
         uv_max = frames[tile_id].max();
@@ -248,7 +247,7 @@ void TilePaintTool::cancelPaintCommand() {
 
 void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
                                     const TileMapLayerComponent& layer) {
-    std::span<const std::pair<uint16_t, uint16_t>> selections;
+    std::span<const uint32_t> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
         if (ctx->tile.valid()) {
             selections = ctx->tile.selected_tile;
@@ -265,14 +264,7 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
             return;
         }
 
-        const auto [x, y] = selections[0];
-        if (x < 0 || y < 0) {
-            return;
-        }
-
-        tile_id = static_cast<uint32_t>(y) * tile_set->col() +
-                  static_cast<uint32_t>(x);
-
+        tile_id  = selections[0];
         if (tile_id >= tile_set->frames().size()) {
             return;
         }

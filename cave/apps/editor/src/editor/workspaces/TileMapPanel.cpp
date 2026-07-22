@@ -89,8 +89,13 @@ void TileMapPanel::draw(SceneEditContext* context) {
                 const int row = tile_set->row();
                 if (image) {
                     m_sprite_selector.SelectSprite(*image, &column, &row);
-                    context->tile.selected_tile =
-                        std::move(m_sprite_selector.GetSelections());
+                    auto selections = m_sprite_selector.GetSelections();
+                    context->tile.selected_tile.clear();
+                    context->tile.selected_tile.reserve(selections.size());
+                    for (const auto& [x, y] : selections) {
+                        const uint32_t tile_id = y * column + x;
+                        context->tile.selected_tile.push_back(tile_id);
+                    }
                 }
             }
             ImGui::EndTabItem();

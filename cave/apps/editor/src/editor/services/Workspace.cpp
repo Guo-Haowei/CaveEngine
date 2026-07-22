@@ -220,9 +220,11 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         case AssetType::SpriteAnimation: {
             tab = MakeOwner<SpriteAnimationEditor>(m_editor, doc_id, doc->previewScene());
         } break;
-        default: {
-            tab = MakeOwner<Tab>(m_editor, doc_id);
-        } break;
+        default:
+            break;
+    }
+    if (!tab) {
+        return;
     }
 
     const TabId tab_id = create(std::move(tab));
