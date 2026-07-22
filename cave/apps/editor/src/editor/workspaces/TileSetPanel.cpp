@@ -7,10 +7,174 @@
 #include "editor/services/EditorServices.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/SceneEditService.h"
+#include "editor/widgets/Image.h"
+
+// @TODO: refactor
+#include "engine/private/runtime/ui/Inputs.h"
+#include "engine/private/core/reflection/MetaEditor.h"
 
 namespace cave {
 
 using namespace ::cave::math;
+
+namespace {
+
+#if 0
+void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
+    int index = -1;
+    if (auto selected = sprite_selector.GetSelections(); !selected.empty()) {
+        auto [x, y] = selected.front();
+        index = tile_set.col() * y + x;
+    }
+
+    ToolbarButtonDesc add_square_button_desc = {
+        "TileSetEditor.physics.box",
+        ICON_FA_SQUARE " Box", "Add box collider",
+        [&]() {
+            // if (index >= 0 && tile_set.addBoxCollider(index)) {
+            //     LOG_OK("Box collider added for {}", index);
+            // } else {
+            //     LOG_ERROR("Failed to add box collider for {}", index);
+            // }
+        }
+    };
+
+    ToolbarButtonDesc add_polygon_button_desc = {
+        "TileSetEditor.physics.polygon",
+        ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
+        [&]() {
+            LOG_WARN("Not implemented");
+        }
+    };
+
+    ToolbarButtonDesc add_circle_button_desc = {
+        "TileSetEditor.circle.polygon",
+        ICON_FA_CIRCLE " Circle", "Add circle collider",
+        [&]() {
+            LOG_WARN("Not implemented");
+        }
+    };
+
+    Vector<const ToolbarButtonDesc*> tool_bar = {
+        &add_square_button_desc,
+        &add_polygon_button_desc,
+        &add_circle_button_desc,
+    };
+
+    DrawToolbar(tool_bar);
+    ImGui::Separator();
+}
+#endif
+
+bool DrawTileDefinition(TileDefinition& definition) {
+    bool changed = false;
+
+    ImGui::PushID(static_cast<int>(definition.id));
+
+    ImGui::Text("Tile %u", definition.id);
+    ImGui::Separator();
+
+    if (ImGui::CollapsingHeader("Physics", 0)) {
+        ImGui::Indent();
+
+        DrawEnumDropDown<CollisionType>("Type", definition.collision, ui::kDefaultColumnWidth);
+
+        if (definition.collision != CollisionType::None) {
+            ImGui::Spacing();
+
+            Vec2f min = definition.collision_shape.min();
+            Vec2f max = definition.collision_shape.max();
+
+            if (ui::Float2("Min", min)) {
+                max = math::max(max, min);
+                definition.collision_shape = Box2{ min, max };
+                changed = true;
+            }
+
+            if (ui::Float2("Max", max, 1.0f)) {
+                min = math::min(min, max);
+                definition.collision_shape = Box2{ min, max };
+                changed = true;
+            }
+
+            // Optional normalization to tile-local coordinates.
+            Vec2f clamped_min = math::clamp(definition.collision_shape.min(), Vec2f::Zero, Vec2f::One);
+            Vec2f clamped_max = math::clamp(definition.collision_shape.max(), Vec2f::Zero, Vec2f::One);
+
+            if (clamped_min != definition.collision_shape.min() ||
+                clamped_max != definition.collision_shape.max()) {
+                definition.collision_shape = Box2{ clamped_min, clamped_max };
+                changed = true;
+            }
+
+            ImGui::Spacing();
+
+            if (ui::DrawBitMask32("Mask", definition.mask)) {
+                changed = true;
+            }
+        }
+        ImGui::Unindent();
+    }
+
+    ImGui::Spacing();
+
+    if (ImGui::CollapsingHeader("Animation", 0)) {
+        ImGui::Indent();
+
+        Option<int> pending_delete;
+
+        for (int i = 0; i < static_cast<int>(definition.animation.size()); ++i) {
+            TileFrame& frame = definition.animation[i];
+
+            ImGui::PushID(i);
+
+            ImGui::SeparatorText(std::format("Frame {}", i).c_str());
+
+            int atlas_index = static_cast<int>(frame.atlas_index);
+
+            if (ui::InputInt("Atlas Index", atlas_index)) {
+                frame.atlas_index = static_cast<uint32_t>(std::max(atlas_index, 0));
+
+                changed = true;
+            }
+
+            if (ui::DragFloat("Duration", frame.duration, 0.01f, 0.01f, 10.0f)) {
+                changed = true;
+            }
+
+            if (ImGui::Button(ICON_FA_TRASH_CAN " Remove")) {
+                pending_delete = Some(i);
+            }
+
+            ImGui::PopID();
+        }
+
+        if (pending_delete) {
+            definition.animation.erase(definition.animation.begin() + pending_delete.unwrap_unchecked());
+            changed = true;
+        }
+
+        if (ImGui::Button(ICON_FA_PLUS " Add Frame")) {
+            TileFrame frame;
+
+            if (!definition.animation.empty()) {
+                frame.atlas_index = definition.animation.back().atlas_index;
+                frame.duration = definition.animation.back().duration;
+            } else {
+                frame.atlas_index = definition.id;
+            }
+
+            definition.animation.push_back(frame);
+            changed = true;
+        }
+
+        ImGui::Unindent();
+    }
+
+    ImGui::PopID();
+    return changed;
+}
+}  // namespace
 
 TileSetPanel::TileSetPanel(EngineServices& engine_services,
                            EditorServices& editor_services)
@@ -42,11 +206,13 @@ void TileSetPanel::drawTileSource() {
                       ImVec2{ 0.0f, -ImGui::GetFrameHeightWithSpacing() },
                       ImGuiChildFlags_Borders);
 
-    // Placeholder source entry.
-    ImGui::Selectable("background.tileset",
-                      true,
-                      ImGuiSelectableFlags_None,
-                      ImVec2{ 0.0f, 72.0f });
+    if (m_context && m_context->tile.layer_entity.valid()) {
+        if (auto* tile_set = m_context->tile.tile_set.get()) {
+            for (TileDefinition& definition : tile_set->getTileDefinitionsMut()) {
+                DrawTileDefinition(definition);
+            }
+        }
+    }
 
     ImGui::EndChild();
 
@@ -150,8 +316,8 @@ void TileSetPanel::draw() {
                                       ImGuiTableFlags_SizingStretchProp;
 
     if (!ImGui::BeginTable("##TileSetEditorLayout", 3,
-                          flags,
-                          ImGui::GetContentRegionAvail())) {
+                           flags,
+                           ImGui::GetContentRegionAvail())) {
         return;
     }
 
@@ -167,5 +333,40 @@ void TileSetPanel::draw() {
 
     ImGui::EndTable();
 }
+
+#if 0
+void TileSetEditor::drawAssetInspector(IDocument&) {
+    auto assets = getAssets();
+    if (!DEV_VERIFY(assets.image && assets.tile_set)) {
+        return;
+    }
+
+    TileSetAsset& tile_set = *assets.tile_set;
+    {
+        int column = tile_set.col();
+        int row = tile_set.row();
+        if (m_sprite_selector.EditSprite(&column, &row)) {
+            tile_set.col(column);
+            tile_set.row(row);
+        }
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::BeginTabBar("TileSetPhysics")) {
+        if (ImGui::BeginTabItem("Physics Layer")) {
+            DrawPhysicsTab(tile_set, m_sprite_selector);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::Separator();
+
+    for (TileDefinition& definition : tile_set.getTileDefinitionsMut()) {
+        DrawTileDefinition(definition);
+    }
+}
+#endif
 
 }  // namespace cave

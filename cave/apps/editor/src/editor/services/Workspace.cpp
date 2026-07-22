@@ -4,19 +4,17 @@
 #include "cave/runtime/input/KeyCode.h"
 #include "cave/runtime/intent/IntentBus.h"
 
-#include "engine/private/runtime/input/InputService.h"
-#include "engine/private/runtime/projects/ProjectManager.h"
-#include "engine/private/runtime/scene/SceneRegistry.h"
-
 #include "editor/EditorIntent.h"
 #include "editor/EditorState.h"
 #include "editor/animation_editor/SpriteAnimationEditor.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditService.h"
 #include "editor/services/PickingService.h"
-#include "editor/tile_map/TileSetEditor.h"
 
 // @TODO: refactor
+#include "engine/private/runtime/input/InputService.h"
+#include "engine/private/runtime/projects/ProjectManager.h"
+#include "engine/private/runtime/scene/SceneRegistry.h"
 #include "editor/scene_view/SceneViewTab.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -215,12 +213,9 @@ void Workspace::openOrFocusDoc(DocId doc_id) {
         case AssetType::Prefab:
         case AssetType::Scene: {
             tab = MakeOwner<SceneTab>(m_editor,
-                                          doc_id,
-                                          doc->previewScene(),
-                                          dim);
-        } break;
-        case AssetType::TileSet: {
-            tab = MakeOwner<TileSetEditor>(m_editor, doc_id, doc->previewScene());
+                                      doc_id,
+                                      doc->previewScene(),
+                                      dim);
         } break;
         case AssetType::SpriteAnimation: {
             tab = MakeOwner<SpriteAnimationEditor>(m_editor, doc_id, doc->previewScene());

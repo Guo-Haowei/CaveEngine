@@ -27,9 +27,9 @@ using namespace ::cave::math;
 using ecs::Entity;
 
 SceneTab::SceneTab(EditorState& editor,
-                           DocId doc_id,
-                           SceneId scene_id,
-                           ViewDimension dim)
+                   DocId doc_id,
+                   SceneId scene_id,
+                   ViewDimension dim)
     : ViewTabBase(editor, doc_id, scene_id, dim)
     , m_editor(editor)
     , m_debug_id(MakeDebugId(this)) {
@@ -111,15 +111,17 @@ void SceneTab::updateSceneEditContext() {
 
     const Scene* scene = m_engine_services.sceneRegistry().resolve(m_preview_scene_id);
     if (scene) {
+        auto& tile = m_edit_context.tile;
         if (const auto* layer = scene->component<TileMapLayerComponent>(entity)) {
-            auto& tile = m_edit_context.tile;
             tile.layer_entity = entity;
-            tile.tile_set_guid = layer->tileSetGuid();
             tile.tile_set = layer->tileSetHandle();
             if (const auto* tile_set = tile.tile_set.get()) {
-                tile.image_guid = tile_set->imageGuid();
                 tile.image = tile_set->handle();
             }
+        } else {
+            tile.layer_entity = Entity::null();
+            tile.tile_set.invalidate();
+            tile.image.invalidate();
         }
     }
 }

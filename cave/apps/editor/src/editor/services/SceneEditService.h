@@ -14,19 +14,16 @@ struct TileEditContext {
     TileId selected_tile = kEmptyTileId;
     TileId hovered_tile = kEmptyTileId;
 
-    Guid tile_set_guid;
     Handle<TileSetAsset> tile_set;
-    Guid image_guid;
     Handle<ImageAsset> image;
     // TilePaintToolType tool = TilePaintToolType::Pencil;
 
     bool valid() const {
-        return layer_entity.valid() && !tile_set_guid.isNull();
+        return layer_entity.valid();
     }
 
     void clear() {
         layer_entity = ecs::Entity::null();
-        tile_set_guid = Guid{};
         selected_tile = kEmptyTileId;
         hovered_tile = kEmptyTileId;
         // tool = TilePaintToolType::Pencil;
