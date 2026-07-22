@@ -10,7 +10,6 @@ namespace cave {
 
 AssetWorkspace::AssetWorkspace(EditorState& editor)
     : EditorWindow(editor) {
-
     EngineServices& engine_services = editor.app().services();
 
     m_log = MakeOwner<LogPanel>(engine_services, editor.services());

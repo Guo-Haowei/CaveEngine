@@ -63,21 +63,16 @@ void TileSetPanel::drawTileSource() {
 void TileSetPanel::drawPaint() {
     ImGui::TableSetColumnIndex(1);
 
-    ImGui::BeginChild(
-        "##TileToolsColumn",
-        ImVec2{ 0.0f, 0.0f });
-
-    static int mode = 0;
+    ImGui::BeginChild("##TileToolsColumn", ImVec2{ 0.0f, 0.0f });
 
     auto mode_button = [&](int value, const char* label) {
-        const bool active = mode == value;
-
+        const bool active = m_mode == value;
         if (active) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
         }
 
         if (ImGui::Button(label)) {
-            mode = value;
+            m_mode = value;
         }
 
         if (active) {
@@ -86,40 +81,29 @@ void TileSetPanel::drawPaint() {
     };
 
     mode_button(0, ICON_FA_SCREWDRIVER_WRENCH " Setup");
-
     ImGui::SameLine();
-
     mode_button(1, ICON_FA_ARROW_POINTER " Select");
-
     ImGui::SameLine();
-
     mode_button(2, ICON_FA_PAINTBRUSH " Paint");
-
     ImGui::Separator();
 
-    switch (mode) {
-        case 0:
+    switch (m_mode) {
+        case 0: {
             ImGui::TextUnformatted("Setup Properties");
-            break;
-
-        case 1:
+        } break;
+        case 1: {
             ImGui::TextUnformatted("Selected Tile Properties");
-            break;
-
-        case 2:
+        } break;
+        case 2: {
             ImGui::TextUnformatted("Paint Properties");
 
             ImGui::Spacing();
 
-            static int paint_property = 0;
-
             ImGui::SetNextItemWidth(-1.0f);
-            ImGui::Combo(
-                "##PaintProperty",
-                &paint_property,
-                "Physics\0Terrain\0Animation\0");
-
-            break;
+            ImGui::Combo("##PaintProperty",
+                         &m_paint_property,
+                         "Physics\0Terrain\0Animation\0");
+        } break;
     }
 
     ImGui::EndChild();
@@ -148,23 +132,21 @@ void TileSetPanel::draw() {
                                       ImGuiTableFlags_BordersInnerV |
                                       ImGuiTableFlags_SizingStretchProp;
 
-    if (!ImGui::BeginTable("##TileSetEditorLayout", 3,
+    if (ImGui::BeginTable("##TileSetEditorLayout", 3,
                            flags,
                            ImGui::GetContentRegionAvail())) {
-        return;
+        ImGui::TableSetupColumn("##Sources", ImGuiTableColumnFlags_WidthFixed, 280.0f);
+        ImGui::TableSetupColumn("##Tools", ImGuiTableColumnFlags_WidthFixed, 360.0f);
+        ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
+
+        ImGui::TableNextRow();
+
+        drawTileSource();
+        drawPaint();
+        drawAtlas();
+
+        ImGui::EndTable();
     }
-
-    ImGui::TableSetupColumn("##Sources", ImGuiTableColumnFlags_WidthFixed, 280.0f);
-    ImGui::TableSetupColumn("##Tools", ImGuiTableColumnFlags_WidthFixed, 360.0f);
-    ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
-
-    ImGui::TableNextRow();
-
-    drawTileSource();
-    drawPaint();
-    drawAtlas();
-
-    ImGui::EndTable();
 }
 
 }  // namespace cave

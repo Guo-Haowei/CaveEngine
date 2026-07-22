@@ -24,6 +24,9 @@ private:
     AtlasWidget m_atlas_widget;
     AtlasSelection m_atlas_selection;
     ImTextureID m_checkerboard_texture = 0;
+    // @TODO: fix this
+    int m_mode = 0;
+    int m_paint_property = 0;
 };
 
 }  // namespace cave
