@@ -3,28 +3,28 @@
 
 namespace cave {
 
-class IApplication;
+struct EngineServices;
 
 class Console {
 public:
-    explicit Console(IApplication& p_app) noexcept;
+    explicit Console(EngineServices& services) noexcept;
 
-    void SubmitLine(std::string_view p_line);
+    void submitLine(std::string_view line);
 
-    void FindByPrefix(std::string_view p_prefix, std::vector<std::string_view>& p_out) const {
-        m_reg.findByPrefix(p_prefix, p_out);
+    void findByPrefix(std::string_view prefix, Vector<std::string_view>& out) const {
+        m_reg.findByPrefix(prefix, out);
     }
 
-    Option<std::string_view> Prev();
-    Option<std::string_view> Next();
+    Option<std::string_view> prev();
+    Option<std::string_view> next();
 
-    void ResetNav() { m_index = static_cast<int>(m_history.size()); }
+    void resetNav() { m_index = static_cast<int>(m_history.size()); }
 
 private:
-    IApplication& m_app;
+    EngineServices& m_services;
     CommandRegistry& m_reg;
     // @TODO: add draft to history
-    std::vector<std::string> m_history;
+    Vector<String> m_history;
     int m_index;
 };
 

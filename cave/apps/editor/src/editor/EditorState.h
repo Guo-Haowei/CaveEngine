@@ -16,7 +16,6 @@ class IEditorItem;
 class AssetWorkspace;
 class ContentBrowser;
 class FileSystemPanel;
-class LogPanel;
 class MenuBar;
 class PIESession;
 
@@ -79,7 +78,6 @@ private:
     Ref<AssetWorkspace> m_asset_inspector;
     Ref<ContentBrowser> m_content_browser;
     Ref<FileSystemPanel> m_file_system_panel;
-    Ref<LogPanel> m_log_panel;
     Ref<MenuBar> m_menu_bar;
 
     EditorServices m_editor_services;

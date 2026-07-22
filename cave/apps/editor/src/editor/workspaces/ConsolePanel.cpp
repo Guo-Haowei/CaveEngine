@@ -8,8 +8,8 @@
 
 namespace cave {
 
-ConsolePanel::ConsolePanel(EditorState& editor)
-    : m_console(editor.app().console()) {
+ConsolePanel::ConsolePanel(Console& console)
+    : m_console(console) {
 }
 
 void ConsolePanel::DrawConsole() {
@@ -37,7 +37,7 @@ void ConsolePanel::DrawConsole() {
         this);
 
     if (submit) {
-        m_console.SubmitLine(m_cmd_buffer);
+        m_console.submitLine(m_cmd_buffer);
         m_cmd_buffer[0] = '\0';
 
         // Keep keyboard focus on the input (so you can type multiple commands quickly)
@@ -63,7 +63,7 @@ int ConsolePanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
                 candidate = self->m_ac.Next();
             } else {
                 std::vector<std::string_view> cmds;
-                console.FindByPrefix(line, cmds);
+                console.findByPrefix(line, cmds);
                 if (!cmds.empty()) {
                     self->m_ac.Set(std::move(cmds));
                     candidate = self->m_ac.Current();
@@ -72,11 +72,11 @@ int ConsolePanel::InputCallback(ImGuiInputTextCallbackData* p_data) {
         } break;
         case ImGuiInputTextFlags_CallbackHistory: {
             if (p_data->EventKey == ImGuiKey_UpArrow) {
-                Option<std::string_view> cmd = console.Prev();
+                Option<std::string_view> cmd = console.prev();
                 if (cmd.is_none()) break;
                 candidate = cmd.unwrap_unchecked();
             } else if (p_data->EventKey == ImGuiKey_DownArrow) {
-                Option<std::string_view> cmd = console.Next();
+                Option<std::string_view> cmd = console.next();
                 if (cmd.is_none()) break;
                 candidate = cmd.unwrap_unchecked();
             }

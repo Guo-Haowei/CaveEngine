@@ -9,8 +9,7 @@ uint32_t AtlasLayout::cellCount() const {
         return 0;
     }
 
-    return static_cast<uint32_t>(
-        grid_size.x * grid_size.y);
+    return static_cast<uint32_t>(grid_size.x * grid_size.y);
 }
 
 bool AtlasLayout::valid() const {

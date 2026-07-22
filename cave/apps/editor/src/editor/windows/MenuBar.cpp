@@ -6,7 +6,6 @@
 
 #include "editor/EditorState.h"
 #include "editor/services/ShortcutService.h"
-#include "editor/windows/LogPanel.h"
 #include "editor/widgets/Image.h"
 
 namespace cave {

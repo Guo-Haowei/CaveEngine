@@ -10,7 +10,6 @@
 #include "editor/windows/ContentBrowser.h"
 #include "editor/windows/FileSystemPanel.h"
 #include "editor/windows/HierarchyPanel.h"
-#include "editor/windows/LogPanel.h"
 #include "editor/windows/MenuBar.h"
 #include "editor/windows/PropertyPanel.h"
 #include "editor/windows/RendererPanel.h"
@@ -85,11 +84,9 @@ EditorState::EditorState(IApplication& app)
     // panels
     m_content_browser = MakeRef<ContentBrowser>(*this);
     m_menu_bar = MakeRef<MenuBar>(*this);
-    m_log_panel = MakeRef<LogPanel>(*this);
     m_file_system_panel = MakeRef<FileSystemPanel>(*this);
     m_asset_inspector = MakeRef<AssetWorkspace>(*this);
 
-    addPanel(m_log_panel);
     addPanel(m_asset_inspector);
     addPanel(MakeRef<RendererPanel>(*this));
     addPanel(MakeRef<HierarchyPanel>(*this));

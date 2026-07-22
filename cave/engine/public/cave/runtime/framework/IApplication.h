@@ -14,8 +14,6 @@ namespace cave {
 enum class AppStateId : uint8_t;
 
 class AppStateMachine;
-class CommandRegistry;
-class Console;
 class EventQueue;
 
 struct AppSpec {
@@ -76,9 +74,6 @@ public:
     // @TODO: clean up
     virtual AppType appType() const = 0;
     bool isRuntime() const { return appType() == AppType::Runtime; }
-
-    CommandRegistry& commandRegistry() { return *m_cmd_reg_; }
-    Console& console() { return *m_console; }
     virtual EventQueue& eventQueue() = 0;
 
 protected:
@@ -88,8 +83,6 @@ protected:
 
     // @TODO: move the following to services
     // also need subsystems
-    CommandRegistry* m_cmd_reg_{};
-    Console* m_console{};
     EngineServices m_engine_services;
 };
 

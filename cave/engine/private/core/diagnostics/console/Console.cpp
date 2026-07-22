@@ -8,11 +8,11 @@
 
 namespace cave {
 
-Console::Console(IApplication& p_app) noexcept
-    : m_app(p_app)
-    , m_reg(p_app.commandRegistry()) {}
+Console::Console(EngineServices& services) noexcept
+    : m_services(services)
+    , m_reg(services.commandRegistry()) {}
 
-void Console::SubmitLine(std::string_view p_line) {
+void Console::submitLine(std::string_view p_line) {
     if (p_line.empty()) return;
     std::vector<std::string_view> tokens = StringUtils::tokenize(p_line);
     if (tokens.empty()) return;
@@ -24,7 +24,7 @@ void Console::SubmitLine(std::string_view p_line) {
             CommandContext ctx{
                 .log = LogWrapper(OS::singleton().logger()),
                 .desc = cmd,
-                .services = m_app.services(),
+                .services = m_services,
             };
 
             ok = cmd.fn(ctx, { tokens });
@@ -35,13 +35,13 @@ void Console::SubmitLine(std::string_view p_line) {
     if (m_history.empty() || m_history.back() != p_line) {
         m_history.emplace_back(std::string(p_line));
     }
-    ResetNav();
+    resetNav();
     if (!ok) {
         LOG_ERROR(LogChannel::Console, "Failed to execute '{}'", p_line);
     }
 }
 
-Option<std::string_view> Console::Prev() {
+Option<std::string_view> Console::prev() {
     if (m_history.empty()) {
         return None();
     }
@@ -55,7 +55,7 @@ Option<std::string_view> Console::Prev() {
     return Some(history);
 }
 
-Option<std::string_view> Console::Next() {
+Option<std::string_view> Console::next() {
     if (m_history.empty()) {
         return None();
     }

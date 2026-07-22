@@ -1,27 +1,29 @@
 #pragma once
 #include "editor/windows/EditorWindow.h"
-#include "editor/widgets/AtlasWidget.h"
 
 namespace cave {
 
 struct EditorServices;
 
-class IDocument;
+class LogPanel;
+class TileSetPanel;
 
-class AssetWorkspace : public EditorWindow {
+class AssetWorkspace final : public EditorWindow {
 public:
     explicit AssetWorkspace(EditorState& editor);
+    ~AssetWorkspace() override;
 
+private:
     const char* windowId() const override {
         return "Asset Workspace";
     }
 
     void onAttach() override;
 
-protected:
     void drawUIImpl() override;
 
-    ImageCanvas m_image_canvas;
+    Owner<LogPanel> m_log;
+    Owner<TileSetPanel> m_tile_set;
 };
 
 }  // namespace cave
