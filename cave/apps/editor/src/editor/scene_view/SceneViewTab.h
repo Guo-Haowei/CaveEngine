@@ -2,7 +2,7 @@
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "editor/document/SceneDocument.h"
-#include "editor/panels/ViewTabBase.h"
+#include "editor/windows/ViewTabBase.h"
 #include "editor/scene_view/ISceneViewTool.h"
 
 namespace cave {

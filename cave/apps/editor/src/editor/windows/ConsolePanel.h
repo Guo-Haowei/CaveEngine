@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/panels/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 struct ImGuiInputTextCallbackData;
 

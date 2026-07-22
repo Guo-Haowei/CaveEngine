@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/rhi/Backend.h"
 
-#include "editor/panels/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave::render {
 class CompiledGraph;

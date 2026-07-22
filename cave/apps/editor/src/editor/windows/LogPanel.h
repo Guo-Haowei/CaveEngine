@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/containers/FixedString.h"
 
-#include "editor/panels/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 

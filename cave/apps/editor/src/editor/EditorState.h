@@ -13,7 +13,7 @@ namespace cave {
 class IEditorItem;
 
 // pannels
-class AssetInspector;
+class AssetWorkspace;
 class ContentBrowser;
 class FileSystemPanel;
 class LogPanel;
@@ -44,7 +44,7 @@ public:
 #endif
 
     // @TODO: dependency injection?
-    AssetInspector& assetInspector() { return *m_asset_inspector; }
+    AssetWorkspace& assetInspector() { return *m_asset_inspector; }
 
     EditorServices& services() { return m_editor_services; }
 
@@ -76,7 +76,7 @@ private:
     Owner<ThumbnailService> m_thumbnail;
 
     // @TODO: use unique_ptr
-    Ref<AssetInspector> m_asset_inspector;
+    Ref<AssetWorkspace> m_asset_inspector;
     Ref<ContentBrowser> m_content_browser;
     Ref<FileSystemPanel> m_file_system_panel;
     Ref<LogPanel> m_log_panel;

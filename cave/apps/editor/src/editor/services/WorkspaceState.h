@@ -3,7 +3,7 @@
 
 #include "cave/core/time/CountdownTimer.h"
 
-#include "editor/panels/Tab.h"
+#include "editor/windows/Tab.h"
 
 namespace cave {
 

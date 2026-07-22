@@ -1,5 +1,5 @@
 #pragma once
-#include "editor/panels/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 #include "editor/widgets/AtlasWidget.h"
 
 namespace cave {
@@ -8,12 +8,12 @@ struct EditorServices;
 
 class IDocument;
 
-class AssetInspector : public EditorWindow {
+class AssetWorkspace : public EditorWindow {
 public:
-    explicit AssetInspector(EditorState& editor);
+    explicit AssetWorkspace(EditorState& editor);
 
     const char* windowId() const override {
-        return "Asset Inspector";
+        return "Asset Workspace";
     }
 
     void onAttach() override;

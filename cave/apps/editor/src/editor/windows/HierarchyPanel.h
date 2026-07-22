@@ -2,7 +2,7 @@
 #include "cave/core/ids/Entity.h"
 
 #include "editor/document/DocId.h"
-#include "editor/panels/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 namespace cave {
 

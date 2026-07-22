@@ -5,7 +5,7 @@
 
 #include "editor/camera/CameraController.h"
 #include "editor/document/SceneDocument.h"
-#include "editor/panels/Tab.h"
+#include "editor/windows/Tab.h"
 
 // @TODO: refactor
 #include "engine/private/runtime/scene/SceneOwner.h"

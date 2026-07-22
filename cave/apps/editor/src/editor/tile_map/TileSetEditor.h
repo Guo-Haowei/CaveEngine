@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
-#include "editor/panels/ViewTabBase.h"
+#include "editor/windows/ViewTabBase.h"
 #include "editor/widgets/SpriteSelector.h"
 
 namespace cave {

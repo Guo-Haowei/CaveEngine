@@ -12,7 +12,7 @@
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 #include "editor/inspector/PropertyEditors.h"
-#include "editor/panels/AssetInspector.h"
+#include "editor/windows/AssetWorkspace.h"
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/EditService.h"
@@ -23,7 +23,7 @@
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "editor/utility/ImGuizmo.h"
-#include "editor/panels/ViewTabBase.h"
+#include "editor/windows/ViewTabBase.h"
 
 namespace cave {
 

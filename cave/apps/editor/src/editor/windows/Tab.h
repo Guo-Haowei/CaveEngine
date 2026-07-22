@@ -6,7 +6,7 @@
 #include "cave/runtime/input/IInputConsumer.h"
 
 #include "editor/document/DocId.h"
-#include "editor/panels/EditorWindow.h"
+#include "editor/windows/EditorWindow.h"
 
 // @TODO: remove
 #include "editor/widgets/ToolBar.h"

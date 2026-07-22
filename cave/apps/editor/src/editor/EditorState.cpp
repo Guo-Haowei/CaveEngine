@@ -6,14 +6,14 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/game/GameModuleHandle.h"
 
-#include "editor/panels/AssetInspector.h"
-#include "editor/panels/ContentBrowser.h"
-#include "editor/panels/FileSystemPanel.h"
-#include "editor/panels/HierarchyPanel.h"
-#include "editor/panels/LogPanel.h"
-#include "editor/panels/MenuBar.h"
-#include "editor/panels/PropertyPanel.h"
-#include "editor/panels/RendererPanel.h"
+#include "editor/windows/AssetWorkspace.h"
+#include "editor/windows/ContentBrowser.h"
+#include "editor/windows/FileSystemPanel.h"
+#include "editor/windows/HierarchyPanel.h"
+#include "editor/windows/LogPanel.h"
+#include "editor/windows/MenuBar.h"
+#include "editor/windows/PropertyPanel.h"
+#include "editor/windows/RendererPanel.h"
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/DragDropService.h"
@@ -87,7 +87,7 @@ EditorState::EditorState(IApplication& app)
     m_menu_bar = MakeRef<MenuBar>(*this);
     m_log_panel = MakeRef<LogPanel>(*this);
     m_file_system_panel = MakeRef<FileSystemPanel>(*this);
-    m_asset_inspector = MakeRef<AssetInspector>(*this);
+    m_asset_inspector = MakeRef<AssetWorkspace>(*this);
 
     addPanel(m_log_panel);
     addPanel(m_asset_inspector);
