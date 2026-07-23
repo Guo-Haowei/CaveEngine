@@ -76,6 +76,8 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
         }
     }
 
+    const bool is_painting = m_paint_tool.currentAction() == GridPaintAction::Paint;
+
     bool selection_valid = false;
     Vec2f uv_min{ 0, 0 };
     Vec2f uv_max{ 0, 0 };
@@ -94,23 +96,16 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
         Vec2f min{ cell.coord.x, cell.coord.y };
         Vec2f max{ cell.coord.x + 1, cell.coord.y + 1 };
 
-        // constexpr Vec4f kEraseColor{ 1.0f, 0.5f, 0.5f, 0.7f };
-        // if (m_erasing) {
-        //     Draw2DOptions options = {
-        //         .z_index = 0,
-        //         .tint = kEraseColor,
-        //     };
-        //     canvas.addBox2(min, max, options);
-        //     continue;
-        // }
-
-        if (selection_valid) {
+        if (is_painting) {
             ImageDrawOptions options{};
-            options.tint = Vec4f(Vec3f::One, 0.9f);
+            options.tint = Vec4f(Vec3f::One, 0.5f);
             options.uv_min = uv_min;
             options.uv_max = uv_max;
-
             canvas.addImage(image->gpu_texture.get(), min, max, options);
+        } else {
+            Draw2DOptions options = { .z_index = 0,
+                                      .tint = { 1.0f, 0.5f, 0.5f, 0.5f } };
+            canvas.addBox2(min, max, options);
         }
     }
 

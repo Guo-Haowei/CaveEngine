@@ -106,6 +106,8 @@ public:
 
     bool active() const { return m_stroke.active; }
 
+    GridPaintAction currentAction() const;
+
     std::span<const GridPaintCell> preview() const { return m_preview; }
 
     auto update(const GridPaintInput& input) -> std::span<const GridPaintEvent>;

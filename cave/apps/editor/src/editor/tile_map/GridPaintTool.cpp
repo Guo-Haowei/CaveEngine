@@ -167,26 +167,33 @@ void GridPaintTool::cancelStroke() {
         return;
     }
 
+    auto action = m_stroke.action;
     m_stroke = {};
     m_preview.clear();
 
-    emit(GridPaintEventType::Cancel, m_stroke.action);
+    emit(GridPaintEventType::Cancel, action);
 }
 
 auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridPaintEvent> {
     m_events.clear();
 
-    if (m_selected_mode == GridPaintMode::Fill && input.has_hover) {
-        m_apply_buffer.clear();
-        m_apply_buffer.push_back({ input.hover });
+    if (m_selected_mode == GridPaintMode::Fill) {
+        m_preview.clear();
 
-        if (input.left_down) {
-            emit(GridPaintEventType::Fill, GridPaintAction::Paint, &m_apply_buffer);
-            return m_events;
-        } else if (input.right_down) {
-            emit(GridPaintEventType::Fill, GridPaintAction::Erase, &m_apply_buffer);
+        if (!input.has_hover) {
             return m_events;
         }
+
+        m_apply_buffer.clear();
+        m_apply_buffer.push_back({ .coord = input.hover });
+
+        if (input.left_pressed) {
+            emit(GridPaintEventType::Fill, GridPaintAction::Paint, &m_apply_buffer);
+        } else if (input.right_pressed) {
+            emit(GridPaintEventType::Fill, GridPaintAction::Erase, &m_apply_buffer);
+        }
+
+        return m_events;
     }
 
     if (m_stroke.active && !input.has_hover) {
@@ -204,6 +211,7 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
             beginStroke(input.hover, GridPaintAction::Paint, m_selected_mode);
             return m_events;
         }
+
         if (input.right_pressed) {
             beginStroke(input.hover, GridPaintAction::Erase, m_selected_mode);
             return m_events;
@@ -213,16 +221,23 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
         return m_events;
     }
 
-    // The active mode/action/brush are frozen until release.
     if (input.has_hover) {
         updateStroke(input.hover);
     }
 
-    if (input.left_released) {
+    const bool released = m_stroke.action == GridPaintAction::Paint
+                              ? input.left_released
+                              : input.right_released;
+
+    if (released) {
         finishStroke();
     }
 
     return m_events;
+}
+
+GridPaintAction GridPaintTool::currentAction() const {
+    return m_stroke.active ? m_stroke.action : GridPaintAction::Paint;
 }
 
 void GridPaintTool::reset() {
