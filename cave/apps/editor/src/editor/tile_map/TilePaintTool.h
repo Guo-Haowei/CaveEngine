@@ -51,9 +51,12 @@ private:
     void cancelPaintCommand();
 
     void applyPaintCells(std::span<const GridPaintCell> cells,
+                         GridPaintAction action,
                          const TileMapLayerComponent& layer);
 
-    void applyFillCells(GridPaintCell cell, const TileMapLayerComponent& layer);
+    void applyFillCells(GridPaintCell cell,
+                        GridPaintAction action,
+                        const TileMapLayerComponent& layer);
 
     // ---- Paint Tool ----
 
@@ -66,7 +69,6 @@ private:
     Option<math::Vec2f> m_cursor;
 
     ecs::Entity m_layer_id;
-    bool m_erasing = true;
 };
 
 }  // namespace cave

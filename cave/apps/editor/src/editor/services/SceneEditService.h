@@ -19,7 +19,6 @@ struct TileEditContext {
     Handle<TileSetAsset> tile_set;
     Handle<ImageAsset> image;
     GridPaintMode paint_mode = GridPaintMode::Brush;
-    bool erasing = true;
 
     bool valid() const {
         return layer_entity.valid();
@@ -30,7 +29,6 @@ struct TileEditContext {
         selected_tile.clear();
         hovered_tile = kEmptyTileId;
         paint_mode = GridPaintMode::Brush;
-        erasing = true;
     }
 };
 

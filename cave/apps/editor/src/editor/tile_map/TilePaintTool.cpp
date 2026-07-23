@@ -37,7 +37,6 @@ TilePaintTool::~TilePaintTool() = default;
 void TilePaintTool::onInputEvents(const InputFrame& input, const WindowState& state) {
     const auto* context = m_ctx.editor_services.sceneEdit().current();
     if (context && context->tile.valid()) {
-        m_erasing = context->tile.erasing;
         m_paint_tool.setMode(context->tile.paint_mode);
     }
 
@@ -70,8 +69,6 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     const ImageAsset* image = tile_set.handle().get();
     if (!image) return;
 
-    constexpr Vec4f kEraseColor{ 1.0f, 0.5f, 0.5f, 0.7f };
-
     std::span<const uint32_t> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
         if (ctx->tile.valid()) {
@@ -97,14 +94,15 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
         Vec2f min{ cell.coord.x, cell.coord.y };
         Vec2f max{ cell.coord.x + 1, cell.coord.y + 1 };
 
-        if (m_erasing) {
-            Draw2DOptions options = {
-                .z_index = 0,
-                .tint = kEraseColor,
-            };
-            canvas.addBox2(min, max, options);
-            continue;
-        }
+        // constexpr Vec4f kEraseColor{ 1.0f, 0.5f, 0.5f, 0.7f };
+        // if (m_erasing) {
+        //     Draw2DOptions options = {
+        //         .z_index = 0,
+        //         .tint = kEraseColor,
+        //     };
+        //     canvas.addBox2(min, max, options);
+        //     continue;
+        // }
 
         if (selection_valid) {
             ImageDrawOptions options{};
@@ -151,12 +149,21 @@ GridPaintInput TilePaintTool::buildInput(const InputFrame& input, const WindowSt
                     out.left_pressed = true;
                     event.consumed = true;
                     cursor = { event.x, event.y };
+                } else if (key == Key::RMB) {
+                    out.right_down = true;
+                    out.right_pressed = true;
+                    event.consumed = true;
+                    cursor = { event.x, event.y };
                 }
                 break;
             case InputEventType::ButtonUp:
                 if (key == Key::LMB) {
                     out.left_down = false;
                     out.left_released = true;
+                    event.consumed = true;
+                } else if (key == Key::RMB) {
+                    out.right_down = false;
+                    out.right_released = true;
                     event.consumed = true;
                 }
                 break;
@@ -193,12 +200,12 @@ void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
         } break;
         case GridPaintEventType::Apply:
             if (event.cells) {
-                applyPaintCells(*event.cells, layer);
+                applyPaintCells(*event.cells, event.action, layer);
             }
             break;
         case GridPaintEventType::Fill: {
             if (DEV_VERIFY(event.cells && event.cells->size() == 1)) {
-                applyFillCells(event.cells->at(0), layer);
+                applyFillCells(event.cells->at(0), event.action, layer);
             }
         } break;
         case GridPaintEventType::End: {
@@ -246,6 +253,7 @@ void TilePaintTool::cancelPaintCommand() {
 }
 
 void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
+                                    GridPaintAction action,
                                     const TileMapLayerComponent& layer) {
     std::span<const uint32_t> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
@@ -258,8 +266,10 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
 
     const TileSetAsset* tile_set = layer.tileSetHandle().get();
     DEV_ASSERT(tile_set);
+    DEV_ASSERT(action == GridPaintAction::Erase || action == GridPaintAction::Paint);
 
-    if (!m_erasing) {
+    const bool painting = action == GridPaintAction::Paint;
+    if (painting) {
         if (selections.empty()) {
             return;
         }
@@ -285,7 +295,7 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
 
         Option<TileId> new_tile = None();
 
-        if (!m_erasing) {
+        if (painting) {
             new_tile = Some(static_cast<TileId>(tile_id));
         } else {
             new_tile = None();
@@ -321,6 +331,7 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
 
 // @TODO: better editor tools, make toolbars
 void TilePaintTool::applyFillCells(GridPaintCell cell,
+                                   GridPaintAction action,
                                    const TileMapLayerComponent& layer) {
     const int16_t x = static_cast<int16_t>(cell.coord.x);
     const int16_t y = static_cast<int16_t>(cell.coord.y);
@@ -356,7 +367,7 @@ void TilePaintTool::applyFillCells(GridPaintCell cell,
         paint_cells.push_back({ coord });
     }
 
-    applyPaintCells(paint_cells, layer);
+    applyPaintCells(paint_cells, action, layer);
     finishPaintCommand();
 }
 

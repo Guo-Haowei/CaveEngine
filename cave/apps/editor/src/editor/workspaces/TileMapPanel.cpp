@@ -51,14 +51,6 @@ TileMapPanel::TileMapPanel() {
         nullptr,
         [this]() { return m_paint_mode == GridPaintMode::Fill; },
     };
-    m_toolbar[4] = {
-        "TilePaintTool.erase",
-        ICON_FA_ERASER,
-        "Eraser - remove painted tiles",
-        [this]() { m_erasing = !m_erasing; },
-        nullptr,
-        [this]() { return m_erasing; },
-    };
 }
 
 void TileMapPanel::setPaintMode(GridPaintMode mode) {
@@ -73,7 +65,6 @@ void TileMapPanel::draw(SceneEditContext* context) {
     TileSetAsset* tile_set = nullptr;
     ImageAsset* image = nullptr;
     if (context && context->tile.valid()) {
-        context->tile.erasing = m_erasing;
         context->tile.paint_mode = m_paint_mode;
 
         tile_set = context->tile.tile_set.get();
