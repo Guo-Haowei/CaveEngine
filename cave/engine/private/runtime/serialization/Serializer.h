@@ -177,7 +177,7 @@ protected:
     void checkEnter(SerializerState state);
     void checkExit(SerializerState state);
 
-    std::vector<SerializerState> stack_;
+    Vector<SerializerState> m_stack;
 #endif
 };
 

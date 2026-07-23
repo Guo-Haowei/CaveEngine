@@ -135,8 +135,8 @@ struct FieldMetaBase {
         return reinterpret_cast<char*>(object) + offset;
     }
 
-    virtual ISerializer& Write(ISerializer& p_serializer, const void* p_object) const = 0;
-    virtual bool Read(IDeserializer& p_deserializer, void* p_object) const = 0;
+    virtual ISerializer& Write(ISerializer& serializer, const void* object) const = 0;
+    virtual bool Read(IDeserializer& deserializer, void* object) const = 0;
 
 #if USING(USE_EDITOR)
     virtual bool DrawEditor(void*, float) const = 0;

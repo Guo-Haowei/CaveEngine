@@ -98,15 +98,15 @@ void ShortcutService::initShortcuts() {
     m_shortcuts[std::to_underlying(Shortcut::SaveAs)] = {
         "Save As..",
         "Ctrl+Shift+S",
-        [active_document, this]() {
-            m_engine_services.intentBus().queue<SaveIntent>(active_document());
+        [this]() {
+            m_engine_services.intentBus().queue<SaveAllIntent>();
         },
     };
     m_shortcuts[std::to_underlying(Shortcut::Save)] = {
         "Save",
         "Ctrl+S",
         [active_document, this]() {
-            m_engine_services.intentBus().queue<SaveAllIntent>();
+            m_engine_services.intentBus().queue<SaveIntent>(active_document());
         },
     };
 

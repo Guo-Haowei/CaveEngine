@@ -32,7 +32,7 @@ public:
     bool undo() override;
 
     bool redo() override;
-    
+
     void markDirty() override {
         m_current_state = m_next_state++;
     }
