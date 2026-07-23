@@ -10,7 +10,9 @@
 
 namespace cave {
 
-static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const OpenDocDesc& desc) {
+namespace {
+
+Owner<IDocument> CreateDoc(EngineServices& services, const OpenDocDesc& desc) {
     switch (desc.asset_type) {
         case AssetType::Scene:
             return MakeOwner<SceneDocument>(services, desc.guid);
@@ -25,7 +27,9 @@ static std::unique_ptr<IDocument> CreateDoc(EngineServices& services, const Open
     }
 }
 
-DocId DocumentService::openDoc(const OpenDocDesc& desc) {
+}  // namespace
+
+DocId DocumentService::loadDoc(const OpenDocDesc& desc) {
     DocId doc_id;
     if (auto it = m_guid_to_doc.find(desc.guid); it != m_guid_to_doc.end()) {
         doc_id = it->second;
@@ -35,6 +39,11 @@ DocId DocumentService::openDoc(const OpenDocDesc& desc) {
         m_guid_to_doc[desc.guid] = doc_id;
     }
 
+    return doc_id;
+}
+
+DocId DocumentService::openDoc(const OpenDocDesc& desc) {
+    DocId doc_id = loadDoc(desc);
     m_editor_services.workspace().requestOpen(doc_id);
     return doc_id;
 }
@@ -46,6 +55,14 @@ CloseRequestResult DocumentService::closeDoc(DocId doc_id) {
     m_guid_to_doc.erase(handle.guid());
     destroy(doc_id);
     return {};
+}
+
+bool DocumentService::markDirty(DocId doc_id) {
+    if (IDocument* doc = resolve(doc_id)) {
+        doc->markDirty();
+        return true;
+    }
+    return false;
 }
 
 bool DocumentService::save(const Guid& guid) {
@@ -65,6 +82,45 @@ bool DocumentService::save(DocId doc_id) {
         }
     }
     return false;
+}
+
+void DocumentService::saveAll() {
+    for (auto& slot : m_slots) {
+        const bool dirty = slot.storage->isDirty();
+        if (dirty && slot.storage->save()) {
+            slot.storage->markSaved();
+        }
+    }
+}
+
+// @TODO: refactor this part
+bool DocumentService::onCloseRequested() {
+    Vector<IDocument*> unsaved;
+    for (auto& slot : m_slots) {
+        IDocument* doc = slot.storage.get();
+        if (doc && doc->isDirty()) {
+            unsaved.push_back(doc);
+        }
+    }
+
+    if (unsaved.empty()) {
+        return true;
+    }
+
+    CloseDecision desicion = AskCloseUnsaved("Warning");
+    switch (desicion) {
+        case CloseDecision::Save:
+            break;
+        case CloseDecision::Discard:
+            return true;
+        case CloseDecision::Cancel:
+            return false;
+    }
+    for (IDocument* doc : unsaved) {
+        doc->save();
+        doc->markSaved();
+    }
+    return true;
 }
 
 }  // namespace cave

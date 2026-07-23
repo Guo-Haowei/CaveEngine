@@ -264,7 +264,7 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
             return;
         }
 
-        tile_id  = selections[0];
+        tile_id = selections[0];
         if (tile_id >= tile_set->frames().size()) {
             return;
         }

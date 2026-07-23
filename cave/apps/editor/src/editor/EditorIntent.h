@@ -59,6 +59,11 @@ public:
         : BaseDocIntent(doc_id) {}
 };
 
+class SaveAllIntent : public Intent {
+public:
+    CAVE_DECLARE_INTENT("editor.doc.save_all");
+};
+
 class EditIntent : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.edit");

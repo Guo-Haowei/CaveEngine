@@ -15,6 +15,7 @@ struct TileEditContext {
     Vector<uint32_t> selected_tile;
     TileId hovered_tile = kEmptyTileId;
 
+    Guid tile_set_guid;
     Handle<TileSetAsset> tile_set;
     Handle<ImageAsset> image;
     GridPaintMode paint_mode = GridPaintMode::Brush;

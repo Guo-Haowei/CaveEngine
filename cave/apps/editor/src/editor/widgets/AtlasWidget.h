@@ -36,7 +36,7 @@ struct AtlasSelection {
 
 struct AtlasStyle {
     ImU32 grid_color = IM_COL32(120, 130, 145, 150);
-    ImU32 hover_color = IM_COL32(235, 240, 250, 255); 
+    ImU32 hover_color = IM_COL32(235, 240, 250, 255);
     ImU32 selected_color = IM_COL32(95, 155, 235, 255);
 
     float grid_thickness = 1.0f;

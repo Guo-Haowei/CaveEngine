@@ -8,7 +8,7 @@
 #include "editor/EditorAssetManager.h"
 #include "editor/EditorState.h"
 #include "editor/ProjectBrowserState.h"
-#include "editor/services/Workspace.h"
+#include "editor/services/DocumentService.h"
 
 #define DEFINE_DVAR
 #include "EditorDvars.h"
@@ -68,7 +68,7 @@ public:
 
     QuitVote onQuitRequested(const QuitContext&) override {
         if (EditorState* editor = dynamic_cast<EditorState*>(m_state_machine.appState())) {
-            const bool should_quit = editor->services().workspace().onCloseRequested();
+            const bool should_quit = editor->services().document().onCloseRequested();
             if (!should_quit) {
                 return QuitVote::Deny;
             }

@@ -256,41 +256,6 @@ bool Workspace::closeDoc(DocId doc_id) {
     return true;
 }
 
-// @TODO: refactor this part
-extern CloseDecision AskCloseUnsaved(const char* title);
-
-bool Workspace::onCloseRequested() {
-    std::vector<DocId> unsaved;
-    for (uint32_t idx = 0; idx < m_slots.size(); ++idx) {
-        auto& slot = m_slots[idx];
-        if (slot.storage) {
-            Tab& tab = *slot.storage;
-            DocId doc = tab.docId();
-            if (m_editor_services.edit().isDirty(doc)) {
-                unsaved.push_back(doc);
-            }
-        }
-    }
-
-    if (unsaved.empty()) {
-        return true;
-    }
-
-    CloseDecision desicion = AskCloseUnsaved("Warning");
-    switch (desicion) {
-        case CloseDecision::Save:
-            break;
-        case CloseDecision::Discard:
-            return true;
-        case CloseDecision::Cancel:
-            return false;
-    }
-    for (DocId doc : unsaved) {
-        m_editor_services.edit().save(doc);
-    }
-    return true;
-}
-
 void Workspace::onAssetChanged(const Guid&, std::span<const Guid> affected) {
     for (const Guid& guid : affected) {
         if (auto it = m_guid_to_tab.find(guid); it != m_guid_to_tab.end()) {

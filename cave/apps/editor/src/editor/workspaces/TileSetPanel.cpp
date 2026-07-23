@@ -4,6 +4,7 @@
 
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/SceneEditService.h"
@@ -206,7 +207,8 @@ TileSetPanel::TileSetPanel(EngineServices& engine_services,
     m_checkerboard = editor_services.iconCache().getIconHandle(IconName::Checkerboard);
 }
 
-void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
+bool TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
+    bool dirty = false;
     unused(tile_set);
 
     ImGui::TableSetColumnIndex(0);
@@ -244,9 +246,13 @@ void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
     ImGui::Button(ICON_FA_ELLIPSIS_VERTICAL, ImVec2{ button_size, 0.0f });
 
     ImGui::EndChild();
+
+    return dirty;
 }
 
-void TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
+bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
+    bool dirty = false;
+
     ImGui::TableSetColumnIndex(1);
 
     ImGui::BeginChild("##TileToolsColumn", ImVec2{ 0.0f, 0.0f });
@@ -283,6 +289,7 @@ void TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
                 if (EditSprite(&col, &row)) {
                     tile_set->col(col);
                     tile_set->row(row);
+                    dirty = true;
                 }
             }
         } break;
@@ -303,9 +310,13 @@ void TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
     }
 
     ImGui::EndChild();
+
+    return dirty;
 }
 
-void TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
+bool TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
+    bool dirty = false;
+
     ImGui::TableSetColumnIndex(2);
 
     ImGui::BeginChild("##TileAtlasColumn");
@@ -331,6 +342,8 @@ void TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
     m_atlas_widget.draw(desc, m_atlas_selection);
 
     ImGui::EndChild();
+
+    return dirty;
 }
 
 void TileSetPanel::draw(SceneEditContext* context) {
@@ -346,7 +359,8 @@ void TileSetPanel::draw(SceneEditContext* context) {
 
     ImageAsset* image = nullptr;
     TileSetAsset* tile_set = nullptr;
-    if (context && context->tile.layer_entity.valid()) {
+    const bool valid_tile_set = context && context->tile.layer_entity.valid();
+    if (valid_tile_set) {
         tile_set = context->tile.tile_set.get();
         image = context->tile.image.get();
     }
@@ -356,44 +370,32 @@ void TileSetPanel::draw(SceneEditContext* context) {
     ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
     ImGui::TableNextRow();
 
-    drawTileSource(tile_set);
-    drawTileProperties(tile_set);
-    drawAtlas(tile_set, image);
+    int dirty = 0;
+    dirty |= (int)drawTileSource(tile_set);
+    dirty |= (int)drawTileProperties(tile_set);
+    dirty |= (int)drawAtlas(tile_set, image);
 
     ImGui::EndTable();
+
+    if (valid_tile_set && dirty) {
+        OpenDocDesc desc;
+        desc.asset_type = AssetType::TileSet;
+        desc.guid = context->tile.tile_set_guid;
+        desc.focused = false;
+        auto& document = m_editor_services.document();
+        DocId doc_id = document.loadDoc(desc);
+        document.markDirty(doc_id);
+    }
 }
 
 #if 0
 void TileSetEditor::drawAssetInspector(IDocument&) {
-    auto assets = getAssets();
-    if (!DEV_VERIFY(assets.image && assets.tile_set)) {
-        return;
-    }
-
-    TileSetAsset& tile_set = *assets.tile_set;
-    {
-        int column = tile_set.col();
-        int row = tile_set.row();
-        if (m_sprite_selector.EditSprite(&column, &row)) {
-            tile_set.col(column);
-            tile_set.row(row);
-        }
-    }
-
-    ImGui::Separator();
-
     if (ImGui::BeginTabBar("TileSetPhysics")) {
         if (ImGui::BeginTabItem("Physics Layer")) {
             DrawPhysicsTab(tile_set, m_sprite_selector);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
-    }
-
-    ImGui::Separator();
-
-    for (TileDefinition& definition : tile_set.getTileDefinitionsMut()) {
-        DrawTileDefinition(definition);
     }
 }
 #endif

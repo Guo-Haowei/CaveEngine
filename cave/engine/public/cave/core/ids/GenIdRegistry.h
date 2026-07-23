@@ -2,21 +2,21 @@
 // File: cave/core/ids/GenIdRegistry.h
 // =============================================================================
 #pragma once
-#include <memory>
-#include <string>
 #include <string_view>
 
+#include "cave/core/containers/Containers.h"
+#include "cave/core/memory/Pointer.h"
 #include "cave/core/error/ErrorMacros.h"
 #include "cave/core/ids/GenId.h"
 
 namespace cave {
 
-template<typename T, typename PtrT = std::unique_ptr<T>>
+template<typename T, typename PtrT = Owner<T>>
 class GenIdRegistry {
     struct Slot {
         uint32_t gen{ GenId<T>::kInitialGen };
         PtrT storage{ nullptr };
-        std::string debug_name;
+        String debug_name;
     };
 
 public:
@@ -96,8 +96,8 @@ protected:
     }
 
 protected:
-    std::vector<Slot> m_slots;
-    std::vector<uint32_t> m_free;
+    Vector<Slot> m_slots;
+    Vector<uint32_t> m_free;
 };
 
 }  // namespace cave

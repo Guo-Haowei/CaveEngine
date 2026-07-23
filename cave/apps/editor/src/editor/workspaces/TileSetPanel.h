@@ -17,9 +17,9 @@ public:
     void draw(SceneEditContext* context);
 
 private:
-    void drawTileSource(TileSetAsset* tile_set);
-    void drawTileProperties(TileSetAsset* tile_set);
-    void drawAtlas(TileSetAsset* tile_set, ImageAsset* image);
+    bool drawTileSource(TileSetAsset* tile_set);
+    bool drawTileProperties(TileSetAsset* tile_set);
+    bool drawAtlas(TileSetAsset* tile_set, ImageAsset* image);
 
     EngineServices& m_engine_services;
     EditorServices& m_editor_services;
