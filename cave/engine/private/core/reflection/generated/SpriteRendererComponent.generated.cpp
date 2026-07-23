@@ -4,6 +4,7 @@
 
 #include "cave/render/components/SpriteRendererComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -16,7 +17,7 @@ namespace cave {
 // int m_z_index (editor = InputInt)
 
 template<>
-const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<SpriteRendererComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SpriteRendererComponent,
@@ -25,7 +26,8 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
             m_image_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            &::cave::InvokeFieldChanged<SpriteRendererComponent, &SpriteRendererComponent::onImageGuidChanged>
+            &::cave::InvokeFieldChanged<SpriteRendererComponent, &SpriteRendererComponent::onImageGuidChanged>,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             SpriteRendererComponent,
@@ -34,7 +36,8 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
             m_tint_color,
             FieldFlag::Serialize,
             EditorHint::Color,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec4f>::get()
         ),
         REGISTER_FIELD(
             SpriteRendererComponent,
@@ -43,7 +46,8 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
             m_rect,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Box2>::get()
         ),
         REGISTER_FIELD(
             SpriteRendererComponent,
@@ -52,7 +56,8 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
             m_flip_x,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             SpriteRendererComponent,
@@ -61,7 +66,8 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
             m_flip_y,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             SpriteRendererComponent,
@@ -70,7 +76,8 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
             m_z_index,
             FieldFlag::Serialize,
             EditorHint::InputInt,
-            nullptr
+            nullptr,
+            FieldOpsFor<int>::get()
         ),
     };
 
@@ -78,6 +85,6 @@ const MetaTableFields& MetaDataTable<SpriteRendererComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SpriteRendererComponent_meta = MetaDataTable<SpriteRendererComponent>::GetFields();
+[[maybe_unused]] static const auto& s_SpriteRendererComponent_meta = MetaDataTable<SpriteRendererComponent>::getFields();
 
 }  // namespace cave

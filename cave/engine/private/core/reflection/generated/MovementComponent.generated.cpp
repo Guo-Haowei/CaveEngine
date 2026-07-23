@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/MovementComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -11,7 +12,7 @@ namespace cave {
 // math::Vec3f linear (editor = Translation)
 
 template<>
-const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<VelocityComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             VelocityComponent,
@@ -20,7 +21,8 @@ const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
             linear,
             FieldFlag::Serialize,
             EditorHint::Translation,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec3f>::get()
         ),
     };
 
@@ -28,14 +30,14 @@ const MetaTableFields& MetaDataTable<VelocityComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_VelocityComponent_meta = MetaDataTable<VelocityComponent>::GetFields();
+[[maybe_unused]] static const auto& s_VelocityComponent_meta = MetaDataTable<VelocityComponent>::getFields();
 
 // bool affected_by_gravity (editor = Toggle)
 // float terminal_fall_speed (editor = InputFloat)
 // float gravity (editor = InputFloat)
 
 template<>
-const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<MotorComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             MotorComponent,
@@ -44,7 +46,8 @@ const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
             affected_by_gravity,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             MotorComponent,
@@ -53,7 +56,8 @@ const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
             terminal_fall_speed,
             FieldFlag::Serialize,
             EditorHint::InputFloat,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             MotorComponent,
@@ -62,7 +66,8 @@ const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
             gravity,
             FieldFlag::Serialize,
             EditorHint::InputFloat,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
     };
 
@@ -70,11 +75,11 @@ const MetaTableFields& MetaDataTable<MotorComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_MotorComponent_meta = MetaDataTable<MotorComponent>::GetFields();
+[[maybe_unused]] static const auto& s_MotorComponent_meta = MetaDataTable<MotorComponent>::getFields();
 
 
 template<>
-const MetaTableFields& MetaDataTable<ContactComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<ContactComponent>::getFields() {
     static MetaTableFields s_table = {
     };
 
@@ -82,6 +87,6 @@ const MetaTableFields& MetaDataTable<ContactComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_ContactComponent_meta = MetaDataTable<ContactComponent>::GetFields();
+[[maybe_unused]] static const auto& s_ContactComponent_meta = MetaDataTable<ContactComponent>::getFields();
 
 }  // namespace cave

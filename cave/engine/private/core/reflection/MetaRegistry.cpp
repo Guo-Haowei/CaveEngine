@@ -14,9 +14,9 @@ namespace cave {
 #endif
 
 const FieldMetaBase* MetaTable::find(const PropertyId& property_type) const {
-    for (const FieldMetaBase* meta : props) {
-        if (meta->id == property_type) {
-            return meta;
+    for (const FieldMetaBase& meta : props) {
+        if (meta.id == property_type) {
+            return &meta;
         }
     }
     return nullptr;
@@ -60,7 +60,7 @@ void MetaRegistry::builtin(MetaRegistry& out) {
         .size = sizeof(T),                      \
         .align = alignof(T),                    \
         .version = 0,                           \
-        .props = MetaDataTable<T>::GetFields(), \
+        .props = MetaDataTable<T>::getFields(), \
     });
 
     // register components

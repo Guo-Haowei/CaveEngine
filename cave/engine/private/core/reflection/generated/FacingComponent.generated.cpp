@@ -4,6 +4,7 @@
 
 #include "cave/runtime/game/platformer/FacingComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -11,7 +12,7 @@ namespace cave {
 // Facing facing (editor = EnumDropDown)
 
 template<>
-const MetaTableFields& MetaDataTable<FacingComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<FacingComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             FacingComponent,
@@ -20,7 +21,8 @@ const MetaTableFields& MetaDataTable<FacingComponent>::GetFields() {
             facing,
             FieldFlag::Serialize,
             EditorHint::EnumDropDown,
-            nullptr
+            nullptr,
+            FieldOpsFor<Facing>::get()
         ),
     };
 
@@ -28,6 +30,6 @@ const MetaTableFields& MetaDataTable<FacingComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_FacingComponent_meta = MetaDataTable<FacingComponent>::GetFields();
+[[maybe_unused]] static const auto& s_FacingComponent_meta = MetaDataTable<FacingComponent>::getFields();
 
 }  // namespace cave

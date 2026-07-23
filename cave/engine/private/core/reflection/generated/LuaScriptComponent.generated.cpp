@@ -4,6 +4,7 @@
 
 #include "cave/runtime/script/lua/LuaScriptComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -12,7 +13,7 @@ namespace cave {
 // Guid m_source_id (editor = Asset)
 
 template<>
-const MetaTableFields& MetaDataTable<LuaScriptComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<LuaScriptComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             LuaScriptComponent,
@@ -21,7 +22,8 @@ const MetaTableFields& MetaDataTable<LuaScriptComponent>::GetFields() {
             m_class_name,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<FixedString<32>>::get()
         ),
         REGISTER_FIELD(
             LuaScriptComponent,
@@ -30,7 +32,8 @@ const MetaTableFields& MetaDataTable<LuaScriptComponent>::GetFields() {
             m_source_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            nullptr,
+            FieldOpsFor<Guid>::get()
         ),
     };
 
@@ -38,6 +41,6 @@ const MetaTableFields& MetaDataTable<LuaScriptComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_LuaScriptComponent_meta = MetaDataTable<LuaScriptComponent>::GetFields();
+[[maybe_unused]] static const auto& s_LuaScriptComponent_meta = MetaDataTable<LuaScriptComponent>::getFields();
 
 }  // namespace cave

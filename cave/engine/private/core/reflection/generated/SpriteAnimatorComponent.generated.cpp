@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -15,7 +16,7 @@ namespace cave {
 // float m_speed ()
 
 template<>
-const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SpriteAnimatorComponent,
@@ -24,7 +25,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
             m_anim_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            nullptr,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             SpriteAnimatorComponent,
@@ -33,7 +35,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
             m_current_clip,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::string>::get()
         ),
         REGISTER_FIELD(
             SpriteAnimatorComponent,
@@ -42,7 +45,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
             m_looping,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             SpriteAnimatorComponent,
@@ -51,7 +55,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
             m_playing,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             SpriteAnimatorComponent,
@@ -60,7 +65,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
             m_speed,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
     };
 
@@ -68,6 +74,6 @@ const MetaTableFields& MetaDataTable<SpriteAnimatorComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SpriteAnimatorComponent_meta = MetaDataTable<SpriteAnimatorComponent>::GetFields();
+[[maybe_unused]] static const auto& s_SpriteAnimatorComponent_meta = MetaDataTable<SpriteAnimatorComponent>::getFields();
 
 }  // namespace cave

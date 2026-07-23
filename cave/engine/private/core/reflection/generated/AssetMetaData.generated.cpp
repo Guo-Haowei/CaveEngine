@@ -4,6 +4,7 @@
 
 #include "cave/runtime/assets/AssetMetaData.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -18,7 +19,7 @@ namespace cave {
 // mutable std::map<std::string, std::string> import_settings ()
 
 template<>
-const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
+const MetaTableFields& MetaDataTable<AssetMetaData>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             AssetMetaData,
@@ -27,7 +28,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             type,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<AssetType>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -36,7 +38,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             guid,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -45,7 +48,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             name,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::string>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -54,7 +58,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             import_path,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::string>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -63,7 +68,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             dependencies,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<mutable Vector<Guid>>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -72,7 +78,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             source_created_time,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::string>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -81,7 +88,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             source_last_modified,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::string>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -90,7 +98,8 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
             import_settings,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<mutable std::map<std::string, std::string>>::get()
         ),
     };
 
@@ -98,6 +107,6 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_AssetMetaData_meta = MetaDataTable<AssetMetaData>::GetFields();
+[[maybe_unused]] static const auto& s_AssetMetaData_meta = MetaDataTable<AssetMetaData>::getFields();
 
 }  // namespace cave

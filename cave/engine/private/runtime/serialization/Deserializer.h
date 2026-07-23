@@ -181,12 +181,12 @@ public:
 #if USING(USE_REFLECTION)
     template<IsReflectable T>
     bool read(T& object) {
-        const auto& meta = MetaDataTable<T>::GetFields();
+        const auto& meta = MetaDataTable<T>::getFields();
 
-        for (const auto& field : meta) {
-            if ((field->flags & FieldFlag::Serialize) == FieldFlag::None) continue;
-            if (tryEnterKey(field->name)) {
-                field->Read(*this, &object);
+        for (const FieldMetaBase& field : meta) {
+            if ((field.flags & FieldFlag::Serialize) == FieldFlag::None) continue;
+            if (tryEnterKey(field.name)) {
+                field.read(*this, &object);
                 leaveKey();
             }
         }

@@ -19,8 +19,7 @@ private:
     SpriteSelector m_sprite_selector{ SpriteSelector::SelectionMode::Single };
 
     GridPaintMode m_paint_mode;
-    bool m_erasing = true;
-    std::array<ToolbarButtonDesc, 5> m_toolbar;
+    std::array<ToolbarButtonDesc, 4> m_toolbar;
 };
 
 }  // namespace cave

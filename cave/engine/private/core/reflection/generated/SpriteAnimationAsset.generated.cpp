@@ -4,6 +4,7 @@
 
 #include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -13,7 +14,7 @@ namespace cave {
 // bool m_looping ()
 
 template<>
-const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
+const MetaTableFields& MetaDataTable<SpriteAnimationClip>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SpriteAnimationClip,
@@ -22,7 +23,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
             m_frames,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<Vector<math::Box2>>::get()
         ),
         REGISTER_FIELD(
             SpriteAnimationClip,
@@ -31,7 +33,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
             m_durations,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<Vector<float>>::get()
         ),
         REGISTER_FIELD(
             SpriteAnimationClip,
@@ -40,7 +43,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
             m_looping,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
     };
 
@@ -48,13 +52,13 @@ const MetaTableFields& MetaDataTable<SpriteAnimationClip>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SpriteAnimationClip_meta = MetaDataTable<SpriteAnimationClip>::GetFields();
+[[maybe_unused]] static const auto& s_SpriteAnimationClip_meta = MetaDataTable<SpriteAnimationClip>::getFields();
 
 // Guid m_image_guid (editor = Asset)
 // Map<String, SpriteAnimationClip> m_clips ()
 
 template<>
-const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
+const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SpriteAnimationAsset,
@@ -63,7 +67,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
             m_image_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            nullptr,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             SpriteAnimationAsset,
@@ -72,7 +77,8 @@ const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
             m_clips,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<Map<String, SpriteAnimationClip>>::get()
         ),
     };
 
@@ -80,6 +86,6 @@ const MetaTableFields& MetaDataTable<SpriteAnimationAsset>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SpriteAnimationAsset_meta = MetaDataTable<SpriteAnimationAsset>::GetFields();
+[[maybe_unused]] static const auto& s_SpriteAnimationAsset_meta = MetaDataTable<SpriteAnimationAsset>::getFields();
 
 }  // namespace cave

@@ -33,10 +33,12 @@ public:
 
     bool redo() override;
 
+    void markDirty() override {
+        m_current_state = m_next_state++;
+    }
+
     void markSaved() override {
-        // Save marker is "undo stack size at time of save".
-        // If user undoes/redoes to exactly this size again => not dirty.
-        m_saved_undo_size = m_undo.size();
+        m_saved_state = m_current_state;
     }
 
     bool isDirty() const override {

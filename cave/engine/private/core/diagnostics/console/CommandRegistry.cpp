@@ -3,18 +3,18 @@
 namespace cave {
 
 void CommandRegistry::registerCmd(CommandDesc&& cmd) {
-    for (const CommandDesc& desc : cmds_) {
+    for (const CommandDesc& desc : m_cmds) {
         if (desc.name == cmd.name) {
             LOG_ERROR("CommandRegistry::Register: command '{}' already registered", cmd.name);
             return;
         }
     }
 
-    cmds_.emplace_back(std::move(cmd));
+    m_cmds.emplace_back(std::move(cmd));
 }
 
 const CommandDesc* CommandRegistry::findCmd(std::string_view name) const {
-    for (const CommandDesc& cmd : cmds_) {
+    for (const CommandDesc& cmd : m_cmds) {
         if (cmd.name == name) {
             return &cmd;
         }
@@ -23,11 +23,11 @@ const CommandDesc* CommandRegistry::findCmd(std::string_view name) const {
 }
 
 std::span<const CommandDesc> CommandRegistry::allCommands() const {
-    return cmds_;
+    return m_cmds;
 }
 
-void CommandRegistry::findByPrefix(std::string_view prefix, std::vector<std::string_view>& out) const {
-    for (const CommandDesc& cmd : cmds_) {
+void CommandRegistry::findByPrefix(std::string_view prefix, Vector<std::string_view>& out) const {
+    for (const CommandDesc& cmd : m_cmds) {
         if (cmd.name.starts_with(prefix)) {
             out.push_back(cmd.name);
         }

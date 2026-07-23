@@ -4,13 +4,14 @@
 
 #include "cave/runtime/ecs/components/MiscComponents.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
 
 
 template<>
-const MetaTableFields& MetaDataTable<PrefabChildComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<PrefabChildComponent>::getFields() {
     static MetaTableFields s_table = {
     };
 
@@ -18,11 +19,11 @@ const MetaTableFields& MetaDataTable<PrefabChildComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_PrefabChildComponent_meta = MetaDataTable<PrefabChildComponent>::GetFields();
+[[maybe_unused]] static const auto& s_PrefabChildComponent_meta = MetaDataTable<PrefabChildComponent>::getFields();
 
 
 template<>
-const MetaTableFields& MetaDataTable<PendingDestroyComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<PendingDestroyComponent>::getFields() {
     static MetaTableFields s_table = {
     };
 
@@ -30,12 +31,12 @@ const MetaTableFields& MetaDataTable<PendingDestroyComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_PendingDestroyComponent_meta = MetaDataTable<PendingDestroyComponent>::GetFields();
+[[maybe_unused]] static const auto& s_PendingDestroyComponent_meta = MetaDataTable<PendingDestroyComponent>::getFields();
 
 // FixedString<64> m_name ()
 
 template<>
-const MetaTableFields& MetaDataTable<NameComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<NameComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             NameComponent,
@@ -44,7 +45,8 @@ const MetaTableFields& MetaDataTable<NameComponent>::GetFields() {
             m_name,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<FixedString<64>>::get()
         ),
     };
 
@@ -52,6 +54,6 @@ const MetaTableFields& MetaDataTable<NameComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_NameComponent_meta = MetaDataTable<NameComponent>::GetFields();
+[[maybe_unused]] static const auto& s_NameComponent_meta = MetaDataTable<NameComponent>::getFields();
 
 }  // namespace cave

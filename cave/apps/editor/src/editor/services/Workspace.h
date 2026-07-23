@@ -46,8 +46,6 @@ public:
 
     bool handleIntent(Intent& intent) override;
 
-    bool onCloseRequested();
-
     void onEvents(const InputFrame& input) override;
     int priority() const override { return 10; }
     DebugId debugId() const override { return m_debug_id; }

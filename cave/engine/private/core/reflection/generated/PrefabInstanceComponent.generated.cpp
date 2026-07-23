@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/PrefabInstanceComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -11,7 +12,7 @@ namespace cave {
 // Guid m_prefab_id (editor = Asset, on_change = onPrefabGuidChanged)
 
 template<>
-const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             PrefabInstanceComponent,
@@ -20,7 +21,8 @@ const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
             m_prefab_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            &::cave::InvokeFieldChanged<PrefabInstanceComponent, &PrefabInstanceComponent::onPrefabGuidChanged>
+            &::cave::InvokeFieldChanged<PrefabInstanceComponent, &PrefabInstanceComponent::onPrefabGuidChanged>,
+            FieldOpsFor<Guid>::get()
         ),
     };
 
@@ -28,6 +30,6 @@ const MetaTableFields& MetaDataTable<PrefabInstanceComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_PrefabInstanceComponent_meta = MetaDataTable<PrefabInstanceComponent>::GetFields();
+[[maybe_unused]] static const auto& s_PrefabInstanceComponent_meta = MetaDataTable<PrefabInstanceComponent>::getFields();
 
 }  // namespace cave

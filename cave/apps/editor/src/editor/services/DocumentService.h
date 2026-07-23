@@ -30,6 +30,7 @@ public:
         : m_engine_services(app_services)
         , m_editor_services(editor_services) {}
 
+    DocId loadDoc(const OpenDocDesc& desc);
     DocId openDoc(const OpenDocDesc& desc);
 
     CloseRequestResult closeDoc(DocId doc_id);
@@ -39,8 +40,13 @@ public:
     IDocument* resolve(DocId doc_id) { return Base::resolve(doc_id); }
     const IDocument* resolve(DocId doc_id) const { return Base::resolve(doc_id); }
 
+    bool markDirty(DocId doc_id);
+
     bool save(DocId doc_id);
     bool save(const Guid& guid);
+    void saveAll();
+
+    bool onCloseRequested();
 
 private:
     EngineServices& m_engine_services;

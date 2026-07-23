@@ -4,6 +4,7 @@
 
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
+#include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/IconCache.h"
 #include "editor/services/SceneEditService.h"
@@ -195,6 +196,7 @@ bool DrawTileDefinition(TileDefinition& definition) {
     ImGui::PopID();
     return changed;
 }
+
 }  // namespace
 
 TileSetPanel::TileSetPanel(EngineServices& engine_services,
@@ -202,11 +204,13 @@ TileSetPanel::TileSetPanel(EngineServices& engine_services,
     : m_engine_services(engine_services)
     , m_editor_services(editor_services) {
 
-    m_checkerboard_texture =
-        m_editor_services.iconCache().getIconHandle(IconName::Checkerboard);
+    m_checkerboard = editor_services.iconCache().getIconHandle(IconName::Checkerboard);
 }
 
-void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
+bool TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
+    bool dirty = false;
+    unused(tile_set);
+
     ImGui::TableSetColumnIndex(0);
 
     ImGui::BeginChild("##TileSourcesColumn", ImVec2{ 0.0f, 0.0f });
@@ -227,20 +231,6 @@ void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
                       ImVec2{ 0.0f, -ImGui::GetFrameHeightWithSpacing() },
                       ImGuiChildFlags_Borders);
 
-    if (tile_set) {
-        int col = tile_set->col();
-        int row = tile_set->row();
-
-        if (EditSprite(&col, &row)) {
-            tile_set->col(col);
-            tile_set->row(row);
-        }
-
-        for (TileDefinition& definition : tile_set->getTileDefinitionsMut()) {
-            DrawTileDefinition(definition);
-        }
-    }
-
     ImGui::EndChild();
 
     const float button_size = ImGui::GetFrameHeight();
@@ -256,14 +246,18 @@ void TileSetPanel::drawTileSource(TileSetAsset* tile_set) {
     ImGui::Button(ICON_FA_ELLIPSIS_VERTICAL, ImVec2{ button_size, 0.0f });
 
     ImGui::EndChild();
+
+    return dirty;
 }
 
-void TileSetPanel::drawPaint() {
+bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
+    bool dirty = false;
+
     ImGui::TableSetColumnIndex(1);
 
     ImGui::BeginChild("##TileToolsColumn", ImVec2{ 0.0f, 0.0f });
 
-    auto mode_button = [&](int value, const char* label) {
+    auto mode_button = [&](Property value, const char* label) {
         const bool active = m_mode == value;
         if (active) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
@@ -278,45 +272,60 @@ void TileSetPanel::drawPaint() {
         }
     };
 
-    mode_button(0, ICON_FA_SCREWDRIVER_WRENCH " Setup");
+    mode_button(Property::Setup, ICON_FA_SCREWDRIVER_WRENCH " Setup");
     ImGui::SameLine();
-    mode_button(1, ICON_FA_ARROW_POINTER " Select");
+    mode_button(Property::SelectedTile, ICON_FA_ARROW_POINTER " Select");
     ImGui::SameLine();
-    mode_button(2, ICON_FA_PAINTBRUSH " Paint");
+    mode_button(Property::Paint, ICON_FA_PAINTBRUSH " Paint");
     ImGui::Separator();
 
     switch (m_mode) {
-        case 0: {
+        case Property::Setup: {
             ImGui::TextUnformatted("Setup Properties");
+            if (tile_set) {
+                int col = tile_set->col();
+                int row = tile_set->row();
+
+                if (EditSprite(&col, &row)) {
+                    tile_set->col(col);
+                    tile_set->row(row);
+                    dirty = true;
+                }
+            }
         } break;
-        case 1: {
+        case Property::SelectedTile: {
             ImGui::TextUnformatted("Selected Tile Properties");
+            if (tile_set) {
+                for (TileDefinition& definition : tile_set->getTileDefinitionsMut()) {
+                    DrawTileDefinition(definition);
+                }
+            }
         } break;
-        case 2: {
+        case Property::Paint: {
             ImGui::TextUnformatted("Paint Properties");
-
             ImGui::Spacing();
-
             ImGui::SetNextItemWidth(-1.0f);
-            ImGui::Combo("##PaintProperty",
-                         &m_paint_property,
-                         "Physics\0Terrain\0Animation\0");
+            ImGui::Combo("##PaintProperty", &m_paint_property, "Physics\0Terrain\0Animation\0");
         } break;
     }
 
     ImGui::EndChild();
+
+    return dirty;
 }
 
-void TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
+bool TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
+    bool dirty = false;
+
     ImGui::TableSetColumnIndex(2);
 
     ImGui::BeginChild("##TileAtlasColumn");
 
     AtlasWidgetDesc desc;
     desc.id = "##TileAtlas";
-    desc.texture = m_checkerboard_texture;
-    desc.layout.image_size_px = { 32.0f, 32.0f };
-    desc.layout.grid_size = { 3, 1 };
+    desc.texture = 0;
+    desc.layout.image_size_px = { 64.0f, 64.0f };
+    desc.layout.grid_size = { 1, 1 };
     desc.widget_size = { 0.0f, 0.0f };
     desc.show_toolbar = true;
     desc.show_checkerboard = true;
@@ -333,6 +342,8 @@ void TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
     m_atlas_widget.draw(desc, m_atlas_selection);
 
     ImGui::EndChild();
+
+    return dirty;
 }
 
 void TileSetPanel::draw(SceneEditContext* context) {
@@ -348,7 +359,8 @@ void TileSetPanel::draw(SceneEditContext* context) {
 
     ImageAsset* image = nullptr;
     TileSetAsset* tile_set = nullptr;
-    if (context && context->tile.layer_entity.valid()) {
+    const bool valid_tile_set = context && context->tile.layer_entity.valid();
+    if (valid_tile_set) {
         tile_set = context->tile.tile_set.get();
         image = context->tile.image.get();
     }
@@ -358,44 +370,32 @@ void TileSetPanel::draw(SceneEditContext* context) {
     ImGui::TableSetupColumn("##Atlas", ImGuiTableColumnFlags_WidthStretch);
     ImGui::TableNextRow();
 
-    drawTileSource(tile_set);
-    drawPaint();
-    drawAtlas(tile_set, image);
+    int dirty = 0;
+    dirty |= (int)drawTileSource(tile_set);
+    dirty |= (int)drawTileProperties(tile_set);
+    dirty |= (int)drawAtlas(tile_set, image);
 
     ImGui::EndTable();
+
+    if (valid_tile_set && dirty) {
+        OpenDocDesc desc;
+        desc.asset_type = AssetType::TileSet;
+        desc.guid = context->tile.tile_set_guid;
+        desc.focused = false;
+        auto& document = m_editor_services.document();
+        DocId doc_id = document.loadDoc(desc);
+        document.markDirty(doc_id);
+    }
 }
 
 #if 0
 void TileSetEditor::drawAssetInspector(IDocument&) {
-    auto assets = getAssets();
-    if (!DEV_VERIFY(assets.image && assets.tile_set)) {
-        return;
-    }
-
-    TileSetAsset& tile_set = *assets.tile_set;
-    {
-        int column = tile_set.col();
-        int row = tile_set.row();
-        if (m_sprite_selector.EditSprite(&column, &row)) {
-            tile_set.col(column);
-            tile_set.row(row);
-        }
-    }
-
-    ImGui::Separator();
-
     if (ImGui::BeginTabBar("TileSetPhysics")) {
         if (ImGui::BeginTabItem("Physics Layer")) {
             DrawPhysicsTab(tile_set, m_sprite_selector);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
-    }
-
-    ImGui::Separator();
-
-    for (TileDefinition& definition : tile_set.getTileDefinitionsMut()) {
-        DrawTileDefinition(definition);
     }
 }
 #endif

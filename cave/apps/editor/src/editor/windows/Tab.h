@@ -6,23 +6,17 @@
 #include "cave/runtime/input/IInputConsumer.h"
 
 #include "editor/document/DocId.h"
+#include "editor/utility/EditorDialogs.h"
 #include "editor/windows/EditorWindow.h"
 
 // @TODO: remove
 #include "editor/widgets/ToolBar.h"
-// #include "engine/private/runtime/scene/SceneScheduler.h"
 
 namespace cave {
 
 class Tab;
 
 using TabId = GenId<Tab>;
-
-enum class CloseDecision {
-    Save,
-    Discard,
-    Cancel,
-};
 
 struct TabState {
     bool active;

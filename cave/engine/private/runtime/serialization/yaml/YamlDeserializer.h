@@ -62,11 +62,4 @@ private:
     bool m_initialized{ false };
 };
 
-template<typename T>
-bool FieldMeta<T>::Read(IDeserializer& deserializer, void* object) const {
-    T& data = FieldMetaBase::GetData<T>(object);
-
-    return deserializer.read(data);
-}
-
 }  // namespace cave

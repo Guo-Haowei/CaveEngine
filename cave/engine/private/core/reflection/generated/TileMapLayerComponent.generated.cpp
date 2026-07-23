@@ -4,6 +4,7 @@
 
 #include "cave/runtime/tile_map/TileMapLayerComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -13,7 +14,7 @@ namespace cave {
 // ChunkedTileData m_chunks ()
 
 template<>
-const MetaTableFields& MetaDataTable<TileMapLayerComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<TileMapLayerComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             TileMapLayerComponent,
@@ -22,7 +23,8 @@ const MetaTableFields& MetaDataTable<TileMapLayerComponent>::GetFields() {
             m_tile_set,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            &::cave::InvokeFieldChanged<TileMapLayerComponent, &TileMapLayerComponent::onTileSetGuidChanged>
+            &::cave::InvokeFieldChanged<TileMapLayerComponent, &TileMapLayerComponent::onTileSetGuidChanged>,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             TileMapLayerComponent,
@@ -31,7 +33,8 @@ const MetaTableFields& MetaDataTable<TileMapLayerComponent>::GetFields() {
             m_z_index,
             FieldFlag::Serialize,
             EditorHint::InputInt,
-            nullptr
+            nullptr,
+            FieldOpsFor<int>::get()
         ),
         REGISTER_FIELD(
             TileMapLayerComponent,
@@ -40,7 +43,8 @@ const MetaTableFields& MetaDataTable<TileMapLayerComponent>::GetFields() {
             m_chunks,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<ChunkedTileData>::get()
         ),
     };
 
@@ -48,6 +52,6 @@ const MetaTableFields& MetaDataTable<TileMapLayerComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_TileMapLayerComponent_meta = MetaDataTable<TileMapLayerComponent>::GetFields();
+[[maybe_unused]] static const auto& s_TileMapLayerComponent_meta = MetaDataTable<TileMapLayerComponent>::getFields();
 
 }  // namespace cave

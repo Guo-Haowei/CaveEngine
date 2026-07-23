@@ -1,4 +1,4 @@
-#include "SceneViewTab.h"
+#include "SceneTab.h"
 
 #include <IconsFontAwesome/IconsFontAwesome6.h>
 
@@ -114,12 +114,14 @@ void SceneTab::updateSceneEditContext() {
         auto& tile = m_edit_context.tile;
         if (const auto* layer = scene->component<TileMapLayerComponent>(entity)) {
             tile.layer_entity = entity;
+            tile.tile_set_guid = layer->tileSetGuid();
             tile.tile_set = layer->tileSetHandle();
             if (const auto* tile_set = tile.tile_set.get()) {
                 tile.image = tile_set->handle();
             }
         } else {
             tile.layer_entity = Entity::null();
+            tile.tile_set_guid = {};
             tile.tile_set.invalidate();
             tile.image.invalidate();
         }

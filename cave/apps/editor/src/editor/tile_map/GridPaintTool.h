@@ -3,15 +3,21 @@
 
 namespace cave {
 
+enum class GridPaintAction : uint8_t {
+    None = 0,
+    Paint,
+    Erase,
+};
+
 enum class GridPaintMode : uint8_t {
-    Brush,
+    Brush = 0,
     Line,
     Rect,
     Fill,
 };
 
 enum class GridPaintEventType : uint8_t {
-    Begin,
+    Begin = 0,
     Apply,
     Fill,
     End,
@@ -51,6 +57,7 @@ using GridPaintPreview = Vector<GridPaintCell>;
 
 struct GridPaintEvent {
     GridPaintEventType type = GridPaintEventType::Apply;
+    GridPaintAction action = GridPaintAction::None;
 
     // Only meaningful for Apply.
     const GridPaintPreview* cells = nullptr;
@@ -99,6 +106,8 @@ public:
 
     bool active() const { return m_stroke.active; }
 
+    GridPaintAction currentAction() const;
+
     std::span<const GridPaintCell> preview() const { return m_preview; }
 
     auto update(const GridPaintInput& input) -> std::span<const GridPaintEvent>;
@@ -110,6 +119,7 @@ private:
         bool active = false;
 
         GridPaintMode mode = GridPaintMode::Brush;
+        GridPaintAction action = GridPaintAction::None;
 
         GridCoord start;
         GridCoord previous;
@@ -118,7 +128,9 @@ private:
         GridBrush brush;
     };
 
-    void beginStroke(GridCoord coord, GridPaintMode mode);
+    void beginStroke(GridCoord coord,
+                     GridPaintAction action,
+                     GridPaintMode mode);
 
     void updateStroke(GridCoord coord);
     void finishStroke();
@@ -136,7 +148,9 @@ private:
                      const GridBrush& brush,
                      GridPaintPreview& out);
 
-    void emit(GridPaintEventType type, const GridPaintPreview* cells = nullptr);
+    void emit(GridPaintEventType type,
+              GridPaintAction action,
+              const GridPaintPreview* cells = nullptr);
 
 private:
     GridPaintMode m_selected_mode = GridPaintMode::Brush;

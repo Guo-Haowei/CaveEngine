@@ -57,7 +57,7 @@ bool DrawAsset(const DrawObjectCtx& ctx,
 
 bool AssetEditor(const DrawObjectCtx& ctx,
                  void* object,
-                 const FieldMetaBase* field) {
+                 const FieldMetaBase& field) {
     return EditAndSubmit<Guid>(
         ctx,
         object,
@@ -67,15 +67,15 @@ bool AssetEditor(const DrawObjectCtx& ctx,
         });
 }
 
-bool DrawPropertyAuto(const FieldMetaBase* property,
+bool DrawPropertyAuto(const FieldMetaBase& property,
                       void* object,
                       const DrawObjectCtx& ctx) {
-    switch (property->editor_hint) {
+    switch (property.editor_hint) {
         case EditorHint::Asset: {
             return AssetEditor(ctx, object, property);
         } break;
         case EditorHint::EnumDropDown:
-            return property->DrawEditor(object, ui::kDefaultColumnWidth);
+            return property.drawEditor(object, ui::kDefaultColumnWidth);
         case EditorHint::Toggle:
             return EditAndSubmit<bool>(
                 ctx, object, property,
@@ -117,8 +117,8 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                     return ui::DragFloat(label,
                                          value,
                                          0.01f,
-                                         property->v_min,
-                                         property->v_max);
+                                         property.v_min,
+                                         property.v_max);
                 });
         case EditorHint::Color:
             return EditAndSubmit<Vec4f>(
@@ -146,14 +146,14 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
                 });
         case EditorHint::Rotation: {
             // @TODO: fix this
-            Vec4f& q = property->template GetData<Vec4f>(object);
+            Vec4f& q = property.template getData<Vec4f>(object);
             glm::vec3 euler_ = glm::eulerAngles(glm::quat(q.w, q.x, q.y, q.z));
             Vec3f euler = *reinterpret_cast<Vec3f*>(&euler_);
             constexpr float RAD_TO_DEG = 180.0f / glm::pi<float>();
             constexpr float DEG_TO_RAD = glm::pi<float>() / 180.0f;
             euler *= RAD_TO_DEG;
 
-            if (!ui::Float3(property->name, euler, 0.0f)) {
+            if (!ui::Float3(property.name, euler, 0.0f)) {
                 return false;
             }
 
@@ -165,7 +165,7 @@ bool DrawPropertyAuto(const FieldMetaBase* property,
 
             auto cmd = MakeOwner<ChangePropertyCmd>(
                 ctx.engine_services.sceneRegistry(),
-                ComponentPropertyTarget{ ctx.entity, ctx.type_id, property->id },
+                ComponentPropertyTarget{ ctx.entity, ctx.type_id, property.id },
                 old_v,
                 new_v);
             ctx.editor_services.edit().submit(ctx.doc_id, std::move(cmd));
@@ -194,7 +194,7 @@ bool DrawObjectAuto(StringId type_id, void* object, const DrawObjectCtx& ctx) {
     ctx2.type_id = type_id;
 
     int dirty = 0;
-    for (const auto& field : props) {
+    for (const FieldMetaBase& field : props) {
         dirty |= (int)DrawPropertyAuto(field, object, ctx2);
     }
     return (int)dirty;

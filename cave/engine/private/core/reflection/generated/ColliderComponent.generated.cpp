@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -14,7 +15,7 @@ namespace cave {
 // bool m_is_trigger (editor = Toggle)
 
 template<>
-const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<ColliderComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             ColliderComponent,
@@ -23,7 +24,8 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
             m_shape,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<Shape>::get()
         ),
         REGISTER_FIELD(
             ColliderComponent,
@@ -32,7 +34,8 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
             m_layer,
             FieldFlag::Serialize,
             EditorHint::BitMask,
-            nullptr
+            nullptr,
+            FieldOpsFor<uint32_t>::get()
         ),
         REGISTER_FIELD(
             ColliderComponent,
@@ -41,7 +44,8 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
             m_mask,
             FieldFlag::Serialize,
             EditorHint::BitMask,
-            nullptr
+            nullptr,
+            FieldOpsFor<uint32_t>::get()
         ),
         REGISTER_FIELD(
             ColliderComponent,
@@ -50,7 +54,8 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
             m_is_trigger,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
     };
 
@@ -58,6 +63,6 @@ const MetaTableFields& MetaDataTable<ColliderComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_ColliderComponent_meta = MetaDataTable<ColliderComponent>::GetFields();
+[[maybe_unused]] static const auto& s_ColliderComponent_meta = MetaDataTable<ColliderComponent>::getFields();
 
 }  // namespace cave

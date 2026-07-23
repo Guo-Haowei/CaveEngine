@@ -20,21 +20,21 @@ public:
 
     bool handleIntent(Intent& intent) override;
 
-    const auto& getShortcuts() const { return shortcuts_; }
+    const auto& getShortcuts() const { return m_shortcuts; }
 
     void onEvents(const InputFrame& input) override;
     int priority() const override { return 1000; }
-    DebugId debugId() const override { return debug_id_; }
+    DebugId debugId() const override { return m_debug_id; }
 
 private:
     void initShortcuts();
 
-    EditorState& editor_;
-    EngineServices& app_services_;
-    EditorServices& editor_services_;
-    const DebugId debug_id_;
+    EditorState& m_editor;
+    EngineServices& m_engine_services;
+    EditorServices& m_editor_services;
+    const DebugId m_debug_id;
 
-    std::array<ShortcutDesc, kShortcutCount> shortcuts_;
+    std::array<ShortcutDesc, kShortcutCount> m_shortcuts;
 };
 
 }  // namespace cave

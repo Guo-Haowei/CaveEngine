@@ -6,12 +6,12 @@ namespace cave {
 
 #if USING(VALIDATE_SERIALIZER)
 void ISerializer::checkEnter(SerializerState state) {
-    stack_.push_back(state);
+    m_stack.push_back(state);
 }
 
 void ISerializer::checkExit(SerializerState state) {
-    DEV_ASSERT(!stack_.empty() && stack_.back() == state);
-    stack_.pop_back();
+    DEV_ASSERT(!m_stack.empty() && m_stack.back() == state);
+    m_stack.pop_back();
 }
 #endif
 

@@ -4,6 +4,7 @@
 
 #include "cave/render/components/MeshRendererComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -16,7 +17,7 @@ namespace cave {
 // ecs::Entity m_skeleton_id ()
 
 template<>
-const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<MeshRendererComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             MeshRendererComponent,
@@ -25,7 +26,8 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
             m_visible,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             MeshRendererComponent,
@@ -34,7 +36,8 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
             m_cast_shadow,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             MeshRendererComponent,
@@ -43,7 +46,8 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
             m_transparent,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             MeshRendererComponent,
@@ -52,7 +56,8 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
             m_mesh_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            &::cave::InvokeFieldChanged<MeshRendererComponent, &MeshRendererComponent::onMeshGuidChanged>
+            &::cave::InvokeFieldChanged<MeshRendererComponent, &MeshRendererComponent::onMeshGuidChanged>,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             MeshRendererComponent,
@@ -61,7 +66,8 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
             m_materials,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<FixedStack<ecs::Entity, 8>>::get()
         ),
         REGISTER_FIELD(
             MeshRendererComponent,
@@ -70,7 +76,8 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
             m_skeleton_id,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<ecs::Entity>::get()
         ),
     };
 
@@ -78,6 +85,6 @@ const MetaTableFields& MetaDataTable<MeshRendererComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_MeshRendererComponent_meta = MetaDataTable<MeshRendererComponent>::GetFields();
+[[maybe_unused]] static const auto& s_MeshRendererComponent_meta = MetaDataTable<MeshRendererComponent>::getFields();
 
 }  // namespace cave

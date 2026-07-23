@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/HierarchyComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -12,7 +13,7 @@ namespace cave {
 // bool m_local_visible ()
 
 template<>
-const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<HierarchyComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             HierarchyComponent,
@@ -21,7 +22,8 @@ const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
             m_parent_id,
             FieldFlag::Serialize,
             EditorHint::None,
-            &::cave::InvokeFieldChanged<HierarchyComponent, &HierarchyComponent::onParentChanged>
+            &::cave::InvokeFieldChanged<HierarchyComponent, &HierarchyComponent::onParentChanged>,
+            FieldOpsFor<ecs::Entity>::get()
         ),
         REGISTER_FIELD(
             HierarchyComponent,
@@ -30,7 +32,8 @@ const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
             m_local_visible,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
     };
 
@@ -38,6 +41,6 @@ const MetaTableFields& MetaDataTable<HierarchyComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_HierarchyComponent_meta = MetaDataTable<HierarchyComponent>::GetFields();
+[[maybe_unused]] static const auto& s_HierarchyComponent_meta = MetaDataTable<HierarchyComponent>::getFields();
 
 }  // namespace cave

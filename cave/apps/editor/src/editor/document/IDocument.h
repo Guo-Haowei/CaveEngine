@@ -29,6 +29,7 @@ public:
     virtual bool undo() = 0;
     virtual bool redo() = 0;
 
+    virtual void markDirty() = 0;
     virtual void markSaved() = 0;
     virtual bool isDirty() const = 0;
 

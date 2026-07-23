@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ui/UIComponents.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -13,7 +14,7 @@ namespace cave {
 // float match (editor = InputFloat)
 
 template<>
-const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<UICanvasComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             UICanvasComponent,
@@ -22,7 +23,8 @@ const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
             space,
             FieldFlag::Serialize,
             EditorHint::EnumDropDown,
-            nullptr
+            nullptr,
+            FieldOpsFor<UICanvasSpace>::get()
         ),
         REGISTER_FIELD(
             UICanvasComponent,
@@ -31,7 +33,8 @@ const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
             resolution,
             FieldFlag::Serialize,
             EditorHint::Translation2D,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec2f>::get()
         ),
         REGISTER_FIELD(
             UICanvasComponent,
@@ -40,7 +43,8 @@ const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
             match,
             FieldFlag::Serialize,
             EditorHint::InputFloat,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
     };
 
@@ -48,7 +52,7 @@ const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_UICanvasComponent_meta = MetaDataTable<UICanvasComponent>::GetFields();
+[[maybe_unused]] static const auto& s_UICanvasComponent_meta = MetaDataTable<UICanvasComponent>::getFields();
 
 // math::Vec2f anchor_min (editor = Translation2D)
 // math::Vec2f anchor_max (editor = Translation2D)
@@ -56,7 +60,7 @@ const MetaTableFields& MetaDataTable<UICanvasComponent>::GetFields() {
 // math::Vec2f offset_max (editor = Translation2D)
 
 template<>
-const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<UIRectTransformComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             UIRectTransformComponent,
@@ -65,7 +69,8 @@ const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
             anchor_min,
             FieldFlag::Serialize,
             EditorHint::Translation2D,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec2f>::get()
         ),
         REGISTER_FIELD(
             UIRectTransformComponent,
@@ -74,7 +79,8 @@ const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
             anchor_max,
             FieldFlag::Serialize,
             EditorHint::Translation2D,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec2f>::get()
         ),
         REGISTER_FIELD(
             UIRectTransformComponent,
@@ -83,7 +89,8 @@ const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
             offset_min,
             FieldFlag::Serialize,
             EditorHint::Translation2D,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec2f>::get()
         ),
         REGISTER_FIELD(
             UIRectTransformComponent,
@@ -92,7 +99,8 @@ const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
             offset_max,
             FieldFlag::Serialize,
             EditorHint::Translation2D,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec2f>::get()
         ),
     };
 
@@ -100,13 +108,13 @@ const MetaTableFields& MetaDataTable<UIRectTransformComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_UIRectTransformComponent_meta = MetaDataTable<UIRectTransformComponent>::GetFields();
+[[maybe_unused]] static const auto& s_UIRectTransformComponent_meta = MetaDataTable<UIRectTransformComponent>::getFields();
 
 // String clicked_event (editor = InputText)
 // math::Vec4f tint (editor = Color)
 
 template<>
-const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<UIButtonComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             UIButtonComponent,
@@ -115,7 +123,8 @@ const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
             clicked_event,
             FieldFlag::Serialize,
             EditorHint::InputText,
-            nullptr
+            nullptr,
+            FieldOpsFor<String>::get()
         ),
         REGISTER_FIELD(
             UIButtonComponent,
@@ -124,7 +133,8 @@ const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
             tint,
             FieldFlag::Serialize,
             EditorHint::Color,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec4f>::get()
         ),
     };
 
@@ -132,13 +142,13 @@ const MetaTableFields& MetaDataTable<UIButtonComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_UIButtonComponent_meta = MetaDataTable<UIButtonComponent>::GetFields();
+[[maybe_unused]] static const auto& s_UIButtonComponent_meta = MetaDataTable<UIButtonComponent>::getFields();
 
 // Guid m_image_guid (editor = Asset, on_change = onImageGuidChanged)
 // math::Vec4f m_tint (editor = Color)
 
 template<>
-const MetaTableFields& MetaDataTable<UIImageComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<UIImageComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             UIImageComponent,
@@ -147,7 +157,8 @@ const MetaTableFields& MetaDataTable<UIImageComponent>::GetFields() {
             m_image_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            &::cave::InvokeFieldChanged<UIImageComponent, &UIImageComponent::onImageGuidChanged>
+            &::cave::InvokeFieldChanged<UIImageComponent, &UIImageComponent::onImageGuidChanged>,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             UIImageComponent,
@@ -156,7 +167,8 @@ const MetaTableFields& MetaDataTable<UIImageComponent>::GetFields() {
             m_tint,
             FieldFlag::Serialize,
             EditorHint::Color,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec4f>::get()
         ),
     };
 
@@ -164,11 +176,11 @@ const MetaTableFields& MetaDataTable<UIImageComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_UIImageComponent_meta = MetaDataTable<UIImageComponent>::GetFields();
+[[maybe_unused]] static const auto& s_UIImageComponent_meta = MetaDataTable<UIImageComponent>::getFields();
 
 
 template<>
-const MetaTableFields& MetaDataTable<UITextComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<UITextComponent>::getFields() {
     static MetaTableFields s_table = {
     };
 
@@ -176,6 +188,6 @@ const MetaTableFields& MetaDataTable<UITextComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_UITextComponent_meta = MetaDataTable<UITextComponent>::GetFields();
+[[maybe_unused]] static const auto& s_UITextComponent_meta = MetaDataTable<UITextComponent>::getFields();
 
 }  // namespace cave

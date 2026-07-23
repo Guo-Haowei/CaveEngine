@@ -2,6 +2,7 @@
 // File: cave/core/diagnostics/CommandRegistry.h
 // =============================================================================
 #pragma once
+#include "cave/core/containers/Containers.h"
 #include "cave/core/diagnostics/Command.h"
 
 namespace cave {
@@ -14,10 +15,10 @@ public:
 
     [[nodiscard]] std::span<const CommandDesc> allCommands() const;
 
-    void findByPrefix(std::string_view prefix, std::vector<std::string_view>& out) const;
+    void findByPrefix(std::string_view prefix, Vector<std::string_view>& out) const;
 
 private:
-    std::vector<CommandDesc> cmds_;
+    Vector<CommandDesc> m_cmds;
 };
 
 }  // namespace cave

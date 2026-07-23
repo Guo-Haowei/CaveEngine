@@ -35,51 +35,51 @@ public:
     void start(const std::string& path);
     void stop();
 
-    bool hasChanged() const { return changed_.load(); }
+    bool hasChanged() const { return m_changed.load(); }
 
-    void clearFlag() { changed_.store(false); }
+    void clearFlag() { m_changed.store(false); }
 
-    bool isStopped() const { return stop_; }
+    bool isStopped() const { return m_stop; }
 
 private:
     void watchLoop();
 
-    std::string path_;
-    std::thread thread_;
-    std::atomic<bool> stop_{ true };
-    std::atomic<bool> changed_{ true };  // set to true to trigger build the first frame
-    HANDLE dir_handle_ = INVALID_HANDLE_VALUE;
+    std::string m_path;
+    std::thread m_thread;
+    std::atomic<bool> m_stop{ true };
+    std::atomic<bool> m_changed{ true };  // set to true to trigger build the first frame
+    HANDLE m_dir_handle = INVALID_HANDLE_VALUE;
 };
 
 void FileWatcher::start(const std::string& path) {
-    path_ = path;
-    stop_ = false;
+    m_path = path;
+    m_stop = false;
 
-    thread_ = std::thread([this]() {
+    m_thread = std::thread([this]() {
         watchLoop();
     });
 }
 
 void FileWatcher::stop() {
-    stop_ = true;
-    if (dir_handle_ != INVALID_HANDLE_VALUE) {
-        ::CancelIoEx(dir_handle_, nullptr);
+    m_stop = true;
+    if (m_dir_handle != INVALID_HANDLE_VALUE) {
+        ::CancelIoEx(m_dir_handle, nullptr);
     }
 
-    if (thread_.joinable()) {
-        thread_.join();
+    if (m_thread.joinable()) {
+        m_thread.join();
     }
 
-    if (dir_handle_ != INVALID_HANDLE_VALUE) {
-        ::CloseHandle(dir_handle_);
-        dir_handle_ = INVALID_HANDLE_VALUE;
+    if (m_dir_handle != INVALID_HANDLE_VALUE) {
+        ::CloseHandle(m_dir_handle);
+        m_dir_handle = INVALID_HANDLE_VALUE;
     }
 }
 
 void FileWatcher::watchLoop() {
-    std::wstring path(path_.begin(), path_.end());
+    std::wstring path(m_path.begin(), m_path.end());
 
-    dir_handle_ = ::CreateFileW(
+    m_dir_handle = ::CreateFileW(
         path.c_str(),
         FILE_LIST_DIRECTORY,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -88,8 +88,8 @@ void FileWatcher::watchLoop() {
         FILE_FLAG_BACKUP_SEMANTICS,
         nullptr);
 
-    if (dir_handle_ == INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Failed to open directory {}", path_);
+    if (m_dir_handle == INVALID_HANDLE_VALUE) {
+        LOG_ERROR("Failed to open directory {}", m_path);
         return;
     }
 
@@ -97,9 +97,9 @@ void FileWatcher::watchLoop() {
     BYTE buffer[bufferSize];
     DWORD bytesReturned;
 
-    while (!stop_.load()) {
+    while (!m_stop.load()) {
         BOOL success = ReadDirectoryChangesW(
-            dir_handle_,
+            m_dir_handle,
             buffer,
             bufferSize,
             TRUE,  // recursive
@@ -110,11 +110,11 @@ void FileWatcher::watchLoop() {
             nullptr,
             nullptr);
 
-        if (!success || stop_.load()) {
+        if (!success || m_stop.load()) {
             break;
         }
 
-        changed_.store(true);  // flag to main thread
+        m_changed.store(true);  // flag to main thread
     }
 }
 

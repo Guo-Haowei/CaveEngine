@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -13,7 +14,7 @@ namespace cave {
 // math::Vec3f m_scale (editor = Scale, on_change = onTransformChanged)
 
 template<>
-const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<TransformComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             TransformComponent,
@@ -22,7 +23,8 @@ const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {
             m_translation,
             FieldFlag::Serialize,
             EditorHint::Translation,
-            &::cave::InvokeFieldChanged<TransformComponent, &TransformComponent::onTransformChanged>
+            &::cave::InvokeFieldChanged<TransformComponent, &TransformComponent::onTransformChanged>,
+            FieldOpsFor<math::Vec3f>::get()
         ),
         REGISTER_FIELD(
             TransformComponent,
@@ -31,7 +33,8 @@ const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {
             m_rotation,
             FieldFlag::Serialize,
             EditorHint::Rotation,
-            &::cave::InvokeFieldChanged<TransformComponent, &TransformComponent::onTransformChanged>
+            &::cave::InvokeFieldChanged<TransformComponent, &TransformComponent::onTransformChanged>,
+            FieldOpsFor<math::Vec4f>::get()
         ),
         REGISTER_FIELD(
             TransformComponent,
@@ -40,7 +43,8 @@ const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {
             m_scale,
             FieldFlag::Serialize,
             EditorHint::Scale,
-            &::cave::InvokeFieldChanged<TransformComponent, &TransformComponent::onTransformChanged>
+            &::cave::InvokeFieldChanged<TransformComponent, &TransformComponent::onTransformChanged>,
+            FieldOpsFor<math::Vec3f>::get()
         ),
     };
 
@@ -48,6 +52,6 @@ const MetaTableFields& MetaDataTable<TransformComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_TransformComponent_meta = MetaDataTable<TransformComponent>::GetFields();
+[[maybe_unused]] static const auto& s_TransformComponent_meta = MetaDataTable<TransformComponent>::getFields();
 
 }  // namespace cave

@@ -4,6 +4,7 @@
 
 #include "cave/render/components/BackgroundComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -12,7 +13,7 @@ namespace cave {
 // math::Vec2f parallax (editor = Translation2D)
 
 template<>
-const MetaTableFields& MetaDataTable<BackgroundComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<BackgroundComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             BackgroundComponent,
@@ -21,7 +22,8 @@ const MetaTableFields& MetaDataTable<BackgroundComponent>::GetFields() {
             repeat_size,
             FieldFlag::Serialize,
             EditorHint::Translation2D,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec2f>::get()
         ),
         REGISTER_FIELD(
             BackgroundComponent,
@@ -30,7 +32,8 @@ const MetaTableFields& MetaDataTable<BackgroundComponent>::GetFields() {
             parallax,
             FieldFlag::Serialize,
             EditorHint::Translation2D,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec2f>::get()
         ),
     };
 
@@ -38,6 +41,6 @@ const MetaTableFields& MetaDataTable<BackgroundComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_BackgroundComponent_meta = MetaDataTable<BackgroundComponent>::GetFields();
+[[maybe_unused]] static const auto& s_BackgroundComponent_meta = MetaDataTable<BackgroundComponent>::getFields();
 
 }  // namespace cave

@@ -5,8 +5,9 @@
 namespace cave {
 
 void GridPaintTool::emit(GridPaintEventType type,
+                         GridPaintAction action,
                          const GridPaintPreview* cells) {
-    m_events.push_back(GridPaintEvent{ type, cells });
+    m_events.push_back(GridPaintEvent{ type, action, cells });
 }
 
 void GridPaintTool::appendBrush(GridCoord coord,
@@ -80,10 +81,13 @@ void GridPaintTool::buildHoverPreview(GridCoord coord,
     }
 }
 
-void GridPaintTool::beginStroke(GridCoord coord, GridPaintMode mode) {
+void GridPaintTool::beginStroke(GridCoord coord,
+                                GridPaintAction action,
+                                GridPaintMode mode) {
     m_stroke = {
         .active = true,
         .mode = mode,
+        .action = action,
         .start = coord,
         .previous = coord,
         .current = coord,
@@ -92,11 +96,11 @@ void GridPaintTool::beginStroke(GridCoord coord, GridPaintMode mode) {
 
     buildStrokePreview();
 
-    emit(GridPaintEventType::Begin);
+    emit(GridPaintEventType::Begin, action);
 
     if (mode == GridPaintMode::Brush) {
         m_apply_buffer = m_preview;
-        emit(GridPaintEventType::Apply, &m_apply_buffer);
+        emit(GridPaintEventType::Apply, action, &m_apply_buffer);
     }
 }
 
@@ -125,8 +129,7 @@ void GridPaintTool::updateStroke(GridCoord coord) {
                     m_apply_buffer);
             });
 
-        emit(GridPaintEventType::Apply,
-             &m_apply_buffer);
+        emit(GridPaintEventType::Apply, m_stroke.action, &m_apply_buffer);
 
         // Ghost only shows the current brush footprint.
         buildBrushPreview(
@@ -150,10 +153,10 @@ void GridPaintTool::finishStroke() {
         buildStrokePreview();
 
         m_apply_buffer = m_preview;
-        emit(GridPaintEventType::Apply, &m_apply_buffer);
+        emit(GridPaintEventType::Apply, m_stroke.action, &m_apply_buffer);
     }
 
-    emit(GridPaintEventType::End);
+    emit(GridPaintEventType::End, m_stroke.action);
 
     m_stroke = {};
     m_preview.clear();
@@ -164,23 +167,33 @@ void GridPaintTool::cancelStroke() {
         return;
     }
 
+    auto action = m_stroke.action;
     m_stroke = {};
     m_preview.clear();
 
-    emit(GridPaintEventType::Cancel);
+    emit(GridPaintEventType::Cancel, action);
 }
 
 auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridPaintEvent> {
     m_events.clear();
 
-    if (m_selected_mode == GridPaintMode::Fill && input.has_hover) {
-        m_apply_buffer.clear();
-        m_apply_buffer.push_back({ input.hover });
+    if (m_selected_mode == GridPaintMode::Fill) {
+        m_preview.clear();
 
-        if (input.left_down) {
-            emit(GridPaintEventType::Fill, &m_apply_buffer);
+        if (!input.has_hover) {
             return m_events;
         }
+
+        m_apply_buffer.clear();
+        m_apply_buffer.push_back({ .coord = input.hover });
+
+        if (input.left_pressed) {
+            emit(GridPaintEventType::Fill, GridPaintAction::Paint, &m_apply_buffer);
+        } else if (input.right_pressed) {
+            emit(GridPaintEventType::Fill, GridPaintAction::Erase, &m_apply_buffer);
+        }
+
+        return m_events;
     }
 
     if (m_stroke.active && !input.has_hover) {
@@ -195,7 +208,12 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
         }
 
         if (input.left_pressed) {
-            beginStroke(input.hover, m_selected_mode);
+            beginStroke(input.hover, GridPaintAction::Paint, m_selected_mode);
+            return m_events;
+        }
+
+        if (input.right_pressed) {
+            beginStroke(input.hover, GridPaintAction::Erase, m_selected_mode);
             return m_events;
         }
 
@@ -203,16 +221,23 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
         return m_events;
     }
 
-    // The active mode/action/brush are frozen until release.
     if (input.has_hover) {
         updateStroke(input.hover);
     }
 
-    if (input.left_released) {
+    const bool released = m_stroke.action == GridPaintAction::Paint
+                              ? input.left_released
+                              : input.right_released;
+
+    if (released) {
         finishStroke();
     }
 
     return m_events;
+}
+
+GridPaintAction GridPaintTool::currentAction() const {
+    return m_stroke.active ? m_stroke.action : GridPaintAction::Paint;
 }
 
 void GridPaintTool::reset() {
