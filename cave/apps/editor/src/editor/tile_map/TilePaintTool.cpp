@@ -98,13 +98,13 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
 
         if (is_painting) {
             ImageDrawOptions options{};
-            options.tint = Vec4f(Vec3f::One, 0.5f);
+            options.tint = Vec4f(Vec3f::One, 0.7f);
             options.uv_min = uv_min;
             options.uv_max = uv_max;
             canvas.addImage(image->gpu_texture.get(), min, max, options);
         } else {
             Draw2DOptions options = { .z_index = 0,
-                                      .tint = { 1.0f, 0.5f, 0.5f, 0.5f } };
+                                      .tint = { 1.0f, 0.5f, 0.5f, 0.7f } };
             canvas.addBox2(min, max, options);
         }
     }
