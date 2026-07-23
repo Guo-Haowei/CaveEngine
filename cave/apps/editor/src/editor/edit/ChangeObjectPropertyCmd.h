@@ -56,7 +56,7 @@ private:
         const auto* prop = meta->find(m_pid);
         if (!prop) return false;
 
-        prop->template GetData<ValueT>(component) = value;
+        prop->template getData<ValueT>(component) = value;
         return true;
     }
 

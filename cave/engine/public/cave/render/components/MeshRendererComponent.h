@@ -30,7 +30,7 @@ private:
     Guid m_mesh_guid;
 
     CAVE_PROP()
-    FixedStack<ecs::Entity, kMaxMaterial> m_materials;
+    FixedStack<ecs::Entity, 8> m_materials;
 
     CAVE_PROP()
     ecs::Entity m_skeleton_id;

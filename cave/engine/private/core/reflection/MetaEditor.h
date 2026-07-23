@@ -37,15 +37,5 @@ bool DrawEnumDropDown(std::string_view name, T& enum_type, float column_width) {
     return dirty;
 }
 
-template<typename T>
-bool FieldMeta<T>::DrawEditor(void* object, float column_width) const {
-    if constexpr (HasEnumTraits<T>) {
-        T& enum_value = GetData<T>(object);
-        return DrawEnumDropDown<T>(name, enum_value, column_width);
-    } else {
-        return false;
-    }
-}
-
 }  // namespace cave
 #endif

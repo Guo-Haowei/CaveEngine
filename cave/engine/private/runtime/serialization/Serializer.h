@@ -157,13 +157,13 @@ public:
 #if USING(USE_REFLECTION)
     template<IsReflectable T>
     ISerializer& write(const T& object) {
-        const auto& meta = MetaDataTable<T>::GetFields();
+        const auto& meta = MetaDataTable<T>::getFields();
 
         beginMap(false);
 
-        for (const auto& field : meta) {
-            if ((field->flags & FieldFlag::Serialize) == FieldFlag::None) continue;
-            field->Write(*this, &object);
+        for (const FieldMetaBase& field : meta) {
+            if ((field.flags & FieldFlag::Serialize) == FieldFlag::None) continue;
+            field.write(*this, &object);
         }
 
         endMap();
@@ -180,11 +180,5 @@ protected:
     Vector<SerializerState> m_stack;
 #endif
 };
-
-template<typename T>
-ISerializer& FieldMeta<T>::Write(ISerializer& serializer, const void* object) const {
-    const T& data = FieldMetaBase::GetData<T>(object);
-    return serializer.beginKey(name).write(data);
-}
 
 }  // namespace cave

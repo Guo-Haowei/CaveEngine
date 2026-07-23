@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/LightComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -16,7 +17,7 @@ namespace cave {
 // bool m_cast_shadow (editor = Toggle)
 
 template<>
-const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<LightComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             LightComponent,
@@ -25,7 +26,8 @@ const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
             m_type,
             FieldFlag::Serialize,
             EditorHint::EnumDropDown,
-            nullptr
+            nullptr,
+            FieldOpsFor<LightType>::get()
         ),
         REGISTER_FIELD(
             LightComponent,
@@ -35,6 +37,7 @@ const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0,
             1
         ),
@@ -46,6 +49,7 @@ const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0,
             1
         ),
@@ -57,6 +61,7 @@ const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0,
             1
         ),
@@ -67,7 +72,8 @@ const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
             m_shadow_region,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::AABB>::get()
         ),
         REGISTER_FIELD(
             LightComponent,
@@ -76,7 +82,8 @@ const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
             m_cast_shadow,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
     };
 
@@ -84,6 +91,6 @@ const MetaTableFields& MetaDataTable<LightComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_LightComponent_meta = MetaDataTable<LightComponent>::GetFields();
+[[maybe_unused]] static const auto& s_LightComponent_meta = MetaDataTable<LightComponent>::getFields();
 
 }  // namespace cave

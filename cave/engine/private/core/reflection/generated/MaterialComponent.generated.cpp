@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/MaterialComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -15,7 +16,7 @@ namespace cave {
 // Guid m_material_id (editor = Asset, on_change = onMaterialGuidChanged)
 
 template<>
-const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<MaterialComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             MaterialComponent,
@@ -24,7 +25,8 @@ const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
             base_color,
             FieldFlag::Serialize,
             EditorHint::Color,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec4f>::get()
         ),
         REGISTER_FIELD(
             MaterialComponent,
@@ -34,6 +36,7 @@ const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0.00f,
             0.99f
         ),
@@ -45,6 +48,7 @@ const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0.01f,
             1
         ),
@@ -56,6 +60,7 @@ const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0,
             1000
         ),
@@ -66,7 +71,8 @@ const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
             m_material_id,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            &::cave::InvokeFieldChanged<MaterialComponent, &MaterialComponent::onMaterialGuidChanged>
+            &::cave::InvokeFieldChanged<MaterialComponent, &MaterialComponent::onMaterialGuidChanged>,
+            FieldOpsFor<Guid>::get()
         ),
     };
 
@@ -74,6 +80,6 @@ const MetaTableFields& MetaDataTable<MaterialComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_MaterialComponent_meta = MetaDataTable<MaterialComponent>::GetFields();
+[[maybe_unused]] static const auto& s_MaterialComponent_meta = MetaDataTable<MaterialComponent>::getFields();
 
 }  // namespace cave

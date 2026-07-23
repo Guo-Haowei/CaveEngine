@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/SkeletalAnimationComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -12,7 +13,7 @@ namespace cave {
 // std::vector<math::Mat4f> inverse_bind_matrices ()
 
 template<>
-const MetaTableFields& MetaDataTable<SkeletonComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<SkeletonComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SkeletonComponent,
@@ -21,7 +22,8 @@ const MetaTableFields& MetaDataTable<SkeletonComponent>::GetFields() {
             bone_collection,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::vector<ecs::Entity>>::get()
         ),
         REGISTER_FIELD(
             SkeletonComponent,
@@ -30,7 +32,8 @@ const MetaTableFields& MetaDataTable<SkeletonComponent>::GetFields() {
             inverse_bind_matrices,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::vector<math::Mat4f>>::get()
         ),
     };
 
@@ -38,14 +41,14 @@ const MetaTableFields& MetaDataTable<SkeletonComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SkeletonComponent_meta = MetaDataTable<SkeletonComponent>::GetFields();
+[[maybe_unused]] static const auto& s_SkeletonComponent_meta = MetaDataTable<SkeletonComponent>::getFields();
 
 // AnimationChannelPath path ()
 // ecs::Entity target_id ()
 // int sampler_index ()
 
 template<>
-const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::GetFields() {
+const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SkeletalAnimationChannel,
@@ -54,7 +57,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::GetFields() {
             path,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<AnimationChannelPath>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationChannel,
@@ -63,7 +67,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::GetFields() {
             target_id,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<ecs::Entity>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationChannel,
@@ -72,7 +77,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::GetFields() {
             sampler_index,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<int>::get()
         ),
     };
 
@@ -80,13 +86,13 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationChannel>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SkeletalAnimationChannel_meta = MetaDataTable<SkeletalAnimationChannel>::GetFields();
+[[maybe_unused]] static const auto& s_SkeletalAnimationChannel_meta = MetaDataTable<SkeletalAnimationChannel>::getFields();
 
 // std::vector<float> keyframe_times ()
 // std::vector<float> keyframe_data ()
 
 template<>
-const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::GetFields() {
+const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SkeletalAnimationSampler,
@@ -95,7 +101,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::GetFields() {
             keyframe_times,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::vector<float>>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationSampler,
@@ -104,7 +111,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::GetFields() {
             keyframe_data,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::vector<float>>::get()
         ),
     };
 
@@ -112,7 +120,7 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SkeletalAnimationSampler_meta = MetaDataTable<SkeletalAnimationSampler>::GetFields();
+[[maybe_unused]] static const auto& s_SkeletalAnimationSampler_meta = MetaDataTable<SkeletalAnimationSampler>::getFields();
 
 // bool m_playing (editor = Toggle)
 // bool m_looped (editor = Toggle)
@@ -125,7 +133,7 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationSampler>::GetFields() {
 // std::vector<SkeletalAnimationSampler> m_samplers ()
 
 template<>
-const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -134,7 +142,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_playing,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -143,7 +152,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_looped,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -153,6 +163,7 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0,
             1000
         ),
@@ -163,7 +174,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_start,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -172,7 +184,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_end,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -181,7 +194,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_timer,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -190,7 +204,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_blend_amount,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -199,7 +214,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_channels,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::vector<SkeletalAnimationChannel>>::get()
         ),
         REGISTER_FIELD(
             SkeletalAnimationComponent,
@@ -208,7 +224,8 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
             m_samplers,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::vector<SkeletalAnimationSampler>>::get()
         ),
     };
 
@@ -216,6 +233,6 @@ const MetaTableFields& MetaDataTable<SkeletalAnimationComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_SkeletalAnimationComponent_meta = MetaDataTable<SkeletalAnimationComponent>::GetFields();
+[[maybe_unused]] static const auto& s_SkeletalAnimationComponent_meta = MetaDataTable<SkeletalAnimationComponent>::getFields();
 
 }  // namespace cave

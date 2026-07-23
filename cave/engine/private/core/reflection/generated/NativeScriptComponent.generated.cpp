@@ -4,6 +4,7 @@
 
 #include "cave/runtime/script/native/NativeScriptComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -12,7 +13,7 @@ namespace cave {
 // VariantMap params (editor = VariantMap)
 
 template<>
-const MetaTableFields& MetaDataTable<NativeScriptComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<NativeScriptComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             NativeScriptComponent,
@@ -21,7 +22,8 @@ const MetaTableFields& MetaDataTable<NativeScriptComponent>::GetFields() {
             name,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<FixedString<32>>::get()
         ),
         REGISTER_FIELD(
             NativeScriptComponent,
@@ -30,7 +32,8 @@ const MetaTableFields& MetaDataTable<NativeScriptComponent>::GetFields() {
             params,
             FieldFlag::Serialize,
             EditorHint::VariantMap,
-            nullptr
+            nullptr,
+            FieldOpsFor<VariantMap>::get()
         ),
     };
 
@@ -38,6 +41,6 @@ const MetaTableFields& MetaDataTable<NativeScriptComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_NativeScriptComponent_meta = MetaDataTable<NativeScriptComponent>::GetFields();
+[[maybe_unused]] static const auto& s_NativeScriptComponent_meta = MetaDataTable<NativeScriptComponent>::getFields();
 
 }  // namespace cave

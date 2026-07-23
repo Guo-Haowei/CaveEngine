@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/TriggerComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -11,7 +12,7 @@ namespace cave {
 // bool enabled (editor = Toggle)
 
 template<>
-const MetaTableFields& MetaDataTable<TriggerComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<TriggerComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             TriggerComponent,
@@ -20,7 +21,8 @@ const MetaTableFields& MetaDataTable<TriggerComponent>::GetFields() {
             enabled,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
     };
 
@@ -28,6 +30,6 @@ const MetaTableFields& MetaDataTable<TriggerComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_TriggerComponent_meta = MetaDataTable<TriggerComponent>::GetFields();
+[[maybe_unused]] static const auto& s_TriggerComponent_meta = MetaDataTable<TriggerComponent>::getFields();
 
 }  // namespace cave

@@ -4,6 +4,7 @@
 
 #include "cave/runtime/tile_map/TileSetAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -12,7 +13,7 @@ namespace cave {
 // float duration ()
 
 template<>
-const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
+const MetaTableFields& MetaDataTable<TileFrame>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             TileFrame,
@@ -21,7 +22,8 @@ const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
             atlas_index,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<uint32_t>::get()
         ),
         REGISTER_FIELD(
             TileFrame,
@@ -30,7 +32,8 @@ const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
             duration,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
     };
 
@@ -38,7 +41,7 @@ const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_TileFrame_meta = MetaDataTable<TileFrame>::GetFields();
+[[maybe_unused]] static const auto& s_TileFrame_meta = MetaDataTable<TileFrame>::getFields();
 
 // uint32_t id ()
 // CollisionType collision ()
@@ -48,7 +51,7 @@ const MetaTableFields& MetaDataTable<TileFrame>::GetFields() {
 // Vector<TileFrame> animation ()
 
 template<>
-const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
+const MetaTableFields& MetaDataTable<TileDefinition>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             TileDefinition,
@@ -57,7 +60,8 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             id,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<uint32_t>::get()
         ),
         REGISTER_FIELD(
             TileDefinition,
@@ -66,7 +70,8 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             collision,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<CollisionType>::get()
         ),
         REGISTER_FIELD(
             TileDefinition,
@@ -75,7 +80,8 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             collision_shape,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Box2>::get()
         ),
         REGISTER_FIELD(
             TileDefinition,
@@ -84,7 +90,8 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             layer,
             FieldFlag::Serialize,
             EditorHint::BitMask,
-            nullptr
+            nullptr,
+            FieldOpsFor<uint32_t>::get()
         ),
         REGISTER_FIELD(
             TileDefinition,
@@ -93,7 +100,8 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             mask,
             FieldFlag::Serialize,
             EditorHint::BitMask,
-            nullptr
+            nullptr,
+            FieldOpsFor<uint32_t>::get()
         ),
         REGISTER_FIELD(
             TileDefinition,
@@ -102,7 +110,8 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
             animation,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<Vector<TileFrame>>::get()
         ),
     };
 
@@ -110,7 +119,7 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_TileDefinition_meta = MetaDataTable<TileDefinition>::GetFields();
+[[maybe_unused]] static const auto& s_TileDefinition_meta = MetaDataTable<TileDefinition>::getFields();
 
 // Guid m_image_guid (editor = Asset)
 // float m_tile_scale (editor = DragFloat, min = 0.01f, max = 100.0f)
@@ -119,7 +128,7 @@ const MetaTableFields& MetaDataTable<TileDefinition>::GetFields() {
 // Vector<TileDefinition> m_tiles ()
 
 template<>
-const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
+const MetaTableFields& MetaDataTable<TileSetAsset>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             TileSetAsset,
@@ -128,7 +137,8 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
             m_image_guid,
             FieldFlag::Serialize,
             EditorHint::Asset,
-            nullptr
+            nullptr,
+            FieldOpsFor<Guid>::get()
         ),
         REGISTER_FIELD(
             TileSetAsset,
@@ -138,6 +148,7 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0.01f,
             100.0f
         ),
@@ -149,6 +160,7 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::InputInt,
             nullptr,
+            FieldOpsFor<uint32_t>::get(),
             1,
             1000
         ),
@@ -160,6 +172,7 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::InputInt,
             nullptr,
+            FieldOpsFor<uint32_t>::get(),
             1,
             1000
         ),
@@ -170,7 +183,8 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
             m_tiles,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<Vector<TileDefinition>>::get()
         ),
     };
 
@@ -178,6 +192,6 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_TileSetAsset_meta = MetaDataTable<TileSetAsset>::GetFields();
+[[maybe_unused]] static const auto& s_TileSetAsset_meta = MetaDataTable<TileSetAsset>::getFields();
 
 }  // namespace cave

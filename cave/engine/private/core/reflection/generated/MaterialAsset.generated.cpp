@@ -4,6 +4,7 @@
 
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -15,7 +16,7 @@ namespace cave {
 // std::array<Guid, std::to_underlying(TextureSlot::Count)> textures ()
 
 template<>
-const MetaTableFields& MetaDataTable<MaterialAsset>::GetFields() {
+const MetaTableFields& MetaDataTable<MaterialAsset>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             MaterialAsset,
@@ -24,7 +25,8 @@ const MetaTableFields& MetaDataTable<MaterialAsset>::GetFields() {
             base_color,
             FieldFlag::Serialize,
             EditorHint::Color,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec4f>::get()
         ),
         REGISTER_FIELD(
             MaterialAsset,
@@ -34,6 +36,7 @@ const MetaTableFields& MetaDataTable<MaterialAsset>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0.00f,
             0.99f
         ),
@@ -45,6 +48,7 @@ const MetaTableFields& MetaDataTable<MaterialAsset>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0.01f,
             0.1f
         ),
@@ -56,6 +60,7 @@ const MetaTableFields& MetaDataTable<MaterialAsset>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0,
             1000
         ),
@@ -66,7 +71,8 @@ const MetaTableFields& MetaDataTable<MaterialAsset>::GetFields() {
             textures,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<std::array<Guid, std::to_underlying(TextureSlot::Count)>>::get()
         ),
     };
 
@@ -74,6 +80,6 @@ const MetaTableFields& MetaDataTable<MaterialAsset>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_MaterialAsset_meta = MetaDataTable<MaterialAsset>::GetFields();
+[[maybe_unused]] static const auto& s_MaterialAsset_meta = MetaDataTable<MaterialAsset>::getFields();
 
 }  // namespace cave

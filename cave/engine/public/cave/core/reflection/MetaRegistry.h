@@ -5,7 +5,7 @@
 #include <span>
 #include <string_view>
 
-#include "cave/core/containers/Containers.h"
+#include "cave/core/reflection/Meta.h"
 #include "cave/core/reflection/Reflection.h"
 
 namespace cave {
@@ -17,7 +17,7 @@ struct MetaTable {
     uint32_t align;
     uint64_t version;
 
-    std::span<const FieldMetaBase* const> props;
+    std::span<const FieldMetaBase> props;
 
     const FieldMetaBase* find(const PropertyId& property_type) const;
 };

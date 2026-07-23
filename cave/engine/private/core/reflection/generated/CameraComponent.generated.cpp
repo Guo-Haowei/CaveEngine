@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/CameraComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -17,7 +18,7 @@ namespace cave {
 // float m_ortho_height (editor = InputFloat)
 
 template<>
-const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<CameraComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             CameraComponent,
@@ -26,7 +27,8 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
             m_flags,
             FieldFlag::Serialize,
             EditorHint::None,
-            nullptr
+            nullptr,
+            FieldOpsFor<uint32_t>::get()
         ),
         REGISTER_FIELD(
             CameraComponent,
@@ -35,7 +37,8 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
             m_projection,
             FieldFlag::Serialize,
             EditorHint::EnumDropDown,
-            nullptr
+            nullptr,
+            FieldOpsFor<ProjectionType>::get()
         ),
         REGISTER_FIELD(
             CameraComponent,
@@ -45,6 +48,7 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             1,
             179
         ),
@@ -56,6 +60,7 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             0.1f,
             9
         ),
@@ -67,6 +72,7 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
             FieldFlag::Serialize,
             EditorHint::DragFloat,
             nullptr,
+            FieldOpsFor<float>::get(),
             10,
             10000
         ),
@@ -77,7 +83,8 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
             m_aspect,
             FieldFlag::Serialize,
             EditorHint::InputFloat,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             CameraComponent,
@@ -86,7 +93,8 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
             m_ortho_height,
             FieldFlag::Serialize,
             EditorHint::InputFloat,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
     };
 
@@ -94,6 +102,6 @@ const MetaTableFields& MetaDataTable<CameraComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_CameraComponent_meta = MetaDataTable<CameraComponent>::GetFields();
+[[maybe_unused]] static const auto& s_CameraComponent_meta = MetaDataTable<CameraComponent>::getFields();
 
 }  // namespace cave

@@ -4,6 +4,7 @@
 
 #include "cave/runtime/ecs/components/TransformAnimationComponent.h"
 #include "engine/private/core/reflection/MetaEditor.h"
+#include "engine/private/core/reflection/FieldOps.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 namespace cave {
@@ -16,7 +17,7 @@ namespace cave {
 // bool destroy_on_finish (editor = Toggle)
 
 template<>
-const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
+const MetaTableFields& MetaDataTable<TransformAnimationComponent>::getFields() {
     static MetaTableFields s_table = {
         REGISTER_FIELD(
             TransformAnimationComponent,
@@ -25,7 +26,8 @@ const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
             begin,
             FieldFlag::Serialize,
             EditorHint::Translation,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec3f>::get()
         ),
         REGISTER_FIELD(
             TransformAnimationComponent,
@@ -34,7 +36,8 @@ const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
             end,
             FieldFlag::Serialize,
             EditorHint::Translation,
-            nullptr
+            nullptr,
+            FieldOpsFor<math::Vec3f>::get()
         ),
         REGISTER_FIELD(
             TransformAnimationComponent,
@@ -43,7 +46,8 @@ const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
             duration,
             FieldFlag::Serialize,
             EditorHint::InputFloat,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             TransformAnimationComponent,
@@ -52,7 +56,8 @@ const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
             elapsed,
             FieldFlag::Serialize,
             EditorHint::DragFloat,
-            nullptr
+            nullptr,
+            FieldOpsFor<float>::get()
         ),
         REGISTER_FIELD(
             TransformAnimationComponent,
@@ -61,7 +66,8 @@ const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
             playing,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
         REGISTER_FIELD(
             TransformAnimationComponent,
@@ -70,7 +76,8 @@ const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
             destroy_on_finish,
             FieldFlag::Serialize,
             EditorHint::Toggle,
-            nullptr
+            nullptr,
+            FieldOpsFor<bool>::get()
         ),
     };
 
@@ -78,6 +85,6 @@ const MetaTableFields& MetaDataTable<TransformAnimationComponent>::GetFields() {
 }
 
 // Avoid lazy init
-[[maybe_unused]] static const auto& s_TransformAnimationComponent_meta = MetaDataTable<TransformAnimationComponent>::GetFields();
+[[maybe_unused]] static const auto& s_TransformAnimationComponent_meta = MetaDataTable<TransformAnimationComponent>::getFields();
 
 }  // namespace cave

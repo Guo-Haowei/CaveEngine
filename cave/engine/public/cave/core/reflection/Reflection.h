@@ -2,8 +2,7 @@
 // File: cave/core/reflection/Reflection.h
 // =============================================================================
 #pragma once
-#include <vector>
-
+#include "cave/core/containers/Containers.h"
 #include "cave/core/typedefs.h"
 #include "cave/core/Option.h"
 #include "cave/core/string/StringId.h"
@@ -43,7 +42,7 @@ struct FieldMetaBase;
 template<typename T>
 class MetaDataTable;
 
-using MetaTableFields = std::vector<const FieldMetaBase*>;
+using MetaTableFields = Vector<FieldMetaBase>;
 
 template<typename T>
 struct EnumTraits;

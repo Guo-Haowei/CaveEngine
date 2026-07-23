@@ -147,7 +147,7 @@ def generate_meta_for_class(f, class_name, fields):
         f.write(f"// {field['type']} {field['name']} ({field['meta']})\n")
 
     f.write("\ntemplate<>\n")
-    f.write(f"const MetaTableFields& MetaDataTable<{class_name}>::GetFields() {{\n")
+    f.write(f"const MetaTableFields& MetaDataTable<{class_name}>::getFields() {{\n")
     f.write("    static MetaTableFields s_table = {\n")
     for field in fields:
         editor_hint = field['extra'].get('editor', 'None')
@@ -161,6 +161,7 @@ def generate_meta_for_class(f, class_name, fields):
 
         num_min = field['extra'].get('min', None)
         num_max = field['extra'].get('max', None)
+        field_type = field['type']
         field_name = field['name']
         display_name = remove_prefix(field_name)
         flags = 'FieldFlag::Serialize'
@@ -174,7 +175,8 @@ def generate_meta_for_class(f, class_name, fields):
             f'            {field_name},\n'
             f'            {flags},\n'
             f'            EditorHint::{editor_hint},\n'
-            f'            {post_change}'
+            f'            {post_change},\n'
+            f'            FieldOpsFor<{field_type}>::get()'
         )
         if num_min is not None:
             register_field += f',\n            {num_min}'
@@ -188,7 +190,7 @@ def generate_meta_for_class(f, class_name, fields):
     f.write("    return s_table;\n")
     f.write("}\n\n")
     f.write(f"// Avoid lazy init\n")
-    f.write(f"[[maybe_unused]] static const auto& s_{class_name}_meta = MetaDataTable<{class_name}>::GetFields();\n\n")
+    f.write(f"[[maybe_unused]] static const auto& s_{class_name}_meta = MetaDataTable<{class_name}>::getFields();\n\n")
     return
 
 def generate_meta_file(base_path, file_path, metas):
@@ -209,6 +211,7 @@ def generate_meta_file(base_path, file_path, metas):
 
         f.write(f'#include "{short_path}"\n')
         f.write('#include "engine/private/core/reflection/MetaEditor.h"\n')
+        f.write('#include "engine/private/core/reflection/FieldOps.h"\n')
         f.write('#include "engine/private/runtime/serialization/YamlInclude.h"\n')
         f.write('\nnamespace cave {\n\n')
 

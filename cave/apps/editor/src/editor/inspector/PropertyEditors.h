@@ -29,11 +29,11 @@ struct DrawObjectCtx {
 template<typename ValueT, typename UIFunc>
 bool EditAndSubmit(const DrawObjectCtx& ctx,
                    void* component,
-                   const FieldMetaBase* field,
+                   const FieldMetaBase& field,
                    UIFunc&& ui_func) {
-    ValueT old_v = field->template GetData<ValueT>(component);
+    ValueT old_v = field.template getData<ValueT>(component);
     ValueT new_v = old_v;
-    if (!ui_func(field->name, new_v)) {
+    if (!ui_func(field.name, new_v)) {
         return false;
     }
 
@@ -42,7 +42,7 @@ bool EditAndSubmit(const DrawObjectCtx& ctx,
     if constexpr (std::is_trivially_copyable_v<ValueT>) {
         auto cmd = MakeOwner<ChangePropertyCmd>(
             ctx.engine_services.sceneRegistry(),
-            ComponentPropertyTarget{ ctx.entity, ctx.type_id, field->id },
+            ComponentPropertyTarget{ ctx.entity, ctx.type_id, field.id },
             old_v,
             new_v);
         edit.submit(ctx.doc_id, std::move(cmd));
@@ -51,7 +51,7 @@ bool EditAndSubmit(const DrawObjectCtx& ctx,
             ctx.engine_services.sceneRegistry(),
             ctx.entity,
             ctx.type_id,
-            field->id,
+            field.id,
             std::move(old_v),
             std::move(new_v));
         edit.submit(ctx.doc_id, std::move(cmd));
@@ -107,11 +107,11 @@ bool DrawAsset(const DrawObjectCtx& ctx,
 
 bool AssetEditor(const DrawObjectCtx& ctx,
                  void* object,
-                 const FieldMetaBase* property);
+                 const FieldMetaBase& property);
 
 bool DrawVariantMap(const char* label, VariantMap& map);
 
-bool DrawPropertyAuto(const FieldMetaBase* property,
+bool DrawPropertyAuto(const FieldMetaBase& property,
                       void* object,
                       const DrawObjectCtx& ctx);
 

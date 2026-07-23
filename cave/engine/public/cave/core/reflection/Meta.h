@@ -87,6 +87,22 @@ void InvokeFieldChanged(const FieldChange& change) {
     (object->*Method)(change);
 }
 
+struct FieldOps {
+    using WriteFn = ISerializer& (*)(const FieldMetaBase&, ISerializer&, const void*);
+    using ReadFn = bool (*)(const FieldMetaBase&, IDeserializer&, void*);
+
+#if USING(USE_EDITOR)
+    using DrawFn = bool (*)(const FieldMetaBase&, void*, float);
+#endif
+
+    WriteFn write = nullptr;
+    ReadFn read = nullptr;
+
+#if USING(USE_EDITOR)
+    DrawFn draw = nullptr;
+#endif
+};
+
 struct FieldMetaBase {
     const char* const name;
     const PropertyId id;
@@ -98,32 +114,35 @@ struct FieldMetaBase {
     const float v_max;
 
     const FieldChangedFn on_change;
+    const FieldOps ops;
 
-    constexpr FieldMetaBase(const char* name_,
-                            PropertyId id_,
-                            uint32_t offset_,
-                            uint32_t size_,
-                            FieldFlag flags_,
-                            EditorHint hint_,
-                            float min_,
-                            float max_,
-                            FieldChangedFn on_change_) noexcept
-        : name(name_)
-        , id(id_)
-        , offset(offset_)
-        , size(size_)
-        , flags(flags_)
-        , editor_hint(hint_)
-        , v_min(min_)
-        , v_max(max_)
-        , on_change(on_change_) {
+    constexpr FieldMetaBase(const char* name,
+                            PropertyId id,
+                            uint32_t offset,
+                            uint32_t size,
+                            FieldFlag flags,
+                            EditorHint hint,
+                            FieldChangedFn on_change,
+                            FieldOps ops,
+                            float min,
+                            float max) noexcept
+        : name(name)
+        , id(id)
+        , offset(offset)
+        , size(size)
+        , flags(flags)
+        , editor_hint(hint)
+        , v_min(min)
+        , v_max(max)
+        , on_change(on_change)
+        , ops(ops) {
     }
 
     virtual ~FieldMetaBase() = default;
 
     template<typename T>
-    T& GetData(const void* p_object) const {
-        char* ptr = (char*)p_object + offset;
+    T& getData(const void* object) const {
+        char* ptr = (char*)object + offset;
         return *reinterpret_cast<T*>(ptr);
     }
 
@@ -135,44 +154,49 @@ struct FieldMetaBase {
         return reinterpret_cast<char*>(object) + offset;
     }
 
-    virtual ISerializer& Write(ISerializer& serializer, const void* object) const = 0;
-    virtual bool Read(IDeserializer& deserializer, void* object) const = 0;
+    ISerializer& write(ISerializer& serializer, const void* object) const {
+        return ops.write(*this, serializer, object);
+    }
+
+    bool read(IDeserializer& deserializer, void* object) const {
+        return ops.read(*this, deserializer, object);
+    }
 
 #if USING(USE_EDITOR)
-    virtual bool DrawEditor(void*, float) const = 0;
-#endif
-};
-
-template<typename T>
-struct FieldMeta : FieldMetaBase {
-    using FieldMetaBase::FieldMetaBase;
-
-    ISerializer& Write(ISerializer& p_serializer, const void* p_object) const override;
-    bool Read(IDeserializer& p_deserializer, void* p_object) const override;
-
-#if USING(USE_EDITOR)
-    bool DrawEditor(void* p_object, float p_column_width) const override;
+    bool drawEditor(void* object, float width) const {
+        return ops.draw(*this, object, width);
+    }
 #endif
 };
 
 template<typename T>
 class MetaDataTable {
 public:
-    static const MetaTableFields& GetFields();
+    static const MetaTableFields& getFields();
 
 private:
     template<typename U>
-    static FieldMetaBase* registerField(const U&,
-                                        const char* name,
-                                        PropertyId id,
-                                        uint32_t offset,
-                                        uint32_t size,
-                                        FieldFlag flag,
-                                        EditorHint hint,
-                                        FieldChangedFn on_change,
-                                        float min = INT_MIN,
-                                        float max = INT_MAX) {
-        return new FieldMeta<U>(name, id, offset, size, flag, hint, min, max, on_change);
+    static FieldMetaBase registerField(const U&,
+                                       const char* name,
+                                       PropertyId id,
+                                       uint32_t offset,
+                                       uint32_t size,
+                                       FieldFlag flag,
+                                       EditorHint hint,
+                                       FieldChangedFn on_change,
+                                       FieldOps ops,
+                                       float min = INT_MIN,
+                                       float max = INT_MAX) {
+        return FieldMetaBase(name,
+                             id,
+                             offset,
+                             size,
+                             flag,
+                             hint,
+                             on_change,
+                             ops,
+                             min,
+                             max);
     }
 };
 
