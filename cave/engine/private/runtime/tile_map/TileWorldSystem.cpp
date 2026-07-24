@@ -254,7 +254,7 @@ void TileWorldSystem::rebuildTiles() {
                 for (int16_t x = 0; x < kTileChunkSize; ++x) {
                     TileId tile_id = chunk->at(x, y);
                     if (tile_id == kEmptyTileId) continue;
-                    const TileDefinition* def = tile_set->getTileDefinition(tile_id);
+                    const TileDefinition* def = tile_set->findTileDefinition(tile_id);
                     if (!def) {
                         continue;
                     }

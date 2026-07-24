@@ -2,8 +2,6 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "cave/runtime/tile_map/TileSetAsset.h"
-
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/IconCache.h"
@@ -20,53 +18,7 @@ using namespace ::cave::math;
 
 namespace {
 
-#if 0
-void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
-    int index = -1;
-    if (auto selected = sprite_selector.GetSelections(); !selected.empty()) {
-        auto [x, y] = selected.front();
-        index = tile_set.col() * y + x;
-    }
-
-    ToolbarButtonDesc add_square_button_desc = {
-        "TileSetEditor.physics.box",
-        ICON_FA_SQUARE " Box", "Add box collider",
-        [&]() {
-            // if (index >= 0 && tile_set.addBoxCollider(index)) {
-            //     LOG_OK("Box collider added for {}", index);
-            // } else {
-            //     LOG_ERROR("Failed to add box collider for {}", index);
-            // }
-        }
-    };
-
-    ToolbarButtonDesc add_polygon_button_desc = {
-        "TileSetEditor.physics.polygon",
-        ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
-        [&]() {
-            LOG_WARN("Not implemented");
-        }
-    };
-
-    ToolbarButtonDesc add_circle_button_desc = {
-        "TileSetEditor.circle.polygon",
-        ICON_FA_CIRCLE " Circle", "Add circle collider",
-        [&]() {
-            LOG_WARN("Not implemented");
-        }
-    };
-
-    Vector<const ToolbarButtonDesc*> tool_bar = {
-        &add_square_button_desc,
-        &add_polygon_button_desc,
-        &add_circle_button_desc,
-    };
-
-    DrawToolbar(tool_bar);
-    ImGui::Separator();
-}
-#endif
-
+// @TODO: refactor this function
 bool EditSprite(int* colomn, int* row) {
     bool dirty = false;
     if (ImGui::BeginTabBar("TileSetModes")) {
@@ -302,10 +254,26 @@ bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
             }
         } break;
         case Property::Paint: {
-            ImGui::TextUnformatted("Paint Properties");
+            ImGui::TextUnformatted("Paint Properties:");
             ImGui::Spacing();
-            ImGui::SetNextItemWidth(-1.0f);
-            ImGui::Combo("##PaintProperty", &m_paint_property, "Physics\0Terrain\0Animation\0");
+
+            drawPaintPropertySelector();
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            switch (m_paint_property) {
+                case PaintProperty::Physics: {
+                    dirty |= drawPhysicsPaintProperties(tile_set);
+                } break;
+                case PaintProperty::Terrain: {
+                    dirty |= drawTerrainPaintProperties(tile_set);
+                } break;
+                case PaintProperty::Animation: {
+                    ImGui::TextDisabled("Animation painting is not implemented.");
+                } break;
+            }
         } break;
     }
 
@@ -314,36 +282,726 @@ bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
     return dirty;
 }
 
+bool TileSetPanel::drawTerrainPaintProperties(TileSetAsset*) {
+
+    bool changed = false;
+
+    ImGui::TextUnformatted("Painting");
+    ImGui::SetNextItemWidth(-1.0f);
+
+    changed |= ImGui::InputInt("##TerrainId", &m_terrain_paint.terrain_id);
+
+    m_terrain_paint.terrain_id = math::max(m_terrain_paint.terrain_id, 0);
+
+    ImGui::Spacing();
+    ImGui::TextUnformatted("3x3 Neighbor Mask");
+
+    const float button_size = ImGui::GetFrameHeight() * 1.5f;
+
+    for (int y = 0; y < 3; ++y) {
+        for (int x = 0; x < 3; ++x) {
+            const int bit_index = y * 3 + x;
+            const uint16_t bit = static_cast<uint16_t>(1u << bit_index);
+
+            const bool enabled = (m_terrain_paint.mask & bit) != 0;
+
+            ImGui::PushID(bit_index);
+
+            if (enabled) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered));
+            }
+            const char* label = bit_index == 4 ? "T" : "##Mask";
+            if (ImGui::Button(label, ImVec2{ button_size, button_size })) {
+                if (bit_index != 4) {
+                    m_terrain_paint.mask ^= bit;
+                }
+
+                changed = true;
+            }
+
+            if (enabled) {
+                ImGui::PopStyleColor(2);
+            }
+
+            if (ImGui::IsItemHovered()) {
+                static constexpr const char* kNames[] = {
+                    "Top Left",
+                    "Top",
+                    "Top Right",
+                    "Left",
+                    "Center",
+                    "Right",
+                    "Bottom Left",
+                    "Bottom",
+                    "Bottom Right",
+                };
+
+                ImGui::SetTooltip("%s", kNames[bit_index]);
+            }
+
+            ImGui::PopID();
+
+            if (x < 2) {
+                ImGui::SameLine();
+            }
+        }
+    }
+
+    // The center represents the terrain occupying this tile.
+    m_terrain_paint.mask |= 1u << 4;
+
+    ImGui::Spacing();
+
+    changed |= ImGui::Checkbox(
+        "Erase terrain",
+        &m_terrain_paint.erase);
+
+    ImGui::Spacing();
+
+    if (ImGui::Button("Full 3x3")) {
+        m_terrain_paint.mask = 0x1FF;
+        changed = true;
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Center Only")) {
+        m_terrain_paint.mask = 1u << 4;
+        changed = true;
+    }
+
+    return changed;
+}
+
+bool TileSetPanel::paintTerrain(TileSetAsset& tile_set, const AtlasHit& hit) {
+    TileDefinition* definition = tile_set.findTileDefinition(hit.index);
+    if (!definition) return false;
+
+    if (m_terrain_paint.erase) {
+        if (definition->terrain_id == -1 && definition->terrain_mask == 0) {
+            return false;
+        }
+
+        definition->terrain_id = -1;
+        definition->terrain_mask = 0;
+        return true;
+    }
+
+    const uint16_t mask = m_terrain_paint.mask | static_cast<uint16_t>(1u << 4);
+
+    if (definition->terrain_id == m_terrain_paint.terrain_id &&
+        definition->terrain_mask == mask) {
+        return false;
+    }
+
+    definition->terrain_id = m_terrain_paint.terrain_id;
+    definition->terrain_mask = mask;
+    return true;
+}
+
+bool TileSetPanel::drawPhysicsPaintProperties(TileSetAsset*) {
+
+    bool changed = false;
+
+    static constexpr const char* kTools[] = {
+        "Assign AABB",
+        "Remove",
+    };
+
+    int tool = static_cast<int>(m_physics_paint.tool);
+
+    ImGui::TextUnformatted("Painting");
+    ImGui::SetNextItemWidth(-1.0f);
+
+    if (ImGui::Combo("##PhysicsPaintTool", &tool, kTools, std::size(kTools))) {
+        m_physics_paint.tool = static_cast<PhysicsPaintTool>(tool);
+        changed = true;
+    }
+
+    if (m_physics_paint.tool == PhysicsPaintTool::Remove) {
+        ImGui::TextDisabled("Paint over tiles to remove their colliders.");
+        return changed;
+    }
+
+    ImGui::Spacing();
+
+    changed |= DrawEnumDropDown<CollisionType>("Type", m_physics_paint.collision, ui::kDefaultColumnWidth);
+
+    changed |= ui::DrawBitMask32("Mask", m_physics_paint.mask);
+
+    ImGui::Spacing();
+    ImGui::TextUnformatted("Collider Shape");
+
+    // changed |= drawPhysicsShapeEditor(m_physics_paint.shape);
+
+    ImGui::Spacing();
+
+    if (ImGui::Button("Full Tile")) {
+        m_physics_paint.shape = Box2{ Vec2f::Zero, Vec2f::One };
+
+        changed = true;
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Top Half")) {
+        m_physics_paint.shape = Box2{ Vec2f{ 0.0f, 0.0f }, Vec2f{ 1.0f, 0.5f } };
+        changed = true;
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Bottom Half")) {
+        m_physics_paint.shape = Box2{ Vec2f{ 0.0f, 0.5f }, Vec2f{ 1.0f, 1.0f } };
+        changed = true;
+    }
+
+    return changed;
+}
+
+bool TileSetPanel::drawPhysicsShapeEditor(Box2& shape) {
+    bool changed = false;
+
+    const float size = math::min(ImGui::GetContentRegionAvail().x, 240.0f);
+
+    const ImVec2 canvas_size{ math::max(size, 64.0f), math::max(size, 64.0f) };
+
+    const ImVec2 min_ss = ImGui::GetCursorScreenPos();
+
+    const ImVec2 max_ss{ min_ss.x + canvas_size.x, min_ss.y + canvas_size.y };
+
+    ImGui::InvisibleButton("##PhysicsShapeEditor", canvas_size, ImGuiButtonFlags_MouseButtonLeft);
+
+    const bool hovered = ImGui::IsItemHovered();
+
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    draw_list->AddRectFilled(
+        min_ss,
+        max_ss,
+        IM_COL32(40, 47, 58, 255));
+
+#if 0
+    drawCheckerboard(
+        *draw_list,
+        min_ss,
+        max_ss,
+        12.0f);
+#endif
+
+    auto toScreen = [&](Vec2f uv) {
+        return ImVec2{ min_ss.x + uv.x * canvas_size.x,
+                       min_ss.y + uv.y * canvas_size.y };
+    };
+
+    auto toUv = [&](ImVec2 point_ss) {
+        return Vec2f{ math::clamp((point_ss.x - min_ss.x) / canvas_size.x, 0.0f, 1.0f),
+                      math::clamp((point_ss.y - min_ss.y) / canvas_size.y, 0.0f, 1.0f) };
+    };
+
+    Vec2f box_min = shape.min();
+    Vec2f box_max = shape.max();
+
+    ImVec2 box_min_ss = toScreen(box_min);
+    ImVec2 box_max_ss = toScreen(box_max);
+
+    draw_list->AddRectFilled(box_min_ss, box_max_ss, IM_COL32(60, 180, 205, 110));
+    draw_list->AddRect(box_min_ss, box_max_ss, IM_COL32(120, 225, 245, 255), 0.0f, 0, 2.0f);
+
+    constexpr float kHandleRadius = 6.0f;
+
+    const ImVec2 handles[] = {
+        box_min_ss,
+        ImVec2{ box_max_ss.x, box_min_ss.y },
+        box_max_ss,
+        ImVec2{ box_min_ss.x, box_max_ss.y },
+    };
+
+    for (const ImVec2& handle : handles) {
+        draw_list->AddCircleFilled(handle, kHandleRadius, IM_COL32(245, 245, 245, 255));
+        draw_list->AddCircle(handle, kHandleRadius, IM_COL32(40, 40, 40, 255));
+    }
+
+    if (hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+        const ImVec2 mouse_ss = ImGui::GetMousePos();
+
+        float best_distance_sq = kHandleRadius * kHandleRadius * 4.0f;
+
+        m_physics_paint.drag_handle = -1;
+
+        for (int i = 0; i < 4; ++i) {
+            const float dx = mouse_ss.x - handles[i].x;
+            const float dy = mouse_ss.y - handles[i].y;
+            const float distance_sq = dx * dx + dy * dy;
+            if (distance_sq < best_distance_sq) {
+                best_distance_sq = distance_sq;
+                m_physics_paint.drag_handle = i;
+            }
+        }
+
+        m_physics_paint.dragging = m_physics_paint.drag_handle >= 0;
+    }
+
+    if (m_physics_paint.dragging && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+        const Vec2f mouse_uv = toUv(ImGui::GetMousePos());
+
+        switch (m_physics_paint.drag_handle) {
+            case 0:
+                box_min = mouse_uv;
+                break;
+            case 1:
+                box_max.x = mouse_uv.x;
+                box_min.y = mouse_uv.y;
+                break;
+            case 2:
+                box_max = mouse_uv;
+                break;
+            case 3:
+                box_min.x = mouse_uv.x;
+                box_max.y = mouse_uv.y;
+                break;
+        }
+
+        const Vec2f normalized_min = math::min(box_min, box_max);
+        const Vec2f normalized_max = math::max(box_min, box_max);
+        shape = Box2{ normalized_min, normalized_max };
+        changed = true;
+    }
+
+    if (m_physics_paint.dragging && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        m_physics_paint.dragging = false;
+        m_physics_paint.drag_handle = -1;
+    }
+
+    return changed;
+}
+
+bool TileSetPanel::paintPhysics(TileSetAsset& tile_set, const AtlasHit& hit) {
+    TileDefinition* definition = tile_set.findTileDefinition(hit.index);
+    if (!definition) return false;
+
+    if (m_physics_paint.tool == PhysicsPaintTool::Remove) {
+        if (definition->collision == CollisionType::None) {
+            return false;
+        }
+        definition->collision = CollisionType::None;
+        definition->collision_shape = Box2{ Vec2f::Zero, Vec2f::One };
+
+        return true;
+    }
+
+    DEV_ASSERT(0);
+#if 0
+    if (definition->collision == m_physics_paint.collision &&
+        definition->collision_shape == m_physics_paint.shape &&
+        definition->mask == m_physics_paint.mask) {
+        return false;
+    }
+#endif
+    definition->collision = m_physics_paint.collision;
+    definition->collision_shape = m_physics_paint.shape;
+    definition->mask = m_physics_paint.mask;
+
+    return true;
+}
+
+bool TileSetPanel::handleAtlasPainting(TileSetAsset& tile_set, const AtlasWidgetResult& result) {
+    bool dirty = false;
+
+    if (result.pointer.stroke_started) {
+        m_last_painted_tile = None();
+
+        if (result.pointer.left_pressed) {
+            const AtlasHit& hit = result.pointer.left_pressed.unwrap_unchecked();
+
+            dirty |= paintAtlasTile(
+                tile_set,
+                hit);
+
+            m_last_painted_tile = Some(hit.index);
+        }
+    }
+
+    if (result.pointer.stroke_active &&
+        result.pointer.hovered) {
+        const AtlasHit& hit = result.pointer.hovered.unwrap_unchecked();
+
+        if (m_last_painted_tile != Some(hit.index)) {
+            dirty |= paintAtlasTile(tile_set, hit);
+
+            m_last_painted_tile = Some(hit.index);
+        }
+    }
+
+    if (result.pointer.stroke_ended) {
+        m_last_painted_tile = None();
+    }
+
+    if (result.pointer.right_pressed) {
+        const AtlasHit& hit = result.pointer.right_pressed.unwrap_unchecked();
+        m_context_tile = Some(hit.index);
+        ImGui::OpenPopup("##TileContextPopup");
+    }
+
+    return dirty;
+}
+
+bool TileSetPanel::paintAtlasTile(TileSetAsset& tile_set, const AtlasHit& hit) {
+    switch (m_paint_property) {
+        case PaintProperty::Physics:
+            return paintPhysics(tile_set, hit);
+        case PaintProperty::Terrain:
+            return paintTerrain(tile_set, hit);
+        case PaintProperty::Animation:
+            // Animation painting can be added later.
+            return false;
+    }
+    return false;
+}
+
 bool TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
     bool dirty = false;
 
     ImGui::TableSetColumnIndex(2);
 
-    ImGui::BeginChild("##TileAtlasColumn");
+    ImGui::BeginChild("##TileAtlasColumn", ImVec2{ 0.0f, 0.0f });
+
+    ImageCanvasInput input;
+    input.pointer_ss = ImGui::GetMousePos();
+    input.pointer_valid = true;
+
+    input.zoom_steps = ImGui::GetIO().MouseWheel;
+
+    input.left_pressed = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+    input.left_released = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+    input.left_double_clicked = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+
+    input.right_pressed = ImGui::IsMouseClicked(ImGuiMouseButton_Right);
+    input.right_released = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
 
     AtlasWidgetDesc desc;
     desc.id = "##TileAtlas";
     desc.texture = 0;
+
     desc.layout.image_size_px = { 64.0f, 64.0f };
     desc.layout.grid_size = { 1, 1 };
     desc.widget_size = { 0.0f, 0.0f };
+
     desc.show_toolbar = true;
     desc.show_checkerboard = true;
+    desc.input = &input;
 
     if (tile_set) {
-        desc.layout.grid_size = Vec2i(tile_set->col(), tile_set->row());
+        desc.layout.grid_size = Vec2i{ tile_set->col(), tile_set->row() };
     }
 
     if (image && image->gpu_texture) {
         desc.texture = image->gpu_texture->GetHandle();
-        desc.layout.image_size_px = Vec2f(image->width, image->height);
+        desc.layout.image_size_px = Vec2f{ image->width, image->height };
     }
 
-    m_atlas_widget.draw(desc, m_atlas_selection);
+    const AtlasWidgetResult atlas_result = m_atlas_widget.draw(desc);
+
+    // Paint before drawing overlays so changes appear immediately.
+    if (tile_set && m_mode == Property::Paint) {
+        dirty |= handleAtlasPainting(*tile_set, atlas_result);
+    } else {
+        m_last_painted_tile = None();
+    }
+
+    drawAtlasMetadataOverlays(tile_set, desc.layout, atlas_result);
+
+    // BeginPopup must be called every frame, not only on right click.
+    if (tile_set) {
+        dirty |= drawTileContextPopup(*tile_set);
+    }
 
     ImGui::EndChild();
 
     return dirty;
+}
+
+void TileSetPanel::drawAtlasMetadataOverlays(const TileSetAsset* tile_set,
+                                             const AtlasLayout& layout,
+                                             const AtlasWidgetResult& result) {
+    if (!tile_set || !result.draw_list || !layout.valid()) {
+        return;
+    }
+
+    for (const TileDefinition& definition : tile_set->getTileDefinitions()) {
+        if (!layout.contains(definition.id)) {
+            continue;
+        }
+
+        switch (m_paint_property) {
+            case PaintProperty::Physics:
+                drawPhysicsOverlay(definition, layout, result);
+                break;
+
+            case PaintProperty::Terrain:
+                drawTerrainOverlay(definition, layout, result);
+                break;
+
+            case PaintProperty::Animation:
+                break;
+        }
+    }
+}
+
+void TileSetPanel::drawPhysicsOverlay(const TileDefinition& definition,
+                                      const AtlasLayout& layout,
+                                      const AtlasWidgetResult& result) {
+
+    if (definition.collision ==
+        CollisionType::None) {
+        return;
+    }
+
+    const Box2 tile_rect =
+        layout.cellRectPx(
+            definition.id);
+
+    const Vec2f tile_size =
+        layout.cellSizePx();
+
+    const Vec2f collider_min_px{
+        tile_rect.min().x +
+            definition.collision_shape.min().x *
+                tile_size.x,
+
+        tile_rect.min().y +
+            definition.collision_shape.min().y *
+                tile_size.y,
+    };
+
+    const Vec2f collider_max_px{
+        tile_rect.min().x +
+            definition.collision_shape.max().x *
+                tile_size.x,
+
+        tile_rect.min().y +
+            definition.collision_shape.max().y *
+                tile_size.y,
+    };
+
+    const ImVec2 collider_min_ss =
+        result.imageToScreen(
+            collider_min_px);
+
+    const ImVec2 collider_max_ss =
+        result.imageToScreen(
+            collider_max_px);
+
+    result.draw_list->AddRectFilled(
+        collider_min_ss,
+        collider_max_ss,
+        IM_COL32(40, 190, 220, 100));
+
+    result.draw_list->AddRect(
+        collider_min_ss,
+        collider_max_ss,
+        IM_COL32(80, 225, 245, 255),
+        0.0f,
+        ImDrawFlags_None,
+        2.0f);
+}
+
+void TileSetPanel::drawTerrainOverlay(const TileDefinition& definition,
+                                      const AtlasLayout& layout,
+                                      const AtlasWidgetResult& result) {
+
+    if (definition.terrain_id < 0) {
+        return;
+    }
+
+    const Box2 tile_rect =
+        layout.cellRectPx(
+            definition.id);
+
+    const ImVec2 tile_min_ss =
+        result.imageToScreen(
+            tile_rect.min());
+
+    const ImVec2 tile_max_ss =
+        result.imageToScreen(
+            tile_rect.max());
+
+    result.draw_list->AddRectFilled(
+        tile_min_ss,
+        tile_max_ss,
+        IM_COL32(230, 195, 60, 35));
+
+    drawTerrainMaskOverlay(
+        definition,
+        tile_rect,
+        layout,
+        result);
+}
+
+void TileSetPanel::drawTerrainMaskOverlay(const TileDefinition& definition,
+                                          const Box2& tile_rect,
+                                          const AtlasLayout& layout,
+                                          const AtlasWidgetResult& result) {
+    const Vec2f tile_size = layout.cellSizePx();
+
+    const Vec2f subcell_size = tile_size / 3.0f;
+
+    for (int y = 0; y < 3; ++y) {
+        for (int x = 0; x < 3; ++x) {
+            const int bit_index = y * 3 + x;
+            const uint16_t bit = static_cast<uint16_t>(1u << bit_index);
+
+            if ((definition.terrain_mask & bit) == 0) {
+                continue;
+            }
+
+            const Vec2f subcell_min_px{
+                tile_rect.min().x + static_cast<float>(x) * subcell_size.x,
+                tile_rect.min().y + static_cast<float>(y) * subcell_size.y,
+            };
+
+            const Vec2f subcell_max_px{
+                subcell_min_px.x + subcell_size.x,
+                subcell_min_px.y + subcell_size.y,
+            };
+
+            const ImU32 fill_color = bit_index == 4
+                                         ? IM_COL32(240, 205, 60, 150)
+                                         : IM_COL32(240, 205, 60, 85);
+
+            result.draw_list->AddRectFilled(
+                result.imageToScreen(
+                    subcell_min_px),
+
+                result.imageToScreen(
+                    subcell_max_px),
+
+                fill_color);
+
+            result.draw_list->AddRect(
+                result.imageToScreen(
+                    subcell_min_px),
+
+                result.imageToScreen(
+                    subcell_max_px),
+
+                IM_COL32(245, 220, 100, 180),
+                0.0f,
+                ImDrawFlags_None,
+                1.0f);
+        }
+    }
+}
+
+bool TileSetPanel::drawTileContextPopup(TileSetAsset& tile_set) {
+
+    bool dirty = false;
+
+    if (!ImGui::BeginPopup(
+            "##TileContextPopup")) {
+        return false;
+    }
+
+    if (!m_context_tile) {
+        ImGui::TextDisabled(
+            "No tile selected");
+
+        ImGui::EndPopup();
+        return false;
+    }
+
+    const uint32_t tile_index =
+        m_context_tile.unwrap_unchecked();
+
+    ImGui::Text(
+        "Tile %u",
+        tile_index);
+
+    ImGui::Separator();
+
+    TileDefinition& definition =
+        tile_set.getOrCreateTile(
+            tile_index);
+
+    if (ImGui::MenuItem(
+            "Clear Physics",
+            nullptr,
+            false,
+            definition.collision !=
+                CollisionType::None)) {
+        definition.collision =
+            CollisionType::None;
+
+        definition.collision_shape =
+            Box2{
+                Vec2f::Zero,
+                Vec2f::One,
+            };
+
+        dirty = true;
+    }
+
+    if (ImGui::MenuItem(
+            "Clear Terrain",
+            nullptr,
+            false,
+            definition.terrain_id >= 0)) {
+        definition.terrain_id = -1;
+        definition.terrain_mask = 0;
+
+        dirty = true;
+    }
+
+    if (ImGui::MenuItem(
+            "Clear Animation",
+            nullptr,
+            false,
+            !definition.animation.empty())) {
+        definition.animation.clear();
+
+        dirty = true;
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::MenuItem(
+            "Clear All Properties")) {
+        definition.collision =
+            CollisionType::None;
+
+        definition.collision_shape =
+            Box2{
+                Vec2f::Zero,
+                Vec2f::One,
+            };
+
+        definition.terrain_id = -1;
+        definition.terrain_mask = 0;
+        definition.animation.clear();
+
+        dirty = true;
+    }
+
+    ImGui::EndPopup();
+
+    return dirty;
+}
+
+void TileSetPanel::drawPaintPropertySelector() {
+    static constexpr const char* kNames[] = { "Physics", "Terrain", "Animation" };
+    ImGui::SetNextItemWidth(-1.0f);
+
+    int property = static_cast<int>(m_paint_property);
+    if (ImGui::Combo("Select a property editor",
+                     &property,
+                     kNames,
+                     std::size(kNames))) {
+        m_paint_property = static_cast<PaintProperty>(property);
+
+        m_last_painted_tile = None();
+        m_atlas_widget.cancelStroke();
+    }
 }
 
 void TileSetPanel::draw(SceneEditContext* context) {
@@ -387,17 +1045,5 @@ void TileSetPanel::draw(SceneEditContext* context) {
         document.markDirty(doc_id);
     }
 }
-
-#if 0
-void TileSetEditor::drawAssetInspector(IDocument&) {
-    if (ImGui::BeginTabBar("TileSetPhysics")) {
-        if (ImGui::BeginTabItem("Physics Layer")) {
-            DrawPhysicsTab(tile_set, m_sprite_selector);
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-}
-#endif
 
 }  // namespace cave

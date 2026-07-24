@@ -125,7 +125,7 @@ const MetaTableFields& MetaDataTable<TileDefinition>::getFields() {
 // float m_tile_scale (editor = DragFloat, min = 0.01f, max = 100.0f)
 // uint32_t m_row (editor = InputInt, min = 1, max = 1000)
 // uint32_t m_column (editor = InputInt, min = 1, max = 1000)
-// Vector<TileDefinition> m_tiles ()
+// Vector<TileDefinition> m_definitions ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileSetAsset>::getFields() {
@@ -178,9 +178,9 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::getFields() {
         ),
         REGISTER_FIELD(
             TileSetAsset,
-            "tiles",
-            CAVE_SID("tiles"),
-            m_tiles,
+            "definitions",
+            CAVE_SID("definitions"),
+            m_definitions,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr,

@@ -76,7 +76,7 @@ void TileMapLayerComponent::updateTileCache() {
         for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
             for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
                 const TileId& tile_id = chunk->at(x - offset_x, y - offset_y);
-                const auto* definition = tile_set->getTileDefinition(tile_id);
+                const auto* definition = tile_set->findTileDefinition(tile_id);
                 if (definition) {
                     m_tile_cache.emplace_back(x, y, tile_id, 0.0f);
                 }

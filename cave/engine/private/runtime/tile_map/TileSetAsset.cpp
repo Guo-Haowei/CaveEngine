@@ -30,14 +30,35 @@ void TileSetAsset::tileScale(float scale) {
     }
 }
 
-const TileDefinition* TileSetAsset::getTileDefinition(uint32_t tile_id) const {
-    for (const auto& def : m_tiles) {
+TileDefinition* TileSetAsset::findTileDefinition(uint32_t tile_id) {
+    for (TileDefinition& def : m_definitions) {
         if (def.id == tile_id) {
             return &def;
         }
     }
 
     return nullptr;
+}
+
+const TileDefinition* TileSetAsset::findTileDefinition(uint32_t tile_id) const {
+    for (const TileDefinition& def : m_definitions) {
+        if (def.id == tile_id) {
+            return &def;
+        }
+    }
+
+    return nullptr;
+}
+
+TileDefinition& TileSetAsset::getOrCreateTile(uint32_t tile_id) {
+    if (auto definition = findTileDefinition(tile_id)) {
+        return *definition;
+    }
+
+    m_definitions.resize(m_definitions.size() + 1);
+    TileDefinition& last = m_definitions.back();
+    last.id = tile_id;
+    return last;
 }
 
 void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {

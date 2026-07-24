@@ -47,6 +47,10 @@ struct TileDefinition {
     CAVE_PROP(editor = BitMask)
     uint32_t mask = 0;
 
+    // @TODO: fix
+    int terrain_id = -1;
+    uint16_t terrain_mask = 0;
+
     CAVE_PROP()
     Vector<TileFrame> animation;
 };
@@ -71,14 +75,16 @@ public:
     float tileScale() const { return m_tile_scale; }
     void tileScale(float scale);
 
-    const TileDefinition* getTileDefinition(uint32_t tile_id) const;
+    TileDefinition* findTileDefinition(uint32_t tile_id);
+    const TileDefinition* findTileDefinition(uint32_t tile_id) const;
+    TileDefinition& getOrCreateTile(uint32_t index);
 
     std::span<const TileDefinition> getTileDefinitions() const {
-        return m_tiles;
+        return m_definitions;
     }
 
     Vector<TileDefinition>& getTileDefinitionsMut() {
-        return m_tiles;
+        return m_definitions;
     }
 
     const Guid& imageGuid() const { return m_image_guid; }
@@ -113,7 +119,7 @@ private:
     uint32_t m_column = 1;
 
     CAVE_PROP()
-    Vector<TileDefinition> m_tiles;
+    Vector<TileDefinition> m_definitions;
 
     /// Non serialized
     Vector<math::Box2> m_frames;  // frames are calculated
