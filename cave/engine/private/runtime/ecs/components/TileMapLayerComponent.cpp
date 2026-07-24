@@ -116,24 +116,45 @@ void TileMapLayerComponent::updateTileCache() {
 }
 
 uint16_t TileMapLayerComponent::buildTerrainMask(TileCoord coord, TerrainId terrain_id) const {
+    auto get_terrain = [this, terrain_id](TileCoord coord) {
+        auto cell = m_chunks.cellAt(coord);
+        return cell.is_none() ? false : cell.unwrap_unchecked().terrain_id == terrain_id;
+    };
+
+    const auto N = coord + TileCoord{ 0, +1 };
+    const auto S = coord + TileCoord{ 0, -1 };
+    const auto W = coord + TileCoord{ -1, 0 };
+    const auto E = coord + TileCoord{ +1, 0 };
+
+    const auto NE = N + TileCoord{ +1, 0 };
+    const auto NW = N + TileCoord{ -1, 0 };
+    const auto SE = S + TileCoord{ +1, 0 };
+    const auto SW = S + TileCoord{ -1, 0 };
+
+    const bool c = true;
+    // const bool c = get_terrain(coord);
+    const bool n = get_terrain(N);
+    const bool s = get_terrain(S);
+    const bool w = get_terrain(W);
+    const bool e = get_terrain(E);
+    const bool ne = n && e && get_terrain(NE);
+    const bool nw = n && w && get_terrain(NW);
+    const bool se = s && e && get_terrain(SE);
+    const bool sw = s && w && get_terrain(SW);
+
     uint16_t mask = 0;
 
-    for (int16_t y = 0; y < 3; ++y) {
-        for (int16_t x = 0; x < 3; ++x) {
-            const TileCoord offset{ x - 1, y - 1 };
+    mask |= nw ? (1u << 0) : 0;
+    mask |= n ? (1u << 1) : 0;
+    mask |= ne ? (1u << 2) : 0;
 
-            const TileCoord neighbor = coord + offset;
-            auto cell = m_chunks.cellAt(neighbor);
+    mask |= w ? (1u << 3) : 0;
+    mask |= c ? (1u << 4) : 0;
+    mask |= e ? (1u << 5) : 0;
 
-            if (!cell || cell.unwrap_unchecked().terrain_id != terrain_id) {
-                continue;
-            }
-
-            // @TODO: fix this part
-            const auto bit_index = (2 - y) * 3 + x;
-            mask |= static_cast<uint16_t>(1u << bit_index);
-        }
-    }
+    mask |= sw ? (1u << 6) : 0;
+    mask |= s ? (1u << 7) : 0;
+    mask |= se ? (1u << 8) : 0;
 
     return mask;
 }
