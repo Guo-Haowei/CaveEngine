@@ -16,7 +16,6 @@
 namespace super_cave_boy {
 
 using namespace ::cave;
-using namespace ::cave::literals;
 using namespace ::cave::math;
 using ::cave::ecs::Entity;
 
@@ -158,8 +157,8 @@ void PlayerController::updateNormal(float dt) {
     bool jump_pressed = false;
     int move_x = 0;
     if (!m_block_input) {
-        jump_pressed = input.isPressed("ui_up"_sid);
-        move_x = input.isPressed("ui_right"_sid) - input.isPressed("ui_left"_sid);
+        jump_pressed = input.isPressed(CAVE_SID("ui_up"));
+        move_x = input.isPressed(CAVE_SID("ui_right")) - input.isPressed(CAVE_SID("ui_left"));
     }
 
     // Contact is from previous MotorSystem frame.
