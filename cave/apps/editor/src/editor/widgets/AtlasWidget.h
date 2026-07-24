@@ -27,19 +27,15 @@ struct ImageCanvasInput {
     // Whether pointer_ss contains a meaningful value.
     bool pointer_valid = false;
 
-    // Generic zoom request expressed in zoom steps.
-    //
-    // +1 means multiply zoom by zoom_step.
-    // -1 means divide zoom by zoom_step.
-    //
-    // This may come from a mouse wheel, keyboard, controller, or anything else.
     float zoom_steps = 0.0f;
 
     bool left_pressed = false;
+    bool left_down = false;
     bool left_released = false;
     bool left_double_clicked = false;
 
     bool right_pressed = false;
+    bool right_down = false;
     bool right_released = false;
 };
 
@@ -545,7 +541,7 @@ private:
             result.pointer_image_px =
                 Some(result.transform.screenToImageUnchecked(input.pointer_ss));
             result.left_pressed = input.left_pressed;
-            result.left_released = input.left_released; 
+            result.left_released = input.left_released;
             result.left_double_clicked = input.left_double_clicked;
             result.right_pressed = input.right_pressed;
             result.right_released = input.right_released;

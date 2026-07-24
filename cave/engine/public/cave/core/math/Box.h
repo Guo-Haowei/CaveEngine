@@ -115,6 +115,15 @@ public:
         return true;
     }
 
+    bool operator==(const Self& other) const noexcept {
+        if (!valid() || !other.valid()) return false;
+        return m_min == other.m_min && m_max == other.m_max;
+    }
+
+    bool operator!=(const Self& other) const noexcept {
+        return !(*this == other);
+    }
+
 protected:
     Vec m_min;
     Vec m_max;

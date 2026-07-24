@@ -25,14 +25,20 @@ private:
 
     void drawPaintPropertySelector();
     bool drawTerrainPaintProperties(TileSetAsset* tile_set);
-    bool paintTerrain(TileSetAsset& tile_set, const AtlasHit& hit);
+    bool paintTerrainMask(TileSetAsset& tile_set,
+                          const AtlasHit& hit,
+                          bool erase);
 
+    // @TODO: split
+    // TileTerrainPaintTool
+    // TilePhysicsPaintTool
     bool drawPhysicsPaintProperties(TileSetAsset* tile_set);
     bool drawPhysicsShapeEditor(math::Box2& shape);
     bool paintPhysics(TileSetAsset& tile_set, const AtlasHit& hit);
 
-    bool handleAtlasPainting(TileSetAsset& tile_set, const AtlasWidgetResult& result);
-    bool paintAtlasTile(TileSetAsset& tile_set, const AtlasHit& hit);
+    bool handleAtlasPainting(TileSetAsset& tile_set,
+                             const AtlasWidgetResult& result,
+                             const ImageCanvasInput& input);
 
     void drawAtlasMetadataOverlays(const TileSetAsset* tile_set,
                                    const AtlasLayout& layout,
@@ -46,6 +52,10 @@ private:
     void drawTerrainMaskOverlay(const TileDefinition& definition,
                                 const Box2& tile_rect,
                                 const AtlasLayout& layout,
+                                const AtlasWidgetResult& result);
+
+    void drawHoveredTerrainCell(const AtlasLayout& layout,
+                                const AtlasHit& hit,
                                 const AtlasWidgetResult& result);
 
     bool drawTileContextPopup(TileSetAsset& tile_set);
@@ -75,16 +85,6 @@ private:
 
     struct TerrainPaintState {
         int terrain_id = 0;
-
-        // 3x3 mask:
-        //
-        // 0 1 2
-        // 3 4 5
-        // 6 7 8
-        //
-        uint16_t mask = 1u << 4;
-
-        bool erase = false;
     };
 
     struct PhysicsPaintState {
@@ -109,8 +109,10 @@ private:
     TerrainPaintState m_terrain_paint;
     PhysicsPaintState m_physics_paint;
 
-    Option<uint32_t> m_last_painted_tile;
     Option<uint32_t> m_context_tile;
+
+    Option<uint32_t> m_last_painted_tile;
+    Option<uint32_t> m_last_painted_mask_cell;
 };
 
 }  // namespace cave
