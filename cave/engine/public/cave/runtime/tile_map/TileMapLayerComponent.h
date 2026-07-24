@@ -18,7 +18,7 @@ class TileMapLayerComponent {
 public:
     struct TileCache {
         int16_t x, y;
-        uint32_t tile_id;
+        TileId tile_id;
 
         mutable float elapsed;
     };

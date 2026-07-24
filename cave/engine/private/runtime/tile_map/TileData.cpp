@@ -45,10 +45,6 @@ TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local
     };
 }
 
-TileChunk::TileChunk() {
-    m_local_tiles.fill(kEmptyTileId);
-}
-
 ChunkedTileData::ChunkedTileData(const ChunkedTileData& other) {
     for (const auto& [coord, chunk] : other.m_chunks) {
         if (chunk) {
@@ -72,15 +68,15 @@ ChunkedTileData& ChunkedTileData::operator=(const ChunkedTileData& other) {
 }
 
 bool TileChunk::empty() const {
-    for (TileId id : m_local_tiles) {
-        if (id != kEmptyTileId) {
+    for (TileCell cell : m_local_tiles) {
+        if (!cell.empty()) {
             return false;
         }
     }
     return true;
 }
 
-Option<TileId> ChunkedTileData::tileAt(TileCoord coord) const {
+Option<TileCell> ChunkedTileData::tileAt(TileCoord coord) const {
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
     auto it = m_chunks.find(chunk_coord);
@@ -93,15 +89,15 @@ Option<TileId> ChunkedTileData::tileAt(TileCoord coord) const {
     DEV_ASSERT_INDEX(x, kTileChunkSize);
     DEV_ASSERT_INDEX(y, kTileChunkSize);
 
-    TileId tile = it->second->at(x, y);
-    if (tile == kEmptyTileId) {
+    TileCell tile = it->second->at(x, y);
+    if (tile.empty()) {
         return None();
     }
     return Some(tile);
 }
 
-bool ChunkedTileData::addTile(TileCoord coord, TileId tile_id) {
-    DEV_ASSERT(tile_id != kEmptyTileId);
+bool ChunkedTileData::addTile(TileCoord coord, TileCell cell) {
+    DEV_ASSERT(!cell.empty());
 
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
@@ -114,12 +110,12 @@ bool ChunkedTileData::addTile(TileCoord coord, TileId tile_id) {
     const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
     const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
 
-    TileId& tile = chunk->at(x, y);
-    if (tile == tile_id) {
+    TileCell& tile = chunk->at(x, y);
+    if (tile == cell) {
         return false;
     }
 
-    tile = tile_id;
+    tile = cell;
     return true;
 }
 
@@ -134,12 +130,12 @@ bool ChunkedTileData::removeTile(TileCoord coord) {
     const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
     const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
 
-    TileId& tile = it->second->at(x, y);
-    if (tile == kEmptyTileId) {
+    TileCell& cell = it->second->at(x, y);
+    if (cell.empty()) {
         return false;
     }
 
-    tile = kEmptyTileId;
+    cell = TileCell{};
     return true;
 }
 
@@ -169,7 +165,8 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
 
         for (int16_t y = 0; y < kTileChunkSize; ++y) {
             for (int16_t x = 0; x < kTileChunkSize; ++x) {
-                s.write(chunk->at(x, y));
+                DEV_ASSERT(0);
+                // s.write(chunk->at(x, y));
             }
         }
 
@@ -209,7 +206,8 @@ bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
                     for (int16_t local_x = 0; local_x < kTileChunkSize; ++local_x) {
                         const int16_t tile_idx = local_y * kTileChunkSize + local_x;
                         if (DEV_VERIFY(d.tryEnterIndex(tile_idx))) {
-                            d.read(chunk->at(local_x, local_y));
+                            TileCell& cell = chunk->at(local_x, local_y);
+                            d.read(cell.tile_id.value);
                             d.leaveIndex();
                         }
                     }

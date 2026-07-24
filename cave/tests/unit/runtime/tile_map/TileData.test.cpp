@@ -9,7 +9,7 @@ TEST(TileChunk, DefaultConstructedChunkIsEmpty) {
 
     for (int16_t y = 0; y < kTileChunkSize; ++y) {
         for (int16_t x = 0; x < kTileChunkSize; ++x) {
-            EXPECT_EQ(chunk.at(x, y), kEmptyTileId);
+            EXPECT_TRUE(chunk.at(x, y).empty());
         }
     }
 }
@@ -17,13 +17,14 @@ TEST(TileChunk, DefaultConstructedChunkIsEmpty) {
 TEST(TileChunk, AtReadsAndWritesTile) {
     TileChunk chunk;
 
-    chunk.at(3, 5) = 42;
+    TileCell cell{ TileId(42) };
+    chunk.at(3, 5) = cell;
 
-    EXPECT_EQ(chunk.at(3, 5), 42);
+    EXPECT_EQ(chunk.at(3, 5), cell);
     EXPECT_FALSE(chunk.empty());
 
-    EXPECT_EQ(chunk.at(0, 0), kEmptyTileId);
-    EXPECT_EQ(chunk.at(31, 31), kEmptyTileId);
+    EXPECT_FALSE(chunk.at(0, 0).hasTile());
+    EXPECT_FALSE(chunk.at(31, 31).hasTile());
 }
 
 TEST(TileCoord, PositiveCoordToChunkAndLocal) {

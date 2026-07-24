@@ -69,7 +69,7 @@ void SubmitTileLayer(const SceneSubmitContext& ctx,
     for (const auto& tile : layer.getTileCache()) {
         // @TODO: move to somewhere else
         tile.elapsed += ctx.dt;
-        const auto* definition = tile_set->findTileDefinition(tile.tile_id);
+        const auto* definition = tile_set->findTileDefinition(tile.tile_id.value);
         if (!definition) continue;
 
         uint32_t atlas_index = definition->id;

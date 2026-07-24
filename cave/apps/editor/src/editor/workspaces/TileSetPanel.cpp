@@ -289,8 +289,10 @@ bool TileSetPanel::drawTerrainPaintProperties(TileSetAsset*) {
 
     ImGui::SetNextItemWidth(-1.0f);
 
-    if (ImGui::InputInt("##TerrainId", &m_terrain_paint.terrain_id)) {
-        m_terrain_paint.terrain_id = math::max(m_terrain_paint.terrain_id, 0);
+    int terrain_id = static_cast<int>(m_terrain_paint.terrain_id.value);
+    if (ImGui::InputInt("##TerrainId", &terrain_id)) {
+        m_terrain_paint.terrain_id.value =
+            static_cast<TerrainId::Type>(math::max(terrain_id, 1));
         changed = true;
     }
 
@@ -319,7 +321,7 @@ bool TileSetPanel::paintTerrainMask(TileSetAsset& tile_set,
         definition->terrain_mask &= static_cast<uint16_t>(~bit);
 
         if (definition->terrain_mask == 0) {
-            definition->terrain_id = -1;
+            definition->terrain_id = TerrainId::invalid();
         }
 
         return true;
@@ -752,7 +754,7 @@ void TileSetPanel::drawPhysicsOverlay(const TileDefinition& definition,
 void TileSetPanel::drawTerrainOverlay(const TileDefinition& definition,
                                       const AtlasLayout& layout,
                                       const AtlasWidgetResult& result) {
-    if (definition.terrain_id < 0) {
+    if (!definition.terrain_id.valid()) {
         return;
     }
 
@@ -837,8 +839,8 @@ bool TileSetPanel::drawTileContextPopup(TileSetAsset& tile_set) {
         dirty = true;
     }
 
-    if (ImGui::MenuItem("Clear Terrain", nullptr, false, definition.terrain_id >= 0)) {
-        definition.terrain_id = -1;
+    if (ImGui::MenuItem("Clear Terrain", nullptr, false, definition.terrain_id.valid())) {
+        definition.terrain_id = TerrainId::invalid();
         definition.terrain_mask = 0;
         dirty = true;
     }
@@ -855,13 +857,9 @@ bool TileSetPanel::drawTileContextPopup(TileSetAsset& tile_set) {
         definition.collision =
             CollisionType::None;
 
-        definition.collision_shape =
-            Box2{
-                Vec2f::Zero,
-                Vec2f::One,
-            };
+        definition.collision_shape = Box2{ Vec2f::Zero, Vec2f::One };
 
-        definition.terrain_id = -1;
+        definition.terrain_id = TerrainId::invalid();
         definition.terrain_mask = 0;
         definition.animation.clear();
 
@@ -878,10 +876,7 @@ void TileSetPanel::drawPaintPropertySelector() {
     ImGui::SetNextItemWidth(-1.0f);
 
     int property = static_cast<int>(m_paint_property);
-    if (ImGui::Combo("Select a property editor",
-                     &property,
-                     kNames,
-                     std::size(kNames))) {
+    if (ImGui::Combo("Select a property editor", &property, kNames, std::size(kNames))) {
         m_paint_property = static_cast<PaintProperty>(property);
 
         m_last_painted_tile = None();

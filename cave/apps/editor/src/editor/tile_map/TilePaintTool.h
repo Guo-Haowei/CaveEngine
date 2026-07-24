@@ -33,8 +33,8 @@ public:
 
 private:
     struct PendingChange {
-        Option<TileId> before;
-        Option<TileId> after;
+        Option<TileCell> before;
+        Option<TileCell> after;
     };
 
     void drawGhostTiles(const TileSetAsset& tile_set);

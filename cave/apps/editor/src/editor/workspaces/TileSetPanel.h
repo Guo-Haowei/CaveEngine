@@ -84,7 +84,7 @@ private:
     };
 
     struct TerrainPaintState {
-        int terrain_id = 0;
+        TerrainId terrain_id;
     };
 
     struct PhysicsPaintState {
@@ -104,7 +104,7 @@ private:
         int drag_handle = -1;
     };
 
-    PaintProperty m_paint_property = PaintProperty::Physics;
+    PaintProperty m_paint_property = PaintProperty::Terrain;
 
     TerrainPaintState m_terrain_paint;
     PhysicsPaintState m_physics_paint;

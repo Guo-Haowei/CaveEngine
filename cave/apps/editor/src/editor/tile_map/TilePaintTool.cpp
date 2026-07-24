@@ -199,9 +199,12 @@ void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
             }
             break;
         case GridPaintEventType::Fill: {
+            CRASH_NOW_MSG("TODO: fix");
+#if 0
             if (DEV_VERIFY(event.cells && event.cells->size() == 1)) {
                 applyFillCells(event.cells->at(0), event.action, layer);
             }
+#endif
         } break;
         case GridPaintEventType::End: {
             finishPaintCommand();
@@ -257,7 +260,7 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
         }
     }
 
-    uint32_t tile_id = std::numeric_limits<uint32_t>::max();
+    auto tile_id = std::numeric_limits<uint16_t>::max();
 
     const TileSetAsset* tile_set = layer.tileSetHandle().get();
     DEV_ASSERT(tile_set);
@@ -269,7 +272,7 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
             return;
         }
 
-        tile_id = selections[0];
+        tile_id = static_cast<uint16_t>(selections[0]);
         if (tile_id >= tile_set->frames().size()) {
             return;
         }
@@ -288,32 +291,32 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
             .y = static_cast<int16_t>(cell.coord.y),
         };
 
-        Option<TileId> new_tile = None();
+        Option<TileCell> new_cell = None();
 
         if (painting) {
-            new_tile = Some(static_cast<TileId>(tile_id));
+            new_cell = Some(TileCell(TileId(tile_id), TerrainId::invalid()));
         } else {
-            new_tile = None();
+            new_cell = None();
         }
 
         auto pending_it = m_pending_tile_changes.find(coord);
         if (pending_it == m_pending_tile_changes.end()) {
-            const Option<TileId> old_tile = layer.chunks().tileAt(coord);
+            const Option<TileCell> old_cell = layer.chunks().tileAt(coord);
 
-            if (old_tile == new_tile) {
+            if (old_cell == new_cell) {
                 continue;
             }
 
             m_pending_tile_changes.emplace(
                 coord,
                 PendingChange{
-                    .before = old_tile,
-                    .after = new_tile,
+                    .before = old_cell,
+                    .after = new_cell,
                 });
         } else {
             // Preserve the original value from the beginning of the stroke,
             // but allow later brush passes to replace the final value.
-            pending_it->second.after = new_tile;
+            pending_it->second.after = new_cell;
 
             // If the stroke eventually restores the original value,
             // remove the no-op change entirely.
@@ -325,6 +328,7 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
 }
 
 // @TODO: better editor tools, make toolbars
+#if 0
 void TilePaintTool::applyFillCells(GridPaintCell cell,
                                    GridPaintAction action,
                                    const TileMapLayerComponent& layer) {
@@ -340,7 +344,7 @@ void TilePaintTool::applyFillCells(GridPaintCell cell,
     const int16_t local_x = ToTileLocalX(world_coord);
     const int16_t local_y = ToTileLocalY(world_coord);
 
-    std::span<const TileId> tile_data = it->second->tileData();
+    std::span<const TileCell> tile_data = it->second->tileData();
 
     auto tiles = FindConnectedTiles(tile_data,
                                     kTileChunkSize,
@@ -365,6 +369,7 @@ void TilePaintTool::applyFillCells(GridPaintCell cell,
     applyPaintCells(paint_cells, action, layer);
     finishPaintCommand();
 }
+#endif
 
 TileMapLayerComponent* TilePaintTool::getTileMapLayer(ecs::Entity entity) {
     if (Scene* scene = getResolvedScene()) {

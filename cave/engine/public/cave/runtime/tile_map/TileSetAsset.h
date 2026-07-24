@@ -5,6 +5,8 @@
 #include "cave/core/math/Box.h"
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/tile_map/TerrainId.h"
+#include "cave/runtime/tile_map/TileId.h"
 
 namespace cave {
 
@@ -48,7 +50,7 @@ struct TileDefinition {
     uint32_t mask = 0;
 
     // @TODO: fix
-    int terrain_id = -1;
+    TerrainId terrain_id = {};
     uint16_t terrain_mask = 0;
 
     CAVE_PROP()

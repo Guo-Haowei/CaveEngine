@@ -13,7 +13,7 @@ struct TileEditContext {
     ecs::Entity layer_entity{};
 
     Vector<uint32_t> selected_tile;
-    TileId hovered_tile = kEmptyTileId;
+    TileId hovered_tile = TileId::invalid();
 
     Guid tile_set_guid;
     Handle<TileSetAsset> tile_set;
@@ -27,7 +27,7 @@ struct TileEditContext {
     void clear() {
         layer_entity = ecs::Entity::null();
         selected_tile.clear();
-        hovered_tile = kEmptyTileId;
+        hovered_tile = TileId::invalid();
         paint_mode = GridPaintMode::Brush;
     }
 };

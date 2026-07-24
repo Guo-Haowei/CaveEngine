@@ -8,8 +8,8 @@ namespace cave {
 class SetTileCommand : public EditCmdBase {
     struct Command {
         TileCoord coord;
-        Option<TileId> before;
-        Option<TileId> after;
+        Option<TileCell> before;
+        Option<TileCell> after;
     };
 
 public:
@@ -22,7 +22,7 @@ public:
         DEV_ASSERT(entity.valid());
     }
 
-    void add(TileCoord coord, Option<TileId> before, Option<TileId> after) {
+    void add(TileCoord coord, Option<TileCell> before, Option<TileCell> after) {
         m_cmds.emplace_back(coord, before, after);
     }
 

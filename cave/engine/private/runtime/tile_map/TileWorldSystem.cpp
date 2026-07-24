@@ -207,7 +207,7 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
 void TileWorldSystem::handleTile(const TileDefinition& definition, TileCoord coord) {
     switch (definition.collision) {
         case CollisionType::Solid: {
-            m_rigid_tiles.addTile(coord, static_cast<TileId>(definition.id));
+            m_rigid_tiles.addTile(coord, { TileId((uint16_t)definition.id), TerrainId::invalid() });
             m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
         } break;
         case CollisionType::Trigger: {
@@ -252,9 +252,9 @@ void TileWorldSystem::rebuildTiles() {
 
             for (int16_t y = 0; y < kTileChunkSize; ++y) {
                 for (int16_t x = 0; x < kTileChunkSize; ++x) {
-                    TileId tile_id = chunk->at(x, y);
-                    if (tile_id == kEmptyTileId) continue;
-                    const TileDefinition* def = tile_set->findTileDefinition(tile_id);
+                    TileCell cell = chunk->at(x, y);
+                    if (cell.empty()) continue;
+                    const TileDefinition* def = tile_set->findTileDefinition(cell.tile_id.value);
                     if (!def) {
                         continue;
                     }
