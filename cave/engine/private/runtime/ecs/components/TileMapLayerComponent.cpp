@@ -46,6 +46,7 @@ void TileMapLayerComponent::refreshTileSetHandle() {
 
     m_image_handle = std::move(image_handle.unwrap_unchecked());
 
+    resolveAllTerrain();
     updateTileCache();
 }
 
@@ -59,6 +60,35 @@ void TileMapLayerComponent::onTileSetGuidChanged(const FieldChange& change) {
 
 void TileMapLayerComponent::onDeserialized() {
     refreshTileSetHandle();
+}
+
+void TileMapLayerComponent::resolveAllTerrain() {
+    const TileSetAsset* tile_set = m_tile_set_handle.get();
+    if (!tile_set) {
+        return;
+    }
+
+    for (const auto& [key, chunk] : m_chunks.chunks()) {
+        const int16_t offset_x = key.x * kTileChunkSize;
+        const int16_t offset_y = key.y * kTileChunkSize;
+
+        for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
+            for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
+                TileCell& cell = chunk->at(x - offset_x, y - offset_y);
+                if (!cell.hasTerrain()) {
+                    continue;
+                }
+
+                if (!cell.hasTerrain()) {
+                    continue;
+                }
+
+                const TileCoord coord{ x, y };
+                const uint16_t terrain_mask = buildTerrainMask(coord, cell.terrain_id);
+                cell.tile_id = tile_set->resolveTerrain(cell.terrain_id, terrain_mask).unwrap_or(cell.tile_id);
+            }
+        }
+    }
 }
 
 void TileMapLayerComponent::updateTileCache() {
@@ -83,6 +113,29 @@ void TileMapLayerComponent::updateTileCache() {
             }
         }
     }
+}
+
+uint16_t TileMapLayerComponent::buildTerrainMask(TileCoord coord, TerrainId terrain_id) const {
+    uint16_t mask = 0;
+
+    for (int16_t y = 0; y < 3; ++y) {
+        for (int16_t x = 0; x < 3; ++x) {
+            const TileCoord offset{ x - 1, y - 1 };
+
+            const TileCoord neighbor = coord + offset;
+            auto cell = m_chunks.cellAt(neighbor);
+
+            if (!cell || cell.unwrap_unchecked().terrain_id != terrain_id) {
+                continue;
+            }
+
+            // @TODO: fix this part
+            const auto bit_index = (2 - y) * 3 + x;
+            mask |= static_cast<uint16_t>(1u << bit_index);
+        }
+    }
+
+    return mask;
 }
 
 }  // namespace cave

@@ -154,7 +154,7 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
         for (TileCoord dir : kPathFindingDirections) {
             const TileCoord next = open_node.coord + dir;
 
-            if (m_rigid_tiles.tileAt(next).is_some()) {
+            if (m_rigid_tiles.cellAt(next).is_some()) {
                 continue;
             }
 
@@ -207,7 +207,7 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
 void TileWorldSystem::handleTile(const TileDefinition& definition, TileCoord coord) {
     switch (definition.collision) {
         case CollisionType::Solid: {
-            m_rigid_tiles.addTile(coord, { TileId((uint16_t)definition.id), TerrainId::invalid() });
+            m_rigid_tiles.addTile(coord, { TileId((uint16_t)definition.id), TerrainId::null() });
             m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
         } break;
         case CollisionType::Trigger: {

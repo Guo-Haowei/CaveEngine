@@ -1,6 +1,7 @@
 #include "cave/runtime/tile_map/TileData.h"
 
-#include "engine/private/runtime/serialization/YamlInclude.h"
+#include "engine/private/runtime/serialization/Deserializer.h"
+#include "engine/private/runtime/serialization/Serializer.h"
 
 namespace cave {
 
@@ -76,7 +77,7 @@ bool TileChunk::empty() const {
     return true;
 }
 
-Option<TileCell> ChunkedTileData::tileAt(TileCoord coord) const {
+Option<TileCell> ChunkedTileData::cellAt(TileCoord coord) const {
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
     auto it = m_chunks.find(chunk_coord);
@@ -165,13 +166,11 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
 
         for (int16_t y = 0; y < kTileChunkSize; ++y) {
             for (int16_t x = 0; x < kTileChunkSize; ++x) {
-                DEV_ASSERT(0);
-                // s.write(chunk->at(x, y));
+                s.write(chunk->at(x, y).tile_id.value);
             }
         }
 
-        s.endArray()
-            .endMap();
+        s.endArray().endMap();
     }
 
     return s.endArray();

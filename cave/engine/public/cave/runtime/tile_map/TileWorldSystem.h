@@ -28,7 +28,7 @@ public:
     const ChunkedTileData& rigidTiles() const { return m_rigid_tiles; }
 
     bool isSolid(TileCoord coord) const {
-        return m_rigid_tiles.tileAt(coord).is_some();
+        return m_rigid_tiles.cellAt(coord).is_some();
     }
 
     Vector<TileHit> querySolidTiles(const math::Box2& aabb) const;

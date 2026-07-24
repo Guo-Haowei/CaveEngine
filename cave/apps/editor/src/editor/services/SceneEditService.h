@@ -12,8 +12,8 @@ namespace cave {
 struct TileEditContext {
     ecs::Entity layer_entity{};
 
-    Vector<uint32_t> selected_tile;
-    TileId hovered_tile = TileId::invalid();
+    Vector<TileId> selected_tile;
+    TileId hovered_tile = TileId::null();
 
     Guid tile_set_guid;
     Handle<TileSetAsset> tile_set;
@@ -27,7 +27,7 @@ struct TileEditContext {
     void clear() {
         layer_entity = ecs::Entity::null();
         selected_tile.clear();
-        hovered_tile = TileId::invalid();
+        hovered_tile = TileId::null();
         paint_mode = GridPaintMode::Brush;
     }
 };

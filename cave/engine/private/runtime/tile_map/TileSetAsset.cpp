@@ -8,14 +8,14 @@ namespace cave {
 
 using namespace ::cave::math;
 
-void TileSetAsset::row(uint32_t row) {
+void TileSetAsset::setRow(uint32_t row) {
     if (row == 0) return;
     if (row == m_row) return;
     m_row = row;
     updateFrames();
 }
 
-void TileSetAsset::col(uint32_t col) {
+void TileSetAsset::setCol(uint32_t col) {
     if (col == 0) return;
     if (col == m_column) return;
     m_column = col;
@@ -59,6 +59,15 @@ TileDefinition& TileSetAsset::getOrCreateTile(uint32_t tile_id) {
     TileDefinition& last = m_definitions.back();
     last.id = tile_id;
     return last;
+}
+
+void TileSetAsset::generateTiles() {
+    m_definitions.clear();
+    m_definitions.resize(m_row * m_column);
+
+    for (uint32_t i = 0; i < m_definitions.size(); ++i) {
+        m_definitions[i].id = i;
+    }
 }
 
 void TileSetAsset::setHandle(Handle<ImageAsset>&& handle) {
@@ -110,6 +119,24 @@ void TileSetAsset::updateFrames() {
     m_dirty = true;
 }
 
+Option<TileId> TileSetAsset::resolveTerrain(TerrainId terrain, uint16_t mask) const {
+    auto it = m_terrain_lookup.find({ terrain, mask });
+    if (it == m_terrain_lookup.end()) {
+        return None();
+    }
+
+    return Some(it->second);
+}
+
+void TileSetAsset::refreshTerrainCache() {
+    m_terrain_lookup.clear();
+
+    for (const TileDefinition& def : m_definitions) {
+        TerrainKey key = { def.terrain_id, def.terrain_mask };
+        m_terrain_lookup[key] = TileId(static_cast<uint16_t>(def.id));
+    }
+}
+
 auto TileSetAsset::saveToDisk(const AssetMetaData& meta) const -> Result<void> {
     // meta
     auto res = meta.saveToDisk(this);
@@ -156,9 +183,27 @@ auto TileSetAsset::loadFromDisk(const AssetMetaData& meta) -> Result<void> {
     if (handle.is_some()) {
         setHandle(std::move(handle.unwrap_unchecked()));
     }
+
+    refreshTerrainCache();
     updateFrames();
 
     return Result<void>();
+}
+
+ISerializer& WriteObject(ISerializer& s, const TileId& id) {
+    return s.write(id.value);
+}
+
+bool ReadObject(IDeserializer& d, TileId& id) {
+    return d.read(id.value);
+}
+
+ISerializer& WriteObject(ISerializer& s, const TerrainId& id) {
+    return s.write(id.value);
+}
+
+bool ReadObject(IDeserializer& d, TerrainId& id) {
+    return d.read(id.value);
 }
 
 }  // namespace cave

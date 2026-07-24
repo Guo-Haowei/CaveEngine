@@ -22,6 +22,7 @@ bool SetTileCommand::apply(IDocument&) {
         DEV_ASSERT(ok);
     }
 
+    layer->resolveAllTerrain();
     layer->updateTileCache();
     return true;
 }
@@ -42,6 +43,7 @@ bool SetTileCommand::undo(IDocument&) {
         DEV_ASSERT(ok);
     }
 
+    layer->resolveAllTerrain();
     layer->updateTileCache();
     return true;
 }

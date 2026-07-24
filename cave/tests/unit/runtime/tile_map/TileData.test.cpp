@@ -84,8 +84,8 @@ TEST(ChunkedTileData, NewDataHasNoTiles) {
     ChunkedTileData data;
 
     EXPECT_TRUE(data.chunks().empty());
-    EXPECT_FALSE(data.tileAt(TileCoord{ 0, 0 }).is_some());
-    EXPECT_FALSE(data.tileAt(TileCoord{ -1, -1 }).is_some());
+    EXPECT_FALSE(data.cellAt(TileCoord{ 0, 0 }).is_some());
+    EXPECT_FALSE(data.cellAt(TileCoord{ -1, -1 }).is_some());
 }
 
 TEST(ChunkedTileData, AddTileCreatesChunk) {
@@ -93,7 +93,7 @@ TEST(ChunkedTileData, AddTileCreatesChunk) {
 
     EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
 
-    auto tile = data.tileAt(TileCoord{ 0, 0 });
+    auto tile = data.cellAt(TileCoord{ 0, 0 });
     ASSERT_TRUE(tile.is_some());
     EXPECT_EQ(tile.unwrap(), 7);
 
@@ -107,7 +107,7 @@ TEST(ChunkedTileData, AddSameTileReturnsFalse) {
     EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
     EXPECT_FALSE(data.addTile(TileCoord{ 0, 0 }, 7));
 
-    auto tile = data.tileAt(TileCoord{ 0, 0 });
+    auto tile = data.cellAt(TileCoord{ 0, 0 });
     ASSERT_TRUE(tile.is_some());
     EXPECT_EQ(tile.unwrap(), 7);
 
@@ -120,7 +120,7 @@ TEST(ChunkedTileData, AddDifferentTileReplacesOldTile) {
     EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
     EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 9));
 
-    auto tile = data.tileAt(TileCoord{ 0, 0 });
+    auto tile = data.cellAt(TileCoord{ 0, 0 });
     ASSERT_TRUE(tile.is_some());
     EXPECT_EQ(tile.unwrap(), 9);
 
@@ -133,7 +133,7 @@ TEST(ChunkedTileData, RemoveTileRemovesTile) {
     EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
     EXPECT_TRUE(data.removeTile(TileCoord{ 0, 0 }));
 
-    EXPECT_TRUE(data.tileAt(TileCoord{ 0, 0 }).is_none());
+    EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
 }
 
 TEST(ChunkedTileData, RemoveMissingTileReturnsFalse) {
@@ -154,9 +154,9 @@ TEST(ChunkedTileData, RemoveOneTileKeepsNonEmptyChunk) {
     EXPECT_TRUE(data.removeTile(TileCoord{ 0, 0 }));
 
     EXPECT_EQ(data.chunks().size(), 1u);
-    EXPECT_TRUE(data.tileAt(TileCoord{ 0, 0 }).is_none());
+    EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
 
-    auto tile = data.tileAt(TileCoord{ 1, 0 });
+    auto tile = data.cellAt(TileCoord{ 1, 0 });
     ASSERT_TRUE(tile.is_some());
     EXPECT_EQ(tile.unwrap(), 8);
 }
@@ -166,7 +166,7 @@ TEST(ChunkedTileData, NegativeTileRoundTrip) {
 
     EXPECT_TRUE(data.addTile(TileCoord{ -1, -1 }, 11));
 
-    auto tile = data.tileAt(TileCoord{ -1, -1 });
+    auto tile = data.cellAt(TileCoord{ -1, -1 });
     ASSERT_TRUE(tile.is_some());
     EXPECT_EQ(tile.unwrap(), 11);
 
@@ -183,13 +183,13 @@ TEST(ChunkedTileData, DifferentChunksAreIndependent) {
 
     EXPECT_EQ(data.chunks().size(), 3u);
 
-    ASSERT_TRUE(data.tileAt(TileCoord{ 0, 0 }).is_some());
-    ASSERT_TRUE(data.tileAt(TileCoord{ 32, 0 }).is_some());
-    ASSERT_TRUE(data.tileAt(TileCoord{ -1, 0 }).is_some());
+    ASSERT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_some());
+    ASSERT_TRUE(data.cellAt(TileCoord{ 32, 0 }).is_some());
+    ASSERT_TRUE(data.cellAt(TileCoord{ -1, 0 }).is_some());
 
-    EXPECT_EQ(data.tileAt(TileCoord{ 0, 0 }).unwrap(), 1);
-    EXPECT_EQ(data.tileAt(TileCoord{ 32, 0 }).unwrap(), 2);
-    EXPECT_EQ(data.tileAt(TileCoord{ -1, 0 }).unwrap(), 3);
+    EXPECT_EQ(data.cellAt(TileCoord{ 0, 0 }).unwrap(), 1);
+    EXPECT_EQ(data.cellAt(TileCoord{ 32, 0 }).unwrap(), 2);
+    EXPECT_EQ(data.cellAt(TileCoord{ -1, 0 }).unwrap(), 3);
 }
 
 TEST(ChunkedTileData, RemoveLastTileErasesEmptyChunk) {

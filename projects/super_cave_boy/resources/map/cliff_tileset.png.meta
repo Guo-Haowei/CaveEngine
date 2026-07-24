@@ -1,0 +1,9 @@
+type: image
+guid: 2012EDA3-33CE-744B-99A1A9DBD5014E1D
+name: cliff_tileset.png
+import_path: "@res://map/cliff_tileset.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

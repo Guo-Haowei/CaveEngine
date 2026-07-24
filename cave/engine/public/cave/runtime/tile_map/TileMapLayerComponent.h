@@ -38,11 +38,15 @@ public:
     std::span<const TileCache> getTileCache() const { return m_tile_cache; }
 
     void updateTileCache();
+    void resolveAllTerrain();
+
     void onDeserialized();
 
 private:
     void refreshTileSetHandle();
     void onTileSetGuidChanged(const FieldChange& change);
+
+    uint16_t buildTerrainMask(TileCoord coord, TerrainId terrain_id) const;
 
     CAVE_PROP(editor = Asset, on_change = onTileSetGuidChanged)
     Guid m_tile_set;

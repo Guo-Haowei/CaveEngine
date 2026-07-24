@@ -69,7 +69,7 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     const ImageAsset* image = tile_set.handle().get();
     if (!image) return;
 
-    std::span<const uint32_t> selections;
+    std::span<const TileId> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
         if (ctx->tile.valid()) {
             selections = ctx->tile.selected_tile;
@@ -82,10 +82,10 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     Vec2f uv_min{ 0, 0 };
     Vec2f uv_max{ 0, 0 };
     if (!selections.empty()) {
-        uint32_t tile_id = selections[0];
+        auto atlas_index = selections[0].value;
         const auto& frames = tile_set.frames();
-        uv_min = frames[tile_id].min();
-        uv_max = frames[tile_id].max();
+        uv_min = frames[atlas_index].min();
+        uv_max = frames[atlas_index].max();
         selection_valid = true;
     }
 
@@ -253,14 +253,14 @@ void TilePaintTool::cancelPaintCommand() {
 void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
                                     GridPaintAction action,
                                     const TileMapLayerComponent& layer) {
-    std::span<const uint32_t> selections;
+    std::span<const TileId> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
         if (ctx->tile.valid()) {
             selections = ctx->tile.selected_tile;
         }
     }
 
-    auto tile_id = std::numeric_limits<uint16_t>::max();
+    const TileDefinition* definition = nullptr;
 
     const TileSetAsset* tile_set = layer.tileSetHandle().get();
     DEV_ASSERT(tile_set);
@@ -268,14 +268,12 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
 
     const bool painting = action == GridPaintAction::Paint;
     if (painting) {
-        if (selections.empty()) {
-            return;
+        if (!selections.empty()) {
+            definition = tile_set->findTileDefinition(selections[0].value);
         }
-
-        tile_id = static_cast<uint16_t>(selections[0]);
-        if (tile_id >= tile_set->frames().size()) {
-            return;
-        }
+    }
+    if (!definition) {
+        return;
     }
 
     for (const GridPaintCell& cell : cells) {
@@ -294,14 +292,16 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
         Option<TileCell> new_cell = None();
 
         if (painting) {
-            new_cell = Some(TileCell(TileId(tile_id), TerrainId::invalid()));
+            new_cell = Some(TileCell(
+                TileId(static_cast<uint16_t>(definition->id)),
+                definition->terrain_id));
         } else {
             new_cell = None();
         }
 
         auto pending_it = m_pending_tile_changes.find(coord);
         if (pending_it == m_pending_tile_changes.end()) {
-            const Option<TileCell> old_cell = layer.chunks().tileAt(coord);
+            const Option<TileCell> old_cell = layer.chunks().cellAt(coord);
 
             if (old_cell == new_cell) {
                 continue;

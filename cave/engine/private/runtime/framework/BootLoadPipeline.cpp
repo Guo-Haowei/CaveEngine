@@ -103,10 +103,8 @@ auto BootLoadPipeline::requestProject(const std::filesystem::path& project_path)
         for (const auto& guid : asset.dependencies) {
             auto from = mapping.find(guid);
             if (from == mapping.end()) {
-                if (!guid.isNull()) {
-                    LOG_WARN(LogChannel::Asset, "Asset '{}' not found", guid.toString());
-                    continue;
-                }
+                LOG_WARN(LogChannel::Asset, "Asset '{}' not found", guid.toString());
+                continue;
             }
             edges.push_back({ from->second, to->second });
         }

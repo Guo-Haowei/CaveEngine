@@ -7,6 +7,9 @@
 
 namespace cave {
 
+class ISerializer;
+class IDeserializer;
+
 struct TileId {
     using Type = uint16_t;
     static constexpr Type kEmpty = std::numeric_limits<Type>::max();
@@ -14,12 +17,16 @@ struct TileId {
     Type value = kEmpty;
 
     constexpr bool valid() const { return value != kEmpty; }
+    constexpr bool isNull() const { return value == kEmpty; }
 
     constexpr explicit operator bool() const { return valid(); }
 
     constexpr auto operator<=>(const TileId&) const = default;
 
-    static constexpr TileId invalid() { return {}; }
+    static constexpr TileId null() { return {}; }
 };
+
+ISerializer& WriteObject(ISerializer& s, const TileId& id);
+bool ReadObject(IDeserializer& d, TileId& id);
 
 }  // namespace cave

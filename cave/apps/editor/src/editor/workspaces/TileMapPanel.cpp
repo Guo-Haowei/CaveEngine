@@ -84,7 +84,7 @@ void TileMapPanel::draw(SceneEditContext* context) {
                     context->tile.selected_tile.clear();
                     context->tile.selected_tile.reserve(selections.size());
                     for (const auto& [x, y] : selections) {
-                        const uint32_t tile_id = y * column + x;
+                        TileId tile_id{ static_cast<uint16_t>(y * column + x) };
                         context->tile.selected_tile.push_back(tile_id);
                     }
                 }

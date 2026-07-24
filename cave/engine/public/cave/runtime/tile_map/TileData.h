@@ -27,8 +27,8 @@ int16_t ToTileLocalY(TileCoord coord);
 TileCoord ToTileCoord(TileChunkCoord chunk_coord, int16_t local_x, int16_t local_y);
 
 struct TileCell {
-    TileId tile_id = TileId::invalid();
-    TerrainId terrain_id = TerrainId::invalid();
+    TileId tile_id = TileId::null();
+    TerrainId terrain_id = TerrainId::null();
 
     bool empty() const { return !tile_id.valid() && !terrain_id.valid(); }
 
@@ -72,7 +72,7 @@ public:
 
     ChunkedTileData& operator=(const ChunkedTileData& other);
 
-    Option<TileCell> tileAt(TileCoord coord) const;
+    Option<TileCell> cellAt(TileCoord coord) const;
 
     bool addTile(TileCoord coord, TileCell cell);
 

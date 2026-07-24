@@ -19,16 +19,22 @@ using namespace ::cave::math;
 namespace {
 
 // @TODO: refactor this function
-bool EditSprite(int* colomn, int* row) {
+bool SetupTileSet(TileSetAsset& tile_set) {
     bool dirty = false;
     if (ImGui::BeginTabBar("TileSetModes")) {
+        int colomn = tile_set.col();
+        int row = tile_set.row();
         if (ImGui::BeginTabItem("Setup")) {
-            if (ImGui::InputInt("column", colomn)) {
-                *colomn = std::max(*colomn, 1);
+            if (ImGui::InputInt("column", &colomn)) {
+                tile_set.setCol(std::max(colomn, 1));
                 dirty = true;
             }
-            if (ImGui::InputInt("row", row)) {
-                *row = std::max(*row, 1);
+            if (ImGui::InputInt("row", &row)) {
+                tile_set.setRow(std::max(row, 1));
+                dirty = true;
+            }
+            if (ImGui::Button("generate tiles")) {
+                tile_set.generateTiles();
                 dirty = true;
             }
 
@@ -235,12 +241,7 @@ bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
         case Property::Setup: {
             ImGui::TextUnformatted("Setup Properties");
             if (tile_set) {
-                int col = tile_set->col();
-                int row = tile_set->row();
-
-                if (EditSprite(&col, &row)) {
-                    tile_set->col(col);
-                    tile_set->row(row);
+                if (SetupTileSet(*tile_set)) {
                     dirty = true;
                 }
             }
@@ -321,7 +322,7 @@ bool TileSetPanel::paintTerrainMask(TileSetAsset& tile_set,
         definition->terrain_mask &= static_cast<uint16_t>(~bit);
 
         if (definition->terrain_mask == 0) {
-            definition->terrain_id = TerrainId::invalid();
+            definition->terrain_id = TerrainId::null();
         }
 
         return true;
@@ -579,6 +580,9 @@ bool TileSetPanel::handleAtlasPainting(TileSetAsset& tile_set,
 
         m_last_painted_mask_cell = Some(key);
 
+        if (dirty) {
+            tile_set.refreshTerrainCache();
+        }
         return dirty;
     }
 
@@ -792,9 +796,7 @@ void TileSetPanel::drawTerrainMaskOverlay(const TileDefinition& definition,
             const Vec2f subcell_min_px = tile_rect.min() + Vec2f(x, y) * subcell_size;
             const Vec2f subcell_max_px = subcell_min_px + subcell_size;
 
-            const ImU32 fill_color = bit_index == 4
-                                         ? IM_COL32(240, 205, 60, 150)
-                                         : IM_COL32(240, 205, 60, 85);
+            constexpr ImU32 fill_color = IM_COL32(240, 60, 60, 150);
 
             result.draw_list->AddRectFilled(result.imageToScreen(subcell_min_px),
                                             result.imageToScreen(subcell_max_px),
@@ -802,7 +804,7 @@ void TileSetPanel::drawTerrainMaskOverlay(const TileDefinition& definition,
 
             result.draw_list->AddRect(result.imageToScreen(subcell_min_px),
                                       result.imageToScreen(subcell_max_px),
-                                      IM_COL32(245, 220, 100, 180),
+                                      IM_COL32(245, 100, 100, 180),
                                       0.0f,
                                       ImDrawFlags_None,
                                       1.0f);
@@ -840,7 +842,7 @@ bool TileSetPanel::drawTileContextPopup(TileSetAsset& tile_set) {
     }
 
     if (ImGui::MenuItem("Clear Terrain", nullptr, false, definition.terrain_id.valid())) {
-        definition.terrain_id = TerrainId::invalid();
+        definition.terrain_id = TerrainId::null();
         definition.terrain_mask = 0;
         dirty = true;
     }
@@ -859,7 +861,7 @@ bool TileSetPanel::drawTileContextPopup(TileSetAsset& tile_set) {
 
         definition.collision_shape = Box2{ Vec2f::Zero, Vec2f::One };
 
-        definition.terrain_id = TerrainId::invalid();
+        definition.terrain_id = TerrainId::null();
         definition.terrain_mask = 0;
         definition.animation.clear();
 
