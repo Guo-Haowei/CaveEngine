@@ -237,7 +237,7 @@ TEST(ChunkedTileData, AddTileCreatesChunk) {
 
     const TileCell expected = MakeTileCell(7);
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, expected));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, expected));
     const Option<TileCell> cell = data.cellAt(TileCoord{ 0, 0 });
 
     ASSERT_TRUE(cell.is_some());
@@ -253,7 +253,7 @@ TEST(ChunkedTileData, AddTileLeavesOtherChunkCellsEmpty) {
     const TileCoord painted_coord{ 3, 5 };
     const TileCell painted_cell = MakeTileCell(7);
 
-    ASSERT_TRUE(data.addCell(painted_coord, painted_cell));
+    ASSERT_TRUE(data.setCell(painted_coord, painted_cell));
 
     ASSERT_EQ(data.chunks().size(), 1u);
 
@@ -287,9 +287,9 @@ TEST(ChunkedTileData, AddSameCellReturnsFalse) {
 
     const TileCell cell = MakeTileCell(7);
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, cell));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, cell));
 
-    EXPECT_FALSE(data.addCell(TileCoord{ 0, 0 }, cell));
+    EXPECT_FALSE(data.setCell(TileCoord{ 0, 0 }, cell));
 
     const Option<TileCell> stored = data.cellAt(TileCoord{ 0, 0 });
 
@@ -308,9 +308,9 @@ TEST(ChunkedTileData, AddDifferentCellReplacesOldCell) {
         .terrain_id = TerrainId(2),
     };
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, first));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, first));
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, second));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, second));
 
     const Option<TileCell> stored = data.cellAt(TileCoord{ 0, 0 });
 
@@ -325,7 +325,7 @@ TEST(ChunkedTileData, CanStoreTerrainOnlyCell) {
 
     const TileCell expected = MakeTerrainCell(0);
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 4, 7 }, expected));
+    EXPECT_TRUE(data.setCell(TileCoord{ 4, 7 }, expected));
     const Option<TileCell> stored = data.cellAt(TileCoord{ 4, 7 });
 
     ASSERT_TRUE(stored.is_some());
@@ -343,7 +343,7 @@ TEST(ChunkedTileData, CanStoreTileAndTerrainTogether) {
         .terrain_id = TerrainId(0),
     };
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 4, 7 }, expected));
+    EXPECT_TRUE(data.setCell(TileCoord{ 4, 7 }, expected));
 
     const Option<TileCell> stored = data.cellAt(TileCoord{ 4, 7 });
 
@@ -354,7 +354,7 @@ TEST(ChunkedTileData, CanStoreTileAndTerrainTogether) {
 TEST(ChunkedTileData, RemoveTileRemovesCell) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
     EXPECT_TRUE(data.removeCell(TileCoord{ 0, 0 }));
     EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
 }
@@ -362,7 +362,7 @@ TEST(ChunkedTileData, RemoveTileRemovesCell) {
 TEST(ChunkedTileData, RemoveTerrainOnlyCell) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, MakeTerrainCell(0)));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, MakeTerrainCell(0)));
     EXPECT_TRUE(data.removeCell(TileCoord{ 0, 0 }));
     EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
 }
@@ -371,15 +371,15 @@ TEST(ChunkedTileData, RemoveMissingTileReturnsFalse) {
     ChunkedTileData data;
 
     EXPECT_FALSE(data.removeCell(TileCoord{ 0, 0 }));
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
     EXPECT_FALSE(data.removeCell(TileCoord{ 1, 0 }));
 }
 
 TEST(ChunkedTileData, RemoveOneCellKeepsNonEmptyChunk) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
-    EXPECT_TRUE(data.addCell(TileCoord{ 1, 0 }, MakeTileCell(8)));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
+    EXPECT_TRUE(data.setCell(TileCoord{ 1, 0 }, MakeTileCell(8)));
 
     EXPECT_TRUE(data.removeCell(TileCoord{ 0, 0 }));
     EXPECT_EQ(data.chunks().size(), 1u);
@@ -397,7 +397,7 @@ TEST(ChunkedTileData, NegativeTileRoundTrip) {
 
     const TileCell expected = MakeTileCell(11);
 
-    EXPECT_TRUE(data.addCell(TileCoord{ -1, -1 }, expected));
+    EXPECT_TRUE(data.setCell(TileCoord{ -1, -1 }, expected));
 
     const Option<TileCell> stored = data.cellAt(TileCoord{ -1, -1 });
 
@@ -416,11 +416,11 @@ TEST(ChunkedTileData, DifferentChunksAreIndependent) {
     const TileCell second = MakeTileCell(2);
     const TileCell third = MakeTileCell(3);
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, first));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, first));
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 32, 0 }, second));
+    EXPECT_TRUE(data.setCell(TileCoord{ 32, 0 }, second));
 
-    EXPECT_TRUE(data.addCell(TileCoord{ -1, 0 }, third));
+    EXPECT_TRUE(data.setCell(TileCoord{ -1, 0 }, third));
 
     EXPECT_EQ(data.chunks().size(), 3u);
 
@@ -440,7 +440,7 @@ TEST(ChunkedTileData, DifferentChunksAreIndependent) {
 TEST(ChunkedTileData, RemoveLastTileErasesEmptyChunk) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
+    EXPECT_TRUE(data.setCell(TileCoord{ 0, 0 }, MakeTileCell(7)));
 
     ASSERT_EQ(data.chunks().size(), 1u);
 
@@ -452,7 +452,7 @@ TEST(ChunkedTileData, RemoveLastTileErasesEmptyChunk) {
 TEST(ChunkedTileData, AddingEmptyCellShouldNotBeAllowed) {
     ChunkedTileData data;
 
-    EXPECT_DEATH(data.addCell(TileCoord{ 0, 0 }, TileCell{}), "");
+    EXPECT_DEATH(data.setCell(TileCoord{ 0, 0 }, TileCell{}), "");
 }
 
 #endif
