@@ -24,6 +24,11 @@ struct TileId {
     constexpr auto operator<=>(const TileId&) const = default;
 
     static constexpr TileId null() { return {}; }
+
+    template<typename T>
+    static constexpr TileId from(T value) {
+        return TileId{ static_cast<Type>(value) };
+    }
 };
 
 ISerializer& WriteObject(ISerializer& s, const TileId& id);

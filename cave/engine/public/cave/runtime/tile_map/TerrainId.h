@@ -14,11 +14,12 @@ class IDeserializer;
 
 struct TerrainId {
     using Type = uint16_t;
+    static constexpr Type kEmpty = std::numeric_limits<Type>::max();
 
-    Type value = 0;
+    Type value = kEmpty;
 
-    constexpr bool valid() const { return value != 0; }
-    constexpr bool isNull() const { return value == 0; }
+    constexpr bool valid() const { return value != kEmpty; }
+    constexpr bool isNull() const { return value == kEmpty; }
 
     constexpr explicit operator bool() const { return valid(); }
 

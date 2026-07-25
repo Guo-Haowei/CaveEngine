@@ -133,7 +133,7 @@ void TileSetAsset::refreshTerrainCache() {
 
     for (const TileDefinition& def : m_definitions) {
         TerrainKey key = { def.terrain_id, def.terrain_mask };
-        m_terrain_lookup[key] = TileId(static_cast<uint16_t>(def.id));
+        m_terrain_lookup[key] = TileId::from(def.id);
     }
 }
 

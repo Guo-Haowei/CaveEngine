@@ -2,6 +2,81 @@
 
 namespace cave {
 
+namespace {
+
+TileCell MakeTileCell(uint16_t tile_id) {
+    return TileCell{
+        .tile_id = TileId(tile_id),
+        .terrain_id = TerrainId::null(),
+    };
+}
+
+TileCell MakeTerrainCell(uint16_t terrain_id) {
+    return TileCell{
+        .tile_id = TileId::null(),
+        .terrain_id = TerrainId(terrain_id),
+    };
+}
+
+}  // namespace
+
+// =============================================================================
+// TileCell
+// =============================================================================
+
+TEST(TileCell, DefaultConstructedCellIsEmpty) {
+    const TileCell cell;
+
+    EXPECT_TRUE(cell.empty());
+    EXPECT_FALSE(cell.hasTile());
+    EXPECT_FALSE(cell.hasTerrain());
+
+    EXPECT_EQ(cell.tile_id, TileId::null());
+    EXPECT_EQ(cell.terrain_id, TerrainId::null());
+}
+
+TEST(TileCell, TileOnlyCellIsNotEmpty) {
+    const TileCell cell = MakeTileCell(42);
+
+    EXPECT_FALSE(cell.empty());
+    EXPECT_TRUE(cell.hasTile());
+    EXPECT_FALSE(cell.hasTerrain());
+
+    EXPECT_EQ(cell.tile_id, TileId(42));
+    EXPECT_EQ(cell.terrain_id, TerrainId::null());
+}
+
+TEST(TileCell, TerrainOnlyCellIsNotEmpty) {
+    const TileCell cell = MakeTerrainCell(3);
+
+    EXPECT_FALSE(cell.empty());
+    EXPECT_FALSE(cell.hasTile());
+    EXPECT_TRUE(cell.hasTerrain());
+
+    EXPECT_EQ(cell.tile_id, TileId::null());
+    EXPECT_EQ(cell.terrain_id, TerrainId(3));
+}
+
+TEST(TileCell, ClearResetsBothIds) {
+    TileCell cell{
+        .tile_id = TileId(42),
+        .terrain_id = TerrainId(3),
+    };
+
+    cell.clear();
+
+    EXPECT_TRUE(cell.empty());
+    EXPECT_FALSE(cell.hasTile());
+    EXPECT_FALSE(cell.hasTerrain());
+
+    EXPECT_EQ(cell.tile_id, TileId::null());
+    EXPECT_EQ(cell.terrain_id, TerrainId::null());
+}
+
+// =============================================================================
+// TileChunk
+// =============================================================================
+
 TEST(TileChunk, DefaultConstructedChunkIsEmpty) {
     TileChunk chunk;
 
@@ -9,28 +84,57 @@ TEST(TileChunk, DefaultConstructedChunkIsEmpty) {
 
     for (int16_t y = 0; y < kTileChunkSize; ++y) {
         for (int16_t x = 0; x < kTileChunkSize; ++x) {
-            EXPECT_TRUE(chunk.at(x, y).empty());
+            const TileCell& cell = chunk.at(x, y);
+
+            EXPECT_TRUE(cell.empty());
+            EXPECT_FALSE(cell.hasTile());
+            EXPECT_FALSE(cell.hasTerrain());
+
+            EXPECT_EQ(cell.tile_id, TileId::null());
+            EXPECT_EQ(cell.terrain_id, TerrainId::null());
         }
     }
 }
 
-TEST(TileChunk, AtReadsAndWritesTile) {
+TEST(TileChunk, AtReadsAndWritesCell) {
     TileChunk chunk;
 
-    TileCell cell{ TileId(42) };
-    chunk.at(3, 5) = cell;
+    const TileCell expected{
+        .tile_id = TileId(42),
+        .terrain_id = TerrainId(7),
+    };
 
-    EXPECT_EQ(chunk.at(3, 5), cell);
+    chunk.at(3, 5) = expected;
+
+    EXPECT_EQ(chunk.at(3, 5), expected);
     EXPECT_FALSE(chunk.empty());
 
-    EXPECT_FALSE(chunk.at(0, 0).hasTile());
-    EXPECT_FALSE(chunk.at(31, 31).hasTile());
+    EXPECT_TRUE(chunk.at(0, 0).empty());
+    EXPECT_TRUE(chunk.at(31, 31).empty());
 }
+
+TEST(TileChunk, WritingTerrainOnlyCellMakesChunkNonEmpty) {
+    TileChunk chunk;
+
+    const TileCell expected = MakeTerrainCell(2);
+    chunk.at(3, 5) = expected;
+
+    EXPECT_EQ(chunk.at(3, 5), expected);
+    EXPECT_FALSE(chunk.empty());
+
+    EXPECT_FALSE(chunk.at(3, 5).hasTile());
+    EXPECT_TRUE(chunk.at(3, 5).hasTerrain());
+}
+
+// =============================================================================
+// Tile coordinates
+// =============================================================================
 
 TEST(TileCoord, PositiveCoordToChunkAndLocal) {
     const TileCoord coord{ 33, 65 };
 
     EXPECT_EQ(ToTileChunkCoord(coord), (TileChunkCoord{ 1, 2 }));
+
     EXPECT_EQ(ToTileLocalX(coord), 1);
     EXPECT_EQ(ToTileLocalY(coord), 1);
 }
@@ -39,16 +143,18 @@ TEST(TileCoord, ZeroCoordToChunkAndLocal) {
     const TileCoord coord{ 0, 0 };
 
     EXPECT_EQ(ToTileChunkCoord(coord), (TileChunkCoord{ 0, 0 }));
+
     EXPECT_EQ(ToTileLocalX(coord), 0);
     EXPECT_EQ(ToTileLocalY(coord), 0);
 }
 
 TEST(TileCoord, PositiveChunkBorder) {
     EXPECT_EQ(ToTileChunkCoord(TileCoord{ 31, 31 }), (TileChunkCoord{ 0, 0 }));
+    EXPECT_EQ(ToTileChunkCoord(TileCoord{ 32, 32 }), (TileChunkCoord{ 1, 1 }));
+
     EXPECT_EQ(ToTileLocalX(TileCoord{ 31, 31 }), 31);
     EXPECT_EQ(ToTileLocalY(TileCoord{ 31, 31 }), 31);
 
-    EXPECT_EQ(ToTileChunkCoord(TileCoord{ 32, 32 }), (TileChunkCoord{ 1, 1 }));
     EXPECT_EQ(ToTileLocalX(TileCoord{ 32, 32 }), 0);
     EXPECT_EQ(ToTileLocalY(TileCoord{ 32, 32 }), 0);
 }
@@ -57,82 +163,207 @@ TEST(TileCoord, NegativeCoordToChunkAndLocal) {
     const TileCoord coord{ -1, -1 };
 
     EXPECT_EQ(ToTileChunkCoord(coord), (TileChunkCoord{ -1, -1 }));
+
     EXPECT_EQ(ToTileLocalX(coord), 31);
     EXPECT_EQ(ToTileLocalY(coord), 31);
 }
 
 TEST(TileCoord, NegativeChunkBorder) {
     EXPECT_EQ(ToTileChunkCoord(TileCoord{ -32, -32 }), (TileChunkCoord{ -1, -1 }));
+
     EXPECT_EQ(ToTileLocalX(TileCoord{ -32, -32 }), 0);
+
     EXPECT_EQ(ToTileLocalY(TileCoord{ -32, -32 }), 0);
 
     EXPECT_EQ(ToTileChunkCoord(TileCoord{ -33, -33 }), (TileChunkCoord{ -2, -2 }));
+
     EXPECT_EQ(ToTileLocalX(TileCoord{ -33, -33 }), 31);
+
     EXPECT_EQ(ToTileLocalY(TileCoord{ -33, -33 }), 31);
 }
 
 TEST(TileCoord, ChunkLocalToTileCoord) {
     EXPECT_EQ(ToTileCoord(TileChunkCoord{ 0, 0 }, 0, 0), (TileCoord{ 0, 0 }));
+
     EXPECT_EQ(ToTileCoord(TileChunkCoord{ 0, 0 }, 31, 31), (TileCoord{ 31, 31 }));
 
     EXPECT_EQ(ToTileCoord(TileChunkCoord{ 1, 2 }, 1, 1), (TileCoord{ 33, 65 }));
+
     EXPECT_EQ(ToTileCoord(TileChunkCoord{ -1, -1 }, 31, 31), (TileCoord{ -1, -1 }));
+
     EXPECT_EQ(ToTileCoord(TileChunkCoord{ -1, -1 }, 0, 0), (TileCoord{ -32, -32 }));
 }
 
-TEST(ChunkedTileData, NewDataHasNoTiles) {
+TEST(TileCoord, TileCoordRoundTripsThroughChunkAndLocal) {
+    constexpr TileCoord coords[] = {
+        TileCoord{ 0, 0 },
+        TileCoord{ 31, 31 },
+        TileCoord{ 32, 32 },
+        TileCoord{ 33, 65 },
+        TileCoord{ -1, -1 },
+        TileCoord{ -32, -32 },
+        TileCoord{ -33, -33 },
+        TileCoord{ 64, -65 },
+    };
+
+    for (const TileCoord coord : coords) {
+        const TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
+        const int16_t local_x = ToTileLocalX(coord);
+        const int16_t local_y = ToTileLocalY(coord);
+
+        EXPECT_GE(local_x, 0);
+        EXPECT_GE(local_y, 0);
+        EXPECT_LT(local_x, kTileChunkSize);
+        EXPECT_LT(local_y, kTileChunkSize);
+
+        EXPECT_EQ(ToTileCoord(chunk_coord, local_x, local_y), coord);
+    }
+}
+
+// =============================================================================
+// ChunkedTileData
+// =============================================================================
+
+TEST(ChunkedTileData, NewDataHasNoCells) {
     ChunkedTileData data;
 
     EXPECT_TRUE(data.chunks().empty());
-    EXPECT_FALSE(data.cellAt(TileCoord{ 0, 0 }).is_some());
-    EXPECT_FALSE(data.cellAt(TileCoord{ -1, -1 }).is_some());
+    EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
+    EXPECT_TRUE(data.cellAt(TileCoord{ -1, -1 }).is_none());
 }
 
 TEST(ChunkedTileData, AddTileCreatesChunk) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
+    const TileCell expected = MakeTileCell(7);
 
-    auto tile = data.cellAt(TileCoord{ 0, 0 });
-    ASSERT_TRUE(tile.is_some());
-    EXPECT_EQ(tile.unwrap(), 7);
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, expected));
+    const Option<TileCell> cell = data.cellAt(TileCoord{ 0, 0 });
+
+    ASSERT_TRUE(cell.is_some());
+    EXPECT_EQ(cell.unwrap_unchecked(), expected);
 
     EXPECT_EQ(data.chunks().size(), 1u);
     EXPECT_TRUE(data.chunks().contains(TileChunkCoord{ 0, 0 }));
 }
 
-TEST(ChunkedTileData, AddSameTileReturnsFalse) {
+TEST(ChunkedTileData, AddTileLeavesOtherChunkCellsEmpty) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
-    EXPECT_FALSE(data.addTile(TileCoord{ 0, 0 }, 7));
+    const TileCoord painted_coord{ 3, 5 };
+    const TileCell painted_cell = MakeTileCell(7);
 
-    auto tile = data.cellAt(TileCoord{ 0, 0 });
-    ASSERT_TRUE(tile.is_some());
-    EXPECT_EQ(tile.unwrap(), 7);
+    ASSERT_TRUE(data.addTile(painted_coord, painted_cell));
+
+    ASSERT_EQ(data.chunks().size(), 1u);
+
+    const auto chunk_it = data.chunks().find(TileChunkCoord{ 0, 0 });
+    ASSERT_NE(chunk_it, data.chunks().end());
+    ASSERT_TRUE(chunk_it->second != nullptr);
+
+    const TileChunk& chunk = *chunk_it->second;
+
+    for (int16_t y = 0; y < kTileChunkSize; ++y) {
+        for (int16_t x = 0; x < kTileChunkSize; ++x) {
+            const TileCell& cell = chunk.at(x, y);
+
+            if (x == painted_coord.x && y == painted_coord.y) {
+                EXPECT_EQ(cell, painted_cell);
+                continue;
+            }
+
+            EXPECT_TRUE(cell.empty())
+                << "Unexpected occupied cell at local coordinate ("
+                << x << ", " << y << ')';
+
+            EXPECT_EQ(cell.tile_id, TileId::null());
+            EXPECT_EQ(cell.terrain_id, TerrainId::null());
+        }
+    }
+}
+
+TEST(ChunkedTileData, AddSameCellReturnsFalse) {
+    ChunkedTileData data;
+
+    const TileCell cell = MakeTileCell(7);
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, cell));
+
+    EXPECT_FALSE(data.addTile(TileCoord{ 0, 0 }, cell));
+
+    const Option<TileCell> stored = data.cellAt(TileCoord{ 0, 0 });
+
+    ASSERT_TRUE(stored.is_some());
+    EXPECT_EQ(stored.unwrap_unchecked(), cell);
 
     EXPECT_EQ(data.chunks().size(), 1u);
 }
 
-TEST(ChunkedTileData, AddDifferentTileReplacesOldTile) {
+TEST(ChunkedTileData, AddDifferentCellReplacesOldCell) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 9));
+    const TileCell first = MakeTileCell(7);
+    const TileCell second{
+        .tile_id = TileId(9),
+        .terrain_id = TerrainId(2),
+    };
 
-    auto tile = data.cellAt(TileCoord{ 0, 0 });
-    ASSERT_TRUE(tile.is_some());
-    EXPECT_EQ(tile.unwrap(), 9);
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, first));
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, second));
+
+    const Option<TileCell> stored = data.cellAt(TileCoord{ 0, 0 });
+
+    ASSERT_TRUE(stored.is_some());
+    EXPECT_EQ(stored.unwrap_unchecked(), second);
 
     EXPECT_EQ(data.chunks().size(), 1u);
 }
 
-TEST(ChunkedTileData, RemoveTileRemovesTile) {
+TEST(ChunkedTileData, CanStoreTerrainOnlyCell) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
+    const TileCell expected = MakeTerrainCell(0);
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 4, 7 }, expected));
+    const Option<TileCell> stored = data.cellAt(TileCoord{ 4, 7 });
+
+    ASSERT_TRUE(stored.is_some());
+
+    EXPECT_EQ(stored.unwrap_unchecked(), expected);
+    EXPECT_FALSE(stored.unwrap_unchecked().hasTile());
+    EXPECT_TRUE(stored.unwrap_unchecked().hasTerrain());
+}
+
+TEST(ChunkedTileData, CanStoreTileAndTerrainTogether) {
+    ChunkedTileData data;
+
+    const TileCell expected{
+        .tile_id = TileId(7),
+        .terrain_id = TerrainId(0),
+    };
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 4, 7 }, expected));
+
+    const Option<TileCell> stored = data.cellAt(TileCoord{ 4, 7 });
+
+    ASSERT_TRUE(stored.is_some());
+    EXPECT_EQ(stored.unwrap_unchecked(), expected);
+}
+
+TEST(ChunkedTileData, RemoveTileRemovesCell) {
+    ChunkedTileData data;
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, MakeTileCell(7)));
     EXPECT_TRUE(data.removeTile(TileCoord{ 0, 0 }));
+    EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
+}
 
+TEST(ChunkedTileData, RemoveTerrainOnlyCell) {
+    ChunkedTileData data;
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, MakeTerrainCell(0)));
+    EXPECT_TRUE(data.removeTile(TileCoord{ 0, 0 }));
     EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
 }
 
@@ -140,74 +371,90 @@ TEST(ChunkedTileData, RemoveMissingTileReturnsFalse) {
     ChunkedTileData data;
 
     EXPECT_FALSE(data.removeTile(TileCoord{ 0, 0 }));
-
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, MakeTileCell(7)));
     EXPECT_FALSE(data.removeTile(TileCoord{ 1, 0 }));
 }
 
-TEST(ChunkedTileData, RemoveOneTileKeepsNonEmptyChunk) {
+TEST(ChunkedTileData, RemoveOneCellKeepsNonEmptyChunk) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
-    EXPECT_TRUE(data.addTile(TileCoord{ 1, 0 }, 8));
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, MakeTileCell(7)));
+    EXPECT_TRUE(data.addTile(TileCoord{ 1, 0 }, MakeTileCell(8)));
 
     EXPECT_TRUE(data.removeTile(TileCoord{ 0, 0 }));
-
     EXPECT_EQ(data.chunks().size(), 1u);
+
     EXPECT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_none());
 
-    auto tile = data.cellAt(TileCoord{ 1, 0 });
-    ASSERT_TRUE(tile.is_some());
-    EXPECT_EQ(tile.unwrap(), 8);
+    const Option<TileCell> cell = data.cellAt(TileCoord{ 1, 0 });
+
+    ASSERT_TRUE(cell.is_some());
+    EXPECT_EQ(cell.unwrap_unchecked(), MakeTileCell(8));
 }
 
 TEST(ChunkedTileData, NegativeTileRoundTrip) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addTile(TileCoord{ -1, -1 }, 11));
+    const TileCell expected = MakeTileCell(11);
 
-    auto tile = data.cellAt(TileCoord{ -1, -1 });
-    ASSERT_TRUE(tile.is_some());
-    EXPECT_EQ(tile.unwrap(), 11);
+    EXPECT_TRUE(data.addTile(TileCoord{ -1, -1 }, expected));
+
+    const Option<TileCell> stored = data.cellAt(TileCoord{ -1, -1 });
+
+    ASSERT_TRUE(stored.is_some());
+    EXPECT_EQ(stored.unwrap_unchecked(), expected);
 
     EXPECT_EQ(data.chunks().size(), 1u);
+
     EXPECT_TRUE(data.chunks().contains(TileChunkCoord{ -1, -1 }));
 }
 
 TEST(ChunkedTileData, DifferentChunksAreIndependent) {
     ChunkedTileData data;
 
-    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 1));
-    EXPECT_TRUE(data.addTile(TileCoord{ 32, 0 }, 2));
-    EXPECT_TRUE(data.addTile(TileCoord{ -1, 0 }, 3));
+    const TileCell first = MakeTileCell(1);
+    const TileCell second = MakeTileCell(2);
+    const TileCell third = MakeTileCell(3);
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, first));
+
+    EXPECT_TRUE(data.addTile(TileCoord{ 32, 0 }, second));
+
+    EXPECT_TRUE(data.addTile(TileCoord{ -1, 0 }, third));
 
     EXPECT_EQ(data.chunks().size(), 3u);
 
-    ASSERT_TRUE(data.cellAt(TileCoord{ 0, 0 }).is_some());
-    ASSERT_TRUE(data.cellAt(TileCoord{ 32, 0 }).is_some());
-    ASSERT_TRUE(data.cellAt(TileCoord{ -1, 0 }).is_some());
+    const Option<TileCell> first_stored = data.cellAt(TileCoord{ 0, 0 });
+    const Option<TileCell> second_stored = data.cellAt(TileCoord{ 32, 0 });
+    const Option<TileCell> third_stored = data.cellAt(TileCoord{ -1, 0 });
 
-    EXPECT_EQ(data.cellAt(TileCoord{ 0, 0 }).unwrap(), 1);
-    EXPECT_EQ(data.cellAt(TileCoord{ 32, 0 }).unwrap(), 2);
-    EXPECT_EQ(data.cellAt(TileCoord{ -1, 0 }).unwrap(), 3);
+    ASSERT_TRUE(first_stored.is_some());
+    ASSERT_TRUE(second_stored.is_some());
+    ASSERT_TRUE(third_stored.is_some());
+
+    EXPECT_EQ(first_stored.unwrap_unchecked(), first);
+    EXPECT_EQ(second_stored.unwrap_unchecked(), second);
+    EXPECT_EQ(third_stored.unwrap_unchecked(), third);
 }
 
 TEST(ChunkedTileData, RemoveLastTileErasesEmptyChunk) {
     ChunkedTileData data;
-    (void)data;
 
-    // EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, 7));
-    // EXPECT_EQ(data.chunks().size(), 1u);
+    EXPECT_TRUE(data.addTile(TileCoord{ 0, 0 }, MakeTileCell(7)));
 
-    // EXPECT_TRUE(data.removeTile(TileCoord{ 0, 0 }));
-    // EXPECT_TRUE(data.chunks().empty());
+    ASSERT_EQ(data.chunks().size(), 1u);
+
+    EXPECT_TRUE(data.removeTile(TileCoord{ 0, 0 }));
 }
 
-TEST(ChunkedTileData, AddingEmptyTileIdShouldNotBeAllowed) {
+#if GTEST_HAS_DEATH_TEST
+
+TEST(ChunkedTileData, AddingEmptyCellShouldNotBeAllowed) {
     ChunkedTileData data;
-    (void)data;
 
-    EXPECT_DEATH(data.addTile(TileCoord{ 0, 0 }, kEmptyTileId), "");
+    EXPECT_DEATH(data.addTile(TileCoord{ 0, 0 }, TileCell{}), "");
 }
+
+#endif
 
 }  // namespace cave

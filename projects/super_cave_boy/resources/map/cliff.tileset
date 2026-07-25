@@ -12,7 +12,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 432
       animation: []
     - id: 1
@@ -22,7 +22,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 504
       animation: []
     - id: 2
@@ -32,7 +32,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 216
       animation: []
     - id: 3
@@ -42,7 +42,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 144
       animation: []
     - id: 4
@@ -52,7 +52,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 176
       animation: []
     - id: 5
@@ -62,7 +62,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 248
       animation: []
     - id: 6
@@ -72,7 +72,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 440
       animation: []
     - id: 7
@@ -82,7 +82,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 152
       animation: []
     - id: 8
@@ -92,7 +92,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 184
       animation: []
     - id: 9
@@ -102,7 +102,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 443
       animation: []
     - id: 10
@@ -122,7 +122,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 438
       animation: []
     - id: 12
@@ -132,7 +132,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 511
       animation: []
     - id: 13
@@ -142,7 +142,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 219
       animation: []
     - id: 14
@@ -152,7 +152,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 146
       animation: []
     - id: 15
@@ -162,7 +162,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 182
       animation: []
     - id: 16
@@ -172,7 +172,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 255
       animation: []
     - id: 17
@@ -182,7 +182,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 447
       animation: []
     - id: 18
@@ -192,7 +192,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 155
       animation: []
     - id: 19
@@ -202,7 +202,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 191
       animation: []
     - id: 20
@@ -212,7 +212,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 254
       animation: []
     - id: 21
@@ -232,7 +232,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 54
       animation: []
     - id: 23
@@ -242,7 +242,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 63
       animation: []
     - id: 24
@@ -252,7 +252,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 27
       animation: []
     - id: 25
@@ -262,7 +262,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 18
       animation: []
     - id: 26
@@ -272,7 +272,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 434
       animation: []
     - id: 27
@@ -282,7 +282,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 507
       animation: []
     - id: 28
@@ -292,7 +292,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 510
       animation: []
     - id: 29
@@ -302,7 +302,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 218
       animation: []
     - id: 30
@@ -312,7 +312,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 506
       animation: []
     - id: 31
@@ -322,7 +322,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 442
       animation: []
     - id: 32
@@ -332,7 +332,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 250
       animation: []
     - id: 33
@@ -342,7 +342,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 48
       animation: []
     - id: 34
@@ -352,7 +352,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 56
       animation: []
     - id: 35
@@ -362,7 +362,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 24
       animation: []
     - id: 36
@@ -372,7 +372,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 16
       animation: []
     - id: 37
@@ -382,7 +382,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 50
       animation: []
     - id: 38
@@ -392,7 +392,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 59
       animation: []
     - id: 39
@@ -402,7 +402,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 62
       animation: []
     - id: 40
@@ -412,7 +412,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 26
       animation: []
     - id: 41
@@ -422,7 +422,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 58
       animation: []
     - id: 42
@@ -432,7 +432,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 190
       animation: []
     - id: 43
@@ -442,7 +442,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 187
       animation: []
     - id: 44
@@ -492,7 +492,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 178
       animation: []
     - id: 49
@@ -502,7 +502,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 251
       animation: []
     - id: 50
@@ -512,7 +512,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 446
       animation: []
     - id: 51
@@ -522,7 +522,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 154
       animation: []
     - id: 52
@@ -532,7 +532,7 @@ content:
         max: [1, 1]
       layer: 0
       mask: 0
-      terrain_id: 1
+      terrain_id: 0
       terrain_mask: 186
       animation: []
     - id: 53
