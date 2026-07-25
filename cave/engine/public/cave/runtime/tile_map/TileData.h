@@ -74,9 +74,8 @@ public:
 
     Option<TileCell> cellAt(TileCoord coord) const;
 
-    bool addTile(TileCoord coord, TileCell cell);
-
-    bool removeTile(TileCoord coord);
+    bool setCell(TileCoord coord, TileCell cell);
+    bool removeCell(TileCoord coord);
 
     bool addChunk(TileChunkCoord coord, Owner<TileChunk>&& chunk);
 

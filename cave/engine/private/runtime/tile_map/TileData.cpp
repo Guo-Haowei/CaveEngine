@@ -97,7 +97,7 @@ Option<TileCell> ChunkedTileData::cellAt(TileCoord coord) const {
     return Some(tile);
 }
 
-bool ChunkedTileData::addTile(TileCoord coord, TileCell cell) {
+bool ChunkedTileData::setCell(TileCoord coord, TileCell cell) {
     DEV_ASSERT(!cell.empty());
 
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
@@ -107,19 +107,16 @@ bool ChunkedTileData::addTile(TileCoord coord, TileCell cell) {
         chunk = MakeOwner<TileChunk>();
     }
 
-    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
-    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
-
-    TileCell& tile = chunk->at(x, y);
-    if (tile == cell) {
+    TileCell& current = chunk->at(ToTileLocalX(coord), ToTileLocalY(coord));
+    if (current == cell) {
         return false;
     }
 
-    tile = cell;
+    current = cell;
     return true;
 }
 
-bool ChunkedTileData::removeTile(TileCoord coord) {
+bool ChunkedTileData::removeCell(TileCoord coord) {
     TileChunkCoord chunk_coord = ToTileChunkCoord(coord);
 
     auto it = m_chunks.find(chunk_coord);
@@ -127,15 +124,13 @@ bool ChunkedTileData::removeTile(TileCoord coord) {
         return false;
     }
 
-    const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
-    const int16_t y = coord.y - chunk_coord.y * kTileChunkSize;
-
-    TileCell& cell = it->second->at(x, y);
+    TileCell& cell = it->second->at(ToTileLocalX(coord), ToTileLocalY(coord));
     if (cell.empty()) {
         return false;
     }
 
     cell = TileCell{};
+    if (it->second->empty()) m_chunks.erase(it);
     return true;
 }
 

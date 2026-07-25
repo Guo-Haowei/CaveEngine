@@ -233,7 +233,7 @@ void TileWorldSystem::handleTile(const TileDefinition& definition, TileCoord coo
     m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
     switch (definition.collision) {
         case CollisionType::Solid: {
-            m_rigid_tiles.addTile(coord, { TileId::from(definition.id), TerrainId::null() });
+            m_rigid_tiles.setCell(coord, { TileId::from(definition.id), TerrainId::null() });
         } break;
         case CollisionType::Trigger: {
             Scene& scene = m_runtime.scene();

@@ -276,13 +276,11 @@ void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
         m_active_command->record(coord, before, after);
 
         if (after.is_some()) {
-            layer.chunks().addTile(coord, after.unwrap_unchecked());
+            layer.setCell(coord, after.unwrap_unchecked());
         } else {
-            layer.chunks().removeTile(coord);
+            layer.removeCell(coord);
         }
     }
-
-    layer.updateTileCache();
 }
 
 // @TODO: better editor tools, make toolbars

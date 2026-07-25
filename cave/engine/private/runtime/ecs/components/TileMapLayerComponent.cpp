@@ -10,6 +10,64 @@ namespace cave {
 using namespace math;
 using namespace render;
 
+bool TileMapLayerComponent::setCell(TileCoord coord, TileCell cell) {
+    const bool changed = cell.empty() ? m_chunks.removeCell(coord) : m_chunks.setCell(coord, cell);
+    if (!changed) return false;
+
+    updateCachedTile(coord);
+    resolveTerrainAround(coord);
+    return true;
+}
+
+bool TileMapLayerComponent::removeCell(TileCoord coord) {
+    if (!m_chunks.removeCell(coord)) return false;
+
+    updateCachedTile(coord);
+    resolveTerrainAround(coord);
+    return true;
+}
+
+void TileMapLayerComponent::resolveTerrainCell(TileCoord coord) {
+    const TileSetAsset* tile_set = m_tile_set_handle.get();
+    if (!tile_set) return;
+
+    auto current = m_chunks.cellAt(coord);
+    if (current.is_none()) return;
+
+    TileCell cell = current.unwrap_unchecked();
+    if (!cell.hasTerrain()) return;
+
+    const uint16_t mask = buildTerrainMask(coord, cell.terrain_id);
+    cell.tile_id = tile_set->resolveTerrain(cell.terrain_id, mask).unwrap_or(TileId::null());
+    m_chunks.setCell(coord, cell);
+    updateCachedTile(coord);
+}
+
+void TileMapLayerComponent::resolveTerrainAround(TileCoord center) {
+    for (int16_t y = -1; y <= 1; ++y) {
+        for (int16_t x = -1; x <= 1; ++x) {
+            resolveTerrainCell(TileCoord{ static_cast<int16_t>(center.x + x), static_cast<int16_t>(center.y + y) });
+        }
+    }
+}
+
+void TileMapLayerComponent::updateCachedTile(TileCoord coord) {
+    std::erase_if(m_tile_cache, [coord](const TileCache& tile) {
+        return tile.x == coord.x && tile.y == coord.y;
+    });
+
+    const TileSetAsset* tile_set = m_tile_set_handle.get();
+    if (!tile_set) return;
+
+    auto cell = m_chunks.cellAt(coord);
+    if (cell.is_none() || !cell.unwrap_unchecked().hasTile()) return;
+
+    const TileCell value = cell.unwrap_unchecked();
+    if (!tile_set->findTileDefinition(value.tile_id.value)) return;
+
+    m_tile_cache.emplace_back(coord.x, coord.y, value.tile_id, 0.0f);
+}
+
 void TileMapLayerComponent::setTileSetGuid(const Guid& guid) {
     if (m_tile_set == guid) {
         return;
@@ -46,8 +104,7 @@ void TileMapLayerComponent::refreshTileSetHandle() {
 
     m_image_handle = std::move(image_handle.unwrap_unchecked());
 
-    resolveAllTerrain();
-    updateTileCache();
+    updateAllCachedTile();
 }
 
 void TileMapLayerComponent::onTileSetGuidChanged(const FieldChange& change) {
@@ -62,6 +119,7 @@ void TileMapLayerComponent::onDeserialized() {
     refreshTileSetHandle();
 }
 
+#if 0
 void TileMapLayerComponent::resolveAllTerrain() {
     const TileSetAsset* tile_set = m_tile_set_handle.get();
     if (!tile_set) {
@@ -90,8 +148,9 @@ void TileMapLayerComponent::resolveAllTerrain() {
         }
     }
 }
+#endif
 
-void TileMapLayerComponent::updateTileCache() {
+void TileMapLayerComponent::updateAllCachedTile() {
     m_tile_cache.clear();
 
     const TileSetAsset* tile_set = m_tile_set_handle.get();

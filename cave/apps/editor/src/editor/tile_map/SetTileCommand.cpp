@@ -13,26 +13,17 @@ void SetTileCommand::record(TileCoord coord, Option<TileCell> before, Option<Til
 }
 
 bool SetTileCommand::apply(IDocument&) {
-    CRASH_NOW_MSG("should never call this");
-#if 0
     Scene* scene = resolveScene(m_scene_id);
     TileMapLayerComponent* layer = scene->component<TileMapLayerComponent>(m_enity);
     if (!layer) {
         return false;
     }
 
-    ChunkedTileData& tiles = layer->chunks();
     for (const auto& [coord, change] : m_changes) {
-        [[maybe_unused]]
-        bool ok = change.after.is_some()
-                      ? tiles.addTile(coord, change.after.unwrap_unchecked())
-                      : tiles.removeTile(coord);
-        DEV_ASSERT(ok);
+        change.after.is_some()
+            ? layer->setCell(coord, change.after.unwrap_unchecked())
+            : layer->removeCell(coord);
     }
-
-    layer->resolveAllTerrain();
-    layer->updateTileCache();
-#endif
     return true;
 }
 
@@ -43,17 +34,11 @@ bool SetTileCommand::undo(IDocument&) {
         return false;
     }
 
-    ChunkedTileData& tiles = layer->chunks();
     for (const auto& [coord, change] : m_changes) {
-        [[maybe_unused]]
-        bool ok = change.before.is_some()
-                      ? tiles.addTile(coord, change.before.unwrap_unchecked())
-                      : tiles.removeTile(coord);
-        DEV_ASSERT(ok);
+        change.before.is_some()
+            ? layer->setCell(coord, change.before.unwrap_unchecked())
+            : layer->removeCell(coord);
     }
-
-    layer->resolveAllTerrain();
-    layer->updateTileCache();
     return true;
 }
 
