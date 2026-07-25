@@ -59,25 +59,27 @@ void TileWorldSystem::start() {
 }
 
 void TileWorldSystem::update(SceneTickContext&) {
-    ICanvas& canvas = m_runtime.services().canvas();
-    canvas.pushView(m_runtime.viewId());
+    if constexpr (0) {
+        ICanvas& canvas = m_runtime.services().canvas();
+        canvas.pushView(m_runtime.viewId());
 
-    for (const auto& [key, chunk] : m_rigid_tiles.chunks()) {
-        const int16_t offset_x = key.x * kTileChunkSize;
-        const int16_t offset_y = key.y * kTileChunkSize;
+        for (const auto& [key, chunk] : m_rigid_tiles.chunks()) {
+            const int16_t offset_x = key.x * kTileChunkSize;
+            const int16_t offset_y = key.y * kTileChunkSize;
 
-        for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
-            for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
-                const TileCell& cell = chunk->at(x - offset_x, y - offset_y);
-                if (cell.hasTile()) {
-                    Vec2f min{ x, y };
-                    canvas.addBox2Frame(min, min + Vec2f::One, 0.1f);
+            for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
+                for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
+                    const TileCell& cell = chunk->at(x - offset_x, y - offset_y);
+                    if (cell.hasTile()) {
+                        Vec2f min{ x, y };
+                        canvas.addBox2Frame(min, min + Vec2f::One, 0.02f);
+                    }
                 }
             }
         }
-    }
 
-    canvas.popView();
+        canvas.popView();
+    }
 }
 
 TileCoord TileWorldSystem::worldToTile(Vec2f world_pos, float tile_size) {

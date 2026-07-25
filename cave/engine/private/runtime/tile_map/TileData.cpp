@@ -105,7 +105,6 @@ bool ChunkedTileData::addTile(TileCoord coord, TileCell cell) {
     auto& chunk = m_chunks[chunk_coord];
     if (chunk == nullptr) {
         chunk = MakeOwner<TileChunk>();
-        std::memset(chunk.get(), 0xFFFFFFFF, sizeof(TileChunk));
     }
 
     const int16_t x = coord.x - chunk_coord.x * kTileChunkSize;
