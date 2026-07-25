@@ -31,7 +31,11 @@ EditService::~EditService() {
 }
 
 void EditService::submit(DocId doc_id, Owner<IEditCmd>&& cmd) {
-    m_app_services.intentBus().queue<EditIntent>(doc_id, std::move(cmd));
+    m_app_services.intentBus().queue<EditIntent>(doc_id, std::move(cmd), false);
+}
+
+void EditService::recordApplied(DocId doc_id, Owner<IEditCmd>&& cmd) {
+    m_app_services.intentBus().queue<EditIntent>(doc_id, std::move(cmd), true);
 }
 
 void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
@@ -83,42 +87,34 @@ void EditService::redo(DocId doc_id) {
 }
 
 bool EditService::canUndo(DocId doc_id) const {
-    if (const IDocument* doc = resolve(doc_id)) {
-        return doc->canUndo();
-    }
-
-    return false;
+    const IDocument* doc = resolve(doc_id);
+    return doc ? doc->canUndo() : false;
 }
 
 bool EditService::canRedo(DocId doc_id) const {
-    if (const IDocument* doc = resolve(doc_id)) {
-        return doc->canRedo();
-    }
-
-    return false;
+    const IDocument* doc = resolve(doc_id);
+    return doc ? doc->canRedo() : false;
 }
 
 bool EditService::isDirty(DocId doc_id) const {
-    if (const IDocument* doc = resolve(doc_id)) {
-        return doc->isDirty();
-    }
-
-    return false;
+    const IDocument* doc = resolve(doc_id);
+    return doc ? doc->isDirty() : false;
 }
 
 bool EditService::save(DocId doc_id) {
-    if (IDocument* doc = resolve(doc_id)) {
-        return doc->save();
-    }
-
-    return false;
+    IDocument* doc = resolve(doc_id);
+    return doc ? doc->save() : false;
 }
 
 bool EditService::handleIntent(Intent& intent) {
     if (auto edit_intent = dynamic_cast<EditIntent*>(&intent)) {
         IDocument* doc = resolve(edit_intent->doc_id());
         if (DEV_VERIFY(doc)) {
-            doc->apply(std::move(edit_intent->m_cmd), 0);
+            if (edit_intent->alreadyExecuted()) {
+                doc->recordApplied(std::move(edit_intent->cmd), 0);
+            } else {
+                doc->apply(std::move(edit_intent->cmd), 0);
+            }
         }
 
         return true;

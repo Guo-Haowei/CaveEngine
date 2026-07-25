@@ -25,6 +25,7 @@ public:
     ~DocumentBase();
 
     bool apply(Owner<IEditCmd> cmd, uint32_t coalesce) override;
+    bool recordApplied(Owner<IEditCmd> cmd, uint32_t coalesce) override;
 
     bool canUndo() const override { return !m_undo.empty(); }
     bool canRedo() const override { return !m_redo.empty(); }
@@ -62,6 +63,8 @@ public:
                         size_t data_size) override;
 
 private:
+    bool canCoalesce(const IEditCmd& cmd, uint32_t coalesce) const;
+
     void touchDirtyAfterEdit() {
         // nothing required here beyond marker comparison;
         // kept as a hook in case you later add "modified time", etc.

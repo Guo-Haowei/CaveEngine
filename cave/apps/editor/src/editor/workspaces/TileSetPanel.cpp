@@ -2,8 +2,6 @@
 
 #include <IconsFontAwesome/IconsFontAwesome6.h >
 
-#include "cave/runtime/tile_map/TileSetAsset.h"
-
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"
 #include "editor/services/IconCache.h"
@@ -20,63 +18,23 @@ using namespace ::cave::math;
 
 namespace {
 
-#if 0
-void DrawPhysicsTab(TileSetAsset& tile_set, SpriteSelector& sprite_selector) {
-    int index = -1;
-    if (auto selected = sprite_selector.GetSelections(); !selected.empty()) {
-        auto [x, y] = selected.front();
-        index = tile_set.col() * y + x;
-    }
-
-    ToolbarButtonDesc add_square_button_desc = {
-        "TileSetEditor.physics.box",
-        ICON_FA_SQUARE " Box", "Add box collider",
-        [&]() {
-            // if (index >= 0 && tile_set.addBoxCollider(index)) {
-            //     LOG_OK("Box collider added for {}", index);
-            // } else {
-            //     LOG_ERROR("Failed to add box collider for {}", index);
-            // }
-        }
-    };
-
-    ToolbarButtonDesc add_polygon_button_desc = {
-        "TileSetEditor.physics.polygon",
-        ICON_FA_DRAW_POLYGON " Polygon", "Add polygon collider",
-        [&]() {
-            LOG_WARN("Not implemented");
-        }
-    };
-
-    ToolbarButtonDesc add_circle_button_desc = {
-        "TileSetEditor.circle.polygon",
-        ICON_FA_CIRCLE " Circle", "Add circle collider",
-        [&]() {
-            LOG_WARN("Not implemented");
-        }
-    };
-
-    Vector<const ToolbarButtonDesc*> tool_bar = {
-        &add_square_button_desc,
-        &add_polygon_button_desc,
-        &add_circle_button_desc,
-    };
-
-    DrawToolbar(tool_bar);
-    ImGui::Separator();
-}
-#endif
-
-bool EditSprite(int* colomn, int* row) {
+// @TODO: refactor this function
+bool SetupTileSet(TileSetAsset& tile_set) {
     bool dirty = false;
     if (ImGui::BeginTabBar("TileSetModes")) {
+        int colomn = tile_set.col();
+        int row = tile_set.row();
         if (ImGui::BeginTabItem("Setup")) {
-            if (ImGui::InputInt("column", colomn)) {
-                *colomn = std::max(*colomn, 1);
+            if (ImGui::InputInt("column", &colomn)) {
+                tile_set.setCol(std::max(colomn, 1));
                 dirty = true;
             }
-            if (ImGui::InputInt("row", row)) {
-                *row = std::max(*row, 1);
+            if (ImGui::InputInt("row", &row)) {
+                tile_set.setRow(std::max(row, 1));
+                dirty = true;
+            }
+            if (ImGui::Button("generate tiles")) {
+                tile_set.generateTiles();
                 dirty = true;
             }
 
@@ -283,12 +241,7 @@ bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
         case Property::Setup: {
             ImGui::TextUnformatted("Setup Properties");
             if (tile_set) {
-                int col = tile_set->col();
-                int row = tile_set->row();
-
-                if (EditSprite(&col, &row)) {
-                    tile_set->col(col);
-                    tile_set->row(row);
+                if (SetupTileSet(*tile_set)) {
                     dirty = true;
                 }
             }
@@ -302,10 +255,26 @@ bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
             }
         } break;
         case Property::Paint: {
-            ImGui::TextUnformatted("Paint Properties");
+            ImGui::TextUnformatted("Paint Properties:");
             ImGui::Spacing();
-            ImGui::SetNextItemWidth(-1.0f);
-            ImGui::Combo("##PaintProperty", &m_paint_property, "Physics\0Terrain\0Animation\0");
+
+            drawPaintPropertySelector();
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            switch (m_paint_property) {
+                case PaintProperty::Physics: {
+                    dirty |= m_physics_paint_tool.drawPaintProperties(tile_set);
+                } break;
+                case PaintProperty::Terrain: {
+                    dirty |= m_terrain_paint_tool.drawPaintProperties(tile_set);
+                } break;
+                case PaintProperty::Animation: {
+                    ImGui::TextDisabled("Animation painting is not implemented.");
+                } break;
+            }
         } break;
     }
 
@@ -314,36 +283,221 @@ bool TileSetPanel::drawTileProperties(TileSetAsset* tile_set) {
     return dirty;
 }
 
+bool TileSetPanel::handleAtlasPainting(TileSetAsset& tile_set,
+                                       const AtlasWidgetResult& result,
+                                       const ImageCanvasInput& input) {
+    switch (m_paint_property) {
+        case PaintProperty::Physics:
+            return m_physics_paint_tool.handleAtlasPainting(tile_set, result, input);
+        case PaintProperty::Terrain:
+            return m_terrain_paint_tool.handleAtlasPainting(tile_set, result, input);
+        case cave::TileSetPanel::PaintProperty::Animation:
+        default:
+            return false;
+    }
+}
+
+void TileSetPanel::drawHoveredTerrainCell(const AtlasLayout& layout,
+                                          const AtlasHit& hit,
+                                          const AtlasWidgetResult& result) {
+    if (!result.draw_list) {
+        return;
+    }
+
+    const Box2 tile_rect = layout.cellRectPx(hit.index);
+    const Vec2f tile_size = layout.cellSizePx();
+    const Vec2f subcell_size = tile_size / 3.0f;
+
+    const Vec2i subcell = hit.mask3x3Cell();
+
+    const Vec2f min_px{
+        tile_rect.min().x + static_cast<float>(subcell.x) * subcell_size.x,
+        tile_rect.min().y + static_cast<float>(subcell.y) * subcell_size.y,
+    };
+
+    const Vec2f max_px = min_px + subcell_size;
+
+    result.draw_list->AddRectFilled(result.imageToScreen(min_px),
+                                    result.imageToScreen(max_px),
+                                    IM_COL32(255, 235, 90, 65));
+
+    result.draw_list->AddRect(result.imageToScreen(min_px),
+                              result.imageToScreen(max_px),
+                              IM_COL32(255, 235, 90, 255),
+                              0.0f,
+                              ImDrawFlags_None,
+                              2.0f);
+}
+
 bool TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
     bool dirty = false;
 
     ImGui::TableSetColumnIndex(2);
 
-    ImGui::BeginChild("##TileAtlasColumn");
+    ImGui::BeginChild("##TileAtlasColumn", ImVec2{ 0.0f, 0.0f });
+
+    ImageCanvasInput input;
+    input.pointer_ss = ImGui::GetMousePos();
+    input.pointer_valid = true;
+
+    input.zoom_steps = ImGui::GetIO().MouseWheel;
+
+    input.left_double_clicked = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+
+    input.left_pressed = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+    input.left_down = ImGui::IsMouseDown(ImGuiMouseButton_Left);
+    input.left_released = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+
+    input.right_pressed = ImGui::IsMouseClicked(ImGuiMouseButton_Right);
+    input.right_down = ImGui::IsMouseDown(ImGuiMouseButton_Right);
+    input.right_released = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
 
     AtlasWidgetDesc desc;
     desc.id = "##TileAtlas";
     desc.texture = 0;
+
     desc.layout.image_size_px = { 64.0f, 64.0f };
     desc.layout.grid_size = { 1, 1 };
     desc.widget_size = { 0.0f, 0.0f };
+
     desc.show_toolbar = true;
     desc.show_checkerboard = true;
+    desc.input = &input;
 
     if (tile_set) {
-        desc.layout.grid_size = Vec2i(tile_set->col(), tile_set->row());
+        desc.layout.grid_size = Vec2i{ tile_set->col(), tile_set->row() };
     }
 
     if (image && image->gpu_texture) {
         desc.texture = image->gpu_texture->GetHandle();
-        desc.layout.image_size_px = Vec2f(image->width, image->height);
+        desc.layout.image_size_px = Vec2f{ image->width, image->height };
     }
 
-    m_atlas_widget.draw(desc, m_atlas_selection);
+    const AtlasWidgetResult atlas_result = m_atlas_widget.draw(desc);
+
+    // Paint before drawing overlays so changes appear immediately.
+    if (tile_set && m_mode == Property::Paint) {
+        dirty |= handleAtlasPainting(*tile_set, atlas_result, input);
+    } else {
+        m_last_painted_tile = None();
+    }
+
+    drawAtlasMetadataOverlays(tile_set, desc.layout, atlas_result);
+
+    if (m_mode == Property::Paint && m_paint_property == PaintProperty::Terrain &&
+        atlas_result.pointer.hovered) {
+        drawHoveredTerrainCell(desc.layout,
+                               atlas_result.pointer.hovered.unwrap_unchecked(),
+                               atlas_result);
+    }
+
+    // BeginPopup must be called every frame, not only on right click.
+    if (tile_set) {
+        dirty |= drawTileContextPopup(*tile_set);
+    }
 
     ImGui::EndChild();
 
     return dirty;
+}
+
+void TileSetPanel::drawAtlasMetadataOverlays(const TileSetAsset* tile_set,
+                                             const AtlasLayout& layout,
+                                             const AtlasWidgetResult& result) {
+    if (!tile_set || !result.draw_list || !layout.valid()) {
+        return;
+    }
+
+    for (const TileDefinition& definition : tile_set->getTileDefinitions()) {
+        if (!layout.contains(definition.id)) {
+            continue;
+        }
+
+        switch (m_paint_property) {
+            case PaintProperty::Physics:
+                m_physics_paint_tool.drawOverlay(definition, layout, result);
+                break;
+            case PaintProperty::Terrain:
+                m_terrain_paint_tool.drawOverlay(definition, layout, result);
+                break;
+            case PaintProperty::Animation:
+                break;
+        }
+    }
+}
+
+bool TileSetPanel::drawTileContextPopup(TileSetAsset& tile_set) {
+    bool dirty = false;
+
+    if (!ImGui::BeginPopup("##TileContextPopup")) {
+        return false;
+    }
+
+    if (!m_context_tile) {
+        ImGui::TextDisabled("No tile selected");
+
+        ImGui::EndPopup();
+        return false;
+    }
+
+    const uint32_t tile_index = m_context_tile.unwrap_unchecked();
+
+    ImGui::Text("Tile %u", tile_index);
+
+    ImGui::Separator();
+
+    TileDefinition& definition = tile_set.getOrCreateTile(tile_index);
+
+    if (ImGui::MenuItem("Clear Physics", nullptr, false, definition.collision != CollisionType::None)) {
+        definition.collision = CollisionType::None;
+        definition.collision_shape = Box2{ Vec2f::Zero,
+                                           Vec2f::One };
+        dirty = true;
+    }
+
+    if (ImGui::MenuItem("Clear Terrain", nullptr, false, definition.terrain_id.valid())) {
+        definition.terrain_id = TerrainId::null();
+        definition.terrain_mask = 0;
+        dirty = true;
+    }
+
+    if (ImGui::MenuItem("Clear Animation", nullptr, false, !definition.animation.empty())) {
+        definition.animation.clear();
+        dirty = true;
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::MenuItem(
+            "Clear All Properties")) {
+        definition.collision =
+            CollisionType::None;
+
+        definition.collision_shape = Box2{ Vec2f::Zero, Vec2f::One };
+
+        definition.terrain_id = TerrainId::null();
+        definition.terrain_mask = 0;
+        definition.animation.clear();
+
+        dirty = true;
+    }
+
+    ImGui::EndPopup();
+
+    return dirty;
+}
+
+void TileSetPanel::drawPaintPropertySelector() {
+    static constexpr const char* kNames[] = { "Physics", "Terrain", "Animation" };
+    ImGui::SetNextItemWidth(-1.0f);
+
+    int property = static_cast<int>(m_paint_property);
+    if (ImGui::Combo("Select a property editor", &property, kNames, std::size(kNames))) {
+        m_paint_property = static_cast<PaintProperty>(property);
+
+        m_last_painted_tile = None();
+        m_atlas_widget.cancelStroke();
+    }
 }
 
 void TileSetPanel::draw(SceneEditContext* context) {
@@ -387,17 +541,5 @@ void TileSetPanel::draw(SceneEditContext* context) {
         document.markDirty(doc_id);
     }
 }
-
-#if 0
-void TileSetEditor::drawAssetInspector(IDocument&) {
-    if (ImGui::BeginTabBar("TileSetPhysics")) {
-        if (ImGui::BeginTabItem("Physics Layer")) {
-            DrawPhysicsTab(tile_set, m_sprite_selector);
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-}
-#endif
 
 }  // namespace cave

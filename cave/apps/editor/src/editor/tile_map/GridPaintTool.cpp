@@ -197,7 +197,11 @@ auto GridPaintTool::update(const GridPaintInput& input) -> std::span<const GridP
     }
 
     if (m_stroke.active && !input.has_hover) {
-        cancelStroke();
+        if (m_stroke.mode == GridPaintMode::Brush) {
+            finishStroke();
+        } else {
+            cancelStroke();
+        }
         return m_events;
     }
 

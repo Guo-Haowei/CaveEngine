@@ -48,6 +48,8 @@ const MetaTableFields& MetaDataTable<TileFrame>::getFields() {
 // math::Box2 collision_shape ()
 // uint32_t layer (editor = BitMask)
 // uint32_t mask (editor = BitMask)
+// TerrainId terrain_id ()
+// uint16_t terrain_mask ()
 // Vector<TileFrame> animation ()
 
 template<>
@@ -105,6 +107,26 @@ const MetaTableFields& MetaDataTable<TileDefinition>::getFields() {
         ),
         REGISTER_FIELD(
             TileDefinition,
+            "terrain_id",
+            CAVE_SID("terrain_id"),
+            terrain_id,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr,
+            FieldOpsFor<TerrainId>::get()
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
+            "terrain_mask",
+            CAVE_SID("terrain_mask"),
+            terrain_mask,
+            FieldFlag::Serialize,
+            EditorHint::None,
+            nullptr,
+            FieldOpsFor<uint16_t>::get()
+        ),
+        REGISTER_FIELD(
+            TileDefinition,
             "animation",
             CAVE_SID("animation"),
             animation,
@@ -125,7 +147,7 @@ const MetaTableFields& MetaDataTable<TileDefinition>::getFields() {
 // float m_tile_scale (editor = DragFloat, min = 0.01f, max = 100.0f)
 // uint32_t m_row (editor = InputInt, min = 1, max = 1000)
 // uint32_t m_column (editor = InputInt, min = 1, max = 1000)
-// Vector<TileDefinition> m_tiles ()
+// Vector<TileDefinition> m_definitions ()
 
 template<>
 const MetaTableFields& MetaDataTable<TileSetAsset>::getFields() {
@@ -178,9 +200,9 @@ const MetaTableFields& MetaDataTable<TileSetAsset>::getFields() {
         ),
         REGISTER_FIELD(
             TileSetAsset,
-            "tiles",
-            CAVE_SID("tiles"),
-            m_tiles,
+            "definitions",
+            CAVE_SID("definitions"),
+            m_definitions,
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr,

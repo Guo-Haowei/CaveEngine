@@ -31,24 +31,43 @@ DocumentBase::DocumentBase(EngineServices& services, const Guid& guid)
 
 DocumentBase::~DocumentBase() = default;
 
-bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
-    if (!cmd) {
-        return false;
-    }
-
-    const bool can_coalesce =
-        // coalesce != 0 &&
-        // coalesce == m_last_coalesce &&
+bool DocumentBase::canCoalesce(const IEditCmd& cmd, uint32_t coalesce) const {
+    unused(coalesce);
+    return
+#if 0
+        coalesce != 0 &&
+        coalesce == m_last_coalesce &&
+#endif
         !m_undo.empty() &&
-        m_undo.back().cmd->canCoalesceWith(cmd.get());
+        m_undo.back().cmd->canCoalesceWith(&cmd);
+}
 
-    if (can_coalesce) {
+bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
+    if (!cmd) return false;
+
+    if (canCoalesce(*cmd.get(), coalesce)) {
         cmd->apply(*this);
 
         EditRecord& last = m_undo.back();
         last.cmd->coalesceFrom(std::move(cmd));
+        last.after_state = m_next_state++;
+        m_current_state = last.after_state;
 
-        // Although this remains one undo operation, it is a new document state.
+        m_redo.clear();
+        touchDirtyAfterEdit();
+        return true;
+    }
+
+    cmd->apply(*this);
+    return recordApplied(std::move(cmd), coalesce);
+}
+
+bool DocumentBase::recordApplied(Owner<IEditCmd> cmd, uint32_t coalesce) {
+    if (!cmd) return false;
+
+    if (canCoalesce(*cmd.get(), coalesce)) {
+        EditRecord& last = m_undo.back();
+        last.cmd->coalesceFrom(std::move(cmd));
         last.after_state = m_next_state++;
         m_current_state = last.after_state;
 
@@ -60,8 +79,6 @@ bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
     const EditStateId before_state = m_current_state;
     const EditStateId after_state = m_next_state++;
 
-    cmd->apply(*this);
-
     m_undo.push_back(EditRecord{
         .cmd = std::move(cmd),
         .before_state = before_state,
@@ -70,7 +87,6 @@ bool DocumentBase::apply(Owner<IEditCmd> cmd, uint32_t coalesce) {
 
     m_current_state = after_state;
     m_redo.clear();
-
     m_last_coalesce = coalesce;
 
     touchDirtyAfterEdit();

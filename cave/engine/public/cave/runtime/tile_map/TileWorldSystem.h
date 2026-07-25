@@ -28,7 +28,7 @@ public:
     const ChunkedTileData& rigidTiles() const { return m_rigid_tiles; }
 
     bool isSolid(TileCoord coord) const {
-        return m_rigid_tiles.tileAt(coord).is_some();
+        return m_rigid_tiles.cellAt(coord).is_some();
     }
 
     Vector<TileHit> querySolidTiles(const math::Box2& aabb) const;
@@ -41,9 +41,9 @@ public:
     static math::Vec2f tileToWorld(TileCoord coord, float tile_size = 1.0f);
 
 private:
-    void update(SceneTickContext&) override {}
-
     void start() override;
+
+    void update(SceneTickContext&) override;
 
     DebugId debugId() const override { return m_debug_id; }
 

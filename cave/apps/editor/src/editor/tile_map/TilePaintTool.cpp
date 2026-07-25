@@ -40,7 +40,7 @@ void TilePaintTool::onInputEvents(const InputFrame& input, const WindowState& st
         m_paint_tool.setMode(context->tile.paint_mode);
     }
 
-    const TileMapLayerComponent* layer = getTileMapLayer(m_layer_id);
+    TileMapLayerComponent* layer = getTileMapLayer(m_layer_id);
     if (!layer) return;
 
     GridPaintInput paint_input = buildInput(input, state);
@@ -69,7 +69,7 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     const ImageAsset* image = tile_set.handle().get();
     if (!image) return;
 
-    std::span<const uint32_t> selections;
+    std::span<const TileId> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
         if (ctx->tile.valid()) {
             selections = ctx->tile.selected_tile;
@@ -82,10 +82,10 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
     Vec2f uv_min{ 0, 0 };
     Vec2f uv_max{ 0, 0 };
     if (!selections.empty()) {
-        uint32_t tile_id = selections[0];
+        auto atlas_index = selections[0].value;
         const auto& frames = tile_set.frames();
-        uv_min = frames[tile_id].min();
-        uv_max = frames[tile_id].max();
+        uv_min = frames[atlas_index].min();
+        uv_max = frames[atlas_index].max();
         selection_valid = true;
     }
 
@@ -188,7 +188,7 @@ GridPaintInput TilePaintTool::buildInput(const InputFrame& input, const WindowSt
 }
 
 void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
-                                     const TileMapLayerComponent& layer) {
+                                     TileMapLayerComponent& layer) {
     switch (event.type) {
         case GridPaintEventType::Begin: {
             beginPaintCommand();
@@ -199,9 +199,12 @@ void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
             }
             break;
         case GridPaintEventType::Fill: {
+            CRASH_NOW_MSG("TODO: fix");
+#if 0
             if (DEV_VERIFY(event.cells && event.cells->size() == 1)) {
                 applyFillCells(event.cells->at(0), event.action, layer);
             }
+#endif
         } break;
         case GridPaintEventType::End: {
             finishPaintCommand();
@@ -213,118 +216,75 @@ void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
 }
 
 void TilePaintTool::beginPaintCommand() {
-    DEV_ASSERT(m_pending_tile_changes.empty());
-    m_pending_tile_changes.clear();
+    if (!DEV_VERIFY(m_active_command == nullptr)) {
+        m_active_command.reset();
+    }
+
+    m_active_command = MakeOwner<SetTileCommand>(m_ctx.engine_services.sceneRegistry(),
+                                                 m_ctx.scene_id,
+                                                 m_layer_id);
 }
 
 void TilePaintTool::finishPaintCommand() {
-    if (m_pending_tile_changes.empty()) {
+    if (m_active_command == nullptr) {
+        return;
+    }
+    if (m_active_command->empty()) {
+        m_active_command.reset();
         return;
     }
 
-    auto composite = MakeOwner<SetTileCommand>(m_ctx.engine_services.sceneRegistry(),
-                                               m_ctx.scene_id,
-                                               m_layer_id);
-
-    for (const auto& [coord, change] : m_pending_tile_changes) {
-        if (change.before == change.after) {
-            continue;
-        }
-
-        composite->add(coord, change.before, change.after);
-    }
-
-    m_pending_tile_changes.clear();
-
-    if (composite->empty()) {
-        return;
-    }
-
-    m_ctx.editor_services.edit().submit(m_ctx.doc_id, std::move(composite));
+    m_ctx.editor_services.edit().recordApplied(m_ctx.doc_id, std::move(m_active_command));
 }
 
 void TilePaintTool::cancelPaintCommand() {
-    m_pending_tile_changes.clear();
+    m_active_command.reset();
 }
 
 void TilePaintTool::applyPaintCells(std::span<const GridPaintCell> cells,
                                     GridPaintAction action,
-                                    const TileMapLayerComponent& layer) {
-    std::span<const uint32_t> selections;
+                                    TileMapLayerComponent& layer) {
+    DEV_ASSERT(m_active_command);
+
+    std::span<const TileId> selections;
     if (const auto* ctx = m_ctx.editor_services.sceneEdit().current()) {
-        if (ctx->tile.valid()) {
-            selections = ctx->tile.selected_tile;
-        }
+        if (ctx->tile.valid()) selections = ctx->tile.selected_tile;
     }
-
-    uint32_t tile_id = std::numeric_limits<uint32_t>::max();
-
-    const TileSetAsset* tile_set = layer.tileSetHandle().get();
-    DEV_ASSERT(tile_set);
-    DEV_ASSERT(action == GridPaintAction::Erase || action == GridPaintAction::Paint);
 
     const bool painting = action == GridPaintAction::Paint;
-    if (painting) {
-        if (selections.empty()) {
-            return;
-        }
+    const TileSetAsset* tile_set = layer.tileSetHandle().get();
+    DEV_ASSERT(tile_set);
 
-        tile_id = selections[0];
-        if (tile_id >= tile_set->frames().size()) {
-            return;
-        }
-    }
+    const TileDefinition* definition = nullptr;
+    if (painting && !selections.empty()) definition = tile_set->findTileDefinition(selections[0].value);
+    if (painting && !definition) return;
 
     for (const GridPaintCell& cell : cells) {
-        if (cell.coord.x < std::numeric_limits<int16_t>::min() ||
-            cell.coord.x > std::numeric_limits<int16_t>::max() ||
-            cell.coord.y < std::numeric_limits<int16_t>::min() ||
-            cell.coord.y > std::numeric_limits<int16_t>::max()) {
+        if (cell.coord.x < std::numeric_limits<int16_t>::min() || cell.coord.x > std::numeric_limits<int16_t>::max() ||
+            cell.coord.y < std::numeric_limits<int16_t>::min() || cell.coord.y > std::numeric_limits<int16_t>::max()) {
             continue;
         }
 
-        const TileCoord coord{
-            .x = static_cast<int16_t>(cell.coord.x),
-            .y = static_cast<int16_t>(cell.coord.y),
-        };
+        const TileCoord coord{ static_cast<int16_t>(cell.coord.x), static_cast<int16_t>(cell.coord.y) };
+        const Option<TileCell> before = layer.chunks().cellAt(coord);
+        const Option<TileCell> after = painting
+                                           ? Some(TileCell{ TileId(static_cast<uint16_t>(definition->id)), definition->terrain_id })
+                                           : Option<TileCell>(None());
 
-        Option<TileId> new_tile = None();
+        if (before == after) continue;
 
-        if (painting) {
-            new_tile = Some(static_cast<TileId>(tile_id));
+        m_active_command->record(coord, before, after);
+
+        if (after.is_some()) {
+            layer.setCell(coord, after.unwrap_unchecked());
         } else {
-            new_tile = None();
-        }
-
-        auto pending_it = m_pending_tile_changes.find(coord);
-        if (pending_it == m_pending_tile_changes.end()) {
-            const Option<TileId> old_tile = layer.chunks().tileAt(coord);
-
-            if (old_tile == new_tile) {
-                continue;
-            }
-
-            m_pending_tile_changes.emplace(
-                coord,
-                PendingChange{
-                    .before = old_tile,
-                    .after = new_tile,
-                });
-        } else {
-            // Preserve the original value from the beginning of the stroke,
-            // but allow later brush passes to replace the final value.
-            pending_it->second.after = new_tile;
-
-            // If the stroke eventually restores the original value,
-            // remove the no-op change entirely.
-            if (pending_it->second.before == pending_it->second.after) {
-                m_pending_tile_changes.erase(pending_it);
-            }
+            layer.removeCell(coord);
         }
     }
 }
 
 // @TODO: better editor tools, make toolbars
+#if 0
 void TilePaintTool::applyFillCells(GridPaintCell cell,
                                    GridPaintAction action,
                                    const TileMapLayerComponent& layer) {
@@ -340,7 +300,7 @@ void TilePaintTool::applyFillCells(GridPaintCell cell,
     const int16_t local_x = ToTileLocalX(world_coord);
     const int16_t local_y = ToTileLocalY(world_coord);
 
-    std::span<const TileId> tile_data = it->second->tileData();
+    std::span<const TileCell> tile_data = it->second->tileData();
 
     auto tiles = FindConnectedTiles(tile_data,
                                     kTileChunkSize,
@@ -365,6 +325,7 @@ void TilePaintTool::applyFillCells(GridPaintCell cell,
     applyPaintCells(paint_cells, action, layer);
     finishPaintCommand();
 }
+#endif
 
 TileMapLayerComponent* TilePaintTool::getTileMapLayer(ecs::Entity entity) {
     if (Scene* scene = getResolvedScene()) {

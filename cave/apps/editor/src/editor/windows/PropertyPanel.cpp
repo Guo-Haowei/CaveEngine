@@ -14,7 +14,6 @@
 
 // @TODO: refactor
 #include "engine/private/core/reflection/MetaEditor.h"
-#include "engine/private/runtime/assets/SpriteAnimationAsset.h"
 #include "engine/private/runtime/ecs/components/All.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"

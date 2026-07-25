@@ -13,7 +13,7 @@ namespace cave {
 // bool m_cast_shadow (editor = Toggle)
 // bool m_transparent (editor = Toggle)
 // Guid m_mesh_guid (editor = Asset, on_change = onMeshGuidChanged)
-// FixedStack<ecs::Entity, kMaxMaterial> m_materials ()
+// FixedStack<ecs::Entity, 8> m_materials ()
 // ecs::Entity m_skeleton_id ()
 
 template<>

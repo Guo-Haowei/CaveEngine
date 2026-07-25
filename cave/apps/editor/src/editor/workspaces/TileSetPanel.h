@@ -1,5 +1,6 @@
 #pragma once
-#include "editor/widgets/AtlasWidget.h"
+#include "TileSetPanel/TileTerrainPaintTool.h"
+#include "TileSetPanel/TilePhysicsPaintTool.h"
 
 namespace cave {
 
@@ -21,19 +22,48 @@ private:
     bool drawTileProperties(TileSetAsset* tile_set);
     bool drawAtlas(TileSetAsset* tile_set, ImageAsset* image);
 
+    void drawPaintPropertySelector();
+
+    bool handleAtlasPainting(TileSetAsset& tile_set,
+                             const AtlasWidgetResult& result,
+                             const ImageCanvasInput& input);
+
+    void drawAtlasMetadataOverlays(const TileSetAsset* tile_set,
+                                   const AtlasLayout& layout,
+                                   const AtlasWidgetResult& result);
+
+    void drawHoveredTerrainCell(const AtlasLayout& layout,
+                                const AtlasHit& hit,
+                                const AtlasWidgetResult& result);
+
+    bool drawTileContextPopup(TileSetAsset& tile_set);
+
     EngineServices& m_engine_services;
     EditorServices& m_editor_services;
 
     AtlasWidget m_atlas_widget;
-    AtlasSelection m_atlas_selection;
     ImTextureID m_checkerboard = 0;
-    // @TODO: fix this
+
     enum class Property {
         Setup,
         SelectedTile,
         Paint
     } m_mode = Property::Setup;
-    int m_paint_property = 0;
+
+    enum class PaintProperty : int {
+        Physics = 0,
+        Terrain,
+        Animation,
+    };
+
+    PaintProperty m_paint_property = PaintProperty::Terrain;
+
+    Option<uint32_t> m_context_tile;
+
+    Option<uint32_t> m_last_painted_tile;
+
+    TileTerrainPaintTool m_terrain_paint_tool;
+    TilePhysicsPaintTool m_physics_paint_tool;
 };
 
 }  // namespace cave

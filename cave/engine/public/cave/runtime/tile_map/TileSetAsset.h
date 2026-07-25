@@ -5,6 +5,8 @@
 #include "cave/core/math/Box.h"
 #include "cave/core/reflection/Reflection.h"
 #include "cave/runtime/assets/AssetHandle.h"
+#include "cave/runtime/tile_map/TerrainId.h"
+#include "cave/runtime/tile_map/TileId.h"
 
 namespace cave {
 
@@ -48,6 +50,12 @@ struct TileDefinition {
     uint32_t mask = 0;
 
     CAVE_PROP()
+    TerrainId terrain_id = {};
+
+    CAVE_PROP()
+    uint16_t terrain_mask = 0;
+
+    CAVE_PROP()
     Vector<TileFrame> animation;
 };
 
@@ -60,10 +68,10 @@ public:
     static constexpr float kDefaultCellSizePx = 8.f;
 
     uint32_t row() const { return m_row; }
-    void row(uint32_t row);
+    void setRow(uint32_t row);
 
     uint32_t col() const { return m_column; }
-    void col(uint32_t col);
+    void setCol(uint32_t col);
 
     uint32_t width() const { return m_width; }
     uint32_t height() const { return m_height; }
@@ -71,14 +79,18 @@ public:
     float tileScale() const { return m_tile_scale; }
     void tileScale(float scale);
 
-    const TileDefinition* getTileDefinition(uint32_t tile_id) const;
+    TileDefinition* findTileDefinition(uint32_t tile_id);
+    const TileDefinition* findTileDefinition(uint32_t tile_id) const;
+    TileDefinition& getOrCreateTile(uint32_t index);
+
+    void generateTiles();
 
     std::span<const TileDefinition> getTileDefinitions() const {
-        return m_tiles;
+        return m_definitions;
     }
 
     Vector<TileDefinition>& getTileDefinitionsMut() {
-        return m_tiles;
+        return m_definitions;
     }
 
     const Guid& imageGuid() const { return m_image_guid; }
@@ -87,6 +99,9 @@ public:
     const Handle<ImageAsset>& handle() const { return m_image_handle; }
 
     std::span<const math::Box2> frames() const { return m_frames; }
+
+    Option<TileId> resolveTerrain(TerrainId terrain, uint16_t mask) const;
+    void refreshTerrainCache();
 
     bool dirty() const { return m_dirty; }
     void setDirty(bool dirty) { m_dirty = dirty; }
@@ -113,13 +128,15 @@ private:
     uint32_t m_column = 1;
 
     CAVE_PROP()
-    Vector<TileDefinition> m_tiles;
+    Vector<TileDefinition> m_definitions;
 
     /// Non serialized
     Vector<math::Box2> m_frames;  // frames are calculated
     Handle<ImageAsset> m_image_handle;
     uint32_t m_width = 0;
     uint32_t m_height = 0;
+
+    HashMap<TerrainKey, TileId> m_terrain_lookup;
 
     bool m_dirty;
 };

@@ -15,13 +15,17 @@ struct GpuMesh;
 class TileMapLayerComponent {
     CAVE_COMPONENT(TileMapLayerComponent)
 
-public:
+private:
     struct TileCache {
         int16_t x, y;
-        uint32_t tile_id;
+        TileId tile_id;
 
         mutable float elapsed;
     };
+
+public:
+    bool setCell(TileCoord coord, TileCell cell);
+    bool removeCell(TileCoord coord);
 
     const Guid& tileSetGuid() const { return m_tile_set; }
     void setTileSetGuid(const Guid& guid);
@@ -37,12 +41,19 @@ public:
 
     std::span<const TileCache> getTileCache() const { return m_tile_cache; }
 
-    void updateTileCache();
     void onDeserialized();
 
 private:
     void refreshTileSetHandle();
     void onTileSetGuidChanged(const FieldChange& change);
+
+    void resolveTerrainCell(TileCoord coord);
+    void resolveTerrainAround(TileCoord coord);
+    void updateCachedTile(TileCoord coord);
+
+    void updateAllCachedTile();
+
+    uint16_t buildTerrainMask(TileCoord coord, TerrainId terrain_id) const;
 
     CAVE_PROP(editor = Asset, on_change = onTileSetGuidChanged)
     Guid m_tile_set;

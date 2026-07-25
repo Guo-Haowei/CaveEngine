@@ -31,6 +31,16 @@ void AssetWorkspace::drawUIImpl() {
 
     auto* context = m_editor_services.sceneEdit().current();
 
+    if (ImGui::BeginTabItem("TileSet")) {
+        m_tile_set->draw(context);
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("TileMap")) {
+        m_tile_map->draw(context);
+        ImGui::EndTabItem();
+    }
+
     if (ImGui::BeginTabItem("Output")) {
         m_log->draw();
         ImGui::EndTabItem();
@@ -43,16 +53,6 @@ void AssetWorkspace::drawUIImpl() {
 
     if (ImGui::BeginTabItem("Physics")) {
         // drawPhysicsWorkspace();
-        ImGui::EndTabItem();
-    }
-
-    if (ImGui::BeginTabItem("TileMap")) {
-        m_tile_map->draw(context);
-        ImGui::EndTabItem();
-    }
-
-    if (ImGui::BeginTabItem("TileSet")) {
-        m_tile_set->draw(context);
         ImGui::EndTabItem();
     }
 
