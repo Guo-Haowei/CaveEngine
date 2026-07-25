@@ -3,6 +3,7 @@
 #include <deque>
 #include <queue>
 
+#include "cave/runtime/display/ICanvas.h"
 #include "cave/runtime/ecs/components/ColliderComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 #include "cave/runtime/tile_map/TileMapLayerComponent.h"
@@ -55,6 +56,28 @@ TileWorldSystem::~TileWorldSystem() = default;
 
 void TileWorldSystem::start() {
     rebuildTiles();
+}
+
+void TileWorldSystem::update(SceneTickContext&) {
+    ICanvas& canvas = m_runtime.services().canvas();
+    canvas.pushView(m_runtime.viewId());
+
+    for (const auto& [key, chunk] : m_rigid_tiles.chunks()) {
+        const int16_t offset_x = key.x * kTileChunkSize;
+        const int16_t offset_y = key.y * kTileChunkSize;
+
+        for (int16_t y = offset_y; y < offset_y + kTileChunkSize; ++y) {
+            for (int16_t x = offset_x; x < offset_x + kTileChunkSize; ++x) {
+                const TileCell& cell = chunk->at(x - offset_x, y - offset_y);
+                if (cell.hasTile()) {
+                    Vec2f min{ x, y };
+                    canvas.addBox2Frame(min, min + Vec2f::One, 0.1f);
+                }
+            }
+        }
+    }
+
+    canvas.popView();
 }
 
 TileCoord TileWorldSystem::worldToTile(Vec2f world_pos, float tile_size) {
@@ -205,10 +228,10 @@ TilePath TileWorldSystem::findPathAstar(TileCoord start, TileCoord goal) const {
 }
 
 void TileWorldSystem::handleTile(const TileDefinition& definition, TileCoord coord) {
+    m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
     switch (definition.collision) {
         case CollisionType::Solid: {
             m_rigid_tiles.addTile(coord, { TileId((uint16_t)definition.id), TerrainId::null() });
-            m_world_bound.expandToInclude(Vec2f{ coord.x, coord.y });
         } break;
         case CollisionType::Trigger: {
             Scene& scene = m_runtime.scene();
@@ -255,9 +278,7 @@ void TileWorldSystem::rebuildTiles() {
                     TileCell cell = chunk->at(x, y);
                     if (cell.empty()) continue;
                     const TileDefinition* def = tile_set->findTileDefinition(cell.tile_id.value);
-                    if (!def) {
-                        continue;
-                    }
+                    if (!def) continue;
                     TileCoord coord{
                         chunk_coord.x * kTileChunkSize + offset_x + x,
                         chunk_coord.y * kTileChunkSize + offset_y + y,
@@ -271,6 +292,7 @@ void TileWorldSystem::rebuildTiles() {
     auto view = m_runtime.scene().view<TileMapLayerComponent, TransformComponent>();
     for (auto [ent, layer, transform] : view) {
         Vec2f offset = transform.translation().xy;
+        offset = Vec2f::Zero;
 
         rebuild_layer(layer, (int16_t)offset.x, (int16_t)offset.y);
     }

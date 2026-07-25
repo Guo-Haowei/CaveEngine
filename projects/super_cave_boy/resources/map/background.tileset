@@ -4,4 +4,4 @@ content:
   tile_scale: 1
   row: 1
   column: 3
-  definitions: [{id: 0, collision: Solid, collision_shape: {min: [0, 0], max: [1, 1]}, layer: 0, mask: 0, animation: []}, {id: 1, collision: Trigger, collision_shape: {min: [0, 0], max: [1, 0.75]}, layer: 6, mask: 3, animation: [{atlas_index: 1, duration: 0.400000006}, {atlas_index: 2, duration: 0.400000006}]}]
+  definitions: [{id: 0, collision: Solid, collision_shape: {min: [0, 0], max: [1, 1]}, layer: 0, mask: 0, terrain_id: 0, terrain_mask: 0, animation: []}, {id: 1, collision: Trigger, collision_shape: {min: [0, 0], max: [1, 0.75]}, layer: 6, mask: 3, terrain_id: 0, terrain_mask: 0, animation: [{atlas_index: 1, duration: 0.400000006}, {atlas_index: 2, duration: 0.400000006}]}]
