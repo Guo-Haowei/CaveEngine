@@ -26,6 +26,11 @@ struct TerrainId {
     constexpr auto operator<=>(const TerrainId&) const = default;
 
     static constexpr TerrainId null() { return {}; }
+
+    template<typename T>
+    static constexpr TerrainId from(T value) {
+        return TerrainId{ static_cast<Type>(value) };
+    }
 };
 
 ISerializer& WriteObject(ISerializer& s, const TerrainId& id);

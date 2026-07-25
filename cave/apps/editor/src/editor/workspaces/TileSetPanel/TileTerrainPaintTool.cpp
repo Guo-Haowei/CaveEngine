@@ -48,8 +48,7 @@ bool TileTerrainPaintTool::drawPaintProperties(TileSetAsset*) {
 
     int terrain_id = static_cast<int>(m_terrain_id.value);
     if (ImGui::InputInt("##TerrainId", &terrain_id)) {
-        m_terrain_id.value =
-            static_cast<TerrainId::Type>(math::max(terrain_id, 1));
+        m_terrain_id = TerrainId::from(terrain_id);
         changed = true;
     }
 
@@ -132,7 +131,7 @@ bool TileTerrainPaintTool::handleAtlasPainting(TileSetAsset& tile_set,
     }
 
     // Avoid repeatedly modifying the same subcell every frame.
-    if (m_last_painted_mask_cell.unwrap_unchecked() == key) {
+    if (m_last_painted_mask_cell && m_last_painted_mask_cell.unwrap_unchecked() == key) {
         return false;
     }
 

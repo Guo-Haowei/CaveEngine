@@ -28,7 +28,7 @@ private:
                          const AtlasWidgetResult& result);
 
     Option<uint32_t> m_last_painted_mask_cell;
-    TerrainId m_terrain_id = TerrainId::null();
+    TerrainId m_terrain_id = TerrainId(0);
 };
 
 }  // namespace cave

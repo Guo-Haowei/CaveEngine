@@ -1,7 +1,7 @@
 type: tileset
 guid: A37FA4E2-D2B5-674C-83C9724BF088EA7D
 name: cliff.tileset
-import_path: "@res://map/cliff.tileset"
+import_path: "@res://terrain/cliff.tileset"
 dependencies: [2012EDA3-33CE-744B-99A1A9DBD5014E1D]
 source_created_time: 2026-07-24 16:33:49.4360222
 source_last_modified: 2026-07-24 16:59:47.0629076
