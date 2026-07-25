@@ -23,35 +23,35 @@ protected:
     DocId m_doc_id;
 };
 
-class OpenDocIntent : public BaseDocIntent {
+class OpenDocIntent final : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.doc.open");
 
     using BaseDocIntent::BaseDocIntent;
 };
 
-class CloseDocIntent : public BaseDocIntent {
+class CloseDocIntent final : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.doc.close");
 
     using BaseDocIntent::BaseDocIntent;
 };
 
-class UndoIntent : public BaseDocIntent {
+class UndoIntent final : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.undo");
 
     using BaseDocIntent::BaseDocIntent;
 };
 
-class RedoIntent : public BaseDocIntent {
+class RedoIntent final : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.redo");
 
     using BaseDocIntent::BaseDocIntent;
 };
 
-class SaveIntent : public BaseDocIntent {
+class SaveIntent final : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.doc.save");
 
@@ -59,23 +59,29 @@ public:
         : BaseDocIntent(doc_id) {}
 };
 
-class SaveAllIntent : public Intent {
+class SaveAllIntent final : public Intent {
 public:
     CAVE_DECLARE_INTENT("editor.doc.save_all");
 };
 
-class EditIntent : public BaseDocIntent {
+class EditIntent final : public BaseDocIntent {
 public:
     CAVE_DECLARE_INTENT("editor.edit");
 
-    EditIntent(DocId doc_id, Owner<IEditCmd>&& cmd)
+    EditIntent(DocId doc_id, Owner<IEditCmd>&& cmd, bool executed)
         : BaseDocIntent(doc_id)
-        , m_cmd(std::move(cmd)) {}
+        , cmd(std::move(cmd))
+        , m_executed(executed) {}
 
-    std::unique_ptr<IEditCmd> m_cmd;
+    bool alreadyExecuted() const { return m_executed; }
+
+    Owner<IEditCmd> cmd;
+
+private:
+    bool m_executed = false;
 };
 
-class PickIntent : public Intent {
+class PickIntent final : public Intent {
 public:
     CAVE_DECLARE_INTENT("editor.view.pick");
 

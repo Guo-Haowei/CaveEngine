@@ -20,6 +20,7 @@ public:
     ~EditService();
 
     void submit(DocId doc_id, Owner<IEditCmd>&& cmd);
+    void recordApplied(DocId doc_id, Owner<IEditCmd>&& cmd);
 
     void submit(DocId doc_id, SceneCommandWriterFn&& func);
 

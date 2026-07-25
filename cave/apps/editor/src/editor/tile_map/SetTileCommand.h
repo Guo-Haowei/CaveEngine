@@ -6,8 +6,7 @@
 namespace cave {
 
 class SetTileCommand : public EditCmdBase {
-    struct Command {
-        TileCoord coord;
+    struct Change {
         Option<TileCell> before;
         Option<TileCell> after;
     };
@@ -22,11 +21,9 @@ public:
         DEV_ASSERT(entity.valid());
     }
 
-    void add(TileCoord coord, Option<TileCell> before, Option<TileCell> after) {
-        m_cmds.emplace_back(coord, before, after);
-    }
+    void record(TileCoord coord, Option<TileCell> before, Option<TileCell> after);
 
-    bool empty() const { return m_cmds.empty(); }
+    bool empty() const { return m_changes.empty(); }
 
     const char* label() const override { return "SetTileCommand"; }
 
@@ -35,7 +32,7 @@ public:
     bool undo(IDocument& doc) override;
 
 private:
-    Vector<Command> m_cmds;
+    HashMap<TileCoord, Change> m_changes;
     SceneId m_scene_id;
     ecs::Entity m_enity;
 };

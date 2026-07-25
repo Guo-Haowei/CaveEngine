@@ -13,6 +13,7 @@ struct GridPaintEvent;
 class GridPaintTool;
 class ICanvas;
 class TileMapPanel;
+class SetTileCommand;
 
 class TilePaintTool : public ISceneViewTool {
     enum class Mode : uint8_t {
@@ -44,7 +45,7 @@ private:
     // ---- Paint Tool ----
     GridPaintInput buildInput(const InputFrame& input, const WindowState& state);
     void handlePaintEvent(const GridPaintEvent& event,
-                          const TileMapLayerComponent& layer);
+                          TileMapLayerComponent& layer);
 
     void beginPaintCommand();
     void finishPaintCommand();
@@ -52,7 +53,7 @@ private:
 
     void applyPaintCells(std::span<const GridPaintCell> cells,
                          GridPaintAction action,
-                         const TileMapLayerComponent& layer);
+                         TileMapLayerComponent& layer);
 
     void applyFillCells(GridPaintCell cell,
                         GridPaintAction action,
@@ -65,7 +66,7 @@ private:
 
     GridPaintTool m_paint_tool;
 
-    HashMap<TileCoord, PendingChange> m_pending_tile_changes;
+    Owner<SetTileCommand> m_active_command;
     Option<math::Vec2f> m_cursor;
 
     ecs::Entity m_layer_id;

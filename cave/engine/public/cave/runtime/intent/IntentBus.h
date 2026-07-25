@@ -2,10 +2,8 @@
 // File: cave/framework/intent/IntentBus.h
 // =============================================================================
 #pragma once
-#include <memory>
-#include <unordered_map>
-#include <vector>
-
+#include "cave/core/containers/Containers.h"
+#include "cave/core/memory/Pointer.h"
 #include "cave/core/diagnostics/Command.h"
 #include "cave/runtime/intent/IIntentHandler.h"
 #include "cave/runtime/intent/Intent.h"
@@ -34,7 +32,7 @@ public:
 
     template<IntentType T, typename... Args>
     auto queue(Args&&... args) -> T& {
-        auto intent = std::make_unique<T>(std::forward<Args>(args)...);
+        auto intent = MakeOwner<T>(std::forward<Args>(args)...);
         T& ref = *intent;
 
         m_pending.emplace_back(std::move(intent));
@@ -50,8 +48,8 @@ public:
 private:
     void dispatchOne(Intent& intent);
 
-    std::unordered_map<IntentTypeId, std::vector<IIntentHandler*>> m_handlers;
-    std::vector<std::unique_ptr<Intent>> m_pending;
+    HashMap<IntentTypeId, Vector<IIntentHandler*>> m_handlers;
+    Vector<Owner<Intent>> m_pending;
 };
 
 }  // namespace cave

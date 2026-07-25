@@ -6,7 +6,15 @@
 
 namespace cave {
 
+void SetTileCommand::record(TileCoord coord, Option<TileCell> before, Option<TileCell> after) {
+    auto [it, inserted] = m_changes.try_emplace(coord, Change{ .before = before, .after = after });
+    if (!inserted) it->second.after = after;
+    if (it->second.before == it->second.after) m_changes.erase(it);
+}
+
 bool SetTileCommand::apply(IDocument&) {
+    CRASH_NOW_MSG("should never call this");
+#if 0
     Scene* scene = resolveScene(m_scene_id);
     TileMapLayerComponent* layer = scene->component<TileMapLayerComponent>(m_enity);
     if (!layer) {
@@ -14,16 +22,17 @@ bool SetTileCommand::apply(IDocument&) {
     }
 
     ChunkedTileData& tiles = layer->chunks();
-    for (const auto& cmd : m_cmds) {
+    for (const auto& [coord, change] : m_changes) {
         [[maybe_unused]]
-        bool ok = cmd.after.is_some()
-                      ? tiles.addTile(cmd.coord, cmd.after.unwrap_unchecked())
-                      : tiles.removeTile(cmd.coord);
+        bool ok = change.after.is_some()
+                      ? tiles.addTile(coord, change.after.unwrap_unchecked())
+                      : tiles.removeTile(coord);
         DEV_ASSERT(ok);
     }
 
     layer->resolveAllTerrain();
     layer->updateTileCache();
+#endif
     return true;
 }
 
@@ -35,11 +44,11 @@ bool SetTileCommand::undo(IDocument&) {
     }
 
     ChunkedTileData& tiles = layer->chunks();
-    for (auto cmd = m_cmds.rbegin(); cmd != m_cmds.rend(); ++cmd) {
+    for (const auto& [coord, change] : m_changes) {
         [[maybe_unused]]
-        bool ok = cmd->before.is_some()
-                      ? tiles.addTile(cmd->coord, cmd->before.unwrap_unchecked())
-                      : tiles.removeTile(cmd->coord);
+        bool ok = change.before.is_some()
+                      ? tiles.addTile(coord, change.before.unwrap_unchecked())
+                      : tiles.removeTile(coord);
         DEV_ASSERT(ok);
     }
 

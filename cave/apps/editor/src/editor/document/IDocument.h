@@ -22,6 +22,7 @@ public:
     virtual ~IDocument() = default;
 
     virtual bool apply(Owner<IEditCmd> cmd, uint32_t coalesce) = 0;
+    virtual bool recordApplied(Owner<IEditCmd> cmd, uint32_t coalesce) = 0;
 
     virtual bool canUndo() const = 0;
     virtual bool canRedo() const = 0;
