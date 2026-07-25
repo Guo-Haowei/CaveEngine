@@ -7,6 +7,11 @@ namespace cave {
 
 namespace {
 
+// kChunkedTileDataVersion history
+// version 1: initial version
+// version 2: add terrain id
+constexpr int kChunkedTileDataVersion = 2;
+
 int16_t FloorDiv(int16_t a, int16_t b) {
     return (a >= 0) ? (a / b) : ((a - b + 1) / b);
 }
@@ -146,11 +151,11 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
     s.beginArray(false);
 
     for (const auto& [index, chunk] : tile_data.chunks()) {
-        if (chunk->empty()) {
-            continue;
-        }
+        if (!chunk || chunk->empty()) continue;
 
         s.beginMap(false)
+            .beginKey("version")
+            .write(kChunkedTileDataVersion)
             .beginKey("x")
             .write(index.x)
             .beginKey("y")
@@ -160,7 +165,8 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
 
         for (int16_t y = 0; y < kTileChunkSize; ++y) {
             for (int16_t x = 0; x < kTileChunkSize; ++x) {
-                s.write(chunk->at(x, y).tile_id.value);
+                const TileCell& cell = chunk->at(x, y);
+                s.beginArray(true).write(cell.tile_id.value).write(cell.terrain_id.value).endArray();
             }
         }
 
@@ -171,50 +177,81 @@ ISerializer& WriteObject(ISerializer& s, const ChunkedTileData& tile_data) {
 }
 
 bool ReadObject(IDeserializer& d, ChunkedTileData& tile_data) {
-    const int chunk_size = d.arraySize().unwrap_or(-1);
-    if (chunk_size < 0) {
-        return false;
-    }
+    const int chunk_count = d.arraySize().unwrap_or(-1);
+    if (chunk_count < 0) return false;
 
-    for (int chunk_idx = 0; chunk_idx < chunk_size; ++chunk_idx) {
-        DEV_ASSERT(d.tryEnterIndex(chunk_idx));
-        constexpr int16_t kMaxIndex = std::numeric_limits<int16_t>::max();
-        int16_t x = kMaxIndex;
-        int16_t y = kMaxIndex;
+    constexpr int16_t kInvalidChunkCoord = std::numeric_limits<int16_t>::max();
+
+    for (int chunk_idx = 0; chunk_idx < chunk_count; ++chunk_idx) {
+        if (!DEV_VERIFY(d.tryEnterIndex(chunk_idx))) continue;
+
+        int version = 1;
+        int16_t chunk_x = kInvalidChunkCoord;
+        int16_t chunk_y = kInvalidChunkCoord;
+
+        if (d.tryEnterKey("version")) {
+            d.read(version);
+            d.leaveKey();
+        }
+
         if (DEV_VERIFY(d.tryEnterKey("x"))) {
-            d.read(x);
+            d.read(chunk_x);
             d.leaveKey();
         }
+
         if (DEV_VERIFY(d.tryEnterKey("y"))) {
-            d.read(y);
+            d.read(chunk_y);
             d.leaveKey();
         }
 
-        if (x != kMaxIndex && y != kMaxIndex) {
-            if (d.tryEnterKey("tiles")) {
-                auto chunk = MakeOwner<TileChunk>();
+        if (chunk_x == kInvalidChunkCoord || chunk_y == kInvalidChunkCoord) {
+            d.leaveIndex();
+            continue;
+        }
 
-                DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileChunkArea);
-                for (int16_t local_y = 0; local_y < kTileChunkSize; ++local_y) {
-                    for (int16_t local_x = 0; local_x < kTileChunkSize; ++local_x) {
-                        const int16_t tile_idx = local_y * kTileChunkSize + local_x;
-                        if (DEV_VERIFY(d.tryEnterIndex(tile_idx))) {
-                            TileCell& cell = chunk->at(local_x, local_y);
+        if (!d.tryEnterKey("tiles")) {
+            d.leaveIndex();
+            continue;
+        }
+
+        auto chunk = MakeOwner<TileChunk>();
+        DEV_ASSERT(d.arraySize().unwrap_or(0) == kTileChunkArea);
+
+        for (int16_t local_y = 0; local_y < kTileChunkSize; ++local_y) {
+            for (int16_t local_x = 0; local_x < kTileChunkSize; ++local_x) {
+                const int tile_idx = local_y * kTileChunkSize + local_x;
+                if (!DEV_VERIFY(d.tryEnterIndex(tile_idx))) continue;
+
+                TileCell& cell = chunk->at(local_x, local_y);
+
+                if (version <= 1) {
+                    d.read(cell.tile_id.value);
+                } else {
+                    const int cell_size = d.arraySize().unwrap_or(-1);
+
+                    if (DEV_VERIFY(cell_size == 2)) {
+                        if (DEV_VERIFY(d.tryEnterIndex(0))) {
                             d.read(cell.tile_id.value);
+                            d.leaveIndex();
+                        }
+
+                        if (DEV_VERIFY(d.tryEnterIndex(1))) {
+                            d.read(cell.terrain_id.value);
                             d.leaveIndex();
                         }
                     }
                 }
 
-                if (!chunk->empty()) {
-                    [[maybe_unused]]
-                    const bool inserted = tile_data.addChunk(TileChunkCoord(x, y), std::move(chunk));
-                    DEV_ASSERT(inserted);
-                }
-                d.leaveKey();
+                d.leaveIndex();
             }
         }
 
+        if (!chunk->empty()) {
+            const bool inserted = tile_data.addChunk(TileChunkCoord{ chunk_x, chunk_y }, std::move(chunk));
+            DEV_ASSERT(inserted);
+        }
+
+        d.leaveKey();
         d.leaveIndex();
     }
 

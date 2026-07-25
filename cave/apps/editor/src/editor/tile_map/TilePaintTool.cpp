@@ -199,7 +199,7 @@ void TilePaintTool::handlePaintEvent(const GridPaintEvent& event,
             }
             break;
         case GridPaintEventType::Fill: {
-            CRASH_NOW_MSG("TODO: fix");
+            LOG_ERROR("need to fix");
 #if 0
             if (DEV_VERIFY(event.cells && event.cells->size() == 1)) {
                 applyFillCells(event.cells->at(0), event.action, layer);

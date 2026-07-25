@@ -18,7 +18,8 @@ public:
 
 private:
     void drawUIImpl() override;
-    void drawToolbar();
+    void drawToolbar(const SceneEditContext* context,
+                     const Scene* scene);
 
     void drawPopup(const SceneEditContext& context,
                    const Scene& scene);
