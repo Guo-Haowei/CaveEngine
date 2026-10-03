@@ -1,6 +1,6 @@
 #include "LogPanel.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/Color.h"
 #include "cave/core/diagnostics/CompositeLogger.h"

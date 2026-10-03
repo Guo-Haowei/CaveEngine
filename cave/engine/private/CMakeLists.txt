@@ -107,7 +107,7 @@ if(WIN32)
 elseif(APPLE)
     list(APPEND TARGET_LIBS
         glfw
-        opengles_4_backend
+        opengl_4_backend
     )
 elseif(EMSCRIPTEN)
     list(APPEND TARGET_LIBS

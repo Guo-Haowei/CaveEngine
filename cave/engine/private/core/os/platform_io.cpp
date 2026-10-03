@@ -12,20 +12,20 @@ namespace fs = std::filesystem;
 
 #if USING(PLATFORM_WINDOWS)
 
-void RevealInFolder(const fs::path& p_path) {
-    const bool is_dir = fs::is_directory(p_path);
-    fs::path folder = is_dir ? p_path : p_path.parent_path();
+void RevealInFolder(const fs::path& fullpath) {
+    const bool is_dir = fs::is_directory(fullpath);
+    fs::path folder = is_dir ? fullpath : fullpath.parent_path();
     std::string path = folder.string();
     std::replace(path.begin(), path.end(), '/', '\\');
     ::ShellExecuteA(NULL, "open", "explorer.exe", path.c_str(), NULL, SW_SHOWNORMAL);
 }
 
-Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>& p_filters) {
+Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>& filters) {
     std::string filter_str;
-    if (p_filters.empty()) {
+    if (filters.empty()) {
         filter_str = "*.*";
     } else {
-        for (const auto& filter : p_filters) {
+        for (const auto& filter : filters) {
             filter_str.append(";*");
             filter_str.append(filter);
         }
@@ -59,16 +59,16 @@ Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>& p_f
     return None();
 }
 
-bool OpenSaveDialog(std::filesystem::path& p_inout_path) {
+bool OpenSaveDialog(std::filesystem::path& inout_path) {
     OPENFILENAMEA ofn;
     ZeroMemory(&ofn, sizeof(ofn));
 
     char file_name[MAX_PATH]{ 0 };
     char extension[MAX_PATH]{ 0 };
     char dir[MAX_PATH]{ 0 };
-    StringUtils::strcpy(file_name, p_inout_path.filename().replace_extension().string());
-    StringUtils::strcpy(dir, p_inout_path.parent_path().string());
-    StringUtils::strcpy(extension, p_inout_path.extension().string());
+    StringUtils::strcpy(file_name, inout_path.filename().replace_extension().string());
+    StringUtils::strcpy(dir, inout_path.parent_path().string());
+    StringUtils::strcpy(extension, inout_path.extension().string());
 
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = NULL;
@@ -80,20 +80,20 @@ bool OpenSaveDialog(std::filesystem::path& p_inout_path) {
     ofn.lpstrInitialDir = dir;
 
     if (GetSaveFileNameA(&ofn)) {
-        p_inout_path = std::filesystem::path(ofn.lpstrFile);
+        inout_path = std::filesystem::path(ofn.lpstrFile);
         return true;
     }
 
     return false;
 }
-#elif USING(PLATFORM_WASM)
+#elif USING(PLATFORM_WASM) || USING(PLATFORM_APPLE)
 void RevealInFolder(const std::filesystem::path&) {
     CRASH_NOW_MSG("not supported");
 }
 
-std::string OpenFileDialog(const std::vector<const char*>&) {
+Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>&) {
     CRASH_NOW_MSG("not supported");
-    return "";
+    return None();
 }
 
 bool OpenSaveDialog(std::filesystem::path&) {

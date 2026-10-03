@@ -2,10 +2,10 @@
 
 namespace cave::os {
 
-void RevealInFolder(const std::filesystem::path& p_path);
+void RevealInFolder(const std::filesystem::path& path);
 
-Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>& p_filters);
+Option<std::filesystem::path> OpenFileDialog(const std::vector<const char*>& filters);
 
-bool OpenSaveDialog(std::filesystem::path& p_inout_path);
+bool OpenSaveDialog(std::filesystem::path& inout_path);
 
 }  // namespace cave::os
