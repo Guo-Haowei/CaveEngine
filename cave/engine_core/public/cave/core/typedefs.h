@@ -9,7 +9,7 @@
 #define USING(x)   (1 x 1)
 
 /// Build
-#if defined(_DEBUG) || defined(DDEBUG)
+#if defined(_DEBUG) || defined(DDEBUG) || defined(NDEBUG)
 #define DEBUG_BUILD   IN_USE
 #define RELEASE_BUILD NOT_IN_USE
 #else

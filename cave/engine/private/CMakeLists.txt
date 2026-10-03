@@ -106,7 +106,8 @@ if(WIN32)
     )
 elseif(APPLE)
     list(APPEND TARGET_LIBS
-        opengles_3_backend
+        glfw
+        opengles_4_backend
     )
 elseif(EMSCRIPTEN)
     list(APPEND TARGET_LIBS
