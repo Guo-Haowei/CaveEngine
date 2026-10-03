@@ -100,6 +100,8 @@ bool OpenSaveDialog(std::filesystem::path&) {
     CRASH_NOW_MSG("not supported");
     return false;
 }
+#elif USING(PLATFORM_APPLE)
+
 #else
 #error NOT IMPLEMENTED
 #endif

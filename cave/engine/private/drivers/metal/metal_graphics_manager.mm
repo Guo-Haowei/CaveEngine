@@ -1,3 +1,4 @@
+#if 0
 #include "metal_graphics_manager.h"
 #include <imgui/backends/imgui_impl_metal.h>
 
@@ -221,3 +222,5 @@ std::shared_ptr<GpuTexture> MetalGraphicsManager::CreateTextureImpl(const GpuTex
 }
 
 } // namespace cave
+
+#endif

@@ -10,9 +10,7 @@ elseif(EMSCRIPTEN)
     add_subdirectory(opengles3)
 endif()
 
-add_subdirectory(sw)
 # TODO: move above modules to RHI
-
 add_subdirectory(tinygltf)
 if(CAVE_BUILD_ASSIMP)
     add_subdirectory(assimp)
