@@ -104,6 +104,10 @@ if(WIN32)
         d3d12_backend
         vk_backend
     )
+elseif(APPLE)
+    list(APPEND TARGET_LIBS
+        opengles_3_backend
+    )
 elseif(EMSCRIPTEN)
     list(APPEND TARGET_LIBS
         opengles_3_backend
