@@ -38,7 +38,9 @@ DisplayService* CreateDisplayService() {
 }
 
 // @TODO: move to RHI
-static IRenderDevice* SelectRenderDevice(Backend p_backend) {
+static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
+    using rhi::Backend;
+    
     if (p_backend == Backend::Direct3D11) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11GraphicsManager;
@@ -80,7 +82,7 @@ static IRenderDevice* SelectRenderDevice(Backend p_backend) {
     return new NullRenderDevice;
 }
 
-IRenderDevice* CreateRenderDevice(Backend p_backend) {
+IRenderDevice* CreateRenderDevice(rhi::Backend p_backend) {
     if (IRenderDevice::s_createFunc) {
         return IRenderDevice::s_createFunc();
     }

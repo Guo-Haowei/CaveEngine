@@ -1,6 +1,6 @@
 #include "PathTracer.h"
 
-#include "BvhAccel.h "
+#include "BvhAccel.h"
 
 #include "cave/core/time/Stopwatch.h"
 #include "cave/runtime/ecs/components/MaterialComponent.h"

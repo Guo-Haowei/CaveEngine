@@ -69,7 +69,7 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::getFields() {
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr,
-            FieldOpsFor<mutable Vector<Guid>>::get()
+            FieldOpsFor<Vector<Guid>>::get()
         ),
         REGISTER_FIELD(
             AssetMetaData,
@@ -99,7 +99,7 @@ const MetaTableFields& MetaDataTable<AssetMetaData>::getFields() {
             FieldFlag::Serialize,
             EditorHint::None,
             nullptr,
-            FieldOpsFor<mutable std::map<std::string, std::string>>::get()
+            FieldOpsFor<std::map<std::string, std::string>>::get()
         ),
     };
 
