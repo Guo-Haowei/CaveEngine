@@ -246,7 +246,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &des
 #ifdef CAVE_CBUFFER
 #undef CAVE_CBUFFER
 #endif
-    auto set_uniform_buffer = [program_id](const char* name, int binding) {
+    auto set_uniform_buffer = [program_id](const char *name, int binding) {
         GLuint index = glGetUniformBlockIndex(program_id, name);
         if (index != GL_INVALID_INDEX) {
             glUniformBlockBinding(program_id, index, binding);
