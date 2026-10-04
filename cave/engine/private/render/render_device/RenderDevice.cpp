@@ -261,7 +261,8 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
         loaded_meshes.pop();
 
         if (!mesh->gpuResource) {
-            CreateMesh(*mesh);
+            auto res = CreateMesh(*mesh);
+            DEV_ASSERT(res);
         }
     }
 

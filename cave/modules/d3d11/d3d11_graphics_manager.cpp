@@ -135,7 +135,8 @@ void D3d11GraphicsManager::OnWindowResize(int p_width, int p_height) {
     if (m_device) {
         m_windowRtv.Reset();
         m_swapChain->ResizeBuffers(0, p_width, p_height, DXGI_FORMAT_UNKNOWN, 0);
-        CreateRenderTarget();
+        auto res = CreateRenderTarget();
+        DEV_ASSERT(res);
     }
 }
 
