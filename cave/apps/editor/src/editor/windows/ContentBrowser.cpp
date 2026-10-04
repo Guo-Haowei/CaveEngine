@@ -1,6 +1,6 @@
 #include "ContentBrowser.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/string/StringUtils.h"
 #include "cave/core/diagnostics/Profiler.h"

@@ -6,6 +6,8 @@
 
 namespace cave::render {
 
+#define CAVE_VXGI NOT_IN_USE
+
 const BlendDesc& PipelineStateManager::defaultBlendDesc() {
     return s_default_blend_state;
 }
@@ -299,8 +301,7 @@ Result<void> PipelineStateManager::initialize() {
         return Result<void>();
     }
 
-#pragma region PSO_VOXEL
-    // Voxel
+#if USING(CAVE_VXGI)
     CREATE_PSO(PSO_VOXELIZATION_PRE, { .type = PipelineStateType::COMPUTE, .cs = "voxelization_pre.cs" });
     CREATE_PSO(PSO_VOXELIZATION_POST, { .type = PipelineStateType::COMPUTE, .cs = "voxelization_post.cs" });
 
@@ -320,7 +321,7 @@ Result<void> PipelineStateManager::initialize() {
                                     .depth_stencil_desc = &s_depth_reversed_stencil_off,
                                     .blend_desc = &s_default_blend_state,
                                 });
-#pragma endregion PSO_VOXEL
+#endif
 
 #if 0
     CREATE_PSO(PSO_BILLBOARD, {

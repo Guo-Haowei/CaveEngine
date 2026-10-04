@@ -12,6 +12,13 @@ $ cmake ..
 $ cmake --build .
 ```
 
+### MacOS
+```shell
+$ mkdir build && cd build
+$ cmake .. -G Xcode -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+$ cmake --build .
+```
+
 ### WASM
 ```shell
 $ source /path/to/emsdk/emsdk_env.sh

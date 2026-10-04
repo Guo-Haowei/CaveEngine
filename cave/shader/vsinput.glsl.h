@@ -2,7 +2,7 @@
 #ifndef VSINPUT_INCLUDED
 #define VSINPUT_INCLUDED
 
-#if __cplusplus
+#if defined(__cplusplus)
 #define BUFFER_SLOT(type, name, slot) \
     constexpr int get_##name##_slot() { return slot; }
 

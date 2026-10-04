@@ -1,6 +1,6 @@
 #include "SpriteAnimationEditor.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/diagnostics/DebugIdAllocator.h"
 #include "cave/runtime/ecs/components/SpriteAnimatorComponent.h"

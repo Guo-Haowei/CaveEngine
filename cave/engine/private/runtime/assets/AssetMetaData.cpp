@@ -5,6 +5,8 @@
 #include "engine/private/core/io/file_access.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
+#include <chrono>
+
 namespace cave {
 
 namespace fs = std::filesystem;
@@ -31,7 +33,13 @@ auto AssetMetaData::loadMeta(std::string_view path) -> Result<AssetMetaData> {
     sys_path.resize(sys_path.size() - 5);  // remove '.meta'
     if (fs::exists(sys_path)) {
         auto ftime = fs::last_write_time(sys_path);
+#if USING(PLATFORM_WINDOWS)
         auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+#elif USING(PLATFORM_APPLE)
+        auto sctp = fs::file_time_type::clock::to_sys(ftime);
+#else
+#error "Not implemented"
+#endif
         meta.source_last_modified = std::format("{:%Y-%m-%d %H:%M:%S}", sctp);
     }
 

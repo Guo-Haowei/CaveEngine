@@ -1,5 +1,6 @@
+#if 0
 #pragma once
-#include "engine/private/drivers/runtime/null/NullRenderDevice.h"
+#include "engine/private/runtime/null/NullRenderDevice.h"
 
 struct GLFWwindow;
 
@@ -8,7 +9,7 @@ namespace cave {
 WARNING_PUSH()
 WARNING_DISABLE(4100, "-Wunused-parameter")
 
-class MetalGraphicsManager : public EmptyGraphicsManager {
+class MetalGraphicsManager : public NullRenderDevice {
 public:
     MetalGraphicsManager();
 
@@ -74,3 +75,5 @@ private:
 WARNING_POP()
 
 } // namespace cave
+
+#endif

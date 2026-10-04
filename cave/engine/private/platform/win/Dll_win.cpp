@@ -10,8 +10,8 @@ Dll::~Dll() { unload(); }
 
 bool Dll::load(const char* path) {
     unload();
-    handle_ = (void*)::LoadLibraryA(path);
-    if (!handle_) {
+    m_handle = (void*)::LoadLibraryA(path);
+    if (!m_handle) {
         DWORD err = ::GetLastError();
         LOG_ERROR(LogChannel::App, "Dll::Load: Failed to load '{}' (GetLastError={})", path, err);
         return false;
@@ -20,27 +20,27 @@ bool Dll::load(const char* path) {
 }
 
 void Dll::unload() {
-    if (handle_) {
-        ::FreeLibrary((HMODULE)handle_);
-        handle_ = nullptr;
+    if (m_handle) {
+        ::FreeLibrary((HMODULE)m_handle);
+        m_handle = nullptr;
     }
 }
 
 void* Dll::symbol(const char* p_name) const {
-    if (!handle_) return nullptr;
-    return (void*)::GetProcAddress((HMODULE)handle_, p_name);
+    if (!m_handle) return nullptr;
+    return (void*)::GetProcAddress((HMODULE)m_handle, p_name);
 }
 
 Dll::Dll(Dll&& o) noexcept {
-    handle_ = o.handle_;
-    o.handle_ = nullptr;
+    m_handle = o.m_handle;
+    o.m_handle = nullptr;
 }
 
 Dll& Dll::operator=(Dll&& o) noexcept {
     if (this == &o) return *this;
     unload();
-    handle_ = o.handle_;
-    o.handle_ = nullptr;
+    m_handle = o.m_handle;
+    o.m_handle = nullptr;
     return *this;
 }
 

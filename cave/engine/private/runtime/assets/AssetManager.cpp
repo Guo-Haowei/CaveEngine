@@ -302,7 +302,7 @@ void AssetManager::reloadAsset(const Guid& guid) {
 
 AssetRef AssetManager::loadAssetSyncHelper(const Guid& guid) {
     Stopwatch stopwatch;
-    stopwatch.Start();
+    stopwatch.start();
     auto entry = services().assetRegistry().entry(guid);
 
     auto res = LoadAsset(entry);
@@ -316,7 +316,7 @@ AssetRef AssetManager::loadAssetSyncHelper(const Guid& guid) {
 
     AssetRef asset = *res;
 
-    stopwatch.Stop();
+    stopwatch.stop();
     entry->markLoaded(asset);
     ++entry->revision;
 
@@ -325,7 +325,7 @@ AssetRef AssetManager::loadAssetSyncHelper(const Guid& guid) {
               "Asset '{}' loaded. revision={} ({})",
               entry->metadata.import_path,
               entry->revision,
-              stopwatch.Elapsed().ToString());
+              stopwatch.elapsed().ToString());
     return asset;
 }
 

@@ -2,6 +2,8 @@
 
 #include "engine/private/renderer/gpu_resource.h"
 
+#include <algorithm>
+
 namespace cave {
 
 using namespace ::cave::math;

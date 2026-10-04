@@ -6,6 +6,7 @@
 namespace cave {
 
 CloseDecision AskCloseUnsaved(const char* title) {
+#if USING(PLATFORM_WINDOWS)
     int result = MessageBoxA(
         NULL,
         "You have unsaved changes.\n\nDo you want to save before closing?",
@@ -20,6 +21,10 @@ CloseDecision AskCloseUnsaved(const char* title) {
         default:
             return CloseDecision::Cancel;
     }
+#else
+    unused(title);
+    return CloseDecision::Discard;
+#endif
 }
 
 }  // namespace cave

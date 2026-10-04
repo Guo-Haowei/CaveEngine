@@ -9,24 +9,24 @@ namespace cave {
 template<typename T, typename ClockPolicy>
 class StopwatchBase {
 public:
-    void Start() {
+    void start() {
         m_start = ClockPolicy::Now();
         m_running = true;
     }
 
-    void Stop() {
+    void stop() {
         if (m_running) {
             m_elapsed += ClockPolicy::Now() - m_start;
             m_running = false;
         }
     }
 
-    void Reset() {
+    void reset() {
         m_elapsed = T();
         m_running = false;
     }
 
-    T Elapsed() const {
+    T elapsed() const {
         if (!m_running) {
             return m_elapsed;
         }
@@ -35,16 +35,16 @@ public:
     }
 
     // Reset + Start, and return the previous total elapsed.
-    T Restart() {
-        const T elapsed = Elapsed();
+    T restart() {
+        const T elapsed_time = elapsed();
         m_start = ClockPolicy::Now();
         m_elapsed = T{};
         m_running = true;
-        return elapsed;
+        return elapsed_time;
     }
 
-    const T& StartPoint() const { return m_start; }
-    bool IsRunning() const { return m_running; }
+    const T& startPoint() const { return m_start; }
+    bool isRunning() const { return m_running; }
 
 protected:
     T m_start{};

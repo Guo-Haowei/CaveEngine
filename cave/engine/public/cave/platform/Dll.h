@@ -18,7 +18,7 @@ public:
     Dll& operator=(Dll&&) noexcept;
 
 private:
-    void* handle_{ nullptr };
+    void* m_handle{ nullptr };
 };
 
 }  // namespace cave

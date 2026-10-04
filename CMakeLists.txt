@@ -11,6 +11,7 @@ endif()
 
 option(CAVE_BUILD_TESTS "Build Tests" ON)
 option(CAVE_BUILD_ASSIMP "Build Assimp" OFF)
+option(CAVE_BUILD_TINYGLTF "Build TinyGLTF" OFF)
 
 message("***********************************************************************")
 message(STATUS "CMAKE_CXX_COMPILER_ID   : ${CMAKE_CXX_COMPILER_ID}")

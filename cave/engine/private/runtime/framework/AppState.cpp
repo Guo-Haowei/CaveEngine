@@ -33,7 +33,9 @@ void AppStateMachine::switchTo(const StateRequest& p_request) {
     m_app_state->onExit();
     m_app_state = createState(m_app, p_request.next);
 
+#if USING(DEBUG_BUILD)
     LOG_INFO(LogChannel::App, "State {} -> {}", old_state, m_app_state->debugId().type);
+#endif
 
     m_app_state->onEnter(p_request);
     m_state_id = p_request.next;

@@ -1,6 +1,7 @@
 #include <unistd.h>
 
-#include "engine/private/core/diagnostics/logger/ansi_logger.h"
+#include "engine/private/core/diagnostics/log_sink/AnsiLogSink.h"
+#include "engine/private/core/diagnostics/log_sink/StdLogSink.h"
 #include "engine/private/core/io/file_access_unix.h"
 #include "engine/private/core/os/os.h"
 
@@ -12,9 +13,9 @@ void OS::Initialize() {
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
 
     if (IsAnsiSupported()) {
-        AddLogger(std::make_shared<AnsiLogger>());
+        addLogger(MakeOwner<AnsiLogger>());
     } else {
-        AddLogger(std::make_shared<StdLogger>());
+        addLogger(MakeOwner<StdLogger>());
     }
 }
 

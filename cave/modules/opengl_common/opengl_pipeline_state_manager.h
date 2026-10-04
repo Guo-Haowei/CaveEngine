@@ -18,11 +18,11 @@ public:
     explicit OpenGlPipelineStateManager() noexcept
         : PipelineStateManager(Backend::OpenGL) {}
 
-    auto graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
-    auto computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
+    auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<std::shared_ptr<PipelineState>> final;
+    auto computePipeline(const PipelineStateDesc& desc) -> Result<std::shared_ptr<PipelineState>> final;
 
 private:
-    auto CreatePipelineImpl(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>>;
+    auto CreatePipelineImpl(const PipelineStateDesc& desc) -> Result<std::shared_ptr<PipelineState>>;
 };
 
 }  // namespace cave::render
