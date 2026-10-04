@@ -1,11 +1,12 @@
 /// File: primitive.vs.glsl
 #include "../cbuffer.hlsl.h"
-#include "../vsinput.glsl.h"
 
-layout(location = 0) out vec3 pass_position;
+layout(location = 0) in vec3 in_position;
+layout(location = 1) in vec2 in_uv;
+layout(location = 2) in vec4 in_color;
 
-out vec2 uv;
-out vec4 color;
+layout(location = 0) out vec2 pass_uv;
+layout(location = 1) out vec4 pass_color;
 
 void main() {
     vec4 position = vec4(in_position, 1.0);
@@ -13,6 +14,6 @@ void main() {
     position = c_camProj * position;
 
     gl_Position = position;
-    uv = in_uv;
-    color = in_color;
+    pass_uv = in_uv;
+    pass_color = in_color;
 }
