@@ -6,7 +6,8 @@
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/render/rhi/PipelineState.h"
 #include "engine/private/renderer/sampler.h"
-#include "opengl_prerequisites.h"
+
+#include "GLPrerequisites.h"
 
 // @TODO: wrap all enums for better debugging information
 

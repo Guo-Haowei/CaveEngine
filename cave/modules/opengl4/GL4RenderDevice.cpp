@@ -1,12 +1,12 @@
-#include "opengl4_graphics_manager.h"
+#include "GL4RenderDevice.h"
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 #include "cave/runtime/framework/IApplication.h"
 
-#include "../opengl_common/opengl_helpers.h"
-#include "../opengl_common/opengl_prerequisites.h"
-#include "../opengl_common/opengl_resources.h"
+#include "../opengl_common/GLHelpers.h"
+#include "../opengl_common/GLPrerequisites.h"
+#include "../opengl_common/GLResources.h"
 #include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 

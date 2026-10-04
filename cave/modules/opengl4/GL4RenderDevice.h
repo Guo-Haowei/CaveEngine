@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../opengl_common/opengl_common_graphics_manager.h"
+#include "../opengl_common/GLRenderDevice.h"
 
 struct GLFWwindow;
 

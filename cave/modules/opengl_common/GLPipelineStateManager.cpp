@@ -1,8 +1,8 @@
-#include "opengl_pipeline_state_manager.h"
+#include "GLPipelineStateManager.h"
 
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
-#include "opengl_helpers.h"
+#include "GLHelpers.h"
 
 #include <fstream>
 

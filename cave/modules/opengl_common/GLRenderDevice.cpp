@@ -1,11 +1,9 @@
-#include "opengl_common_graphics_manager.h"
+#include "GLRenderDevice.h"
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
-
-#include "GLFramebufferCache.h"
 
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
@@ -14,9 +12,11 @@
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
-#include "opengl_helpers.h"
-#include "opengl_pipeline_state_manager.h"
-#include "opengl_resources.h"
+
+#include "GLFramebufferCache.h"
+#include "GLHelpers.h"
+#include "GLPipelineStateManager.h"
+#include "GLResources.h"
 #include "vsinput.glsl.h"
 
 // @NOTE: include GLFW after opengl

@@ -2,7 +2,7 @@
 
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "opengl_helpers_forward.h"
+#include "GLHelpersForward.h"
 
 struct GLFWwindow;
 
