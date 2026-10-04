@@ -245,34 +245,34 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                                });
 
-#pragma region PSO_ENV
-    CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
+    if (capabilities.supportIBL) {
+        CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
+                                                   .vs = "cube_map.vs",
+                                                   .ps = "to_cube_map.ps",
+                                                   .rasterizer_desc = &s_rasterizer_cull_back,
+                                                   .depth_stencil_desc = &s_default_depth_stencil,
+                                                   .input_layout_desc = &s_input_layout_mesh,
+                                                   .blend_desc = &s_default_blend_state,
+                                               });
+
+        CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
                                                .vs = "cube_map.vs",
-                                               .ps = "to_cube_map.ps",
+                                               .ps = "diffuse_irradiance.ps",
                                                .rasterizer_desc = &s_rasterizer_cull_back,
                                                .depth_stencil_desc = &s_default_depth_stencil,
                                                .input_layout_desc = &s_input_layout_mesh,
                                                .blend_desc = &s_default_blend_state,
                                            });
 
-    CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
-                                           .vs = "cube_map.vs",
-                                           .ps = "diffuse_irradiance.ps",
-                                           .rasterizer_desc = &s_rasterizer_cull_back,
-                                           .depth_stencil_desc = &s_default_depth_stencil,
-                                           .input_layout_desc = &s_input_layout_mesh,
-                                           .blend_desc = &s_default_blend_state,
-                                       });
-
-    CREATE_PSO(PSO_PREFILTER, {
-                                  .vs = "cube_map.vs",
-                                  .ps = "prefilter.ps",
-                                  .rasterizer_desc = &s_rasterizer_cull_back,
-                                  .depth_stencil_desc = &s_default_depth_stencil,
-                                  .input_layout_desc = &s_input_layout_mesh,
-                                  .blend_desc = &s_default_blend_state,
-                              });
-#pragma endregion PSO_ENV
+        CREATE_PSO(PSO_PREFILTER, {
+                                      .vs = "cube_map.vs",
+                                      .ps = "prefilter.ps",
+                                      .rasterizer_desc = &s_rasterizer_cull_back,
+                                      .depth_stencil_desc = &s_default_depth_stencil,
+                                      .input_layout_desc = &s_input_layout_mesh,
+                                      .blend_desc = &s_default_blend_state,
+                                  });
+    }
 
     // @TODO: merge primitive and overlay
     CREATE_PSO(PSO_PRIMITIVE,

@@ -16,6 +16,7 @@ namespace cave::render {
 
 struct RendererCapabilities {
     bool canRunBloom = false;
+    bool canRunIBL = false;
 };
 
 class UIRenderer : public CanvasRenderer {
@@ -47,7 +48,7 @@ public:
     UIRenderer* tryGet() { return m_ui_renderer.get(); }
 
 #if USING(USE_COMMAND)
-    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+    bool cmdDump(CommandContext& ctx, const CommandArgs& args);
 #endif
 
 protected:
@@ -62,7 +63,6 @@ private:
     // renderers
     Owner<OverlayRenderer> m_overlay_renderer;
     Owner<UIRenderer> m_ui_renderer;
-    // @TODO: UI renderer
 };
 
 }  // namespace cave::render

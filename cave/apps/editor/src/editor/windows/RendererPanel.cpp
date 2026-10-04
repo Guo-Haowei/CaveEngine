@@ -58,9 +58,7 @@ void RendererPanel::drawUIImpl() {
         ImGui::Checkbox("debug", (bool*)DVAR_GET_POINTER(gfx_debug_shadow));
     });
 
-    CollapseWindow("IBL", []() {
-        ImGui::Checkbox("enable", (bool*)DVAR_GET_POINTER(gfx_enable_ibl));
-    });
+    CollapseWindow("IBL", []() { ImGui::Checkbox("enable", (bool*)DVAR_GET_POINTER(gfx_enable_ibl)); }, !capabilities.canRunIBL);
 
     CollapseWindow("Bloom", []() {
         ImGui::Checkbox("enable", (bool*)DVAR_GET_POINTER(gfx_enable_bloom));

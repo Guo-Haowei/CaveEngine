@@ -53,7 +53,7 @@ public:
     void setMode(bool is_2d) { m_is_2d = is_2d; }
 
 #if USING(USE_COMMAND)
-    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+    bool cmdDump(CommandContext& ctx, const CommandArgs& args);
 #endif
 
 private:
@@ -257,6 +257,7 @@ Renderer::Impl::Impl(EngineServices& services)
 
 auto Renderer::Impl::initialize() -> Result<void> {
     m_capabilities.canRunBloom = m_device.getCapabilities().supportComputeShaders;
+    m_capabilities.canRunIBL = m_device.getCapabilities().supportIBL;
     return Result<void>();
 }
 
@@ -299,7 +300,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
         .enable_bloom = m_capabilities.canRunBloom && DVAR_GET_BOOL(gfx_enable_bloom),
-        .enable_ibl = DVAR_GET_BOOL(gfx_enable_ibl),
+        .enable_ibl = m_capabilities.canRunIBL && DVAR_GET_BOOL(gfx_enable_ibl),
 
         .vxgiEnabled = false,
         .debugVoxelId = DVAR_GET_INT(gfx_debug_vxgi_voxel),
@@ -473,11 +474,11 @@ RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId scene_id) {
 }
 
 #if USING(USE_COMMAND)
-bool Renderer::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
-    return m_impl->Cmd_dump(ctx, args);
+bool Renderer::cmdDump(CommandContext& ctx, const CommandArgs& args) {
+    return m_impl->cmdDump(ctx, args);
 }
 
-bool Renderer::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
+bool Renderer::Impl::cmdDump(CommandContext& ctx, const CommandArgs& args) {
     RenderPoolDump_Cmd(m_transient_pool, ctx, args);
     return true;
 }

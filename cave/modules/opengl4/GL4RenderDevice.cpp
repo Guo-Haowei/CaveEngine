@@ -52,6 +52,11 @@ auto GL4RenderDevice::InitializeInternal() -> Result<void> {
         if (major < 4 || minor < 3) {
             m_capabilities.supportComputeShaders = false;
         }
+
+        // @HACK: disable it
+#if USING(PLATFORM_APPLE)
+        m_capabilities.supportIBL = false;
+#endif
     }
 
     if (ImGuiService* imgui = m_app->services().imgui) {
