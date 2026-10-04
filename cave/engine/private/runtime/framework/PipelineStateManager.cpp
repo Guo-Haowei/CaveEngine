@@ -6,7 +6,6 @@
 
 namespace cave::render {
 
-#define CAVE_BLOOM        NOT_IN_USE
 #define CAVE_VXGI         NOT_IN_USE
 #define CAVE_PARTICLE     NOT_IN_USE
 #define CAVE_PATH_TRACER  NOT_IN_USE
@@ -66,10 +65,11 @@ auto PipelineStateManager::create(PipelineStateName p_name, const PipelineStateD
     return Result<void>();
 }
 
-Result<void> PipelineStateManager::initialize() {
+Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabilities) {
     if constexpr (USING(PLATFORM_WASM)) {
         return Result<void>();
     }
+
     switch (m_backend) {
         case Backend::Null:
         case Backend::Direct3D12:
@@ -227,11 +227,11 @@ Result<void> PipelineStateManager::initialize() {
                                      .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                                  });
 
-#if USING(CAVE_BLOOM)
-    CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
-    CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
-    CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
-#endif
+    if (capabilities.supportComputeShaders) {
+        CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
+        CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
+        CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
+    }
 
     CREATE_PSO(PSO_ENV_SKYBOX, {
                                    .vs = "skybox.vs",
@@ -300,13 +300,8 @@ Result<void> PipelineStateManager::initialize() {
                                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                                });
 
-#if USING(CAVE_PATH_TRACER)
-    CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
-#endif
-
-    // @HACK: only support this many shaders
-    if (m_backend != Backend::OpenGL) {
-        return Result<void>();
+    if (capabilities.supportComputeShaders) {
+        CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
     }
 
 #if USING(CAVE_VXGI)

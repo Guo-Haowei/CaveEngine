@@ -31,7 +31,7 @@ static constexpr size_t kMaxRenderTargets = 8;
 
 D3d11GraphicsManager::D3d11GraphicsManager()
     : RenderDevice("D3d11GraphicsManager", rhi::Backend::Direct3D11, 1) {
-    m_pipelineStateManager = std::make_shared<D3d11PipelineStateManager>(this);
+    m_pipeline_state_manager = MakeOwner<D3d11PipelineStateManager>(this);
 }
 
 auto D3d11GraphicsManager::InitializeInternal() -> Result<void> {
@@ -895,7 +895,7 @@ void D3d11GraphicsManager::drawArraysInstanced(uint32_t p_instance_count, uint32
 }
 
 void D3d11GraphicsManager::setPipelineStateImpl(PipelineStateName p_name) {
-    auto pipeline = reinterpret_cast<D3d11PipelineState*>(m_pipelineStateManager->findPSO(p_name));
+    auto pipeline = reinterpret_cast<D3d11PipelineState*>(m_pipeline_state_manager->findPSO(p_name));
     DEV_ASSERT(pipeline);
     if (pipeline->computeShader) {
         m_deviceContext->CSSetShader(pipeline->computeShader.Get(), nullptr, 0);

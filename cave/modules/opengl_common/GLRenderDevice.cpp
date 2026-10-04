@@ -44,8 +44,8 @@ GLRenderDevice::GLRenderDevice()
     : RenderDevice("GLRenderDevice", rhi::Backend::OpenGL, 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
-    m_pipelineStateManager = std::make_shared<OpenGlPipelineStateManager>();
-    m_fbo_cache = std::make_unique<GLFramebufferCache>();
+    m_pipeline_state_manager = MakeOwner<OpenGlPipelineStateManager>();
+    m_fbo_cache = MakeOwner<GLFramebufferCache>();
 }
 
 GLRenderDevice::~GLRenderDevice() = default;
@@ -53,11 +53,11 @@ GLRenderDevice::~GLRenderDevice() = default;
 void GLRenderDevice::FinalizeImpl() {
     m_fbo_cache.reset();
 
-    m_pipelineStateManager->finalize();
+    m_pipeline_state_manager->finalize();
 }
 
 void GLRenderDevice::setPipelineStateImpl(PipelineStateName p_name) {
-    auto pipeline = reinterpret_cast<OpenGlPipelineState*>(m_pipelineStateManager->findPSO(p_name));
+    auto pipeline = reinterpret_cast<OpenGlPipelineState*>(m_pipeline_state_manager->findPSO(p_name));
 
     if (pipeline->desc.rasterizer_desc) {
         const auto cull_mode = pipeline->desc.rasterizer_desc->cullMode;
@@ -171,26 +171,26 @@ auto GLRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::sh
     glBufferData(type, p_desc.element_count * p_desc.element_size, p_desc.initial_data, usage);
     glBindBuffer(type, 0);
 
-    auto buffer = std::make_shared<OpenGlBuffer>(p_desc);
+    auto buffer = MakeRef<OpenGlBuffer>(p_desc);
     buffer->handle = handle;
     buffer->type = type;
     return buffer;
 }
 
-auto GLRenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
-                                    std::span<const GpuBufferDesc> p_vb_descs,
-                                    const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
+auto GLRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
+                                    std::span<const GpuBufferDesc> vb_descs,
+                                    const GpuBufferDesc* ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     // create VAO
     uint32_t vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    auto ret = std::make_shared<OpenGlMeshBuffers>(p_desc);
+    auto ret = MakeRef<OpenGlMeshBuffers>(mesh_desc);
     ret->vao = vao;
 
     // create EBO
-    if (p_ib_desc) {
-        auto res = createBuffer(*p_ib_desc);
+    if (ib_desc) {
+        auto res = createBuffer(*ib_desc);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -200,12 +200,12 @@ auto GLRenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     }
 
-    for (uint32_t slot = 0; slot < (uint32_t)p_vb_descs.size(); ++slot) {
-        if (p_vb_descs[slot].element_count == 0) {
+    for (uint32_t slot = 0; slot < (uint32_t)vb_descs.size(); ++slot) {
+        if (vb_descs[slot].element_count == 0) {
             continue;
         }
 
-        auto res = createBuffer(p_vb_descs[slot]);
+        auto res = createBuffer(vb_descs[slot]);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -318,7 +318,7 @@ auto GLRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result
     glBindBufferBase(GL_UNIFORM_BUFFER, p_desc.slot, handle);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    auto buffer = std::make_shared<OpenGlUniformBuffer>(p_desc);
+    auto buffer = MakeRef<OpenGlUniformBuffer>(p_desc);
     buffer->handle = handle;
     return buffer;
 }
@@ -454,7 +454,7 @@ Ref<GpuTexture> GLRenderDevice::createTextureImpl(const GpuTextureDesc& p_textur
 
 #if 0
 std::shared_ptr<RenderTarget> GLRenderDevice::CreateFramebuffer(const RenderTargetDesc& p_desc) {
-    auto framebuffer = std::make_shared<OpenGlFramebuffer>(p_desc);
+    auto framebuffer = MakeRef<OpenGlFramebuffer>(p_desc);
     GLuint fbo_handle = 0;
 
     const int num_depth_attachment = p_desc.depth ? 1 : 0;

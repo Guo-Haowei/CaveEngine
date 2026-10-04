@@ -102,7 +102,7 @@ struct D3d12FrameContext : FrameContext {
 
 D3d12GraphicsManager::D3d12GraphicsManager()
     : RenderDevice("D3d12GraphicsManager", rhi::Backend::Direct3D12, NUM_FRAMES_IN_FLIGHT) {
-    m_pipelineStateManager = MakeOwner<D3d12PipelineStateManager>(this);
+    m_pipeline_state_manager = MakeOwner<D3d12PipelineStateManager>(this);
 }
 
 auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
@@ -1389,8 +1389,8 @@ void D3d12GraphicsManager::onWindowResize(int p_width, int p_height) {
     }
 }
 
-void D3d12GraphicsManager::setPipelineStateImpl(PipelineStateName p_name) {
-    auto pipeline = reinterpret_cast<D3d12PipelineState*>(m_pipelineStateManager->findPSO(p_name));
+void D3d12GraphicsManager::setPipelineStateImpl(PipelineStateName name) {
+    auto pipeline = reinterpret_cast<D3d12PipelineState*>(m_pipeline_state_manager->findPSO(name));
     DEV_ASSERT(pipeline);
 
     auto primitive_topology = d3d::Convert(pipeline->desc.primitive_topology);

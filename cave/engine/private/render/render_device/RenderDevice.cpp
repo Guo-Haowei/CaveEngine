@@ -67,9 +67,9 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
         frame_context.perFrameCb = *CreateUniformCheckSize<PerFrameConstantBuffer>(*this, 1);
     }
 
-    DEV_ASSERT(m_pipelineStateManager);
+    DEV_ASSERT(m_pipeline_state_manager);
 
-    if (auto res = m_pipelineStateManager->initialize(); !res) {
+    if (auto res = m_pipeline_state_manager->initialize(); !res) {
         return CAVE_ERROR(res.error());
     }
 

@@ -49,31 +49,31 @@ public:
 
     auto InitializeImpl() -> Result<void> final;
 
-    void submit(std::unique_ptr<render::RenderSubmission>&& p_submission) final;
+    void submit(Owner<render::RenderSubmission>&& submission) final;
 
     // resource
-    void updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) override;
+    void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
 
-    void updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) override;
+    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 
-    auto createMesh(const MeshAsset& p_mesh) -> Result<Ref<GpuMesh>> override;
+    auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> override;
 
-    void setPipelineState(PipelineStateName p_name) override;
+    void setPipelineState(PipelineStateName name) override;
 
-    Ref<GpuTexture> createTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) override;
-    Ref<GpuTexture> createTexture(ImageAsset* p_image) override;
+    Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    Ref<GpuTexture> createTexture(ImageAsset* image) override;
 
-    void requestTexture(ImageAsset* p_image) override;
-    void requestMesh(MeshAsset* p_mesh) override;
+    void requestTexture(ImageAsset* image) override;
+    void requestMesh(MeshAsset* mesh) override;
 
-    void beginEvent(std::string_view p_event) override { unused(p_event); }
+    void beginEvent(std::string_view event) override { unused(event); }
     void endEvent() override {}
 
     FrameContext& getCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
 
     void drawSkybox() override;
 
-    void eventReceived(Ref<IEvent> p_event) final;
+    void eventReceived(Ref<IEvent> event) final;
 
 protected:
     virtual auto InitializeInternal() -> Result<void> = 0;
@@ -87,7 +87,7 @@ protected:
     ConcurrentQueue<ImageAsset*> m_loadedImages;
     ConcurrentQueue<MeshAsset*> m_loadedMeshes;
 
-    Ref<PipelineStateManager> m_pipelineStateManager;
+    Owner<PipelineStateManager> m_pipeline_state_manager;
     std::vector<Ref<FrameContext>> m_frameContexts;
     int m_frameIndex{ 0 };
     const int m_frameCount;
@@ -96,13 +96,13 @@ protected:
     Ref<GpuMesh> m_skybox_buffers;
 
 protected:
-    void updateEmitters(const Scene& p_scene) override;
+    void updateEmitters(const Scene& scene) override;
 
-    void beginPass(const CompiledPass& p_pass) override;
-    void endPass(const CompiledPass& p_pass) override;
+    void beginPass(const CompiledPass& pass) override;
+    void endPass(const CompiledPass& pass) override;
 
 private:
-    void Execute(const FrameData& p_data, const CompiledPass& p_pass);
+    void Execute(const FrameData& data, const CompiledPass& pass);
 };
 
 }  // namespace cave::render

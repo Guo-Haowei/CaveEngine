@@ -9,6 +9,7 @@ namespace cave::render {
 using rhi::Backend;
 
 class IRenderDevice;
+struct RenderCapabilities; 
 
 class PipelineStateManager {
 public:
@@ -17,7 +18,7 @@ public:
 
     virtual ~PipelineStateManager() = default;
 
-    auto initialize() -> Result<void>;
+    auto initialize(const RenderCapabilities& capabilities) -> Result<void>;
     void finalize();
 
     PipelineState* findPSO(PipelineStateName name);
