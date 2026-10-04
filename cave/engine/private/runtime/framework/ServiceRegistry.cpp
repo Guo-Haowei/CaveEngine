@@ -12,6 +12,7 @@
 #include "modules/opengl4/opengl4_graphics_manager.h"
 #include "modules/vk/vulkan_graphics_manager.h"
 #elif USING(PLATFORM_APPLE)
+#include "modules/opengl4/opengl4_graphics_manager.h"
 #include "engine/private/drivers/metal/metal_graphics_manager.h"
 #elif USING(PLATFORM_WASM)
 #include "modules/opengles3/opengles3_graphics_manager.h"
@@ -58,12 +59,10 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
     }
 
     if (p_backend == Backend::OpenGL) {
-#if USING(PLATFORM_WINDOWS)
-        return new OpenGL4GraphicsManager;
-#elif USING(PLATFORM_WASM)
+#if USING(PLATFORM_WASM)
         return new OpenGLES3GraphicsManager;
 #else
-        return nullptr;
+        return new OpenGL4GraphicsManager;
 #endif
     }
 

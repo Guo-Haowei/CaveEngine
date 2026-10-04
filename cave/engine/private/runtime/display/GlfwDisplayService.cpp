@@ -42,7 +42,8 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
     switch (backend_) {
         case Backend::OpenGL:
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
             if (DVAR_GET_BOOL(gfx_gpu_validation)) {
                 glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
             }

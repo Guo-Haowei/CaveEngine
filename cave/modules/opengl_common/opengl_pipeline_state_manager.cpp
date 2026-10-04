@@ -110,11 +110,8 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     std::string fullsource;
     if (!is_generated) {
         fullsource =
-            "#version 460 core\n"
-            "#extension GL_NV_gpu_shader5 : require\n"
-            "#extension GL_NV_shader_atomic_float : enable\n"
-            "#extension GL_NV_shader_atomic_fp16_vector : enable\n"
-            "#extension GL_ARB_bindless_texture : require\n"
+            "#version 410 core\n"
+            // "#extension GL_ARB_bindless_texture : require\n"
             "#define GLSL_LANG 1\n"
             "";
 

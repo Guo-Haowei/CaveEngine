@@ -1,4 +1,3 @@
-#pragma once
 #include "ChangePropertyCmd.h"
 
 #include "editor/document/IDocument.h"
