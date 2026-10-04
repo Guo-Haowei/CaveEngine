@@ -233,7 +233,11 @@ auto scanProjects(const std::filesystem::path& root) -> std::vector<ProjectInfo>
             }
 
             std::string path = entry.path().string();
+#if USING(PLATFORM_WINDOWS)
             std::replace(path.begin(), path.end(), '/', '\\');
+#else
+            std::replace(path.begin(), path.end(), '\\', '/');
+#endif
 
             LOG_TRACE(LogChannel::Asset, "Found @{}", path);
 
