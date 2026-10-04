@@ -1,5 +1,11 @@
 /// File: bloom_setup.cs.glsl
-#version 450
+#version 410
+#ifdef GL_ARB_shading_language_420pack
+#extension GL_ARB_shading_language_420pack : require
+#endif
+#extension GL_ARB_compute_shader : require
+#extension GL_ARB_shader_image_load_store : require
+#extension GL_ARB_shader_image_size : require
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 struct Light
@@ -76,8 +82,16 @@ void main()
 {
     uvec2 _51 = uvec2(imageSize(u_BloomOutputImage));
     vec3 _67 = textureLod(SPIRV_Cross_Combinedt_TextureLightings_linearClampSampler, vec2(float(gl_GlobalInvocationID.x) / float(_51.x), float(gl_GlobalInvocationID.y) / float(_51.y)), 0.0).xyz;
-    vec3 _68 = mix(mix(max(_67, vec3(0.0)), vec3(0.0), isnan(_67)), _67, isnan(vec3(0.0)));
-    float _70 = dot(mix(mix(max(_68, vec3(0.0)), vec3(0.0), isnan(_68)), _68, isnan(vec3(0.0))), vec3(0.2125999927520751953125, 0.715200006961822509765625, 0.072200000286102294921875));
+    bvec3 _82 = isnan(_67);
+    bvec3 _83 = isnan(vec3(0.0));
+    vec3 _84 = max(_67, vec3(0.0));
+    vec3 _85 = vec3(_82.x ? vec3(0.0).x : _84.x, _82.y ? vec3(0.0).y : _84.y, _82.z ? vec3(0.0).z : _84.z);
+    vec3 _68 = vec3(_83.x ? _67.x : _85.x, _83.y ? _67.y : _85.y, _83.z ? _67.z : _85.z);
+    bvec3 _87 = isnan(_68);
+    bvec3 _88 = isnan(vec3(0.0));
+    vec3 _89 = max(_68, vec3(0.0));
+    vec3 _90 = vec3(_87.x ? vec3(0.0).x : _89.x, _87.y ? vec3(0.0).y : _89.y, _87.z ? vec3(0.0).z : _89.z);
+    float _70 = dot(vec3(_88.x ? _68.x : _90.x, _88.y ? _68.y : _90.y, _88.z ? _68.z : _90.z), vec3(0.2125999927520751953125, 0.715200006961822509765625, 0.072200000286102294921875));
     float _73 = _70 - PerFrameConstantBuffer.c_bloomThreshold;
     imageStore(u_BloomOutputImage, ivec2(gl_GlobalInvocationID.xy), (_68 * ((isnan(0.0) ? _73 : (isnan(_73) ? 0.0 : max(_73, 0.0))) / (isnan(9.9999997473787516355514526367188e-06) ? _70 : (isnan(_70) ? 9.9999997473787516355514526367188e-06 : max(_70, 9.9999997473787516355514526367188e-06))))).xyzz);
 }

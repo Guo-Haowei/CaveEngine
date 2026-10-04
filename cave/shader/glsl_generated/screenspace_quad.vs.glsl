@@ -1,5 +1,8 @@
 /// File: screenspace_quad.vs.glsl
-#version 450
+#version 410
+#ifdef GL_ARB_shading_language_420pack
+#extension GL_ARB_shading_language_420pack : require
+#endif
 
 const vec2 _26[6] = vec2[](vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0), vec2(-1.0, 1.0), vec2(-1.0), vec2(1.0, -1.0));
 

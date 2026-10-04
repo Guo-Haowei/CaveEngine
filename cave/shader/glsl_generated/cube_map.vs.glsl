@@ -1,5 +1,8 @@
 /// File: cube_map.vs.glsl
-#version 450
+#version 410
+#ifdef GL_ARB_shading_language_420pack
+#extension GL_ARB_shading_language_420pack : require
+#endif
 
 layout(binding = 0, std140) uniform type_PerBatchConstantBuffer
 {

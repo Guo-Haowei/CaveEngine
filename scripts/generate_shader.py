@@ -92,7 +92,7 @@ def generate(hlsl_source):
     for generate_file in generate_files:
         generated_file_name = generate_file['filename']
         run_command(generate_file['command'])
-        run_command([spriv_cross_path, output_spv, '--version', '450', '--output', generated_file_name])
+        run_command([spriv_cross_path, output_spv, '--version', '410', '--output', generated_file_name])
         print(f'file "{generated_file_name}" generated')
         insert_file_name(generated_file_name)
     return
