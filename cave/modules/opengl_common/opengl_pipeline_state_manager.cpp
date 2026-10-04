@@ -110,7 +110,7 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     std::string fullsource;
     if (!is_generated) {
         fullsource =
-            "#version 410 core\n"
+            "#version 460 core\n"
             // "#extension GL_ARB_bindless_texture : require\n"
             "#define GLSL_LANG 1\n"
             "";
@@ -148,15 +148,15 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     return shader_id;
 }
 
-auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &p_desc) -> Result<std::shared_ptr<PipelineState>> {
-    return CreatePipelineImpl(p_desc);
+auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &desc) -> Result<std::shared_ptr<PipelineState>> {
+    return CreatePipelineImpl(desc);
 }
 
-auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &p_desc) -> Result<std::shared_ptr<PipelineState>> {
-    return CreatePipelineImpl(p_desc);
+auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &desc) -> Result<std::shared_ptr<PipelineState>> {
+    return CreatePipelineImpl(desc);
 }
 
-auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &desc) -> Result<std::shared_ptr<PipelineState>> {
     GLuint program_id = glCreateProgram();
     std::vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {
@@ -174,22 +174,22 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
         }
     });
 
-    switch (p_desc.type) {
+    switch (desc.type) {
         case PipelineStateType::GRAPHICS: {
             Result<GLuint> result(0);
             do {
-                if (!p_desc.vs.empty()) {
-                    result = create_shader_helper(p_desc.vs, GL_VERTEX_SHADER);
+                if (!desc.vs.empty()) {
+                    result = create_shader_helper(desc.vs, GL_VERTEX_SHADER);
                     if (!result) { break; }
                 }
 #if !USING(USE_GLES3)
-                if (!p_desc.gs.empty()) {
-                    result = create_shader_helper(p_desc.gs, GL_GEOMETRY_SHADER);
+                if (!desc.gs.empty()) {
+                    result = create_shader_helper(desc.gs, GL_GEOMETRY_SHADER);
                     if (!result) { break; }
                 }
 #endif
-                if (!p_desc.ps.empty()) {
-                    result = create_shader_helper(p_desc.ps, GL_FRAGMENT_SHADER);
+                if (!desc.ps.empty()) {
+                    result = create_shader_helper(desc.ps, GL_FRAGMENT_SHADER);
                     if (!result) { break; }
                 }
             } while (0);
@@ -199,8 +199,8 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
         } break;
 #if !USING(USE_GLES3)
         case PipelineStateType::COMPUTE: {
-            DEV_ASSERT(!p_desc.cs.empty());
-            auto result = create_shader_helper(p_desc.cs, GL_COMPUTE_SHADER);
+            DEV_ASSERT(!desc.cs.empty());
+            auto result = create_shader_helper(desc.cs, GL_COMPUTE_SHADER);
             if (!result) {
                 return CAVE_ERROR(result.error());
             }
@@ -236,7 +236,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
         program_id = 0;
     }
 
-    auto program = std::make_shared<OpenGlPipelineState>(p_desc);
+    auto program = std::make_shared<OpenGlPipelineState>(desc);
     program->programId = program_id;
 
     // set constants
@@ -258,16 +258,16 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &p_d
     }
 
     // Setup texture locations
-    auto set_location = [&](const char *p_name, int p_slot) {
-        const int location = glGetUniformLocation(program_id, p_name);
+    auto set_location = [&](const char *name, int slot) {
+        const int location = glGetUniformLocation(program_id, name);
 #if 0
         if (location < 0) {
-            LOG_WARN("{} not found, location {}", p_name, location);
+            LOG_WARN("{} not found, location {}", name, location);
         } else {
-            LOG_OK("{} found, location {}", p_name, location);
+            LOG_OK("{} found, location {}", name, location);
         }
 #endif
-        glUniform1i(location, p_slot);
+        glUniform1i(location, slot);
     };
     set_location("SPIRV_Cross_Combinedt_TextureLightings_linearClampSampler", 0);
     set_location("SPIRV_Cross_Combinedt_BloomInputTextureSPIRV_Cross_DummySampler", 0);

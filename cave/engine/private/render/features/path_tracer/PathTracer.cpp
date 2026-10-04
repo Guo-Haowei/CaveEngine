@@ -215,7 +215,7 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     GpuScene gpu_scene;
 
     Stopwatch stopwatch;
-    stopwatch.Start();
+    stopwatch.start();
 
     // meshes
     for (auto [id, renderer] : p_scene.view<MeshRendererComponent>()) {
@@ -254,9 +254,9 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     m_ptVertexBuffer = *CreateBuffer(gm, GetGlobalPtVerticesSlot(), gpu_scene.vertices);
     m_ptIndexBuffer = *CreateBuffer(gm, GetGlobalPtIndicesSlot(), gpu_scene.indices);
 
-    stopwatch.Stop();
+    stopwatch.stop();
     LOG_INFO("Path tracer scene loaded in {}, contains {} triangles, {} BVH",
-             stopwatch.Elapsed().ToString(),
+             stopwatch.elapsed().ToString(),
              triangle_count,
              bvh_count);
 

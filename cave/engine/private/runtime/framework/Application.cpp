@@ -169,16 +169,16 @@ auto Application::initialize() -> Result<void> {
     }
 
     for (IService* module : m_subsystems) {
-        m_stopwatch.Restart();
+        m_stopwatch.restart();
         if (auto res = module->Initialize(); !res) {
             LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
             return CAVE_ERROR(res.error());
         }
-        m_stopwatch.Stop();
-        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        m_stopwatch.stop();
+        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.elapsed().ToString());
     }
 
-    m_stopwatch.Restart();
+    m_stopwatch.restart();
     return Result<void>();
 }
 
@@ -201,7 +201,7 @@ void Application::finalize() {
 }
 
 float Application::updateTime() {
-    const Nanoseconds elapsed = m_stopwatch.Restart();
+    const Nanoseconds elapsed = m_stopwatch.restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
     return math::min(elapsed_sec, 0.5f);
