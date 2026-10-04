@@ -60,13 +60,13 @@ struct GpuPtMaterial {
     float metallic;
 };
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 static_assert(sizeof(GpuPtBvh) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtVertex) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtIndex) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtMesh) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
-#endif  // __cplusplus
+#endif
 
 #define SBUFFER_LIST                                         \
     SBUFFER(ParticleCounter, GlobalParticleCounter, 16, 511) \
