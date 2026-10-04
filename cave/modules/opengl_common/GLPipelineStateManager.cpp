@@ -2,6 +2,8 @@
 
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
+
+#include "GLDefines.h"
 #include "GLHelpers.h"
 
 #include <fstream>
@@ -110,16 +112,9 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     std::string fullsource;
     if (!is_generated) {
         fullsource =
-            "#version 460 core\n"
-            // "#extension GL_ARB_bindless_texture : require\n"
-            "#define GLSL_LANG 1\n"
-            "";
-
-#if 0
-         for (const auto &define : p_defines) {
-             fullsource.append(std::format("#define {} {}\n", define.name, define.value));
-         }
-#endif
+            "#version " CAVE_GLSL_VERSION_STRING
+            " core\n"
+            "#define GLSL_LANG 1\n";
     }
 
     fullsource.append(*result);

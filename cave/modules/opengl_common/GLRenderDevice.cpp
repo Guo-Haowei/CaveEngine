@@ -178,8 +178,8 @@ auto GLRenderDevice::CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::sh
 }
 
 auto GLRenderDevice::CreateMeshImpl(const GpuMeshDesc& p_desc,
-                                                 std::span<const GpuBufferDesc> p_vb_descs,
-                                                 const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
+                                    std::span<const GpuBufferDesc> p_vb_descs,
+                                    const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     // create VAO
     uint32_t vao;
     glGenVertexArrays(1, &vao);
