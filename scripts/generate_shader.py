@@ -32,14 +32,14 @@ input_shaders = [
     'shadowmap_point.ps',
     'cube_map.vs',
     'to_cube_map.ps',
-    'skybox.vs',
-    'skybox.ps',
+    # 'skybox.vs',
+    # 'skybox.ps',
     # 'shadow.vs',
     # 'screenspace_quad.vs',
-    'primitive.vs',
-    'primitive.ps',
+    # 'primitive.vs',
+    # 'primitive.ps',
     # @TODO: get rid of ui_overlay shaders, they are the same as primitive shaders
-    'ui_overlay.vs',
+    # 'ui_overlay.vs',
 ]
 
 def insert_file_name(file_path):
