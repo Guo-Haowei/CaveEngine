@@ -1,6 +1,7 @@
 #pragma once
 #include "cave/core/diagnostics/Command.h"
 #include "cave/core/time/FrameTime.h"
+#include "cave/runtime/framework/IService.h"
 
 #include "engine/private/render/renderer/CanvasRenderer.h"
 #include "engine/private/runtime/view/ResolvedView.h"
@@ -13,6 +14,10 @@ namespace cave { struct FrameData; }
 
 namespace cave::render {
 
+struct RendererCapabilities {
+    bool canRunBloom = false;
+};
+
 class UIRenderer : public CanvasRenderer {
 public:
     using CanvasRenderer::CanvasRenderer;
@@ -23,13 +28,14 @@ public:
     using CanvasRenderer::CanvasRenderer;
 };
 
-class Renderer {
+class Renderer : public IService {
 public:
     Renderer(EngineServices& services);
     ~Renderer();
 
     void tick(const FrameTime& frame, std::span<const ResolvedView> views);
 
+    const RendererCapabilities& getCapabilities() const;
     // @TODO: instead, create renderer after project selected
     void setMode(bool is_2d);
 
@@ -43,6 +49,10 @@ public:
 #if USING(USE_COMMAND)
     bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
 #endif
+
+protected:
+    auto InitializeImpl() -> Result<void> final;
+    void FinalizeImpl() final;
 
 private:
     class Impl;

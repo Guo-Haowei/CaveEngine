@@ -163,7 +163,8 @@ protected:
     virtual void updateEmitters(const Scene& scene) = 0;
 
     RenderCapabilities m_capabilities{};
- private:
+
+private:
     rhi::Backend m_backend;
 };
 

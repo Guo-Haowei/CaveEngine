@@ -192,7 +192,7 @@ auto ImGuiService::InitializeImpl() -> Result<void> {
 
     ImGuiIO& io = ImGui::GetIO();
     // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
-    const float scale = 1.5f;
+    const float scale = 1.0f;
     const float base_font_size = 16.0f * scale;
     const float icon_font_size = base_font_size * 2.0f / 3.0f;
 

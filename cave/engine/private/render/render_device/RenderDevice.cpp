@@ -69,7 +69,7 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
 
     DEV_ASSERT(m_pipeline_state_manager);
 
-    if (auto res = m_pipeline_state_manager->initialize(); !res) {
+    if (auto res = m_pipeline_state_manager->initialize(m_capabilities); !res) {
         return CAVE_ERROR(res.error());
     }
 

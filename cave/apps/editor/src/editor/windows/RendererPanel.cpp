@@ -13,30 +13,41 @@
 #include "editor/EditorDvars.h"
 #include "editor/EditorState.h"
 
+#include "engine/private/render/renderer/Renderer.h"
 // @TODO: remove
 #include "engine/private/renderer/graphics_dvars.h"
 
 namespace cave {
 
-static void CollapseWindow(const std::string& p_window_name, std::function<void(void)>&& p_funcion) {
+RendererPanel::RendererPanel(EditorState& editor)
+    : EditorWindow(editor)
+    , m_renderer(m_engine_services.renderer()) {}
+
+static void CollapseWindow(const std::string& window_name,
+                           std::function<void(void)>&& func,
+                           bool disabled = false) {
     const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
                                      ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap |
                                      ImGuiTreeNodeFlags_FramePadding;
     {
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
         ImGui::Separator();
-        bool open = ImGui::TreeNodeEx(p_window_name.c_str(), flags, "%s", p_window_name.c_str());
+        bool open = ImGui::TreeNodeEx(window_name.c_str(), flags, "%s", window_name.c_str());
         ImGui::PopStyleVar();
 
         if (open) {
-            p_funcion();
+            if (disabled) ImGui::BeginDisabled();
+            func();
             ImGui::TreePop();
+            if (disabled) ImGui::EndDisabled();
         }
     }
 }
 
 void RendererPanel::drawUIImpl() {
     CAVE_PROFILE_EVENT();
+
+    const render::RendererCapabilities& capabilities = m_renderer.getCapabilities();
 
     ImGui::TextUnformatted("Debug");
     ImGui::Text("Frame rate:%.2f", ImGui::GetIO().Framerate);
@@ -53,8 +64,7 @@ void RendererPanel::drawUIImpl() {
 
     CollapseWindow("Bloom", []() {
         ImGui::Checkbox("enable", (bool*)DVAR_GET_POINTER(gfx_enable_bloom));
-        ImGui::DragFloat("threshold", (float*)DVAR_GET_POINTER(gfx_bloom_threshold), 0.01f, 0.0f, 3.0f);
-    });
+        ImGui::DragFloat("threshold", (float*)DVAR_GET_POINTER(gfx_bloom_threshold), 0.01f, 0.0f, 3.0f); }, !capabilities.canRunBloom);
 
     CollapseWindow("SSAO", []() {
         ImGui::Checkbox("enable", (bool*)DVAR_GET_POINTER(gfx_ssao_enabled));

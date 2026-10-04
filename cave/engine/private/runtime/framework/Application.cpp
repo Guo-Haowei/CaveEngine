@@ -96,8 +96,8 @@ auto Application::setupModules() -> Result<void> {
                                             m_app_spec.backend == rhi::Backend::OpenGL);
     m_engine_services.view_manager = m_view_manager.get();
 
-    m_renderer = MakeOwner<render::Renderer>(m_engine_services);
-    m_engine_services.renderer_ = m_renderer.get();
+    m_renderer = new render::Renderer(m_engine_services);
+    m_engine_services.renderer_ = m_renderer;
 
     m_scene_scheduler = MakeOwner<SceneScheduler>(m_engine_services);
 
@@ -126,6 +126,7 @@ auto Application::setupModules() -> Result<void> {
     registerModule(m_input_service);
     registerModule(m_display_service);
     registerModule(m_render_device);
+    registerModule(m_renderer);
 
     if (m_app_spec.enableImgui) {
         m_imgui = new ImGuiService(m_app_spec.backend);

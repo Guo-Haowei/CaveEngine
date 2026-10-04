@@ -70,7 +70,6 @@ protected:
     Owner<SceneScheduler> m_scene_scheduler;
     Owner<ViewManager> m_view_manager;
     Owner<UIRuntime> m_ui_runtime;
-    Owner<render::Renderer> m_renderer;
 
     // @TODO: do not use raw pointers
     ImGuiService* m_imgui{};
@@ -81,6 +80,7 @@ protected:
     AssetRegistry* m_asset_registry{};
     IAssetManager* m_asset_manager{};
     render::IRenderDevice* m_render_device{};
+    render::Renderer* m_renderer;
 };
 
 }  // namespace cave

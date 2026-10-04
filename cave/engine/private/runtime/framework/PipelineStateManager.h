@@ -9,7 +9,7 @@ namespace cave::render {
 using rhi::Backend;
 
 class IRenderDevice;
-struct RenderCapabilities; 
+struct RenderCapabilities;
 
 class PipelineStateManager {
 public:
