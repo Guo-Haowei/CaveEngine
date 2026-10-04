@@ -20,7 +20,7 @@ D3d11PipelineStateManager::D3d11PipelineStateManager(IRenderDevice* p_device) no
     m_defines.push_back({ nullptr, nullptr });
 }
 
-auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(m_device);
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
@@ -28,7 +28,7 @@ auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA);
     }
 
-    auto pipeline_state = std::make_shared<D3d11PipelineState>(p_desc);
+    auto pipeline_state = MakeOwner<D3d11PipelineState>(p_desc);
 
     HRESULT hr = S_OK;
     ComPtr<ID3DBlob> vsblob;
@@ -126,7 +126,7 @@ auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc
     return pipeline_state;
 }
 
-auto D3d11PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d11PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(RenderDevice::singletonPtr());
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
@@ -135,7 +135,7 @@ auto D3d11PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc)
         return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA);
     }
 
-    auto pipeline_state = std::make_shared<D3d11PipelineState>(p_desc);
+    auto pipeline_state = MakeOwner<D3d11PipelineState>(p_desc);
 
     auto res = CompileShader(p_desc.cs, "cs_5_0", m_defines.data());
     if (!res) {

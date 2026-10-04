@@ -41,19 +41,19 @@ using math::Vec4f;
 
 class Renderer::Impl {
 public:
-    Impl(EngineServices& services)
-        : m_services(services)
-        , m_device(services.renderDevice())
-        , m_transient_pool(m_device)
-        , m_env(m_transient_pool, m_device)
-        , m_ssao(m_device) {}
+    Impl(EngineServices& services);
+
+    auto initialize() -> Result<void>;
+    void finalize();
 
     void tick(const FrameTime& time, std::span<const ResolvedView> views);
+
+    const RendererCapabilities& getCapabilities() const { return m_capabilities; }
 
     void setMode(bool is_2d) { m_is_2d = is_2d; }
 
 #if USING(USE_COMMAND)
-    bool Cmd_dump(CommandContext& ctx, const CommandArgs& args);
+    bool cmdDump(CommandContext& ctx, const CommandArgs& args);
 #endif
 
 private:
@@ -77,24 +77,27 @@ private:
 private:
     EngineServices& m_services;
     IRenderDevice& m_device;
-    RenderSceneBuilder scene_builder_;
-    HashMap<SceneId, RenderScene> scene_cache_;
+    RenderSceneBuilder m_scene_builder;
+    HashMap<SceneId, RenderScene> m_scene_cache;
 
     // features
     TransientPool m_transient_pool;
     EnvironmentFeature m_env;
-    ShadowFeature shadow_;
+    ShadowFeature m_shadow;
     SsaoFeature m_ssao;
     PathTracerFeature m_pathtracer;
 
     GpuTextureId m_brdf{};
     GpuTextureId m_ltc1{};
     GpuTextureId m_ltc2{};
+
+    RendererCapabilities m_capabilities{};
     bool m_is_2d{ false };
 };
 
 Renderer::Renderer(EngineServices& services)
-    : m_impl(MakeOwner<Impl>(services))
+    : IService("Renderer")
+    , m_impl(MakeOwner<Impl>(services))
     , m_overlay_renderer(MakeOwner<OverlayRenderer>(services.assetRegistry()))
     , m_ui_renderer(MakeOwner<UIRenderer>(services.assetRegistry())) {
 
@@ -104,8 +107,20 @@ Renderer::Renderer(EngineServices& services)
 
 Renderer::~Renderer() = default;
 
+auto Renderer::InitializeImpl() -> Result<void> {
+    return m_impl->initialize();
+}
+
+void Renderer::FinalizeImpl() {
+    m_impl->finalize();
+}
+
 void Renderer::tick(const FrameTime& time, std::span<const ResolvedView> resolved_views) {
     m_impl->tick(time, resolved_views);
+}
+
+const RendererCapabilities& Renderer::getCapabilities() const {
+    return m_impl->getCapabilities();
 }
 
 void Renderer::setMode(bool is_2d) {
@@ -228,8 +243,25 @@ static bool updateUIBuffer(IRenderDevice& device,
     GpuBufferDesc desc = gpu_buffer->desc;
     desc.element_count = (uint32_t)data.size();
     desc.initial_data = data.data();
-    device.UpdateBuffer(desc, gpu_buffer);
+    device.updateBuffer(desc, gpu_buffer);
     return true;
+}
+
+Renderer::Impl::Impl(EngineServices& services)
+    : m_services(services)
+    , m_device(services.renderDevice())
+    , m_transient_pool(m_device)
+    , m_env(m_transient_pool, m_device)
+    , m_ssao(m_device) {
+}
+
+auto Renderer::Impl::initialize() -> Result<void> {
+    m_capabilities.canRunBloom = m_device.getCapabilities().supportComputeShaders;
+    m_capabilities.canRunIBL = m_device.getCapabilities().supportIBL;
+    return Result<void>();
+}
+
+void Renderer::Impl::finalize() {
 }
 
 void Renderer::Impl::tick(const FrameTime& time, std::span<const ResolvedView> views) {
@@ -267,8 +299,8 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
     RenderOptions options = {
         .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
-        .enable_bloom = DVAR_GET_BOOL(gfx_enable_bloom),
-        .enable_ibl = DVAR_GET_BOOL(gfx_enable_ibl),
+        .enable_bloom = m_capabilities.canRunBloom && DVAR_GET_BOOL(gfx_enable_bloom),
+        .enable_ibl = m_capabilities.canRunIBL && DVAR_GET_BOOL(gfx_enable_ibl),
 
         .vxgiEnabled = false,
         .debugVoxelId = DVAR_GET_INT(gfx_debug_vxgi_voxel),
@@ -284,7 +316,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
 
     for (const ResolvedView& view : views) {
         RenderScene& render_scene = getOrCreateRenderScene(view.scene_id);
-        scene_builder_.BuildFull(*view.scene, render_scene);
+        m_scene_builder.BuildFull(*view.scene, render_scene);
 
         plan.views.emplace_back(view);
 
@@ -321,7 +353,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
                                               const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
     if (!m_brdf) {
         Ref<ImageAsset> image = m_services.assetManager().findImage("brdf.hdr");
-        m_brdf = m_device.CreateTexture(image.get());
+        m_brdf = m_device.createTexture(image.get());
     }
     if (!m_ltc1) {
         m_ltc1 = CreateLTC1(m_device);
@@ -338,7 +370,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
 
     auto env_outputs = m_env.Build(graph, plan);
 
-    auto shadow_outputs = shadow_.Build(graph, plan);
+    auto shadow_outputs = m_shadow.Build(graph, plan);
 
     // @TODO: refactor the following
     auto prepass_outputs = graph.addDepthPrepass();
@@ -438,15 +470,15 @@ auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
 }
 
 RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId scene_id) {
-    return scene_cache_[scene_id];
+    return m_scene_cache[scene_id];
 }
 
 #if USING(USE_COMMAND)
-bool Renderer::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
-    return m_impl->Cmd_dump(ctx, args);
+bool Renderer::cmdDump(CommandContext& ctx, const CommandArgs& args) {
+    return m_impl->cmdDump(ctx, args);
 }
 
-bool Renderer::Impl::Cmd_dump(CommandContext& ctx, const CommandArgs& args) {
+bool Renderer::Impl::cmdDump(CommandContext& ctx, const CommandArgs& args) {
     RenderPoolDump_Cmd(m_transient_pool, ctx, args);
     return true;
 }

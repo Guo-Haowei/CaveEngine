@@ -56,9 +56,9 @@ void main() {
         N = normalize(ps_in.N);
     }
 
-    const float emissive = c_emissivePower;
-    const vec3 view_position = ps_in.position;
-    const vec3 world_position = (c_invCamView * vec4(view_position, 1.0f)).xyz;
+    float emissive = c_emissivePower;
+    vec3 view_position = ps_in.position;
+    vec3 world_position = (c_invCamView * vec4(view_position, 1.0f)).xyz;
 
     out_color.rgb = compute_lighting(t_ShadowMap,
                                      base_color,

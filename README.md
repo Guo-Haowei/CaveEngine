@@ -8,7 +8,7 @@ Yet another game engine.
 ```shell
 $ sh scripts/build_assimp.sh
 $ mkdir build && cd build
-$ cmake ..
+$ cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 $ cmake --build .
 ```
 

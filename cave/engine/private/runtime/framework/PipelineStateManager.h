@@ -9,15 +9,16 @@ namespace cave::render {
 using rhi::Backend;
 
 class IRenderDevice;
+struct RenderCapabilities;
 
 class PipelineStateManager {
 public:
     explicit PipelineStateManager(Backend backend) noexcept
-        : backend_(backend) {}
+        : m_backend(backend) {}
 
     virtual ~PipelineStateManager() = default;
 
-    auto initialize() -> Result<void>;
+    auto initialize(const RenderCapabilities& capabilities) -> Result<void>;
     void finalize();
 
     PipelineState* findPSO(PipelineStateName name);
@@ -26,15 +27,15 @@ public:
     static const BlendDesc& blendDescDisabled();
 
 protected:
-    virtual auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<std::shared_ptr<PipelineState>> = 0;
-    virtual auto computePipeline(const PipelineStateDesc& desc) -> Result<std::shared_ptr<PipelineState>> = 0;
+    virtual auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> = 0;
+    virtual auto computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> = 0;
 
-    const Backend backend_;
+    const Backend m_backend;
 
 private:
     auto create(PipelineStateName name, const PipelineStateDesc& desc) -> Result<void>;
 
-    std::array<std::shared_ptr<PipelineState>, PSO_NAME_MAX> pso_cache_;
+    std::array<Owner<PipelineState>, PSO_NAME_MAX> m_pso_cache;
 };
 
 }  // namespace cave::render

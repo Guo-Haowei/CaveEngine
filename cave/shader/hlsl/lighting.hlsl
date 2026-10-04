@@ -70,8 +70,8 @@ float3 compute_lighting(Texture2D shadowMap,
                         float metallic,
                         float roughness,
                         float emissive) {
-    const float3 V = normalize(c_cameraPosition - world_position);
-    const float NdotV = clamp(dot(N, V), 0.0, 1.0);
+    float3 V = normalize(c_cameraPosition - world_position);
+    float NdotV = clamp(dot(N, V), 0.0, 1.0);
     float3 R = reflect(-V, N);
 
     float3 Lo = float3(0.0, 0.0, 0.0);
@@ -86,7 +86,7 @@ float3 compute_lighting(Texture2D shadowMap,
         int light_type = c_lights[light_idx].type;
         float3 direct_lighting = float3(0.0, 0.0, 0.0);
         float shadow = 0.0;
-        const float3 radiance = light.color;
+        float3 radiance = light.color;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
                 float3 L = light.position;
@@ -108,7 +108,7 @@ float3 compute_lighting(Texture2D shadowMap,
 
                 if (atten > 0.01) {
                     float3 L = normalize(delta);
-                    const float3 H = normalize(V + L);
+                    float3 H = normalize(V + L);
                     direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
 #if 0
                     if (light.cast_shadow == 1) {

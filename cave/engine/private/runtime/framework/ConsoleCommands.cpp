@@ -47,7 +47,7 @@ void RegisterCommands::render(CommandRegistry& cmd_reg) {
         .help = "List textures in transient pool.",
         .usage = "render.pool.dump",
         .fn = [](CommandContext& ctx, const CommandArgs& args) {
-            return ctx.services.renderer().Cmd_dump(ctx, args);
+            return ctx.services.renderer().cmdDump(ctx, args);
         },
     });
 }

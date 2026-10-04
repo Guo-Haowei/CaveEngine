@@ -22,24 +22,24 @@ input_shaders = [
     # 'mesh.vs',
     # 'gbuffer.ps',
     'highlight.ps',
-    'particle_draw.vs',
-    'particle_draw.ps',
-    'particle_initialization.cs',
-    'particle_kickoff.cs',
-    'particle_emission.cs',
-    'particle_simulation.cs',
+    # 'particle_draw.vs',
+    # 'particle_draw.ps',
+    # 'particle_initialization.cs',
+    # 'particle_kickoff.cs',
+    # 'particle_emission.cs',
+    # 'particle_simulation.cs',
     'shadowmap_point.vs',
     'shadowmap_point.ps',
     'cube_map.vs',
     'to_cube_map.ps',
-    'skybox.vs',
-    'skybox.ps',
-    'shadow.vs',
-    'screenspace_quad.vs',
-    'primitive.vs',
-    'primitive.ps',
+    # 'skybox.vs',
+    # 'skybox.ps',
+    # 'shadow.vs',
+    # 'screenspace_quad.vs',
+    # 'primitive.vs',
+    # 'primitive.ps',
     # @TODO: get rid of ui_overlay shaders, they are the same as primitive shaders
-    'ui_overlay.vs',
+    # 'ui_overlay.vs',
 ]
 
 def insert_file_name(file_path):
@@ -92,7 +92,7 @@ def generate(hlsl_source):
     for generate_file in generate_files:
         generated_file_name = generate_file['filename']
         run_command(generate_file['command'])
-        run_command([spriv_cross_path, output_spv, '--version', '450', '--output', generated_file_name])
+        run_command([spriv_cross_path, output_spv, '--version', '410', '--output', generated_file_name])
         print(f'file "{generated_file_name}" generated')
         insert_file_name(generated_file_name)
     return

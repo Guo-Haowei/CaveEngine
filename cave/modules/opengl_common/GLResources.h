@@ -5,7 +5,7 @@
 
 #include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/gpu_resource.h"
-#include "opengl_helpers_forward.h"
+#include "GLDefines.h"
 
 namespace cave {
 

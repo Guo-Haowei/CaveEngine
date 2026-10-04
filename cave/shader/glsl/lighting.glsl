@@ -102,8 +102,8 @@ vec3 area_light(mat3 Minv, vec3 N, vec3 V, vec3 world_position, vec4 p_t2, vec3 
     vec3 diffuse = LTC_Evaluate(N, V, world_position, mat3(1), p_points);
     vec3 specular = LTC_Evaluate(N, V, world_position, Minv, p_points);
 
-    const vec3 kS = p_specular;
-    const vec3 kD = p_diffuse;
+    vec3 kS = p_specular;
+    vec3 kD = p_diffuse;
 
     specular *= kS * p_t2.x + (1.0 - kS) * p_t2.y;
     return (specular + kD * diffuse);
@@ -120,8 +120,8 @@ vec3 compute_lighting(sampler2D shadow_map,
         return vec3(emissive * base_color);
     }
 
-    const vec3 V = normalize(c_cameraPosition - world_position);
-    const float NdotV = max(dot(N, V), 0.0);
+    vec3 V = normalize(c_cameraPosition - world_position);
+    float NdotV = max(dot(N, V), 0.0);
     vec3 R = reflect(-V, N);
 
     vec3 Lo = vec3(0.0);
@@ -149,15 +149,15 @@ vec3 compute_lighting(sampler2D shadow_map,
         int light_type = c_lights[light_idx].type;
         vec3 direct_lighting = vec3(0.0);
         float shadow = 0.0;
-        const vec3 radiance = light.color;
+        vec3 radiance = light.color;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
                 vec3 L = light.position;
                 float atten = 1.0;
-                const vec3 H = normalize(V + L);
+                vec3 H = normalize(V + L);
                 direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
                 if (light.cast_shadow == 1) {
-                    const float NdotL = max(dot(N, L), 0.0);
+                    float NdotL = max(dot(N, L), 0.0);
                     shadow = shadowTest(shadow_map, light, world_position, NdotL);
                     direct_lighting *= (1.0 - shadow);
                 }
@@ -170,7 +170,7 @@ vec3 compute_lighting(sampler2D shadow_map,
                 atten = 1.0 / atten;
                 if (atten > 0.01) {
                     vec3 L = normalize(delta);
-                    const vec3 H = normalize(V + L);
+                    vec3 H = normalize(V + L);
                     direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
 #if 0
                     if (light.cast_shadow == 1) {
@@ -216,9 +216,9 @@ vec3 compute_lighting(sampler2D shadow_map,
 
 #if ENABLE_VXGI
     if (c_enableVxgi == 1) {
-        const vec3 F = FresnelSchlickRoughness(NdotV, F0, roughness);
-        const vec3 kS = F;
-        const vec3 kD = (1.0 - kS) * (1.0 - metallic);
+        vec3 F = FresnelSchlickRoughness(NdotV, F0, roughness);
+        vec3 kS = F;
+        vec3 kD = (1.0 - kS) * (1.0 - metallic);
 
         // indirect diffuse
         vec3 diffuse = base_color.rgb * cone_diffuse(t_VoxelLighting, world_position, N);

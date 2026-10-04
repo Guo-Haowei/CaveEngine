@@ -41,7 +41,7 @@ static auto CreateUniformCheckSize(RenderDevice& p_graphics_manager, uint32_t p_
     buffer_desc.slot = T::GetUniformBufferSlot();
     buffer_desc.element_count = p_max_count;
     buffer_desc.element_size = sizeof(T);
-    return p_graphics_manager.CreateConstantBuffer(buffer_desc);
+    return p_graphics_manager.createConstantBuffer(buffer_desc);
 }
 
 auto RenderDevice::InitializeImpl() -> Result<void> {
@@ -50,7 +50,7 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
     const int num_frames = (m_app->backend() == Backend::Direct3D12) ? NUM_FRAMES_IN_FLIGHT : 1;
     m_frameContexts.resize(num_frames);
     for (int i = 0; i < num_frames; ++i) {
-        m_frameContexts[i] = CreateFrameContext();
+        m_frameContexts[i] = createFrameContext();
     }
     if (auto res = InitializeInternal(); !res) {
         return CAVE_ERROR(res.error());
@@ -67,45 +67,45 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
         frame_context.perFrameCb = *CreateUniformCheckSize<PerFrameConstantBuffer>(*this, 1);
     }
 
-    DEV_ASSERT(m_pipelineStateManager);
+    DEV_ASSERT(m_pipeline_state_manager);
 
-    if (auto res = m_pipelineStateManager->initialize(); !res) {
+    if (auto res = m_pipeline_state_manager->initialize(m_capabilities); !res) {
         return CAVE_ERROR(res.error());
     }
 
     // create meshes
     // @TODO: refactor
-    m_skybox_buffers = *CreateMesh(MakeSkyBoxMesh());
+    m_skybox_buffers = *createMesh(MakeSkyBoxMesh());
 
     m_initialized = true;
     return Result<void>();
 }
 
-void RenderDevice::EventReceived(std::shared_ptr<IEvent> p_event) {
+void RenderDevice::eventReceived(std::shared_ptr<IEvent> p_event) {
     if (ResizeEvent* e = dynamic_cast<ResizeEvent*>(p_event.get()); e) {
-        OnWindowResize(e->GetWidth(), e->GetHeight());
+        onWindowResize(e->GetWidth(), e->GetHeight());
     }
 }
 
-void RenderDevice::SetPipelineState(PipelineStateName p_name) {
-    SetPipelineStateImpl(p_name);
+void RenderDevice::setPipelineState(PipelineStateName p_name) {
+    setPipelineStateImpl(p_name);
 }
 
-void RenderDevice::RequestTexture(ImageAsset* p_image) {
+void RenderDevice::requestTexture(ImageAsset* p_image) {
     m_loadedImages.push(p_image);
 }
 
-void RenderDevice::RequestMesh(MeshAsset* p_mesh) {
+void RenderDevice::requestMesh(MeshAsset* p_mesh) {
     m_loadedMeshes.push(p_mesh);
 }
 
-void RenderDevice::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
+void RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
     CRASH_NOW();
 }
 
-auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+auto RenderDevice::createMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
     constexpr uint32_t count = std::to_underlying(VertexAttributeName::COUNT);
     std::array<VertexAttributeName, count> attribs = {
         VertexAttributeName::POSITION,
@@ -165,7 +165,7 @@ auto RenderDevice::CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
         ib_desc_ptr = &ib_desc;
     }
 
-    auto ret = CreateMeshImpl(desc, vb_descs, ib_desc_ptr);
+    auto ret = createMeshImpl(desc, vb_descs, ib_desc_ptr);
     if (!ret) {
         return CAVE_ERROR(ret.error());
     }
@@ -229,14 +229,14 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
     }
 }
 
-Ref<GpuTexture> RenderDevice::CreateTexture(ImageAsset* image) {
+Ref<GpuTexture> RenderDevice::createTexture(ImageAsset* image) {
     DEV_ASSERT(image);
 
     GpuTextureDesc texture_desc{};
     SamplerDesc sampler_desc{};
     FillTextureAndSamplerDesc(image, texture_desc, sampler_desc);
 
-    image->gpu_texture = CreateTexture(texture_desc, sampler_desc);
+    image->gpu_texture = createTexture(texture_desc, sampler_desc);
     return image->gpu_texture;
 }
 
@@ -251,7 +251,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
         loaded_images.pop();
 
         if (!image->gpu_texture) {
-            CreateTexture(image);
+            createTexture(image);
         }
     }
     auto loaded_meshes = m_loadedMeshes.pop_all();
@@ -261,7 +261,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
         loaded_meshes.pop();
 
         if (!mesh->gpuResource) {
-            auto res = CreateMesh(*mesh);
+            auto res = createMesh(*mesh);
             DEV_ASSERT(res);
         }
     }
@@ -269,26 +269,26 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
     // @TODO: support multiple views
     {
         CAVE_PROFILE_EVENT("Render");
-        BeginFrame();
+        beginFrame();
 
         int idx = 0;
         for (const FrameData& data : p_submission->frame_data) {
 
-            auto& frame = GetCurrentFrame();
-            UpdateConstantBuffer(frame.batchCb.get(), data.batchCache.buffer);
-            UpdateConstantBuffer(frame.materialCb.get(), data.materialCache.buffer);
-            UpdateConstantBuffer(frame.boneCb.get(), data.boneCache.buffer);
-            UpdateConstantBuffer(frame.passCb.get(), data.passCache);
+            auto& frame = getCurrentFrame();
+            updateConstantBuffer(frame.batchCb.get(), data.batchCache.buffer);
+            updateConstantBuffer(frame.materialCb.get(), data.materialCache.buffer);
+            updateConstantBuffer(frame.boneCb.get(), data.boneCache.buffer);
+            updateConstantBuffer(frame.passCb.get(), data.passCache);
             // UpdateConstantBuffer(frame.emitterCb.get(), data->emitterCache);
 
-            UpdateConstantBuffer<PointShadowConstantBuffer, 6 * MAX_POINT_LIGHT_SHADOW_COUNT>(
+            updateConstantBuffer<PointShadowConstantBuffer, 6 * MAX_POINT_LIGHT_SHADOW_COUNT>(
                 frame.pointShadowCb.get(),
                 data.pointShadowCache);
-            UpdateConstantBuffer(frame.perFrameCb.get(),
+            updateConstantBuffer(frame.perFrameCb.get(),
                                  &data.perFrameCache,
                                  sizeof(PerFrameConstantBuffer));
 
-            BindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
+            bindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
 
             auto& graph = p_submission->render_graph[idx++];
             for (const CompiledPass& pass : graph->GetCompiledPass()) {
@@ -296,37 +296,37 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
             }
         }
 
-        Render();
-        EndFrame();
-        Present();
-        MoveToNextFrame();
+        render();
+        endFrame();
+        present();
+        moveToNextFrame();
     }
 }
 
-void RenderDevice::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
+void RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
 }
 
-void RenderDevice::BeginFrame() {
+void RenderDevice::beginFrame() {
 }
 
-void RenderDevice::EndFrame() {
+void RenderDevice::endFrame() {
 }
 
-void RenderDevice::MoveToNextFrame() {
+void RenderDevice::moveToNextFrame() {
 }
 
-Ref<FrameContext> RenderDevice::CreateFrameContext() {
+Ref<FrameContext> RenderDevice::createFrameContext() {
     return MakeRef<FrameContext>();
 }
 
-Ref<GpuTexture> RenderDevice::CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
-    auto texture = CreateTextureImpl(p_texture_desc, p_sampler_desc);
+Ref<GpuTexture> RenderDevice::createTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+    auto texture = createTextureImpl(p_texture_desc, p_sampler_desc);
     return texture;
 }
 
-void RenderDevice::UpdateEmitters(const Scene& p_scene) {
+void RenderDevice::updateEmitters(const Scene& p_scene) {
     unused(p_scene);
 #if 0
     for (auto [id, emitter] : p_scene.m_ParticleEmitterComponents) {
@@ -365,9 +365,9 @@ void RenderDevice::UpdateEmitters(const Scene& p_scene) {
 #endif
 }
 
-void RenderDevice::DrawSkybox() {
-    SetMesh(m_skybox_buffers.get());
-    DrawElements(m_skybox_buffers->desc.drawCount);
+void RenderDevice::drawSkybox() {
+    setMesh(m_skybox_buffers.get());
+    drawElements(m_skybox_buffers->desc.drawCount);
 }
 
 void RenderDevice::beginPass(const CompiledPass& pass) {
@@ -375,14 +375,14 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
     for (int i = 0; i < (int)pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = pass.srvs[i].get()) {
             DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-            BindTexture(srv->desc.dimension, srv->GetHandle(), i);
+            bindTexture(srv->desc.dimension, srv->GetHandle(), i);
         }
     }
     // bind uavs
     for (int i = 0; i < (int)pass.uavs.size(); ++i) {
         if (GpuTexture* uav = pass.uavs[i].get()) {
             DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-            BindUnorderedAccessView(i, uav);
+            bindUnorderedAccessView(i, uav);
         }
     }
 
@@ -406,19 +406,19 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
     }
 
     if (has_rt_or_ds) {
-        SetRenderTargets(desc);
-        SetViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
+        setRenderTargets(desc);
+        setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
     }
 }
 
 void RenderDevice::endPass(const CompiledPass& p_pass) {
-    UnsetRenderTargets();
+    unsetRenderTargets();
 
     // unbind srvs
     for (int i = 0; i < (int)p_pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = p_pass.srvs[i].get()) {
             DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-            UnbindTexture(srv->desc.dimension, i);
+            unbindTexture(srv->desc.dimension, i);
         }
     }
 
@@ -426,8 +426,8 @@ void RenderDevice::endPass(const CompiledPass& p_pass) {
     for (int i = 0; i < (int)p_pass.uavs.size(); ++i) {
         if (GpuTexture* uav = p_pass.uavs[i].get()) {
             DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-            BindUnorderedAccessView(i, uav);
-            UnbindUnorderedAccessView(i);
+            bindUnorderedAccessView(i, uav);
+            unbindUnorderedAccessView(i);
         }
     }
 }

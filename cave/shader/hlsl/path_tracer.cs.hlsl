@@ -2,6 +2,7 @@
 #include "cbuffer.hlsl.h"
 #include "shader_defines.hlsl.h"
 #include "shader_resource_defines.hlsl.h"
+#include "structured_buffer.hlsl.h"
 
 // @NOTE: include this at last
 #include "shared_path_tracer.h"

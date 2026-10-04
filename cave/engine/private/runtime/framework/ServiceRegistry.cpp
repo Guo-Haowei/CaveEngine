@@ -9,13 +9,13 @@
 #if USING(PLATFORM_WINDOWS)
 #include "modules/d3d11/d3d11_graphics_manager.h"
 #include "modules/d3d12/d3d12_graphics_manager.h"
-#include "modules/opengl4/opengl4_graphics_manager.h"
+#include "modules/opengl4/GL4RenderDevice.h"
 // #include "modules/vk/vulkan_graphics_manager.h"
 #elif USING(PLATFORM_APPLE)
-#include "modules/opengl4/opengl4_graphics_manager.h"
+#include "modules/opengl4/GL4RenderDevice.h"
 #include "engine/private/drivers/metal/metal_graphics_manager.h"
 #elif USING(PLATFORM_WASM)
-#include "modules/opengles3/opengles3_graphics_manager.h"
+#include "modules/opengles3/GLES3RenderDevice.h"
 #endif
 
 namespace cave {
@@ -60,9 +60,9 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
 
     if (p_backend == Backend::OpenGL) {
 #if USING(PLATFORM_WASM)
-        return new OpenGLES3GraphicsManager;
+        return new GLES3RenderDevice;
 #else
-        return new OpenGL4GraphicsManager;
+        return new GL4RenderDevice;
 #endif
     }
 

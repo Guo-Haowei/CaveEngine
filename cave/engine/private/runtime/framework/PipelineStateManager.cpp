@@ -6,7 +6,10 @@
 
 namespace cave::render {
 
-#define CAVE_VXGI NOT_IN_USE
+#define CAVE_VXGI         NOT_IN_USE
+#define CAVE_PARTICLE     NOT_IN_USE
+#define CAVE_PATH_TRACER  NOT_IN_USE
+#define CAVE_POINT_SHADOW NOT_IN_USE
 
 const BlendDesc& PipelineStateManager::defaultBlendDesc() {
     return s_default_blend_state;
@@ -17,8 +20,8 @@ const BlendDesc& PipelineStateManager::blendDescDisabled() {
 }
 
 PipelineState* PipelineStateManager::findPSO(PipelineStateName p_name) {
-    DEV_ASSERT_INDEX(p_name, pso_cache_.size());
-    return pso_cache_[p_name].get();
+    DEV_ASSERT_INDEX(p_name, m_pso_cache.size());
+    return m_pso_cache[p_name].get();
 }
 
 auto PipelineStateManager::create(PipelineStateName p_name, const PipelineStateDesc& p_desc) -> Result<void> {
@@ -26,9 +29,9 @@ auto PipelineStateManager::create(PipelineStateName p_name, const PipelineStateD
         DEV_ASSERT(p_desc.depth_stencil_desc);
     }
 
-    ERR_FAIL_COND_V(pso_cache_[p_name] != nullptr, CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "pipeline already exists"));
+    ERR_FAIL_COND_V(m_pso_cache[p_name] != nullptr, CAVE_ERROR(ErrorCode::ERR_ALREADY_EXISTS, "pipeline already exists"));
 
-    std::shared_ptr<PipelineState> pipeline{};
+    Owner<PipelineState> pipeline{};
     switch (p_desc.type) {
         case PipelineStateType::GRAPHICS: {
             DEV_ASSERT(!p_desc.vs.empty());
@@ -39,7 +42,7 @@ auto PipelineStateManager::create(PipelineStateName p_name, const PipelineStateD
             if (!result) {
                 return CAVE_ERROR(result.error());
             }
-            pipeline = *result;
+            pipeline = std::move(*result);
         } break;
         case PipelineStateType::COMPUTE: {
             DEV_ASSERT(!p_desc.cs.empty());
@@ -47,7 +50,7 @@ auto PipelineStateManager::create(PipelineStateName p_name, const PipelineStateD
             if (!result) {
                 return CAVE_ERROR(result.error());
             }
-            pipeline = *result;
+            pipeline = std::move(*result);
         } break;
         default:
             CRASH_NOW();
@@ -58,15 +61,16 @@ auto PipelineStateManager::create(PipelineStateName p_name, const PipelineStateD
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create pipeline '{}'", EnumToString(p_name));
     }
 
-    pso_cache_[p_name] = pipeline;
+    m_pso_cache[p_name] = std::move(pipeline);
     return Result<void>();
 }
 
-Result<void> PipelineStateManager::initialize() {
+Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabilities) {
     if constexpr (USING(PLATFORM_WASM)) {
         return Result<void>();
     }
-    switch (backend_) {
+
+    switch (m_backend) {
         case Backend::Null:
         case Backend::Direct3D12:
         case Backend::Metal:
@@ -160,7 +164,7 @@ Result<void> PipelineStateManager::initialize() {
                                  .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                              });
 
-#pragma region PSO_PARTICLE
+#if USING(CAVE_PARTICLE)
     CREATE_PSO(PSO_PARTICLE_INIT, { .type = PipelineStateType::COMPUTE, .cs = "particle_initialization.cs" });
     CREATE_PSO(PSO_PARTICLE_KICKOFF, { .type = PipelineStateType::COMPUTE, .cs = "particle_kickoff.cs" });
     CREATE_PSO(PSO_PARTICLE_EMIT, { .type = PipelineStateType::COMPUTE, .cs = "particle_emission.cs" });
@@ -176,8 +180,9 @@ Result<void> PipelineStateManager::initialize() {
                                            .rtv_formats = { RT_FMT_LIGHTING },
                                            .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                                        });
-#pragma endregion PSO_PARTICLE
+#endif
 
+#if USING(CAVE_POINT_SHADOW)
     CREATE_PSO(PSO_POINT_SHADOW, {
                                      .vs = "shadowmap_point.vs",
                                      .ps = "shadowmap_point.ps",
@@ -188,6 +193,7 @@ Result<void> PipelineStateManager::initialize() {
                                      .num_render_targets = 0,
                                      .dsv_format = PixelFormat::D32_FLOAT,
                                  });
+#endif
 
     CREATE_PSO(PSO_HIGHLIGHT, {
                                   .vs = "screenspace_quad.vs",
@@ -221,11 +227,11 @@ Result<void> PipelineStateManager::initialize() {
                                      .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                                  });
 
-#pragma region PSO_BLOOM
-    CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
-    CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
-    CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
-#pragma endregion PSO_BLOOM
+    if (capabilities.supportComputeShaders) {
+        CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
+        CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
+        CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
+    }
 
     CREATE_PSO(PSO_ENV_SKYBOX, {
                                    .vs = "skybox.vs",
@@ -239,34 +245,34 @@ Result<void> PipelineStateManager::initialize() {
                                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                                });
 
-#pragma region PSO_ENV
-    CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
+    if (capabilities.supportIBL) {
+        CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
+                                                   .vs = "cube_map.vs",
+                                                   .ps = "to_cube_map.ps",
+                                                   .rasterizer_desc = &s_rasterizer_cull_back,
+                                                   .depth_stencil_desc = &s_default_depth_stencil,
+                                                   .input_layout_desc = &s_input_layout_mesh,
+                                                   .blend_desc = &s_default_blend_state,
+                                               });
+
+        CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
                                                .vs = "cube_map.vs",
-                                               .ps = "to_cube_map.ps",
+                                               .ps = "diffuse_irradiance.ps",
                                                .rasterizer_desc = &s_rasterizer_cull_back,
                                                .depth_stencil_desc = &s_default_depth_stencil,
                                                .input_layout_desc = &s_input_layout_mesh,
                                                .blend_desc = &s_default_blend_state,
                                            });
 
-    CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
-                                           .vs = "cube_map.vs",
-                                           .ps = "diffuse_irradiance.ps",
-                                           .rasterizer_desc = &s_rasterizer_cull_back,
-                                           .depth_stencil_desc = &s_default_depth_stencil,
-                                           .input_layout_desc = &s_input_layout_mesh,
-                                           .blend_desc = &s_default_blend_state,
-                                       });
-
-    CREATE_PSO(PSO_PREFILTER, {
-                                  .vs = "cube_map.vs",
-                                  .ps = "prefilter.ps",
-                                  .rasterizer_desc = &s_rasterizer_cull_back,
-                                  .depth_stencil_desc = &s_default_depth_stencil,
-                                  .input_layout_desc = &s_input_layout_mesh,
-                                  .blend_desc = &s_default_blend_state,
-                              });
-#pragma endregion PSO_ENV
+        CREATE_PSO(PSO_PREFILTER, {
+                                      .vs = "cube_map.vs",
+                                      .ps = "prefilter.ps",
+                                      .rasterizer_desc = &s_rasterizer_cull_back,
+                                      .depth_stencil_desc = &s_default_depth_stencil,
+                                      .input_layout_desc = &s_input_layout_mesh,
+                                      .blend_desc = &s_default_blend_state,
+                                  });
+    }
 
     // @TODO: merge primitive and overlay
     CREATE_PSO(PSO_PRIMITIVE,
@@ -294,11 +300,8 @@ Result<void> PipelineStateManager::initialize() {
                                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                                });
 
-    CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
-
-    // @HACK: only support this many shaders
-    if (backend_ != Backend::OpenGL) {
-        return Result<void>();
+    if (capabilities.supportComputeShaders) {
+        CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
     }
 
 #if USING(CAVE_VXGI)
@@ -323,24 +326,14 @@ Result<void> PipelineStateManager::initialize() {
                                 });
 #endif
 
-#if 0
-    CREATE_PSO(PSO_BILLBOARD, {
-                                  .vs = "billboard.vs",
-                                  .ps = "texture.ps",
-                                  .rasterizer_desc = &s_rasterizer_double_sided,
-                                  .depth_stencil_desc = &s_default_depth_stencil,
-                                  .blend_desc = &s_default_blend_state,
-                              });
-#endif
-
 #undef CREATE_PSO
 
     return Result<void>();
 }
 
 void PipelineStateManager::finalize() {
-    for (size_t idx = 0; idx < pso_cache_.size(); ++idx) {
-        pso_cache_[idx].reset();
+    for (size_t idx = 0; idx < m_pso_cache.size(); ++idx) {
+        m_pso_cache[idx].reset();
     }
 }
 

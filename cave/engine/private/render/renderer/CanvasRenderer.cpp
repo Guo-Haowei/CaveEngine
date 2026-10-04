@@ -151,7 +151,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
     desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
 
-    auto mesh_result = device.CreateMeshImpl(desc, buffer_descs, &index_desc);
+    auto mesh_result = device.createMeshImpl(desc, buffer_descs, &index_desc);
     if (!mesh_result) {
         return {};
     }
@@ -195,18 +195,18 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
         return;
     }
 
-    device.SetMesh(result.mesh.get());
+    device.setMesh(result.mesh.get());
     // @TODO: clean this up
     auto pso = m_screen_space ? PSO_UI_OVERLAY : PSO_PRIMITIVE;
-    device.SetPipelineState(pso);
+    device.setPipelineState(pso);
 
     constexpr int kSpriteSlot = 0;
     for (const PrimBatch& batch : result.batches) {
         const uint64_t tex = (batch.tex ? batch.tex : m_default_texture.get())->GetHandle();
-        device.BindTexture(Dimension::TEXTURE_2D, tex, kSpriteSlot);
-        device.DrawElements(batch.index_count, batch.index_offset);
+        device.bindTexture(Dimension::TEXTURE_2D, tex, kSpriteSlot);
+        device.drawElements(batch.index_count, batch.index_offset);
     }
-    device.UnbindTexture(Dimension::TEXTURE_2D, kSpriteSlot);
+    device.unbindTexture(Dimension::TEXTURE_2D, kSpriteSlot);
 }
 
 }  // namespace cave::render

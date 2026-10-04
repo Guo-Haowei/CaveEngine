@@ -13,6 +13,8 @@
 #include "engine/private/runtime/input/GlfwKeyboardMouseDevice.h"
 #include "engine/private/runtime/input/InputService.h"
 
+#include "modules/opengl_common/GLDefines.h"
+
 // @TODO: refactor
 // do not put ImGui code here
 #include "engine/private/runtime/framework/ImGuiManager.h"
@@ -41,8 +43,8 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
 
     switch (backend_) {
         case Backend::OpenGL:
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, CAVE_GL_VERSION_MAJOR);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, CAVE_GL_VERSION_MINOR);
             if (DVAR_GET_BOOL(gfx_gpu_validation)) {
                 glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
             }
@@ -86,7 +88,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
         input.addDevice(std::move(keyboard_mouse_device));
     }
 
-    glfwSetWindowPos(window_, 200, 200);
+    glfwSetWindowPos(window_, 40, 40);
     glfwGetWindowSize(window_, &frame_size_.x, &frame_size_.y);
 
     switch (backend_) {

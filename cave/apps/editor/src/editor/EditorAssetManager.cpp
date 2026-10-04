@@ -234,7 +234,7 @@ Result<void> EditorAssetManager::addAlwaysLoadImages() {
             }
             auto image = *res;
             m_images[file_name.string()] = image;
-            m_app->services().renderDevice().RequestTexture(image.get());
+            m_app->services().renderDevice().requestTexture(image.get());
         }
     }
 

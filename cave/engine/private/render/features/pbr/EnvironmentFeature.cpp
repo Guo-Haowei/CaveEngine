@@ -27,13 +27,13 @@ static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
 
     auto& cmd = ctx.cmd;
 
-    cmd.SetPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
+    cmd.setPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
 
-    cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(cmd.GetCurrentFrame().batchCb.get(), face);
-    cmd.DrawSkybox();
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batchCb.get(), face);
+    cmd.drawSkybox();
     if (face == 5) {
         GpuTextureId cubemap = ctx.pass.colors[0].tex;
-        cmd.GenerateMipmap(cubemap.get());
+        cmd.generateMipmap(cubemap.get());
     }
 }
 
@@ -42,9 +42,9 @@ static void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
 
     auto& cmd = ctx.cmd;
 
-    cmd.SetPipelineState(PSO_DIFFUSE_IRRADIANCE);
-    cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(cmd.GetCurrentFrame().batchCb.get(), face);
-    cmd.DrawSkybox();
+    cmd.setPipelineState(PSO_DIFFUSE_IRRADIANCE);
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batchCb.get(), face);
+    cmd.drawSkybox();
 }
 
 static void PrefilteredFunc(RenderPassExcutionContext& ctx,
@@ -54,9 +54,9 @@ static void PrefilteredFunc(RenderPassExcutionContext& ctx,
 
     auto& cmd = ctx.cmd;
     const int index = mip * 6 + face;
-    cmd.SetPipelineState(PSO_PREFILTER);
-    cmd.BindConstantBufferSlot<PerBatchConstantBuffer>(cmd.GetCurrentFrame().batchCb.get(), index);
-    cmd.DrawSkybox();
+    cmd.setPipelineState(PSO_PREFILTER);
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batchCb.get(), index);
+    cmd.drawSkybox();
 }
 
 EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph, const RenderOptions& plan) {
@@ -84,7 +84,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
         if (!image) {
             return {};
         }
-        m_env_texture = m_device.CreateTexture(image.get());
+        m_env_texture = m_device.createTexture(image.get());
     }
 
     if (!m_env_cube) {
@@ -102,7 +102,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
                 kIBLMipChainMax);
             desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
-            m_env_cube = m_device.CreateTexture(desc, CubemapSampler());
+            m_env_cube = m_device.createTexture(desc, CubemapSampler());
         }
         {
 
@@ -114,7 +114,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
                 6);
             desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
-            m_diffuse = m_device.CreateTexture(desc, CubemapNoMipSampler());
+            m_diffuse = m_device.createTexture(desc, CubemapNoMipSampler());
         }
         {
             GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
@@ -127,7 +127,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
                 kIBLMipChainMax);
             desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
-            m_specular = m_device.CreateTexture(desc, CubemapLodSampler());
+            m_specular = m_device.createTexture(desc, CubemapLodSampler());
         }
     }
 
