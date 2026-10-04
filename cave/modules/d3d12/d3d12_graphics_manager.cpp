@@ -206,7 +206,7 @@ void D3d12GraphicsManager::FinalizeImpl() {
     }
 }
 
-void D3d12GraphicsManager::Render() {
+void D3d12GraphicsManager::render() {
     ID3D12GraphicsCommandList* cmd_list = m_graphicsCommandList.Get();
 
     Vec2i dim = DisplayService::singleton().windowSize();
@@ -249,7 +249,7 @@ void D3d12GraphicsManager::Render() {
     cmd_list->ResourceBarrier(1, &barrier);
 }
 
-void D3d12GraphicsManager::Present() {
+void D3d12GraphicsManager::present() {
     if (m_app->specification().enableImgui) {
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
@@ -260,9 +260,9 @@ void D3d12GraphicsManager::Present() {
     D3D_CALL(m_swapChain->Present(1, 0));  // Present with vsync
 }
 
-void D3d12GraphicsManager::BeginFrame() {
+void D3d12GraphicsManager::beginFrame() {
     // @TODO: wait for swap chain
-    D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(GetCurrentFrame());
+    D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(getCurrentFrame());
     frame.Wait(m_graphicsFenceEvent, m_graphicsQueueFence.Get());
     D3D_CALL(frame.m_commandAllocator->Reset());
     D3D_CALL(m_graphicsCommandList->Reset(frame.m_commandAllocator, nullptr));
@@ -283,37 +283,37 @@ void D3d12GraphicsManager::BeginFrame() {
     m_graphicsCommandList->SetComputeRootDescriptorTable(7, handle);
 }
 
-void D3d12GraphicsManager::EndFrame() {
+void D3d12GraphicsManager::endFrame() {
     D3D_CALL(m_graphicsCommandList->Close());
     ID3D12CommandList* cmdLists[] = { m_graphicsCommandList.Get() };
     m_graphicsCommandQueue->ExecuteCommandLists(std::size(cmdLists), cmdLists);
 }
 
-void D3d12GraphicsManager::MoveToNextFrame() {
+void D3d12GraphicsManager::moveToNextFrame() {
     uint64_t fenceValue = m_lastSignaledFenceValue + 1;
     m_graphicsCommandQueue->Signal(m_graphicsQueueFence.Get(), fenceValue);
     m_lastSignaledFenceValue = fenceValue;
 
-    D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(GetCurrentFrame());
+    D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(getCurrentFrame());
     frame.m_fenceValue = fenceValue;
     m_frameIndex = (m_frameIndex + 1) % static_cast<uint32_t>(m_frameContexts.size());
 }
 
-Ref<FrameContext> D3d12GraphicsManager::CreateFrameContext() {
+Ref<FrameContext> D3d12GraphicsManager::createFrameContext() {
     return MakeOwner<D3d12FrameContext>();
 }
 
-void D3d12GraphicsManager::SetStencilRef(uint32_t p_ref) {
+void D3d12GraphicsManager::setStencilRef(uint32_t p_ref) {
     m_graphicsCommandList->OMSetStencilRef(p_ref);
 }
 
-void D3d12GraphicsManager::SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) {
+void D3d12GraphicsManager::setBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) {
     unused(p_desc);
     unused(p_factor);
     unused(p_mask);
 }
 
-void D3d12GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_desc) {
+void D3d12GraphicsManager::setRenderTargets(const RenderTargetDesc& p_desc) {
     unused(p_desc);
     DEV_ASSERT(0);
 
@@ -343,7 +343,7 @@ void D3d12GraphicsManager::SetRenderTargets(const RenderTargetDesc& p_desc) {
 #endif
 }
 
-void D3d12GraphicsManager::UnsetRenderTargets() {
+void D3d12GraphicsManager::unsetRenderTargets() {
 }
 
 void D3d12GraphicsManager::beginPass(const CompiledPass& p_pass) {
@@ -371,7 +371,7 @@ void D3d12GraphicsManager::beginPass(const CompiledPass& p_pass) {
 void D3d12GraphicsManager::endPass(const CompiledPass& p_pass) {
     RenderDevice::endPass(p_pass);
     DEV_ASSERT(0);
-    UnsetRenderTargets();
+    unsetRenderTargets();
 #if 0
     ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
     for (auto& texture : p_framebuffer->outSrvs) {
@@ -391,7 +391,7 @@ void D3d12GraphicsManager::endPass(const CompiledPass& p_pass) {
 #endif
 }
 
-void D3d12GraphicsManager::Clear(const RenderTargetDesc& p_target) {
+void D3d12GraphicsManager::clear(const RenderTargetDesc& p_target) {
     unused(p_target);
 #if 0
     auto framebuffer = reinterpret_cast<const D3d12Framebuffer*>(p_framebuffer);
@@ -418,7 +418,7 @@ void D3d12GraphicsManager::Clear(const RenderTargetDesc& p_target) {
 #endif
 }
 
-void D3d12GraphicsManager::SetViewport(const Viewport& p_viewport) {
+void D3d12GraphicsManager::setViewport(const Viewport& p_viewport) {
     CD3DX12_VIEWPORT viewport(
         static_cast<float>(p_viewport.topLeftX),
         static_cast<float>(p_viewport.topLeftY),
@@ -467,7 +467,7 @@ ID3D12Resource* D3d12GraphicsManager::UploadBuffer(uint32_t p_byte_size, const v
     return p_out_buffer;
 };
 
-auto D3d12GraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
+auto D3d12GraphicsManager::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
     auto ret = std::make_shared<D3d12Buffer>(p_desc);
 
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
@@ -479,7 +479,7 @@ auto D3d12GraphicsManager::CreateBuffer(const GpuBufferDesc& p_desc) -> Result<s
     return ret;
 }
 
-auto D3d12GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
+auto D3d12GraphicsManager::createMeshImpl(const GpuMeshDesc& p_desc,
                                           std::span<const GpuBufferDesc> p_vb_descs,
                                           const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     auto ret = std::make_shared<D3d12MeshBuffers>(p_desc);
@@ -490,7 +490,7 @@ auto D3d12GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
             continue;
         }
 
-        auto res = CreateBuffer(p_vb_descs[index]);
+        auto res = createBuffer(p_vb_descs[index]);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -504,7 +504,7 @@ auto D3d12GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
     }
 
     if (p_ib_desc) {
-        auto res = CreateBuffer(*p_ib_desc);
+        auto res = createBuffer(*p_ib_desc);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -519,7 +519,7 @@ auto D3d12GraphicsManager::CreateMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d12GraphicsManager::SetMesh(const GpuMesh* p_mesh) {
+void D3d12GraphicsManager::setMesh(const GpuMesh* p_mesh) {
     auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(p_mesh);
 
     m_graphicsCommandList->IASetVertexBuffers(0, MESH_MAX_VERTEX_BUFFER_COUNT, mesh->vbvs);
@@ -528,7 +528,7 @@ void D3d12GraphicsManager::SetMesh(const GpuMesh* p_mesh) {
     }
 }
 
-void D3d12GraphicsManager::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
+void D3d12GraphicsManager::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
     if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
         auto buffer = reinterpret_cast<D3d12Buffer*>(p_buffer);
@@ -537,56 +537,56 @@ void D3d12GraphicsManager::UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* 
     }
 }
 
-void D3d12GraphicsManager::DrawElements(uint32_t p_count, uint32_t p_offset) {
+void D3d12GraphicsManager::drawElements(uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawIndexedInstanced(p_count, 1, p_offset, 0, 0);
 }
 
-void D3d12GraphicsManager::DrawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void D3d12GraphicsManager::drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawIndexedInstanced(p_count, p_instance_count, p_offset, 0, 0);
 }
 
-void D3d12GraphicsManager::DrawArrays(uint32_t p_count, uint32_t p_offset) {
+void D3d12GraphicsManager::drawArrays(uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawInstanced(p_count, 1, p_offset, 0);
 }
 
-void D3d12GraphicsManager::DrawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void D3d12GraphicsManager::drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawInstanced(p_count, p_instance_count, p_offset, 0);
 }
 
-void D3d12GraphicsManager::Dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
+void D3d12GraphicsManager::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
     m_graphicsCommandList->Dispatch(p_num_groups_x, p_num_groups_y, p_num_groups_z);
 }
 
-void D3d12GraphicsManager::BindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
+void D3d12GraphicsManager::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
     unused(p_slot);
     unused(p_texture);
 }
 
-void D3d12GraphicsManager::UnbindUnorderedAccessView(uint32_t p_slot) {
+void D3d12GraphicsManager::unbindUnorderedAccessView(uint32_t p_slot) {
     unused(p_slot);
 }
 
-void D3d12GraphicsManager::BindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
+void D3d12GraphicsManager::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
     unused(p_slot);
     auto uav = reinterpret_cast<const D3d12StructuredBuffer*>(p_buffer);
     if (DEV_VERIFY(uav)) {
     }
 }
 
-void D3d12GraphicsManager::UnbindStructuredBuffer(int p_slot) {
+void D3d12GraphicsManager::unbindStructuredBuffer(int p_slot) {
     unused(p_slot);
 }
 
-void D3d12GraphicsManager::BindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) {
+void D3d12GraphicsManager::bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) {
     unused(p_slot);
     unused(p_buffer);
 }
 
-void D3d12GraphicsManager::UnbindStructuredBufferSRV(int p_slot) {
+void D3d12GraphicsManager::unbindStructuredBufferSRV(int p_slot) {
     unused(p_slot);
 }
 
-auto D3d12GraphicsManager::CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
+auto D3d12GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_byte);
@@ -608,7 +608,7 @@ auto D3d12GraphicsManager::CreateConstantBuffer(const GpuBufferDesc& p_desc) -> 
     return result;
 }
 
-auto D3d12GraphicsManager::CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto D3d12GraphicsManager::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
     DEV_ASSERT(!p_desc.initial_data && "TODO: initial data");
 
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -651,14 +651,14 @@ auto D3d12GraphicsManager::CreateStructuredBuffer(const GpuBufferDesc& p_desc) -
     return result;
 }
 
-void D3d12GraphicsManager::UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
+void D3d12GraphicsManager::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
     if (p_size) {
         auto cb = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
         memcpy(cb->mappedData, p_data, p_size);
     }
 }
 
-void D3d12GraphicsManager::BindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
+void D3d12GraphicsManager::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
     auto buffer = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
     DEV_ASSERT(p_size + p_offset <= buffer->capacity);
 
@@ -669,7 +669,7 @@ void D3d12GraphicsManager::BindConstantBufferRange(const GpuConstantBuffer* p_bu
     m_graphicsCommandList->SetComputeRootConstantBufferView(buffer->desc.slot, batch_address);
 }
 
-std::shared_ptr<GpuTexture> D3d12GraphicsManager::CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     unused(p_sampler_desc);
 
     auto initial_data = reinterpret_cast<const uint8_t*>(p_texture_desc.initialData);
@@ -910,18 +910,18 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::CreateTextureImpl(const GpuTex
     return gpu_texture;
 }
 
-void D3d12GraphicsManager::BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
+void D3d12GraphicsManager::bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
     unused(p_dimension);
     unused(p_handle);
     unused(p_slot);
 }
 
-void D3d12GraphicsManager::UnbindTexture(Dimension p_dimension, int p_slot) {
+void D3d12GraphicsManager::unbindTexture(Dimension p_dimension, int p_slot) {
     unused(p_dimension);
     unused(p_slot);
 }
 
-void D3d12GraphicsManager::GenerateMipmap(const GpuTexture* p_texture) {
+void D3d12GraphicsManager::generateMipmap(const GpuTexture* p_texture) {
     unused(p_texture);
     CRASH_NOW();
 }
@@ -1378,7 +1378,7 @@ auto D3d12GraphicsManager::CreateRootSignature() -> Result<void> {
     return Result<void>();
 }
 
-void D3d12GraphicsManager::OnWindowResize(int p_width, int p_height) {
+void D3d12GraphicsManager::onWindowResize(int p_width, int p_height) {
     if (m_swapChain) {
         CleanupRenderTarget();
         D3D_CALL(m_swapChain->ResizeBuffers(0, p_width, p_height,
@@ -1389,7 +1389,7 @@ void D3d12GraphicsManager::OnWindowResize(int p_width, int p_height) {
     }
 }
 
-void D3d12GraphicsManager::SetPipelineStateImpl(PipelineStateName p_name) {
+void D3d12GraphicsManager::setPipelineStateImpl(PipelineStateName p_name) {
     auto pipeline = reinterpret_cast<D3d12PipelineState*>(m_pipelineStateManager->findPSO(p_name));
     DEV_ASSERT(pipeline);
 

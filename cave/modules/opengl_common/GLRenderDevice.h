@@ -24,59 +24,59 @@ public:
 
     void FinalizeImpl() override;
 
-    void SetStencilRef(uint32_t ref) override;
-    void SetBlendState(const BlendDesc& desc, const float* factor, uint32_t mask) override;
+    void setStencilRef(uint32_t ref) override;
+    void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask) override;
 
-    void SetRenderTargets(const RenderTargetDesc& target) override;
-    void UnsetRenderTargets() override;
+    void setRenderTargets(const RenderTargetDesc& target) override;
+    void unsetRenderTargets() override;
 
-    void Clear(const RenderTargetDesc& target) override;
+    void clear(const RenderTargetDesc& target) override;
 
-    void SetViewport(const Viewport& viewport) override;
+    void setViewport(const Viewport& viewport) override;
 
-    auto CreateBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
-    void UpdateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
+    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 
-    auto CreateMeshImpl(const GpuMeshDesc& desc,
+    auto createMeshImpl(const GpuMeshDesc& desc,
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    void SetMesh(const GpuMesh* mesh) override;
+    void setMesh(const GpuMesh* mesh) override;
 
-    void DrawElements(uint32_t count, uint32_t offset) override;
-    void DrawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
-    void DrawArrays(uint32_t count, uint32_t offset) override;
-    void DrawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
+    void drawElements(uint32_t count, uint32_t offset) override;
+    void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
+    void drawArrays(uint32_t count, uint32_t offset) override;
+    void drawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
 
-    void Dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) override;
-    void BindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
-    void UnbindUnorderedAccessView(uint32_t slot) override;
+    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) override;
+    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
+    void unbindUnorderedAccessView(uint32_t slot) override;
 
-    void BindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) override;
-    void UnbindStructuredBuffer(int slot) override;
-    void BindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
-    void UnbindStructuredBufferSRV(int slot) override;
+    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) override;
+    void unbindStructuredBuffer(int slot) override;
+    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
+    void unbindStructuredBufferSRV(int slot) override;
 
-    auto CreateConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
-    auto CreateStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
-    void UpdateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
+    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
+    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
+    void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
 
-    void UpdateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
-    void BindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) override;
+    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
+    void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) override;
 
-    void BindTexture(Dimension dimension, uint64_t handle, int slot) override;
-    void UnbindTexture(Dimension dimension, int slot) override;
+    void bindTexture(Dimension dimension, uint64_t handle, int slot) override;
+    void unbindTexture(Dimension dimension, int slot) override;
 
-    void GenerateMipmap(const GpuTexture* texture) override;
+    void generateMipmap(const GpuTexture* texture) override;
 
 protected:
-    Ref<GpuTexture> CreateTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
 
-    void Render() override;
-    void Present() override;
+    void render() override;
+    void present() override;
 
-    void OnWindowResize(int, int) override {}
-    void SetPipelineStateImpl(PipelineStateName name) override;
+    void onWindowResize(int, int) override {}
+    void setPipelineStateImpl(PipelineStateName name) override;
 
     // @TODO: rename
     RIDAllocator<OpenGlMeshBuffers> m_meshes;

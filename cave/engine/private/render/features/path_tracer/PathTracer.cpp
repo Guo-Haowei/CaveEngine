@@ -26,7 +26,7 @@ static auto CreateBuffer(IRenderDevice* p_gm, uint32_t p_slot, const std::vector
         .initial_data = p_data.data(),
     };
 
-    return p_gm->CreateStructuredBuffer(desc);
+    return p_gm->createStructuredBuffer(desc);
 }
 
 static void ConstructMesh(const MeshAsset& p_mesh, GpuScene& p_gpu_scene) {
@@ -159,7 +159,7 @@ void PathTracer::UpdateAccelStructure(const Scene& scene) {
 
         // @TODO: only change when material is dirty
         if ((dirty_flag != SCENE_DIRTY_NONE) || m_ptMaterialBuffer == nullptr) {
-            m_ptMaterialBuffer = *gm->CreateStructuredBuffer(desc);
+            m_ptMaterialBuffer = *gm->createStructuredBuffer(desc);
         }
     }
 
@@ -202,7 +202,7 @@ void PathTracer::UpdateAccelStructure(const Scene& scene) {
         };
 
         if ((dirty_flag & SCENE_DIRTY_WORLD) || m_ptMeshBuffer == nullptr) {
-            m_ptMeshBuffer = *gm->CreateStructuredBuffer(desc);
+            m_ptMeshBuffer = *gm->createStructuredBuffer(desc);
         }
     }
 }
@@ -332,19 +332,19 @@ bool PathTracer::IsActive() const {
 
 void PathTracer::BindData(IRenderDevice& device) {
     // @TODO: check null
-    device.BindStructuredBuffer(GetGlobalPtMeshesSlot(), m_ptMeshBuffer.get());
-    device.BindStructuredBuffer(GetGlobalPtBvhsSlot(), m_ptBvhBuffer.get());
-    device.BindStructuredBuffer(GetGlobalPtVerticesSlot(), m_ptVertexBuffer.get());
-    device.BindStructuredBuffer(GetGlobalPtIndicesSlot(), m_ptIndexBuffer.get());
-    device.BindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_ptMaterialBuffer.get());
+    device.bindStructuredBuffer(GetGlobalPtMeshesSlot(), m_ptMeshBuffer.get());
+    device.bindStructuredBuffer(GetGlobalPtBvhsSlot(), m_ptBvhBuffer.get());
+    device.bindStructuredBuffer(GetGlobalPtVerticesSlot(), m_ptVertexBuffer.get());
+    device.bindStructuredBuffer(GetGlobalPtIndicesSlot(), m_ptIndexBuffer.get());
+    device.bindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_ptMaterialBuffer.get());
 }
 
 void PathTracer::UnbindData(IRenderDevice& device) {
-    device.UnbindStructuredBuffer(GetGlobalPtBvhsSlot());
-    device.UnbindStructuredBuffer(GetGlobalPtVerticesSlot());
-    device.UnbindStructuredBuffer(GetGlobalPtIndicesSlot());
-    device.UnbindStructuredBuffer(GetGlobalPtMeshesSlot());
-    device.UnbindStructuredBuffer(GetGlobalPtMaterialsSlot());
+    device.unbindStructuredBuffer(GetGlobalPtBvhsSlot());
+    device.unbindStructuredBuffer(GetGlobalPtVerticesSlot());
+    device.unbindStructuredBuffer(GetGlobalPtIndicesSlot());
+    device.unbindStructuredBuffer(GetGlobalPtMeshesSlot());
+    device.unbindStructuredBuffer(GetGlobalPtMaterialsSlot());
 }
 
 }  // namespace cave::render

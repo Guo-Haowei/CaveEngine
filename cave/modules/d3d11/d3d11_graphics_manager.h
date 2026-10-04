@@ -29,49 +29,49 @@ public:
 
     void FinalizeImpl() final;
 
-    void SetStencilRef(uint32_t p_ref) final;
-    void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
+    void setStencilRef(uint32_t p_ref) final;
+    void setBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
 
-    void SetRenderTargets(const RenderTargetDesc& p_target) final;
-    void UnsetRenderTargets() final;
+    void setRenderTargets(const RenderTargetDesc& p_target) final;
+    void unsetRenderTargets() final;
 
-    void Clear(const RenderTargetDesc& p_target) final;
+    void clear(const RenderTargetDesc& p_target) final;
 
-    void SetViewport(const Viewport& p_viewport) final;
+    void setViewport(const Viewport& p_viewport) final;
 
-    auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> final;
+    auto createBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> final;
 
-    auto CreateMeshImpl(const GpuMeshDesc& p_desc,
+    auto createMeshImpl(const GpuMeshDesc& p_desc,
                         std::span<const GpuBufferDesc> p_vb_descs,
-                        const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> final;
+                        const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> final;
 
-    void SetMesh(const GpuMesh* p_mesh) final;
-    void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) final;
+    void setMesh(const GpuMesh* p_mesh) final;
+    void updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) final;
 
-    void DrawElements(uint32_t p_count, uint32_t p_offset) final;
-    void DrawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
-    void DrawArrays(uint32_t p_count, uint32_t p_offset) final;
-    void DrawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
+    void drawElements(uint32_t p_count, uint32_t p_offset) final;
+    void drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
+    void drawArrays(uint32_t p_count, uint32_t p_offset) final;
+    void drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
 
-    void Dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) final;
-    void BindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) final;
-    void UnbindUnorderedAccessView(uint32_t p_slot) final;
+    void dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) final;
+    void bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) final;
+    void unbindUnorderedAccessView(uint32_t p_slot) final;
 
-    auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> final;
-    auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> final;
+    auto createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> final;
+    auto createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuStructuredBuffer>> final;
 
-    void BindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) final;
-    void UnbindStructuredBuffer(int p_slot) final;
-    void BindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) final;
-    void UnbindStructuredBufferSRV(int p_slot) final;
+    void bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) final;
+    void unbindStructuredBuffer(int p_slot) final;
+    void bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) final;
+    void unbindStructuredBufferSRV(int p_slot) final;
 
-    void UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) final;
-    void BindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) final;
+    void updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) final;
+    void bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) final;
 
-    void BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) final;
-    void UnbindTexture(Dimension p_dimension, int p_slot) final;
+    void bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) final;
+    void unbindTexture(Dimension p_dimension, int p_slot) final;
 
-    void GenerateMipmap(const GpuTexture* p_texture) final;
+    void generateMipmap(const GpuTexture* p_texture) final;
 
     void beginEvent(std::string_view p_event) final;
     void endEvent() final;
@@ -82,21 +82,21 @@ public:
 
 protected:
     virtual auto InitializeInternal() -> Result<void> final;
-    virtual std::shared_ptr<GpuTexture> CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) final;
+    virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) final;
 
-    virtual void Render() final;
-    virtual void Present() final;
+    virtual void render() final;
+    virtual void present() final;
 
-    void OnWindowResize(int p_width, int p_height) final;
-    void SetPipelineStateImpl(PipelineStateName p_name) final;
+    void onWindowResize(int p_width, int p_height) final;
+    void setPipelineStateImpl(PipelineStateName p_name) final;
 
-    auto CreateDevice() -> Result<void>;
-    auto CreateSwapChain() -> Result<void>;
-    auto CreateRenderTarget() -> Result<void>;
-    auto CreateSampler(uint32_t p_slot, D3D11_SAMPLER_DESC p_desc) -> Result<void>;
-    auto InitSamplers() -> Result<void>;
+    auto createDevice() -> Result<void>;
+    auto createSwapChain() -> Result<void>;
+    auto createRenderTarget() -> Result<void>;
+    auto createSampler(uint32_t p_slot, D3D11_SAMPLER_DESC p_desc) -> Result<void>;
+    auto initSamplers() -> Result<void>;
 
-    std::unique_ptr<D3D11ViewCache> m_view_cache;
+    Owner<D3D11ViewCache> m_view_cache;
 
     Microsoft::WRL::ComPtr<ID3D11Device> m_device;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;

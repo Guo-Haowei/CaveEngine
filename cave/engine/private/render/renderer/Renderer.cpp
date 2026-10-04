@@ -228,7 +228,7 @@ static bool updateUIBuffer(IRenderDevice& device,
     GpuBufferDesc desc = gpu_buffer->desc;
     desc.element_count = (uint32_t)data.size();
     desc.initial_data = data.data();
-    device.UpdateBuffer(desc, gpu_buffer);
+    device.updateBuffer(desc, gpu_buffer);
     return true;
 }
 
@@ -321,7 +321,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
                                               const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
     if (!m_brdf) {
         Ref<ImageAsset> image = m_services.assetManager().findImage("brdf.hdr");
-        m_brdf = m_device.CreateTexture(image.get());
+        m_brdf = m_device.createTexture(image.get());
     }
     if (!m_ltc1) {
         m_ltc1 = CreateLTC1(m_device);

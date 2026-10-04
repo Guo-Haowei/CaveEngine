@@ -8,7 +8,7 @@ void EventQueue::EnqueueEvent(std::shared_ptr<IEvent> p_event) {
 
 void EventQueue::DispatchEvent(std::shared_ptr<IEvent> p_event) {
     for (auto& listener : m_listeners) {
-        listener->EventReceived(p_event);
+        listener->eventReceived(p_event);
     }
 }
 

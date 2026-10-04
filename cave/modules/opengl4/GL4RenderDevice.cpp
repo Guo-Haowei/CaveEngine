@@ -58,23 +58,23 @@ auto GL4RenderDevice::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-void GL4RenderDevice::Dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
+void GL4RenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
     glDispatchCompute(p_num_groups_x, p_num_groups_y, p_num_groups_z);
     // @TODO: this probably shouldn't be here
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
-void GL4RenderDevice::BindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
+void GL4RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
     DEV_ASSERT(p_texture);
     auto internal_format = gl::ConvertInternalFormat(p_texture->desc.format);
     glBindImageTexture(p_slot, p_texture->GetHandle32(), 0, GL_TRUE, 0, GL_READ_WRITE, internal_format);
 }
 
-void GL4RenderDevice::UnbindUnorderedAccessView(uint32_t p_slot) {
+void GL4RenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
     glBindImageTexture(p_slot, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R11F_G11F_B10F);
 }
 
-void GL4RenderDevice::BindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
+void GL4RenderDevice::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
     auto buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(p_buffer);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->handle);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, p_slot, buffer->handle);
@@ -82,11 +82,11 @@ void GL4RenderDevice::BindStructuredBuffer(int p_slot, const GpuStructuredBuffer
     return;
 }
 
-void GL4RenderDevice::UnbindStructuredBuffer(int p_slot) {
+void GL4RenderDevice::unbindStructuredBuffer(int p_slot) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, p_slot, 0);
 }
 
-auto GL4RenderDevice::CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto GL4RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, handle);
@@ -98,7 +98,7 @@ auto GL4RenderDevice::CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Res
     return buffer;
 }
 
-void GL4RenderDevice::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
+void GL4RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
     auto buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(p_buffer);
     if (DEV_VERIFY(buffer)) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->handle);

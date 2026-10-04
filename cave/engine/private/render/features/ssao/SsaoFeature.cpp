@@ -46,7 +46,7 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
         .initialData = ssao_noise.data(),
     };
 
-    return p_device.CreateTexture(desc, PointWrapSampler());
+    return p_device.createTexture(desc, PointWrapSampler());
 }
 
 static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
@@ -57,9 +57,9 @@ static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
 
     auto& cmd = p_ctx.cmd;
 
-    cmd.SetPipelineState(PSO_SSAO);
-    cmd.SetMesh(nullptr);
-    cmd.DrawArrays(6);
+    cmd.setPipelineState(PSO_SSAO);
+    cmd.setMesh(nullptr);
+    cmd.drawArrays(6);
 }
 
 SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,

@@ -17,7 +17,7 @@ static constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
 static void PathTracerComputeFunc(RenderPassExcutionContext& p_ctx) {
     auto& cmd = p_ctx.cmd;
 
-    cmd.SetPipelineState(PSO_PATH_TRACER);
+    cmd.setPipelineState(PSO_PATH_TRACER);
     const auto& input = p_ctx.pass.uavs[0];
 
     DEV_ASSERT(input);
@@ -29,7 +29,7 @@ static void PathTracerComputeFunc(RenderPassExcutionContext& p_ctx) {
 
     // @TODO: transition
     BindPathTracerData(cmd);
-    cmd.Dispatch(work_group_x, work_group_y, 1);
+    cmd.dispatch(work_group_x, work_group_y, 1);
     UnbindPathTracerData(cmd);
 }
 
@@ -39,9 +39,9 @@ static void PathTracerPresentFunc(RenderPassExcutionContext& p_ctx) {
     auto& cmd = p_ctx.cmd;
 
     // cmd.Clear(fb, CLEAR_COLOR_BIT);
-    cmd.SetPipelineState(PSO_POST_PROCESS);
-    cmd.SetMesh(nullptr);
-    cmd.DrawArrays(6);
+    cmd.setPipelineState(PSO_POST_PROCESS);
+    cmd.setMesh(nullptr);
+    cmd.drawArrays(6);
 }
 
 PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& p_graph,

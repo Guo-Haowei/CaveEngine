@@ -68,7 +68,7 @@ void MeshAsset::onDeserialized() {
 
     RenderDevice* graphics_manager = RenderDevice::singletonPtr();
     if (graphics_manager) {
-        graphics_manager->RequestMesh(this);
+        graphics_manager->requestMesh(this);
     }
 }
 

@@ -28,49 +28,49 @@ public:
 
     void FinalizeImpl() final;
 
-    void SetStencilRef(uint32_t p_ref) final;
-    void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
+    void setStencilRef(uint32_t p_ref) final;
+    void setBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
 
-    void SetRenderTargets(const RenderTargetDesc& p_desc) final;
-    void UnsetRenderTargets() final;
+    void setRenderTargets(const RenderTargetDesc& p_desc) final;
+    void unsetRenderTargets() final;
 
-    void Clear(const RenderTargetDesc& p_target) final;
+    void clear(const RenderTargetDesc& p_target) final;
 
-    void SetViewport(const Viewport& p_viewport) final;
+    void setViewport(const Viewport& p_viewport) final;
 
-    auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> final;
-    void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) final;
+    auto createBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> final;
+    void updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) final;
 
-    auto CreateMeshImpl(const GpuMeshDesc& p_desc,
+    auto createMeshImpl(const GpuMeshDesc& p_desc,
                         std::span<const GpuBufferDesc> p_vb_descs,
                         const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> final;
 
-    void SetMesh(const GpuMesh* p_mesh) final;
+    void setMesh(const GpuMesh* p_mesh) final;
 
-    void DrawElements(uint32_t p_count, uint32_t p_offset) final;
-    void DrawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
-    void DrawArrays(uint32_t p_count, uint32_t p_offset) final;
-    void DrawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
+    void drawElements(uint32_t p_count, uint32_t p_offset) final;
+    void drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
+    void drawArrays(uint32_t p_count, uint32_t p_offset) final;
+    void drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
 
-    void Dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) final;
-    void BindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) final;
-    void UnbindUnorderedAccessView(uint32_t p_slot) final;
+    void dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) final;
+    void bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) final;
+    void unbindUnorderedAccessView(uint32_t p_slot) final;
 
-    auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> final;
-    void BindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) final;
-    void UnbindStructuredBuffer(int p_slot) final;
-    void BindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) final;
-    void UnbindStructuredBufferSRV(int p_slot) final;
+    auto createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuStructuredBuffer>> final;
+    void bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) final;
+    void unbindStructuredBuffer(int p_slot) final;
+    void bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) final;
+    void unbindStructuredBufferSRV(int p_slot) final;
 
-    auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> final;
-    void UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) final;
-    void BindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) final;
+    auto createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> final;
+    void updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) final;
+    void bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) final;
 
     // @TODO: remove Dimension
-    void BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) final;
-    void UnbindTexture(Dimension p_dimension, int p_slot) final;
+    void bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) final;
+    void unbindTexture(Dimension p_dimension, int p_slot) final;
 
-    void GenerateMipmap(const GpuTexture* p_texture) final;
+    void generateMipmap(const GpuTexture* p_texture) final;
 
     ID3D12CommandQueue* CreateCommandQueue(D3D12_COMMAND_LIST_TYPE p_type);
 
@@ -79,21 +79,21 @@ public:
 
 protected:
     auto InitializeInternal() -> Result<void> final;
-    std::shared_ptr<GpuTexture> CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) final;
+    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) final;
 
-    void Render() final;
-    void Present() final;
+    void render() final;
+    void present() final;
 
-    void BeginFrame() final;
-    void EndFrame() final;
-    void MoveToNextFrame() final;
-    std::shared_ptr<FrameContext> CreateFrameContext() final;
+    void beginFrame() final;
+    void endFrame() final;
+    void moveToNextFrame() final;
+    Ref<FrameContext> createFrameContext() final;
 
     void beginPass(const CompiledPass& p_pass) final;
     void endPass(const CompiledPass& p_pass) final;
 
-    void OnWindowResize(int p_width, int p_height) final;
-    void SetPipelineStateImpl(PipelineStateName p_name) final;
+    void onWindowResize(int p_width, int p_height) final;
+    void setPipelineStateImpl(PipelineStateName p_name) final;
 
 private:
     auto CreateDevice() -> Result<void>;

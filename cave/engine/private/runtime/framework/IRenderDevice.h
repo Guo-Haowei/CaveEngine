@@ -38,6 +38,12 @@ struct FrameContext;
 struct RenderSubmission;
 struct CompiledPass;
 
+struct RenderCapabilities {
+    bool supportComputeShaders = true;
+    bool supportGeometryShaders = true;
+    bool supportStructuredBuffers = true;
+};
+
 // @TODO: split this class to RenderDevice and RHI
 class IRenderDevice : public IService,
                       public EventListener,
@@ -48,114 +54,117 @@ public:
 
     IRenderDevice(std::string_view name, rhi::Backend backend)
         : IService(name)
-        , backend_(backend) {}
+        , m_backend(backend) {}
 
     virtual auto InitializeImpl() -> Result<void> = 0;
 
-    virtual void submit(std::unique_ptr<RenderSubmission>&& p_submission) = 0;
+    virtual void submit(Owner<RenderSubmission>&& submission) = 0;
 
     // resource
-    virtual auto CreateConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> = 0;
-    virtual auto CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> = 0;
-    virtual void UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) = 0;
+    virtual auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> = 0;
+    virtual auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> = 0;
+    virtual void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) = 0;
 
-    virtual void SetRenderTargets(const RenderTargetDesc& p_desc) = 0;
-    virtual void UnsetRenderTargets() = 0;
+    virtual void setRenderTargets(const RenderTargetDesc& desc) = 0;
+    virtual void unsetRenderTargets() = 0;
 
-    virtual void Clear(const RenderTargetDesc& p_framebuffer) = 0;
+    virtual void clear(const RenderTargetDesc& framebuffer) = 0;
 
-    virtual void SetViewport(const Viewport& p_viewport) = 0;
+    virtual void setViewport(const Viewport& viewport) = 0;
 
-    virtual auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> = 0;
-    virtual void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) = 0;
+    virtual auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
+    virtual void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) = 0;
 
-    virtual auto CreateMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> = 0;
+    virtual auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> = 0;
 
-    virtual auto CreateMeshImpl(const GpuMeshDesc& p_desc,
-                                std::span<const GpuBufferDesc> p_vb_descs,
-                                const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> = 0;
+    virtual auto createMeshImpl(const GpuMeshDesc& desc,
+                                std::span<const GpuBufferDesc> vb_descs,
+                                const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> = 0;
 
-    virtual void SetMesh(const GpuMesh* p_mesh) = 0;
+    virtual void setMesh(const GpuMesh* mesh) = 0;
 
-    virtual void DrawElements(uint32_t p_count, uint32_t p_offset = 0) = 0;
-    virtual void DrawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset = 0) = 0;
-    virtual void DrawArrays(uint32_t p_count, uint32_t p_offset = 0) = 0;
-    virtual void DrawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset = 0) = 0;
+    virtual void drawElements(uint32_t count, uint32_t offset = 0) = 0;
+    virtual void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
+    virtual void drawArrays(uint32_t count, uint32_t offset = 0) = 0;
+    virtual void drawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
 
-    virtual void Dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) = 0;
-    virtual void BindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) = 0;
-    virtual void UnbindUnorderedAccessView(uint32_t p_slot) = 0;
+    virtual void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) = 0;
+    virtual void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) = 0;
+    virtual void unbindUnorderedAccessView(uint32_t slot) = 0;
 
-    virtual void SetPipelineState(PipelineStateName p_name) = 0;
+    virtual void setPipelineState(PipelineStateName name) = 0;
 
-    virtual void SetStencilRef(uint32_t p_ref) = 0;
-    virtual void SetBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) = 0;
+    virtual void setStencilRef(uint32_t ref) = 0;
+    virtual void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask) = 0;
 
-    virtual void BindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) = 0;
-    virtual void UnbindStructuredBuffer(int p_slot) = 0;
-    virtual void BindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) = 0;
-    virtual void UnbindStructuredBufferSRV(int p_slot) = 0;
+    virtual void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) = 0;
+    virtual void unbindStructuredBuffer(int slot) = 0;
+    virtual void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) = 0;
+    virtual void unbindStructuredBufferSRV(int slot) = 0;
 
-    virtual void UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) = 0;
+    virtual void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) = 0;
     template<typename T>
-    void UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const std::vector<T>& p_vector) {
-        UpdateConstantBuffer(p_buffer, p_vector.data(), sizeof(T) * (uint32_t)p_vector.size());
+    void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::vector<T>& vector) {
+        updateConstantBuffer(buffer, vector.data(), sizeof(T) * (uint32_t)vector.size());
     }
     template<typename T, int N>
-    void UpdateConstantBuffer(const GpuConstantBuffer* p_buffer, const std::array<T, N>& p_array) {
-        UpdateConstantBuffer(p_buffer, p_array.data(), sizeof(T) * N);
+    void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::array<T, N>& array) {
+        updateConstantBuffer(buffer, array.data(), sizeof(T) * N);
     }
 
-    virtual void BindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) = 0;
+    virtual void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) = 0;
     template<typename T>
-    void BindConstantBufferSlot(const GpuConstantBuffer* p_buffer, int slot) {
-        BindConstantBufferRange(p_buffer, sizeof(T), slot * sizeof(T));
+    void bindConstantBufferSlot(const GpuConstantBuffer* buffer, int slot) {
+        bindConstantBufferRange(buffer, sizeof(T), slot * sizeof(T));
     }
 
-    virtual std::shared_ptr<GpuTexture> CreateTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) = 0;
-    virtual std::shared_ptr<GpuTexture> CreateTexture(ImageAsset* p_image) = 0;
-    virtual void BindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) = 0;
-    virtual void UnbindTexture(Dimension p_dimension, int p_slot) = 0;
+    virtual Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
+    virtual Ref<GpuTexture> createTexture(ImageAsset* image) = 0;
+    virtual void bindTexture(Dimension dimension, uint64_t handle, int slot) = 0;
+    virtual void unbindTexture(Dimension dimension, int slot) = 0;
 
-    virtual void GenerateMipmap(const GpuTexture* p_texture) = 0;
+    virtual void generateMipmap(const GpuTexture* texture) = 0;
 
-    virtual void beginEvent(std::string_view p_event) = 0;
+    virtual void beginEvent(std::string_view event) = 0;
     virtual void endEvent() = 0;
 
-    virtual void RequestTexture(ImageAsset* p_image) = 0;
-    virtual void RequestMesh(MeshAsset* p_mesh) = 0;
+    virtual void requestTexture(ImageAsset* image) = 0;
+    virtual void requestMesh(MeshAsset* mesh) = 0;
 
     // @TODO: thread safety ?
-    virtual void EventReceived(std::shared_ptr<IEvent> p_event) = 0;
+    virtual void eventReceived(Ref<IEvent> event) = 0;
 
-    virtual FrameContext& GetCurrentFrame() = 0;
+    virtual FrameContext& getCurrentFrame() = 0;
 
-    virtual void DrawSkybox() = 0;
+    virtual void drawSkybox() = 0;
 
-    rhi::Backend backend() const { return backend_; }
+    rhi::Backend backend() const { return m_backend; }
 
-protected:
-    virtual std::shared_ptr<GpuTexture> CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) = 0;
-
-    virtual void Render() = 0;
-    virtual void Present() = 0;
-
-    virtual void BeginFrame() = 0;
-    virtual void EndFrame() = 0;
-    virtual void MoveToNextFrame() = 0;
-    virtual std::shared_ptr<FrameContext> CreateFrameContext() = 0;
-
-    virtual void beginPass(const CompiledPass& p_pass) = 0;
-    virtual void endPass(const CompiledPass& p_pass) = 0;
-
-    virtual void OnWindowResize(int p_width, int p_height) = 0;
-    virtual void SetPipelineStateImpl(PipelineStateName p_name) = 0;
+    const RenderCapabilities& getCapabilities() const { return m_capabilities; }
 
 protected:
-    virtual void UpdateEmitters(const Scene& p_scene) = 0;
+    virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
 
-private:
-    rhi::Backend backend_;
+    virtual void render() = 0;
+    virtual void present() = 0;
+
+    virtual void beginFrame() = 0;
+    virtual void endFrame() = 0;
+    virtual void moveToNextFrame() = 0;
+    virtual Ref<FrameContext> createFrameContext() = 0;
+
+    virtual void beginPass(const CompiledPass& pass) = 0;
+    virtual void endPass(const CompiledPass& pass) = 0;
+
+    virtual void onWindowResize(int width, int height) = 0;
+    virtual void setPipelineStateImpl(PipelineStateName name) = 0;
+
+protected:
+    virtual void updateEmitters(const Scene& scene) = 0;
+
+    RenderCapabilities m_capabilities{};
+ private:
+    rhi::Backend m_backend;
 };
 
 }  // namespace cave::render
