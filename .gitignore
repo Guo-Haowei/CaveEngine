@@ -12,7 +12,6 @@ build-emscripten/
 *.metallib
 *.spv
 *.meta.cpp
-glsl_generated/
 _cache
 
 # others
