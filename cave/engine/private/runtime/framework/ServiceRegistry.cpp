@@ -60,9 +60,9 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
 
     if (p_backend == Backend::OpenGL) {
 #if USING(PLATFORM_WASM)
-        return new OpenGLES3GraphicsManager;
+        return new GLES3RenderDevice;
 #else
-        return new OpenGL4GraphicsManager;
+        return new GL4RenderDevice;
 #endif
     }
 

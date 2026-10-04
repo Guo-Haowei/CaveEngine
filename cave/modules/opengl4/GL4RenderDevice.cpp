@@ -14,7 +14,7 @@ namespace cave::render {
 
 void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
-auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
+auto GL4RenderDevice::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->services().display_service);
     DEV_ASSERT(display_manager);
     if (!display_manager) {
@@ -58,23 +58,23 @@ auto OpenGL4GraphicsManager::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-void OpenGL4GraphicsManager::Dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
+void GL4RenderDevice::Dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
     glDispatchCompute(p_num_groups_x, p_num_groups_y, p_num_groups_z);
     // @TODO: this probably shouldn't be here
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
-void OpenGL4GraphicsManager::BindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
+void GL4RenderDevice::BindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
     DEV_ASSERT(p_texture);
     auto internal_format = gl::ConvertInternalFormat(p_texture->desc.format);
     glBindImageTexture(p_slot, p_texture->GetHandle32(), 0, GL_TRUE, 0, GL_READ_WRITE, internal_format);
 }
 
-void OpenGL4GraphicsManager::UnbindUnorderedAccessView(uint32_t p_slot) {
+void GL4RenderDevice::UnbindUnorderedAccessView(uint32_t p_slot) {
     glBindImageTexture(p_slot, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R11F_G11F_B10F);
 }
 
-void OpenGL4GraphicsManager::BindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
+void GL4RenderDevice::BindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
     auto buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(p_buffer);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->handle);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, p_slot, buffer->handle);
@@ -82,11 +82,11 @@ void OpenGL4GraphicsManager::BindStructuredBuffer(int p_slot, const GpuStructure
     return;
 }
 
-void OpenGL4GraphicsManager::UnbindStructuredBuffer(int p_slot) {
+void GL4RenderDevice::UnbindStructuredBuffer(int p_slot) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, p_slot, 0);
 }
 
-auto OpenGL4GraphicsManager::CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto GL4RenderDevice::CreateStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, handle);
@@ -98,7 +98,7 @@ auto OpenGL4GraphicsManager::CreateStructuredBuffer(const GpuBufferDesc& p_desc)
     return buffer;
 }
 
-void OpenGL4GraphicsManager::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
+void GL4RenderDevice::UpdateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
     auto buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(p_buffer);
     if (DEV_VERIFY(buffer)) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->handle);
@@ -110,11 +110,11 @@ void OpenGL4GraphicsManager::UpdateBufferData(const GpuBufferDesc& p_desc, const
     }
 }
 
-void OpenGL4GraphicsManager::beginEvent(std::string_view p_event) {
+void GL4RenderDevice::beginEvent(std::string_view p_event) {
     glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, p_event.data());
 }
 
-void OpenGL4GraphicsManager::endEvent() {
+void GL4RenderDevice::endEvent() {
     glPopDebugGroup();
 }
 

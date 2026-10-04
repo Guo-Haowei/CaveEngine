@@ -86,7 +86,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
         input.addDevice(std::move(keyboard_mouse_device));
     }
 
-    glfwSetWindowPos(window_, 200, 200);
+    glfwSetWindowPos(window_, 40, 40);
     glfwGetWindowSize(window_, &frame_size_.x, &frame_size_.y);
 
     switch (backend_) {
