@@ -6,9 +6,11 @@
 
 namespace cave::render {
 
-#define CAVE_VXGI       NOT_IN_USE
-#define CAVE_PARTICLE   NOT_IN_USE
-#define CAVE_PATHTRACER NOT_IN_USE
+#define CAVE_BLOOM        NOT_IN_USE
+#define CAVE_VXGI         NOT_IN_USE
+#define CAVE_PARTICLE     NOT_IN_USE
+#define CAVE_PATH_TRACER  NOT_IN_USE
+#define CAVE_POINT_SHADOW NOT_IN_USE
 
 const BlendDesc& PipelineStateManager::defaultBlendDesc() {
     return s_default_blend_state;
@@ -180,6 +182,7 @@ Result<void> PipelineStateManager::initialize() {
                                        });
 #endif
 
+#if USING(CAVE_POINT_SHADOW)
     CREATE_PSO(PSO_POINT_SHADOW, {
                                      .vs = "shadowmap_point.vs",
                                      .ps = "shadowmap_point.ps",
@@ -190,6 +193,7 @@ Result<void> PipelineStateManager::initialize() {
                                      .num_render_targets = 0,
                                      .dsv_format = PixelFormat::D32_FLOAT,
                                  });
+#endif
 
     CREATE_PSO(PSO_HIGHLIGHT, {
                                   .vs = "screenspace_quad.vs",
@@ -223,11 +227,11 @@ Result<void> PipelineStateManager::initialize() {
                                      .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                                  });
 
-#pragma region PSO_BLOOM
+#if USING(CAVE_BLOOM)
     CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
     CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
     CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
-#pragma endregion PSO_BLOOM
+#endif
 
     CREATE_PSO(PSO_ENV_SKYBOX, {
                                    .vs = "skybox.vs",
@@ -296,7 +300,7 @@ Result<void> PipelineStateManager::initialize() {
                                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                                });
 
-#if USING(CAVE_PATHTRACER)
+#if USING(CAVE_PATH_TRACER)
     CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
 #endif
 

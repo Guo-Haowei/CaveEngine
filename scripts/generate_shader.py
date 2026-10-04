@@ -34,8 +34,8 @@ input_shaders = [
     'to_cube_map.ps',
     'skybox.vs',
     'skybox.ps',
-    'shadow.vs',
-    'screenspace_quad.vs',
+    # 'shadow.vs',
+    # 'screenspace_quad.vs',
     'primitive.vs',
     'primitive.ps',
     # @TODO: get rid of ui_overlay shaders, they are the same as primitive shaders
