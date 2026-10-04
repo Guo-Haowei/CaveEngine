@@ -102,7 +102,7 @@ struct D3d12FrameContext : FrameContext {
 
 D3d12GraphicsManager::D3d12GraphicsManager()
     : RenderDevice("D3d12GraphicsManager", rhi::Backend::Direct3D12, NUM_FRAMES_IN_FLIGHT) {
-    m_pipelineStateManager = std::make_shared<D3d12PipelineStateManager>(this);
+    m_pipelineStateManager = MakeOwner<D3d12PipelineStateManager>(this);
 }
 
 auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
@@ -299,8 +299,8 @@ void D3d12GraphicsManager::MoveToNextFrame() {
     m_frameIndex = (m_frameIndex + 1) % static_cast<uint32_t>(m_frameContexts.size());
 }
 
-std::shared_ptr<FrameContext> D3d12GraphicsManager::CreateFrameContext() {
-    return std::make_unique<D3d12FrameContext>();
+Ref<FrameContext> D3d12GraphicsManager::CreateFrameContext() {
+    return MakeOwner<D3d12FrameContext>();
 }
 
 void D3d12GraphicsManager::SetStencilRef(uint32_t p_ref) {

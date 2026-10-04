@@ -17,10 +17,10 @@ D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* p_device) no
     m_defines.push_back({ nullptr, nullptr });
 }
 
-auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
 
-    auto pipeline_state = std::make_shared<D3d12PipelineState>(p_desc);
+    auto pipeline_state = MakeOwner<D3d12PipelineState>(p_desc);
 
     ComPtr<ID3DBlob> cs_blob;
     if (!p_desc.cs.empty()) {
@@ -41,10 +41,10 @@ auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc)
     return pipeline_state;
 }
 
-auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> {
+auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
 
-    auto pipeline_state = std::make_shared<D3d12PipelineState>(p_desc);
+    auto pipeline_state = MakeOwner<D3d12PipelineState>(p_desc);
     ComPtr<ID3DBlob> vs_blob;
     ComPtr<ID3DBlob> ps_blob;
 

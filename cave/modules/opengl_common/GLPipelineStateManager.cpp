@@ -91,8 +91,8 @@ static auto ProcessShader(const fs::path &p_path, int p_depth) -> Result<std::st
     return final_string;
 }
 
-static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuint> {
-    std::string file{ p_file };
+static auto CreateShader(std::string_view file_sv, GLenum shader_type) -> Result<GLuint> {
+    std::string file{ file_sv };
     file.append(".glsl");
     fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "glsl_generated" / file;
 
@@ -104,11 +104,10 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
 
     auto result = ProcessShader(fullpath, 0);
     if (!result) {
-        // LOG_FATAL("Failed to create shader program '{}', reason: {}", p_file, res.error());
         return CAVE_ERROR(result.error());
     }
 
-    // @TODO: fix this
+    // @TODO: check capability
     std::string fullsource;
     if (!is_generated) {
         fullsource =
@@ -120,7 +119,7 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     fullsource.append(*result);
     const char *sources[] = { fullsource.c_str() };
 
-    GLuint shader_id = glCreateShader(p_type);
+    GLuint shader_id = glCreateShader(shader_type);
     glShaderSource(shader_id, 1, sources, nullptr);
     glCompileShader(shader_id);
 
@@ -130,28 +129,28 @@ static auto CreateShader(std::string_view p_file, GLenum p_type) -> Result<GLuin
     if (length > 0) {
         std::vector<char> buffer(length + 1);
         glGetShaderInfoLog(shader_id, length, nullptr, buffer.data());
-        LOG_ERROR(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", p_file, buffer.data());
+        LOG_ERROR(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", file_sv, buffer.data());
         glDeleteShader(shader_id);
-        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", p_file);
+        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", file_sv);
     }
 
     if (status == GL_FALSE) {
         glDeleteShader(shader_id);
-        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "failed to compile shader '{}'", p_file);
+        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "failed to compile shader '{}'", file_sv);
     }
 
     return shader_id;
 }
 
-auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &desc) -> Result<std::shared_ptr<PipelineState>> {
+auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(desc);
 }
 
-auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &desc) -> Result<std::shared_ptr<PipelineState>> {
+auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(desc);
 }
 
-auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &desc) -> Result<std::shared_ptr<PipelineState>> {
+auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &desc) -> Result<Owner<PipelineState>> {
     GLuint program_id = glCreateProgram();
     std::vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {
@@ -231,7 +230,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &des
         program_id = 0;
     }
 
-    auto program = std::make_shared<OpenGlPipelineState>(desc);
+    auto program = MakeOwner<OpenGlPipelineState>(desc);
     program->programId = program_id;
 
     // set constants
@@ -242,6 +241,20 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &des
             glUniform1i(location, s_textureSots[i].slot);
         }
     }
+
+    // set uniform buffers
+#ifdef CAVE_CBUFFER
+#undef CAVE_CBUFFER
+#endif
+    auto set_uniform_buffer = [program_id](const char* name, int binding) {
+        GLuint index = glGetUniformBlockIndex(program_id, name);
+        if (index != GL_INVALID_INDEX) {
+            glUniformBlockBinding(program_id, index, binding);
+        }
+    };
+#define CAVE_CBUFFER(NAME, REG, DEF) set_uniform_buffer(#NAME, REG)
+#include "cbuffer_list.hlsl.h"
+#undef CAVE_CBUFFER
 
     // engine reserved
     for (int i = 0; i < 15; ++i) {

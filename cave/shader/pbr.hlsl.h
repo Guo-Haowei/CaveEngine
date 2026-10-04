@@ -154,23 +154,23 @@ float3 lighting(float3 N,
                 float3 p_base_color) {
 
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
-    const float3 H = normalize(V + L);
-    const float NdotL = max(dot(N, L), 0.0f);
-    const float NdotH = max(dot(N, H), 0.0f);
-    const float NdotV = max(dot(N, V), 0.0f);
+    float3 H = normalize(V + L);
+    float NdotL = max(dot(N, L), 0.0f);
+    float NdotH = max(dot(N, H), 0.0f);
+    float NdotV = max(dot(N, V), 0.0f);
 
     // direct cook-torrance brdf
-    const float NDF = DistributionGGX(NdotH, roughness);
-    const float G = GeometrySmith(NdotV, NdotL, roughness);
-    const float3 F = FresnelSchlick(clamp(dot(H, V), 0.0f, 1.0f), F0);
+    float NDF = DistributionGGX(NdotH, roughness);
+    float G = GeometrySmith(NdotV, NdotL, roughness);
+    float3 F = FresnelSchlick(clamp(dot(H, V), 0.0f, 1.0f), F0);
 
-    const float3 nom = NDF * G * F;
+    float3 nom = NDF * G * F;
     float denom = 4 * NdotV * NdotL;
 
     float3 specular = nom / max(denom, 0.001f);
 
-    const float3 kS = F;
-    const float3 kD = (1.0f - metallic) * (float3(1.0f, 1.0f, 1.0f) - kS);
+    float3 kS = F;
+    float3 kD = (1.0f - metallic) * (float3(1.0f, 1.0f, 1.0f) - kS);
 
     float3 direct_lighting = (kD * p_base_color / MY_PI + specular) * radiance * NdotL;
 

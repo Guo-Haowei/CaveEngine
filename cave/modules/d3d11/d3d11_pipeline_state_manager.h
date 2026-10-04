@@ -22,11 +22,11 @@ struct D3d11PipelineState : public PipelineState {
 
 class D3d11PipelineStateManager : public PipelineStateManager {
 public:
-    explicit D3d11PipelineStateManager(IRenderDevice* p_device) noexcept;
+    explicit D3d11PipelineStateManager(IRenderDevice* device) noexcept;
 
 protected:
-    auto graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
-    auto computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> final;
+    auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
+    auto computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
 
     std::unordered_map<const RasterizerDesc*, Microsoft::WRL::ComPtr<ID3D11RasterizerState>> m_rasterizerStates;
     std::unordered_map<const DepthStencilDesc*, Microsoft::WRL::ComPtr<ID3D11DepthStencilState>> m_depthStencilStates;

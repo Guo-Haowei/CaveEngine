@@ -34,8 +34,8 @@ uniform sampler3D u_Texture11;
 #include "lighting.glsl"
 
 void main() {
-    const vec2 uv = pass_uv;
-    const vec4 emissive_roughness_metallic = texture(t_GbufferMaterialMap, uv);
+    vec2 uv = pass_uv;
+    vec4 emissive_roughness_metallic = texture(t_GbufferMaterialMap, uv);
     if (emissive_roughness_metallic.a <= 0.0f) {
         discard;
     }
@@ -43,9 +43,9 @@ void main() {
     vec3 N = texture(t_GbufferNormalMap, uv).rgb;
     N = 2.0f * N - 1.0f;
 
-    const float depth = texture(t_GbufferDepth, uv).r;
-    const vec3 view_position = NdcToViewPos(uv, depth);
-    const vec3 world_position = (c_invCamView * vec4(view_position, 1.0f)).xyz;
+    float depth = texture(t_GbufferDepth, uv).r;
+    vec3 view_position = NdcToViewPos(uv, depth);
+    vec3 world_position = (c_invCamView * vec4(view_position, 1.0f)).xyz;
     float emissive = emissive_roughness_metallic.r;
     float roughness = emissive_roughness_metallic.g;
     float metallic = emissive_roughness_metallic.b;

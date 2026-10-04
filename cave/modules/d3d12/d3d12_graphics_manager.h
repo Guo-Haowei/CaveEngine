@@ -38,12 +38,12 @@ public:
 
     void SetViewport(const Viewport& p_viewport) final;
 
-    auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> final;
+    auto CreateBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> final;
     void UpdateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) final;
 
     auto CreateMeshImpl(const GpuMeshDesc& p_desc,
                         std::span<const GpuBufferDesc> p_vb_descs,
-                        const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> final;
+                        const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> final;
 
     void SetMesh(const GpuMesh* p_mesh) final;
 
