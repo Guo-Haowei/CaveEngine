@@ -12,9 +12,9 @@ class TransientPool;
 
 class EnvironmentFeature {
 public:
-    explicit EnvironmentFeature(TransientPool& p_pool, IRenderDevice& p_device) noexcept
-        : m_pool(p_pool)
-        , m_device(p_device) {}
+    explicit EnvironmentFeature(TransientPool& pool, IRenderDevice& device) noexcept
+        : m_pool(pool)
+        , m_device(device) {}
 
     struct Outputs {
         RGTextureId skybox{};
@@ -22,7 +22,7 @@ public:
         RGTextureId ibl_prefiltered{};
     };
 
-    [[nodiscard]] Outputs Build(RenderGraph& p_graph, const RenderOptions& p_plan);
+    [[nodiscard]] Outputs Build(RenderGraph& graph, const RenderOptions& plan);
 
 private:
     TransientPool& m_pool;

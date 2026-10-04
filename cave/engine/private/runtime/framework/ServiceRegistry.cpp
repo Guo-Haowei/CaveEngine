@@ -41,7 +41,7 @@ DisplayService* CreateDisplayService() {
 // @TODO: move to RHI
 static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
     using rhi::Backend;
-    
+
     if (p_backend == Backend::Direct3D11) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11GraphicsManager;

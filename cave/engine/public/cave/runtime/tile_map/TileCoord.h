@@ -12,10 +12,13 @@ namespace cave {
 struct TileCoord {
     int16_t x, y;
 
-    constexpr TileCoord(): x(0), y(0) {}
-    constexpr TileCoord(int16_t x, int16_t y) : x(x), y(y) {}
-    constexpr TileCoord(int x, int y) : x(static_cast<int16_t>(x)), y(static_cast<int16_t>(y)) {}
-    
+    constexpr TileCoord()
+        : x(0), y(0) {}
+    constexpr TileCoord(int16_t x, int16_t y)
+        : x(x), y(y) {}
+    constexpr TileCoord(int x, int y)
+        : x(static_cast<int16_t>(x)), y(static_cast<int16_t>(y)) {}
+
     constexpr bool operator==(const TileCoord&) const = default;
 
     constexpr TileCoord operator+(const TileCoord& rhs) const {
