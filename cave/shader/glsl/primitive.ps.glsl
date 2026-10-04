@@ -7,8 +7,7 @@ uniform sampler2D t_Sprite;
 
 layout(location = 0) out vec4 out_color;
 
-void main()
-{
+void main() {
     vec4 sampled_color = texture(t_Sprite, uv);
     sampled_color *= color;
 

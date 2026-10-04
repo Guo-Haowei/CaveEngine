@@ -5,8 +5,7 @@
 out vec2 uv;
 out vec4 color;
 
-void main()
-{
+void main() {
     vec2 pos2 = in_position.xy;
     pos2 = pos2 / c_screen_size * 2.0 - 1.0;
     pos2.y = -pos2.y;
