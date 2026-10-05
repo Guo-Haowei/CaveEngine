@@ -129,7 +129,7 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     if (length > 0) {
         Vector<char> buffer(length + 1);
         glGetShaderInfoLog(shader_id, length, nullptr, buffer.data());
-        LOG_ERROR(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", shader_name, buffer.data());
+        LOG_FATAL(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", shader_name, buffer.data());
         glDeleteShader(shader_id);
         return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", shader_name);
     }
@@ -220,7 +220,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pip
             LOG_WARN("[glsl] warning\ndetails:\n{}", buffer.data());
 #endif
         } else {
-            LOG_ERROR("[glsl] failed to link program\ndetails:\n{}", buffer.data());
+            LOG_FATAL("[glsl] failed to link program\ndetails:\n{}", buffer.data());
             return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
         }
     }
