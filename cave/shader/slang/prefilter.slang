@@ -43,11 +43,8 @@ float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET
 
             float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
 
-#if defined(GLSL_LANG)
-            prefilteredColor += textureLod(u_Texture0, L, mipLevel).rgb * NdotL;
-#else
-            prefilteredColor += u_Texture0.SampleLevel(s_cubemapClampSampler, L, mipLevel).rgb * NdotL;
-#endif
+            prefilteredColor += SAMPLE_TEXTURE_LOD(u_Texture0, s_cubemapClampSampler, L, mipLevel).rgb * NdotL;
+
             totalWeight += NdotL;
         }
     }

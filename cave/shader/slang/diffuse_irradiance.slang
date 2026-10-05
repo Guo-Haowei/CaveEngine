@@ -24,11 +24,7 @@ float4 ps_main(VS_OUTPUT_POSITION input)
             float ydir = sin(theta) * sin(phi);
             float zdir = cos(theta);
             float3 sample_dir = xdir * right + ydir * up + zdir * N;
-#if defined(__TARGET_GLSL__)
-            irradiance += textureLod(u_Texture0, sample_dir, 0.0).rgb * cos(theta) * sin(theta);
-#else
-            irradiance += u_Texture0.SampleLevel(s_cubemapClampSampler, sample_dir, 0.0).rgb * cos(theta) * sin(theta);
-#endif
+            irradiance += SAMPLE_TEXTURE_LOD(u_Texture0, s_cubemapClampSampler, sample_dir, 0.0).rgb * cos(theta) * sin(theta);
             samples += 1.0;
         }
     }
