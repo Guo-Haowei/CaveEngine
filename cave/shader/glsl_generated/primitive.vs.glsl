@@ -90,15 +90,15 @@ layout(std140) uniform SLANG_ParameterGroup_PerFrameConstantBuffer_std140
 layout(location = 0) in vec3 input_position;
 layout(location = 1) in vec2 input_uv;
 layout(location = 2) in vec4 input_color;
-layout(location = 0) out vec2 entryPointParam_vs_main_uv;
-layout(location = 1) out vec4 entryPointParam_vs_main_color;
+layout(location = 0) out vec2 varying_0;
+layout(location = 1) out vec4 varying_1;
 
 mat4 spvWorkaroundRowMajor(mat4 wrap) { return wrap; }
 
 void main()
 {
     gl_Position = (vec4(input_position, 1.0) * spvWorkaroundRowMajor(PerFrameConstantBuffer.c_camView)) * spvWorkaroundRowMajor(PerFrameConstantBuffer.c_camProj);
-    entryPointParam_vs_main_uv = input_uv;
-    entryPointParam_vs_main_color = input_color;
+    varying_0 = input_uv;
+    varying_1 = input_color;
 }
 

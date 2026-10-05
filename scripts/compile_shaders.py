@@ -1,9 +1,92 @@
 import argparse
-import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+
+def run_command(cmd: list[str], label: str, input_file: Path, stage: str) -> bool:
+    print(cmd)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(
+            f"[FAIL {label}] {input_file.name} ({stage}):\n{result.stderr}",
+            file=sys.stderr,
+        )
+        return False
+    return True
+
+
+def build_interface_renames(
+    stage: str,
+    varying_locations: list[int],
+) -> dict[str, dict[int, str]]:
+    """Use consistent names on adjacent shader-stage interfaces."""
+    directions_by_stage = {
+        "vertex": ("out",),
+        "geometry": ("in", "out"),
+        "fragment": ("in",),
+    }
+
+    renames: dict[str, dict[int, str]] = {}
+    for direction in directions_by_stage.get(stage, ()):
+        renames[direction] = {
+            location: f"varying_{location}"
+            for location in varying_locations
+        }
+    return renames
+
+
+def compile_slang_to_spirv(
+    slangc_bin: str,
+    input_file: Path,
+    entry_point: str,
+    stage: str,
+    spv_file: Path,
+) -> bool:
+    cmd = [
+        slangc_bin,
+        str(input_file),
+        "-entry", entry_point,
+        "-stage", stage,
+        "-target", "spirv",
+        "-no-mangle",
+        "-D__TARGET_GLSL__",
+        "-o", str(spv_file),
+    ]
+    return run_command(cmd, "slangc SPIR-V", input_file, stage)
+
+
+def compile_spirv_to_glsl(
+    spirv_cross_bin: str,
+    spv_file: Path,
+    output_file: Path,
+    glsl_version: str | None,
+    interface_renames: dict[str, dict[int, str]],
+    input_file: Path,
+    stage: str,
+) -> bool:
+    cmd = [
+        spirv_cross_bin,
+        str(spv_file),
+        "--output", str(output_file),
+        "--no-420pack-extension",
+    ]
+
+    if glsl_version:
+        cmd.extend(["--version", glsl_version])
+
+    for direction, locations in interface_renames.items():
+        for location, name in sorted(locations.items()):
+            cmd.extend([
+                "--rename-interface-variable",
+                direction,
+                str(location),
+                name,
+            ])
+
+    return run_command(cmd, "spirv-cross", input_file, stage)
+
 
 def run_slangc(
     slangc_bin: str,
@@ -14,79 +97,54 @@ def run_slangc(
     glsl_version: str | None,
     output_file: Path,
     spirv_cross_bin: str = "spirv-cross",
+    varying_locations: list[int] | None = None,
 ) -> bool:
     if target_lang == "glsl":
-        # Step 1: Slang -> SPIR-V
         spv_file = output_file.with_suffix(".spv")
-        slang_cmd = [
-            slangc_bin,
-            str(input_file),
-            "-entry",
-            entry_point,
-            "-stage",
+        interface_renames = build_interface_renames(
             stage,
-            "-target",
-            "spirv",
-            "-no-mangle",
-            "-D__TARGET_GLSL__",
-            "-o",
-            str(spv_file),
-        ]
+            varying_locations or [],
+        )
 
-        print(slang_cmd)
-        result = subprocess.run(slang_cmd, capture_output=True, text=True)
-        if result.returncode != 0:
-            print(f"[FAIL slangc SPIR-V] {input_file.name} ({stage}):\n{result.stderr}", file=sys.stderr)
-            if spv_file.exists():
-                spv_file.unlink()
-            return False
+        try:
+            if not compile_slang_to_spirv(
+                slangc_bin,
+                input_file,
+                entry_point,
+                stage,
+                spv_file,
+            ):
+                return False
 
-        # Step 2: SPIR-V -> GLSL using spirv-cross
-        spirv_cross_cmd = [
-            spirv_cross_bin,
-            str(spv_file),
-            "--output",
-            str(output_file),
-            "--no-420pack-extension",
-        ]
-        if glsl_version:
-            spirv_cross_cmd.extend(["--version", glsl_version])
-
-        print(spirv_cross_cmd)
-        spv_result = subprocess.run(spirv_cross_cmd, capture_output=True, text=True)
-
-        # Cleanup temporary intermediate .spv file
-        if spv_file.exists():
-            spv_file.unlink()
-
-        if spv_result.returncode != 0:
-            print(f"[FAIL spirv-cross] {input_file.name} ({stage}):\n{spv_result.stderr}", file=sys.stderr)
-            return False
+            if not compile_spirv_to_glsl(
+                spirv_cross_bin,
+                spv_file,
+                output_file,
+                glsl_version,
+                interface_renames,
+                input_file,
+                stage,
+            ):
+                return False
+        finally:
+            spv_file.unlink(missing_ok=True)
 
     else:
-        # Direct compilation (HLSL, etc.)
         cmd = [
             slangc_bin,
             str(input_file),
-            "-entry",
-            entry_point,
-            "-stage",
-            stage,
-            "-target",
-            target_lang,
+            "-entry", entry_point,
+            "-stage", stage,
+            "-target", target_lang,
             "-no-mangle",
         ]
 
         if target_lang == "hlsl":
-            cmd.extend(["-D__TARGET_HLSL__"])
+            cmd.append("-D__TARGET_HLSL__")
 
         cmd.extend(["-o", str(output_file)])
 
-        print(cmd)
-
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode != 0:
-            print(f"[FAIL] {input_file.name} ({stage}):\n{result.stderr}", file=sys.stderr)
+        if not run_command(cmd, "slangc", input_file, stage):
             return False
 
     print(f"[OK] {input_file.name} [{stage}] -> {output_file.name}")
@@ -94,10 +152,25 @@ def run_slangc(
 
 
 def has_entry_point(content: str, entry_point: str | None) -> bool:
-    """Check if an entry point function name exists as a whole word in the shader source."""
+    """Check whether an entry-point function name appears as a whole word."""
     if not entry_point:
         return False
     return bool(re.search(rf"\b{re.escape(entry_point)}\b", content))
+
+
+def parse_varying_locations(value: str) -> list[int]:
+    """Parse a comma-separated list such as '0,1,3'."""
+    try:
+        locations = [int(item.strip()) for item in value.split(",") if item.strip()]
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "Varying locations must be comma-separated integers, e.g. 0,1,3"
+        ) from exc
+
+    if len(locations) != len(set(locations)):
+        raise argparse.ArgumentTypeError("Varying locations must not contain duplicates")
+
+    return locations
 
 
 def compile_folder(
@@ -106,11 +179,13 @@ def compile_folder(
     lang: str,
     custom_output_folder: Path | None = None,
     entry_vs: str | None = "vs_main",
+    entry_gs: str | None = None,
     entry_ps: str | None = "ps_main",
     entry_cs: str | None = "cs_main",
     slangc_path: str = "slangc",
     spirv_cross_path: str = "spirv-cross",
-):
+    varying_locations: list[int] | None = None,
+) -> None:
     if not source_folder.exists() or not source_folder.is_dir():
         print(f"Error: Source folder '{source_folder}' does not exist.", file=sys.stderr)
         sys.exit(1)
@@ -133,25 +208,24 @@ def compile_folder(
     total_failed = 0
 
     for slang_file in slang_files:
-        stem = slang_file.stem
         try:
             content = slang_file.read_text(encoding="utf-8")
-        except Exception as e:
-            print(f"Error reading {slang_file}: {e}", file=sys.stderr)
+        except Exception as exc:
+            print(f"Error reading {slang_file}: {exc}", file=sys.stderr)
             total_failed += 1
             continue
 
-        # Candidate stages: (stage_name, entry_point, output_filename)
+        stem = slang_file.stem
         candidate_stages = [
             ("vertex", entry_vs, f"{stem}.vs.{lang}"),
+            ("geometry", entry_gs, f"{stem}.gs.{lang}"),
             ("fragment", entry_ps, f"{stem}.ps.{lang}"),
             ("compute", entry_cs, f"{stem}.cs.{lang}"),
         ]
 
-        # Filter stages that exist in the shader file
         stages = [
-            (stage, entry, out_name)
-            for stage, entry, out_name in candidate_stages
+            (stage, entry, output_name)
+            for stage, entry, output_name in candidate_stages
             if entry and has_entry_point(content, entry)
         ]
 
@@ -159,73 +233,112 @@ def compile_folder(
             print(f"Skipping '{slang_file.name}': No matching entry points found.")
             continue
 
-        for stage_name, entry_point, out_filename in stages:
-            out_path = output_folder / out_filename
+        for stage, entry_point, output_name in stages:
             success = run_slangc(
                 slangc_bin=slangc_path,
                 input_file=slang_file,
                 entry_point=entry_point,
-                stage=stage_name,
+                stage=stage,
                 target_lang=lang,
                 glsl_version=glsl_version,
-                output_file=out_path,
+                output_file=output_folder / output_name,
                 spirv_cross_bin=spirv_cross_path,
+                varying_locations=varying_locations,
             )
+
             if success:
                 total_compiled += 1
             else:
                 total_failed += 1
 
-    print(f"\nFinished: {total_compiled} stage(s) compiled successfully, {total_failed} failed.")
-    if total_failed > 0:
+    print(
+        f"\nFinished: {total_compiled} stage(s) compiled successfully, "
+        f"{total_failed} failed."
+    )
+    if total_failed:
         sys.exit(1)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Batch compile all .slang shaders in a directory to language-specific output folders."
+        description="Batch compile .slang shaders to language-specific output."
     )
     parser.add_argument(
-        "-s",
-        "--source-folder",
+        "-s", "--source-folder",
         type=Path,
         default=Path("./slang"),
-        help="Folder containing .slang source files (default: ./slang)",
+        help="Folder containing .slang files (default: ./slang)",
     )
     parser.add_argument(
-        "-o",
-        "--output-folder",
+        "-o", "--output-folder",
         type=Path,
         default=None,
-        help="Optional explicit output folder (defaults to '<lang>_generated')",
+        help="Output folder (default: '<lang>_generated')",
     )
+    default_platform = "apple" if sys.platform == "darwin" else "windows"
     parser.add_argument(
         "--platform",
         choices=["windows", "apple"],
-        default="windows",
-        help="Target platform (default: windows)",
+        default=default_platform,
+        help=f"Target platform (default: {default_platform})",
     )
     parser.add_argument(
         "--lang",
         choices=["hlsl", "glsl"],
-        default="hlsl",
-        help="Target shading language (default: hlsl)",
+        default="glsl",
+        help="Target shading language (default: glsl)",
     )
-    parser.add_argument("--slangc-path", default="slangc", help="Path to slangc binary (default: 'slangc')")
+    parser.add_argument(
+        "--entry-vs",
+        default="vs_main",
+        help="Vertex shader entry point",
+    )
+    parser.add_argument(
+        "--entry-gs",
+        default=None,
+        help="Optional geometry shader entry point",
+    )
+    parser.add_argument(
+        "--entry-ps",
+        default="ps_main",
+        help="Fragment shader entry point",
+    )
+    parser.add_argument(
+        "--entry-cs",
+        default="cs_main",
+        help="Compute shader entry point",
+    )
+    parser.add_argument(
+        "--varying-locations",
+        type=parse_varying_locations,
+        default=[],
+        help="Comma-separated interface locations to rename, e.g. 0,1",
+    )
+    parser.add_argument(
+        "--slangc-path",
+        default="slangc",
+        help="Path to slangc",
+    )
+    parser.add_argument(
+        "--spirv-cross-path",
+        default="spirv-cross",
+        help="Path to spirv-cross",
+    )
 
     args = parser.parse_args()
-
-    project_dir = os.path.dirname(os.path.abspath(__file__))
-    project_dir = os.path.dirname(project_dir)
-    spirv_cross_path = os.path.join(project_dir, 'bin/spirv-cross')
 
     compile_folder(
         source_folder=args.source_folder,
         platform=args.platform,
         lang=args.lang,
         custom_output_folder=args.output_folder,
+        entry_vs=args.entry_vs,
+        entry_gs=args.entry_gs,
+        entry_ps=args.entry_ps,
+        entry_cs=args.entry_cs,
         slangc_path=args.slangc_path,
-        spirv_cross_path=spirv_cross_path,
+        spirv_cross_path=args.spirv_cross_path,
+        varying_locations=args.varying_locations,
     )
 
 
