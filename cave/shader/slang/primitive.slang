@@ -1,13 +1,7 @@
 /// File: primitive.slang
 #include "../cbuffer.hlsl.h"
 #include "../hlsl/input_output.hlsl"
-
-#if defined(__TARGET_GLSL__)
-Sampler2D    u_Texture0;
-#else
-Texture2D    u_Texture0 : register(t0);
-SamplerState s_pointWrapSampler : register(s1);
-#endif
+#include "common.slang"
 
 [shader("vertex")]
 VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
@@ -28,12 +22,7 @@ VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
 [shader("fragment")]
 float4 ps_main(VS_OUTPUT_COLOR input) : SV_Target
 {
-
-#if defined(__TARGET_GLSL__)
-    float4 color = u_Texture0.Sample(input.uv);
-#else
-    float4 color = u_Texture0.Sample(s_pointWrapSampler, input.uv);
-#endif
+    float4 color = TEXTURE_2D(u_Texture0, s_pointWrapSampler, input.uv);
 
     color *= input.color;
 
