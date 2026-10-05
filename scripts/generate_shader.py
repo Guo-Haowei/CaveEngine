@@ -15,9 +15,9 @@ spriv_cross_path = os.path.join(project_dir, 'bin/spirv-cross')
 output_spv = 'tmp.spv'
 
 input_shaders = [
-    'bloom_setup.cs',
-    'bloom_downsample.cs',
-    'bloom_upsample.cs',
+    # 'bloom_setup.cs',
+    # 'bloom_downsample.cs',
+    # 'bloom_upsample.cs',
     'depth.ps',
     # 'mesh.vs',
     # 'gbuffer.ps',
@@ -28,18 +28,15 @@ input_shaders = [
     # 'particle_kickoff.cs',
     # 'particle_emission.cs',
     # 'particle_simulation.cs',
-    'shadowmap_point.vs',
-    'shadowmap_point.ps',
+    # 'shadowmap_point.vs',
+    # 'shadowmap_point.ps',
     'cube_map.vs',
     'to_cube_map.ps',
     # 'skybox.vs',
     # 'skybox.ps',
     # 'shadow.vs',
     # 'screenspace_quad.vs',
-    # 'primitive.vs',
-    # 'primitive.ps',
     # @TODO: get rid of ui_overlay shaders, they are the same as primitive shaders
-    # 'ui_overlay.vs',
 ]
 
 def insert_file_name(file_path):

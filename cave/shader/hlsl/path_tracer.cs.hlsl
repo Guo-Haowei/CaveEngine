@@ -9,7 +9,7 @@
 
 RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
 
-[numthreads(16, 16, 1)] void main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
+[numthreads(16, 16, 1)] void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
     // random seed
     // [0, width], [0, height]
     const int2 uv = int2(p_dispatch_thread_id.xy);

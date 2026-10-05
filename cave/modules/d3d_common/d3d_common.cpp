@@ -1,5 +1,7 @@
 #include "d3d_common.h"
 
+#include "cave/core/string/StringUtils.h"
+
 #include <d3d11.h>
 #include <d3d12.h>
 #include <d3dcompiler.h>
@@ -66,13 +68,20 @@ private:
     std::list<std::string> m_includes;
 };
 
-auto CompileShader(std::string_view p_path,
-                   const char* p_target,
-                   const D3D_SHADER_MACRO* p_defines) -> Result<ComPtr<ID3DBlob>> {
-    fs::path name = fs::path("cave") / "shader" / "hlsl" / (std::string(p_path) + ".hlsl");
-    fs::path fullpath = fs::path{ ROOT_FOLDER } / name;
-    std::string fullpath_str = fullpath.string();
+auto CompileShader(std::string_view shader_name,
+                   const char* target,
+                   const D3D_SHADER_MACRO* defines) -> Result<ComPtr<ID3DBlob>> {
+    String file_name{ shader_name };
+    file_name.append(".hlsl");
+    fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "hlsl_generated" / file_name;
 
+    bool is_generated = true;
+    if (!fs::exists(fullpath)) {
+        is_generated = false;
+        fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "hlsl" / file_name;
+    }
+
+    std::string fullpath_str = fullpath.string();
     std::wstring path{ fullpath_str.begin(), fullpath_str.end() };
     ComPtr<ID3DBlob> error;
     ComPtr<ID3DBlob> source;
@@ -87,15 +96,17 @@ auto CompileShader(std::string_view p_path,
 #endif
 
     if (!fs::exists(fullpath_str)) {
-        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file '{}' not found", name.string());
+        return CAVE_ERROR(ErrorCode::ERR_FILE_NOT_FOUND, "file '{}' not found", fullpath_str);
     }
+
+    auto entry = std::format("{}s_main", target[0]);
 
     HRESULT hr = D3DCompileFromFile(
         path.c_str(),
-        p_defines,
+        defines,
         &include_handler,
-        "main",
-        p_target,
+        entry.c_str(),
+        target,
         flags,
         0,
         source.GetAddressOf(),

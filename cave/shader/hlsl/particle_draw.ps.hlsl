@@ -4,7 +4,7 @@
 #include "sampler.hlsl.h"
 #include "shader_resource_defines.hlsl.h"
 
-float4 main(VS_OUTPUT_UV input)
+float4 ps_main(VS_OUTPUT_UV input)
     : SV_TARGET {
     float2 texcoord = input.uv;
     if (c_emitterUseTexture == 1) {

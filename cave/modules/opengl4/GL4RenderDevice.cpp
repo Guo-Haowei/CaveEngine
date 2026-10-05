@@ -125,12 +125,17 @@ void GL4RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStr
     }
 }
 
-void GL4RenderDevice::beginEvent(std::string_view p_event) {
-    glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, p_event.data());
+void GL4RenderDevice::beginEvent(std::string_view event) {
+    unused(event);
+#if !USING(PLATFORM_APPLE)
+    glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, event.data());
+#endif
 }
 
 void GL4RenderDevice::endEvent() {
+#if !USING(PLATFORM_APPLE)
     glPopDebugGroup();
+#endif
 }
 
 void APIENTRY DebugCallback(GLenum p_source,

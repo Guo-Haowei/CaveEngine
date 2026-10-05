@@ -6,7 +6,7 @@ static const float2 TOP_RIGHT = float2(1.0f, +1.0f);
 static const float2 BOTTOM_LEFT = float2(-1.0f, -1.0f);
 static const float2 BOTTOM_RIGHT = float2(1.0f, -1.0f);
 
-VS_OUTPUT_UV main(uint vert_id : SV_VertexID) {
+VS_OUTPUT_UV vs_main(uint vert_id : SV_VertexID) {
     float2 positions[6] = {
         TOP_LEFT,
         BOTTOM_RIGHT,
