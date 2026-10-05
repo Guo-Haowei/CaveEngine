@@ -1,13 +1,9 @@
-/// File: highlight.ps.glsl
-#version 410
-#ifdef GL_ARB_shading_language_420pack
-#extension GL_ARB_shading_language_420pack : require
-#endif
+#version 460
 
-layout(location = 0) out float out_var_SV_TARGET;
+layout(location = 0) out float entryPointParam_ps_main;
 
 void main()
 {
-    out_var_SV_TARGET = 1.0;
+    entryPointParam_ps_main = 1.0;
 }
 
