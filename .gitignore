@@ -6,6 +6,7 @@
 CMakeFiles/
 build/
 build-emscripten/
+hlsl_generated/
 
 # shader
 *.air

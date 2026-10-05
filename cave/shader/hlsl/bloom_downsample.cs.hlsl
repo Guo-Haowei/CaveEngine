@@ -4,7 +4,7 @@
 Texture2D t_BloomInputTexture : register(t0);
 RWTexture2D<float3> u_BloomOutputImage : register(u0);
 
-[numthreads(16, 16, 1)] void main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
+[numthreads(16, 16, 1)] void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     const uint2 output_coord = dispatch_thread_id.xy;
 
     uint width, height;

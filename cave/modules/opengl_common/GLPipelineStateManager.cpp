@@ -91,8 +91,8 @@ static auto ProcessShader(const fs::path &p_path, int p_depth) -> Result<std::st
     return final_string;
 }
 
-static auto CreateShader(std::string_view file_sv, GLenum shader_type) -> Result<GLuint> {
-    std::string file{ file_sv };
+static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Result<GLuint> {
+    String file{ shader_name };
     file.append(".glsl");
     fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "glsl_generated" / file;
 
@@ -108,7 +108,7 @@ static auto CreateShader(std::string_view file_sv, GLenum shader_type) -> Result
     }
 
     // @TODO: check capability
-    std::string fullsource;
+    String fullsource;
     if (!is_generated) {
         fullsource =
             "#version " CAVE_GLSL_VERSION_STRING
@@ -127,16 +127,16 @@ static auto CreateShader(std::string_view file_sv, GLenum shader_type) -> Result
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &status);
     glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
     if (length > 0) {
-        std::vector<char> buffer(length + 1);
+        Vector<char> buffer(length + 1);
         glGetShaderInfoLog(shader_id, length, nullptr, buffer.data());
-        LOG_ERROR(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", file_sv, buffer.data());
+        LOG_ERROR(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", shader_name, buffer.data());
         glDeleteShader(shader_id);
-        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", file_sv);
+        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", shader_name);
     }
 
     if (status == GL_FALSE) {
         glDeleteShader(shader_id);
-        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "failed to compile shader '{}'", file_sv);
+        return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "failed to compile shader '{}'", shader_name);
     }
 
     return shader_id;
@@ -152,7 +152,7 @@ auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &desc) 
 
 auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &desc) -> Result<Owner<PipelineState>> {
     GLuint program_id = glCreateProgram();
-    std::vector<GLuint> shaders;
+    Vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {
         auto res = CreateShader(path, type);
         if (res) {

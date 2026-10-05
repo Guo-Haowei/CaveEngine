@@ -2,7 +2,7 @@
 #include "cbuffer.hlsl.h"
 #include "hlsl/input_output.hlsl"
 
-VS_OUTPUT_POSITION main(VS_INPUT_MESH input,
+VS_OUTPUT_POSITION vs_main(VS_INPUT_MESH input,
                         uint instance_id : SV_InstanceID) {
     float4x4 world_matrix;
     switch (c_meshFlag) {

@@ -22,7 +22,7 @@ skip_patterns = [
 def need_format(file):
     # choose files
     file_ext = os.path.splitext(file)[1]
-    if not (file_ext in ['.hpp', '.cpp', '.h', '.c', '.hlsl', '.mm', '.m', '.inl', '.glsl']):
+    if not (file_ext in ['.hpp', '.cpp', '.h', '.c', '.mm', '.m', '.inl', '.glsl']):
         return False
 
     # white list

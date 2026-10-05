@@ -897,27 +897,27 @@ void D3d11GraphicsManager::drawArraysInstanced(uint32_t p_instance_count, uint32
 void D3d11GraphicsManager::setPipelineStateImpl(PipelineStateName p_name) {
     auto pipeline = reinterpret_cast<D3d11PipelineState*>(m_pipeline_state_manager->findPSO(p_name));
     DEV_ASSERT(pipeline);
-    if (pipeline->computeShader) {
-        m_deviceContext->CSSetShader(pipeline->computeShader.Get(), nullptr, 0);
+    if (pipeline->cs) {
+        m_deviceContext->CSSetShader(pipeline->cs.Get(), nullptr, 0);
         return;
     }
 
-    m_deviceContext->VSSetShader(pipeline->vertexShader.Get(), 0, 0);
-    m_deviceContext->IASetInputLayout(pipeline->inputLayout.Get());
-    m_deviceContext->PSSetShader(pipeline->pixelShader.Get(), 0, 0);
+    m_deviceContext->VSSetShader(pipeline->vs.Get(), 0, 0);
+    m_deviceContext->IASetInputLayout(pipeline->input_layout.Get());
+    m_deviceContext->PSSetShader(pipeline->ps.Get(), 0, 0);
 
-    if (pipeline->rasterizerState.Get() != m_stateCache.rasterizer) {
-        m_deviceContext->RSSetState(pipeline->rasterizerState.Get());
-        m_stateCache.rasterizer = pipeline->rasterizerState.Get();
+    if (pipeline->rasterizer_state.Get() != m_stateCache.rasterizer) {
+        m_deviceContext->RSSetState(pipeline->rasterizer_state.Get());
+        m_stateCache.rasterizer = pipeline->rasterizer_state.Get();
     }
-    if (pipeline->depthStencilState.Get() != m_stateCache.depthStencil) {
-        m_deviceContext->OMSetDepthStencilState(pipeline->depthStencilState.Get(), 0);
-        m_stateCache.depthStencil = pipeline->depthStencilState.Get();
+    if (pipeline->depth_stencil_state.Get() != m_stateCache.depthStencil) {
+        m_deviceContext->OMSetDepthStencilState(pipeline->depth_stencil_state.Get(), 0);
+        m_stateCache.depthStencil = pipeline->depth_stencil_state.Get();
     }
-    if (pipeline->blendState.Get() != m_stateCache.blendState) {
+    if (pipeline->blend_state.Get() != m_stateCache.blendState) {
         // @TODO: remove hard code mask
-        m_deviceContext->OMSetBlendState(pipeline->blendState.Get(), nullptr, 0xFFFFFFFF);
-        m_stateCache.blendState = pipeline->blendState.Get();
+        m_deviceContext->OMSetBlendState(pipeline->blend_state.Get(), nullptr, 0xFFFFFFFF);
+        m_stateCache.blendState = pipeline->blend_state.Get();
     }
 
     auto topology = d3d::Convert(pipeline->desc.primitive_topology);
