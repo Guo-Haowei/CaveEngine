@@ -6,6 +6,7 @@
 CMakeFiles/
 build/
 build-emscripten/
+glsl_generated/
 hlsl_generated/
 
 # shader

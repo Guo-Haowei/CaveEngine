@@ -1,14 +1,18 @@
-/// File: shared_prefilter.h
+/// File: prefilter.slang
+#include "../cbuffer.hlsl.h"
+#include "../pbr.hlsl.h"
+#include "../hlsl/input_output.hlsl"
+
+#include "common.slang"
+
 #define SAMPLE_COUNT 1024u
 
-#if defined(GLSL_LANG)
-void main() {
-    float3 N = normalize(out_var_POSITION);
-#else
-float4 ps_main(VS_OUTPUT_POSITION input)
-    : SV_TARGET {
+TEXTURE_CUBE(u_Texture0, t0);
+
+[shader("fragment")]
+float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET
+{
     float3 N = normalize(input.world_position);
-#endif
 
     // make the simplyfying assumption that V equals R equals the normal
     float3 R = N;
@@ -39,20 +43,13 @@ float4 ps_main(VS_OUTPUT_POSITION input)
 
             float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
 
-#if defined(GLSL_LANG)
-            prefilteredColor += textureLod(t_Skybox, L, mipLevel).rgb * NdotL;
-#else
-            prefilteredColor += t_Skybox.SampleLevel(s_cubemapClampSampler, L, mipLevel).rgb * NdotL;
-#endif
+            prefilteredColor += SAMPLE_TEXTURE_LEVEL(u_Texture0, s_cubemapClampSampler, L, mipLevel).rgb * NdotL;
+
             totalWeight += NdotL;
         }
     }
 
     prefilteredColor = prefilteredColor / totalWeight;
 
-#if defined(GLSL_LANG)
-    out_color = vec4(prefilteredColor, 1.0);
-#else
     return float4(prefilteredColor, 1.0);
-#endif
 }

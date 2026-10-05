@@ -42,9 +42,6 @@ struct RenderCapabilities {
     bool supportComputeShaders = true;
     bool supportGeometryShaders = true;
     bool supportStructuredBuffers = true;
-
-    // @TODO: remove this after fixing shader
-    bool supportIBL = true;
 };
 
 // @TODO: split this class to RenderDevice and RHI

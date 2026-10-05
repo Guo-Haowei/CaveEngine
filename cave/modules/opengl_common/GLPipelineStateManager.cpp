@@ -129,7 +129,7 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     if (length > 0) {
         Vector<char> buffer(length + 1);
         glGetShaderInfoLog(shader_id, length, nullptr, buffer.data());
-        LOG_ERROR(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", shader_name, buffer.data());
+        LOG_FATAL(LogChannel::Render, "[glsl] failed to compile shader_id '{}'\ndetails:\n{}", shader_name, buffer.data());
         glDeleteShader(shader_id);
         return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "[glsl] failed to compile shader_id '{}'", shader_name);
     }
@@ -220,7 +220,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pip
             LOG_WARN("[glsl] warning\ndetails:\n{}", buffer.data());
 #endif
         } else {
-            LOG_ERROR("[glsl] failed to link program\ndetails:\n{}", buffer.data());
+            LOG_FATAL("[glsl] failed to link program\ndetails:\n{}", buffer.data());
             return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
         }
     }
@@ -233,8 +233,9 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pip
     auto program = MakeOwner<OpenGlPipelineState>(pipeline_state_desc);
     program->programId = program_id;
 
-    // set constants
     glUseProgram(program_id);
+
+    // set uniforms
     for (uint32_t i = 0; i < std::size(s_textureSots); ++i) {
         const int location = glGetUniformLocation(program_id, s_textureSots[i].name);
         if (location != -1) {
@@ -242,7 +243,6 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pip
         }
     }
 
-    // set uniform buffers
 #ifdef CAVE_CBUFFER
 #undef CAVE_CBUFFER
 #endif
@@ -260,7 +260,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pip
 #include "cbuffer_list.hlsl.h"
 #undef CAVE_CBUFFER
 
-    // engine reserved
+    // set textures
     for (int i = 0; i < 15; ++i) {
         auto name = std::format("u_Texture{}", i);
         const int location = glGetUniformLocation(program_id, name.c_str());
@@ -269,22 +269,6 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pip
         }
     }
 
-    // Setup texture locations
-    auto set_location = [&](const char *name, int slot) {
-        const int location = glGetUniformLocation(program_id, name);
-#if 0
-        if (location < 0) {
-            LOG_WARN("{} not found, location {}", name, location);
-        } else {
-            LOG_OK("{} found, location {}", name, location);
-        }
-#endif
-        glUniform1i(location, slot);
-    };
-    set_location("SPIRV_Cross_Combinedt_TextureLightings_linearClampSampler", 0);
-    set_location("SPIRV_Cross_Combinedt_BloomInputTextureSPIRV_Cross_DummySampler", 0);
-    set_location("SPIRV_Cross_Combinedt_BloomInputTextures_linearClampSampler", 0);
-    set_location("SPIRV_Cross_Combinedt_Sprites_pointClampSampler", 0);
     glUseProgram(0);
 
     return program;

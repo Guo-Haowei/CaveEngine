@@ -257,7 +257,7 @@ Renderer::Impl::Impl(EngineServices& services)
 
 auto Renderer::Impl::initialize() -> Result<void> {
     m_capabilities.canRunBloom = m_device.getCapabilities().supportComputeShaders;
-    m_capabilities.canRunIBL = m_device.getCapabilities().supportIBL;
+    m_capabilities.canRunIBL = true;
     return Result<void>();
 }
 
