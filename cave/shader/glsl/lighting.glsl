@@ -2,6 +2,7 @@
 #include "../pbr.hlsl.h"
 #include "shadow.glsl"
 
+#define DISABLE_VXGI
 #ifdef DISABLE_VXGI
 #define ENABLE_VXGI 0
 #else
