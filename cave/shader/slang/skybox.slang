@@ -24,7 +24,5 @@ float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET {
     uvw.y = -uvw.y;
 #endif
     float3 color = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_cubemapClampSampler, uvw, 0.0f).rgb;
-    //  color = color / (color + float3(1.0, 1.0, 1.0));
-    //  color = pow(color, float3(1.0, 1.0, 1.0) / 2.2);
     return float4(color, 1.0f);
 }
