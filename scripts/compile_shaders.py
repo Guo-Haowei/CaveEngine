@@ -64,7 +64,6 @@ def compile_folder(
     output_folder.mkdir(parents=True, exist_ok=True)
 
     glsl_version = "410" if platform == "apple" else "460"
-    glsl_version = "410"
 
     slang_files = list(source_folder.glob("*.slang"))
     if not slang_files:
