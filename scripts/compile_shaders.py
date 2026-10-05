@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -47,13 +48,21 @@ def run_slangc(
     return True
 
 
+def has_entry_point(content: str, entry_point: str | None) -> bool:
+    """Check if an entry point function name exists as a whole word in the shader source."""
+    if not entry_point:
+        return False
+    return bool(re.search(rf"\b{re.escape(entry_point)}\b", content))
+
+
 def compile_folder(
     source_folder: Path,
     platform: str,
     lang: str,
     custom_output_folder: Path | None = None,
-    entry_vs: str = "vs_main",
-    entry_ps: str = "ps_main",
+    entry_vs: str | None = "vs_main",
+    entry_ps: str | None = "ps_main",
+    entry_cs: str | None = "cs_main",
     slangc_path: str = "slangc",
 ):
     if not source_folder.exists() or not source_folder.is_dir():
@@ -79,10 +88,30 @@ def compile_folder(
 
     for slang_file in slang_files:
         stem = slang_file.stem
-        stages = [
+        try:
+            content = slang_file.read_text(encoding="utf-8")
+        except Exception as e:
+            print(f"Error reading {slang_file}: {e}", file=sys.stderr)
+            total_failed += 1
+            continue
+
+        # Define candidate stages: (stage_name, entry_point, output_filename)
+        candidate_stages = [
             ("vertex", entry_vs, f"{stem}.vs.{lang}"),
             ("fragment", entry_ps, f"{stem}.ps.{lang}"),
+            ("compute", entry_cs, f"{stem}.cs.{lang}"),
         ]
+
+        # Only include stages where entry_point is specified AND exists in the shader text
+        stages = [
+            (stage, entry, out_name)
+            for stage, entry, out_name in candidate_stages
+            if entry and has_entry_point(content, entry)
+        ]
+
+        if not stages:
+            print(f"Skipping '{slang_file.name}': No matching entry points found.")
+            continue
 
         for stage_name, entry_point, out_filename in stages:
             out_path = output_folder / out_filename
@@ -135,8 +164,6 @@ def main():
         default="hlsl",
         help="Target shading language (default: hlsl)",
     )
-    parser.add_argument("--entry-vs", default="vs_main", help="Vertex shader entry point (default: vs_main)")
-    parser.add_argument("--entry-ps", default="ps_main", help="Pixel/Fragment shader entry point (default: ps_main)")
     parser.add_argument("--slangc-path", default="slangc", help="Path to slangc binary (default: 'slangc')")
 
     args = parser.parse_args()
@@ -146,8 +173,6 @@ def main():
         platform=args.platform,
         lang=args.lang,
         custom_output_folder=args.output_folder,
-        entry_vs=args.entry_vs,
-        entry_ps=args.entry_ps,
         slangc_path=args.slangc_path,
     )
 

@@ -2,8 +2,8 @@
 layout(row_major) uniform;
 layout(row_major) buffer;
 
-#line 83 0
-layout(binding = 0)
+#line 23 0
+layout(binding = 7)
 uniform sampler2D u_Texture0;
 
 
@@ -22,26 +22,26 @@ layout(location = 1)
 in vec4 input_color_0;
 
 
-#line 110 0
+#line 50 0
 void main()
 {
 
-#line 121
+#line 59
     vec4 color_0 = (texture((u_Texture0), (input_uv_0))) * input_color_0;
 
     if((color_0.w) < 0.00999999977648258)
     {
 
-#line 124
+#line 62
         discard;
 
-#line 123
+#line 61
     }
 
-#line 123
+#line 61
     entryPointParam_ps_main_0 = color_0;
 
-#line 123
+#line 61
     return;
 }
 

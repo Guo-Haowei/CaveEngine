@@ -50,7 +50,7 @@
 
 #if defined(__cplusplus)
 #define VCT_CONST constexpr
-#elif defined(HLSL_LANG) || defined(__SLANG__)
+#elif defined(HLSL_LANG) || defined(__SLANG__) || defined(__TARGET_HLSL__)
 #define VCT_CONST static const
 #else
 #define VCT_CONST const

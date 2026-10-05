@@ -62,7 +62,7 @@ using sampler3D = sampler_t;
 using samplerCube = sampler_t;
 
 // @TODO: remove this constraint
-#elif defined(HLSL_LANG)
+#elif defined(HLSL_LANG) || defined(__SLANG__)
 #define CAVE_CBUFFER(NAME, REG, DEF) cbuffer NAME : register(b##REG) DEF
 
 #define TextureHandle int2

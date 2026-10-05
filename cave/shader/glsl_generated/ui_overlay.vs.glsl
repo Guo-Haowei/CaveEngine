@@ -121,32 +121,32 @@ layout(std140) uniform block_SLANG_ParameterGroup_PerFrameConstantBuffer_0
     ForceField_0  c_forceFields[64];
 }PerFrameConstantBuffer;
 
-#line 19 2
+#line 15 2
 layout(location = 0)
 out vec2 entryPointParam_vs_main_uv_0;
 
 
-#line 19
+#line 15
 layout(location = 1)
 out vec4 entryPointParam_vs_main_color_0;
 
 
-#line 19
+#line 15
 layout(location = 0)
 in vec3 input_position_0;
 
 
-#line 19
+#line 15
 layout(location = 1)
 in vec2 input_uv_0;
 
 
-#line 19
+#line 15
 layout(location = 2)
 in vec4 input_color_0;
 
 
-#line 15
+#line 11
 struct VSOutput_0
 {
     vec4 position_2;
@@ -155,28 +155,33 @@ struct VSOutput_0
 };
 
 
-#line 34
 void main()
 {
+    vec2 _S1 = input_position_0.xy / PerFrameConstantBuffer.c_screen_size * 2.0 - 1.0;
+
+#line 20
+    vec2 pos2_0 = _S1;
+
+    pos2_0[1] = - _S1.y;
+
+
     VSOutput_0 output_0;
-
-#line 42
-    output_0.position_2 = ((((((vec4(input_position_0, 1.0)) * (PerFrameConstantBuffer.c_camView)))) * (PerFrameConstantBuffer.c_camProj)));
+    output_0.position_2 = vec4(pos2_0, 0.0, 1.0);
     output_0.uv_0 = input_uv_0;
+    output_0.uv_0[1] = 1.0 - input_uv_0.y;
     output_0.color_1 = input_color_0;
+    VSOutput_0 _S2 = output_0;
 
-    VSOutput_0 _S1 = output_0;
-
-#line 46
+#line 30
     gl_Position = output_0.position_2;
 
-#line 46
-    entryPointParam_vs_main_uv_0 = _S1.uv_0;
+#line 30
+    entryPointParam_vs_main_uv_0 = _S2.uv_0;
 
-#line 46
-    entryPointParam_vs_main_color_0 = _S1.color_1;
+#line 30
+    entryPointParam_vs_main_color_0 = _S2.color_1;
 
-#line 46
+#line 30
     return;
 }
 
