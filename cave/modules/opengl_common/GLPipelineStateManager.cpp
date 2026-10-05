@@ -142,15 +142,15 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     return shader_id;
 }
 
-auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &desc) -> Result<Owner<PipelineState>> {
-    return CreatePipelineImpl(desc);
+auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
+    return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &desc) -> Result<Owner<PipelineState>> {
-    return CreatePipelineImpl(desc);
+auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
+    return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &desc) -> Result<Owner<PipelineState>> {
+auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
     GLuint program_id = glCreateProgram();
     Vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {
@@ -168,22 +168,22 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &des
         }
     });
 
-    switch (desc.type) {
+    switch (pipeline_state_desc.type) {
         case PipelineStateType::GRAPHICS: {
             Result<GLuint> result(0);
             do {
-                if (!desc.vs.empty()) {
-                    result = create_shader_helper(desc.vs, GL_VERTEX_SHADER);
+                if (!pipeline_state_desc.vs.empty()) {
+                    result = create_shader_helper(pipeline_state_desc.vs, GL_VERTEX_SHADER);
                     if (!result) { break; }
                 }
 #if !USING(USE_GLES3)
-                if (!desc.gs.empty()) {
-                    result = create_shader_helper(desc.gs, GL_GEOMETRY_SHADER);
+                if (!pipeline_state_desc.gs.empty()) {
+                    result = create_shader_helper(pipeline_state_desc.gs, GL_GEOMETRY_SHADER);
                     if (!result) { break; }
                 }
 #endif
-                if (!desc.ps.empty()) {
-                    result = create_shader_helper(desc.ps, GL_FRAGMENT_SHADER);
+                if (!pipeline_state_desc.ps.empty()) {
+                    result = create_shader_helper(pipeline_state_desc.ps, GL_FRAGMENT_SHADER);
                     if (!result) { break; }
                 }
             } while (0);
@@ -193,8 +193,8 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &des
         } break;
 #if !USING(USE_GLES3)
         case PipelineStateType::COMPUTE: {
-            DEV_ASSERT(!desc.cs.empty());
-            auto result = create_shader_helper(desc.cs, GL_COMPUTE_SHADER);
+            DEV_ASSERT(!pipeline_state_desc.cs.empty());
+            auto result = create_shader_helper(pipeline_state_desc.cs, GL_COMPUTE_SHADER);
             if (!result) {
                 return CAVE_ERROR(result.error());
             }
@@ -230,7 +230,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &des
         program_id = 0;
     }
 
-    auto program = MakeOwner<OpenGlPipelineState>(desc);
+    auto program = MakeOwner<OpenGlPipelineState>(pipeline_state_desc);
     program->programId = program_id;
 
     // set constants
@@ -252,7 +252,11 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &des
             glUniformBlockBinding(program_id, index, binding);
         }
     };
-#define CAVE_CBUFFER(NAME, REG, DEF) set_uniform_buffer(#NAME, REG)
+#define CAVE_CBUFFER(NAME, REG, DEF)                                      \
+    do {                                                                  \
+        set_uniform_buffer(#NAME, REG);                                   \
+        set_uniform_buffer("SLANG_ParameterGroup_" #NAME "_std140", REG); \
+    } while (0)
 #include "cbuffer_list.hlsl.h"
 #undef CAVE_CBUFFER
 

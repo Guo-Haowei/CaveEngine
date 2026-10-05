@@ -1,43 +1,56 @@
-#version 460
-layout(row_major) uniform;
-layout(row_major) buffer;
+#version 410
 
-#line 6 0
-struct Light_0
+struct _Array_std140_vector_float_4_4
 {
-    mat4x4 projection_matrix_0;
-    mat4x4 view_matrix_0;
-    vec4  points_0[4];
-    vec3 color_0;
-    int type_0;
-    vec3 position_0;
-    int cast_shadow_0;
-    float atten_constant_0;
-    float atten_linear_0;
-    float atten_quadratic_0;
-    float max_distance_0;
-    vec3 padding_0;
-    int shadow_map_index_0;
+    vec4 data[4];
 };
 
-
-#line 27
-struct ForceField_0
+struct Light_std140
 {
-    vec3 position_1;
-    float strength_0;
+    mat4 projection_matrix;
+    mat4 view_matrix;
+    _Array_std140_vector_float_4_4 points;
+    vec3 color;
+    int type;
+    vec3 position;
+    int cast_shadow;
+    float atten_constant;
+    float atten_linear;
+    float atten_quadratic;
+    float max_distance;
+    vec3 padding;
+    int shadow_map_index;
 };
 
-
-#line 81 1
-struct SLANG_ParameterGroup_PerFrameConstantBuffer_0
+struct _Array_std140_Light16
 {
-    Light_0  c_lights[16];
-    vec4  c_ssaoKernel[64];
-    mat4x4 c_camProj;
-    mat4x4 c_camView;
-    mat4x4 c_invCamProj;
-    mat4x4 c_invCamView;
+    Light_std140 data[16];
+};
+
+struct _Array_std140_vector_float_4_64
+{
+    vec4 data[64];
+};
+
+struct ForceField_std140
+{
+    vec3 position;
+    float strength;
+};
+
+struct _Array_std140_ForceField64
+{
+    ForceField_std140 data[64];
+};
+
+layout(std140) uniform SLANG_ParameterGroup_PerFrameConstantBuffer_std140
+{
+    layout(row_major) _Array_std140_Light16 c_lights;
+    _Array_std140_vector_float_4_64 c_ssaoKernel;
+    layout(row_major) mat4 c_camProj;
+    layout(row_major) mat4 c_camView;
+    layout(row_major) mat4 c_invCamProj;
+    layout(row_major) mat4 c_invCamView;
     vec4 _per_frame_padding_2;
     vec4 _per_frame_padding_3;
     vec4 _per_frame_padding_4;
@@ -71,117 +84,23 @@ struct SLANG_ParameterGroup_PerFrameConstantBuffer_0
     int c_scene_dirty;
     vec3 c_cameraUp;
     float c_voxelSize;
-    ForceField_0  c_forceFields[64];
-};
+    _Array_std140_ForceField64 c_forceFields;
+} PerFrameConstantBuffer;
 
-
-#line 81
-layout(binding = 5)
-layout(std140) uniform block_SLANG_ParameterGroup_PerFrameConstantBuffer_0
-{
-    Light_0  c_lights[16];
-    vec4  c_ssaoKernel[64];
-    mat4x4 c_camProj;
-    mat4x4 c_camView;
-    mat4x4 c_invCamProj;
-    mat4x4 c_invCamView;
-    vec4 _per_frame_padding_2;
-    vec4 _per_frame_padding_3;
-    vec4 _per_frame_padding_4;
-    vec3 c_sunPosition;
-    int c_iblEnabled;
-    vec4 c_ambientColor;
-    int c_lightCount;
-    int c_enableBloom;
-    int c_debugCsm;
-    float c_bloomThreshold;
-    int c_debugVoxelId;
-    int c_ssaoEnabled;
-    int c_enableVxgi;
-    float c_texelSize;
-    vec2 c_screen_size;
-    float c_ssaoKernalRadius;
-    int c_ptObjectCount;
-    uint c_DiffuseIrradianceResidentHandle;
-    uint c_PrefilteredResidentHandle;
-    uint c_BrdfLutResidentHandle;
-    int c_forceFieldsCount;
-    vec4 _c_SkyboxHdrResidentHandle;
-    vec4 _c_ShadowMapResidentHandle;
-    vec3 c_cameraPosition;
-    float c_camera_fovy;
-    vec3 c_voxelWorldCenter;
-    float c_voxelWorldSizeHalf;
-    vec3 c_cameraForward;
-    uint c_frame_index;
-    vec3 c_cameraRight;
-    int c_scene_dirty;
-    vec3 c_cameraUp;
-    float c_voxelSize;
-    ForceField_0  c_forceFields[64];
-}PerFrameConstantBuffer;
-
-#line 15 2
-layout(location = 0)
-out vec2 entryPointParam_vs_main_uv_0;
-
-
-#line 15
-layout(location = 1)
-out vec4 entryPointParam_vs_main_color_0;
-
-
-#line 15
-layout(location = 0)
-in vec3 input_position_0;
-
-
-#line 15
-layout(location = 1)
-in vec2 input_uv_0;
-
-
-#line 15
-layout(location = 2)
-in vec4 input_color_0;
-
-
-#line 11
-struct VSOutput_0
-{
-    vec4 position_2;
-    vec2 uv_0;
-    vec4 color_1;
-};
-
+layout(location = 0) in vec3 input_position;
+layout(location = 1) in vec2 input_uv;
+layout(location = 2) in vec4 input_color;
+layout(location = 0) out vec2 entryPointParam_vs_main_uv;
+layout(location = 1) out vec4 entryPointParam_vs_main_color;
 
 void main()
 {
-    vec2 _S1 = input_position_0.xy / PerFrameConstantBuffer.c_screen_size * 2.0 - 1.0;
-
-#line 20
-    vec2 pos2_0 = _S1;
-
-    pos2_0[1] = - _S1.y;
-
-
-    VSOutput_0 output_0;
-    output_0.position_2 = vec4(pos2_0, 0.0, 1.0);
-    output_0.uv_0 = input_uv_0;
-    output_0.uv_0[1] = 1.0 - input_uv_0.y;
-    output_0.color_1 = input_color_0;
-    VSOutput_0 _S2 = output_0;
-
-#line 30
-    gl_Position = output_0.position_2;
-
-#line 30
-    entryPointParam_vs_main_uv_0 = _S2.uv_0;
-
-#line 30
-    entryPointParam_vs_main_color_0 = _S2.color_1;
-
-#line 30
-    return;
+    vec2 _46 = ((input_position.xy / PerFrameConstantBuffer.c_screen_size) * 2.0) - vec2(1.0);
+    _46.y = -_46.y;
+    vec2 _62 = input_uv;
+    _62.y = 1.0 - _62.y;
+    gl_Position = vec4(_46, 0.0, 1.0);
+    entryPointParam_vs_main_uv = _62;
+    entryPointParam_vs_main_color = input_color;
 }
 
