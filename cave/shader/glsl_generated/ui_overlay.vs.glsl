@@ -1,4 +1,4 @@
-#version 410
+#version 460
 
 struct _Array_std140_vector_float_4_4
 {
@@ -43,7 +43,7 @@ struct _Array_std140_ForceField64
     ForceField_std140 data[64];
 };
 
-layout(std140) uniform SLANG_ParameterGroup_PerFrameConstantBuffer_std140
+layout(binding = 5, std140) uniform SLANG_ParameterGroup_PerFrameConstantBuffer_std140
 {
     layout(row_major) _Array_std140_Light16 c_lights;
     _Array_std140_vector_float_4_64 c_ssaoKernel;
@@ -90,8 +90,8 @@ layout(std140) uniform SLANG_ParameterGroup_PerFrameConstantBuffer_std140
 layout(location = 0) in vec3 input_position;
 layout(location = 1) in vec2 input_uv;
 layout(location = 2) in vec4 input_color;
-layout(location = 0) out vec2 varying_0;
-layout(location = 1) out vec4 varying_1;
+layout(location = 0) out vec2 entryPointParam_vs_main_uv;
+layout(location = 1) out vec4 entryPointParam_vs_main_color;
 
 void main()
 {
@@ -100,7 +100,7 @@ void main()
     vec2 _62 = input_uv;
     _62.y = 1.0 - _62.y;
     gl_Position = vec4(_46, 0.0, 1.0);
-    varying_0 = _62;
-    varying_1 = input_color;
+    entryPointParam_vs_main_uv = _62;
+    entryPointParam_vs_main_color = input_color;
 }
 
