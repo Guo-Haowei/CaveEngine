@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def run_slangc(
     slangc_bin: str,
     input_file: Path,
@@ -22,9 +23,15 @@ def run_slangc(
         stage,
         "-target",
         target_lang,
+        "-no-mangle",
     ]
 
+    if target_lang == "glsl" and glsl_version:
+        cmd.extend(["-profile", f"glsl_{glsl_version}"])
+
     cmd.extend(["-o", str(output_file)])
+
+    print(cmd)
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
@@ -52,6 +59,7 @@ def compile_folder(
     output_folder.mkdir(parents=True, exist_ok=True)
 
     glsl_version = "410" if platform == "apple" else "460"
+    # glsl_version = "460"
 
     slang_files = list(source_folder.glob("*.slang"))
     if not slang_files:
