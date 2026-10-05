@@ -3,6 +3,8 @@
 #include "../hlsl/input_output.hlsl"
 #include "common.slang"
 
+TEXTURE_2D(u_Texture0, t0); // t_Sprite
+
 [shader("vertex")]
 VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
 {
@@ -22,7 +24,7 @@ VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
 [shader("fragment")]
 float4 ps_main(VS_OUTPUT_COLOR input) : SV_Target
 {
-    float4 color = TEXTURE_2D(u_Texture0, s_pointWrapSampler, input.uv);
+    float4 color = SAMPLE_TEXTURE_2D(u_Texture0, s_pointWrapSampler, input.uv);
 
     color *= input.color;
 

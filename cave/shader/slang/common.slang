@@ -1,19 +1,15 @@
 #pragma once
 #if defined(__TARGET_GLSL__)
 
-#define TEXTURE_2D(SAM, DUMMY, UV) SAM.Sample(UV)
-
-Sampler2D    u_Texture0;
-Sampler2D    u_Texture1;
-Sampler2D    u_Texture2;
+#define TEXTURE_2D(NAME, BINDING) Sampler2D NAME
+#define TEXTURE_CUBE(NAME, BINDING) SamplerCube NAME
+#define SAMPLE_TEXTURE_2D(SAM, DUMMY, UV) SAM.Sample(UV)
 
 #elif defined(__TARGET_HLSL__)
 
-#define TEXTURE_2D(TEX, SAM, UV) TEX.Sample(SAM, UV)
-
-Texture2D    u_Texture0 : register(t0);
-Texture2D    u_Texture1 : register(t1);
-Texture2D    u_Texture2 : register(t2);
+#define TEXTURE_2D(NAME, BINDING) Texture2D NAME : register(BINDING)
+#define TEXTURE_CUBE(NAME, BINDING) TextureCube NAME : register(BINDING)
+#define SAMPLE_TEXTURE_2D(TEX, SAM, UV) TEX.Sample(SAM, UV)
 
 SamplerState s_pointClampSampler : register(s0);
 SamplerState s_pointWrapSampler : register(s1);
