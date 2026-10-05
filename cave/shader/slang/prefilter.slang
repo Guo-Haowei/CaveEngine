@@ -43,7 +43,7 @@ float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET
 
             float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
 
-            prefilteredColor += SAMPLE_TEXTURE_LOD(u_Texture0, s_cubemapClampSampler, L, mipLevel).rgb * NdotL;
+            prefilteredColor += SAMPLE_TEXTURE_LEVEL(u_Texture0, s_cubemapClampSampler, L, mipLevel).rgb * NdotL;
 
             totalWeight += NdotL;
         }

@@ -245,7 +245,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                                });
 
-    if constexpr(1) {
+    if constexpr (1) {
         CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
                                                    .vs = "cube_map.vs",
                                                    .ps = "to_cube_map.ps",
