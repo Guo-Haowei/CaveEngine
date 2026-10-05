@@ -79,8 +79,12 @@ struct VSOutput
     float4 color    : COLOR0;
 };
 
+#if defined(__TARGET_GLSL__)
+Sampler2D    u_Texture0;
+#elif defined(__TARGET_HLSL__)
 Texture2D    u_Texture0 : register(t0);
 SamplerState s_pointWrapSampler : register(s1);
+#endif
 
 // -----------------------------------------------------------------------------
 // Vertex Shader Entry Point
@@ -106,7 +110,14 @@ VSOutput vs_main(VSInput input)
 float4 ps_main(VSOutput input) : SV_Target
 {
 
+#if defined(__TARGET_GLSL__)
+    float4 color = u_Texture0.Sample(input.uv);
+#elif defined(__TARGET_HLSL__)
     float4 color = u_Texture0.Sample(s_pointWrapSampler, input.uv);
+#else
+#error "NOT SUPPORTED"
+#endif
+
     color *= input.color;
 
     if (color.a < 0.01f) {
