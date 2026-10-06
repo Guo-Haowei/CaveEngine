@@ -17,6 +17,8 @@ jobs:
   format:
     name: Format
     runs-on: self-hosted
+    env:
+      PATH: /opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
     steps:
       - name: Check Formatting
         uses: actions/checkout@v5
