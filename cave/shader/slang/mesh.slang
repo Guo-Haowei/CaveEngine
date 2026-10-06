@@ -2,8 +2,6 @@
 #include "../cbuffer.hlsl.h"
 #include "../hlsl/input_output.hlsl"
 
-// #include "common.slang"
-
 [shader("vertex")]
 VS_OUTPUT_MESH vs_main(VS_INPUT_MESH input, uint instance_id : SV_InstanceID) {
     float4x4 world_matrix;

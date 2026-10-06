@@ -1,79 +1,30 @@
-/// File: shadow.hlsl
+/// File: shadow.slang
 #include "../cbuffer.hlsl.h"
+#include "../hlsl/input_output.hlsl"
 
-// @TODO: refactor this part
-// #if defined(HLSL_LANG)
+[shader("vertex")]
+float4 vs_main(VS_INPUT_MESH input, uint instance_id : SV_InstanceID) : SV_POSITION {
+    float4x4 world_matrix;
+    switch (c_meshFlag) {
+        case MESH_HAS_BONE: {
+            float4x4 bone_matrix = c_bones[input.boneIndex.x] * input.boneWeight.x;
+            bone_matrix += c_bones[input.boneIndex.y] * input.boneWeight.y;
+            bone_matrix += c_bones[input.boneIndex.z] * input.boneWeight.z;
+            bone_matrix += c_bones[input.boneIndex.w] * input.boneWeight.w;
+            world_matrix = mul(c_worldMatrix, bone_matrix);
+        } break;
+        case MESH_HAS_INSTANCE: {
+            world_matrix = c_bones[instance_id];
+        } break;
+        default: {
+            world_matrix = c_worldMatrix;
+        } break;
+    }
 
-// #define Vector2f       float2
-// #define Vector3f       float3
-// #define Vector4f       float4
-// #define Multiply(a, b) mul((a), (b))
-// uint2 textureSizeTexture2D(Texture2D p_texture) {
-//     return uint2(width, height);
-// }
+    float4 position = float4(input.position, 1.0);
+    position = mul(world_matrix, position);
+    position = mul(c_viewMatrix, position);
+    position = mul(c_projectionMatrix, position);
 
-// #elif defined(GLSL_LANG)
-
-// #define Vector2f       vec2
-// #define Vector3f       vec3
-// #define Vector4f       vec4
-// #define Multiply(a, b) ((a) * (b))
-// uvec2 textureSizeTexture2D(sampler2D textureObject) {
-//     return textureSize(textureObject, 0);
-// }
-
-// vec4 sampleShadow(Texture2D textureObject, vec2 offset) {
-//     return texture(textureObject, offset);
-// }
-
-// #else
-// #error "Unknown shading language"
-// #endif
-
-float shadowTest(Texture2D shadowMap,
-                 Light light,
-                 float3 worldPos,
-                 float NdotL) {
-    float4 lightSpacePos = mul(light.view_matrix, float4(worldPos, 1.0));
-    lightSpacePos = mul(light.projection_matrix, lightSpacePos);
-    lightSpacePos /= lightSpacePos.w;
-
-#if defined(__TARGET_HLSL__)
-    lightSpacePos.y = -lightSpacePos.y;
-    lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
-#else
-    lightSpacePos.xyz = 0.5 * lightSpacePos.xyz + 0.5;
-#endif
-
-    float currentDepth = lightSpacePos.z;
-
-    float shadow = 0.0;
-    uint width, height;
-    shadowMap.GetDimensions(width, height);
-    float2 texelSize = 1.0 / float2(width, height);
-
-    // @TODO: better bias
-    float bias = max(0.005 * (1.0 - NdotL), 0.0005);
-
-    float2 offsets[4] = {
-        float2(0.0, 0.0) * texelSize,
-        float2(0.0, 1.0) * texelSize,
-        float2(1.0, 0.0) * texelSize,
-        float2(1.0, 1.0) * texelSize,
-    };
-
-    float d0 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
-    float d1 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
-    float d2 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
-    float d3 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
-
-    shadow +=
-        (currentDepth - bias > d0 ? 1.0 : 0.0) +
-        (currentDepth - bias > d1 ? 1.0 : 0.0) +
-        (currentDepth - bias > d2 ? 1.0 : 0.0) +
-        (currentDepth - bias > d3 ? 1.0 : 0.0);
-
-    const float samples = float(4);
-    shadow /= samples;
-    return shadow;
+    return position;
 }
