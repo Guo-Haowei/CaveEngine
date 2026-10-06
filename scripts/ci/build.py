@@ -22,8 +22,8 @@ def main():
             "cmake",
             "-S", str(ROOT),
             "-B", str(BUILD_DIR),
-            "-GXcode"
-            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+            "-GXcode",
+            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
             "-DCAVE_BUILD_ASSIMP=OFF",
             "-DCAVE_BUILD_UNIT_TESTS=ON",
         ],
