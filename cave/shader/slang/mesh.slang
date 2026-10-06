@@ -1,9 +1,11 @@
-/// File: mesh.vs.hlsl
-#include "cbuffer.hlsl.h"
-#include "hlsl/input_output.hlsl"
+/// File: mesh.slang
+#include "../cbuffer.hlsl.h"
+#include "../hlsl/input_output.hlsl"
 
-VS_OUTPUT_MESH vs_main(VS_INPUT_MESH input,
-                    uint instance_id : SV_InstanceID) {
+// #include "common.slang"
+
+[shader("vertex")]
+VS_OUTPUT_MESH vs_main(VS_INPUT_MESH input, uint instance_id : SV_InstanceID) {
     float4x4 world_matrix;
     switch (c_meshFlag) {
         case MESH_HAS_BONE: {
@@ -34,7 +36,6 @@ VS_OUTPUT_MESH vs_main(VS_INPUT_MESH input,
     VS_OUTPUT_MESH result;
     result.position = position;
     result.world_position = view_position;
-    // @TODO: fix normal
     result.normal = N;
     result.T = T;
     result.B = B;

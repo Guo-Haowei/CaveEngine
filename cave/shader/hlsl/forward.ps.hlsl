@@ -20,7 +20,7 @@ float4 ps_main(VS_OUTPUT_MESH input)
     float3 base_color = c_baseColor.rgb;
     float alpha = c_baseColor.a;
 
-    if (c_hasBaseColorMap) {
+    if (c_hasBaseColorMap != 0) {
         float4 tmp = TEXTURE_2D(BaseColorMap).Sample(s_linearMipWrapSampler, input.uv);
         base_color = tmp.rgb;
         alpha = tmp.a;

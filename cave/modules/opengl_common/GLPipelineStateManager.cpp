@@ -142,15 +142,15 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     return shader_id;
 }
 
-auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto GLPipelineStateManager::graphicsPipeline(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto GLPipelineStateManager::computePipeline(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto GLPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
     GLuint program_id = glCreateProgram();
     Vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {
