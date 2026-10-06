@@ -2,6 +2,8 @@
 // File: cave/core/reflection/Meta.h
 // =============================================================================
 #pragma once
+#include <utility>  // std::to_underlying
+
 #include "cave/core/ids/Entity.h"
 #include "cave/core/reflection/Reflection.h"
 
