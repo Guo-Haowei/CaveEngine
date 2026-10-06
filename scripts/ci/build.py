@@ -16,7 +16,7 @@ def main():
 
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
 
-    configure = run_task(
+    result = run_task(
         "Configure Build",
         [
             "cmake",
@@ -29,10 +29,10 @@ def main():
         ],
     )
 
-    if not configure.success:
-        finish(configure)
+    if not result.success:
+        finish(result)
 
-    build = run_task(
+    result = run_task(
         "Build Debug",
         [
             "cmake",
@@ -41,7 +41,7 @@ def main():
         ],
     )
 
-    finish(build)
+    finish(result)
 
 
 if __name__ == "__main__":

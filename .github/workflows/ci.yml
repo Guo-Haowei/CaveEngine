@@ -14,18 +14,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # format:
-  #   name: Check Formatting
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Check Formatting
-  #       uses: actions/checkout@v5
-  #     - run: python3 ./scripts/format_code.py
-  #     - run: python3 ./scripts/get_git_changed_files.py
+  format:
+    name: Format
+    runs-on: self-hosted
+    steps:
+      - name: Check Formatting
+        uses: actions/checkout@v5
+      - run: python3 -m scripts.ci.format
 
   compile_shaders:
     name: Compile shaders
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Compile shaders
         uses: actions/checkout@v5
@@ -33,8 +32,10 @@ jobs:
 
   build_debug:
     name: Build Debug
-    needs: compile_shaders
-    runs-on: self-hosted
+    needs: format
+    runs-on: [self-hosted, macOS]
+    env:
+      PATH: /opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
     steps:
       - name: Build Debug
         uses: actions/checkout@v5
