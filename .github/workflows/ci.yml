@@ -30,20 +30,20 @@ jobs:
       - name: Compile shaders
         uses: actions/checkout@v5
       - name: Compile GLSL shaders
-        run: python3 scripts/compile_shaders.py --source-folder cave/shader/slang --lang glsl --varying-locations 0,1,2,3
+        run: python3 -m scripts.ci.compile_shaders
 
-  # build_debug:
-  #   name: Build Debug
-  #   needs: format
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Build Debug
-  #       uses: actions/checkout@v5
-  #       with:
-  #         submodules: recursive
-  #         fetch-depth: 0
-  #     - run: echo "Building project..."
-  #     - run: python .\scripts\generate_meta.py
-  #     - run: .\scripts\ci_build_job.bat Debug
-  #     - run: echo "Testing project..."
-  #     - run: ./build/bin/Debug/unit_tests.exe
+  build_debug:
+    name: Build Debug
+    needs: format
+    runs-on: self-hosted
+    steps:
+      - name: Build Debug
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - run: echo "Building project..."
+      - run: python3 ./scripts/generate_meta.py
+      # - run: ./scripts/ci_build_job.bat Debug
+      # - run: echo "Testing project..."
+      # - run: ./build/bin/Debug/unit_tests.exe
