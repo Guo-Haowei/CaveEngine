@@ -55,18 +55,23 @@ float shadowTest(Texture2D shadowMap,
     // @TODO: better bias
     float bias = max(0.005 * (1.0 - NdotL), 0.0005);
 
-    // @TODO: refactor
-    #define SHADOW_SAMPLES 4
-    [unroll(SHADOW_SAMPLES)]
-    for (uint sample = 0; sample < SHADOW_SAMPLES; ++sample) {
-        uint x = sample / 2;
-        uint y = sample % 2;
-        float2 offset = float2(x, y) * texelSize;
+    float2 offsets[4] = {
+        float2(0.0, 0.0) * texelSize,
+        float2(0.0, 1.0) * texelSize,
+        float2(1.0, 0.0) * texelSize,
+        float2(1.0, 1.0) * texelSize,
+    };
 
-        float closestDepth = SAMPLE_TEXTURE_2D(shadowMap, s_shadowSampler, lightSpacePos.xy + offset).r;
+    float d0 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
+    float d1 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
+    float d2 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
+    float d3 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
 
-        shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
-    }
+    shadow +=
+        (currentDepth - bias > d0 ? 1.0 : 0.0) +
+        (currentDepth - bias > d1 ? 1.0 : 0.0) +
+        (currentDepth - bias > d2 ? 1.0 : 0.0) +
+        (currentDepth - bias > d3 ? 1.0 : 0.0);
 
     const float samples = float(4);
     shadow /= samples;
