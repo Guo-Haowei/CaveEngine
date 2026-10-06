@@ -1,7 +1,7 @@
 /// File: prefilter.slang
 #include "../cbuffer.hlsl.h"
 #include "../pbr.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 
 #include "common.slang"
 

@@ -1,5 +1,5 @@
 /// File: screenspace_quad.slang
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 
 static const float2 TOP_LEFT = float2(-1.0f, +1.0f);
 static const float2 TOP_RIGHT = float2(1.0f, +1.0f);

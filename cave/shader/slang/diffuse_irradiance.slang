@@ -1,6 +1,6 @@
 /// File: diffuse_irradiance.slang
 #include "../cbuffer.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 #include "common.slang"
 
 #define SAMPLE_STEP 0.025f

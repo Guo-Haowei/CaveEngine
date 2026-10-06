@@ -1,6 +1,6 @@
 /// File: shadow.slang
 #include "../cbuffer.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 
 [shader("vertex")]
 float4 vs_main(VS_INPUT_MESH input, uint instance_id : SV_InstanceID) : SV_POSITION {

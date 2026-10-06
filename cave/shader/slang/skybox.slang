@@ -1,6 +1,6 @@
 /// File: skybox.ps.glsl
 #include "../cbuffer.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 #include "common.slang"
 
 TEXTURE_CUBE(u_Texture0, t0); // t_Skybox

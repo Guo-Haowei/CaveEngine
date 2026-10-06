@@ -1,6 +1,6 @@
 /// File: cube_map.slang
 #include "../cbuffer.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 
 [shader("vertex")]
 VS_OUTPUT_POSITION vs_main(VS_INPUT_POS input) {

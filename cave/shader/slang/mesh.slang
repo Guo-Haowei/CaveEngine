@@ -1,6 +1,6 @@
 /// File: mesh.slang
 #include "../cbuffer.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 
 [shader("vertex")]
 VS_OUTPUT_MESH vs_main(VS_INPUT_MESH input, uint instance_id : SV_InstanceID) {
