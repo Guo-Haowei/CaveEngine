@@ -6,15 +6,28 @@
 
 #include "../pbr.hlsl.h"
 
-TEXTURE_2D(t_GbufferBaseColorMap, t0);
-TEXTURE_2D(t_GbufferNormalMap, t1);
-TEXTURE_2D(t_GbufferMaterialMap, t2);
-TEXTURE_2D(t_GbufferDepth, t3);
-TEXTURE_2D(t_SsaoMap, t4);
-TEXTURE_2D(t_ShadowMap, t5);
-TEXTURE_CUBE(t_DiffuseIrradiance, t6);
-TEXTURE_CUBE(t_Prefiltered, t7);
-TEXTURE_2D(t_BrdfLut, t8);
+TEXTURE_2D(u_Texture0, t0);
+TEXTURE_2D(u_Texture1, t1);
+TEXTURE_2D(u_Texture2, t2);
+TEXTURE_2D(u_Texture3, t3);
+TEXTURE_2D(u_Texture4, t4);
+TEXTURE_2D(u_Texture5, t5);
+TEXTURE_CUBE(u_Texture6, t6);
+TEXTURE_CUBE(u_Texture7, t7);
+TEXTURE_2D(u_Texture8, t8);
+
+#define t_GbufferBaseColorMap u_Texture0
+#define t_GbufferNormalMap    u_Texture1
+#define t_GbufferMaterialMap  u_Texture2
+#define t_GbufferDepth        u_Texture3
+#define t_SsaoMap             u_Texture4
+#define t_ShadowMap           u_Texture5
+#define t_DiffuseIrradiance   u_Texture6
+#define t_Prefiltered         u_Texture7
+#define t_BrdfLut             u_Texture8
+#define t_LTC1                u_Texture9
+#define t_LTC2                u_Texture10
+#define t_VoxelLighting       u_Texture11
 
 TEXTURE_2D(BaseColorMap, t30);
 TEXTURE_2D(NormalMap, t31);

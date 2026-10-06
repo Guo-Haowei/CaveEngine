@@ -4,9 +4,13 @@
 
 #include "common.slang"
 
-TEXTURE_2D(t_TextureLighting, t0);
-TEXTURE_2D(t_TextureHighlightSelect, t1);
-TEXTURE_2D(t_BloomInputTexture, t2);
+TEXTURE_2D(u_Texture0, t0);
+TEXTURE_2D(u_Texture1, t1);
+TEXTURE_2D(u_Texture2, t2);
+
+#define t_TextureLighting        u_Texture0
+#define t_TextureHighlightSelect u_Texture1
+#define t_BloomInputTexture      u_Texture2
 
 static const float3x3 sx = float3x3(
     1.0, 2.0, 1.0,
