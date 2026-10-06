@@ -1,5 +1,5 @@
-#include "pbr.hlsl.h"
-#include "shadow.hlsl"
+#include "../pbr.hlsl.h"
+#include "shadow.slang"
 
 // @TODO: refactor shadow
 #define NUM_POINT_SHADOW_SAMPLES 20

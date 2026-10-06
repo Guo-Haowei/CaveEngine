@@ -26,3 +26,17 @@ SamplerState s_cubemapClampLodSampler : register(s6);
 #else
 #error "Language NOT supported!"
 #endif
+
+// reconstruct view position
+// https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy
+float3 NdcToViewPos(float2 uv, float depth, float4x4 inv_cam_proj) {
+    float2 ndc = 2.0f * uv - 1.0f;
+#if defined(GLSL_LANG)
+    float4 screen_pos = float4(ndc.x, ndc.y, 2.0f * depth - 1.0f, 1.0f);
+#else
+    float4 screen_pos = float4(ndc.x, ndc.y, depth, 1.0f);
+#endif
+    float4 viewPosH = mul(inv_cam_proj, screen_pos);
+    float3 viewPos = viewPosH.xyz / viewPosH.w;
+    return viewPos;
+}

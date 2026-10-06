@@ -1,8 +1,8 @@
 /// File: forward.ps.hlsl
-#include "cbuffer.hlsl.h"
-#include "hlsl/input_output.hlsl"
-#include "sampler.hlsl.h"
-#include "shader_resource_defines.hlsl.h"
+#include "../cbuffer.hlsl.h"
+#include "../hlsl/input_output.hlsl"
+
+#include "common.slang"
 
 TextureCube t_Skybox : register(t0);
 Texture2D t_ShadowMap : register(t1);
@@ -10,8 +10,13 @@ TextureCube t_DiffuseIrradiance : register(t2);
 TextureCube t_Prefiltered : register(t3);
 Texture2D t_BrdfLut : register(t4);
 
-#include "hlsl/lighting.hlsl"
+TEXTURE_2D(BaseColorMap, t30);
+TEXTURE_2D(NormalMap, t31);
+TEXTURE_2D(MaterialMap, t32);
 
+#include "common_lighting.slang"
+
+[shader("fragment")]
 float4 ps_main(VS_OUTPUT_MESH input)
     : SV_TARGET {
     const float2 texcoord = input.uv;
@@ -21,7 +26,7 @@ float4 ps_main(VS_OUTPUT_MESH input)
     float alpha = c_baseColor.a;
 
     if (c_hasBaseColorMap != 0) {
-        float4 tmp = TEXTURE_2D(BaseColorMap).Sample(s_linearMipWrapSampler, input.uv);
+        float4 tmp = SAMPLE_TEXTURE_2D(BaseColorMap, s_linearMipWrapSampler, input.uv);
         base_color = tmp.rgb;
         alpha = tmp.a;
     }
@@ -30,7 +35,7 @@ float4 ps_main(VS_OUTPUT_MESH input)
     float roughness;
 
     if (c_hasMaterialMap != 0) {
-        float3 value = TEXTURE_2D(MaterialMap).Sample(s_linearMipWrapSampler, input.uv).rgb;
+        float3 value = SAMPLE_TEXTURE_2D(MaterialMap, s_linearMipWrapSampler, input.uv).rgb;
         metallic = value.b;
         roughness = value.g;
     } else {
@@ -44,7 +49,7 @@ float4 ps_main(VS_OUTPUT_MESH input)
         TBN[0] = normalize(input.T);
         TBN[1] = normalize(input.B);
         TBN[2] = normalize(input.normal);
-        float3 value = TEXTURE_2D(NormalMap).Sample(s_linearMipWrapSampler, input.uv).rgb;
+        float3 value = SAMPLE_TEXTURE_2D(NormalMap, s_linearMipWrapSampler, input.uv).rgb;
         N = normalize(mul((2.0f * value) - 1.0f, TBN));
     } else {
         N = normalize(input.normal);
