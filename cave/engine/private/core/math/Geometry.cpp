@@ -103,10 +103,18 @@ MeshAsset MakeTetrahedronMesh(float p_size) {
     };
 
     static const uint32_t indices[] = {
-        0, 2, 3,  // face 1
-        0, 3, 1,  // face 2
-        0, 1, 2,  // face 3
-        1, 3, 2,  // face 4
+        0,
+        2,
+        3,  // face 1
+        0,
+        3,
+        1,  // face 2
+        0,
+        1,
+        2,  // face 3
+        1,
+        3,
+        2,  // face 4
     };
 
     MeshAsset mesh;
@@ -160,18 +168,42 @@ void BoxWireFrameHelper(const Vec3f& p_min,
     };
 
     p_out_indices = {
-        A, B, D,  // ABD
-        D, B, C,  // DBC
-        E, H, F,  // EHF
-        H, G, F,  // HGF
-        D, C, G,  // DCG
-        D, G, H,  // DGH
-        A, F, B,  // AFB
-        A, E, F,  // AEF
-        A, D, H,  // ADH
-        A, H, E,  // AHE
-        B, F, G,  // BFG
-        B, G, C,  // BGC
+        A,
+        B,
+        D,  // ABD
+        D,
+        B,
+        C,  // DBC
+        E,
+        H,
+        F,  // EHF
+        H,
+        G,
+        F,  // HGF
+        D,
+        C,
+        G,  // DCG
+        D,
+        G,
+        H,  // DGH
+        A,
+        F,
+        B,  // AFB
+        A,
+        E,
+        F,  // AEF
+        A,
+        D,
+        H,  // ADH
+        A,
+        H,
+        E,  // AHE
+        B,
+        F,
+        G,  // BFG
+        B,
+        G,
+        C,  // BGC
     };
 }
 
@@ -206,8 +238,12 @@ MeshAsset MakeGrassBillboard(const Vec3f& p_scale) {
     };
 
     constexpr uint32_t indices[] = {
-        A, B, D,  // ABD
-        D, B, C,  // DBC
+        A,
+        B,
+        D,  // ABD
+        D,
+        B,
+        C,  // DBC
     };
 
     Degree angle;
@@ -258,18 +294,42 @@ MeshAsset MakeSkyBoxMesh() {
     };
 
     mesh.indices = {
-        A, D, B,  // ABD
-        D, C, B,  // DBC
-        E, F, H,  // EHF
-        H, F, G,  // HGF
-        D, G, C,  // DCG
-        D, H, G,  // DGH
-        A, B, F,  // AFB
-        A, F, E,  // AEF
-        A, H, D,  // ADH
-        A, E, H,  // AHE
-        B, G, F,  // BFG
-        B, C, G,  // BGC
+        A,
+        D,
+        B,  // ABD
+        D,
+        C,
+        B,  // DBC
+        E,
+        F,
+        H,  // EHF
+        H,
+        F,
+        G,  // HGF
+        D,
+        G,
+        C,  // DCG
+        D,
+        H,
+        G,  // DGH
+        A,
+        B,
+        F,  // AFB
+        A,
+        F,
+        E,  // AEF
+        A,
+        H,
+        D,  // ADH
+        A,
+        E,
+        H,  // AHE
+        B,
+        G,
+        F,  // BFG
+        B,
+        C,
+        G,  // BGC
         // A, B, D,  // ABD
         // D, B, C,  // DBC
         // E, H, F,  // EHF

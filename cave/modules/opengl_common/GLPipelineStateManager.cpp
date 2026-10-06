@@ -17,7 +17,7 @@ namespace cave::render {
 namespace fs = std::filesystem;
 
 struct TextureSlot {
-    const char *name;
+    const char* name;
     int slot;
 };
 
@@ -35,7 +35,7 @@ OpenGlPipelineState::~OpenGlPipelineState() {
 }
 
 // @TODO: refactor this. Shader will be included as const char* directly
-static std::string ReadFileToString(const std::string &filename) {
+static std::string ReadFileToString(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) return {};  // return empty string on failure
 
@@ -44,7 +44,7 @@ static std::string ReadFileToString(const std::string &filename) {
     return ss.str();
 }
 
-static auto ProcessShader(const fs::path &p_path, int p_depth) -> Result<std::string> {
+static auto ProcessShader(const fs::path& p_path, int p_depth) -> Result<std::string> {
     constexpr int max_depth = 100;
     if (p_depth >= max_depth) {
         return CAVE_ERROR(ErrorCode::ERR_COMPILATION_FAILED, "circular includes in file '{}'!", p_path.string());
@@ -57,12 +57,12 @@ static auto ProcessShader(const fs::path &p_path, int p_depth) -> Result<std::st
     for (std::string line; std::getline(ss, line);) {
         constexpr const char pattern[] = "#include";
         if (line.find(pattern) == 0) {
-            const char *lineStr = line.c_str();
-            const char *quote1 = strchr(lineStr, '"');
-            const char *quote2 = strrchr(lineStr, '"');
+            const char* lineStr = line.c_str();
+            const char* quote1 = strchr(lineStr, '"');
+            const char* quote2 = strrchr(lineStr, '"');
             if (!(quote1 && quote2 && (quote1 != quote2))) {
-                const char *left = strchr(lineStr, '<');
-                const char *right = strrchr(lineStr, '>');
+                const char* left = strchr(lineStr, '<');
+                const char* right = strrchr(lineStr, '>');
                 if (left && right && (left < right)) {
                     // skip line
                     continue;
@@ -117,7 +117,7 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     }
 
     fullsource.append(*result);
-    const char *sources[] = { fullsource.c_str() };
+    const char* sources[] = { fullsource.c_str() };
 
     GLuint shader_id = glCreateShader(shader_type);
     glShaderSource(shader_id, 1, sources, nullptr);
@@ -142,15 +142,15 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     return shader_id;
 }
 
-auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
     GLuint program_id = glCreateProgram();
     Vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {
@@ -246,7 +246,7 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pip
 #ifdef CAVE_CBUFFER
 #undef CAVE_CBUFFER
 #endif
-    auto set_uniform_buffer = [program_id](const char *name, int binding) {
+    auto set_uniform_buffer = [program_id](const char* name, int binding) {
         GLuint index = glGetUniformBlockIndex(program_id, name);
         if (index != GL_INVALID_INDEX) {
             glUniformBlockBinding(program_id, index, binding);
