@@ -1,8 +1,8 @@
 /// File: ssao.ps.hlsl
-#include "cbuffer.hlsl.h"
-#include "common.hlsl.h"
-#include "hlsl/input_output.hlsl"
-#include "sampler.hlsl.h"
+#include "../cbuffer.hlsl.h"
+#include "../hlsl/input_output.hlsl"
+
+#include "common.slang"
 
 Texture2D t_GbufferNormalMap : register(t0);
 Texture2D t_GbufferDepth : register(t1);
@@ -11,6 +11,7 @@ Texture2D t_NoiseTexture : register(t2);
 // @TODO: fix HARD CODE
 #define SSAO_KERNEL_BIAS 0.025f
 
+[shader("fragment")]
 float ps_main(VS_OUTPUT_UV input)
     : SV_TARGET {
     const float2 uv = input.uv;
@@ -20,13 +21,13 @@ float ps_main(VS_OUTPUT_UV input)
     float2 noise_scale = float2(texture_size);
     noise_scale *= (1.0f / SSAO_NOISE_SIZE);
 
-    float3 N = t_GbufferNormalMap.Sample(s_pointClampSampler, uv).rgb;
+    float3 N = SAMPLE_TEXTURE_2D(t_GbufferNormalMap, s_pointClampSampler, uv).rgb;
     N = 2.0f * N - 1.0f;
 
     // reconstruct view position
     // https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy
-    const float depth = t_GbufferDepth.Sample(s_pointClampSampler, uv).r;
-    const float3 origin = NdcToViewPos(uv, depth);
+    const float depth = SAMPLE_TEXTURE_2D(t_GbufferDepth, s_pointClampSampler, uv).r;
+    const float3 origin = NdcToViewPos(uv, depth, c_invCamProj);
 
     float3 rvec = float3(t_NoiseTexture.SampleLevel(s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
     float3 tangent = normalize(rvec - N * dot(rvec, N));
@@ -51,8 +52,8 @@ float ps_main(VS_OUTPUT_UV input)
         offset /= offset.w;                 // perspective divide
         offset.xy = offset.xy * 0.5 + 0.5;  // transform to range 0.0 - 1.0
 
-        const float depth2 = t_GbufferDepth.Sample(s_pointClampSampler, offset.xy).r;
-        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2);
+        const float depth2 = SAMPLE_TEXTURE_2D(t_GbufferDepth, s_pointClampSampler, offset.xy).r;
+        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2, c_invCamProj);
         const float sample_depth = sampleOcclusionPos.z;
 
         const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(origin.z - sample_depth));
