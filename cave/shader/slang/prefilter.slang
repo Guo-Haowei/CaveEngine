@@ -7,7 +7,7 @@
 
 #define SAMPLE_COUNT 1024u
 
-TEXTURE_CUBE(u_Texture0, t0);
+TEXTURE_CUBE(u_Texture0, 0);
 
 [shader("fragment")]
 float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET

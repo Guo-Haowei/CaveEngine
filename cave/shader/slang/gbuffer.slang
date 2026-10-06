@@ -4,9 +4,9 @@
 
 #include "common.slang"
 
-TEXTURE_2D(BaseColorMap, t30);
-TEXTURE_2D(NormalMap, t31);
-TEXTURE_2D(MaterialMap, t32);
+TEXTURE_2D(BaseColorMap, 30);
+TEXTURE_2D(NormalMap, 31);
+TEXTURE_2D(MaterialMap, 32);
 
 struct ps_output {
     float4 base_color : SV_TARGET0;

@@ -6,15 +6,15 @@
 
 #include "../pbr.hlsl.h"
 
-TEXTURE_2D(u_Texture0, t0);
-TEXTURE_2D(u_Texture1, t1);
-TEXTURE_2D(u_Texture2, t2);
-TEXTURE_2D(u_Texture3, t3);
-TEXTURE_2D(u_Texture4, t4);
-TEXTURE_2D(u_Texture5, t5);
-TEXTURE_CUBE(u_Texture6, t6);
-TEXTURE_CUBE(u_Texture7, t7);
-TEXTURE_2D(u_Texture8, t8);
+TEXTURE_2D(u_Texture0, 0);
+TEXTURE_2D(u_Texture1, 1);
+TEXTURE_2D(u_Texture2, 2);
+TEXTURE_2D(u_Texture3, 3);
+TEXTURE_2D(u_Texture4, 4);
+TEXTURE_2D(u_Texture5, 5);
+TEXTURE_CUBE(u_Texture6, 6);
+TEXTURE_CUBE(u_Texture7, 7);
+TEXTURE_2D(u_Texture8, 8);
 
 #define t_GbufferBaseColorMap u_Texture0
 #define t_GbufferNormalMap    u_Texture1
@@ -29,9 +29,9 @@ TEXTURE_2D(u_Texture8, t8);
 #define t_LTC2                u_Texture10
 #define t_VoxelLighting       u_Texture11
 
-TEXTURE_2D(BaseColorMap, t30);
-TEXTURE_2D(NormalMap, t31);
-TEXTURE_2D(MaterialMap, t32);
+TEXTURE_2D(BaseColorMap, 30);
+TEXTURE_2D(NormalMap, 31);
+TEXTURE_2D(MaterialMap, 32);
 
 #include "common_lighting.slang"
 

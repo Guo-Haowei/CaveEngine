@@ -4,9 +4,9 @@
 
 #include "common.slang"
 
-TEXTURE_2D(u_Texture0, t0); // t_GbufferNormalMap
-TEXTURE_2D(u_Texture1, t1); // t_GbufferDepth
-TEXTURE_2D(u_Texture2, t2); // t_NoiseTexture
+TEXTURE_2D(u_Texture0, 0); // t_GbufferNormalMap
+TEXTURE_2D(u_Texture1, 1); // t_GbufferDepth
+TEXTURE_2D(u_Texture2, 2); // t_NoiseTexture
 
 // @TODO: fix HARD CODE
 #define SSAO_KERNEL_BIAS 0.025f

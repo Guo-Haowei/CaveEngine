@@ -5,7 +5,7 @@
 
 #define SAMPLE_STEP 0.025f
 
-TEXTURE_CUBE(u_Texture0, t0);
+TEXTURE_CUBE(u_Texture0, 0);
 
 [shader("fragment")]
 float4 ps_main(VS_OUTPUT_POSITION input)

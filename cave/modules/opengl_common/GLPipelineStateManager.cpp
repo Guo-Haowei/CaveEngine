@@ -235,14 +235,6 @@ auto GLPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pipelin
 
     glUseProgram(program_id);
 
-    // set uniforms
-    for (uint32_t i = 0; i < std::size(s_textureSots); ++i) {
-        const int location = glGetUniformLocation(program_id, s_textureSots[i].name);
-        if (location != -1) {
-            glUniform1i(location, s_textureSots[i].slot);
-        }
-    }
-
 #ifdef CAVE_CBUFFER
 #undef CAVE_CBUFFER
 #endif
@@ -266,6 +258,14 @@ auto GLPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc &pipelin
         const int location = glGetUniformLocation(program_id, name.c_str());
         if (location != -1) {
             glUniform1i(location, i);
+        }
+    }
+
+    // set uniforms
+    for (uint32_t i = 0; i < std::size(s_textureSots); ++i) {
+        const int location = glGetUniformLocation(program_id, s_textureSots[i].name);
+        if (location != -1) {
+            glUniform1i(location, s_textureSots[i].slot);
         }
     }
 

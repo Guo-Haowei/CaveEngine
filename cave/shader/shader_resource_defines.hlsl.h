@@ -42,10 +42,6 @@ SRV_DEFINES
 #define TEXTURE_2D(NAME)         (t_Texture2Ds[c_##NAME##ResidentHandle.x])
 #define TEXTURE_CUBE(NAME)       (t_TextureCubes[c_##NAME##ResidentHandle.x])
 #define TEXTURE_CUBE_ARRAY(NAME) (t_TextureCubeArrays[c_##NAME##ResidentHandle.x])
-#elif defined(HLSL_LANG_D3D11)
-#define TEXTURE_2D(NAME)         (t_##NAME)
-#define TEXTURE_CUBE(NAME)       (t_##NAME)
-#define TEXTURE_CUBE_ARRAY(NAME) (t_##NAME)
 #endif
 
 #endif

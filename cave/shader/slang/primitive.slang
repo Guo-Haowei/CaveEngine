@@ -3,7 +3,7 @@
 #include "input_output.slang"
 #include "common.slang"
 
-TEXTURE_2D(u_Texture0, t0); // t_Sprite
+TEXTURE_2D(u_Texture0, 0); // t_Sprite
 
 [shader("vertex")]
 VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)

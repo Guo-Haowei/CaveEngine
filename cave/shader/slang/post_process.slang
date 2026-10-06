@@ -4,9 +4,9 @@
 
 #include "common.slang"
 
-TEXTURE_2D(u_Texture0, t0);
-TEXTURE_2D(u_Texture1, t1);
-TEXTURE_2D(u_Texture2, t2);
+TEXTURE_2D(u_Texture0, 0);
+TEXTURE_2D(u_Texture1, 1);
+TEXTURE_2D(u_Texture2, 2);
 
 #define t_TextureLighting        u_Texture0
 #define t_TextureHighlightSelect u_Texture1
