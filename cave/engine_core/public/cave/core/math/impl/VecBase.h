@@ -26,12 +26,12 @@ struct VectorBase {
         }
     }
 
-    constexpr T& operator[](size_t idx) {
+    constexpr T& operator[](std::size_t idx) {
         return data()[idx];
     }
 
-    constexpr const T& operator[](size_t p_index) const {
-        return data()[p_index];
+    constexpr const T& operator[](std::size_t idx) const {
+        return data()[idx];
     }
 };
 

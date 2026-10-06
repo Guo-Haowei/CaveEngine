@@ -2,6 +2,7 @@
 // File: cave/core/ids/Entity.h
 // =============================================================================
 #pragma once
+#include <bitset>  // std::hash
 #include <compare>
 #include <cstdint>
 

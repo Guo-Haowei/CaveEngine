@@ -171,20 +171,20 @@ void PropertyPanel::drawUIImpl() {
 
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&](TransformComponent& p_transform) {
-        const math::Mat4f old_transform = p_transform.localMatrix();
+    DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&ctx, &camera](TransformComponent& transform) {
+        const math::Mat4f old_transform = transform.localMatrix();
 
-        TransformComponent copy = p_transform;
+        TransformComponent copy = transform;
         const bool dirty = DrawObjectAuto<TransformComponent>(&copy, ctx);
         if (dirty && camera) {
             camera->setDirty();
         }
     });
 
-    DrawComponent(DRAW_COMPONENT_ARGS("Light"), light, [&](LightComponent& p_light) {
-        bool dirty = DrawObjectAuto<LightComponent>(&p_light, ctx);
+    DrawComponent(DRAW_COMPONENT_ARGS("Light"), light, [&ctx, &material](LightComponent& light) {
+        bool dirty = DrawObjectAuto<LightComponent>(&light, ctx);
         if (dirty) {
-            p_light.SetDirty();
+            light.SetDirty();
         }
 
         if (material) {

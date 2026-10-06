@@ -2,14 +2,15 @@
 // File: cave/core/typedefs.h
 // =============================================================================
 #pragma once
+#include <cstddef>  // std::size_t
 
 #define IN_USE     &&
 #define NOT_IN_USE &&!
-#define USE_IF(x)  &&((x) ? 1 : 0)&&
+#define USE_IF(x)  &&((x) ? 1 : 0) &&
 #define USING(x)   (1 x 1)
 
 /// Build
-#if defined(_DEBUG) || defined(DDEBUG) || defined(NDEBUG)
+#if defined(_DEBUG) || defined(DDEBUG) || !defined(NDEBUG)
 #define DEBUG_BUILD   IN_USE
 #define RELEASE_BUILD NOT_IN_USE
 #else
@@ -153,9 +154,9 @@
 
 namespace cave {
 
-constexpr inline size_t KB = 1024;
-constexpr inline size_t MB = 1024 * KB;
-constexpr inline size_t GB = 1024 * MB;
+constexpr inline std::size_t KB = 1024;
+constexpr inline std::size_t MB = 1024 * KB;
+constexpr inline std::size_t GB = 1024 * MB;
 
 template<typename T>
 void unused(T&) {}

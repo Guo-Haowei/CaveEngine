@@ -14,7 +14,9 @@ public:
     core::Color side() const { return m_side; };
     core::Move move() const { return m_move; }
 
+#if USING(DEBUG_BUILD)
     std::string debugString() const override;
+#endif
 
 private:
     core::Color m_side;

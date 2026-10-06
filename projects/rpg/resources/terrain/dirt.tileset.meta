@@ -1,0 +1,9 @@
+type: tileset
+guid: B38784EA-55BA-4542-9FF609D65DFC8729
+name: dirt.tileset
+import_path: "@res://terrain/dirt.tileset"
+dependencies: [0CE49561-8D6D-A848-8B70ABF6DF19EBD6]
+source_created_time: 2026-07-25 14:09:39.3365824
+source_last_modified: 2026-07-25 14:09:19.5951240
+import_settings:
+  {}

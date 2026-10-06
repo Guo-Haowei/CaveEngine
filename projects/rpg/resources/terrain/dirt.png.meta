@@ -1,0 +1,9 @@
+type: image
+guid: 0CE49561-8D6D-A848-8B70ABF6DF19EBD6
+name: dirt.png
+import_path: "@res://terrain/dirt.png"
+dependencies: []
+source_created_time: ""
+source_last_modified: ""
+import_settings:
+  {}

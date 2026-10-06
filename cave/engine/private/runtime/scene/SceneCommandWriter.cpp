@@ -47,7 +47,7 @@ Entity SceneCommandWriter::transformObject(std::string_view name) {
 }
 
 void SceneCommandWriter::attachChild(ecs::Entity child, ecs::Entity parent) {
-    DEV_ASSERT(child.valid() && parent.valid());
+    DEV_ASSERT(child.valid());
     setProperty(child, HierarchyComponent_Id, CAVE_SID("parent_id"), parent);
 }
 

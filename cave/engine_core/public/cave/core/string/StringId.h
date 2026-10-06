@@ -2,6 +2,7 @@
 // File: cave/core/string/StringId.h
 // =============================================================================
 #pragma once
+#include <bitset>  // std::hash
 #include "cave/core/typedefs.h"
 #include "cave/core/CoreExport.h"
 #include "cave/core/hash/Hash.h"

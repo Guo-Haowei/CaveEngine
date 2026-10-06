@@ -224,7 +224,8 @@ void SceneTreeBuilder::drawNode(Entity ent, ImGuiTreeNodeFlags tree_flags) {
     }
 }
 
-void HierarchyPanel::drawToolbar() {
+void HierarchyPanel::drawToolbar(const SceneEditContext* context,
+                                 const Scene* scene) {
     const ImGuiStyle& style = ImGui::GetStyle();
     const float button_width = ImGui::GetFrameHeight();
     const float toolbar_width = button_width * 3.5f + style.ItemSpacing.x;
@@ -232,12 +233,13 @@ void HierarchyPanel::drawToolbar() {
     const float avail_width = ImGui::GetContentRegionAvail().x;
     const float cursor_x = ImGui::GetCursorPosX();
 
-    ImGui::SetCursorPosX(
-        cursor_x + std::max(0.0f, avail_width - toolbar_width));
+    ImGui::SetCursorPosX(cursor_x + std::max(0.0f, avail_width - toolbar_width));
 
     ImGui::BeginGroup();
 
     if (ImGui::Button(ICON_FA_PLUS, ImVec2{ button_width, 0.0f })) {
+        unused(context);
+        unused(scene);
     }
 
     if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
@@ -273,8 +275,10 @@ void HierarchyPanel::drawUIImpl() {
                       ImVec2{ 0.0f, -footer_size },
                       ImGuiChildFlags_Borders);
 
-    if (SceneEditContext* ctx = m_editor_services.sceneEdit().current()) {
-        if (Scene* scene = m_engine_services.sceneRegistry().resolve(ctx->scene_id)) {
+    SceneEditContext* ctx = nullptr;
+    Scene* scene = nullptr;
+    if ((ctx = m_editor_services.sceneEdit().current()) != nullptr) {
+        if ((scene = m_engine_services.sceneRegistry().resolve(ctx->scene_id)) != nullptr) {
             SceneTreeBuilder sceneTree(*ctx, *scene, m_engine_services, m_editor_services);
             drawPopup(*ctx, *scene);
             sceneTree.draw();
@@ -283,7 +287,7 @@ void HierarchyPanel::drawUIImpl() {
 
     ImGui::EndChild();
 
-    drawToolbar();
+    drawToolbar(ctx, scene);
 }
 
 void HierarchyPanel::drawPopup(const SceneEditContext& context,

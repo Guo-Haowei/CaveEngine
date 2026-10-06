@@ -39,11 +39,11 @@ enum LogLevel : uint16_t {
     LOG_LEVEL_ERROR = 0x0010,
     LOG_LEVEL_FATAL = 0x0020,
     LOG_LEVEL_ALL = LOG_LEVEL_TRACE |
-                    LOG_LEVEL_INFO |
-                    LOG_LEVEL_OK |
-                    LOG_LEVEL_WARN |
-                    LOG_LEVEL_ERROR |
-                    LOG_LEVEL_FATAL,
+        LOG_LEVEL_INFO |
+        LOG_LEVEL_OK |
+        LOG_LEVEL_WARN |
+        LOG_LEVEL_ERROR |
+        LOG_LEVEL_FATAL,
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(LogLevel);
 
