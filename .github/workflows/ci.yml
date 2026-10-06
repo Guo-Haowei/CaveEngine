@@ -1,4 +1,4 @@
-name: Windows CI
+name: CI
 run-name: CI/CD Tests triggered by ${{ github.actor }}
 
 on:
@@ -20,8 +20,8 @@ jobs:
     steps:
       - name: Check Formatting
         uses: actions/checkout@v5
-      - run: python .\scripts\format_code.py
-      - run: python .\scripts\get_git_changed_files.py
+      - run: python ./scripts/format_code.py
+      - run: python ./scripts/get_git_changed_files.py
 
   shader_generation:
     name: Shader Generation
@@ -29,53 +29,21 @@ jobs:
     steps:
       - name: Shader Generation
         uses: actions/checkout@v5
-      - run: python .\scripts\generate_shader.py
+      - run: cd cave/shader/
+      - run: python ../../scripts/compile_shaders.py --lang glsl --varying-locations 0,1,2,3
 
-  build_debug:
-    name: Build Debug
-    needs: format
-    runs-on: self-hosted
-    steps:
-      - name: Build Debug
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-          fetch-depth: 0
-      - run: echo "Building project..."
-      - run: python .\scripts\generate_meta.py
-      - run: .\scripts\ci_build_job.bat Debug
-      - run: echo "Testing project..."
-      - run: ./build/bin/Debug/unit_tests.exe
-      # - run: ./build/bin/Debug/chess_tests.exe
-      # - name: Upload Build Artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: build-debug-results
-      #     path: ./build/bin/Debug/unit_tests.exe
-      #     retention-days: 1
-
-  # build_release:
-  #   name: Build Release
+  # build_debug:
+  #   name: Build Debug
   #   needs: format
   #   runs-on: self-hosted
   #   steps:
-  #     - name: Build Release
+  #     - name: Build Debug
   #       uses: actions/checkout@v5
-  #     - run: echo "Building the project..."
-  #     - run: python .\scripts\generate_meta.py
-  #     - run: .\scripts\ci_build_job.bat Release
-
-  # test_job:
-  #   name: Unit Tests
-  #   needs: build_debug
-  #   runs-on: self-hosted
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Download build artifact
-  #       uses: actions/download-artifact@v4
   #       with:
-  #         name: build-debug-results
-  #         path: build-out
-
-  #     - name: Run executable
-  #       run: .\build-out\unit_tests.exe
+  #         submodules: recursive
+  #         fetch-depth: 0
+  #     - run: echo "Building project..."
+  #     - run: python .\scripts\generate_meta.py
+  #     - run: .\scripts\ci_build_job.bat Debug
+  #     - run: echo "Testing project..."
+  #     - run: ./build/bin/Debug/unit_tests.exe
