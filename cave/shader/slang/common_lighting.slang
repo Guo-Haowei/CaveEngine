@@ -63,7 +63,12 @@ float point_shadow_calculation(Light p_light, float3 p_frag_pos, float3 p_eye) {
     return shadow;
 }
 
-float3 compute_lighting(Texture2D shadowMap,
+float3 compute_lighting(
+    #if defined(__TARGET_GLSL__)
+                        Sampler2D shadow_map,
+    #else
+                        Texture2D shadow_map,
+    #endif
                         float3 base_color,
                         float3 world_position,
                         float3 N,
@@ -95,7 +100,7 @@ float3 compute_lighting(Texture2D shadowMap,
                 direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
                 if (light.cast_shadow == 1) {
                     const float NdotL = max(dot(N, L), 0.0);
-                    shadow = shadowTest(shadowMap, light, world_position, NdotL);
+                    shadow = shadowTest(shadow_map, light, world_position, NdotL);
                     direct_lighting *= (1.0 - shadow);
                 }
             } break;
@@ -133,12 +138,12 @@ float3 compute_lighting(Texture2D shadowMap,
     float3 diffuse = float3(0.0, 0.0, 0.0);
     float3 specular = float3(0.0, 0.0, 0.0);
     if (c_iblEnabled != 0) {
-        irradiance = t_DiffuseIrradiance.Sample(s_cubemapClampSampler, N).rgb;
+        irradiance = SAMPLE_TEXTURE_2D(t_DiffuseIrradiance, s_cubemapClampSampler, N).rgb;
         diffuse = irradiance * base_color.rgb;
 
-        float3 prefilteredColor = t_Prefiltered.SampleLevel(s_cubemapClampLodSampler, R, roughness * MAX_REFLECTION_LOD).rgb;
+        float3 prefilteredColor = SAMPLE_TEXTURE_LEVEL(t_Prefiltered, s_cubemapClampLodSampler, R, roughness * MAX_REFLECTION_LOD).rgb;
         float2 brdf_uv = float2(NdotV, roughness);
-        float2 brdf = t_BrdfLut.Sample(s_linearClampSampler, brdf_uv).rg;
+        float2 brdf = SAMPLE_TEXTURE_2D(t_BrdfLut, s_linearClampSampler, brdf_uv).rg;
         specular = prefilteredColor * (F * brdf.x + brdf.y);
     }
 

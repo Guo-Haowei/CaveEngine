@@ -6,15 +6,15 @@
 
 #include "../pbr.hlsl.h"
 
-Texture2D t_GbufferBaseColorMap : register(t0);
-Texture2D t_GbufferNormalMap : register(t1);
-Texture2D t_GbufferMaterialMap : register(t2);
-Texture2D t_GbufferDepth : register(t3);
-Texture2D t_SsaoMap : register(t4);
-Texture2D t_ShadowMap : register(t5);
-TextureCube t_DiffuseIrradiance : register(t6);
-TextureCube t_Prefiltered : register(t7);
-Texture2D t_BrdfLut : register(t8);
+TEXTURE_2D(t_GbufferBaseColorMap, t0);
+TEXTURE_2D(t_GbufferNormalMap, t1);
+TEXTURE_2D(t_GbufferMaterialMap, t2);
+TEXTURE_2D(t_GbufferDepth, t3);
+TEXTURE_2D(t_SsaoMap, t4);
+TEXTURE_2D(t_ShadowMap, t5);
+TEXTURE_CUBE(t_DiffuseIrradiance, t6);
+TEXTURE_CUBE(t_Prefiltered, t7);
+TEXTURE_2D(t_BrdfLut, t8);
 
 TEXTURE_2D(BaseColorMap, t30);
 TEXTURE_2D(NormalMap, t31);

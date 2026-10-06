@@ -4,9 +4,9 @@
 
 #include "common.slang"
 
-Texture2D t_GbufferNormalMap : register(t0);
-Texture2D t_GbufferDepth : register(t1);
-Texture2D t_NoiseTexture : register(t2);
+TEXTURE_2D(t_GbufferNormalMap, t0);
+TEXTURE_2D(t_GbufferDepth, t1);
+TEXTURE_2D(t_NoiseTexture, t2);
 
 // @TODO: fix HARD CODE
 #define SSAO_KERNEL_BIAS 0.025f
@@ -29,7 +29,7 @@ float ps_main(VS_OUTPUT_UV input)
     const float depth = SAMPLE_TEXTURE_2D(t_GbufferDepth, s_pointClampSampler, uv).r;
     const float3 origin = NdcToViewPos(uv, depth, c_invCamProj);
 
-    float3 rvec = float3(t_NoiseTexture.SampleLevel(s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
+    float3 rvec = float3(SAMPLE_TEXTURE_LEVEL(t_NoiseTexture, s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
     float3 tangent = normalize(rvec - N * dot(rvec, N));
     float3 bitangent = cross(N, tangent);
 

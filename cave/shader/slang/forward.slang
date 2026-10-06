@@ -4,11 +4,11 @@
 
 #include "common.slang"
 
-TextureCube t_Skybox : register(t0);
-Texture2D t_ShadowMap : register(t1);
-TextureCube t_DiffuseIrradiance : register(t2);
-TextureCube t_Prefiltered : register(t3);
-Texture2D t_BrdfLut : register(t4);
+TEXTURE_CUBE(t_Skybox, t0); // t_Skybox
+TEXTURE_2D(t_ShadowMap, t1); //  t_ShadowMap
+TEXTURE_CUBE(t_DiffuseIrradiance, t2); // t_DiffuseIrradiance
+TEXTURE_CUBE(t_Prefiltered, t3); // t_Prefiltered
+TEXTURE_2D(t_BrdfLut, t4); // t_BrdfLut
 
 TEXTURE_2D(BaseColorMap, t30);
 TEXTURE_2D(NormalMap, t31);

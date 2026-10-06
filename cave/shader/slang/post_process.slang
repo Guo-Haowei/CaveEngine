@@ -4,9 +4,9 @@
 
 #include "common.slang"
 
-Texture2D t_TextureLighting : register(t0);
-Texture2D t_TextureHighlightSelect : register(t1);
-Texture2D t_BloomInputTexture : register(t2);
+TEXTURE_2D(t_TextureLighting, t0);
+TEXTURE_2D(t_TextureHighlightSelect, t1);
+TEXTURE_2D(t_BloomInputTexture, t2);
 
 static const float3x3 sx = float3x3(
     1.0, 2.0, 1.0,

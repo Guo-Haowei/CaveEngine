@@ -30,7 +30,12 @@
 // #error "Unknown shading language"
 // #endif
 
-float shadowTest(Texture2D shadowMap,
+float shadowTest(
+#if defined(__TARGET_GLSL__)
+                 Sampler2D shadow_map,
+#else
+                 Texture2D shadow_map,
+#endif
                  Light light,
                  float3 worldPos,
                  float NdotL) {
@@ -49,7 +54,7 @@ float shadowTest(Texture2D shadowMap,
 
     float shadow = 0.0;
     uint width, height;
-    shadowMap.GetDimensions(width, height);
+    shadow_map.GetDimensions(width, height);
     float2 texelSize = 1.0 / float2(width, height);
 
     // @TODO: better bias
@@ -62,10 +67,10 @@ float shadowTest(Texture2D shadowMap,
         float2(1.0, 1.0) * texelSize,
     };
 
-    float d0 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
-    float d1 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
-    float d2 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
-    float d3 = SAMPLE_TEXTURE_LEVEL(shadowMap, s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
+    float d0 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
+    float d1 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
+    float d2 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
+    float d3 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
 
     shadow +=
         (currentDepth - bias > d0 ? 1.0 : 0.0) +
