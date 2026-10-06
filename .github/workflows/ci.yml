@@ -20,8 +20,8 @@ jobs:
     steps:
       - name: Check Formatting
         uses: actions/checkout@v5
-      - run: py ./scripts/format_code.py
-      - run: py ./scripts/get_git_changed_files.py
+      - run: python3 ./scripts/format_code.py
+      - run: python3 ./scripts/get_git_changed_files.py
 
   shader_generation:
     name: Shader Generation
@@ -30,7 +30,7 @@ jobs:
       - name: Shader Generation
         uses: actions/checkout@v5
       - run: cd cave/shader/
-      - run: py ../../scripts/compile_shaders.py --lang glsl --varying-locations 0,1,2,3
+      - run: python3 ../../scripts/compile_shaders.py --lang glsl --varying-locations 0,1,2,3
 
   # build_debug:
   #   name: Build Debug
