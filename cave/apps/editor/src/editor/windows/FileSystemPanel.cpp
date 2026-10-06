@@ -59,7 +59,8 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
         if (ui::TextBox(nullptr, buffer)) {
             fs::path to_path = m_renaming.parent_path();
             to_path = to_path / buffer.c_str();
-            m_engine_services.assetManager().renameAssetOrFolder(m_renaming, to_path);
+            auto res = m_engine_services.assetManager().renameAssetOrFolder(m_renaming, to_path);
+            DEV_ASSERT(res);
             m_renaming = "";
         }
         if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(0)) {

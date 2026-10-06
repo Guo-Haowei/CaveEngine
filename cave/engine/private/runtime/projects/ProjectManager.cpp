@@ -12,29 +12,30 @@ ProjectManager::ProjectManager(VFS& vfs,
                                IAssetManager& asset_manager,
                                AssetRegistry& asset_registry,
                                render::Renderer& renderer) noexcept
-    : vfs_(vfs)
-    , boot_load_pipeline_(task_manager, asset_manager, asset_registry)
-    , renderer_(renderer) {
+    : m_vfs(vfs)
+    , m_boot_load_pipeline(task_manager, asset_manager, asset_registry)
+    , m_renderer(renderer) {
 }
 
 void ProjectManager::loadProject(const ProjectInfo& project) {
     DEV_ASSERT(!project.project_root.empty());
-    DEV_ASSERT_MSG(!vfs_.HasMount("@res"), "resource folder already mounted");
+    DEV_ASSERT_MSG(!m_vfs.HasMount("@res"), "resource folder already mounted");
 
     fs::path resource_folder = fs::path(project.project_root) / "resources";
-    vfs_.Mount("@res", resource_folder);
+    m_vfs.Mount("@res", resource_folder);
 
-    boot_load_pipeline_.requestProject(resource_folder);
+    auto res = m_boot_load_pipeline.requestProject(resource_folder);
+    DEV_ASSERT(res);
 
-    project_ = Some(project);
-    renderer_.setMode(project.is_2d);
+    m_project = Some(project);
+    m_renderer.setMode(project.is_2d);
 }
 
 std::string ProjectManager::projectRoot() const {
-    if (project_.is_none()) {
+    if (m_project.is_none()) {
         return "";
     }
-    return project_.unwrap_unchecked().project_root;
+    return m_project.unwrap_unchecked().project_root;
 }
 
 }  // namespace cave

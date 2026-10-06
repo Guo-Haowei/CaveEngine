@@ -30,7 +30,7 @@ static GpuTextureId CreateLTC(IRenderDevice& p_device,
         .name = std::string(p_name),
     };
 
-    return p_device.CreateTexture(desc, PointClampSampler());
+    return p_device.createTexture(desc, PointClampSampler());
 }
 
 GpuTextureId CreateLTC1(IRenderDevice& p_device) {

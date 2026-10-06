@@ -6,14 +6,13 @@
 #include "cave/core/ids/Entity.h"
 #include "cave/core/string/StringId.h"
 #include "cave/runtime/ecs/ComponentDefines.h"
+#include "cave/runtime/ecs/IComponentPool.h"
 
 // clang-format off
 namespace cave { class Scene; }
 // clang-format on
 
 namespace cave::ecs {
-
-class IComponentPool;
 
 template<ComponentType T>
 class ComponentPool;

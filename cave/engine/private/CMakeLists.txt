@@ -102,7 +102,12 @@ if(WIN32)
         opengl_4_backend
         d3d11_backend
         d3d12_backend
-        vk_backend
+        # vk_backend
+    )
+elseif(APPLE)
+    list(APPEND TARGET_LIBS
+        glfw
+        opengl_4_backend
     )
 elseif(EMSCRIPTEN)
     list(APPEND TARGET_LIBS

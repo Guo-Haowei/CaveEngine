@@ -1,5 +1,7 @@
 #include "BvhAccel.h"
 
+#include <algorithm>
+
 namespace cave::render {
 
 using namespace math;

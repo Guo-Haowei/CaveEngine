@@ -16,7 +16,7 @@ uniform sampler2D u_Texture2;
 #define SSAO_KERNEL_BIAS 0.025f
 
 void main() {
-    const float2 uv = pass_uv;
+    float2 uv = pass_uv;
 
     int2 texture_size = textureSize(t_GbufferNormalMap, 0);
     float2 noise_scale = float2(texture_size);
@@ -34,8 +34,8 @@ void main() {
 
     // Reconstruct view position
     // https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy
-    const float depth = texture(t_GbufferDepth, uv).r;
-    const float3 origin = NdcToViewPos(uv, depth);
+    float depth = texture(t_GbufferDepth, uv).r;
+    float3 origin = NdcToViewPos(uv, depth);
 
 #if 0
     out_color = (TBN * float3(0, 0, 1)).b;
@@ -54,12 +54,12 @@ void main() {
         offset /= offset.w;                 // perspective divide
         offset.xy = offset.xy * 0.5 + 0.5;  // transform to range 0.0 - 1.0
 
-        const float depth2 = texture(t_GbufferDepth, offset.xy).r;
-        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2);
-        const float sample_depth = sampleOcclusionPos.z;
+        float depth2 = texture(t_GbufferDepth, offset.xy).r;
+        float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2);
+        float sample_depth = sampleOcclusionPos.z;
 
-        const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(origin.z - sample_depth));
-        const float increment = sample_depth - samplePos.z >= SSAO_KERNEL_BIAS ? 1.0f : 0.0f;
+        float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(origin.z - sample_depth));
+        float increment = sample_depth - samplePos.z >= SSAO_KERNEL_BIAS ? 1.0f : 0.0f;
         occlusion += increment * range_check;
     }
 

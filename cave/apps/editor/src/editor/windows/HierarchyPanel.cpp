@@ -327,7 +327,8 @@ void HierarchyPanel::drawPopup(const SceneEditContext& context,
         }
         if (ImGui::MenuItem("Save as Prefab")) {
             PrefabExporter exporter;
-            exporter.exportPrefab("@res://exported.prefab", scene, selected);
+            auto res = exporter.exportPrefab("@res://exported.prefab", scene, selected);
+            DEV_ASSERT(res);
         }
         ImGui::EndPopup();
     }

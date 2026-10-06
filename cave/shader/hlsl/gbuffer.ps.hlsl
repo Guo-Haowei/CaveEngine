@@ -10,7 +10,7 @@ struct ps_output {
     float4 out_emissive_roughness_metallic : SV_TARGET2;
 };
 
-ps_output main(VS_OUTPUT_MESH input) {
+ps_output ps_main(VS_OUTPUT_MESH input) {
     float4 color = c_baseColor;
 
     if (c_hasBaseColorMap) {

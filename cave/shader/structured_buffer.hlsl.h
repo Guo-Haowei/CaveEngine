@@ -60,13 +60,33 @@ struct GpuPtMaterial {
     float metallic;
 };
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 static_assert(sizeof(GpuPtBvh) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtVertex) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtIndex) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtMesh) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
-#endif  // __cplusplus
+#endif
+
+#if defined(HLSL_LANG_D3D11)
+#define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
+    RWStructuredBuffer<DATA_TYPE> NAME : register(u##REG);
+#endif
+
+#if defined(HLSL_LANG_D3D12)
+#define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
+    RWStructuredBuffer<DATA_TYPE> NAME : register(u##REG2, space##REG);
+#endif
+
+#if defined(GLSL_LANG)
+#define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
+    layout(std430, binding = REG) buffer NAME##_t { DATA_TYPE NAME[]; };
+#endif
+
+#if defined(__cplusplus)
+#define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
+    static constexpr inline int Get##NAME##Slot() { return REG; }
+#endif
 
 #define SBUFFER_LIST                                         \
     SBUFFER(ParticleCounter, GlobalParticleCounter, 16, 511) \
@@ -79,5 +99,9 @@ static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
     SBUFFER(GpuPtBvh, GlobalPtBvhs, 23, 504)                 \
     SBUFFER(GpuPtMesh, GlobalPtMeshes, 24, 503)              \
     SBUFFER(GpuPtMaterial, GlobalPtMaterials, 25, 502)
+
+SBUFFER_LIST
+
+#undef SBUFFER
 
 #endif

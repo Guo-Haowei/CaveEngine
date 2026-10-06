@@ -50,7 +50,7 @@
 
 #if defined(__cplusplus)
 #define VCT_CONST constexpr
-#elif defined(HLSL_LANG)
+#elif defined(HLSL_LANG) || defined(__SLANG__) || defined(__TARGET_HLSL__)
 #define VCT_CONST static const
 #else
 #define VCT_CONST const
@@ -77,7 +77,7 @@ using float4 = ::cave::math::Vec4f;
 
 using float4x4 = ::cave::math::Mat4f;
 
-#elif defined(HLSL_LANG)
+#elif defined(HLSL_LANG) || defined(__SLANG__)
 // do nothing
 #elif defined(GLSL_LANG)
 #define float2           vec2

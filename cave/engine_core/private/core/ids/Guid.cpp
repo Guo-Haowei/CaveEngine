@@ -1,10 +1,13 @@
 #include "cave/core/ids/Guid.h"
 
+#include "cave/core/error/ErrorMacros.h"
 #include "cave/core/PlatformDefines.h"
 #include "cave/core/string/StringUtils.h"
 
 #if USING(PLATFORM_WINDOWS)
 #include <objbase.h>
+#elif USING(PLATFORM_APPLE)
+#include <uuid/uuid.h>
 #endif
 
 namespace cave {
@@ -17,6 +20,11 @@ Guid Guid::make() {
 
     ::CoCreateGuid(&guid);
     ::memcpy(&result, &guid, sizeof(Guid));
+#elif USING(PLATFORM_APPLE)
+    uuid_t raw;
+    uuid_generate_random(raw);
+
+    ::memcpy(&result, raw, sizeof(Guid));
 #else
     CRASH_NOW_MSG("DON'T CALL THIS");
 #endif

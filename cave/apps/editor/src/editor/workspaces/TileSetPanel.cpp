@@ -1,6 +1,6 @@
 #include "TileSetPanel.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "editor/services/DocumentService.h"
 #include "editor/services/EditorServices.h"

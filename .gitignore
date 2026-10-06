@@ -6,13 +6,14 @@
 CMakeFiles/
 build/
 build-emscripten/
+glsl_generated/
+hlsl_generated/
 
 # shader
 *.air
 *.metallib
 *.spv
 *.meta.cpp
-glsl_generated/
 _cache
 
 # others

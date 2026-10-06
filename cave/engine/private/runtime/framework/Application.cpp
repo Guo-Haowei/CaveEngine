@@ -96,8 +96,8 @@ auto Application::setupModules() -> Result<void> {
                                             m_app_spec.backend == rhi::Backend::OpenGL);
     m_engine_services.view_manager = m_view_manager.get();
 
-    m_renderer = MakeOwner<render::Renderer>(m_engine_services);
-    m_engine_services.renderer_ = m_renderer.get();
+    m_renderer = new render::Renderer(m_engine_services);
+    m_engine_services.renderer_ = m_renderer;
 
     m_scene_scheduler = MakeOwner<SceneScheduler>(m_engine_services);
 
@@ -126,6 +126,7 @@ auto Application::setupModules() -> Result<void> {
     registerModule(m_input_service);
     registerModule(m_display_service);
     registerModule(m_render_device);
+    registerModule(m_renderer);
 
     if (m_app_spec.enableImgui) {
         m_imgui = new ImGuiService(m_app_spec.backend);
@@ -169,16 +170,16 @@ auto Application::initialize() -> Result<void> {
     }
 
     for (IService* module : m_subsystems) {
-        m_stopwatch.Restart();
+        m_stopwatch.restart();
         if (auto res = module->Initialize(); !res) {
             LOG_ERROR("Error: failed to initialize module '{}'", module->GetName());
             return CAVE_ERROR(res.error());
         }
-        m_stopwatch.Stop();
-        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.Elapsed().ToString());
+        m_stopwatch.stop();
+        LOG_INFO(LogChannel::App, "+{} {}", module->GetName(), m_stopwatch.elapsed().ToString());
     }
 
-    m_stopwatch.Restart();
+    m_stopwatch.restart();
     return Result<void>();
 }
 
@@ -201,7 +202,7 @@ void Application::finalize() {
 }
 
 float Application::updateTime() {
-    const Nanoseconds elapsed = m_stopwatch.Restart();
+    const Nanoseconds elapsed = m_stopwatch.restart();
     const float elapsed_sec = static_cast<float>(elapsed.ToSeconds());
 
     return math::min(elapsed_sec, 0.5f);

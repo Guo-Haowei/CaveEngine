@@ -1,6 +1,6 @@
 #include "Image.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 #include <imgui/imgui.h>
 
 #include "engine/private/runtime/assets/ImageAsset.h"

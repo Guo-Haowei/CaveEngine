@@ -1,6 +1,6 @@
 #include "TilePaintTool.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/core/algorithm/Graph.h"
 #include "cave/core/diagnostics/DebugIdAllocator.h"

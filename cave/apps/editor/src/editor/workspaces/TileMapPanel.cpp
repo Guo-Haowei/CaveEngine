@@ -1,6 +1,6 @@
 #include "TileMapPanel.h"
 
-#include <IconsFontAwesome/IconsFontAwesome6.h >
+#include <IconsFontAwesome/IconsFontAwesome6.h>
 
 #include "cave/runtime/tile_map/TileSetAsset.h"
 

@@ -10,18 +10,24 @@
 #include "engine/private/runtime/framework/VFS.h"
 
 #if USING(PLATFORM_WINDOWS) && defined(CAVE_BUILD_ASSIMP)
-#define USE_IMPORTER_ASSIMP NOT_IN_USE
+#define USE_IMPORTER NOT_IN_USE
 #else
-#define USE_IMPORTER_ASSIMP NOT_IN_USE
+#define USE_IMPORTER NOT_IN_USE
 #endif
 
-#if USING(USE_IMPORTER_ASSIMP)
+#if USING(USE_IMPORTER)
 #include "modules/assimp/assimp_importer.h"
-#endif
 #include "modules/tinygltf/tiny_gltf_importer.h"
+#endif
 
 // @TODO: refactor
+#if USING(PLATFORM_WINDOWS)
 #include "engine/private/drivers/windows/win32_prerequisites.h"
+#elif USING(PLATFORM_APPLE)
+#include <CoreServices/CoreServices.h>
+#else
+#error "Platform not supported"
+#endif
 
 #include "editor/services/Workspace.h"
 #include "editor/utility/ContentEntry.h"
@@ -48,7 +54,11 @@ private:
     std::thread m_thread;
     std::atomic<bool> m_stop{ true };
     std::atomic<bool> m_changed{ true };  // set to true to trigger build the first frame
+
+#if USING(PLATFORM_WINDOWS)
     HANDLE m_dir_handle = INVALID_HANDLE_VALUE;
+#elif USING(PLATFORM_APPLE)
+#endif
 };
 
 void FileWatcher::start(const std::string& path) {
@@ -62,6 +72,7 @@ void FileWatcher::start(const std::string& path) {
 
 void FileWatcher::stop() {
     m_stop = true;
+#if USING(PLATFORM_WINDOWS)
     if (m_dir_handle != INVALID_HANDLE_VALUE) {
         ::CancelIoEx(m_dir_handle, nullptr);
     }
@@ -74,9 +85,11 @@ void FileWatcher::stop() {
         ::CloseHandle(m_dir_handle);
         m_dir_handle = INVALID_HANDLE_VALUE;
     }
+#endif
 }
 
 void FileWatcher::watchLoop() {
+#if USING(PLATFORM_WINDOWS)
     std::wstring path(m_path.begin(), m_path.end());
 
     m_dir_handle = ::CreateFileW(
@@ -116,6 +129,7 @@ void FileWatcher::watchLoop() {
 
         m_changed.store(true);  // flag to main thread
     }
+#endif
 }
 
 namespace {
@@ -149,12 +163,12 @@ Result<void> EditorAssetManager::InitializeImpl() {
     }
 
     // @TODO: use DLL
-#if USING(USE_IMPORTER_TINYGLTF)
+#if USING(USE_IMPORTER)
     AssetImporter::RegisterImporter(".gltf", TinyGltfImporter::CreateImporter);
     AssetImporter::RegisterImporter(".glb", TinyGltfImporter::CreateImporter);
 #endif
 
-#if USING(USE_IMPORTER_ASSIMP)
+#if USING(USE_IMPORTER)
     AssetImporter::RegisterImporter(".obj", AssimpImporter::CreateImporter);
     AssetImporter::RegisterImporter(".fbx", AssimpImporter::CreateImporter);
 #endif
@@ -220,7 +234,7 @@ Result<void> EditorAssetManager::addAlwaysLoadImages() {
             }
             auto image = *res;
             m_images[file_name.string()] = image;
-            m_app->services().renderDevice().RequestTexture(image.get());
+            m_app->services().renderDevice().requestTexture(image.get());
         }
     }
 

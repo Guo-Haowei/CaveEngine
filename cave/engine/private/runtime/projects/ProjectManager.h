@@ -22,21 +22,21 @@ public:
 
     void loadProject(const ProjectInfo& project);
 
-    bool hasProject() const { return project_.is_some(); }
+    bool hasProject() const { return m_project.is_some(); }
 
-    const ProjectInfo& project() const { return project_.unwrap(); }
+    const ProjectInfo& project() const { return m_project.unwrap(); }
 
     std::string projectRoot() const;
 
     // @TODO: better snapshot
-    TaskSnapshot snapshot() const { return boot_load_pipeline_.rootSnapshot(); }
+    TaskSnapshot snapshot() const { return m_boot_load_pipeline.rootSnapshot(); }
 
 private:
-    VFS& vfs_;
-    BootLoadPipeline boot_load_pipeline_;
-    render::Renderer& renderer_;
+    VFS& m_vfs;
+    BootLoadPipeline m_boot_load_pipeline;
+    render::Renderer& m_renderer;
 
-    Option<ProjectInfo> project_;
+    Option<ProjectInfo> m_project;
 };
 
 }  // namespace cave

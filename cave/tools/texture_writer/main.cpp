@@ -1,13 +1,14 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <tinygltf/stb_image_write.h>
 
-#include "cave/core/threading/Threads.h"
-#include "engine/private/core/os/timer.h"
-#include "cave/core/threading/JobSystem.h"
-#include "engine/private/core/math/geomath.h"
-#include "engine/private/runtime/framework/Engine.h"
 #include "cave/core/Color.h"
 #include "cave/core/math/Vec.h"
+#include "cave/core/threading/JobSystem.h"
+#include "cave/core/threading/Threads.h"
+#include "cave/core/time/Stopwatch.h"
+
+#include "engine/private/core/math/geomath.h"
+#include "engine/private/runtime/framework/Engine.h"
 
 // @TODO: refactor
 #include "pbr.hlsl.h"
@@ -16,13 +17,15 @@
 
 using namespace cave;
 
-static void WriteImageWrapper(const char* p_file, std::function<void(const char*)> p_func) {
-    Timer timer;
-    p_func(p_file);
-    LOG_OK("Result written to '{}' in {}", p_file, timer.GetDurationString());
+static void WriteImageWrapper(const char* image_path, std::function<void(const char*)> func) {
+    Stopwatch stopwatch;
+    stopwatch.restart();
+    func(image_path);
+    stopwatch.stop();
+    LOG_OK("Result written to '{}' in {}", image_path, stopwatch.elapsed().ToString());
 }
 
-void WriteBrdfImage(const char* p_file) {
+void WriteBrdfImage(const char* image_path) {
     constexpr int width = 512;
     constexpr int height = 512;
     constexpr int job_count = width * height;
@@ -36,19 +39,19 @@ void WriteBrdfImage(const char* p_file) {
         const int y = index / width;
         const float u = (x + 0.5f) / (float)(width);
         const float v = 1.0f - (y + 0.5f) / (float)(height);
-        Vector2f color = IntegrateBRDF(u, v);
+        math::Vec2f color = IntegrateBRDF(u, v);
         image_data[channels * index + 0] = color.r;
         image_data[channels * index + 1] = color.g;
         image_data[channels * index + 2] = 0.0f;
     });
     ctx.Wait();
 
-    stbi_write_hdr(p_file, width, height, channels, image_data);
+    stbi_write_hdr(image_path, width, height, channels, image_data);
 
     delete[] image_data;
 }
 
-void WriteCheckerBoardImage(const char* p_file) {
+void WriteCheckerBoardImage(const char* image_path) {
     constexpr int channels = 4;
 
     constexpr int grid_size = 8 * 4;
@@ -71,17 +74,17 @@ void WriteCheckerBoardImage(const char* p_file) {
         }
     }
 
-    stbi_write_png(p_file, tex_size, tex_size, channels, pixels.data(), tex_size * sizeof(Pixel));
+    stbi_write_png(image_path, tex_size, tex_size, channels, pixels.data(), tex_size * sizeof(Pixel));
 }
 
-void WriteAviatorSkyImage(const char* p_file) {
+void WriteAviatorSkyImage(const char* image_path) {
     constexpr int width = 2048;
     constexpr int height = 1024;
     constexpr int job_count = width * height;
     constexpr int channels = 4;
 
-    auto bottom = Color::Hex(0XE4E0BA);
-    auto top = Color::Hex(0xF7D9AA);
+    auto bottom = Color::Hex((ColorCode)0XE4E0BA);
+    auto top = Color::Hex((ColorCode)0xF7D9AA);
 
     float* image_data = new float[width * height * channels];
     jobsystem::Context ctx;
@@ -97,7 +100,7 @@ void WriteAviatorSkyImage(const char* p_file) {
     });
     ctx.Wait();
 
-    stbi_write_hdr(p_file, width, height, channels, image_data);
+    stbi_write_hdr(image_path, width, height, channels, image_data);
 
     delete[] image_data;
 }
@@ -106,7 +109,7 @@ int main(int, const char**) {
 
     engine::InitializeCore();
 
-    WriteImageWrapper("checkerboard.png", WriteCheckerBoardImage);
+    WriteImageWrapper("brdf.hdr", WriteBrdfImage);
 
     thread::RequestShutdown();
     engine::FinalizeCore();

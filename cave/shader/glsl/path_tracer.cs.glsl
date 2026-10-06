@@ -1,6 +1,7 @@
 /// File: path_tracer.cs.glsl
 #include "../cbuffer.hlsl.h"
 #include "../shader_resource_defines.hlsl.h"
+#include "../structured_buffer.hlsl.h"
 
 layout(rgba32f, binding = 0) uniform image2D u_PathTracerOutputImage;
 

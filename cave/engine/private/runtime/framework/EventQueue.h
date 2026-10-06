@@ -28,7 +28,7 @@ protected:
 class EventListener {
 public:
     virtual ~EventListener() {}
-    virtual void EventReceived(std::shared_ptr<IEvent> p_event) = 0;
+    virtual void eventReceived(std::shared_ptr<IEvent> p_event) = 0;
 };
 
 class EventQueue {

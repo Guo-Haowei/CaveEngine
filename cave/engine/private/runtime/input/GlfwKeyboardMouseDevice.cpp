@@ -1,6 +1,6 @@
 #include "GlfwKeyboardMouseDevice.h"
 
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include "cave/runtime/input/KeyCode.h"
 

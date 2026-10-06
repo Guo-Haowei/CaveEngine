@@ -1,5 +1,5 @@
 #pragma once
-#include "opengl_prerequisites.h"
+#include "GLPrerequisites.h"
 
 #include "cave/core/hash/Hash.h"
 

@@ -61,7 +61,7 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .miscFlags = RESOURCE_MISC_NONE,
     };
-    auto tex = m_render_device.CreateTexture(
+    auto tex = m_render_device.createTexture(
         tex_desc,
         PointClampSampler());
 

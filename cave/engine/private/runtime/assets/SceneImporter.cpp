@@ -127,7 +127,7 @@ Result<Guid> SceneImporter::RegisterMesh(std::string&& name,
     AssetRegistry::singleton().registerAsset(std::move(meta), mesh);
 
     // @TODO: move it to somewhere else, if it's headless, no need to create gpu data
-    RenderDevice::singleton().RequestMesh(mesh.get());
+    RenderDevice::singleton().requestMesh(mesh.get());
 
     return Result<Guid>(guid);
 }

@@ -5,14 +5,14 @@ if(WIN32)
     add_subdirectory(d3d_common)
     add_subdirectory(d3d11)
     add_subdirectory(d3d12)
-    add_subdirectory(vk)
+    # add_subdirectory(vk)
+elseif(APPLE)
+    add_subdirectory(opengl4)
 elseif(EMSCRIPTEN)
     add_subdirectory(opengles3)
 endif()
 
-add_subdirectory(sw)
 # TODO: move above modules to RHI
-
 add_subdirectory(tinygltf)
 if(CAVE_BUILD_ASSIMP)
     add_subdirectory(assimp)
