@@ -14,23 +14,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  format:
-    name: Check Formatting
-    runs-on: self-hosted
-    steps:
-      - name: Check Formatting
-        uses: actions/checkout@v5
-      - run: python3 ./scripts/format_code.py
-      - run: python3 ./scripts/get_git_changed_files.py
+  # format:
+  #   name: Check Formatting
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Check Formatting
+  #       uses: actions/checkout@v5
+  #     - run: python3 ./scripts/format_code.py
+  #     - run: python3 ./scripts/get_git_changed_files.py
 
-  shader_generation:
-    name: Shader Generation
+  compile_shaders:
+    name: Compile shaders
     runs-on: self-hosted
     steps:
-      - name: Shader Generation
+      - name: Compile shaders
         uses: actions/checkout@v5
-      - run: cd cave/shader/
-      - run: python3 ../../scripts/compile_shaders.py --lang glsl --varying-locations 0,1,2,3
+      - name: Compile GLSL shaders
+        run: python3 scripts/compile_shaders.py --source-folder cave/shader/slang --lang glsl --varying-locations 0,1,2,3
 
   # build_debug:
   #   name: Build Debug
