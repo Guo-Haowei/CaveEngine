@@ -1,8 +1,8 @@
-/// File: post_process.ps.hlsl
-#include "cbuffer.hlsl.h"
-#include "hlsl/input_output.hlsl"
-#include "sampler.hlsl.h"
-#include "shader_resource_defines.hlsl.h"
+/// File: post_process.slang
+#include "../cbuffer.hlsl.h"
+#include "../hlsl/input_output.hlsl"
+
+#include "common.slang"
 
 Texture2D t_TextureLighting : register(t0);
 Texture2D t_TextureHighlightSelect : register(t1);
@@ -12,16 +12,17 @@ static const float3x3 sx = float3x3(
     1.0, 2.0, 1.0,
     0.0, 0.0, 0.0,
     -1.0, -2.0, -1.0);
+
 static const float3x3 sy = float3x3(
     1.0, 0.0, -1.0,
     2.0, 0.0, -2.0,
     1.0, 0.0, -1.0);
 
+[shader("fragment")]
 float4 ps_main(VS_OUTPUT_UV input)
     : SV_TARGET {
     float2 uv = input.uv;
-    // flip uv
-    // uv.y = 1 - uv.y;
+
     // Edge detection
     int width, height;
     t_TextureHighlightSelect.GetDimensions(width, height);
@@ -32,7 +33,7 @@ float4 ps_main(VS_OUTPUT_UV input)
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             float2 offset = uv + texel_size * float2(i - 1, j - 1);
-            I[i][j] = t_TextureHighlightSelect.Sample(s_linearClampSampler, offset).r;
+            I[i][j] = SAMPLE_TEXTURE_2D(t_TextureHighlightSelect, s_linearClampSampler, offset).r;
         }
     }
 
@@ -44,11 +45,11 @@ float4 ps_main(VS_OUTPUT_UV input)
         return float4(0.98, 0.64, 0.0, 1.0);
     }
 
-    float3 hdr_color = t_TextureLighting.Sample(s_linearClampSampler, uv).rgb;
+    float3 hdr_color = SAMPLE_TEXTURE_2D(t_TextureLighting, s_linearClampSampler, uv).rgb;
 
     // Bloom
     if (c_enableBloom == 1) {
-        float3 bloom = t_BloomInputTexture.Sample(s_linearClampSampler, uv).rgb;
+        float3 bloom = SAMPLE_TEXTURE_2D(t_BloomInputTexture, s_linearClampSampler, uv).rgb;
         hdr_color += bloom;
     }
 

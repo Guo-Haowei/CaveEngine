@@ -1,11 +1,12 @@
-/// File: screenspace_quad.vs.hlsl
-#include "hlsl/input_output.hlsl"
+/// File: screenspace_quad.slang
+#include "../hlsl/input_output.hlsl"
 
 static const float2 TOP_LEFT = float2(-1.0f, +1.0f);
 static const float2 TOP_RIGHT = float2(1.0f, +1.0f);
 static const float2 BOTTOM_LEFT = float2(-1.0f, -1.0f);
 static const float2 BOTTOM_RIGHT = float2(1.0f, -1.0f);
 
+[shader("vertex")]
 VS_OUTPUT_UV vs_main(uint vert_id : SV_VertexID) {
     float2 positions[6] = {
         TOP_LEFT,
@@ -22,7 +23,7 @@ VS_OUTPUT_UV vs_main(uint vert_id : SV_VertexID) {
 
     output.position = float4(pos, 0.0f, 1.0f);
     output.uv = 0.5f * (pos + 1.0f);
-#if !defined(HLSL_2_GLSL)
+#if !defined(__TARGET_GLSL__)
     output.uv.y = 1.0f - output.uv.y;
 #endif
     return output;
