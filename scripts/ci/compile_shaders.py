@@ -1,4 +1,4 @@
-# scripts/ci/shader.py
+# scripts/ci/compile_shader.py
 
 from scripts.ci.ci_framework import finish, run_python_task
 
