@@ -68,12 +68,13 @@ static_assert(sizeof(GpuPtMesh) % sizeof(float4) == 0);
 static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
 #endif
 
-#if defined(HLSL_LANG_D3D11)
+#if defined(HLSL_LANG_D3D11) || defined(__TARGET_HLSL__)
 #define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
     RWStructuredBuffer<DATA_TYPE> NAME : register(u##REG);
 #endif
 
 #if defined(HLSL_LANG_D3D12)
+#error "NOT SUPPORTED"
 #define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
     RWStructuredBuffer<DATA_TYPE> NAME : register(u##REG2, space##REG);
 #endif
