@@ -33,7 +33,7 @@ jobs:
 
   build_debug:
     name: Build Debug
-    # needs: format
+    needs: compile_shaders
     runs-on: self-hosted
     steps:
       - name: Build Debug

@@ -1,20 +1,47 @@
 # scripts/ci/build.py
 
-from scripts.ci.ci_framework import finish, run_python_task
+from pathlib import Path
+
+from scripts.ci.ci_framework import finish, run_task
+from scripts.common.log import Log
+
+
+ROOT = Path(__file__).resolve().parents[2]
+BUILD_DIR = ROOT / "build"
 
 
 def main():
-    #   - run: echo "Building project..."
-    #   - run: python3 ./scripts/generate_meta.py
-    #   # - run: ./scripts/ci_build_job.bat Debug
-    #   # - run: echo "Testing project..."
-    #   # - run: ./build/bin/Debug/unit_tests.exe
-    result = run_python_task(
-        "Buid project",
-        "scripts/generate_meta.py",
+    Log.info(f"Project root: {ROOT}")
+    Log.info(f"Build directory: {BUILD_DIR}")
+
+    BUILD_DIR.mkdir(parents=True, exist_ok=True)
+
+    configure = run_task(
+        "Configure Build",
+        [
+            "cmake",
+            "-S", str(ROOT),
+            "-B", str(BUILD_DIR),
+            "-GXcode"
+            "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+            "-DCAVE_BUILD_ASSIMP=OFF",
+            "-DCAVE_BUILD_UNIT_TESTS=ON",
+        ],
     )
 
-    finish(result)
+    if not configure.success:
+        finish(configure)
+
+    build = run_task(
+        "Build Debug",
+        [
+            "cmake",
+            "--build", str(BUILD_DIR),
+            "--config", "Debug",
+        ],
+    )
+
+    finish(build)
 
 
 if __name__ == "__main__":
