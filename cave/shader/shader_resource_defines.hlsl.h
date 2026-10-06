@@ -18,14 +18,6 @@ DESCRIPTOR_SRV_LIST
 #define SRV(TYPE, NAME, SLOT, BINDING) TYPE t_##NAME : register(t##SLOT);
 SRV_DEFINES
 #undef SRV
-#elif defined(GLSL_LANG)
-// @TODO: refactor
-#define Texture2D                      sampler2D
-#define TextureCube                    samplerCube
-#define TextureCubeArray               samplerCubeArray
-#define SRV(TYPE, NAME, SLOT, BINDING) uniform TYPE t_##NAME;
-SRV_DEFINES
-#undef SRV
 #elif defined(__cplusplus)
 #define SRV(TYPE, NAME, SLOT, BINDING) \
     [[maybe_unused]] static constexpr inline int Get##NAME##Slot() { return SLOT; }

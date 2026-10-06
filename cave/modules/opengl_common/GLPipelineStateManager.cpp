@@ -23,7 +23,7 @@ struct TextureSlot {
 
 static constexpr TextureSlot s_textureSots[] = {
 #define SRV(TYPE, NAME, SLOT, BINDING) \
-    TextureSlot{ "t_" #NAME, SLOT },
+    TextureSlot{ #NAME, SLOT },
     SRV_DEFINES
 #undef SRV
 };
@@ -96,27 +96,12 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     file.append(".glsl");
     fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "glsl_generated" / file;
 
-    bool is_generated = true;
-    if (!fs::exists(fullpath)) {
-        is_generated = false;
-        fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "glsl" / file;
-    }
-
     auto result = ProcessShader(fullpath, 0);
     if (!result) {
         return CAVE_ERROR(result.error());
     }
 
-    // @TODO: check capability
-    String fullsource;
-    if (!is_generated) {
-        fullsource =
-            "#version " CAVE_GLSL_VERSION_STRING
-            " core\n"
-            "#define GLSL_LANG 1\n";
-    }
-
-    fullsource.append(*result);
+    String fullsource = std::move(*result);
     const char* sources[] = { fullsource.c_str() };
 
     GLuint shader_id = glCreateShader(shader_type);

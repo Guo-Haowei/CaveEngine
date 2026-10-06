@@ -1,34 +1,5 @@
-/// File: shadow.hlsl
+/// File: common_shadow.slang
 #include "../cbuffer.hlsl.h"
-
-// @TODO: refactor this part
-// #if defined(HLSL_LANG)
-
-// #define Vector2f       float2
-// #define Vector3f       float3
-// #define Vector4f       float4
-// #define Multiply(a, b) mul((a), (b))
-// uint2 textureSizeTexture2D(Texture2D p_texture) {
-//     return uint2(width, height);
-// }
-
-// #elif defined(GLSL_LANG)
-
-// #define Vector2f       vec2
-// #define Vector3f       vec3
-// #define Vector4f       vec4
-// #define Multiply(a, b) ((a) * (b))
-// uvec2 textureSizeTexture2D(sampler2D textureObject) {
-//     return textureSize(textureObject, 0);
-// }
-
-// vec4 sampleShadow(Texture2D textureObject, vec2 offset) {
-//     return texture(textureObject, offset);
-// }
-
-// #else
-// #error "Unknown shading language"
-// #endif
 
 float shadowTest(
 #if defined(__TARGET_GLSL__)
@@ -46,8 +17,10 @@ float shadowTest(
 #if defined(__TARGET_HLSL__)
     lightSpacePos.y = -lightSpacePos.y;
     lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
-#else
+#elif defined(__TARGET_GLSL__)
     lightSpacePos.xyz = 0.5 * lightSpacePos.xyz + 0.5;
+#else
+#error
 #endif
 
     float currentDepth = lightSpacePos.z;

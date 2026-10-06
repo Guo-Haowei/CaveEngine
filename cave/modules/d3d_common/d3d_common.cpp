@@ -75,12 +75,6 @@ auto CompileShader(std::string_view shader_name,
     file_name.append(".hlsl");
     fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "hlsl_generated" / file_name;
 
-    bool is_generated = true;
-    if (!fs::exists(fullpath)) {
-        is_generated = false;
-        fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "hlsl" / file_name;
-    }
-
     std::string fullpath_str = fullpath.string();
     std::wstring path{ fullpath_str.begin(), fullpath_str.end() };
     ComPtr<ID3DBlob> error;
