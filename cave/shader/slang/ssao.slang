@@ -57,7 +57,6 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
         occlusion += increment * range_check;
     }
 
-    // 6. Normalize and invert occlusion
     occlusion = 1.0 - (occlusion / float(SSAO_KERNEL_SIZE));
     return occlusion;
 }
