@@ -17,8 +17,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
 
     int2 texture_size;
     u_Texture0.GetDimensions(texture_size.x, texture_size.y);
-    float2 noise_scale = float2(texture_size);
-    noise_scale *= (1.0f / SSAO_NOISE_SIZE);
+    float2 noise_scale = float2(texture_size) * (1.0f / SSAO_NOISE_SIZE);
 
     float3 N = SAMPLE_TEXTURE_2D(u_Texture0, s_pointClampSampler, uv).rgb;
     N = 2.0f * N - 1.0f;
@@ -32,31 +31,37 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
 
     float3x3 TBN = float3x3(tangent, bitangent, N);
 
-#if 0
-    return mul(float3(0, 0, 1), TBN).b;
-#endif
-
     float occlusion = 0.0;
 
     for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
-        // get sample position
-        float3 samplePos = mul(c_ssaoKernel[i].xyz, TBN);  // from tangent to view-space
+        // 1. Transform sample from tangent space to view space
+        float3 samplePos = mul(c_ssaoKernel[i].xyz, TBN);
         samplePos = origin.xyz + samplePos * c_ssaoKernalRadius;
 
-        // project sample position (to sample texture) (to get position on screen/texture)
+        // 2. Project view-space sample to clip space
         float4 offset = float4(samplePos, 1.0);
-        offset = mul(c_camProj, offset);    // from view to clip-space
-        offset /= offset.w;                 // perspective divide
-        offset.xy = offset.xy * 0.5 + 0.5;  // transform to range 0.0 - 1.0
+        offset = mul(c_camProj, offset);
+        offset.xy /= offset.w;
 
+        // 3. Convert NDC [-1, 1] -> Texture UV [0, 1]
+#if defined(__TARGET_GLSL__) && !defined(__TARGET_SPIRV__)
+        // OpenGL: UV (0,0) is bottom-left
+        offset.xy = float2(offset.x * 0.5 + 0.5, 0.5 - offset.y * 0.5);
+#else
+        // HLSL / Vulkan: UV (0,0) is top-left -> flip Y
+        offset.xy = offset.xy * 0.5 + 0.5;
+#endif
+
+        // 4. Sample depth and reconstruct view position with NormalizeDepth()
         const float depth2 = SAMPLE_TEXTURE_2D(u_Texture1, s_pointClampSampler, offset.xy).r;
         const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, NormalizeDepth(depth2), c_invCamProj);
         const float sample_depth = sampleOcclusionPos.z;
 
+        // 5. Apply distance falloff & depth comparison
         const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(origin.z - sample_depth));
-        const float increment = sample_depth - samplePos.z >= SSAO_KERNEL_BIAS ? 1.0f : 0.0f;
-        occlusion += increment;
-        // occlusion += increment * range_check;
+        const float increment = (sample_depth - samplePos.z >= SSAO_KERNEL_BIAS) ? 1.0f : 0.0f;
+
+        occlusion += increment * range_check;
     }
 
     occlusion = 1.0 - (occlusion / float(SSAO_KERNEL_SIZE));
