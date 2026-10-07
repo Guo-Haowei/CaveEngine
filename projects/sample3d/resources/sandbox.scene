@@ -1,5 +1,5 @@
 version: 22
-seed: 15
+seed: 26
 entities:
   - id: 1
     NameComponent:
@@ -99,13 +99,13 @@ entities:
       material_id: 00000000-0000-0000-0000000000000000
   - id: 8
     NameComponent:
-      name: AreaLight-1
+      name: AreaLight
     HierarchyComponent:
-      parent_id: 1
+      parent_id: 16
       local_visible: true
     TransformComponent:
-      translation: [0, 4.4407773, 5.66806173]
-      rotation: [0.961887181, 0, 0, 0.27344662]
+      translation: [0, 1, 0]
+      rotation: [0.382683456, 0, 0, 0.923879504]
       scale: [2.50039983, 2.50038338, 2.50038338]
     LightComponent:
       type: area
@@ -225,3 +225,143 @@ entities:
       far: 1000
       aspect: 1.77777803
       ortho_height: 10
+  - id: 16
+    NameComponent:
+      name: Box
+    HierarchyComponent:
+      parent_id: 1
+      local_visible: true
+    TransformComponent:
+      translation: [-5.05758095, 1.25786161, 0.315634012]
+      rotation: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+  - id: 17
+    NameComponent:
+      name: bottom
+    HierarchyComponent:
+      parent_id: 16
+      local_visible: true
+    TransformComponent:
+      translation: [0, -2, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [4, 0.100000001, 4]
+    MeshRendererComponent:
+      visible: true
+      cast_shadow: true
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000005
+      materials: [18]
+      skeleton_id: 0
+  - id: 18
+    NameComponent:
+      name: cube:mat
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 00000000-0000-0000-0000000000000000
+  - id: 19
+    NameComponent:
+      name: up
+    HierarchyComponent:
+      parent_id: 16
+      local_visible: true
+    TransformComponent:
+      translation: [0, 2, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [4, 0.100000001, 4]
+    MeshRendererComponent:
+      visible: true
+      cast_shadow: true
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000005
+      materials: [20]
+      skeleton_id: 0
+  - id: 20
+    NameComponent:
+      name: cube:mat
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 00000000-0000-0000-0000000000000000
+  - id: 21
+    NameComponent:
+      name: left
+    HierarchyComponent:
+      parent_id: 16
+      local_visible: true
+    TransformComponent:
+      translation: [-2, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [0.100000001, 4, 4]
+    MeshRendererComponent:
+      visible: true
+      cast_shadow: true
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000005
+      materials: [22]
+      skeleton_id: 0
+  - id: 22
+    NameComponent:
+      name: cube:mat
+    MaterialComponent:
+      base_color: [1, 0, 0, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 00000000-0000-0000-0000000000000000
+  - id: 23
+    NameComponent:
+      name: right
+    HierarchyComponent:
+      parent_id: 16
+      local_visible: true
+    TransformComponent:
+      translation: [2, 0, 0]
+      rotation: [0, 0, 0, 1]
+      scale: [0.100000001, 4, 4]
+    MeshRendererComponent:
+      visible: true
+      cast_shadow: true
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000005
+      materials: [24]
+      skeleton_id: 0
+  - id: 24
+    NameComponent:
+      name: cube:mat
+    MaterialComponent:
+      base_color: [0, 1, 0, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 00000000-0000-0000-0000000000000000
+  - id: 25
+    NameComponent:
+      name: back
+    HierarchyComponent:
+      parent_id: 16
+      local_visible: true
+    TransformComponent:
+      translation: [0, 0, -2]
+      rotation: [0, 0, 0, 1]
+      scale: [4, 4, 0.100000001]
+    MeshRendererComponent:
+      visible: true
+      cast_shadow: true
+      transparent: false
+      mesh_guid: 00000000-0000-0000-0000000000000005
+      materials: [26]
+      skeleton_id: 0
+  - id: 26
+    NameComponent:
+      name: cube:mat
+    MaterialComponent:
+      base_color: [1, 1, 1, 1]
+      metallic: 0
+      roughness: 1
+      emissive: 0
+      material_id: 00000000-0000-0000-0000000000000000
