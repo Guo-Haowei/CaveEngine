@@ -12,8 +12,8 @@
 #include "modules/opengl4/GL4RenderDevice.h"
 // #include "modules/vk/vulkan_graphics_manager.h"
 #elif USING(PLATFORM_APPLE)
+#include "modules/metal/MetalRenderDevice.h"
 #include "modules/opengl4/GL4RenderDevice.h"
-#include "engine/private/drivers/metal/metal_graphics_manager.h"
 #elif USING(PLATFORM_WASM)
 #include "modules/opengles3/GLES3RenderDevice.h"
 #endif

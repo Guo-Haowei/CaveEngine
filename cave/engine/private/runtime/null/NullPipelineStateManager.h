@@ -5,19 +5,19 @@ namespace cave::render {
 
 using rhi::Backend;
 
-class EmptyPipelineStateManager : public PipelineStateManager {
+class NullPipelineStateManager : public PipelineStateManager {
 public:
-    explicit EmptyPipelineStateManager() noexcept
+    explicit NullPipelineStateManager() noexcept
         : PipelineStateManager(Backend::Null) {}
 
 protected:
-    auto graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
-        unused(p_desc);
+    auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> override {
+        unused(desc);
         return CAVE_ERROR(ErrorCode::FAILURE);
     }
 
-    auto computePipeline(const PipelineStateDesc& p_desc) -> Result<std::shared_ptr<PipelineState>> override {
-        unused(p_desc);
+    auto computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> override {
+        unused(desc);
         return CAVE_ERROR(ErrorCode::FAILURE);
     }
 };

@@ -1,11 +1,10 @@
-#if 0
-#include "metal_graphics_manager.h"
+#include "MetalRenderDevice.h"
 #include <imgui/backends/imgui_impl_metal.h>
 
-#include "engine/drivers/empty/empty_pipeline_state_manager.h"
-#include "engine/drivers/glfw/glfw_display_manager.h"
-#include "engine/runtime/application.h"
-#include "engine/runtime/imgui_manager.h"
+#include "engine/private/runtime/display/GlfwDisplayService.h"
+#include "engine/private/runtime/framework/Application.h"
+#include "engine/private/runtime/framework/ImguiManager.h"
+#include "engine/private/runtime/null/NullPipelineStateManager.h"
 
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
@@ -15,19 +14,21 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
 
-namespace cave {
+namespace cave::render {
 
-MetalGraphicsManager::MetalGraphicsManager() : EmptyGraphicsManager("MetalGraphicsManager", Backend::METAL, NUM_FRAMES_IN_FLIGHT) { m_pipelineStateManager = std::make_shared<EmptyPipelineStateManager>(); }
+MetalRenderDevice::MetalRenderDevice() : NullRenderDevice("MetalRenderDevice") {
+//    m_pipelineStateManager = MakeRef<NullPipelineStateManager>();
+}
 
 id<MTLRenderPipelineState> pipelineState;
 id<MTLBuffer> vertexBuffer;
 
-void MetalGraphicsManager::setupPipeline() {
+void MetalRenderDevice::setupPipeline() {
     // Load the Metal shader source
     NSError* error = nil;
     id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
 
-    const char* path_cstring = ROOT_FOLDER "/engine/shader/metal/Shaders.metallib";
+    const char* path_cstring = "/engine/shader/metal/Shaders.metallib";
     NSString* path = [NSString stringWithUTF8String:path_cstring];
     NSURL* url = [NSURL URLWithString:path];
 
@@ -52,7 +53,7 @@ void MetalGraphicsManager::setupPipeline() {
     }
 }
 
-void MetalGraphicsManager::setupVertexBuffer() {
+void MetalRenderDevice::setupVertexBuffer() {
     // Define the triangle vertices
     static const float vertices[] = {
         0.0f,  0.5f,  0.0f, 1.0f, // Top vertex
@@ -65,9 +66,9 @@ void MetalGraphicsManager::setupVertexBuffer() {
     vertexBuffer = [device newBufferWithBytes:vertices length:sizeof(vertices) options:MTLResourceStorageModeShared];
 }
 
-auto MetalGraphicsManager::InitializeInternal() -> Result<void> {
+auto MetalRenderDevice::InitializeImpl() -> Result<void> {
     @autoreleasepool {
-        auto display_manager = dynamic_cast<GlfwDisplayManager*>(m_app->GetDisplayServer());
+        auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->GetDisplayServer());
         DEV_ASSERT(display_manager);
         if (!display_manager) {
             return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
@@ -111,14 +112,14 @@ auto MetalGraphicsManager::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-void MetalGraphicsManager::FinalizeImpl() {
+void MetalRenderDevice::FinalizeImpl() {
     if (m_device) {
         CFRelease(m_device);
         m_device = nullptr;
     }
 }
 
-void MetalGraphicsManager::Present() {
+void MetalRenderDevice::Present() {
     @autoreleasepool {
         id<MTLCommandQueue> commandQueue = (__bridge id<MTLCommandQueue>)m_commandQueue;
         auto renderPassDescriptor = (MTLRenderPassDescriptor*)m_renderPassDescriptor;
@@ -168,7 +169,7 @@ void MetalGraphicsManager::Present() {
     }
 }
 
-void MetalGraphicsManager::OnWindowResize(int p_width, int p_height) {
+void MetalRenderDevice::OnWindowResize(int p_width, int p_height) {
     unused(p_width);
     unused(p_height);
 }
@@ -185,7 +186,7 @@ struct MetalGpuTexture : public GpuTexture {
     void* texture;
 };
 
-std::shared_ptr<GpuTexture> MetalGraphicsManager::CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc&) {
+std::shared_ptr<GpuTexture> MetalRenderDevice::CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc&) {
     if (p_texture_desc.format != PixelFormat::R8G8B8A8_UINT) {
         //        DEV_ASSERT(p_texture_desc.format == PixelFormat::R8G8B8A8_UINT);
         return nullptr;
@@ -222,5 +223,3 @@ std::shared_ptr<GpuTexture> MetalGraphicsManager::CreateTextureImpl(const GpuTex
 }
 
 } // namespace cave
-
-#endif
