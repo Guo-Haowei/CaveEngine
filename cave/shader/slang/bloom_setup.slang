@@ -2,7 +2,7 @@
 #include "../cbuffer.hlsl.h"
 #include "common.slang"
 
-TEXTURE_2D(u_Texture0, t0); // t_TextureLighting
+TEXTURE_2D(u_Texture0, 0); // t_TextureLighting
 RWTexture2D<float4> u_BloomOutputImage : register(u0);
 
 float rgb_to_luma(float3 rgb) {

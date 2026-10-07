@@ -44,7 +44,7 @@ GLRenderDevice::GLRenderDevice()
     : RenderDevice("GLRenderDevice", rhi::Backend::OpenGL, 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
-    m_pipeline_state_manager = MakeOwner<OpenGlPipelineStateManager>();
+    m_pipeline_state_manager = MakeOwner<GLPipelineStateManager>();
     m_fbo_cache = MakeOwner<GLFramebufferCache>();
 }
 
@@ -185,7 +185,7 @@ auto GLRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    auto ret = MakeRef<OpenGlMeshBuffers>(mesh_desc);
+    auto ret = MakeRef<GLGpuMesh>(mesh_desc);
     ret->vao = vao;
 
     // create EBO
@@ -236,7 +236,7 @@ void GLRenderDevice::setMesh(const GpuMesh* p_mesh) {
         glBindVertexArray(m_dummy_vao);
         return;
     }
-    auto mesh = reinterpret_cast<const OpenGlMeshBuffers*>(p_mesh);
+    auto mesh = reinterpret_cast<const GLGpuMesh*>(p_mesh);
     glBindVertexArray(mesh->vao);
 }
 

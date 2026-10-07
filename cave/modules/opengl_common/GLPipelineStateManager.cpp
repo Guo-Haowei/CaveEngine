@@ -23,7 +23,7 @@ struct TextureSlot {
 
 static constexpr TextureSlot s_textureSots[] = {
 #define SRV(TYPE, NAME, SLOT, BINDING) \
-    TextureSlot{ "t_" #NAME, SLOT },
+    TextureSlot{ #NAME, SLOT },
     SRV_DEFINES
 #undef SRV
 };
@@ -96,27 +96,12 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     file.append(".glsl");
     fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "glsl_generated" / file;
 
-    bool is_generated = true;
-    if (!fs::exists(fullpath)) {
-        is_generated = false;
-        fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "glsl" / file;
-    }
-
     auto result = ProcessShader(fullpath, 0);
     if (!result) {
         return CAVE_ERROR(result.error());
     }
 
-    // @TODO: check capability
-    String fullsource;
-    if (!is_generated) {
-        fullsource =
-            "#version " CAVE_GLSL_VERSION_STRING
-            " core\n"
-            "#define GLSL_LANG 1\n";
-    }
-
-    fullsource.append(*result);
+    String fullsource = std::move(*result);
     const char* sources[] = { fullsource.c_str() };
 
     GLuint shader_id = glCreateShader(shader_type);
@@ -142,15 +127,15 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     return shader_id;
 }
 
-auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto GLPipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto GLPipelineStateManager::computePipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
     return CreatePipelineImpl(pipeline_state_desc);
 }
 
-auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto GLPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
     GLuint program_id = glCreateProgram();
     Vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {
@@ -235,14 +220,6 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc& pip
 
     glUseProgram(program_id);
 
-    // set uniforms
-    for (uint32_t i = 0; i < std::size(s_textureSots); ++i) {
-        const int location = glGetUniformLocation(program_id, s_textureSots[i].name);
-        if (location != -1) {
-            glUniform1i(location, s_textureSots[i].slot);
-        }
-    }
-
 #ifdef CAVE_CBUFFER
 #undef CAVE_CBUFFER
 #endif
@@ -266,6 +243,14 @@ auto OpenGlPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc& pip
         const int location = glGetUniformLocation(program_id, name.c_str());
         if (location != -1) {
             glUniform1i(location, i);
+        }
+    }
+
+    // set uniforms
+    for (uint32_t i = 0; i < std::size(s_textureSots); ++i) {
+        const int location = glGetUniformLocation(program_id, s_textureSots[i].name);
+        if (location != -1) {
+            glUniform1i(location, s_textureSots[i].slot);
         }
     }
 

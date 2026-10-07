@@ -1,5 +1,5 @@
 /// File: highlight.slang
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 
 [shader("fragment")]
 float ps_main(VS_OUTPUT_UV input) : SV_TARGET {

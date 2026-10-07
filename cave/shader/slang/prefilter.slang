@@ -1,13 +1,13 @@
 /// File: prefilter.slang
 #include "../cbuffer.hlsl.h"
 #include "../pbr.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 
 #include "common.slang"
 
 #define SAMPLE_COUNT 1024u
 
-TEXTURE_CUBE(u_Texture0, t0);
+TEXTURE_CUBE(u_Texture0, 0);
 
 [shader("fragment")]
 float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET

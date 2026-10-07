@@ -68,12 +68,6 @@ using samplerCube = sampler_t;
 #define TextureHandle int2
 #define sampler2D     int2
 #define samplerCube   int2
-
-#elif defined(GLSL_LANG)
-#define CAVE_CBUFFER(NAME, REG, DEF) layout(std140) uniform NAME DEF
-
-#define TextureHandle vec2
-
 #endif
 
 #include "cbuffer_list.hlsl.h"

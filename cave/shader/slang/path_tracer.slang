@@ -1,15 +1,15 @@
-/// File: pass_tracer.cs.hlsl
-#include "cbuffer.hlsl.h"
-#include "shader_defines.hlsl.h"
-#include "shader_resource_defines.hlsl.h"
-#include "structured_buffer.hlsl.h"
+/// File: pass_tracer.slang
+#include "../cbuffer.hlsl.h"
+#include "../structured_buffer.hlsl.h"
 
 // @NOTE: include this at last
-#include "shared_path_tracer.h"
+#include "../shared_path_tracer.h"
 
 RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
 
-[numthreads(16, 16, 1)] void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
+[shader("compute")]
+[numthreads(16, 16, 1)]
+void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
     // random seed
     // [0, width], [0, height]
     const int2 uv = int2(p_dispatch_thread_id.xy);

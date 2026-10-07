@@ -1,9 +1,9 @@
 /// File: to_cube_map.slang
 #include "../cbuffer.hlsl.h"
-#include "../hlsl/input_output.hlsl"
+#include "input_output.slang"
 #include "common.slang"
 
-TEXTURE_2D(u_Texture0, t0); // t_SkyboxHdr
+TEXTURE_2D(u_Texture0, 0); // t_SkyboxHdr
 
 float2 sample_spherical_map(float3 v) {
     const float2 inv_atan = float2(0.1591, 0.3183);

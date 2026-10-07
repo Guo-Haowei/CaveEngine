@@ -1,4 +1,4 @@
-/// File: input_output.hlsl
+/// File: input_output.slang
 // Input
 struct VS_INPUT_POS {
     float3 position : POSITION;

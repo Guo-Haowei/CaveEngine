@@ -11,7 +11,7 @@ namespace cave::render {
 class GLFramebufferCache;
 
 // @TODO: fix
-struct OpenGlMeshBuffers : GpuMesh {
+struct GLGpuMesh : GpuMesh {
     using GpuMesh::GpuMesh;
 
     uint32_t vao{ 0 };
@@ -79,7 +79,7 @@ protected:
     void setPipelineStateImpl(PipelineStateName name) override;
 
     // @TODO: rename
-    RIDAllocator<OpenGlMeshBuffers> m_meshes;
+    RIDAllocator<GLGpuMesh> m_meshes;
 
     GLFWwindow* m_window;
 

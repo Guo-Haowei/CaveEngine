@@ -30,11 +30,6 @@ extern GpuPtMaterial GlobalPtMaterials[];
 
 // #define FORCE_UPDATE
 
-#if defined(GLSL_LANG)
-#define mul(a, b) ((a) * (b))
-#define lerp      mix
-#endif
-
 struct Ray {
     float3 origin;
     float t;

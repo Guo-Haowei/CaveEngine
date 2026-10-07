@@ -1,7 +1,7 @@
 /// File: bloom_upsample.slang
 #include "common.slang"
 
-TEXTURE_2D(u_Texture0, t0); // t_BloomInputTexture
+TEXTURE_2D(u_Texture0, 0); // t_BloomInputTexture
 RWTexture2D<float4> u_BloomOutputImage : register(u0);
 
 [shader("compute")]

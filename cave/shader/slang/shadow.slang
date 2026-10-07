@@ -1,10 +1,9 @@
-/// File: shadow.vs.hlsl
-#include "cbuffer.hlsl.h"
-#include "hlsl/input_output.hlsl"
+/// File: shadow.slang
+#include "../cbuffer.hlsl.h"
+#include "input_output.slang"
 
-float4 vs_main(VS_INPUT_MESH input,
-            uint instance_id : SV_InstanceID)
-    : SV_POSITION {
+[shader("vertex")]
+float4 vs_main(VS_INPUT_MESH input, uint instance_id : SV_InstanceID) : SV_POSITION {
     float4x4 world_matrix;
     switch (c_meshFlag) {
         case MESH_HAS_BONE: {
