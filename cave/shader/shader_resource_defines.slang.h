@@ -1,10 +1,10 @@
 /// File: shader_resource_defines.slang.h
 #pragma once
 
-#define SRV_DEFINES               \
-    TEXTURE_2D(BaseColorMap, 30)  \
-    TEXTURE_2D(NormalMap, 31)     \
-    TEXTURE_2D(MaterialMap, 32) 
+#define SRV_DEFINES              \
+    TEXTURE_2D(BaseColorMap, 30) \
+    TEXTURE_2D(NormalMap, 31)    \
+    TEXTURE_2D(MaterialMap, 32)
 
 #if defined(__SLANG__)
 #ifndef TEXTURE_2D
