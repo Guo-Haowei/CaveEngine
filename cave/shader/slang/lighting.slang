@@ -15,6 +15,8 @@ TEXTURE_2D(u_Texture5, 5);
 TEXTURE_CUBE(u_Texture6, 6);
 TEXTURE_CUBE(u_Texture7, 7);
 TEXTURE_2D(u_Texture8, 8);
+TEXTURE_2D(u_Texture9, 9);
+TEXTURE_2D(u_Texture10, 10);
 
 #define t_GbufferBaseColorMap u_Texture0
 #define t_GbufferNormalMap    u_Texture1
@@ -27,7 +29,7 @@ TEXTURE_2D(u_Texture8, 8);
 #define t_BrdfLut             u_Texture8
 #define t_LTC1                u_Texture9
 #define t_LTC2                u_Texture10
-#define t_VoxelLighting       u_Texture11
+// #define t_VoxelLighting       u_Texture11
 
 TEXTURE_2D(BaseColorMap, 30);
 TEXTURE_2D(NormalMap, 31);

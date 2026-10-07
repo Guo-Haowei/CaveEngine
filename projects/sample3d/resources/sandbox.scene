@@ -104,9 +104,9 @@ entities:
       parent_id: 16
       local_visible: true
     TransformComponent:
-      translation: [0, 1, 0]
-      rotation: [0.382683456, 0, 0, 0.923879504]
-      scale: [2.50039983, 2.50038338, 2.50038338]
+      translation: [0, 1.68933725, 0]
+      rotation: [0.700909257, 0, 0, 0.713250458]
+      scale: [1.5, 1.5, 1.5]
     LightComponent:
       type: area
       atten_constant: 1
