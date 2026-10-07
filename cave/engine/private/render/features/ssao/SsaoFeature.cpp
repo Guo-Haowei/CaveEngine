@@ -12,7 +12,7 @@
 #include "engine/private/render/rhi/PipelineState.h"
 
 namespace cave {
-#include "shader_resource_defines.hlsl.h"
+#include "shader_resource_defines.slang.h"
 }  // namespace cave
 
 namespace cave::render {
@@ -34,7 +34,7 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
 
     GpuTextureDesc desc{
         .type = AttachmentType::NONE,
-        .dimension = Dimension::TEXTURE_2D,
+        .dimension = Dimension::Texture2D,
         .width = SSAO_NOISE_SIZE,
         .height = SSAO_NOISE_SIZE,
         .depth = 1,

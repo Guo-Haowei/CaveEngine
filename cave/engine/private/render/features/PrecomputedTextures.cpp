@@ -17,7 +17,7 @@ static GpuTextureId CreateLTC(IRenderDevice& p_device,
     constexpr int LTC_SIZE = 64;
     GpuTextureDesc desc{
         .type = AttachmentType::NONE,
-        .dimension = Dimension::TEXTURE_2D,
+        .dimension = Dimension::Texture2D,
         .width = LTC_SIZE,
         .height = LTC_SIZE,
         .depth = 1,

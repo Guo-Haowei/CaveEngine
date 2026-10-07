@@ -13,7 +13,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
-#include "shader_resource_defines.hlsl.h"
+#include "shader_resource_defines.slang.h"
 }
 
 namespace cave::render {

@@ -15,7 +15,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
-#include "shader_resource_defines.hlsl.h"
+#include "shader_resource_defines.slang.h"
 }  // namespace cave
 
 namespace cave::render {

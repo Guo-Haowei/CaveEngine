@@ -362,7 +362,7 @@ inline void SetSampler(GLenum p_texture_type, const SamplerDesc& p_desc) {
 
 inline GLenum ConvertDimension(Dimension p_dimension) {
     switch (p_dimension) {
-        case Dimension::TEXTURE_2D:
+        case Dimension::Texture2D:
             return GL_TEXTURE_2D;
         case Dimension::TEXTURE_3D:
             return GL_TEXTURE_3D;

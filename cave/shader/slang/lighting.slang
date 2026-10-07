@@ -31,9 +31,7 @@ TEXTURE_2D(u_Texture10, 10);
 #define t_LTC2                u_Texture10
 // #define t_VoxelLighting       u_Texture11
 
-TEXTURE_2D(BaseColorMap, 30);
-TEXTURE_2D(NormalMap, 31);
-TEXTURE_2D(MaterialMap, 32);
+#include "../shader_resource_defines.slang.h"
 
 #include "common_lighting.slang"
 

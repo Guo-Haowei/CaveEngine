@@ -1,8 +1,10 @@
 #include "../pbr.hlsl.h"
 #include "common_shadow.slang"
 
-// @TODO: refactor shadow
-#define NUM_POINT_SHADOW_SAMPLES 20
+static const uint NUM_POINT_SHADOW_SAMPLES = 20;
+static const float LUT_SIZE = 64.0;
+static const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
+static const float LUT_BIAS = 0.5 / LUT_SIZE;
 
 static float3 POINT_LIGHT_SHADOW_SAMPLE_OFFSET[NUM_POINT_SHADOW_SAMPLES] = {
     float3(1, 1, 1),

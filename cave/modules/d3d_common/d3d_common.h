@@ -53,7 +53,7 @@ void SafeRelease(T*& ptr) {
 
 static inline D3D_SRV_DIMENSION ConvertDimension(Dimension p_dimension) {
     switch (p_dimension) {
-        case Dimension::TEXTURE_2D:
+        case Dimension::Texture2D:
             return D3D_SRV_DIMENSION_TEXTURE2D;
         case Dimension::TEXTURE_3D:
             return D3D_SRV_DIMENSION_TEXTURE3D;

@@ -17,7 +17,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave {
-#include "shader_resource_defines.hlsl.h"
+#include "shader_resource_defines.slang.h"
 }  // namespace cave
 
 #ifdef min
@@ -193,7 +193,7 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
     }
 
     texture_desc.format = image->format;
-    texture_desc.dimension = Dimension::TEXTURE_2D;
+    texture_desc.dimension = Dimension::Texture2D;
     texture_desc.width = image->width;
     texture_desc.height = image->height;
     texture_desc.arraySize = 1;

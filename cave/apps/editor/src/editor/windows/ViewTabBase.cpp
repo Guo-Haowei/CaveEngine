@@ -79,7 +79,7 @@ ViewTabBase::ViewTabBase(EditorState& editor,
     // @TODO: move it to somewhere else
     GpuTextureDesc desc{
         .type = AttachmentType::COLOR_2D,
-        .dimension = Dimension::TEXTURE_2D,
+        .dimension = Dimension::Texture2D,
         .width = kTextureWidth,
         .height = kTextureHeight,
         .depth = 1,
