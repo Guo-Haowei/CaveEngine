@@ -242,7 +242,7 @@ auto D3d11GraphicsManager::initSamplers() -> Result<void> {
 
 #define SAMPLER_STATE(REG, NAME, DESC) \
     if (!createSampler(REG, FillSamplerDesc(DESC))) { return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create Sampler {}", #NAME); }
-#include "sampler.hlsl.h"
+#include "sampler.slang.h"
 #undef SAMPLER_STATE
     return Result<void>();
 }

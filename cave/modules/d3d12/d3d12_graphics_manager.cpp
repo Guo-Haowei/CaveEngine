@@ -1319,7 +1319,7 @@ void D3d12GraphicsManager::InitStaticSamplers() {
     };
 
 #define SAMPLER_STATE(REG, NAME, DESC) m_staticSamplers.emplace_back(FillSamplerDesc(REG, DESC));
-#include "sampler.hlsl.h"
+#include "sampler.slang.h"
 #undef SAMPLER_STATE
 }
 
