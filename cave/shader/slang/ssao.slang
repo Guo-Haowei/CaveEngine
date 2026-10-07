@@ -12,8 +12,7 @@ TEXTURE_2D(u_Texture2, 2); // t_NoiseTexture
 #define SSAO_KERNEL_BIAS 0.025f
 
 [shader("fragment")]
-float ps_main(VS_OUTPUT_UV input)
-    : SV_TARGET {
+float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     const float2 uv = input.uv;
 
     int2 texture_size;
@@ -24,10 +23,8 @@ float ps_main(VS_OUTPUT_UV input)
     float3 N = SAMPLE_TEXTURE_2D(u_Texture0, s_pointClampSampler, uv).rgb;
     N = 2.0f * N - 1.0f;
 
-    // reconstruct view position
-    // https://stackoverflow.com/questions/11277501/how-to-recover-view-space-position-given-view-space-depth-value-and-ndc-xy
-    const float depth = SAMPLE_TEXTURE_2D(u_Texture1, s_pointClampSampler, uv).r;
-    const float3 origin = NdcToViewPos(uv, depth, c_invCamProj);
+    const float raw_depth = SAMPLE_TEXTURE_2D(u_Texture1, s_pointClampSampler, uv).r;
+    const float3 origin = NdcToViewPos(uv, NormalizeDepth(raw_depth), c_invCamProj);
 
     float3 rvec = float3(SAMPLE_TEXTURE_LEVEL(u_Texture2, s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
     float3 tangent = normalize(rvec - N * dot(rvec, N));
@@ -53,7 +50,7 @@ float ps_main(VS_OUTPUT_UV input)
         offset.xy = offset.xy * 0.5 + 0.5;  // transform to range 0.0 - 1.0
 
         const float depth2 = SAMPLE_TEXTURE_2D(u_Texture1, s_pointClampSampler, offset.xy).r;
-        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2, c_invCamProj);
+        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, NormalizeDepth(depth2), c_invCamProj);
         const float sample_depth = sampleOcclusionPos.z;
 
         const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(origin.z - sample_depth));
