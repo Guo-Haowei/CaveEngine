@@ -49,18 +49,6 @@
 #define COMPUTE_LOCAL_SIZE_VOXEL 4
 
 #if defined(__cplusplus)
-#define VCT_CONST constexpr
-#elif defined(HLSL_LANG) || defined(__SLANG__) || defined(__TARGET_HLSL__)
-#define VCT_CONST static const
-#else
-#define VCT_CONST const
-#endif
-
-VCT_CONST float LUT_SIZE = 64.0;  // ltc_texture size
-VCT_CONST float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
-VCT_CONST float LUT_BIAS = 0.5 / LUT_SIZE;
-
-#if defined(__cplusplus)
 
 using uint = unsigned int;
 using uint2 = ::cave::math::Vec2u;

@@ -4,22 +4,24 @@
 
 #include "common.slang"
 
-TEXTURE_CUBE(u_Texture0, 0); // t_Skybox
-TEXTURE_2D(u_Texture1, 1); //  t_ShadowMap
-TEXTURE_CUBE(u_Texture2, 2); // t_DiffuseIrradiance
-TEXTURE_CUBE(u_Texture3, 3); // t_Prefiltered
-TEXTURE_2D(u_Texture4, 4); // t_BrdfLut
+TEXTURE_CUBE(u_Texture0, 0);
+TEXTURE_2D(u_Texture1, 1);
+TEXTURE_CUBE(u_Texture2, 2);
+TEXTURE_CUBE(u_Texture3, 3);
+TEXTURE_2D(u_Texture4, 4);
+TEXTURE_2D(u_Texture5, 5);
+TEXTURE_2D(u_Texture6, 6);
 
 #define t_Skybox            u_Texture0
 #define t_ShadowMap         u_Texture1
 #define t_DiffuseIrradiance u_Texture2
 #define t_Prefiltered       u_Texture3
 #define t_BrdfLut           u_Texture4
+#define t_LTC1              u_Texture5
+#define t_LTC2              u_Texture6
+// #define t_VoxelLighting     u_Texture6
 
-TEXTURE_2D(BaseColorMap, 30);
-TEXTURE_2D(NormalMap, 31);
-TEXTURE_2D(MaterialMap, 32);
-
+#include "../shader_resource_defines.slang.h"
 #include "common_lighting.slang"
 
 [shader("fragment")]

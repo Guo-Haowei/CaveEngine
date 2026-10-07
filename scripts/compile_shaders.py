@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -192,6 +193,9 @@ def compile_folder(
         sys.exit(1)
 
     output_folder = custom_output_folder or Path(f"{lang}_generated")
+    if output_folder.exists():
+        shutil.rmtree(output_folder)
+
     output_folder.mkdir(parents=True, exist_ok=True)
 
     glsl_version = "410" if platform == "apple" else "460"

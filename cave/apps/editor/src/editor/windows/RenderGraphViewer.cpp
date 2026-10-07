@@ -52,7 +52,7 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
             if (!texture) return;
 
             ImGui::TextUnformatted(texture->desc.name.c_str());
-            if (texture && texture->desc.dimension == Dimension::TEXTURE_2D) {
+            if (texture && texture->desc.dimension == Dimension::Texture2D) {
                 ImVec2 size(180 * 3, 120 * 3);
                 if (flip) {
                     ImGui::Image(texture->GetHandle(), size, ImVec2(0, 1), ImVec2(1, 0));

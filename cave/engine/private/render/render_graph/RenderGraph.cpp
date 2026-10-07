@@ -202,7 +202,7 @@ GpuTextureDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
     desc.type = type;
     desc.format = format;
     desc.arraySize = array_size;
-    desc.dimension = Dimension::TEXTURE_2D;
+    desc.dimension = Dimension::Texture2D;
     desc.width = width;
     desc.height = height;
     desc.mipLevels = mips_level ? mips_level : 1;
@@ -214,7 +214,7 @@ GpuTextureDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
         case AttachmentType::DEPTH_2D:
         case AttachmentType::DEPTH_STENCIL_2D:
         case AttachmentType::SHADOW_2D:
-            desc.dimension = Dimension::TEXTURE_2D;
+            desc.dimension = Dimension::Texture2D;
             break;
         case AttachmentType::COLOR_CUBE:
             desc.dimension = Dimension::TEXTURE_CUBE;

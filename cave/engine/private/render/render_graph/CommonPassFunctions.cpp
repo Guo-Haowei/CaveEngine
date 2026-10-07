@@ -17,7 +17,7 @@
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
 namespace cave {
-#include "shader_resource_defines.hlsl.h"
+#include "shader_resource_defines.slang.h"
 }  // namespace cave
 
 namespace cave::render {
@@ -43,9 +43,9 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
         gm.SetMesh(instance.gpuMesh);
 
         const MaterialConstantBuffer& material = p_data.materialCache.buffer[instance.materialIdx];
-        gm.BindTexture(Dimension::TEXTURE_2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
-        gm.BindTexture(Dimension::TEXTURE_2D, material.c_normalMapHandle, GetNormalMapSlot());
-        gm.BindTexture(Dimension::TEXTURE_2D, material.c_materialMapHandle, GetMaterialMapSlot());
+        gm.BindTexture(Dimension::Texture2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
+        gm.BindTexture(Dimension::Texture2D, material.c_normalMapHandle, GetNormalMapSlot());
+        gm.BindTexture(Dimension::Texture2D, material.c_materialMapHandle, GetMaterialMapSlot());
 
         gm.BindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), instance.materialIdx);
 
@@ -84,9 +84,9 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 
         if (draw.mat_idx != -1) {
             const MaterialConstantBuffer& material = p_ctx.frameData.materialCache.buffer[draw.mat_idx];
-            gm.bindTexture(Dimension::TEXTURE_2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
-            gm.bindTexture(Dimension::TEXTURE_2D, material.c_normalMapHandle, GetNormalMapSlot());
-            gm.bindTexture(Dimension::TEXTURE_2D, material.c_materialMapHandle, GetMaterialMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_normalMapHandle, GetNormalMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_materialMapHandle, GetMaterialMapSlot());
 
             gm.bindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
         }
@@ -249,7 +249,7 @@ static void EmitterPassFunc(RenderPassExcutionContext& p_ctx) {
         if (!emitter.texture.empty()) {
             const ImageAsset* image = AssetRegistry::singleton().Request<ImageAsset>(emitter.texture);
             if (image && image->gpu_texture) {
-                cmd.BindTexture(Dimension::TEXTURE_2D, image->gpu_texture->GetHandle(), GetBaseColorMapSlot());
+                cmd.BindTexture(Dimension::Texture2D, image->gpu_texture->GetHandle(), GetBaseColorMapSlot());
                 use_texture = true;
             }
         }
@@ -259,7 +259,7 @@ static void EmitterPassFunc(RenderPassExcutionContext& p_ctx) {
         cmd.UnbindStructuredBufferSRV(GetGlobalParticleDataSlot());
 
         if (use_texture) {
-            cmd.UnbindTexture(Dimension::TEXTURE_2D, GetBaseColorMapSlot());
+            cmd.UnbindTexture(Dimension::Texture2D, GetBaseColorMapSlot());
         }
     }
 }

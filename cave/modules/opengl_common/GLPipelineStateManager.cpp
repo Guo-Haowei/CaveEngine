@@ -9,7 +9,7 @@
 #include <fstream>
 
 namespace cave {
-#include "shader_resource_defines.hlsl.h"
+#include "shader_resource_defines.slang.h"
 }  // namespace cave
 
 namespace cave::render {
@@ -22,10 +22,9 @@ struct TextureSlot {
 };
 
 static constexpr TextureSlot s_textureSots[] = {
-#define SRV(TYPE, NAME, SLOT, BINDING) \
-    TextureSlot{ #NAME, SLOT },
+#define TEXTURE_2D(NAME, SLOT) TextureSlot{ #NAME, SLOT },
     SRV_DEFINES
-#undef SRV
+#undef TEXTURE_2D
 };
 
 OpenGlPipelineState::~OpenGlPipelineState() {

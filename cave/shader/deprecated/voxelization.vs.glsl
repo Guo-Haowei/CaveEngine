@@ -1,6 +1,5 @@
 /// File: voxelization.vs.glsl
 #include "../cbuffer.hlsl.h"
-#include "../vsinput.glsl.h"
 
 out vec3 pass_positions;
 out vec3 pass_normals;

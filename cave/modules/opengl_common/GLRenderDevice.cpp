@@ -17,7 +17,6 @@
 #include "GLHelpers.h"
 #include "GLPipelineStateManager.h"
 #include "GLResources.h"
-#include "vsinput.glsl.h"
 
 // @NOTE: include GLFW after opengl
 // @TODO: opengl shouldn't know about glfw

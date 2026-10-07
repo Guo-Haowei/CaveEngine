@@ -41,7 +41,7 @@ struct D3d12GpuTexture : public GpuTexture {
     uint64_t GetResidentHandle() const final {
         uint64_t handle = srvHandle.index;
         switch (desc.dimension) {
-            case Dimension::TEXTURE_2D:
+            case Dimension::Texture2D:
             case Dimension::TEXTURE_CUBE_ARRAY:
                 return handle;
             default:
@@ -860,7 +860,7 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
         srv_desc.Format = srv_format;
         DescriptorResourceType resource_type{};
         switch (p_texture_desc.dimension) {
-            case Dimension::TEXTURE_2D:
+            case Dimension::Texture2D:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
                 srv_desc.Texture2D.MipLevels = texture_desc.MipLevels;
                 srv_desc.Texture2D.MostDetailedMip = 0;
@@ -1319,7 +1319,7 @@ void D3d12GraphicsManager::InitStaticSamplers() {
     };
 
 #define SAMPLER_STATE(REG, NAME, DESC) m_staticSamplers.emplace_back(FillSamplerDesc(REG, DESC));
-#include "sampler.hlsl.h"
+#include "sampler.slang.h"
 #undef SAMPLER_STATE
 }
 
