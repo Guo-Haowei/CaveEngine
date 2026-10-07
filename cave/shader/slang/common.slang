@@ -27,23 +27,19 @@ SamplerState s_cubemapClampLodSampler : register(s6);
 #error "Language NOT supported!"
 #endif
 
-float NormalizeDepth(float raw_depth) {
-#if defined(__TARGET_GLSL__)
-    return 2.0f * raw_depth - 1.0f;
-#else
-    return raw_depth;
-#endif
-}
-
-float3 NdcToViewPos(float2 uv, float clip_depth, float4x4 inv_cam_proj) {
+float3 NdcToViewPos(float2 uv, float raw_depth, float4x4 inv_cam_proj) {
     float2 ndc = 2.0f * uv - 1.0f;
 
 #if defined(__TARGET_GLSL__) && !defined(__TARGET_SPIRV__)
+    float clip_depth = 2.0f * raw_depth - 1.0f;
+#else
     ndc.y = -ndc.y;
+
+    float clip_depth = raw_depth;
 #endif
 
-    float4 clipPos = float4(ndc.x, ndc.y, clip_depth, 1.0f);
-    float4 viewPosH = mul(inv_cam_proj, clipPos);
+    float4 screenPos = float4(ndc.x, ndc.y, clip_depth, 1.0f);
+    float4 viewPosH = mul(inv_cam_proj, screenPos);
     
     return viewPosH.xyz / viewPosH.w;
 }
