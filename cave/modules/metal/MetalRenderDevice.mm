@@ -167,7 +167,7 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
 
     id<MTLCommandBuffer> cb = (__bridge id<MTLCommandBuffer>)m_command_buffer;
     m_encoder = (__bridge_retained void*)[cb renderCommandEncoderWithDescriptor:pass];
-
+    
     id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)m_encoder;
     {
 #define SAMPLER_STATE(REG, NAME, DESC) [encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_samplers[REG] atIndex:REG];
@@ -640,9 +640,6 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
 }
 
 void MetalRenderDevice::bindTexture(Dimension, uint64_t h, int slot) {
-    if (slot < 0 || slot >= (int)m_bound_textures.size())
-        return;
-    m_bound_textures[slot] = h;
     if (!m_encoder || !h)
         return;
     id<MTLTexture> t = (__bridge id<MTLTexture>)reinterpret_cast<void*>(h);
@@ -753,22 +750,22 @@ void MetalRenderDevice::present() {
 void MetalRenderDevice::onWindowResize(int, int) {}
 
 void MetalRenderDevice::beginEvent(std::string_view event) {
-    if (!m_encoder)
-        return;
+    if (!m_command_buffer)
+            return;
 
-    NSString* name = [[NSString alloc]
-        initWithBytes:event.data()
-               length:event.size()
-             encoding:NSUTF8StringEncoding];
+        NSString* name = [[NSString alloc]
+            initWithBytes:event.data()
+                   length:event.size()
+                 encoding:NSUTF8StringEncoding];
 
-    [(id<MTLRenderCommandEncoder>)m_encoder pushDebugGroup:name];
+        [(id<MTLCommandBuffer>)m_command_buffer pushDebugGroup:name];
 }
 
 void MetalRenderDevice::endEvent() {
-    if (!m_encoder)
+    if (!m_command_buffer)
         return;
 
-    [(id<MTLRenderCommandEncoder>)m_encoder popDebugGroup];
+    [(id<MTLCommandBuffer>)m_command_buffer popDebugGroup];
 }
 
 } // namespace cave::render

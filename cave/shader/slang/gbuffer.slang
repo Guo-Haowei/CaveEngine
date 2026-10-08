@@ -49,12 +49,8 @@ ps_output ps_main(VS_OUTPUT_MESH input) {
 
     ps_output output;
     output.base_color = color;
-#if 0
-    output.base_color = float4(0.5f * N + 0.5f, 1.0f);
-#endif
 
-    output.normal.xyz = 0.5f * N + 0.5f;
-    output.normal.a = 1.0f;
+    output.normal = float4(0.5f * N + 0.5f, 1.0f);
 
     output.out_emissive_roughness_metallic.r = c_emissivePower;
     output.out_emissive_roughness_metallic.g = roughness;

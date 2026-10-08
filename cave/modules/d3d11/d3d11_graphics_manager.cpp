@@ -336,13 +336,11 @@ void D3d11GraphicsManager::bindConstantBufferRange(const GpuConstantBuffer* p_bu
     }
 }
 
-void D3d11GraphicsManager::bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
-    unused(p_dimension);
-
-    if (p_handle) {
-        ID3D11ShaderResourceView* srv = (ID3D11ShaderResourceView*)(p_handle);
-        m_deviceContext->PSSetShaderResources(p_slot, 1, &srv);
-        m_deviceContext->CSSetShaderResources(p_slot, 1, &srv);
+void D3d11GraphicsManager::bindTexture(Dimension, uint64_t handle, int slot) {
+    if (handle) {
+        ID3D11ShaderResourceView* srv = (ID3D11ShaderResourceView*)(handle);
+        m_deviceContext->PSSetShaderResources(slot, 1, &srv);
+        m_deviceContext->CSSetShaderResources(slot, 1, &srv);
     }
 }
 
