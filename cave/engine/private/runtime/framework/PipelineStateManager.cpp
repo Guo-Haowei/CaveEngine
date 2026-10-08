@@ -73,7 +73,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
     switch (m_backend) {
         case Backend::Null:
         case Backend::Direct3D12:
-        case Backend::Metal:
         case Backend::Vulkan:
             return Result<void>();
         default:
@@ -84,6 +83,37 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
     do {                                                                          \
         if (auto res = create(__VA_ARGS__); !res) return CAVE_ERROR(res.error()); \
     } while (0)
+
+    // @TODO: merge primitive and overlay
+    CREATE_PSO(PSO_PRIMITIVE,
+               {
+                   .vs = "primitive.vs",
+                   .ps = "primitive.ps",
+                   .rasterizer_desc = &s_rasterizer_double_sided,
+                   .depth_stencil_desc = &s_depth_reversed_stencil_off,
+                   .input_layout_desc = &s_input_layout_primitive,
+                   .blend_desc = &s_transparent,
+                   .num_render_targets = 1,
+                   .rtv_formats = { RT_FMT_TONE },
+                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+               });
+
+    CREATE_PSO(PSO_UI_OVERLAY, {
+                                   .vs = "ui_overlay.vs",
+                                   .ps = "primitive.ps",
+                                   .rasterizer_desc = &s_rasterizer_double_sided,
+                                   .depth_stencil_desc = &s_depth_stencil_off,
+                                   .input_layout_desc = &s_input_layout_primitive,
+                                   .blend_desc = &s_transparent,
+                                   .num_render_targets = 1,
+                                   .rtv_formats = { RT_FMT_TONE },
+                                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
+                               });
+
+    // @HACK: only support this
+    if (m_backend == Backend::Metal) {
+        return;
+    }
 
     CREATE_PSO(PSO_PREPASS,
                {
@@ -273,32 +303,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                       .blend_desc = &s_default_blend_state,
                                   });
     }
-
-    // @TODO: merge primitive and overlay
-    CREATE_PSO(PSO_PRIMITIVE,
-               {
-                   .vs = "primitive.vs",
-                   .ps = "primitive.ps",
-                   .rasterizer_desc = &s_rasterizer_double_sided,
-                   .depth_stencil_desc = &s_depth_reversed_stencil_off,
-                   .input_layout_desc = &s_input_layout_primitive,
-                   .blend_desc = &s_transparent,
-                   .num_render_targets = 1,
-                   .rtv_formats = { RT_FMT_TONE },
-                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-               });
-
-    CREATE_PSO(PSO_UI_OVERLAY, {
-                                   .vs = "ui_overlay.vs",
-                                   .ps = "primitive.ps",
-                                   .rasterizer_desc = &s_rasterizer_double_sided,
-                                   .depth_stencil_desc = &s_depth_stencil_off,
-                                   .input_layout_desc = &s_input_layout_primitive,
-                                   .blend_desc = &s_transparent,
-                                   .num_render_targets = 1,
-                                   .rtv_formats = { RT_FMT_TONE },
-                                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
-                               });
 
     if (capabilities.supportComputeShaders) {
         CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
