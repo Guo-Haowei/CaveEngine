@@ -34,8 +34,8 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
         float2 resolution = float2(float(dims.x), float(dims.y));
         float aspectRatio = resolution.x / resolution.y;
         screen.x *= aspectRatio;
-        float tan_half_fovy = tan(0.5f * c_camera_fovy);
-        float3x3 mat = float3x3(c_cameraRight, c_cameraUp, c_cameraForward);
+        float tan_half_fovy = tan(0.5f * c_cam_fovy);
+        float3x3 mat = float3x3(c_cam_right.xyz, c_cam_up.xyz, c_cam_forward.xyz);
 
         ray_dir = float3(screen.x * tan_half_fovy,
                          screen.y * tan_half_fovy,
@@ -44,7 +44,7 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
     }
 
     Ray ray;
-    ray.origin = c_cameraPosition;
+    ray.origin = c_cam_pos.xyz;
     ray.direction = ray_dir;
     ray.invDir = 1.0f / ray.direction;
     ray.t = RAY_T_MAX;

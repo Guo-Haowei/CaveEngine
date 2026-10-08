@@ -44,8 +44,8 @@ float4 ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     float3 base_color = SAMPLE_TEXTURE_2D(t_GbufferBaseColorMap, s_linearMipWrapSampler, uv).rgb;
 
     const float raw_depth = SAMPLE_TEXTURE_2D(t_GbufferDepth, s_pointClampSampler, uv).r;
-    const float3 view_position = NdcToViewPos(uv, raw_depth, c_invCamProj);
-    const float4 world_position = mul(c_invCamView, float4(view_position, 1.0f));
+    const float3 view_position = NdcToViewPos(uv, raw_depth, c_inv_cam_proj);
+    const float4 world_position = mul(c_inv_cam_view, float4(view_position, 1.0f));
 
     float emissive = emissive_roughness_metallic.r;
     float roughness = emissive_roughness_metallic.g;

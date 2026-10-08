@@ -28,7 +28,7 @@ TEXTURE_2D(u_Texture6, 6);
 float4 ps_main(VS_OUTPUT_MESH input)
     : SV_TARGET {
     const float2 texcoord = input.uv;
-    const float4 world_position = mul(c_invCamView, float4(input.world_position, 1.0f));
+    const float4 world_position = mul(c_inv_cam_view, float4(input.world_position, 1.0f));
 
     float3 base_color = c_baseColor.rgb;
     float alpha = c_baseColor.a;

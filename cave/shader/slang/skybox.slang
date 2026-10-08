@@ -7,9 +7,9 @@ TEXTURE_CUBE(u_Texture0, 0); // t_Skybox
 
 [shader("vertex")]
 VS_OUTPUT_POSITION vs_main(VS_INPUT_MESH input) {
-    float3x3 rotate = (float3x3)c_camView;
+    float3x3 rotate = (float3x3)c_cam_view;
     float3 position3 = mul(rotate, input.position);
-    float4 position = mul(c_camProj, float4(position3, 1.0));
+    float4 position = mul(c_cam_proj, float4(position3, 1.0));
 
     VS_OUTPUT_POSITION output;
     output.position = position.xyww;

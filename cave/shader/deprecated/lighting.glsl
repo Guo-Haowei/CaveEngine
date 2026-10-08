@@ -121,7 +121,7 @@ vec3 compute_lighting(sampler2D shadow_map,
         return vec3(emissive * base_color);
     }
 
-    vec3 V = normalize(c_cameraPosition - world_position);
+    vec3 V = normalize(c_cam_pos - world_position);
     float NdotV = max(dot(N, V), 0.0);
     vec3 R = reflect(-V, N);
 
@@ -175,7 +175,7 @@ vec3 compute_lighting(sampler2D shadow_map,
                     direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
 #if 0
                     if (light.cast_shadow == 1) {
-                        shadow = point_shadow_calculation(light, world_position, c_cameraPosition);
+                        shadow = point_shadow_calculation(light, world_position, c_cam_pos);
                     }
 #endif
                 }

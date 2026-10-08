@@ -177,7 +177,7 @@ float3 compute_lighting(
         return emissive * base_color;
     }
 
-    float3 V = normalize(c_cameraPosition - world_position);
+    float3 V = normalize(c_cam_pos.xyz - world_position);
     float NdotV = clamp(dot(N, V), 0.0, 1.0);
     float3 R = reflect(-V, N);
 
@@ -233,7 +233,7 @@ float3 compute_lighting(
                     direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
 #if 0
                     if (light.cast_shadow == 1) {
-                        shadow = point_shadow_calculation(light, world_position, c_cameraPosition);
+                        shadow = point_shadow_calculation(light, world_position, c_cam_pos);
                     }
 #endif
                 }

@@ -23,7 +23,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     N = 2.0f * N - 1.0f;
 
     const float raw_depth = SAMPLE_TEXTURE_2D(u_Texture1, s_pointClampSampler, uv).r;
-    const float3 origin = NdcToViewPos(uv, raw_depth, c_invCamProj);
+    const float3 origin = NdcToViewPos(uv, raw_depth, c_inv_cam_proj);
 
     float3 rvec = float3(SAMPLE_TEXTURE_LEVEL(u_Texture2, s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
     float3 tangent = normalize(rvec - N * dot(rvec, N));
@@ -37,7 +37,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
         samplePos = origin.xyz + samplePos * c_ssaoKernalRadius;
 
         float4 offset = float4(samplePos, 1.0);
-        offset = mul(c_camProj, offset);
+        offset = mul(c_cam_proj, offset);
         offset.xy /= offset.w;
 
 #if defined(__TARGET_GLSL__)
@@ -47,7 +47,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
 #endif
 
         const float depth2 = SAMPLE_TEXTURE_2D(u_Texture1, s_pointClampSampler, offset.xy).r;
-        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2, c_invCamProj);
+        const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2, c_inv_cam_proj);
         const float sample_depth = sampleOcclusionPos.z;
 
         const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(abs(origin.z) - abs(sample_depth)));

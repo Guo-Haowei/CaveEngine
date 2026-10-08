@@ -188,7 +188,6 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 Mat4f light_local_matrix = light_transform->localMatrix();
                 Vec3f light_dir((light_local_matrix * Vec4f(0, 0, 1, 1)).xyz);
                 light_dir = normalize(light_dir);
-                cache.c_sunPosition = light_dir;
                 light.cast_shadow = cast_shadow;
                 light.position.xyz = light_dir;
 
