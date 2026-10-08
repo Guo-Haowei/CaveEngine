@@ -6,6 +6,8 @@
 #include "engine/private/runtime/framework/ImguiManager.h"
 #include "engine/private/runtime/null/NullPipelineStateManager.h"
 
+#include "engine/private/renderer/gpu_resource.h"
+
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
 #include <GLFW/glfw3.h>
@@ -68,13 +70,13 @@ void MetalRenderDevice::setupVertexBuffer() {
 
 auto MetalRenderDevice::InitializeImpl() -> Result<void> {
     @autoreleasepool {
-        auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->GetDisplayServer());
-        DEV_ASSERT(display_manager);
-        if (!display_manager) {
+        auto display = dynamic_cast<GlfwDisplayService*>(&m_app->services().displayService());
+        DEV_ASSERT(display);
+        if (!display) {
             return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "display manager is nullptr");
         }
 
-        m_window = display_manager->GetGlfwWindow();
+        m_window = display->GetGlfwWindow();
 
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         m_device = (__bridge void*)CFRetain((__bridge CFTypeRef)device);
@@ -96,9 +98,9 @@ auto MetalRenderDevice::InitializeImpl() -> Result<void> {
         MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor new];
         m_renderPassDescriptor = renderPassDescriptor;
 
-        auto imgui = m_app->GetImguiManager();
+        auto imgui = m_app->services().imgui;
         if (imgui) {
-            imgui->SetRenderCallbacks(
+            imgui->setRenderCallbacks(
                 [this]() {
                     id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
                     ImGui_ImplMetal_Init(device);
@@ -119,7 +121,7 @@ void MetalRenderDevice::FinalizeImpl() {
     }
 }
 
-void MetalRenderDevice::Present() {
+void MetalRenderDevice::present() {
     @autoreleasepool {
         id<MTLCommandQueue> commandQueue = (__bridge id<MTLCommandQueue>)m_commandQueue;
         auto renderPassDescriptor = (MTLRenderPassDescriptor*)m_renderPassDescriptor;
@@ -169,9 +171,9 @@ void MetalRenderDevice::Present() {
     }
 }
 
-void MetalRenderDevice::OnWindowResize(int p_width, int p_height) {
-    unused(p_width);
-    unused(p_height);
+void MetalRenderDevice::onWindowResize(int width, int height) {
+    unused(width);
+    unused(height);
 }
 
 struct MetalGpuTexture : public GpuTexture {
@@ -186,7 +188,7 @@ struct MetalGpuTexture : public GpuTexture {
     void* texture;
 };
 
-std::shared_ptr<GpuTexture> MetalRenderDevice::CreateTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc&) {
+Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc&) {
     if (p_texture_desc.format != PixelFormat::R8G8B8A8_UINT) {
         //        DEV_ASSERT(p_texture_desc.format == PixelFormat::R8G8B8A8_UINT);
         return nullptr;
