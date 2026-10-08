@@ -30,7 +30,7 @@ static float3 POINT_LIGHT_SHADOW_SAMPLE_OFFSET[NUM_POINT_SHADOW_SAMPLES] = {
 };
 
 float point_shadow_calculation(Light p_light, float3 p_frag_pos, float3 p_eye) {
-    float3 light_position = p_light.position;
+    float3 light_position = p_light.position.xyz;
     float light_far = p_light.max_distance;
 
     float3 frag_to_light = p_frag_pos - light_position;
@@ -207,10 +207,10 @@ float3 compute_lighting(
         int light_type = c_lights[light_idx].type;
         float3 direct_lighting = float3(0.0, 0.0, 0.0);
         float shadow = 0.0;
-        float3 radiance = light.color;
+        float3 radiance = light.color.rgb;
+        float3 L = light.position.xyz;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
-                float3 L = light.position;
                 float atten = 1.0;
                 const float3 H = normalize(V + L);
                 direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
@@ -221,7 +221,7 @@ float3 compute_lighting(
                 }
             } break;
             case LIGHT_TYPE_POINT: {
-                float3 delta = -world_position + light.position;
+                float3 delta = -world_position + L;
                 float dist = length(delta);
                 float atten = (light.atten_constant + light.atten_linear * dist +
                                light.atten_quadratic * (dist * dist));

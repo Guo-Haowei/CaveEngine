@@ -91,14 +91,16 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5, {
     float4 _per_frame_padding_2;
     float4 _per_frame_padding_3;
     float4 _per_frame_padding_4;
-    float3 c_sunPosition;
-    int c_iblEnabled;
-    //-----------------------------------------
     float4 c_ambientColor;  // 16
+
+    //-----------------------------------------
+
+    float3 c_sunPosition;
 
     int c_lightCount;
     int c_enableBloom;
     int c_debugCsm;
+    int c_iblEnabled;
     float c_bloomThreshold;  // 16
 
     int c_debugVoxelId;
@@ -115,23 +117,20 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5, {
     uint c_BrdfLutResidentHandle;
     int c_forceFieldsCount;  // 16
 
-    float4 _c_SkyboxHdrResidentHandle;  // 16
-    float4 _c_ShadowMapResidentHandle;
-
-    float3 c_cameraPosition;
     float c_camera_fovy;  // 16
     //-----------------------------------------
-    float3 c_voxelWorldCenter;
-    float c_voxelWorldSizeHalf;  // 16
+    // float3 c_voxelWorldCenter;
+    // float c_voxelWorldSizeHalf;  // 16
 
-    float3 c_cameraForward;
+    float4 c_camera_pos;
+    float4 c_camera_forward;
+    float4 c_camera_right;
+    float4 c_camera_up;
+
     uint c_frame_index;  // 16
-
-    float3 c_cameraRight;
     int c_scene_dirty;  // 16
-
-    float3 c_cameraUp;
     float c_voxelSize;  // 16
+
     //-----------------------------------------
 
     ForceField c_forceFields[MAX_FORCE_FIELD_COUNT];

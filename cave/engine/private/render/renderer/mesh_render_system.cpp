@@ -181,7 +181,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
         light.type = static_cast<int>(light_component.GetType());
         const MaterialComponent& material = *p_scene.component<MaterialComponent>(light_entity);
         // @TODO: [SCRUM-210] fix material
-        light.color = material.base_color.xyz;
+        light.color = material.base_color;
         light.color *= material.emissive;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
@@ -190,7 +190,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 light_dir = normalize(light_dir);
                 cache.c_sunPosition = light_dir;
                 light.cast_shadow = cast_shadow;
-                light.position = light_dir;
+                light.position.xyz = light_dir;
 
                 // @TODO: add option to specify extent
                 // @would be nice if can add debug draw
@@ -237,7 +237,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 light.atten_constant = light_component.GetAttenConstant();
                 light.atten_linear = light_component.GetAttenLinear();
                 light.atten_quadratic = light_component.GetAttenQuadratic();
-                light.position = light_component.GetPosition();
+                light.position.xyz = light_component.GetPosition();
                 light.cast_shadow = cast_shadow;
                 light.max_distance = light_component.GetMaxDistance();
                 light.shadow_map_index = -1;
