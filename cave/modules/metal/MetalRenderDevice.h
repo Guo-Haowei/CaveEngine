@@ -74,6 +74,7 @@ private:
     void* m_current_pso{};
     std::array<uint64_t, 32> m_bound_textures{};
     std::array<uint64_t, 32> m_bound_uavs{};
+    std::array<void*, 32> m_samplers{};
 };
 
 } // namespace cave::render

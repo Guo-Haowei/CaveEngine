@@ -1,5 +1,7 @@
 #include "MetalPipelineStateManager.h"
 
+#include "MetalHelpers.h"
+
 #import <Metal/Metal.h>
 
 #include <algorithm>
@@ -14,40 +16,6 @@ MetalPipelineState::~MetalPipelineState() {
         CFRelease(state);
     if (depth_state)
         CFRelease(depth_state);
-}
-
-static MTLCompareFunction ToCompare(ComparisonFunc f) {
-    switch (f) {
-    case ComparisonFunc::NEVER:
-        return MTLCompareFunctionNever;
-    case ComparisonFunc::LESS:
-        return MTLCompareFunctionLess;
-    case ComparisonFunc::EQUAL:
-        return MTLCompareFunctionEqual;
-    case ComparisonFunc::LESS_EQUAL:
-        return MTLCompareFunctionLessEqual;
-    case ComparisonFunc::GREATER:
-        return MTLCompareFunctionGreater;
-    case ComparisonFunc::NOT_EQUAL:
-        return MTLCompareFunctionNotEqual;
-    case ComparisonFunc::GREATER_EQUAL:
-        return MTLCompareFunctionGreaterEqual;
-    case ComparisonFunc::ALWAYS:
-        return MTLCompareFunctionAlways;
-    default:
-        return MTLCompareFunctionAlways;
-    }
-}
-
-static MTLStencilOperation ToStencilOp(StencilOp op) {
-    switch (op) {
-    case StencilOp::KEEP:
-        return MTLStencilOperationKeep;
-    case StencilOp::REPLACE:
-        return MTLStencilOperationReplace;
-    default:
-        return MTLStencilOperationKeep;
-    }
 }
 
 // Pipeline descriptions may specify either "primitive" or "primitive.vs".

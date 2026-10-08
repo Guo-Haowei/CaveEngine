@@ -1,8 +1,9 @@
 #include "MetalRenderDevice.h"
+
+#include "MetalHelpers.h"
 #include "MetalPipelineStateManager.h"
 
 #include "cave/runtime/framework/IApplication.h"
-#include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include <imgui/backends/imgui_impl_metal.h>
@@ -51,62 +52,9 @@ struct MetalConstantBuffer final : GpuConstantBuffer {
     }
 };
 
-static MTLPixelFormat ToMetalTextureFormat(PixelFormat format) {
-    switch (format) {
-        case PixelFormat::UNKNOWN:
-            return MTLPixelFormatInvalid;
-        case PixelFormat::R8_UINT:
-            return MTLPixelFormatR8Uint;
-        case PixelFormat::R8G8_UINT:
-            return MTLPixelFormatRG8Uint;
-        case PixelFormat::R8G8B8A8_UINT:
-            return MTLPixelFormatRGBA8Uint;
-        case PixelFormat::R8G8B8A8_UNORM:
-            return MTLPixelFormatRGBA8Unorm;
-        case PixelFormat::R8G8B8A8_UNORM_SRGB:
-            return MTLPixelFormatRGBA8Unorm_sRGB;
-        case PixelFormat::R16_FLOAT:
-            return MTLPixelFormatR16Float;
-        case PixelFormat::R16G16_FLOAT:
-            return MTLPixelFormatRG16Float;
-        case PixelFormat::R16G16B16_FLOAT:
-            return MTLPixelFormatRGB16Float;
-        case PixelFormat::R16G16B16A16_FLOAT:
-            return MTLPixelFormatRGBA16Float;
-        case PixelFormat::R32_FLOAT:
-            return MTLPixelFormatR32Float;
-        case PixelFormat::R32G32_FLOAT:
-            return MTLPixelFormatRG32Float;
-        case PixelFormat::R32G32B32_FLOAT:
-            return MTLPixelFormatRGB32Float;
-        case PixelFormat::R32G32B32A32_FLOAT:
-            return MTLPixelFormatRGBA32Float;
-        case PixelFormat::R32G32_SINT:
-            return MTLPixelFormatRG32Sint;
-        case PixelFormat::R32G32B32_SINT:
-            return MTLPixelFormatRGB32Sint;
-        case PixelFormat::R32G32B32A32_SINT:
-            return MTLPixelFormatRGBA32Sint;
-        case PixelFormat::R11G11B10_FLOAT:
-            return MTLPixelFormatRG11B10Float;
-        case PixelFormat::D32_FLOAT:
-            return MTLPixelFormatDepth32Float;
-        case PixelFormat::R24G8_TYPELESS:
-            return MTLPixelFormatDepth24Unorm_Stencil8;
-        case PixelFormat::R24_UNORM_X8_TYPELESS:
-            return MTLPixelFormatDepth24Unorm_Stencil8;
-        case PixelFormat::D24_UNORM_S8_UINT:
-            return MTLPixelFormatDepth24Unorm_Stencil8;
-        case PixelFormat::X24_TYPELESS_G8_UINT:
-            return MTLPixelFormatX24_Stencil8;
-        case PixelFormat::R32G8X24_TYPELESS:
-            return MTLPixelFormatDepth32Float_Stencil8;
-        case PixelFormat::D32_FLOAT_S8X24_UINT:
-            return MTLPixelFormatDepth32Float_Stencil8;
-        default:
-            CRASH_NOW();
-            return MTLPixelFormatInvalid;
-    }
+id<MTLSamplerState> createSampler(id<MTLDevice> device, MTLSamplerDescriptor* desc) {
+    id<MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:desc];
+    return sampler;
 }
 
 } //  namespace
@@ -156,6 +104,15 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
                 imgui->setRenderCallbacks(std::move(initialize_cb), std::move(finalize_cb));
             }
         }
+
+#define SAMPLER_STATE(REG, NAME, DESC)                                                           \
+    if (auto sampler = createSampler(device, FillMetalSamplerDesc(DESC)); !sampler) {            \
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create sampler {}", #NAME);     \
+    } else {                                                                                     \
+        m_samplers[REG] = (__bridge_retained void*)sampler;                                      \
+    }
+#include "sampler.slang.h"
+#undef SAMPLER_STATE
     }
     return Result<void>();
 }
@@ -174,6 +131,7 @@ void MetalRenderDevice::beginFrame() {
     id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)m_command_queue;
     m_command_buffer = (__bridge_retained void*)[queue commandBuffer];
 }
+
 void MetalRenderDevice::endFrame() { unsetRenderTargets(); }
 
 void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
@@ -202,26 +160,39 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
     }
     id<MTLCommandBuffer> cb = (__bridge id<MTLCommandBuffer>)m_command_buffer;
     m_encoder = (__bridge_retained void*)[cb renderCommandEncoderWithDescriptor:pass];
+
+    {
+        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)m_encoder;
+#define SAMPLER_STATE(REG, NAME, DESC) \
+        [encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_samplers[REG] atIndex:REG];
+        #include "sampler.slang.h"
+#undef SAMPLER_STATE
+    }
 }
+
 void MetalRenderDevice::unsetRenderTargets() {
     if (!m_encoder)
         return;
     [(id<MTLRenderCommandEncoder>)CFBridgingRelease(m_encoder) endEncoding];
     m_encoder = nullptr;
 }
+
 void MetalRenderDevice::clear(const RenderTargetDesc&) {
     // Render graph attachment load actions perform clears when an encoder begins.
 }
+
 void MetalRenderDevice::setViewport(const Viewport& v) {
     if (!m_encoder)
         return;
     [(id<MTLRenderCommandEncoder>)m_encoder setViewport:MTLViewport{ (double)v.topLeftX, (double)v.topLeftY, (double)v.width, (double)v.height, 0.0, 1.0 }];
 }
+
 void MetalRenderDevice::setStencilRef(uint32_t ref) {
     m_stencil_ref = ref;
     if (m_encoder)
         [(id<MTLRenderCommandEncoder>)m_encoder setStencilReferenceValue:ref];
 }
+
 void MetalRenderDevice::setBlendState(const BlendDesc&, const float*, uint32_t) {
     // Blend is immutable in Metal; put it in the pipeline descriptor once the
     // engine's blend descriptor mapping is finalized.
@@ -239,6 +210,7 @@ auto MetalRenderDevice::createBuffer(const GpuBufferDesc& d) -> Result<Ref<GpuBu
     result->object = (__bridge_retained void*)b;
     return result;
 }
+
 void MetalRenderDevice::updateBuffer(const GpuBufferDesc& d, GpuBuffer* base) {
     auto* b = reinterpret_cast<MetalBuffer*>(base);
     id<MTLBuffer> mb = (__bridge id<MTLBuffer>)b->object;
@@ -246,6 +218,7 @@ void MetalRenderDevice::updateBuffer(const GpuBufferDesc& d, GpuBuffer* base) {
     if (bytes <= mb.length && d.initial_data)
         memcpy((uint8_t*)mb.contents, d.initial_data, bytes);
 }
+
 auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& d, std::span<const GpuBufferDesc> vbs, const GpuBufferDesc* ib) -> Result<Ref<GpuMesh>> {
     auto mesh = MakeRef<MetalGpuMesh>(d);
     for (uint32_t i = 0; i < vbs.size(); ++i) {
@@ -264,6 +237,7 @@ auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& d, std::span<const Gpu
     }
     return mesh;
 }
+
 void MetalRenderDevice::setMesh(const GpuMesh* mesh) {
     m_current_mesh = const_cast<GpuMesh*>(mesh);
     if (!m_encoder)
@@ -280,6 +254,7 @@ void MetalRenderDevice::setMesh(const GpuMesh* mesh) {
             [e setVertexBuffer:(__bridge id<MTLBuffer>)b->object offset:0 atIndex:i];
         }
 }
+
 void MetalRenderDevice::setPipelineStateImpl(PipelineStateName name) {
     auto* p = reinterpret_cast<MetalPipelineState*>(m_pipeline_state_manager->findPSO(name));
     m_pipeline = p ? p->state : nullptr;
@@ -327,10 +302,12 @@ void MetalRenderDevice::drawElementsInstanced(uint32_t n, uint32_t count, uint32
         return;
     [(id<MTLRenderCommandEncoder>)m_encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:(__bridge id<MTLBuffer>)index->object indexBufferOffset:offset * sizeof(uint32_t) instanceCount:n];
 }
+
 void MetalRenderDevice::drawArrays(uint32_t count, uint32_t offset) {
     if (m_encoder)
         [(id<MTLRenderCommandEncoder>)m_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:offset vertexCount:count];
 }
+
 void MetalRenderDevice::drawArraysInstanced(uint32_t n, uint32_t count, uint32_t offset) {
     if (m_encoder)
         [(id<MTLRenderCommandEncoder>)m_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:offset vertexCount:count instanceCount:n];
@@ -352,6 +329,7 @@ void MetalRenderDevice::updateConstantBuffer(const GpuConstantBuffer* base, cons
     if (data && size <= mb.length)
         memcpy(mb.contents, data, size);
 }
+
 void MetalRenderDevice::bindConstantBufferRange(const GpuConstantBuffer* base, uint32_t size, uint32_t offset) {
     auto* b = reinterpret_cast<const MetalConstantBuffer*>(base);
     id<MTLBuffer> mb = (__bridge id<MTLBuffer>)b->object;
@@ -361,6 +339,7 @@ void MetalRenderDevice::bindConstantBufferRange(const GpuConstantBuffer* base, u
     }
     (void)size;
 }
+
 Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, const SamplerDesc&) {
     if (d.dimension != Dimension::Texture2D)
         return nullptr;
