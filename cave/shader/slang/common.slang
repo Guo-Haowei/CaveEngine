@@ -7,7 +7,7 @@
 #define SAMPLE_TEXTURE_2D(SAM, DUMMY, UV) SAM.Sample(UV)
 #define SAMPLE_TEXTURE_LEVEL(SAM, DUMMY, UVW, MIP) SAM.SampleLevel(UVW, MIP)
 
-#elif defined(__TARGET_HLSL__)
+#elif defined(__TARGET_HLSL__) || defined(__TARGET_METAL__)
 
 #define TEXTURE_2D(NAME, BINDING) Texture2D NAME : register(t##BINDING);
 #define TEXTURE_CUBE(NAME, BINDING) TextureCube NAME : register(t##BINDING);

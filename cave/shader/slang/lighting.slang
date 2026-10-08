@@ -39,7 +39,7 @@ TEXTURE_2D(u_Texture10, 10);
 float4 ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     const float2 uv = input.uv;
     const float4 emissive_roughness_metallic = SAMPLE_TEXTURE_2D(t_GbufferMaterialMap, s_linearMipWrapSampler, uv);
-    clip(emissive_roughness_metallic.a - 0.01f);
+    if (emissive_roughness_metallic.a < 0.01f) discard;
 
     float3 base_color = SAMPLE_TEXTURE_2D(t_GbufferBaseColorMap, s_linearMipWrapSampler, uv).rgb;
 
