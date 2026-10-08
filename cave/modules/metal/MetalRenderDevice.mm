@@ -154,11 +154,10 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
         pass.depthAttachment.loadAction = target.depth->depth_load == LoadOp::Clear ? MTLLoadActionClear : MTLLoadActionLoad;
         pass.depthAttachment.storeAction = MTLStoreActionStore;
         pass.depthAttachment.clearDepth = target.depth->clear_depth;
-        
+
         const PixelFormat format = target.depth->tex->desc.format;
 
-        if (HasStencil(format) ||
-            format == PixelFormat::R32G8X24_TYPELESS) {
+        if (HasStencil(format) || format == PixelFormat::R32G8X24_TYPELESS) {
             pass.stencilAttachment.texture = (__bridge id<MTLTexture>)tex->object;
             pass.stencilAttachment.loadAction = target.depth->stencil_load == LoadOp::Clear ? MTLLoadActionClear : MTLLoadActionLoad;
             pass.stencilAttachment.storeAction = MTLStoreActionStore;
@@ -271,23 +270,19 @@ void MetalRenderDevice::setMesh(const GpuMesh* mesh) {
     }
 
     DEV_ASSERT(mesh->vertexBuffers.size());
-    
+
     auto* first_buffer = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[0].get());
     id<MTLBuffer> dummy_mesh = (__bridge id<MTLBuffer>)first_buffer->object;
-    
+
     for (uint32_t i = 0; i < mesh->vertexBuffers.size(); ++i) {
         if (!mesh->vertexBuffers[i]) {
-            [encoder setVertexBuffer:dummy_mesh
-                              offset:0
-                              atIndex:METAL_VERTEX_BUFFER_BASE + i];
+            [encoder setVertexBuffer:dummy_mesh offset:0 atIndex:METAL_VERTEX_BUFFER_BASE + i];
             continue;
         }
 
         auto* buffer = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[i].get());
 
-        [encoder setVertexBuffer:(__bridge id<MTLBuffer>)buffer->object
-                          offset:0
-                          atIndex:METAL_VERTEX_BUFFER_BASE + i];
+        [encoder setVertexBuffer:(__bridge id<MTLBuffer>)buffer->object offset:0 atIndex:METAL_VERTEX_BUFFER_BASE + i];
     }
 }
 
@@ -404,8 +399,7 @@ static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
     }
 }
 
-Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, const SamplerDesc&)
-{
+Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, const SamplerDesc&) {
     MTLPixelFormat texture_format = ToMetalTextureFormat(d.format);
     DEV_ASSERT(texture_format != MTLPixelFormatInvalid);
 
@@ -420,9 +414,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
     //
     bool gen_mip_map = (d.bindFlags & BIND_SHADER_RESOURCE) != 0;
 
-    if (d.dimension == Dimension::TEXTURE_CUBE ||
-        d.dimension == Dimension::TEXTURE_CUBE_ARRAY)
-    {
+    if (d.dimension == Dimension::TEXTURE_CUBE || d.dimension == Dimension::TEXTURE_CUBE_ARRAY) {
         gen_mip_map = false;
     }
 
@@ -464,12 +456,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
         return levels;
     };
 
-    const uint32_t max_mip_levels =
-        getFullMipCount(d.width,
-                        d.height,
-                        d.dimension == Dimension::TEXTURE_3D
-                            ? d.depth
-                            : 1);
+    const uint32_t max_mip_levels = getFullMipCount(d.width, d.height, d.dimension == Dimension::TEXTURE_3D ? d.depth : 1);
 
     uint32_t mip_levels = d.mipLevels;
 
@@ -561,9 +548,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
     if (d.bindFlags & BIND_UNORDERED_ACCESS)
         td.usage |= MTLTextureUsageShaderWrite;
 
-    if ((d.bindFlags & BIND_RENDER_TARGET) ||
-        (d.bindFlags & BIND_DEPTH_STENCIL))
-    {
+    if ((d.bindFlags & BIND_RENDER_TARGET) || (d.bindFlags & BIND_DEPTH_STENCIL)) {
         td.usage |= MTLTextureUsageRenderTarget;
     }
 
@@ -584,11 +569,9 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
     //
     td.storageMode = MTLStorageModeShared;
 
-    id<MTLDevice> device =
-        (__bridge id<MTLDevice>)m_device;
+    id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
 
-    id<MTLTexture> texture =
-        [device newTextureWithDescriptor:td];
+    id<MTLTexture> texture = [device newTextureWithDescriptor:td];
 
     if (!texture)
         return nullptr;
@@ -600,33 +583,18 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
     // all mips/faces.
     //
     if (d.initialData) {
-        const NSUInteger bytes_per_pixel =
-            GetBytesPerPixel(texture_format);
+        const NSUInteger bytes_per_pixel = GetBytesPerPixel(texture_format);
 
         if (bytes_per_pixel == 0)
             return nullptr;
 
-        const NSUInteger row_pitch =
-            static_cast<NSUInteger>(d.width) * bytes_per_pixel;
+        const NSUInteger row_pitch = static_cast<NSUInteger>(d.width) * bytes_per_pixel;
 
         if (d.dimension == Dimension::TEXTURE_3D) {
-            const NSUInteger image_pitch =
-                row_pitch * static_cast<NSUInteger>(d.height);
+            const NSUInteger image_pitch = row_pitch * static_cast<NSUInteger>(d.height);
 
-            [texture replaceRegion:MTLRegionMake3D(
-                                       0,
-                                       0,
-                                       0,
-                                       d.width,
-                                       d.height,
-                                       d.depth)
-                       mipmapLevel:0
-                           slice:0
-                       withBytes:d.initialData
-                     bytesPerRow:row_pitch
-                   bytesPerImage:image_pitch];
-        }
-        else {
+            [texture replaceRegion:MTLRegionMake3D(0, 0, 0, d.width, d.height, d.depth) mipmapLevel:0 slice:0 withBytes:d.initialData bytesPerRow:row_pitch bytesPerImage:image_pitch];
+        } else {
             //
             // This mirrors UpdateSubresource(texture, 0, ...)
             // in the D3D11 implementation.
@@ -634,40 +602,25 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
             // For a cube or array texture, subresource 0 means only
             // the first face/slice.
             //
-            [texture replaceRegion:MTLRegionMake2D(
-                                       0,
-                                       0,
-                                       d.width,
-                                       d.height)
-                       mipmapLevel:0
-                           slice:0
-                       withBytes:d.initialData
-                     bytesPerRow:row_pitch
-                   bytesPerImage:0];
+            [texture replaceRegion:MTLRegionMake2D(0, 0, d.width, d.height) mipmapLevel:0 slice:0 withBytes:d.initialData bytesPerRow:row_pitch bytesPerImage:0];
         }
     }
 
     //
     // D3D11 GenerateMips equivalent.
     //
-    if ((d.miscFlags & RESOURCE_MISC_GENERATE_MIPS) &&
-        mip_levels > 1 &&
-        (d.bindFlags & BIND_SHADER_RESOURCE))
-    {
+    if ((d.miscFlags & RESOURCE_MISC_GENERATE_MIPS) && mip_levels > 1 && (d.bindFlags & BIND_SHADER_RESOURCE)) {
         //
         // You need a command buffer here.
         //
         // If your render device already has a current upload command buffer,
         // use that instead of allocating one ad hoc.
         //
-        id<MTLCommandQueue> queue =
-            (__bridge id<MTLCommandQueue>)m_command_queue;
+        id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)m_command_queue;
 
-        id<MTLCommandBuffer> command_buffer =
-            [queue commandBuffer];
+        id<MTLCommandBuffer> command_buffer = [queue commandBuffer];
 
-        id<MTLBlitCommandEncoder> blit =
-            [command_buffer blitCommandEncoder];
+        id<MTLBlitCommandEncoder> blit = [command_buffer blitCommandEncoder];
 
         [blit generateMipmapsForTexture:texture];
         [blit endEncoding];
@@ -798,5 +751,24 @@ void MetalRenderDevice::present() {
 }
 
 void MetalRenderDevice::onWindowResize(int, int) {}
+
+void MetalRenderDevice::beginEvent(std::string_view event) {
+    if (!m_encoder)
+        return;
+
+    NSString* name = [[NSString alloc]
+        initWithBytes:event.data()
+               length:event.size()
+             encoding:NSUTF8StringEncoding];
+
+    [(id<MTLRenderCommandEncoder>)m_encoder pushDebugGroup:name];
+}
+
+void MetalRenderDevice::endEvent() {
+    if (!m_encoder)
+        return;
+
+    [(id<MTLRenderCommandEncoder>)m_encoder popDebugGroup];
+}
 
 } // namespace cave::render

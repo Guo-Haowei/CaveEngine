@@ -56,6 +56,9 @@ protected:
     void onWindowResize(int, int) override;
     void setPipelineStateImpl(PipelineStateName name) override;
 
+    void beginEvent(std::string_view event) final;
+    void endEvent() final;
+
 private:
     void setupPipeline();
     void setupVertexBuffer();
