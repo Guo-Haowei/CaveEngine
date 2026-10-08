@@ -11,8 +11,8 @@ VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
     VS_OUTPUT_COLOR output;
 
     float4 position = float4(input.position, 1.0);
-    position = mul(c_cam_view, position);
-    position = mul(c_cam_proj, position);
+    position = Mul(c_cam_view, position);
+    position = Mul(c_cam_proj, position);
 
     output.position = position;
     output.uv       = input.uv;

@@ -9,10 +9,10 @@ Mat4f LookAtRh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
 #undef C
 }
 
-Mat4f LookAtLh(const Vec3f& p_eye, const Vec3f& p_center, const Vec3f& p_up) {
-#define C(v) glm::vec3(v.x, v.y, v.z)
-    return glm::lookAtLH(C(p_eye), C(p_center), C(p_up));
-#undef C
+Mat4f LookAtLh(const Vec3f& eye, const Vec3f& center, const Vec3f& up) {
+#define VEC(v) glm::vec3(v.x, v.y, v.z)
+    return glm::lookAtLH(VEC(eye), VEC(center), VEC(up));
+#undef VEC
 }
 
 Mat4f BuildPerspectiveLH(float p_fovy, float p_aspect, float p_near, float p_far) {

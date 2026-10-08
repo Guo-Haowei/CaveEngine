@@ -36,6 +36,14 @@ float3 NdcToViewPos(float2 uv, float raw_depth, float4x4 inv_cam_proj) {
 
     float4 screenPos = float4(ndc.x, ndc.y, clip_depth, 1.0f);
     float4 viewPosH = mul(inv_cam_proj, screenPos);
-    
+
     return viewPosH.xyz / viewPosH.w;
+}
+
+float4 Mul(float4x4 matrix, float4 vector) {
+#if defined(__TARGET_METAL__)
+    return mul(vector, matrix);
+#else
+    return mul(matrix, vector);
+#endif
 }

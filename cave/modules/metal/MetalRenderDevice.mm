@@ -147,8 +147,10 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
         pass.colorAttachments[i].storeAction = MTLStoreActionStore;
         pass.colorAttachments[i].clearColor = MTLClearColorMake(color.clear_color[0], color.clear_color[1], color.clear_color[2], color.clear_color[3]);
     }
+
     if (target.depth) {
         const auto* tex = reinterpret_cast<const MetalTexture*>(target.depth->tex.get());
+        DEV_ASSERT(tex && tex->object);
         pass.depthAttachment.texture = (__bridge id<MTLTexture>)tex->object;
         pass.depthAttachment.loadAction = target.depth->depth_load == LoadOp::Clear ? MTLLoadActionClear : MTLLoadActionLoad;
         pass.depthAttachment.storeAction = MTLStoreActionStore;
@@ -160,6 +162,7 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
             pass.stencilAttachment.clearStencil = target.depth->clear_stencil;
         }
     }
+    
     id<MTLCommandBuffer> cb = (__bridge id<MTLCommandBuffer>)m_command_buffer;
     m_encoder = (__bridge_retained void*)[cb renderCommandEncoderWithDescriptor:pass];
 
@@ -274,6 +277,7 @@ void MetalRenderDevice::setPipelineStateImpl(PipelineStateName name) {
     if (m_encoder && m_pipeline && p->desc.type == PipelineStateType::GRAPHICS) {
         auto* encoder = (id<MTLRenderCommandEncoder>)m_encoder;
         [encoder setRenderPipelineState:(__bridge id<MTLRenderPipelineState>)m_pipeline];
+
         if (p->depth_state)
             [encoder setDepthStencilState:(__bridge id<MTLDepthStencilState>)p->depth_state];
         [encoder setStencilReferenceValue:m_stencil_ref];

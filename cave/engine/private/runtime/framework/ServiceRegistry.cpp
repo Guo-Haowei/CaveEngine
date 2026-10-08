@@ -73,7 +73,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
 #endif
 
 #if USING(PLATFORM_APPLE)
-    if (p_backend == Backend::Metal) {
+    if (backend == Backend::Metal) {
         return new MetalRenderDevice;
     }
 #endif
