@@ -30,7 +30,12 @@ struct ForceField {
 
 // constant buffer
 #if defined(__cplusplus)
-using TextureHandle = uint64_t;
+struct alignas(16) TextureHandle {
+    uint64_t value;
+};
+
+static_assert(alignof(TextureHandle) == 16);
+static_assert(sizeof(TextureHandle) == 16);
 
 template<typename T, int N>
 struct ConstantBufferBase {
@@ -46,7 +51,7 @@ struct ConstantBufferBase {
 
 struct sampler_t {
     union {
-        int2 handle_d3d;
+        int4 handle_d3d;
         uint64_t handle_gl;
     };
     sampler_t() { handle_gl = 0; }
@@ -55,18 +60,18 @@ struct sampler_t {
     void Set64(uint64_t p_value) { handle_gl = p_value; }
 };
 
-static_assert(sizeof(sampler_t) == sizeof(uint64_t));
+static_assert(sizeof(sampler_t) == sizeof(int4));
 
 using sampler3D = sampler_t;
 using samplerCube = sampler_t;
 
 // @TODO: remove this constraint
-#elif defined(HLSL_LANG) || defined(__SLANG__)
+#elif defined(__SLANG__)
 #define CAVE_CBUFFER(NAME, REG, DEF) cbuffer NAME : register(b##REG) DEF
 
-#define TextureHandle int2
-#define sampler2D     int2
-#define samplerCube   int2
+#define TextureHandle int4
+#define sampler2D     int4
+#define samplerCube   int4
 #endif
 
 #include "cbuffer_list.hlsl.h"

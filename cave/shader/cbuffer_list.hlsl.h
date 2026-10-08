@@ -30,9 +30,7 @@ CAVE_CBUFFER(PerPassConstantBuffer, 1, {
 CAVE_CBUFFER(MaterialConstantBuffer, 2, {
     // 16 floats
     float4 c_baseColor;
-
-    float3 _material_padding_0;
-    int c_displayChannel;
+    float4 _material_padding_0;
 
     float c_metallic;
     float c_roughness;
@@ -49,9 +47,6 @@ CAVE_CBUFFER(MaterialConstantBuffer, 2, {
     TextureHandle c_normalMapHandle;
     TextureHandle c_materialMapHandle;
     TextureHandle c_heightMapHandle;
-
-    float4 _material_padding_1;
-    float4 _material_padding_2;
 
     // 16 floats
     float4x4 _material_padding_3;

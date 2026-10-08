@@ -84,9 +84,9 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 
         if (draw.mat_idx != -1) {
             const MaterialConstantBuffer& material = p_ctx.frameData.materialCache.buffer[draw.mat_idx];
-            gm.bindTexture(Dimension::Texture2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_normalMapHandle, GetNormalMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_materialMapHandle, GetMaterialMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_baseColorMapHandle.value, GetBaseColorMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_normalMapHandle.value, GetNormalMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_materialMapHandle.value, GetMaterialMapSlot());
 
             gm.bindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
         }
