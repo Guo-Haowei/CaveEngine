@@ -247,7 +247,7 @@ auto D3d11GraphicsManager::initSamplers() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d11GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
+auto D3d11GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     D3D11_BUFFER_DESC buffer_desc{};
     buffer_desc.ByteWidth = p_desc.element_count * p_desc.element_size;
     buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -260,7 +260,7 @@ auto D3d11GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> 
     D3D_FAIL(m_device->CreateBuffer(&buffer_desc, nullptr, d3d_buffer.GetAddressOf()),
              "failed to create ConstantBuffer");
 
-    auto uniform_buffer = std::make_shared<D3d11UniformBuffer>(p_desc);
+    auto uniform_buffer = MakeRef<D3d11UniformBuffer>(p_desc);
     uniform_buffer->internalBuffer = d3d_buffer;
 
     m_deviceContext->VSSetConstantBuffers(p_desc.slot, 1, uniform_buffer->internalBuffer.GetAddressOf());

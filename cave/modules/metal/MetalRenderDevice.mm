@@ -132,7 +132,9 @@ void MetalRenderDevice::beginFrame() {
     m_command_buffer = (__bridge_retained void*)[queue commandBuffer];
 }
 
-void MetalRenderDevice::endFrame() { unsetRenderTargets(); }
+void MetalRenderDevice::endFrame() {
+    unsetRenderTargets();
+}
 
 void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
     unsetRenderTargets();
@@ -161,12 +163,22 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
     id<MTLCommandBuffer> cb = (__bridge id<MTLCommandBuffer>)m_command_buffer;
     m_encoder = (__bridge_retained void*)[cb renderCommandEncoderWithDescriptor:pass];
 
+    id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)m_encoder;
     {
-        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)m_encoder;
 #define SAMPLER_STATE(REG, NAME, DESC) \
         [encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_samplers[REG] atIndex:REG];
         #include "sampler.slang.h"
 #undef SAMPLER_STATE
+    }
+    {
+        for (uint32_t slot = 0; slot < m_constant_buffers.size(); ++slot) {
+            if (void* buffer = m_constant_buffers[slot]) {
+                id<MTLBuffer> metalBuffer = (__bridge id<MTLBuffer>)buffer;
+
+                [encoder setVertexBuffer:metalBuffer offset:0 atIndex:slot];
+                [encoder setFragmentBuffer:metalBuffer offset:0 atIndex:slot];
+            }
+        }
     }
 }
 
@@ -320,6 +332,8 @@ auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& d) -> Result<R
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal constant buffer allocation failed");
     auto result = MakeRef<MetalConstantBuffer>(d);
     result->object = (__bridge_retained void*)b;
+    DEV_ASSERT(d.slot == m_constant_buffers.size());
+    m_constant_buffers.push_back(result->object);
     return result;
 }
 
@@ -385,22 +399,32 @@ void MetalRenderDevice::unbindTexture(Dimension, int slot) {
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentTexture:nil atIndex:slot];
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentSamplerState:nil atIndex:slot];
 }
+
 void MetalRenderDevice::generateMipmap(const GpuTexture*) { /* TODO: encode a blit mip generation pass. */ }
+
 auto MetalRenderDevice::createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuStructuredBuffer>> { return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal structured buffers are not implemented yet"); }
+
 void MetalRenderDevice::updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) {}
+
 void MetalRenderDevice::bindStructuredBuffer(int, const GpuStructuredBuffer*) {}
+
 void MetalRenderDevice::unbindStructuredBuffer(int) {}
+
 void MetalRenderDevice::bindStructuredBufferSRV(int s, const GpuStructuredBuffer* b) { bindStructuredBuffer(s, b); }
+
 void MetalRenderDevice::unbindStructuredBufferSRV(int s) { unbindStructuredBuffer(s); }
+
 void MetalRenderDevice::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
     if (slot >= m_bound_uavs.size())
         return;
     m_bound_uavs[slot] = texture ? texture->GetHandle() : 0;
 }
+
 void MetalRenderDevice::unbindUnorderedAccessView(uint32_t slot) {
     if (slot < m_bound_uavs.size())
         m_bound_uavs[slot] = 0;
 }
+
 void MetalRenderDevice::dispatch(uint32_t x, uint32_t y, uint32_t z) {
     auto* pso = static_cast<MetalPipelineState*>(m_current_pso);
     if (!pso || !pso->state || !m_command_buffer)

@@ -25,7 +25,11 @@ struct Light {
 };
 
 struct ForceField {
+#ifdef __TARGET_METAL__
+    packed_float3 position;
+#else
     float3 position;
+#endif
     float strength;
 };
 
