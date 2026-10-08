@@ -51,6 +51,8 @@ inline static MTLPixelFormat ToMetalTextureFormat(PixelFormat format) {
         return MTLPixelFormatRG8Uint;
     case PixelFormat::R8G8B8A8_UINT:
         return MTLPixelFormatRGBA8Uint;
+    case PixelFormat::R8_UNORM:
+        return MTLPixelFormatR8Unorm;
     case PixelFormat::R8G8B8A8_UNORM:
         return MTLPixelFormatRGBA8Unorm;
     case PixelFormat::R8G8B8A8_UNORM_SRGB:

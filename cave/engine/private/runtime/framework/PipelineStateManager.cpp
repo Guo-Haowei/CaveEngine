@@ -247,6 +247,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                                    .depth_stencil_desc = &s_default_depth_stencil,
                                                    .input_layout_desc = &s_input_layout_mesh,
                                                    .blend_desc = &s_default_blend_state,
+                                                   .num_render_targets = 1,
+                                                   .rtv_formats = { PixelFormat::R32G32B32A32_FLOAT },
                                                });
 
         CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
@@ -256,6 +258,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                                .depth_stencil_desc = &s_default_depth_stencil,
                                                .input_layout_desc = &s_input_layout_mesh,
                                                .blend_desc = &s_default_blend_state,
+                                               .num_render_targets = 1,
+                                               .rtv_formats = { PixelFormat::R32G32B32A32_FLOAT },
                                            });
 
         CREATE_PSO(PSO_PREFILTER, {
@@ -265,6 +269,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                       .depth_stencil_desc = &s_default_depth_stencil,
                                       .input_layout_desc = &s_input_layout_mesh,
                                       .blend_desc = &s_default_blend_state,
+                                      .num_render_targets = 1,
+                                      .rtv_formats = { PixelFormat::R32G32B32A32_FLOAT },
                                   });
     }
 

@@ -97,8 +97,8 @@ static void FillPass(const RenderScene& p_rs,
 
         ecs::Entity skeleton_id = mesh.skeleton;
         PerBatchConstantBuffer batch_buffer;
-        batch_buffer.c_worldMatrix = header.world;
-        batch_buffer.c_meshFlag = skeleton_id.valid();
+        batch_buffer.c_world_matrix = header.world;
+        batch_buffer.c_mesh_flag = skeleton_id.valid();
 
         DrawItem draw{};
         const auto& highlighted = p_view.highlight.entities;
@@ -362,8 +362,8 @@ static void FillMeshEmitterBuffer(const Scene& p_scene,
         auto mesh = p_scene.GetComponent<MeshComponent>(emitter.meshId);
         if (DEV_VERIFY(transform && mesh)) {
             PerBatchConstantBuffer batch_buffer;
-            batch_buffer.c_worldMatrix = Mat4f(1);
-            batch_buffer.c_meshFlag = MESH_HAS_INSTANCE;
+            batch_buffer.c_world_matrix = Mat4f(1);
+            batch_buffer.c_mesh_flag = MESH_HAS_INSTANCE;
 
             BatchContext draw;
 

@@ -21,6 +21,8 @@ namespace cave::render {
 
 namespace {
 
+static constexpr uint32_t METAL_VERTEX_BUFFER_BASE = 16;
+
 struct MetalBuffer final : GpuBuffer {
     using GpuBuffer::GpuBuffer;
     void* object{};
@@ -334,7 +336,7 @@ auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& d) -> Result<R
     if (!b)
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal constant buffer allocation failed");
     auto result = MakeRef<MetalConstantBuffer>(d);
-    result->object = (__bridge_retained void*)b;
+    result->object = b;
     DEV_ASSERT(d.slot == m_constant_buffers.size());
     m_constant_buffers.push_back(result->object);
     return result;
@@ -382,29 +384,99 @@ static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
     }
 }
 
-Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d,
-                                                     const SamplerDesc&) {
-    const MTLPixelFormat format = ToMetalTextureFormat(d.format);
-    if (!DEV_VERIFY(format != MTLPixelFormatInvalid)) {
+Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, const SamplerDesc&)
+{
+    MTLPixelFormat texture_format = ToMetalTextureFormat(d.format);
+    if (texture_format == MTLPixelFormatInvalid)
         return nullptr;
-    }
 
     if (d.width == 0 || d.height == 0)
         return nullptr;
 
+    //
+    // Match D3D11 behavior:
+    //
+    // Shader-resource textures normally get a full mip chain,
+    // except cube/cube-array where the D3D11 backend disables it.
+    //
+    bool gen_mip_map = (d.bindFlags & BIND_SHADER_RESOURCE) != 0;
+
+    if (d.dimension == Dimension::TEXTURE_CUBE ||
+        d.dimension == Dimension::TEXTURE_CUBE_ARRAY)
+    {
+        gen_mip_map = false;
+    }
+
+    //
+    // Depth-format handling.
+    //
+    // Metal doesn't need a typeless resource + SRV reinterpretation in
+    // quite the same way as D3D11. Just choose the actual usable format.
+    //
+    switch (d.format) {
+    case PixelFormat::D32_FLOAT:
+        texture_format = MTLPixelFormatDepth32Float;
+        gen_mip_map = false;
+        break;
+
+    case PixelFormat::D24_UNORM_S8_UINT:
+        texture_format = MTLPixelFormatDepth24Unorm_Stencil8;
+        gen_mip_map = false;
+        break;
+
+    case PixelFormat::D32_FLOAT_S8X24_UINT:
+        texture_format = MTLPixelFormatDepth32Float_Stencil8;
+        gen_mip_map = false;
+        break;
+
+    default:
+        break;
+    }
+
+    auto getFullMipCount = [](uint32_t width, uint32_t height, uint32_t depth) {
+        uint32_t size = std::max({ width, height, depth });
+        uint32_t levels = 1;
+
+        while (size > 1) {
+            size >>= 1;
+            ++levels;
+        }
+
+        return levels;
+    };
+
+    const uint32_t max_mip_levels =
+        getFullMipCount(d.width,
+                        d.height,
+                        d.dimension == Dimension::TEXTURE_3D
+                            ? d.depth
+                            : 1);
+
+    uint32_t mip_levels = d.mipLevels;
+
+    if (gen_mip_map || mip_levels == 0)
+        mip_levels = max_mip_levels;
+
+    if (mip_levels > max_mip_levels)
+        return nullptr;
+
     MTLTextureDescriptor* td = [[MTLTextureDescriptor alloc] init];
 
-    td.pixelFormat = format;
+    td.pixelFormat = texture_format;
     td.width = d.width;
     td.height = d.height;
     td.depth = 1;
-    td.mipmapLevelCount = d.mipLevels == 0 ? 9 : d.mipLevels;
-    td.sampleCount = 1;
     td.arrayLength = 1;
+    td.mipmapLevelCount = mip_levels;
+    td.sampleCount = 1;
 
+    //
+    // Match D3D11 dimension semantics.
+    //
     switch (d.dimension) {
     case Dimension::Texture2D:
         td.textureType = MTLTextureType2D;
+        td.arrayLength = 1;
         break;
 
     case Dimension::TEXTURE_2D_ARRAY:
@@ -419,14 +491,49 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d,
         if (d.width != d.height)
             return nullptr;
 
+        //
+        // Important:
+        // A Metal cube has arrayLength == 1.
+        // The six faces are implicit slices.
+        //
         td.textureType = MTLTextureTypeCube;
-        td.arrayLength = 6;
+        td.arrayLength = 1;
+        break;
+
+    case Dimension::TEXTURE_CUBE_ARRAY:
+        if (d.width != d.height)
+            return nullptr;
+
+        if (d.arraySize == 0 || (d.arraySize % 6) != 0)
+            return nullptr;
+
+        //
+        // Your D3D11 backend interprets arraySize as number of faces:
+        //
+        // NumCubes = arraySize / 6
+        //
+        // Metal CubeArray wants arrayLength = number of cubes.
+        //
+        td.textureType = MTLTextureTypeCubeArray;
+        td.arrayLength = d.arraySize / 6;
+        break;
+
+    case Dimension::TEXTURE_3D:
+        if (d.depth == 0)
+            return nullptr;
+
+        td.textureType = MTLTextureType3D;
+        td.depth = d.depth;
+        td.arrayLength = 1;
         break;
 
     default:
         return nullptr;
     }
 
+    //
+    // Bind flags -> usage.
+    //
     td.usage = 0;
 
     if (d.bindFlags & BIND_SHADER_RESOURCE)
@@ -435,80 +542,123 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d,
     if (d.bindFlags & BIND_UNORDERED_ACCESS)
         td.usage |= MTLTextureUsageShaderWrite;
 
-    if ((d.bindFlags & BIND_RENDER_TARGET) || (d.bindFlags & BIND_DEPTH_STENCIL))
+    if ((d.bindFlags & BIND_RENDER_TARGET) ||
+        (d.bindFlags & BIND_DEPTH_STENCIL))
     {
         td.usage |= MTLTextureUsageRenderTarget;
     }
 
-    const bool hasInitialData = d.initialData != nullptr;
-    const bool gpuOnly =
-        !hasInitialData &&
-        ((d.bindFlags & BIND_RENDER_TARGET) ||
-         (d.bindFlags & BIND_DEPTH_STENCIL) ||
-         (d.bindFlags & BIND_UNORDERED_ACCESS));
+    //
+    // Metal allows usage == Unknown/0, but an explicit value is easier
+    // to reason about.
+    //
+    if (td.usage == 0)
+        td.usage = MTLTextureUsageShaderRead;
 
-    td.storageMode = gpuOnly ? MTLStorageModePrivate : MTLStorageModeShared;
+    //
+    // Keep this backend behavior close to D3D11_USAGE_DEFAULT.
+    //
+    // Shared is convenient while bringing up the backend because
+    // replaceRegion works directly.
+    //
+    // Later, you probably want Private + staging/blit for GPU resources.
+    //
+    td.storageMode = MTLStorageModeShared;
 
-    id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
-    id<MTLTexture> texture = [device newTextureWithDescriptor:td];
+    id<MTLDevice> device =
+        (__bridge id<MTLDevice>)m_device;
+
+    id<MTLTexture> texture =
+        [device newTextureWithDescriptor:td];
 
     if (!texture)
         return nullptr;
 
+    //
+    // D3D11 version only initializes subresource 0.
+    //
+    // Do the same here rather than assuming initialData contains
+    // all mips/faces.
+    //
     if (d.initialData) {
-        if (td.storageMode == MTLStorageModePrivate) {
-            // Can't use replaceRegion directly on Private textures.
-            // Either create a staging buffer + blit, or don't choose Private
-            // when initialData is present.
-            return nullptr;
-        }
+        const NSUInteger bytes_per_pixel =
+            GetBytesPerPixel(texture_format);
 
-        const NSUInteger bytesPerPixel = GetBytesPerPixel(format);
-        if (bytesPerPixel == 0)
+        if (bytes_per_pixel == 0)
             return nullptr;
 
-        const uint8_t* src =
-            static_cast<const uint8_t*>(d.initialData);
+        const NSUInteger row_pitch =
+            static_cast<NSUInteger>(d.width) * bytes_per_pixel;
 
-        const uint32_t sliceCount =
-            d.dimension == Dimension::TEXTURE_CUBE
-                ? 6
-                : d.dimension == Dimension::TEXTURE_2D_ARRAY
-                    ? d.arraySize
-                    : 1;
+        if (d.dimension == Dimension::TEXTURE_3D) {
+            const NSUInteger image_pitch =
+                row_pitch * static_cast<NSUInteger>(d.height);
 
-        size_t srcOffset = 0;
-
-        for (uint32_t slice = 0; slice < sliceCount; ++slice) {
-            uint32_t mipWidth = d.width;
-            uint32_t mipHeight = d.height;
-
-            for (uint32_t mip = 0; mip < d.mipLevels; ++mip) {
-                const NSUInteger rowPitch =
-                    static_cast<NSUInteger>(mipWidth) * bytesPerPixel;
-
-                const NSUInteger imagePitch =
-                    rowPitch * static_cast<NSUInteger>(mipHeight);
-
-                MTLRegion region = MTLRegionMake2D(
-                    0,
-                    0,
-                    mipWidth,
-                    mipHeight);
-
-                [texture replaceRegion:region
-                           mipmapLevel:mip
-                                 slice:slice
-                             withBytes:src + srcOffset
-                           bytesPerRow:rowPitch
-                         bytesPerImage:imagePitch];
-
-                srcOffset += imagePitch;
-
-                mipWidth = std::max(1u, mipWidth >> 1);
-                mipHeight = std::max(1u, mipHeight >> 1);
-            }
+            [texture replaceRegion:MTLRegionMake3D(
+                                       0,
+                                       0,
+                                       0,
+                                       d.width,
+                                       d.height,
+                                       d.depth)
+                       mipmapLevel:0
+                           slice:0
+                       withBytes:d.initialData
+                     bytesPerRow:row_pitch
+                   bytesPerImage:image_pitch];
         }
+        else {
+            //
+            // This mirrors UpdateSubresource(texture, 0, ...)
+            // in the D3D11 implementation.
+            //
+            // For a cube or array texture, subresource 0 means only
+            // the first face/slice.
+            //
+            [texture replaceRegion:MTLRegionMake2D(
+                                       0,
+                                       0,
+                                       d.width,
+                                       d.height)
+                       mipmapLevel:0
+                           slice:0
+                       withBytes:d.initialData
+                     bytesPerRow:row_pitch
+                   bytesPerImage:0];
+        }
+    }
+
+    //
+    // D3D11 GenerateMips equivalent.
+    //
+    if ((d.miscFlags & RESOURCE_MISC_GENERATE_MIPS) &&
+        mip_levels > 1 &&
+        (d.bindFlags & BIND_SHADER_RESOURCE))
+    {
+        //
+        // You need a command buffer here.
+        //
+        // If your render device already has a current upload command buffer,
+        // use that instead of allocating one ad hoc.
+        //
+        id<MTLCommandQueue> queue =
+            (__bridge id<MTLCommandQueue>)m_command_queue;
+
+        id<MTLCommandBuffer> command_buffer =
+            [queue commandBuffer];
+
+        id<MTLBlitCommandEncoder> blit =
+            [command_buffer blitCommandEncoder];
+
+        [blit generateMipmapsForTexture:texture];
+        [blit endEncoding];
+
+        [command_buffer commit];
+
+        //
+        // Usually DON'T wait here in production.
+        //
+        // [command_buffer waitUntilCompleted];
     }
 
     auto result = MakeRef<MetalTexture>(d);

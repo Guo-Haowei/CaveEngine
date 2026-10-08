@@ -81,35 +81,6 @@ static NSUInteger VertexFormatSize(PixelFormat format) {
     }
 }
 
-static MTLPixelFormat ToPixelFormat(PixelFormat format) {
-    switch (format) {
-    case PixelFormat::R8_UINT:
-        return MTLPixelFormatR8Uint;
-    case PixelFormat::R8G8B8A8_UINT:
-        return MTLPixelFormatRGBA8Uint;
-    case PixelFormat::R8_UNORM:
-        return MTLPixelFormatR8Unorm;
-    case PixelFormat::R16G16_FLOAT:
-        return MTLPixelFormatRG16Float;
-    case PixelFormat::R16G16B16_FLOAT:
-        return MTLPixelFormatRGB16Float;
-    case PixelFormat::R16G16B16A16_FLOAT:
-        return MTLPixelFormatRGBA16Float;
-    case PixelFormat::R32_FLOAT:
-        return MTLPixelFormatR32Float;
-    case PixelFormat::R32G32_FLOAT:
-        return MTLPixelFormatRG32Float;
-    case PixelFormat::R32G32B32A32_FLOAT:
-        return MTLPixelFormatRGBA32Float;
-    case PixelFormat::D32_FLOAT:
-        return MTLPixelFormatDepth32Float;
-    case PixelFormat::D24_UNORM_S8_UINT:
-        return MTLPixelFormatDepth24Unorm_Stencil8;
-    default:
-        return MTLPixelFormatInvalid;
-    }
-}
-
 auto MetalPipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     if (!device) {
@@ -159,7 +130,7 @@ auto MetalPipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
 
     const auto target_count = std::min<uint32_t>(desc.num_render_targets, 8);
     for (uint32_t i = 0; i < target_count; ++i) {
-        const MTLPixelFormat format = ToPixelFormat(desc.rtv_formats[i]);
+        const MTLPixelFormat format = ToMetalTextureFormat(desc.rtv_formats[i]);
         if (format == MTLPixelFormatInvalid) {
             return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Unsupported Metal render target format at slot {}", i);
         }
@@ -167,7 +138,7 @@ auto MetalPipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
     }
 
     if (desc.dsv_format == PixelFormat::D32_FLOAT || desc.dsv_format == PixelFormat::D24_UNORM_S8_UINT) {
-        pd.depthAttachmentPixelFormat = ToPixelFormat(desc.dsv_format);
+        pd.depthAttachmentPixelFormat = ToMetalTextureFormat(desc.dsv_format);
         if (pd.depthAttachmentPixelFormat == MTLPixelFormatInvalid) {
             return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Unsupported Metal depth format");
         }

@@ -1,9 +1,6 @@
-/// File: voxelization.vs.glsl
+/// File: shadow.vs.glsl
 #include "../cbuffer.hlsl.h"
-
-out vec3 pass_positions;
-out vec3 pass_normals;
-out vec2 pass_uvs;
+#include "../vsinput.glsl.h"
 
 void main() {
     mat4 world_matrix;
@@ -23,10 +20,8 @@ void main() {
         } break;
     }
 
-    vec4 world_position = world_matrix * vec4(in_position, 1.0);
-    pass_positions = world_position.xyz;
-    vec3 normal = normalize(in_normal);
-    pass_normals = normalize((world_matrix * vec4(normal, 0.0)).xyz);
-    pass_uvs = in_uv;
-    gl_Position = world_position;
+    // view space position
+    vec4 position = c_viewMatrix * (world_matrix * vec4(in_position, 1.0));
+
+    gl_Position = c_projectionMatrix * position;
 }
