@@ -105,11 +105,11 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
             }
         }
 
-#define SAMPLER_STATE(REG, NAME, DESC)                                                           \
-    if (auto sampler = createSampler(device, FillMetalSamplerDesc(DESC)); !sampler) {            \
-        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create sampler {}", #NAME);     \
-    } else {                                                                                     \
-        m_samplers[REG] = (__bridge_retained void*)sampler;                                      \
+#define SAMPLER_STATE(REG, NAME, DESC)                                                       \
+    if (auto sampler = createSampler(device, FillMetalSamplerDesc(DESC)); !sampler) {        \
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create sampler {}", #NAME); \
+    } else {                                                                                 \
+        m_samplers[REG] = (__bridge_retained void*)sampler;                                  \
     }
 #include "sampler.slang.h"
 #undef SAMPLER_STATE
@@ -132,9 +132,7 @@ void MetalRenderDevice::beginFrame() {
     m_command_buffer = (__bridge_retained void*)[queue commandBuffer];
 }
 
-void MetalRenderDevice::endFrame() {
-    unsetRenderTargets();
-}
+void MetalRenderDevice::endFrame() { unsetRenderTargets(); }
 
 void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
     unsetRenderTargets();
@@ -162,15 +160,14 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
             pass.stencilAttachment.clearStencil = target.depth->clear_stencil;
         }
     }
-    
+
     id<MTLCommandBuffer> cb = (__bridge id<MTLCommandBuffer>)m_command_buffer;
     m_encoder = (__bridge_retained void*)[cb renderCommandEncoderWithDescriptor:pass];
 
     id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)m_encoder;
     {
-#define SAMPLER_STATE(REG, NAME, DESC) \
-        [encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_samplers[REG] atIndex:REG];
-        #include "sampler.slang.h"
+#define SAMPLER_STATE(REG, NAME, DESC) [encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_samplers[REG] atIndex:REG];
+#include "sampler.slang.h"
 #undef SAMPLER_STATE
     }
     {
