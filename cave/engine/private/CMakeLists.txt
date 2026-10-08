@@ -30,7 +30,6 @@ file(GLOB_RECURSE SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.inl"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.mm"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.natvis"
 )
 set(FILTERED_SRC "")
@@ -107,6 +106,7 @@ if(WIN32)
 elseif(APPLE)
     list(APPEND TARGET_LIBS
         glfw
+        metal_backend
         opengl_4_backend
     )
 elseif(EMSCRIPTEN)
@@ -122,14 +122,3 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${TARGET_LIBS})
 target_set_warning_level(${TARGET_NAME})
 
 target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)
-
-if(APPLE)
-    target_link_libraries(${TARGET_NAME} PRIVATE
-        "-framework Metal"
-        "-framework MetalKit"
-        "-framework Cocoa"
-        "-framework IOKit"
-        "-framework CoreVideo"
-        "-framework QuartzCore"
-    )
-endif()

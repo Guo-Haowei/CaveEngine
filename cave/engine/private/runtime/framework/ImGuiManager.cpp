@@ -475,6 +475,7 @@ void ImGuiService::drawTexture(ImDrawList& list,
     auto handle = (ImTextureID)tex;
 
     switch (m_backend) {
+        case Backend::Metal:
         case Backend::Direct3D11:
         case Backend::Direct3D12: {
             list.AddImage(handle, min, max);
@@ -484,8 +485,7 @@ void ImGuiService::drawTexture(ImDrawList& list,
             ImVec2 uv_max = ImVec2(1, 0);
             list.AddImage(handle, min, max, uv_min, uv_max);
         } break;
-        case Backend::Vulkan:
-        case Backend::Metal: {
+        case Backend::Vulkan: {
         } break;
         default:
             CRASH_NOW();

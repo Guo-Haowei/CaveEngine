@@ -8,11 +8,9 @@ struct Light {
     float4x4 view_matrix;        // 64
     float4 points[4];            // 64
 
-    float3 color;
-    int type;
+    float4 color;
 
-    float3 position;  // direction
-    int cast_shadow;
+    float4 position;  // direction
 
     float atten_constant;
     float atten_linear;
@@ -20,13 +18,14 @@ struct Light {
     float atten_quadratic;
     float max_distance;  // max distance the light affects
 
-    float3 padding;
+    int cast_shadow;
+    int type;
     int shadow_map_index;
+    int padding;
 };
 
 struct ForceField {
-    float3 position;
-    float strength;
+    float4 position_strengh;
 };
 
 // constant buffer

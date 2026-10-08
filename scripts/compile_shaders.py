@@ -143,6 +143,8 @@ def run_slangc(
 
         if target_lang == "hlsl":
             cmd.append("-D__TARGET_HLSL__")
+        elif target_lang == "metal":
+            cmd.append("-D__TARGET_METAL__")
 
         cmd.extend(["-o", str(output_file)])
 
@@ -289,9 +291,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--lang",
-        choices=["hlsl", "glsl"],
-        default="glsl",
-        help="Target shading language (default: glsl)",
+        choices=["hlsl", "glsl", "metal"],
+        help="Target shading language",
     )
     parser.add_argument(
         "--entry-vs",

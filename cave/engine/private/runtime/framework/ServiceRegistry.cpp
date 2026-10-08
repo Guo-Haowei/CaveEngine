@@ -12,8 +12,8 @@
 #include "modules/opengl4/GL4RenderDevice.h"
 // #include "modules/vk/vulkan_graphics_manager.h"
 #elif USING(PLATFORM_APPLE)
+#include "modules/metal/MetalRenderDevice.h"
 #include "modules/opengl4/GL4RenderDevice.h"
-#include "engine/private/drivers/metal/metal_graphics_manager.h"
 #elif USING(PLATFORM_WASM)
 #include "modules/opengles3/GLES3RenderDevice.h"
 #endif
@@ -39,10 +39,10 @@ DisplayService* CreateDisplayService() {
 }
 
 // @TODO: move to RHI
-static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
+static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
     using rhi::Backend;
 
-    if (p_backend == Backend::Direct3D11) {
+    if (backend == Backend::Direct3D11) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11GraphicsManager;
 #else
@@ -50,7 +50,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
 #endif
     }
 
-    if (p_backend == Backend::Direct3D12) {
+    if (backend == Backend::Direct3D12) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d12GraphicsManager;
 #else
@@ -58,7 +58,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
 #endif
     }
 
-    if (p_backend == Backend::OpenGL) {
+    if (backend == Backend::OpenGL) {
 #if USING(PLATFORM_WASM)
         return new GLES3RenderDevice;
 #else
@@ -66,18 +66,17 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
 #endif
     }
 
-    if (p_backend == Backend::Vulkan) {
 #if USING(PLATFORM_WINDOWS)
-        // return new VulkanGraphicsManager;
+    if (backend == Backend::Vulkan) {
         return nullptr;
-#else
-        return nullptr;
+    }
 #endif
-    }
 
-    if (p_backend == Backend::Metal) {
-        return nullptr;
+#if USING(PLATFORM_APPLE)
+    if (backend == Backend::Metal) {
+        return new MetalRenderDevice;
     }
+#endif
 
     return new NullRenderDevice;
 }

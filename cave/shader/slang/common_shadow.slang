@@ -14,7 +14,7 @@ float shadowTest(
     lightSpacePos = mul(light.projection_matrix, lightSpacePos);
     lightSpacePos /= lightSpacePos.w;
 
-#if defined(__TARGET_HLSL__)
+#if defined(__TARGET_HLSL__) || defined(__TARGET_METAL__)
     lightSpacePos.y = -lightSpacePos.y;
     lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
 #elif defined(__TARGET_GLSL__)

@@ -5,7 +5,7 @@
 [shader("vertex")]
 VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input) {
     float2 pos2 = input.position.xy;
-    pos2 = pos2 / c_screen_size * 2.0f - 1.0f;
+    pos2 = pos2 / c_screen_size.xy * 2.0f - 1.0f;
     pos2.y = -pos2.y;
     float4 pos = float4(pos2, 0.0, 1.0);
 

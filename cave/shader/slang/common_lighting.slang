@@ -30,7 +30,7 @@ static float3 POINT_LIGHT_SHADOW_SAMPLE_OFFSET[NUM_POINT_SHADOW_SAMPLES] = {
 };
 
 float point_shadow_calculation(Light p_light, float3 p_frag_pos, float3 p_eye) {
-    float3 light_position = p_light.position;
+    float3 light_position = p_light.position.xyz;
     float light_far = p_light.max_distance;
 
     float3 frag_to_light = p_frag_pos - light_position;
@@ -177,7 +177,7 @@ float3 compute_lighting(
         return emissive * base_color;
     }
 
-    float3 V = normalize(c_cameraPosition - world_position);
+    float3 V = normalize(c_cam_pos.xyz - world_position);
     float NdotV = clamp(dot(N, V), 0.0, 1.0);
     float3 R = reflect(-V, N);
 
@@ -207,10 +207,10 @@ float3 compute_lighting(
         int light_type = c_lights[light_idx].type;
         float3 direct_lighting = float3(0.0, 0.0, 0.0);
         float shadow = 0.0;
-        float3 radiance = light.color;
+        float3 radiance = light.color.rgb;
+        float3 L = light.position.xyz;
         switch (light.type) {
             case LIGHT_TYPE_INFINITE: {
-                float3 L = light.position;
                 float atten = 1.0;
                 const float3 H = normalize(V + L);
                 direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
@@ -221,7 +221,7 @@ float3 compute_lighting(
                 }
             } break;
             case LIGHT_TYPE_POINT: {
-                float3 delta = -world_position + light.position;
+                float3 delta = -world_position + L;
                 float dist = length(delta);
                 float atten = (light.atten_constant + light.atten_linear * dist +
                                light.atten_quadratic * (dist * dist));
@@ -233,7 +233,7 @@ float3 compute_lighting(
                     direct_lighting = atten * lighting(N, L, V, radiance, F0, roughness, metallic, base_color);
 #if 0
                     if (light.cast_shadow == 1) {
-                        shadow = point_shadow_calculation(light, world_position, c_cameraPosition);
+                        shadow = point_shadow_calculation(light, world_position, c_cam_pos);
                     }
 #endif
                 }

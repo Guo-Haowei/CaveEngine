@@ -209,13 +209,13 @@ auto D3d11GraphicsManager::createRenderTarget() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d11GraphicsManager::createSampler(uint32_t p_slot, D3D11_SAMPLER_DESC p_desc) -> Result<void> {
+auto D3d11GraphicsManager::createSampler(uint32_t slot, D3D11_SAMPLER_DESC desc) -> Result<void> {
     ComPtr<ID3D11SamplerState> sampler_state;
-    D3D_FAIL(m_device->CreateSamplerState(&p_desc, sampler_state.GetAddressOf()),
+    D3D_FAIL(m_device->CreateSamplerState(&desc, sampler_state.GetAddressOf()),
              "Failed to create sampler");
 
-    m_deviceContext->CSSetSamplers(p_slot, 1, sampler_state.GetAddressOf());
-    m_deviceContext->PSSetSamplers(p_slot, 1, sampler_state.GetAddressOf());
+    m_deviceContext->CSSetSamplers(slot, 1, sampler_state.GetAddressOf());
+    m_deviceContext->PSSetSamplers(slot, 1, sampler_state.GetAddressOf());
     m_samplers.emplace_back(sampler_state);
     return Result<void>();
 }
@@ -247,7 +247,7 @@ auto D3d11GraphicsManager::initSamplers() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d11GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
+auto D3d11GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     D3D11_BUFFER_DESC buffer_desc{};
     buffer_desc.ByteWidth = p_desc.element_count * p_desc.element_size;
     buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -260,7 +260,7 @@ auto D3d11GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> 
     D3D_FAIL(m_device->CreateBuffer(&buffer_desc, nullptr, d3d_buffer.GetAddressOf()),
              "failed to create ConstantBuffer");
 
-    auto uniform_buffer = std::make_shared<D3d11UniformBuffer>(p_desc);
+    auto uniform_buffer = MakeRef<D3d11UniformBuffer>(p_desc);
     uniform_buffer->internalBuffer = d3d_buffer;
 
     m_deviceContext->VSSetConstantBuffers(p_desc.slot, 1, uniform_buffer->internalBuffer.GetAddressOf());
@@ -574,84 +574,6 @@ std::shared_ptr<GpuTexture> D3d11GraphicsManager::createTextureImpl(const GpuTex
     gpu_texture->texture = texture;
     return gpu_texture;
 }
-
-#if 0
-std::shared_ptr<RenderTarget> D3d11GraphicsManager::CreateFramebuffer(const RenderTargetDesc& p_subpass_desc) {
-    auto framebuffer = std::make_shared<D3d11Framebuffer>(p_subpass_desc);
-
-    for (const auto& color_attachment : p_subpass_desc.colors) {
-        auto tex = reinterpret_cast<const D3d11GpuTexture*>(color_attachment.tex.get());
-        switch (tex->desc.type) {
-            case AttachmentType::COLOR_2D: {
-                ComPtr<ID3D11RenderTargetView> rtv;
-                D3D_FAIL_V(m_device->CreateRenderTargetView(tex->texture.Get(), nullptr, rtv.GetAddressOf()), nullptr);
-                framebuffer->rtvs.emplace_back(rtv);
-            } break;
-            case AttachmentType::COLOR_CUBE: {
-                int mips = tex->desc.mipLevels;
-                for (int mip_idx = 0; mip_idx < mips; ++mip_idx) {
-                    for (uint32_t face = 0; face < tex->desc.arraySize; ++face) {
-                        ComPtr<ID3D11RenderTargetView> rtv;
-                        D3D11_RENDER_TARGET_VIEW_DESC desc;
-                        desc.Format = d3d::Convert(tex->desc.format);
-                        desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-                        desc.Texture2DArray.MipSlice = mip_idx;
-                        desc.Texture2DArray.ArraySize = 1;
-                        desc.Texture2DArray.FirstArraySlice = face;
-
-                        D3D_FAIL_V(m_device->CreateRenderTargetView(tex->texture.Get(), &desc, rtv.GetAddressOf()), nullptr);
-                        framebuffer->rtvs.push_back(rtv);
-                    }
-                }
-            } break;
-            default:
-                CRASH_NOW();
-                break;
-        }
-    }
-
-    if (const auto& option = framebuffer->desc.depth) {
-        auto tex = reinterpret_cast<const D3d11GpuTexture*>(option->tex.get());
-        switch (tex->desc.type) {
-            case AttachmentType::DEPTH_2D: {
-                ComPtr<ID3D11DepthStencilView> dsv;
-                D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
-                dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
-                dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-                dsv_desc.Texture2D.MipSlice = 0;
-
-                D3D_FAIL_V(m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, dsv.GetAddressOf()), nullptr);
-                framebuffer->dsvs.push_back(dsv);
-            } break;
-            case AttachmentType::DEPTH_STENCIL_2D: {
-                ComPtr<ID3D11DepthStencilView> dsv;
-                D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
-                dsv_desc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-                dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-                dsv_desc.Texture2D.MipSlice = 0;
-
-                D3D_FAIL_V(m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, dsv.GetAddressOf()), nullptr);
-                framebuffer->dsvs.push_back(dsv);
-            } break;
-            case AttachmentType::SHADOW_2D: {
-                ComPtr<ID3D11DepthStencilView> dsv;
-                D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
-                dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
-                dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-                dsv_desc.Texture2D.MipSlice = 0;
-
-                D3D_FAIL_V(m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, dsv.GetAddressOf()), nullptr);
-                framebuffer->dsvs.push_back(dsv);
-            } break;
-            default:
-                CRASH_NOW();
-                break;
-        }
-    }
-
-    return framebuffer;
-}
-#endif
 
 void D3d11GraphicsManager::setRenderTargets(const RenderTargetDesc& p_target) {
     DEV_ASSERT(p_target.colors.size() <= kMaxRenderTargets);

@@ -8,6 +8,7 @@ build/
 build-emscripten/
 glsl_generated/
 hlsl_generated/
+metal_generated/
 
 # shader
 *.air

@@ -349,7 +349,7 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
 
 VulkanGraphicsManager::VulkanGraphicsManager()
     : RenderDevice("VulkanGraphicsManager", rhi::Backend::Vulkan, NUM_FRAMES_IN_FLIGHT) {
-    m_pipelineStateManager = std::make_shared<EmptyPipelineStateManager>();
+    m_pipelineStateManager = std::make_shared<NullPipelineStateManager>();
 }
 
 auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {

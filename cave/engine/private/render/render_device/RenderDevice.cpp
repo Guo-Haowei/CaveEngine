@@ -62,9 +62,9 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
         frame_context.passCb = *CreateUniformCheckSize<PerPassConstantBuffer>(*this, 32);
         frame_context.materialCb = *CreateUniformCheckSize<MaterialConstantBuffer>(*this, 2048 * 16);
         frame_context.boneCb = *CreateUniformCheckSize<BoneConstantBuffer>(*this, 16);
-        frame_context.emitterCb = *CreateUniformCheckSize<EmitterConstantBuffer>(*this, 32);
         frame_context.pointShadowCb = *CreateUniformCheckSize<PointShadowConstantBuffer>(*this, 6 * MAX_POINT_LIGHT_SHADOW_COUNT);
         frame_context.perFrameCb = *CreateUniformCheckSize<PerFrameConstantBuffer>(*this, 1);
+        frame_context.emitterCb = *CreateUniformCheckSize<EmitterConstantBuffer>(*this, 32);
     }
 
     DEV_ASSERT(m_pipeline_state_manager);

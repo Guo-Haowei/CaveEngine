@@ -6,6 +6,7 @@ PointerAlignment: Left
 AccessModifierOffset: -4
 AllowShortBlocksOnASingleLine: false
 AlignConsecutiveMacros: true
+AlignEscapedNewlines: LeftWithLastLine
 AlignOperands: true
 AlignTrailingComments: true
 BreakBeforeBinaryOperators: None
