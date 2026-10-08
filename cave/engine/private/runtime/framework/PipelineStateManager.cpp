@@ -130,9 +130,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                    .depth_stencil_desc = &s_depth_reversed_stencil_off,
                    .input_layout_desc = &s_input_layout_mesh,
                    .blend_desc = &s_default_blend_state,
-                   .num_render_targets = 4,
+                   .num_render_targets = 3,
                    .rtv_formats = { RT_FMT_GBUFFER_BASE_COLOR,
-                                    RT_FMT_GBUFFER_POSITION,
                                     RT_FMT_GBUFFER_NORMAL,
                                     RT_FMT_GBUFFER_MATERIAL },
                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
@@ -146,9 +145,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                    .depth_stencil_desc = &s_depth_reversed_stencil_off,
                    .input_layout_desc = &s_input_layout_mesh,
                    .blend_desc = &s_default_blend_state,
-                   .num_render_targets = 4,
+                   .num_render_targets = 3,
                    .rtv_formats = { RT_FMT_GBUFFER_BASE_COLOR,
-                                    RT_FMT_GBUFFER_POSITION,
                                     RT_FMT_GBUFFER_NORMAL,
                                     RT_FMT_GBUFFER_MATERIAL },
                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
@@ -186,7 +184,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                  .blend_desc = &s_default_blend_state,
                                  .num_render_targets = 1,
                                  .rtv_formats = { RT_FMT_LIGHTING },
-                                 .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                              });
 
     CREATE_PSO(PSO_HIGHLIGHT, {
@@ -218,7 +215,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                      .blend_desc = &s_default_blend_state,
                                      .num_render_targets = 1,
                                      .rtv_formats = { RT_FMT_TONE },
-                                     .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                                  });
 
     if (capabilities.supportComputeShaders) {
@@ -244,7 +240,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                                    .vs = "cube_map.vs",
                                                    .ps = "to_cube_map.ps",
                                                    .rasterizer_desc = &s_rasterizer_cull_back,
-                                                   .depth_stencil_desc = &s_default_depth_stencil,
+                                                   .depth_stencil_desc = &s_depth_stencil_off,
                                                    .input_layout_desc = &s_input_layout_mesh,
                                                    .blend_desc = &s_default_blend_state,
                                                    .num_render_targets = 1,
@@ -255,7 +251,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                                .vs = "cube_map.vs",
                                                .ps = "diffuse_irradiance.ps",
                                                .rasterizer_desc = &s_rasterizer_cull_back,
-                                               .depth_stencil_desc = &s_default_depth_stencil,
+                                               .depth_stencil_desc = &s_depth_stencil_off,
                                                .input_layout_desc = &s_input_layout_mesh,
                                                .blend_desc = &s_default_blend_state,
                                                .num_render_targets = 1,
@@ -266,7 +262,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                       .vs = "cube_map.vs",
                                       .ps = "prefilter.ps",
                                       .rasterizer_desc = &s_rasterizer_cull_back,
-                                      .depth_stencil_desc = &s_default_depth_stencil,
+                                      .depth_stencil_desc = &s_depth_stencil_off,
                                       .input_layout_desc = &s_input_layout_mesh,
                                       .blend_desc = &s_default_blend_state,
                                       .num_render_targets = 1,

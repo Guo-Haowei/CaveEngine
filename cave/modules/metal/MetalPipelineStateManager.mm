@@ -137,34 +137,45 @@ auto MetalPipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
         pd.colorAttachments[i].pixelFormat = format;
     }
 
-    if (desc.dsv_format == PixelFormat::D32_FLOAT || desc.dsv_format == PixelFormat::D24_UNORM_S8_UINT) {
+    if (desc.dsv_format != PixelFormat::UNKNOWN) {
         pd.depthAttachmentPixelFormat = ToMetalTextureFormat(desc.dsv_format);
         if (pd.depthAttachmentPixelFormat == MTLPixelFormatInvalid) {
             return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Unsupported Metal depth format");
+        }
+        if (HasStencil(desc.dsv_format)) {
+            pd.stencilAttachmentPixelFormat = pd.depthAttachmentPixelFormat;
         }
     }
 
     if (desc.input_layout_desc) {
         MTLVertexDescriptor* vd = [MTLVertexDescriptor vertexDescriptor];
 
-        for (const auto& e : desc.input_layout_desc->elements) {
-            if (e.input_slot >= 31) {
-                continue;
-            }
+        uint32_t attribute_index = 0;
 
-            auto* attribute = vd.attributes[e.input_slot];
+        for (const auto& e : desc.input_layout_desc->elements) {
+            const uint32_t buffer_index = METAL_VERTEX_BUFFER_BASE + e.input_slot;
+            DEV_ASSERT(buffer_index < 32);
+
+            auto* attribute = vd.attributes[attribute_index++];
+
             attribute.format = ToVertexFormat(e.format);
+
             if (attribute.format == MTLVertexFormatInvalid) {
                 return CAVE_ERROR(ErrorCode::ERR_INVALID_DATA, "Unsupported Metal vertex format for input slot {}", e.input_slot);
             }
 
             attribute.offset = e.aligned_byte_offset;
-            attribute.bufferIndex = e.input_slot;
+            attribute.bufferIndex = buffer_index;
 
-            // Cave currently uses one vertex stream per input slot.
-            vd.layouts[e.input_slot].stride = VertexFormatSize(e.format);
-            vd.layouts[e.input_slot].stepFunction = e.input_slot_class == InputClassification::PER_VERTEX_DATA ? MTLVertexStepFunctionPerVertex : MTLVertexStepFunctionPerInstance;
-            vd.layouts[e.input_slot].stepRate = std::max(1u, e.instance_data_step_rate);
+            vd.layouts[buffer_index].stride = VertexFormatSize(e.format);
+
+            vd.layouts[buffer_index].stepFunction =
+                e.input_slot_class == InputClassification::PER_VERTEX_DATA
+                    ? MTLVertexStepFunctionPerVertex
+                    : MTLVertexStepFunctionPerInstance;
+
+            vd.layouts[buffer_index].stepRate =
+                std::max(1u, e.instance_data_step_rate);
         }
 
         pd.vertexDescriptor = vd;

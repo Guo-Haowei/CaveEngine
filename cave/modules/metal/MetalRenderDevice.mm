@@ -21,8 +21,6 @@ namespace cave::render {
 
 namespace {
 
-static constexpr uint32_t METAL_VERTEX_BUFFER_BASE = 16;
-
 struct MetalBuffer final : GpuBuffer {
     using GpuBuffer::GpuBuffer;
     void* object{};
@@ -85,7 +83,6 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
         sampler_desc.sAddressMode = MTLSamplerAddressModeClampToEdge;
         sampler_desc.tAddressMode = MTLSamplerAddressModeClampToEdge;
         id<MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:sampler_desc];
-        m_default_sampler = (__bridge_retained void*)sampler;
         NSWindow* window = glfwGetCocoaWindow(m_window);
         NSView* view = window.contentView;
         CAMetalLayer* layer = [CAMetalLayer layer];
@@ -123,7 +120,7 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
 
 void MetalRenderDevice::FinalizeImpl() {
     m_pipeline_state_manager->finalize();
-    for (void** p : { &m_encoder, &m_drawable, &m_command_buffer, &m_layer, &m_default_sampler, &m_command_queue, &m_device }) {
+    for (void** p : { &m_encoder, &m_drawable, &m_command_buffer, &m_layer, &m_command_queue, &m_device }) {
         if (*p) {
             CFRelease(*p);
             *p = nullptr;
@@ -157,7 +154,11 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
         pass.depthAttachment.loadAction = target.depth->depth_load == LoadOp::Clear ? MTLLoadActionClear : MTLLoadActionLoad;
         pass.depthAttachment.storeAction = MTLStoreActionStore;
         pass.depthAttachment.clearDepth = target.depth->clear_depth;
-        if (target.depth->tex->desc.format == PixelFormat::D24_UNORM_S8_UINT) {
+        
+        const PixelFormat format = target.depth->tex->desc.format;
+
+        if (HasStencil(format) ||
+            format == PixelFormat::R32G8X24_TYPELESS) {
             pass.stencilAttachment.texture = (__bridge id<MTLTexture>)tex->object;
             pass.stencilAttachment.loadAction = target.depth->stencil_load == LoadOp::Clear ? MTLLoadActionClear : MTLLoadActionLoad;
             pass.stencilAttachment.storeAction = MTLStoreActionStore;
@@ -256,19 +257,38 @@ auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& d, std::span<const Gpu
 
 void MetalRenderDevice::setMesh(const GpuMesh* mesh) {
     m_current_mesh = const_cast<GpuMesh*>(mesh);
+
     if (!m_encoder)
         return;
-    auto* e = (id<MTLRenderCommandEncoder>)m_encoder;
+
+    auto* encoder = (id<MTLRenderCommandEncoder>)m_encoder;
+
     if (!mesh) {
-        for (NSUInteger i = 0; i < 31; ++i)
-            [e setVertexBuffer:nil offset:0 atIndex:i];
+        for (NSUInteger i = METAL_VERTEX_BUFFER_BASE; i < 31; ++i) {
+            [encoder setVertexBuffer:nil offset:0 atIndex:i];
+        }
         return;
     }
-    for (uint32_t i = 0; i < mesh->vertexBuffers.size(); ++i)
-        if (mesh->vertexBuffers[i]) {
-            auto* b = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[i].get());
-            [e setVertexBuffer:(__bridge id<MTLBuffer>)b->object offset:0 atIndex:i];
+
+    DEV_ASSERT(mesh->vertexBuffers.size());
+    
+    auto* first_buffer = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[0].get());
+    id<MTLBuffer> dummy_mesh = (__bridge id<MTLBuffer>)first_buffer->object;
+    
+    for (uint32_t i = 0; i < mesh->vertexBuffers.size(); ++i) {
+        if (!mesh->vertexBuffers[i]) {
+            [encoder setVertexBuffer:dummy_mesh
+                              offset:0
+                              atIndex:METAL_VERTEX_BUFFER_BASE + i];
+            continue;
         }
+
+        auto* buffer = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[i].get());
+
+        [encoder setVertexBuffer:(__bridge id<MTLBuffer>)buffer->object
+                          offset:0
+                          atIndex:METAL_VERTEX_BUFFER_BASE + i];
+    }
 }
 
 void MetalRenderDevice::setPipelineStateImpl(PipelineStateName name) {
@@ -387,8 +407,7 @@ static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
 Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, const SamplerDesc&)
 {
     MTLPixelFormat texture_format = ToMetalTextureFormat(d.format);
-    if (texture_format == MTLPixelFormatInvalid)
-        return nullptr;
+    DEV_ASSERT(texture_format != MTLPixelFormatInvalid);
 
     if (d.width == 0 || d.height == 0)
         return nullptr;
@@ -675,7 +694,6 @@ void MetalRenderDevice::bindTexture(Dimension, uint64_t h, int slot) {
         return;
     id<MTLTexture> t = (__bridge id<MTLTexture>)reinterpret_cast<void*>(h);
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentTexture:t atIndex:slot];
-    [(id<MTLRenderCommandEncoder>)m_encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_default_sampler atIndex:slot];
 }
 
 void MetalRenderDevice::unbindTexture(Dimension, int slot) {
@@ -685,7 +703,6 @@ void MetalRenderDevice::unbindTexture(Dimension, int slot) {
     if (!m_encoder)
         return;
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentTexture:nil atIndex:slot];
-    [(id<MTLRenderCommandEncoder>)m_encoder setFragmentSamplerState:nil atIndex:slot];
 }
 
 void MetalRenderDevice::generateMipmap(const GpuTexture*) { /* TODO: encode a blit mip generation pass. */ }
