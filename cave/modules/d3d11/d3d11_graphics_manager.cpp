@@ -209,13 +209,13 @@ auto D3d11GraphicsManager::createRenderTarget() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d11GraphicsManager::createSampler(uint32_t p_slot, D3D11_SAMPLER_DESC p_desc) -> Result<void> {
+auto D3d11GraphicsManager::createSampler(uint32_t slot, D3D11_SAMPLER_DESC desc) -> Result<void> {
     ComPtr<ID3D11SamplerState> sampler_state;
-    D3D_FAIL(m_device->CreateSamplerState(&p_desc, sampler_state.GetAddressOf()),
+    D3D_FAIL(m_device->CreateSamplerState(&desc, sampler_state.GetAddressOf()),
              "Failed to create sampler");
 
-    m_deviceContext->CSSetSamplers(p_slot, 1, sampler_state.GetAddressOf());
-    m_deviceContext->PSSetSamplers(p_slot, 1, sampler_state.GetAddressOf());
+    m_deviceContext->CSSetSamplers(slot, 1, sampler_state.GetAddressOf());
+    m_deviceContext->PSSetSamplers(slot, 1, sampler_state.GetAddressOf());
     m_samplers.emplace_back(sampler_state);
     return Result<void>();
 }

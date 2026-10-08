@@ -53,20 +53,59 @@ struct MetalConstantBuffer final : GpuConstantBuffer {
 
 static MTLPixelFormat ToMetalTextureFormat(PixelFormat format) {
     switch (format) {
-    case PixelFormat::R8G8B8A8_UINT:
-        return MTLPixelFormatRGBA8Unorm;
-    case PixelFormat::R32_FLOAT:
-        return MTLPixelFormatR32Float;
-    case PixelFormat::R32G32_FLOAT:
-        return MTLPixelFormatRG32Float;
-    case PixelFormat::R32G32B32A32_FLOAT:
-        return MTLPixelFormatRGBA32Float;
-    case PixelFormat::D32_FLOAT:
-        return MTLPixelFormatDepth32Float;
-    case PixelFormat::D24_UNORM_S8_UINT:
-        return MTLPixelFormatDepth24Unorm_Stencil8;
-    default:
-        return MTLPixelFormatInvalid;
+        case PixelFormat::UNKNOWN:
+            return MTLPixelFormatInvalid;
+        case PixelFormat::R8_UINT:
+            return MTLPixelFormatR8Uint;
+        case PixelFormat::R8G8_UINT:
+            return MTLPixelFormatRG8Uint;
+        case PixelFormat::R8G8B8A8_UINT:
+            return MTLPixelFormatRGBA8Uint;
+        case PixelFormat::R8G8B8A8_UNORM:
+            return MTLPixelFormatRGBA8Unorm;
+        case PixelFormat::R8G8B8A8_UNORM_SRGB:
+            return MTLPixelFormatRGBA8Unorm_sRGB;
+        case PixelFormat::R16_FLOAT:
+            return MTLPixelFormatR16Float;
+        case PixelFormat::R16G16_FLOAT:
+            return MTLPixelFormatRG16Float;
+        case PixelFormat::R16G16B16_FLOAT:
+            return MTLPixelFormatRGB16Float;
+        case PixelFormat::R16G16B16A16_FLOAT:
+            return MTLPixelFormatRGBA16Float;
+        case PixelFormat::R32_FLOAT:
+            return MTLPixelFormatR32Float;
+        case PixelFormat::R32G32_FLOAT:
+            return MTLPixelFormatRG32Float;
+        case PixelFormat::R32G32B32_FLOAT:
+            return MTLPixelFormatRGB32Float;
+        case PixelFormat::R32G32B32A32_FLOAT:
+            return MTLPixelFormatRGBA32Float;
+        case PixelFormat::R32G32_SINT:
+            return MTLPixelFormatRG32Sint;
+        case PixelFormat::R32G32B32_SINT:
+            return MTLPixelFormatRGB32Sint;
+        case PixelFormat::R32G32B32A32_SINT:
+            return MTLPixelFormatRGBA32Sint;
+        case PixelFormat::R11G11B10_FLOAT:
+            return MTLPixelFormatRG11B10Float;
+        case PixelFormat::D32_FLOAT:
+            return MTLPixelFormatDepth32Float;
+        case PixelFormat::R24G8_TYPELESS:
+            return MTLPixelFormatDepth24Unorm_Stencil8;
+        case PixelFormat::R24_UNORM_X8_TYPELESS:
+            return MTLPixelFormatDepth24Unorm_Stencil8;
+        case PixelFormat::D24_UNORM_S8_UINT:
+            return MTLPixelFormatDepth24Unorm_Stencil8;
+        case PixelFormat::X24_TYPELESS_G8_UINT:
+            return MTLPixelFormatX24_Stencil8;
+        case PixelFormat::R32G8X24_TYPELESS:
+            return MTLPixelFormatDepth32Float_Stencil8;
+        case PixelFormat::D32_FLOAT_S8X24_UINT:
+            return MTLPixelFormatDepth32Float_Stencil8;
+        default:
+            CRASH_NOW();
+            return MTLPixelFormatInvalid;
     }
 }
 
@@ -268,6 +307,7 @@ void MetalRenderDevice::setPipelineStateImpl(PipelineStateName name) {
         }
     }
 }
+
 void MetalRenderDevice::drawElements(uint32_t count, uint32_t offset) {
     if (!m_encoder || !m_current_mesh)
         return;
@@ -277,6 +317,7 @@ void MetalRenderDevice::drawElements(uint32_t count, uint32_t offset) {
         return;
     [(id<MTLRenderCommandEncoder>)m_encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:(__bridge id<MTLBuffer>)index->object indexBufferOffset:offset * sizeof(uint32_t)];
 }
+
 void MetalRenderDevice::drawElementsInstanced(uint32_t n, uint32_t count, uint32_t offset) {
     if (!m_encoder || !m_current_mesh)
         return;
@@ -304,6 +345,7 @@ auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& d) -> Result<R
     result->object = (__bridge_retained void*)b;
     return result;
 }
+
 void MetalRenderDevice::updateConstantBuffer(const GpuConstantBuffer* base, const void* data, size_t size) {
     auto* b = reinterpret_cast<const MetalConstantBuffer*>(base);
     id<MTLBuffer> mb = (__bridge id<MTLBuffer>)b->object;
@@ -327,8 +369,8 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
         return nullptr;
     MTLTextureDescriptor* td = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format width:d.width height:d.height mipmapped:d.mipLevels > 1];
     td.usage = MTLTextureUsageShaderRead;
-    if (d.bindFlags & BIND_RENDER_TARGET)
-        td.usage |= MTLTextureUsageRenderTarget;
+    if ((d.bindFlags & BIND_RENDER_TARGET) || (d.bindFlags & BIND_DEPTH_STENCIL))
+        td.usage |= MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
     if (d.bindFlags & BIND_UNORDERED_ACCESS)
         td.usage |= MTLTextureUsageShaderWrite;
     td.storageMode = MTLStorageModeShared;
@@ -343,6 +385,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
     result->object = (__bridge_retained void*)t;
     return result;
 }
+
 void MetalRenderDevice::bindTexture(Dimension, uint64_t h, int slot) {
     if (slot < 0 || slot >= (int)m_bound_textures.size())
         return;
@@ -353,6 +396,7 @@ void MetalRenderDevice::bindTexture(Dimension, uint64_t h, int slot) {
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentTexture:t atIndex:slot];
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_default_sampler atIndex:slot];
 }
+
 void MetalRenderDevice::unbindTexture(Dimension, int slot) {
     if (slot < 0 || slot >= (int)m_bound_textures.size())
         return;
