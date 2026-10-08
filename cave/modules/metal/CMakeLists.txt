@@ -25,11 +25,13 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER modules)
 
-target_link_libraries(${TARGET_NAME} PRIVATE glad opengl_common)
-
 target_set_warning_level(${TARGET_NAME})
 
 target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/private/pch.h)
+
+target_compile_definitions(${TARGET_NAME}
+    PRIVATE ROOT_FOLDER="${PROJECT_SOURCE_DIR}/"
+)
 
 target_link_libraries(${TARGET_NAME} PRIVATE
     "-framework Metal"

@@ -24,8 +24,7 @@ public:
 
     auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
     void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
-    auto createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuBufferDesc> vb_descs,
-                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
+    auto createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuBufferDesc> vb_descs, const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
     void setMesh(const GpuMesh* mesh) override;
     void drawElements(uint32_t count, uint32_t offset) override;
     void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
@@ -77,4 +76,4 @@ private:
     std::array<uint64_t, 32> m_bound_uavs{};
 };
 
-} // namespace cave
+} // namespace cave::render
