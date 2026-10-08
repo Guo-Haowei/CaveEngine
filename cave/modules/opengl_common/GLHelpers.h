@@ -144,9 +144,10 @@ static inline TOPOLOGY Convert(PrimitiveTopology p_topology) {
     }
 }
 
-inline GLuint ConvertFormat(PixelFormat p_format) {
-    switch (p_format) {
+inline GLuint ConvertFormat(PixelFormat format) {
+    switch (format) {
         case PixelFormat::R8_UINT:
+        case PixelFormat::R8_UNORM:
         case PixelFormat::R16_FLOAT:
         case PixelFormat::R32_FLOAT:
             return GL_RED;
@@ -215,9 +216,10 @@ enum Format : uint32_t {
     DEPTH32F_STENCIL8 = GL_DEPTH32F_STENCIL8,
 };
 
-inline Format ConvertInternalFormat(PixelFormat p_format) {
-    switch (p_format) {
+inline Format ConvertInternalFormat(PixelFormat format) {
+    switch (format) {
         case PixelFormat::R8_UINT:
+        case PixelFormat::R8_UNORM:
             return R8;
         case PixelFormat::R8G8_UINT:
             return RG8;
@@ -264,9 +266,10 @@ inline Format ConvertInternalFormat(PixelFormat p_format) {
     }
 }
 
-inline GLuint ConvertDataType(PixelFormat p_format) {
-    switch (p_format) {
+inline GLuint ConvertDataType(PixelFormat format) {
+    switch (format) {
         case PixelFormat::R8_UINT:
+        case PixelFormat::R8_UNORM:
         case PixelFormat::R8G8_UINT:
         case PixelFormat::R8G8B8_UINT:
         case PixelFormat::R8G8B8A8_UINT:

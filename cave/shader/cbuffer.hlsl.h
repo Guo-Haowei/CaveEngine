@@ -32,6 +32,7 @@ struct ForceField {
 #if defined(__cplusplus)
 struct alignas(16) TextureHandle {
     uint64_t value;
+    uint64_t _padding;
 };
 
 static_assert(alignof(TextureHandle) == 16);

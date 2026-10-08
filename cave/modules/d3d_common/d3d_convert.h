@@ -39,12 +39,11 @@
 
 namespace cave::d3d {
 
-static inline DXGI_FORMAT Convert(PixelFormat p_format) {
-    // @TODO: use macro
-    switch (p_format) {
+static inline DXGI_FORMAT Convert(PixelFormat format) {
+    switch (format) {
         case PixelFormat::UNKNOWN:
             return DXGI_FORMAT_UNKNOWN;
-        case PixelFormat::R8_UINT:
+        case PixelFormat::R8_UNORM:
             return DXGI_FORMAT_R8_UNORM;
         case PixelFormat::R8G8_UINT:
             return DXGI_FORMAT_R8G8_UNORM;
