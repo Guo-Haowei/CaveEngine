@@ -76,7 +76,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend p_backend) {
     }
 
     if (p_backend == Backend::Metal) {
-        return nullptr;
+        return new MetalRenderDevice;
     }
 
     return new NullRenderDevice;

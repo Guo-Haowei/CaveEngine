@@ -18,8 +18,8 @@
 
 namespace cave::render {
 
-MetalRenderDevice::MetalRenderDevice() : NullRenderDevice("MetalRenderDevice") {
-//    m_pipelineStateManager = MakeRef<NullPipelineStateManager>();
+MetalRenderDevice::MetalRenderDevice() : RenderDevice("MetalRenderDevice", rhi::Backend::Metal, 1) {
+    m_pipeline_state_manager = MakeOwner<NullPipelineStateManager>();
 }
 
 id<MTLRenderPipelineState> pipelineState;
@@ -68,7 +68,7 @@ void MetalRenderDevice::setupVertexBuffer() {
     vertexBuffer = [device newBufferWithBytes:vertices length:sizeof(vertices) options:MTLResourceStorageModeShared];
 }
 
-auto MetalRenderDevice::InitializeImpl() -> Result<void> {
+auto MetalRenderDevice::InitializeInternal() -> Result<void> {
     @autoreleasepool {
         auto display = dynamic_cast<GlfwDisplayService*>(&m_app->services().displayService());
         DEV_ASSERT(display);
@@ -147,10 +147,12 @@ void MetalRenderDevice::present() {
         MTLScissorRect scissorRect = { 0, 0, (NSUInteger)width, (NSUInteger)height };
         [renderEncoder setScissorRect:scissorRect];
 
+#if 0
         [renderEncoder setRenderPipelineState:pipelineState];
         [renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
-
+#endif
+        
         // Start the Dear ImGui frame
         ImGui_ImplMetal_NewFrame(renderPassDescriptor);
 
