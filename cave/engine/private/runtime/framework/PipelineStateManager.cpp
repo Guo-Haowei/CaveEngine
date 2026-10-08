@@ -112,7 +112,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
 
     // @HACK: only support this
     if (m_backend == Backend::Metal) {
-        return;
+        return Result<void>();
     }
 
     CREATE_PSO(PSO_PREPASS,

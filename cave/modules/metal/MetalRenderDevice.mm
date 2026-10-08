@@ -109,7 +109,12 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
 
         if (m_app->specification().enableImgui) {
             if (auto* imgui = m_app->services().imgui) {
-                imgui->setRenderCallbacks([this]() { ImGui_ImplMetal_Init((__bridge id<MTLDevice>)m_device); }, []() { ImGui_ImplMetal_Shutdown(); });
+                auto initialize_cb = [this]() {
+                    ImGui_ImplMetal_Init((__bridge id<MTLDevice>)m_device);
+                    ImGui_ImplMetal_CreateDeviceObjects((__bridge id<MTLDevice>)m_device);
+                };
+                auto finalize_cb = []() { ImGui_ImplMetal_Shutdown(); };
+                imgui->setRenderCallbacks(std::move(initialize_cb), std::move(finalize_cb));
             }
         }
     }
@@ -418,9 +423,13 @@ void MetalRenderDevice::render() {
     if (enc && m_app->specification().enableImgui) {
         ImGui_ImplMetal_NewFrame(pd);
         ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), cb, enc);
+
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
         [enc endEncoding];
     }
 }
+
 void MetalRenderDevice::present() {
     id<MTLCommandBuffer> cb = (__bridge id<MTLCommandBuffer>)m_command_buffer;
     if (m_drawable)
@@ -435,6 +444,7 @@ void MetalRenderDevice::present() {
         m_command_buffer = nullptr;
     }
 }
+
 void MetalRenderDevice::onWindowResize(int, int) {}
 
 } // namespace cave::render
