@@ -114,6 +114,8 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
 #include "sampler.slang.h"
 #undef SAMPLER_STATE
     }
+
+    m_capabilities.supportComputeShaders = false;
     return Result<void>();
 }
 
@@ -355,28 +357,163 @@ void MetalRenderDevice::bindConstantBufferRange(const GpuConstantBuffer* base, u
     (void)size;
 }
 
-Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, const SamplerDesc&) {
-    if (d.dimension != Dimension::Texture2D)
-        return nullptr;
+static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
+    switch (format) {
+    case MTLPixelFormatR8Unorm:
+    case MTLPixelFormatR8Uint:
+        return 1;
+    case MTLPixelFormatRG8Unorm:
+    case MTLPixelFormatRG8Uint:
+    case MTLPixelFormatR16Float:
+        return 2;
+    case MTLPixelFormatRGBA8Unorm:
+    case MTLPixelFormatRGBA8Unorm_sRGB:
+    case MTLPixelFormatBGRA8Unorm:
+    case MTLPixelFormatBGRA8Unorm_sRGB:
+    case MTLPixelFormatR32Float:
+        return 4;
+    case MTLPixelFormatRG32Float:
+        return 8;
+    case MTLPixelFormatRGBA32Float:
+        return 16;
+    default:
+        CRASH_NOW_MSG("Unsupported Metal texture format");
+        return 0;
+    }
+}
+
+Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d,
+                                                     const SamplerDesc&) {
     const MTLPixelFormat format = ToMetalTextureFormat(d.format);
-    if (format == MTLPixelFormatInvalid)
+    if (!DEV_VERIFY(format != MTLPixelFormatInvalid)) {
         return nullptr;
-    MTLTextureDescriptor* td = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format width:d.width height:d.height mipmapped:d.mipLevels > 1];
-    td.usage = MTLTextureUsageShaderRead;
-    if ((d.bindFlags & BIND_RENDER_TARGET) || (d.bindFlags & BIND_DEPTH_STENCIL))
-        td.usage |= MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    }
+
+    if (d.width == 0 || d.height == 0)
+        return nullptr;
+
+    MTLTextureDescriptor* td = [[MTLTextureDescriptor alloc] init];
+
+    td.pixelFormat = format;
+    td.width = d.width;
+    td.height = d.height;
+    td.depth = 1;
+    td.mipmapLevelCount = d.mipLevels == 0 ? 9 : d.mipLevels;
+    td.sampleCount = 1;
+    td.arrayLength = 1;
+
+    switch (d.dimension) {
+    case Dimension::Texture2D:
+        td.textureType = MTLTextureType2D;
+        break;
+
+    case Dimension::TEXTURE_2D_ARRAY:
+        if (d.arraySize == 0)
+            return nullptr;
+
+        td.textureType = MTLTextureType2DArray;
+        td.arrayLength = d.arraySize;
+        break;
+
+    case Dimension::TEXTURE_CUBE:
+        if (d.width != d.height)
+            return nullptr;
+
+        td.textureType = MTLTextureTypeCube;
+        td.arrayLength = 6;
+        break;
+
+    default:
+        return nullptr;
+    }
+
+    td.usage = 0;
+
+    if (d.bindFlags & BIND_SHADER_RESOURCE)
+        td.usage |= MTLTextureUsageShaderRead;
+
     if (d.bindFlags & BIND_UNORDERED_ACCESS)
         td.usage |= MTLTextureUsageShaderWrite;
-    td.storageMode = MTLStorageModeShared;
-    id<MTLTexture> t = [(__bridge id<MTLDevice>)m_device newTextureWithDescriptor:td];
-    if (!t)
-        return nullptr;
-    if (d.initialData && format != MTLPixelFormatDepth32Float && format != MTLPixelFormatDepth24Unorm_Stencil8) {
-        const NSUInteger bytes_per_pixel = format == MTLPixelFormatRGBA8Unorm ? 4 : format == MTLPixelFormatR32Float ? 4 : format == MTLPixelFormatRG32Float ? 8 : 16;
-        [t replaceRegion:MTLRegionMake2D(0, 0, d.width, d.height) mipmapLevel:0 withBytes:d.initialData bytesPerRow:d.width * bytes_per_pixel];
+
+    if ((d.bindFlags & BIND_RENDER_TARGET) || (d.bindFlags & BIND_DEPTH_STENCIL))
+    {
+        td.usage |= MTLTextureUsageRenderTarget;
     }
+
+    const bool hasInitialData = d.initialData != nullptr;
+    const bool gpuOnly =
+        !hasInitialData &&
+        ((d.bindFlags & BIND_RENDER_TARGET) ||
+         (d.bindFlags & BIND_DEPTH_STENCIL) ||
+         (d.bindFlags & BIND_UNORDERED_ACCESS));
+
+    td.storageMode = gpuOnly ? MTLStorageModePrivate : MTLStorageModeShared;
+
+    id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
+    id<MTLTexture> texture = [device newTextureWithDescriptor:td];
+
+    if (!texture)
+        return nullptr;
+
+    if (d.initialData) {
+        if (td.storageMode == MTLStorageModePrivate) {
+            // Can't use replaceRegion directly on Private textures.
+            // Either create a staging buffer + blit, or don't choose Private
+            // when initialData is present.
+            return nullptr;
+        }
+
+        const NSUInteger bytesPerPixel = GetBytesPerPixel(format);
+        if (bytesPerPixel == 0)
+            return nullptr;
+
+        const uint8_t* src =
+            static_cast<const uint8_t*>(d.initialData);
+
+        const uint32_t sliceCount =
+            d.dimension == Dimension::TEXTURE_CUBE
+                ? 6
+                : d.dimension == Dimension::TEXTURE_2D_ARRAY
+                    ? d.arraySize
+                    : 1;
+
+        size_t srcOffset = 0;
+
+        for (uint32_t slice = 0; slice < sliceCount; ++slice) {
+            uint32_t mipWidth = d.width;
+            uint32_t mipHeight = d.height;
+
+            for (uint32_t mip = 0; mip < d.mipLevels; ++mip) {
+                const NSUInteger rowPitch =
+                    static_cast<NSUInteger>(mipWidth) * bytesPerPixel;
+
+                const NSUInteger imagePitch =
+                    rowPitch * static_cast<NSUInteger>(mipHeight);
+
+                MTLRegion region = MTLRegionMake2D(
+                    0,
+                    0,
+                    mipWidth,
+                    mipHeight);
+
+                [texture replaceRegion:region
+                           mipmapLevel:mip
+                                 slice:slice
+                             withBytes:src + srcOffset
+                           bytesPerRow:rowPitch
+                         bytesPerImage:imagePitch];
+
+                srcOffset += imagePitch;
+
+                mipWidth = std::max(1u, mipWidth >> 1);
+                mipHeight = std::max(1u, mipHeight >> 1);
+            }
+        }
+    }
+
     auto result = MakeRef<MetalTexture>(d);
-    result->object = (__bridge_retained void*)t;
+    result->object = texture;
+
     return result;
 }
 

@@ -83,8 +83,12 @@ static NSUInteger VertexFormatSize(PixelFormat format) {
 
 static MTLPixelFormat ToPixelFormat(PixelFormat format) {
     switch (format) {
+    case PixelFormat::R8_UINT:
+        return MTLPixelFormatR8Uint;
     case PixelFormat::R8G8B8A8_UINT:
-        return MTLPixelFormatRGBA8Unorm;
+        return MTLPixelFormatRGBA8Uint;
+    case PixelFormat::R8_UNORM:
+        return MTLPixelFormatR8Unorm;
     case PixelFormat::R16G16_FLOAT:
         return MTLPixelFormatRG16Float;
     case PixelFormat::R16G16B16_FLOAT:

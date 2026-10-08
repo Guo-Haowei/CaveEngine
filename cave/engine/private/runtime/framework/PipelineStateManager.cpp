@@ -110,11 +110,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                    .dsv_format = {},
                                });
 
-    // @HACK: only support this
-    if (m_backend == Backend::Metal) {
-        return Result<void>();
-    }
-
     CREATE_PSO(PSO_PREPASS,
                {
                    .vs = "mesh.vs",
@@ -193,37 +188,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                  .rtv_formats = { RT_FMT_LIGHTING },
                                  .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                              });
-
-#if USING(CAVE_PARTICLE)
-    CREATE_PSO(PSO_PARTICLE_INIT, { .type = PipelineStateType::COMPUTE, .cs = "particle_initialization.cs" });
-    CREATE_PSO(PSO_PARTICLE_KICKOFF, { .type = PipelineStateType::COMPUTE, .cs = "particle_kickoff.cs" });
-    CREATE_PSO(PSO_PARTICLE_EMIT, { .type = PipelineStateType::COMPUTE, .cs = "particle_emission.cs" });
-    CREATE_PSO(PSO_PARTICLE_SIM, { .type = PipelineStateType::COMPUTE, .cs = "particle_simulation.cs" });
-    CREATE_PSO(PSO_PARTICLE_RENDERING, {
-                                           .vs = "particle_draw.vs",
-                                           .ps = "particle_draw.ps",
-                                           .rasterizer_desc = &s_rasterizer_double_sided,
-                                           .depth_stencil_desc = &s_depth_reversed_stencil_off,
-                                           .input_layout_desc = &s_input_layout_mesh,
-                                           .blend_desc = &s_transparent,
-                                           .num_render_targets = 1,
-                                           .rtv_formats = { RT_FMT_LIGHTING },
-                                           .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-                                       });
-#endif
-
-#if USING(CAVE_POINT_SHADOW)
-    CREATE_PSO(PSO_POINT_SHADOW, {
-                                     .vs = "shadowmap_point.vs",
-                                     .ps = "shadowmap_point.ps",
-                                     .rasterizer_desc = &s_rasterizer_cull_front,
-                                     .depth_stencil_desc = &s_default_depth_stencil,
-                                     .input_layout_desc = &s_input_layout_mesh,
-                                     .blend_desc = &s_default_blend_state,
-                                     .num_render_targets = 0,
-                                     .dsv_format = PixelFormat::D32_FLOAT,
-                                 });
-#endif
 
     CREATE_PSO(PSO_HIGHLIGHT, {
                                   .vs = "screenspace_quad.vs",
@@ -307,6 +271,37 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
     if (capabilities.supportComputeShaders) {
         CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
     }
+
+#if USING(CAVE_PARTICLE)
+    CREATE_PSO(PSO_PARTICLE_INIT, { .type = PipelineStateType::COMPUTE, .cs = "particle_initialization.cs" });
+    CREATE_PSO(PSO_PARTICLE_KICKOFF, { .type = PipelineStateType::COMPUTE, .cs = "particle_kickoff.cs" });
+    CREATE_PSO(PSO_PARTICLE_EMIT, { .type = PipelineStateType::COMPUTE, .cs = "particle_emission.cs" });
+    CREATE_PSO(PSO_PARTICLE_SIM, { .type = PipelineStateType::COMPUTE, .cs = "particle_simulation.cs" });
+    CREATE_PSO(PSO_PARTICLE_RENDERING, {
+                                           .vs = "particle_draw.vs",
+                                           .ps = "particle_draw.ps",
+                                           .rasterizer_desc = &s_rasterizer_double_sided,
+                                           .depth_stencil_desc = &s_depth_reversed_stencil_off,
+                                           .input_layout_desc = &s_input_layout_mesh,
+                                           .blend_desc = &s_transparent,
+                                           .num_render_targets = 1,
+                                           .rtv_formats = { RT_FMT_LIGHTING },
+                                           .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+                                       });
+#endif
+
+#if USING(CAVE_POINT_SHADOW)
+    CREATE_PSO(PSO_POINT_SHADOW, {
+                                     .vs = "shadowmap_point.vs",
+                                     .ps = "shadowmap_point.ps",
+                                     .rasterizer_desc = &s_rasterizer_cull_front,
+                                     .depth_stencil_desc = &s_default_depth_stencil,
+                                     .input_layout_desc = &s_input_layout_mesh,
+                                     .blend_desc = &s_default_blend_state,
+                                     .num_render_targets = 0,
+                                     .dsv_format = PixelFormat::D32_FLOAT,
+                                 });
+#endif
 
 #if USING(CAVE_VXGI)
     CREATE_PSO(PSO_VOXELIZATION_PRE, { .type = PipelineStateType::COMPUTE, .cs = "voxelization_pre.cs" });
