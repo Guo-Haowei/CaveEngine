@@ -214,8 +214,8 @@ static void FillEnvConstants(FrameData& out_data) {
     for (int mip_idx = 0; mip_idx < kIBLMipChainMax; ++mip_idx) {
         for (int face_id = 0; face_id < 6; ++face_id) {
             auto& batch = out_data.batchCache.buffer[mip_idx * 6 + face_id];
-            batch.c_cubeProjectionViewMatrix = matrices[face_id];
-            batch.c_envPassRoughness = (float)mip_idx / (float)(kIBLMipChainMax - 1);
+            batch.c_cube_proj_view_matrix = matrices[face_id];
+            batch.c_env_pass_roughness = (float)mip_idx / (float)(kIBLMipChainMax - 1);
         }
     }
 }

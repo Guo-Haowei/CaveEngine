@@ -284,26 +284,26 @@ void GLRenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
-    unused(p_slot);
-    unused(p_buffer);
+void GLRenderDevice::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
+    unused(slot);
+    unused(buffer);
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::unbindStructuredBuffer(int p_slot) {
-    unused(p_slot);
+void GLRenderDevice::unbindStructuredBuffer(int slot) {
+    unused(slot);
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) {
-    bindStructuredBuffer(p_slot, p_buffer);
+void GLRenderDevice::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
+    bindStructuredBuffer(slot, buffer);
 }
 
-void GLRenderDevice::unbindStructuredBufferSRV(int p_slot) {
-    unbindStructuredBuffer(p_slot);
+void GLRenderDevice::unbindStructuredBufferSRV(int slot) {
+    unbindStructuredBuffer(slot);
 }
 
-auto GLRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
+auto GLRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     GLuint handle = 0;
 
     glGenBuffers(1, &handle);
@@ -364,9 +364,9 @@ void GLRenderDevice::unbindTexture(Dimension p_dimension, int p_slot) {
     glBindTexture(texture_type, 0);
 }
 
-void GLRenderDevice::generateMipmap(const GpuTexture* p_texture) {
-    auto dimension = gl::ConvertDimension(p_texture->desc.dimension);
-    glBindTexture(dimension, p_texture->GetHandle32());
+void GLRenderDevice::generateMipmap(const GpuTexture* base) {
+    auto dimension = gl::ConvertDimension(base->desc.dimension);
+    glBindTexture(dimension, base->GetHandle32());
     glGenerateMipmap(dimension);
     glBindTexture(dimension, 0);
 }
@@ -451,109 +451,11 @@ Ref<GpuTexture> GLRenderDevice::createTextureImpl(const GpuTextureDesc& p_textur
     return texture;
 }
 
-#if 0
-std::shared_ptr<RenderTarget> GLRenderDevice::CreateFramebuffer(const RenderTargetDesc& p_desc) {
-    auto framebuffer = MakeRef<OpenGlFramebuffer>(p_desc);
-    GLuint fbo_handle = 0;
-
-    const int num_depth_attachment = p_desc.depth ? 1 : 0;
-    const int num_color_attachment = (int)p_desc.colors.size();
-    if (!num_depth_attachment && !num_color_attachment) {
-        return framebuffer;
-    }
-
-    glGenFramebuffers(1, &fbo_handle);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
-
-#if !USING(USE_GLES3)
-    if (!num_color_attachment) {
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
-    } else
-#endif
-    {
-        // create color attachments
-        std::vector<GLuint> attachments;
-        attachments.reserve(num_color_attachment);
-        for (int idx = 0; idx < num_color_attachment; ++idx) {
-            GLuint attachment = GL_COLOR_ATTACHMENT0 + idx;
-            attachments.push_back(attachment);
-
-            const auto& color_attachment = p_desc.colors[idx].tex;
-            uint32_t texture_handle = static_cast<uint32_t>(color_attachment->GetHandle());
-            switch (color_attachment->desc.type) {
-                case AttachmentType::COLOR_2D: {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER,  // target
-                                           attachment,      // attachment
-                                           GL_TEXTURE_2D,   // texture target
-                                           texture_handle,  // texture
-                                           0                // level
-                    );
-                } break;
-                case AttachmentType::COLOR_CUBE: {
-            glFramebufferTexture2D(GL_FRAMEBUFFER,
-                                   GL_COLOR_ATTACHMENT0,
-                                   GL_TEXTURE_CUBE_MAP_POSITIVE_X + p_index,
-                                   static_cast<uint32_t>(resource->GetHandle()),
-                                   p_mip_level);
-                } break;
-                default:
-                    CRASH_NOW();
-                    break;
-            }
-        }
-
-#if !USING(USE_GLES3)
-        glDrawBuffers(num_color_attachment, attachments.data());
-#endif
-    }
-
-    if (const auto& option = p_desc.depth) {
-        uint32_t texture_handle = static_cast<uint32_t>(option->tex->GetHandle());
-        switch (option->tex->desc.type) {
-            case AttachmentType::SHADOW_2D:
-            case AttachmentType::DEPTH_2D: {
-                glFramebufferTexture2D(GL_FRAMEBUFFER,       // target
-                                       GL_DEPTH_ATTACHMENT,  // attachment
-                                       GL_TEXTURE_2D,        // texture target
-                                       texture_handle,       // texture
-                                       0);                   // level
-            } break;
-            case AttachmentType::DEPTH_STENCIL_2D: {
-                glFramebufferTexture2D(GL_FRAMEBUFFER,               // target
-                                       GL_DEPTH_STENCIL_ATTACHMENT,  // attachment
-                                       GL_TEXTURE_2D,                // texture target
-                                       texture_handle,               // texture
-                                       0);                           // level
-            } break;
-#if !USING(USE_GLES3)
-            case AttachmentType::SHADOW_CUBE_ARRAY: {
-                glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture_handle, 0);
-            } break;
-#endif
-            default:
-                CRASH_NOW();
-                break;
-        }
-    }
-
-    // DEV_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    framebuffer->handle = fbo_handle;
-    return framebuffer;
-}
-#endif
-
 void GLRenderDevice::setStencilRef(uint32_t p_ref) {
     glStencilFunc(gl::Convert(m_stateCache.stencilFunc), p_ref, 0xFF);
 }
 
-void GLRenderDevice::setBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) {
-    unused(p_factor);
-    unused(p_mask);
-
+void GLRenderDevice::setBlendState(const BlendDesc& p_desc, const float*, uint32_t) {
     const auto& desc = p_desc.renderTargets[0];
     if (desc.blendEnabled) {
         glEnable(GL_BLEND);
@@ -607,28 +509,6 @@ void GLRenderDevice::setRenderTargets(const RenderTargetDesc& p_target) {
     if (flags) {
         glClear(flags);
     }
-
-#if 0
-    // @TODO: bind cube map/texture 2d array
-        const auto& resource = framebuffer->desc.colors[0].tex;
-        if (resource->desc.type == AttachmentType::COLOR_CUBE) {
-            glFramebufferTexture2D(GL_FRAMEBUFFER,
-                                   GL_COLOR_ATTACHMENT0,
-                                   GL_TEXTURE_CUBE_MAP_POSITIVE_X + p_index,
-                                   static_cast<uint32_t>(resource->GetHandle()),
-                                   p_mip_level);
-        }
-
-    if (const auto& option = framebuffer->desc.depth) {
-        if (option->tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
-            glFramebufferTextureLayer(GL_FRAMEBUFFER,
-                                      GL_DEPTH_ATTACHMENT,
-                                      option->tex->GetHandle32(),
-                                      0,
-                                      p_index);
-        }
-    }
-#endif
 }
 
 void GLRenderDevice::unsetRenderTargets() {

@@ -84,9 +84,9 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 
         if (draw.mat_idx != -1) {
             const MaterialConstantBuffer& material = p_ctx.frameData.materialCache.buffer[draw.mat_idx];
-            gm.bindTexture(Dimension::Texture2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_normalMapHandle, GetNormalMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_materialMapHandle, GetMaterialMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_baseColorMapHandle.value, GetBaseColorMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_normalMapHandle.value, GetNormalMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_materialMapHandle.value, GetMaterialMapSlot());
 
             gm.bindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
         }
@@ -98,22 +98,22 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
     }
 }
 
-void DepthPrepassFunc(RenderPassExcutionContext& p_ctx) {
+void DepthPrepassFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = ctx.cmd;
     auto& frame = cmd.getCurrentFrame();
 
-    const auto& prepass_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::DepthPrepass)];
+    const auto& prepass_commands = ctx.frameData.commands[std::to_underlying(DrawPhase::DepthPrepass)];
     if (prepass_commands.empty()) {
         return;
     }
 
-    const PassContext& pass = p_ctx.frameData.mainPass;
+    const PassContext& pass = ctx.frameData.mainPass;
     cmd.bindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_PREPASS);
-    ExecuteDrawCommands(p_ctx, prepass_commands, true);
+    ExecuteDrawCommands(ctx, prepass_commands, true);
 }
 
 void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {

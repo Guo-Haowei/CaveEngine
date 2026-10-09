@@ -18,7 +18,7 @@ float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET
     float3 R = N;
     float3 V = R;
 
-    float roughness = c_envPassRoughness;
+    float roughness = c_env_pass_roughness;
 
     float3 prefilteredColor = float3(0.0, 0.0, 0.0);
     float totalWeight = 0.0;

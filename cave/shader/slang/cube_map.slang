@@ -5,7 +5,7 @@
 [shader("vertex")]
 VS_OUTPUT_POSITION vs_main(VS_INPUT_POS input) {
     VS_OUTPUT_POSITION output;
-    output.position = mul(c_cubeProjectionViewMatrix, float4(input.position, 1.0));
+    output.position = mul(c_cube_proj_view_matrix, float4(input.position, 1.0));
     output.world_position = input.position;
     return output;
 }

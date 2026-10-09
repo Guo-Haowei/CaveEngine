@@ -336,13 +336,11 @@ void D3d11GraphicsManager::bindConstantBufferRange(const GpuConstantBuffer* p_bu
     }
 }
 
-void D3d11GraphicsManager::bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
-    unused(p_dimension);
-
-    if (p_handle) {
-        ID3D11ShaderResourceView* srv = (ID3D11ShaderResourceView*)(p_handle);
-        m_deviceContext->PSSetShaderResources(p_slot, 1, &srv);
-        m_deviceContext->CSSetShaderResources(p_slot, 1, &srv);
+void D3d11GraphicsManager::bindTexture(Dimension, uint64_t handle, int slot) {
+    if (handle) {
+        ID3D11ShaderResourceView* srv = (ID3D11ShaderResourceView*)(handle);
+        m_deviceContext->PSSetShaderResources(slot, 1, &srv);
+        m_deviceContext->CSSetShaderResources(slot, 1, &srv);
     }
 }
 
@@ -395,9 +393,7 @@ void D3d11GraphicsManager::unbindStructuredBufferSRV(int p_slot) {
     m_deviceContext->VSSetShaderResources(p_slot, 1, &srv);
 }
 
-std::shared_ptr<GpuTexture> D3d11GraphicsManager::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
-    unused(p_sampler_desc);
-
+Ref<GpuTexture> D3d11GraphicsManager::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc&) {
     ComPtr<ID3D11ShaderResourceView> srv;
     ComPtr<ID3D11UnorderedAccessView> uav;
 
@@ -608,35 +604,6 @@ void D3d11GraphicsManager::setRenderTargets(const RenderTargetDesc& p_target) {
             m_deviceContext->ClearDepthStencilView(dsv, clear_flag, desc.clear_depth, desc.clear_stencil);
         }
     }
-
-#if 0
-    auto framebuffer = reinterpret_cast<const D3d11Framebuffer*>(p_framebuffer);
-    if (const auto& option = framebuffer->desc.depth) {
-        if (option->tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
-            ID3D11RenderTargetView* rtv = nullptr;
-            m_deviceContext->OMSetRenderTargets(1, &rtv, framebuffer->dsvs[p_index].Get());
-            return;
-        }
-    }
-
-    // @TODO: fixed_vector
-    std::vector<ID3D11RenderTargetView*> rtvs;
-    for (auto& rtv : framebuffer->rtvs) {
-        rtvs.emplace_back(rtv.Get());
-    }
-
-    ID3D11DepthStencilView* dsv = framebuffer->dsvs.size() ? framebuffer->dsvs[p_index].Get() : nullptr;
-
-    if (rtvs.size()) {
-        if (p_framebuffer->desc.colors[0].tex->desc.type == AttachmentType::COLOR_CUBE) {
-            int offset = p_index + 6 * p_mip_level;
-            m_deviceContext->OMSetRenderTargets(1, rtvs.data() + offset, dsv);
-            return;
-        }
-    }
-
-    m_deviceContext->OMSetRenderTargets((UINT)rtvs.size(), rtvs.data(), dsv);
-#endif
 }
 
 void D3d11GraphicsManager::unsetRenderTargets() {

@@ -26,10 +26,10 @@ static void FillMaterialConstantBuffer(bool is_opengl,
     cb.c_hasMaterialMap = false;
     cb.c_hasHeightMap = false;
 
-    cb.c_baseColorMapHandle = 0;
-    cb.c_normalMapHandle = 0;
-    cb.c_materialMapHandle = 0;
-    cb.c_heightMapHandle = 0;
+    cb.c_baseColorMapHandle.value = 0;
+    cb.c_normalMapHandle.value = 0;
+    cb.c_materialMapHandle.value = 0;
+    cb.c_heightMapHandle.value = 0;
 
     if (!material) {
         cb.c_baseColor = Vec4f(1, 0, 1, 1);
@@ -51,7 +51,7 @@ static void FillMaterialConstantBuffer(bool is_opengl,
                            TextureHandle& p_out_handle) {
         const int idx = std::to_underlying(p_idx);
 
-        p_out_handle = 0;
+        p_out_handle.value = 0;
 
         if ((int)images.size() <= idx) {
             return false;
@@ -67,7 +67,7 @@ static void FillMaterialConstantBuffer(bool is_opengl,
             return false;
         }
 
-        p_out_handle = texture->GetHandle();
+        p_out_handle.value = texture->GetHandle();
         return true;
     };
 
@@ -97,8 +97,8 @@ static void FillPass(const RenderScene& p_rs,
 
         ecs::Entity skeleton_id = mesh.skeleton;
         PerBatchConstantBuffer batch_buffer;
-        batch_buffer.c_worldMatrix = header.world;
-        batch_buffer.c_meshFlag = skeleton_id.valid();
+        batch_buffer.c_world_matrix = header.world;
+        batch_buffer.c_mesh_flag = skeleton_id.valid();
 
         DrawItem draw{};
         const auto& highlighted = p_view.highlight.entities;
@@ -362,8 +362,8 @@ static void FillMeshEmitterBuffer(const Scene& p_scene,
         auto mesh = p_scene.GetComponent<MeshComponent>(emitter.meshId);
         if (DEV_VERIFY(transform && mesh)) {
             PerBatchConstantBuffer batch_buffer;
-            batch_buffer.c_worldMatrix = Mat4f(1);
-            batch_buffer.c_meshFlag = MESH_HAS_INSTANCE;
+            batch_buffer.c_world_matrix = Mat4f(1);
+            batch_buffer.c_mesh_flag = MESH_HAS_INSTANCE;
 
             BatchContext draw;
 

@@ -56,6 +56,9 @@ protected:
     void onWindowResize(int, int) override;
     void setPipelineStateImpl(PipelineStateName name) override;
 
+    void beginEvent(std::string_view event) final;
+    void endEvent() final;
+
 private:
     void setupPipeline();
     void setupVertexBuffer();
@@ -68,7 +71,6 @@ private:
     void* m_encoder{};
     void* m_drawable{};
     void* m_pipeline{};
-    void* m_default_sampler{};
     void* m_current_mesh{};
     uint32_t m_stencil_ref{};
     void* m_current_pso{};

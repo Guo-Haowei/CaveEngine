@@ -3,20 +3,20 @@
 #endif
 
 CAVE_CBUFFER(PerBatchConstantBuffer, 0, {
-    float4x4 c_worldMatrix;
+    float4x4 c_world_matrix;
+    float4x4 c_cube_proj_view_matrix;
+
+    float4x4 _per_batch_padding_0;
 
     // reuse per batch buffer for bloom
-    float4 _dummy;
-
-    float2 _per_batch_padding_0;
-    float c_envPassRoughness;  // for environment map
-    int c_meshFlag;
-
     float4 c_tint_color;
     float4 c_uv_rect;
+    float4 _per_batch_padding_1;
 
-    float4x4 c_cubeProjectionViewMatrix;
-    float4x4 _per_batch_padding_5;
+    float c_env_pass_roughness;  // for environment map
+    int c_mesh_flag;
+    int _per_batch_padding_2;
+    int _per_batch_padding_3;
 });
 
 CAVE_CBUFFER(PerPassConstantBuffer, 1, {
@@ -28,11 +28,9 @@ CAVE_CBUFFER(PerPassConstantBuffer, 1, {
 });
 
 CAVE_CBUFFER(MaterialConstantBuffer, 2, {
-    // 16 floats
+    // 16
     float4 c_baseColor;
-
-    float3 _material_padding_0;
-    int c_displayChannel;
+    float4 _material_padding_0;
 
     float c_metallic;
     float c_roughness;
@@ -44,19 +42,16 @@ CAVE_CBUFFER(MaterialConstantBuffer, 2, {
     int c_hasNormalMap;
     int c_hasHeightMap;
 
-    // 16 floats
+    // 16
     TextureHandle c_baseColorMapHandle;
     TextureHandle c_normalMapHandle;
     TextureHandle c_materialMapHandle;
     TextureHandle c_heightMapHandle;
 
-    float4 _material_padding_1;
-    float4 _material_padding_2;
-
-    // 16 floats
+    // 16
     float4x4 _material_padding_3;
 
-    // 16 floats
+    // 16
     float4x4 _material_padding_4;
 });
 

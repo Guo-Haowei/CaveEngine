@@ -55,7 +55,7 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
         .width = w,
         .height = h,
         .depth = 1,
-        .mipLevels = 0,
+        .mipLevels = 1,
         .arraySize = 1,
         .format = PixelFormat::R16G16B16A16_FLOAT,
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,

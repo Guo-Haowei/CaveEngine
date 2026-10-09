@@ -6,7 +6,7 @@ namespace cave {
 
 struct InputLayoutDesc {
     struct Element {
-        std::string semantic_name;
+        String semantic_name;
         uint32_t semantic_index;
         PixelFormat format;
         uint32_t input_slot;
@@ -15,7 +15,7 @@ struct InputLayoutDesc {
         uint32_t instance_data_step_rate;
     };
 
-    std::vector<Element> elements;
+    Vector<Element> elements;
 };
 
 struct RasterizerDesc {

@@ -75,15 +75,9 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
         id<MTLCommandQueue> queue = [device newCommandQueue];
         if (!queue)
             return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Could not create Metal command queue");
-        m_device = (__bridge_retained void*)device;
-        m_command_queue = (__bridge_retained void*)queue;
-        MTLSamplerDescriptor* sampler_desc = [MTLSamplerDescriptor new];
-        sampler_desc.minFilter = MTLSamplerMinMagFilterLinear;
-        sampler_desc.magFilter = MTLSamplerMinMagFilterLinear;
-        sampler_desc.sAddressMode = MTLSamplerAddressModeClampToEdge;
-        sampler_desc.tAddressMode = MTLSamplerAddressModeClampToEdge;
-        id<MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:sampler_desc];
-        m_default_sampler = (__bridge_retained void*)sampler;
+        m_device = device;
+        m_command_queue = queue;
+
         NSWindow* window = glfwGetCocoaWindow(m_window);
         NSView* view = window.contentView;
         CAMetalLayer* layer = [CAMetalLayer layer];
@@ -92,7 +86,7 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
         layer.framebufferOnly = YES;
         view.wantsLayer = YES;
         view.layer = layer;
-        m_layer = (__bridge_retained void*)layer;
+        m_layer = layer;
 
         if (m_app->specification().enableImgui) {
             if (auto* imgui = m_app->services().imgui) {
@@ -114,12 +108,14 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
 #include "sampler.slang.h"
 #undef SAMPLER_STATE
     }
+
+    m_capabilities.supportComputeShaders = false;
     return Result<void>();
 }
 
 void MetalRenderDevice::FinalizeImpl() {
     m_pipeline_state_manager->finalize();
-    for (void** p : { &m_encoder, &m_drawable, &m_command_buffer, &m_layer, &m_default_sampler, &m_command_queue, &m_device }) {
+    for (void** p : { &m_encoder, &m_drawable, &m_command_buffer, &m_layer, &m_command_queue, &m_device }) {
         if (*p) {
             CFRelease(*p);
             *p = nullptr;
@@ -129,7 +125,7 @@ void MetalRenderDevice::FinalizeImpl() {
 
 void MetalRenderDevice::beginFrame() {
     id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)m_command_queue;
-    m_command_buffer = (__bridge_retained void*)[queue commandBuffer];
+    m_command_buffer = [queue commandBuffer];
 }
 
 void MetalRenderDevice::endFrame() { unsetRenderTargets(); }
@@ -141,19 +137,30 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
         const auto& color = target.colors[i];
         auto* tex = reinterpret_cast<const MetalTexture*>(color.tex.get());
         pass.colorAttachments[i].texture = (__bridge id<MTLTexture>)tex->object;
+        pass.colorAttachments[i].level = color.view.mip_slice;
+        pass.colorAttachments[i].slice = color.view.first_array_slice;
         pass.colorAttachments[i].loadAction = color.load == LoadOp::Clear ? MTLLoadActionClear : color.load == LoadOp::Load ? MTLLoadActionLoad : MTLLoadActionDontCare;
         pass.colorAttachments[i].storeAction = MTLStoreActionStore;
         pass.colorAttachments[i].clearColor = MTLClearColorMake(color.clear_color[0], color.clear_color[1], color.clear_color[2], color.clear_color[3]);
+
+        //        if (target.colors.size() == 1) {
+        //            LOG_INFO("color attachment {}, level {}, slice {}", i, pass.colorAttachments[i].level, pass.colorAttachments[i].slice);
+        //        }
     }
 
     if (target.depth) {
         const auto* tex = reinterpret_cast<const MetalTexture*>(target.depth->tex.get());
         DEV_ASSERT(tex && tex->object);
         pass.depthAttachment.texture = (__bridge id<MTLTexture>)tex->object;
+        pass.depthAttachment.level = target.depth->view.mip_slice;
+        pass.depthAttachment.slice = target.depth->view.first_array_slice;
         pass.depthAttachment.loadAction = target.depth->depth_load == LoadOp::Clear ? MTLLoadActionClear : MTLLoadActionLoad;
         pass.depthAttachment.storeAction = MTLStoreActionStore;
         pass.depthAttachment.clearDepth = target.depth->clear_depth;
-        if (target.depth->tex->desc.format == PixelFormat::D24_UNORM_S8_UINT) {
+
+        const PixelFormat format = target.depth->tex->desc.format;
+
+        if (HasStencil(format) || format == PixelFormat::R32G8X24_TYPELESS) {
             pass.stencilAttachment.texture = (__bridge id<MTLTexture>)tex->object;
             pass.stencilAttachment.loadAction = target.depth->stencil_load == LoadOp::Clear ? MTLLoadActionClear : MTLLoadActionLoad;
             pass.stencilAttachment.storeAction = MTLStoreActionStore;
@@ -162,7 +169,7 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
     }
 
     id<MTLCommandBuffer> cb = (__bridge id<MTLCommandBuffer>)m_command_buffer;
-    m_encoder = (__bridge_retained void*)[cb renderCommandEncoderWithDescriptor:pass];
+    m_encoder = [cb renderCommandEncoderWithDescriptor:pass];
 
     id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)m_encoder;
     {
@@ -183,10 +190,10 @@ void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
 }
 
 void MetalRenderDevice::unsetRenderTargets() {
-    if (!m_encoder)
-        return;
-    [(id<MTLRenderCommandEncoder>)CFBridgingRelease(m_encoder) endEncoding];
-    m_encoder = nullptr;
+    if (m_encoder) {
+        [(id<MTLRenderCommandEncoder>)CFBridgingRelease(m_encoder) endEncoding];
+        m_encoder = nullptr;
+    }
 }
 
 void MetalRenderDevice::clear(const RenderTargetDesc&) {
@@ -206,20 +213,20 @@ void MetalRenderDevice::setStencilRef(uint32_t ref) {
 }
 
 void MetalRenderDevice::setBlendState(const BlendDesc&, const float*, uint32_t) {
-    // Blend is immutable in Metal; put it in the pipeline descriptor once the
-    // engine's blend descriptor mapping is finalized.
+    // Blend is immutable in Metal
 }
 
-auto MetalRenderDevice::createBuffer(const GpuBufferDesc& d) -> Result<Ref<GpuBuffer>> {
-    const size_t bytes = size_t(d.element_count) * d.element_size;
+auto MetalRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
+    const size_t bytes = size_t(desc.element_count) * desc.element_size;
     id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
-    id<MTLBuffer> b = [device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
-    if (!b)
+    id<MTLBuffer> buffer = [device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
+    if (!buffer)
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal buffer allocation failed ({} bytes)", bytes);
-    if (d.initial_data && bytes)
-        memcpy(b.contents, d.initial_data, bytes);
-    auto result = MakeRef<MetalBuffer>(d);
-    result->object = (__bridge_retained void*)b;
+    if (desc.initial_data && bytes) {
+        memcpy(buffer.contents, desc.initial_data, bytes);
+    }
+    auto result = MakeRef<MetalBuffer>(desc);
+    result->object = buffer;
     return result;
 }
 
@@ -252,19 +259,34 @@ auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& d, std::span<const Gpu
 
 void MetalRenderDevice::setMesh(const GpuMesh* mesh) {
     m_current_mesh = const_cast<GpuMesh*>(mesh);
+
     if (!m_encoder)
         return;
-    auto* e = (id<MTLRenderCommandEncoder>)m_encoder;
+
+    auto* encoder = (id<MTLRenderCommandEncoder>)m_encoder;
+
     if (!mesh) {
-        for (NSUInteger i = 0; i < 31; ++i)
-            [e setVertexBuffer:nil offset:0 atIndex:i];
+        for (NSUInteger i = METAL_VERTEX_BUFFER_BASE; i < 31; ++i) {
+            [encoder setVertexBuffer:nil offset:0 atIndex:i];
+        }
         return;
     }
-    for (uint32_t i = 0; i < mesh->vertexBuffers.size(); ++i)
-        if (mesh->vertexBuffers[i]) {
-            auto* b = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[i].get());
-            [e setVertexBuffer:(__bridge id<MTLBuffer>)b->object offset:0 atIndex:i];
+
+    DEV_ASSERT(mesh->vertexBuffers.size());
+
+    auto* first_buffer = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[0].get());
+    id<MTLBuffer> dummy_mesh = (__bridge id<MTLBuffer>)first_buffer->object;
+
+    for (uint32_t i = 0; i < mesh->vertexBuffers.size(); ++i) {
+        if (!mesh->vertexBuffers[i]) {
+            [encoder setVertexBuffer:dummy_mesh offset:0 atIndex:METAL_VERTEX_BUFFER_BASE + i];
+            continue;
         }
+
+        auto* buffer = reinterpret_cast<const MetalBuffer*>(mesh->vertexBuffers[i].get());
+
+        [encoder setVertexBuffer:(__bridge id<MTLBuffer>)buffer->object offset:0 atIndex:METAL_VERTEX_BUFFER_BASE + i];
+    }
 }
 
 void MetalRenderDevice::setPipelineStateImpl(PipelineStateName name) {
@@ -332,7 +354,7 @@ auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& d) -> Result<R
     if (!b)
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal constant buffer allocation failed");
     auto result = MakeRef<MetalConstantBuffer>(d);
-    result->object = (__bridge_retained void*)b;
+    result->object = b;
     DEV_ASSERT(d.slot == m_constant_buffers.size());
     m_constant_buffers.push_back(result->object);
     return result;
@@ -355,40 +377,212 @@ void MetalRenderDevice::bindConstantBufferRange(const GpuConstantBuffer* base, u
     (void)size;
 }
 
+static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
+    switch (format) {
+    case MTLPixelFormatR8Unorm:
+    case MTLPixelFormatR8Uint:
+        return 1;
+    case MTLPixelFormatRG8Unorm:
+    case MTLPixelFormatRG8Uint:
+    case MTLPixelFormatR16Float:
+        return 2;
+    case MTLPixelFormatRGBA8Unorm:
+    case MTLPixelFormatRGBA8Unorm_sRGB:
+    case MTLPixelFormatBGRA8Unorm:
+    case MTLPixelFormatBGRA8Unorm_sRGB:
+    case MTLPixelFormatR32Float:
+        return 4;
+    case MTLPixelFormatRG32Float:
+        return 8;
+    case MTLPixelFormatRGBA32Float:
+        return 16;
+    default:
+        CRASH_NOW_MSG("Unsupported Metal texture format");
+        return 0;
+    }
+}
+
 Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, const SamplerDesc&) {
-    if (d.dimension != Dimension::Texture2D)
+    MTLPixelFormat texture_format = ToMetalTextureFormat(d.format);
+    DEV_ASSERT(texture_format != MTLPixelFormatInvalid);
+
+    if (d.width == 0 || d.height == 0)
         return nullptr;
-    const MTLPixelFormat format = ToMetalTextureFormat(d.format);
-    if (format == MTLPixelFormatInvalid)
+
+    bool gen_mip_map = (d.bindFlags & BIND_SHADER_RESOURCE) != 0;
+
+    if (d.dimension == Dimension::TEXTURE_CUBE || d.dimension == Dimension::TEXTURE_CUBE_ARRAY) {
+        gen_mip_map = false;
+    } else if (d.mipLevels == 1) {
+        gen_mip_map = false;
+    }
+
+    switch (d.format) {
+    case PixelFormat::D32_FLOAT:
+        texture_format = MTLPixelFormatDepth32Float;
+        gen_mip_map = false;
+        break;
+
+    case PixelFormat::D24_UNORM_S8_UINT:
+        texture_format = MTLPixelFormatDepth24Unorm_Stencil8;
+        gen_mip_map = false;
+        break;
+
+    case PixelFormat::D32_FLOAT_S8X24_UINT:
+        texture_format = MTLPixelFormatDepth32Float_Stencil8;
+        gen_mip_map = false;
+        break;
+
+    default:
+        break;
+    }
+
+    auto getFullMipCount = [](uint32_t width, uint32_t height, uint32_t depth) {
+        uint32_t size = std::max({ width, height, depth });
+        uint32_t levels = 1;
+
+        while (size > 1) {
+            size >>= 1;
+            ++levels;
+        }
+
+        return levels;
+    };
+
+    const uint32_t max_mip_levels = getFullMipCount(d.width, d.height, d.dimension == Dimension::TEXTURE_3D ? d.depth : 1);
+
+    uint32_t mip_levels = d.mipLevels;
+
+    if (gen_mip_map || mip_levels == 0)
+        mip_levels = max_mip_levels;
+
+    if (mip_levels > max_mip_levels)
         return nullptr;
-    MTLTextureDescriptor* td = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format width:d.width height:d.height mipmapped:d.mipLevels > 1];
-    td.usage = MTLTextureUsageShaderRead;
-    if ((d.bindFlags & BIND_RENDER_TARGET) || (d.bindFlags & BIND_DEPTH_STENCIL))
-        td.usage |= MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+
+    MTLTextureDescriptor* td = [[MTLTextureDescriptor alloc] init];
+
+    td.pixelFormat = texture_format;
+    td.width = d.width;
+    td.height = d.height;
+    td.depth = 1;
+    td.arrayLength = 1;
+    td.mipmapLevelCount = mip_levels;
+    td.sampleCount = 1;
+
+    switch (d.dimension) {
+    case Dimension::Texture2D:
+        td.textureType = MTLTextureType2D;
+        td.arrayLength = 1;
+        break;
+
+    case Dimension::TEXTURE_2D_ARRAY:
+        if (d.arraySize == 0)
+            return nullptr;
+
+        td.textureType = MTLTextureType2DArray;
+        td.arrayLength = d.arraySize;
+        break;
+
+    case Dimension::TEXTURE_CUBE:
+        if (d.width != d.height)
+            return nullptr;
+
+        td.textureType = MTLTextureTypeCube;
+        td.arrayLength = 1;
+        break;
+
+    case Dimension::TEXTURE_CUBE_ARRAY:
+        if (d.width != d.height)
+            return nullptr;
+
+        if (d.arraySize == 0 || (d.arraySize % 6) != 0)
+            return nullptr;
+
+        td.textureType = MTLTextureTypeCubeArray;
+        td.arrayLength = d.arraySize / 6;
+        break;
+
+    case Dimension::TEXTURE_3D:
+        if (d.depth == 0)
+            return nullptr;
+
+        td.textureType = MTLTextureType3D;
+        td.depth = d.depth;
+        td.arrayLength = 1;
+        break;
+
+    default:
+        return nullptr;
+    }
+
+    td.usage = 0;
+
+    if (d.bindFlags & BIND_SHADER_RESOURCE)
+        td.usage |= MTLTextureUsageShaderRead;
+
     if (d.bindFlags & BIND_UNORDERED_ACCESS)
         td.usage |= MTLTextureUsageShaderWrite;
-    td.storageMode = MTLStorageModeShared;
-    id<MTLTexture> t = [(__bridge id<MTLDevice>)m_device newTextureWithDescriptor:td];
-    if (!t)
-        return nullptr;
-    if (d.initialData && format != MTLPixelFormatDepth32Float && format != MTLPixelFormatDepth24Unorm_Stencil8) {
-        const NSUInteger bytes_per_pixel = format == MTLPixelFormatRGBA8Unorm ? 4 : format == MTLPixelFormatR32Float ? 4 : format == MTLPixelFormatRG32Float ? 8 : 16;
-        [t replaceRegion:MTLRegionMake2D(0, 0, d.width, d.height) mipmapLevel:0 withBytes:d.initialData bytesPerRow:d.width * bytes_per_pixel];
+
+    if ((d.bindFlags & BIND_RENDER_TARGET) || (d.bindFlags & BIND_DEPTH_STENCIL)) {
+        td.usage |= MTLTextureUsageRenderTarget;
     }
+
+    if (td.usage == 0)
+        td.usage = MTLTextureUsageShaderRead;
+
+    td.storageMode = MTLStorageModeShared;
+
+    id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
+
+    id<MTLTexture> texture = [device newTextureWithDescriptor:td];
+
+    if (!texture)
+        return nullptr;
+
+    if (d.initialData) {
+        const NSUInteger bytes_per_pixel = GetBytesPerPixel(texture_format);
+
+        if (bytes_per_pixel == 0)
+            return nullptr;
+
+        const NSUInteger row_pitch = static_cast<NSUInteger>(d.width) * bytes_per_pixel;
+
+        if (d.dimension == Dimension::TEXTURE_3D) {
+            const NSUInteger image_pitch = row_pitch * static_cast<NSUInteger>(d.height);
+
+            [texture replaceRegion:MTLRegionMake3D(0, 0, 0, d.width, d.height, d.depth) mipmapLevel:0 slice:0 withBytes:d.initialData bytesPerRow:row_pitch bytesPerImage:image_pitch];
+        } else {
+            [texture replaceRegion:MTLRegionMake2D(0, 0, d.width, d.height) mipmapLevel:0 slice:0 withBytes:d.initialData bytesPerRow:row_pitch bytesPerImage:0];
+        }
+    }
+
+    if ((d.miscFlags & RESOURCE_MISC_GENERATE_MIPS) && mip_levels > 1 && (d.bindFlags & BIND_SHADER_RESOURCE)) {
+        id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)m_command_queue;
+
+        id<MTLCommandBuffer> command_buffer = [queue commandBuffer];
+
+        id<MTLBlitCommandEncoder> blit = [command_buffer blitCommandEncoder];
+
+        [blit generateMipmapsForTexture:texture];
+        [blit endEncoding];
+
+        [command_buffer commit];
+
+        // Usually DON'T wait here in production.
+        [command_buffer waitUntilCompleted];
+    }
+
     auto result = MakeRef<MetalTexture>(d);
-    result->object = (__bridge_retained void*)t;
+    result->object = texture;
+
     return result;
 }
 
 void MetalRenderDevice::bindTexture(Dimension, uint64_t h, int slot) {
-    if (slot < 0 || slot >= (int)m_bound_textures.size())
-        return;
-    m_bound_textures[slot] = h;
     if (!m_encoder || !h)
         return;
     id<MTLTexture> t = (__bridge id<MTLTexture>)reinterpret_cast<void*>(h);
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentTexture:t atIndex:slot];
-    [(id<MTLRenderCommandEncoder>)m_encoder setFragmentSamplerState:(__bridge id<MTLSamplerState>)m_default_sampler atIndex:slot];
 }
 
 void MetalRenderDevice::unbindTexture(Dimension, int slot) {
@@ -398,10 +592,32 @@ void MetalRenderDevice::unbindTexture(Dimension, int slot) {
     if (!m_encoder)
         return;
     [(id<MTLRenderCommandEncoder>)m_encoder setFragmentTexture:nil atIndex:slot];
-    [(id<MTLRenderCommandEncoder>)m_encoder setFragmentSamplerState:nil atIndex:slot];
 }
 
-void MetalRenderDevice::generateMipmap(const GpuTexture*) { /* TODO: encode a blit mip generation pass. */ }
+void MetalRenderDevice::generateMipmap(const GpuTexture* base) {
+    if (!base || !m_command_buffer) {
+        return;
+    }
+
+    const auto* metal_texture = reinterpret_cast<const MetalTexture*>(base);
+    id<MTLTexture> texture = (__bridge id<MTLTexture>)metal_texture->object;
+
+    if (!texture || texture.mipmapLevelCount <= 1) {
+        return;
+    }
+
+    unsetRenderTargets();
+
+    id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)m_command_buffer;
+    id<MTLBlitCommandEncoder> blit = [command_buffer blitCommandEncoder];
+
+    if (!blit) {
+        return;
+    }
+
+    [blit generateMipmapsForTexture:texture];
+    [blit endEncoding];
+}
 
 auto MetalRenderDevice::createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuStructuredBuffer>> { return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal structured buffers are not implemented yet"); }
 
@@ -460,7 +676,7 @@ void MetalRenderDevice::render() {
     id<CAMetalDrawable> drawable = [layer nextDrawable];
     if (!drawable)
         return;
-    m_drawable = (__bridge_retained void*)drawable;
+    m_drawable = drawable;
     MTLRenderPassDescriptor* pd = [MTLRenderPassDescriptor renderPassDescriptor];
     pd.colorAttachments[0].texture = drawable.texture;
     pd.colorAttachments[0].loadAction = MTLLoadActionClear;
@@ -494,5 +710,21 @@ void MetalRenderDevice::present() {
 }
 
 void MetalRenderDevice::onWindowResize(int, int) {}
+
+void MetalRenderDevice::beginEvent(std::string_view event) {
+    if (!m_command_buffer)
+        return;
+
+    NSString* name = [[NSString alloc] initWithBytes:event.data() length:event.size() encoding:NSUTF8StringEncoding];
+
+    [(id<MTLCommandBuffer>)m_command_buffer pushDebugGroup:name];
+}
+
+void MetalRenderDevice::endEvent() {
+    if (!m_command_buffer)
+        return;
+
+    [(id<MTLCommandBuffer>)m_command_buffer popDebugGroup];
+}
 
 } // namespace cave::render

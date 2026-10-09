@@ -7,6 +7,8 @@
 
 namespace cave::render {
 
+constexpr uint32_t METAL_VERTEX_BUFFER_BASE = 16;
+
 inline static MTLCompareFunction ToCompare(ComparisonFunc f) {
     switch (f) {
     case ComparisonFunc::NEVER:
@@ -51,6 +53,8 @@ inline static MTLPixelFormat ToMetalTextureFormat(PixelFormat format) {
         return MTLPixelFormatRG8Uint;
     case PixelFormat::R8G8B8A8_UINT:
         return MTLPixelFormatRGBA8Uint;
+    case PixelFormat::R8_UNORM:
+        return MTLPixelFormatR8Unorm;
     case PixelFormat::R8G8B8A8_UNORM:
         return MTLPixelFormatRGBA8Unorm;
     case PixelFormat::R8G8B8A8_UNORM_SRGB:
@@ -88,7 +92,7 @@ inline static MTLPixelFormat ToMetalTextureFormat(PixelFormat format) {
     case PixelFormat::D24_UNORM_S8_UINT:
         return MTLPixelFormatDepth24Unorm_Stencil8;
     case PixelFormat::X24_TYPELESS_G8_UINT:
-        return MTLPixelFormatX24_Stencil8;
+        return MTLPixelFormatX32_Stencil8;
     case PixelFormat::R32G8X24_TYPELESS:
         return MTLPixelFormatDepth32Float_Stencil8;
     case PixelFormat::D32_FLOAT_S8X24_UINT:
@@ -149,6 +153,17 @@ inline static MTLSamplerDescriptor* FillMetalSamplerDesc(const SamplerDesc& src)
     desc.lodMaxClamp = src.maxLod;
 
     return desc;
+}
+
+inline static bool HasStencil(PixelFormat format) {
+    switch (format) {
+    case PixelFormat::D24_UNORM_S8_UINT:
+    case PixelFormat::D32_FLOAT_S8X24_UINT:
+        return true;
+
+    default:
+        return false;
+    }
 }
 
 } // namespace cave::render

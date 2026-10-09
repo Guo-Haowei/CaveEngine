@@ -95,7 +95,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                    .blend_desc = &s_transparent,
                    .num_render_targets = 1,
                    .rtv_formats = { RT_FMT_TONE },
-                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                });
 
     CREATE_PSO(PSO_UI_OVERLAY, {
@@ -107,13 +106,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                    .blend_desc = &s_transparent,
                                    .num_render_targets = 1,
                                    .rtv_formats = { RT_FMT_TONE },
-                                   .dsv_format = {},
                                });
-
-    // @HACK: only support this
-    if (m_backend == Backend::Metal) {
-        return Result<void>();
-    }
 
     CREATE_PSO(PSO_PREPASS,
                {
@@ -135,9 +128,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                    .depth_stencil_desc = &s_depth_reversed_stencil_off,
                    .input_layout_desc = &s_input_layout_mesh,
                    .blend_desc = &s_default_blend_state,
-                   .num_render_targets = 4,
+                   .num_render_targets = 3,
                    .rtv_formats = { RT_FMT_GBUFFER_BASE_COLOR,
-                                    RT_FMT_GBUFFER_POSITION,
                                     RT_FMT_GBUFFER_NORMAL,
                                     RT_FMT_GBUFFER_MATERIAL },
                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
@@ -151,9 +143,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                    .depth_stencil_desc = &s_depth_reversed_stencil_off,
                    .input_layout_desc = &s_input_layout_mesh,
                    .blend_desc = &s_default_blend_state,
-                   .num_render_targets = 4,
+                   .num_render_targets = 3,
                    .rtv_formats = { RT_FMT_GBUFFER_BASE_COLOR,
-                                    RT_FMT_GBUFFER_POSITION,
                                     RT_FMT_GBUFFER_NORMAL,
                                     RT_FMT_GBUFFER_MATERIAL },
                    .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
@@ -191,8 +182,95 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                  .blend_desc = &s_default_blend_state,
                                  .num_render_targets = 1,
                                  .rtv_formats = { RT_FMT_LIGHTING },
-                                 .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
                              });
+
+    CREATE_PSO(PSO_HIGHLIGHT, {
+                                  .vs = "screenspace_quad.vs",
+                                  .ps = "highlight.ps",
+                                  .rasterizer_desc = &s_rasterizer_cull_back,
+                                  .depth_stencil_desc = &s_depth_reversed_stencil_on_highlight,
+                                  .blend_desc = &s_default_blend_state,
+                                  .num_render_targets = 1,
+                                  .rtv_formats = { RT_FMT_OUTLINE_SELECT },
+                                  .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
+                              });
+
+    CREATE_PSO(PSO_SSAO, {
+                             .vs = "screenspace_quad.vs",
+                             .ps = "ssao.ps",
+                             .rasterizer_desc = &s_rasterizer_cull_back,
+                             .depth_stencil_desc = &s_depth_stencil_off,
+                             .blend_desc = &s_default_blend_state,
+                             .num_render_targets = 1,
+                             .rtv_formats = { RT_FMT_SSAO },
+                         });
+
+    CREATE_PSO(PSO_POST_PROCESS, {
+                                     .vs = "screenspace_quad.vs",
+                                     .ps = "post_process.ps",
+                                     .rasterizer_desc = &s_rasterizer_cull_back,
+                                     .depth_stencil_desc = &s_depth_stencil_off,
+                                     .blend_desc = &s_default_blend_state,
+                                     .num_render_targets = 1,
+                                     .rtv_formats = { RT_FMT_TONE },
+                                 });
+
+    if (capabilities.supportComputeShaders) {
+        CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
+        CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
+        CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
+    }
+
+    CREATE_PSO(PSO_ENV_SKYBOX, {
+                                   .vs = "skybox.vs",
+                                   .ps = "skybox.ps",
+                                   .rasterizer_desc = &s_rasterizer_cull_back,
+                                   .depth_stencil_desc = &s_skybox_depth_stencil,
+                                   .input_layout_desc = &s_input_layout_mesh,
+                                   .blend_desc = &s_default_blend_state,
+                                   .num_render_targets = 1,
+                                   .rtv_formats = { RT_FMT_LIGHTING },
+                                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
+                               });
+
+    if constexpr (1) {
+        CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
+                                                   .vs = "cube_map.vs",
+                                                   .ps = "to_cube_map.ps",
+                                                   .rasterizer_desc = &s_rasterizer_cull_back,
+                                                   .depth_stencil_desc = &s_depth_stencil_off,
+                                                   .input_layout_desc = &s_input_layout_mesh,
+                                                   .blend_desc = &s_default_blend_state,
+                                                   .num_render_targets = 1,
+                                                   .rtv_formats = { PixelFormat::R32G32B32A32_FLOAT },
+                                               });
+
+        CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
+                                               .vs = "cube_map.vs",
+                                               .ps = "diffuse_irradiance.ps",
+                                               .rasterizer_desc = &s_rasterizer_cull_back,
+                                               .depth_stencil_desc = &s_depth_stencil_off,
+                                               .input_layout_desc = &s_input_layout_mesh,
+                                               .blend_desc = &s_default_blend_state,
+                                               .num_render_targets = 1,
+                                               .rtv_formats = { PixelFormat::R32G32B32A32_FLOAT },
+                                           });
+
+        CREATE_PSO(PSO_PREFILTER, {
+                                      .vs = "cube_map.vs",
+                                      .ps = "prefilter.ps",
+                                      .rasterizer_desc = &s_rasterizer_cull_back,
+                                      .depth_stencil_desc = &s_depth_stencil_off,
+                                      .input_layout_desc = &s_input_layout_mesh,
+                                      .blend_desc = &s_default_blend_state,
+                                      .num_render_targets = 1,
+                                      .rtv_formats = { PixelFormat::R32G32B32A32_FLOAT },
+                                  });
+    }
+
+    if (capabilities.supportComputeShaders) {
+        CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
+    }
 
 #if USING(CAVE_PARTICLE)
     CREATE_PSO(PSO_PARTICLE_INIT, { .type = PipelineStateType::COMPUTE, .cs = "particle_initialization.cs" });
@@ -224,89 +302,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                      .dsv_format = PixelFormat::D32_FLOAT,
                                  });
 #endif
-
-    CREATE_PSO(PSO_HIGHLIGHT, {
-                                  .vs = "screenspace_quad.vs",
-                                  .ps = "highlight.ps",
-                                  .rasterizer_desc = &s_rasterizer_cull_back,
-                                  .depth_stencil_desc = &s_depth_reversed_stencil_on_highlight,
-                                  .blend_desc = &s_default_blend_state,
-                                  .num_render_targets = 1,
-                                  .rtv_formats = { RT_FMT_OUTLINE_SELECT },
-                                  .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-                              });
-
-    CREATE_PSO(PSO_SSAO, {
-                             .vs = "screenspace_quad.vs",
-                             .ps = "ssao.ps",
-                             .rasterizer_desc = &s_rasterizer_cull_back,
-                             .depth_stencil_desc = &s_depth_stencil_off,
-                             .blend_desc = &s_default_blend_state,
-                             .num_render_targets = 1,
-                             .rtv_formats = { RT_FMT_SSAO },
-                         });
-
-    CREATE_PSO(PSO_POST_PROCESS, {
-                                     .vs = "screenspace_quad.vs",
-                                     .ps = "post_process.ps",
-                                     .rasterizer_desc = &s_rasterizer_cull_back,
-                                     .depth_stencil_desc = &s_depth_stencil_off,
-                                     .blend_desc = &s_default_blend_state,
-                                     .num_render_targets = 1,
-                                     .rtv_formats = { RT_FMT_TONE },
-                                     .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
-                                 });
-
-    if (capabilities.supportComputeShaders) {
-        CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
-        CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
-        CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
-    }
-
-    CREATE_PSO(PSO_ENV_SKYBOX, {
-                                   .vs = "skybox.vs",
-                                   .ps = "skybox.ps",
-                                   .rasterizer_desc = &s_rasterizer_cull_back,
-                                   .depth_stencil_desc = &s_skybox_depth_stencil,
-                                   .input_layout_desc = &s_input_layout_mesh,
-                                   .blend_desc = &s_default_blend_state,
-                                   .num_render_targets = 1,
-                                   .rtv_formats = { RT_FMT_LIGHTING },
-                                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,
-                               });
-
-    if constexpr (1) {
-        CREATE_PSO(PSO_ENV_SKYBOX_TO_CUBE_MAP, {
-                                                   .vs = "cube_map.vs",
-                                                   .ps = "to_cube_map.ps",
-                                                   .rasterizer_desc = &s_rasterizer_cull_back,
-                                                   .depth_stencil_desc = &s_default_depth_stencil,
-                                                   .input_layout_desc = &s_input_layout_mesh,
-                                                   .blend_desc = &s_default_blend_state,
-                                               });
-
-        CREATE_PSO(PSO_DIFFUSE_IRRADIANCE, {
-                                               .vs = "cube_map.vs",
-                                               .ps = "diffuse_irradiance.ps",
-                                               .rasterizer_desc = &s_rasterizer_cull_back,
-                                               .depth_stencil_desc = &s_default_depth_stencil,
-                                               .input_layout_desc = &s_input_layout_mesh,
-                                               .blend_desc = &s_default_blend_state,
-                                           });
-
-        CREATE_PSO(PSO_PREFILTER, {
-                                      .vs = "cube_map.vs",
-                                      .ps = "prefilter.ps",
-                                      .rasterizer_desc = &s_rasterizer_cull_back,
-                                      .depth_stencil_desc = &s_default_depth_stencil,
-                                      .input_layout_desc = &s_input_layout_mesh,
-                                      .blend_desc = &s_default_blend_state,
-                                  });
-    }
-
-    if (capabilities.supportComputeShaders) {
-        CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
-    }
 
 #if USING(CAVE_VXGI)
     CREATE_PSO(PSO_VOXELIZATION_PRE, { .type = PipelineStateType::COMPUTE, .cs = "voxelization_pre.cs" });
