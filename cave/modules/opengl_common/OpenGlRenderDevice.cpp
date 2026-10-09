@@ -39,23 +39,23 @@
 
 namespace cave::render {
 
-GLRenderDevice::GLRenderDevice()
-    : RenderDevice("GLRenderDevice", rhi::Backend::OpenGL, 1) {
+OpenGlRenderDevice::OpenGlRenderDevice()
+    : RenderDevice("OpenGlRenderDevice", rhi::Backend::OpenGL, 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
-    m_pipeline_state_manager = MakeOwner<GLPipelineStateManager>();
-    m_fbo_cache = MakeOwner<GLFramebufferCache>();
+    m_pipeline_state_manager = MakeOwner<OpenGlPipelineStateManager>();
+    m_fbo_cache = MakeOwner<OpenGlFramebufferCache>();
 }
 
-GLRenderDevice::~GLRenderDevice() = default;
+OpenGlRenderDevice::~OpenGlRenderDevice() = default;
 
-void GLRenderDevice::FinalizeImpl() {
+void OpenGlRenderDevice::FinalizeImpl() {
     m_fbo_cache.reset();
 
     m_pipeline_state_manager->finalize();
 }
 
-void GLRenderDevice::setPipelineStateImpl(PipelineStateName p_name) {
+void OpenGlRenderDevice::setPipelineStateImpl(PipelineStateName p_name) {
     auto pipeline = reinterpret_cast<OpenGlPipelineState*>(m_pipeline_state_manager->findPSO(p_name));
 
     if (pipeline->desc.rasterizer_desc) {
@@ -143,12 +143,12 @@ void GLRenderDevice::setPipelineStateImpl(PipelineStateName p_name) {
     glUseProgram(pipeline->programId);
 }
 
-void GLRenderDevice::clear(const RenderTargetDesc& p_target) {
+void OpenGlRenderDevice::clear(const RenderTargetDesc& p_target) {
     unused(p_target);
     DEV_ASSERT(0);
 }
 
-void GLRenderDevice::setViewport(const Viewport& p_viewport) {
+void OpenGlRenderDevice::setViewport(const Viewport& p_viewport) {
     if (p_viewport.topLeftY) {
         LOG_FATAL("TODO: adjust to bottom left y");
     }
@@ -159,7 +159,7 @@ void GLRenderDevice::setViewport(const Viewport& p_viewport) {
                p_viewport.height);
 }
 
-auto GLRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
+auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
     auto type = gl::Convert(p_desc.type);
 
     const GLenum usage = p_desc.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
@@ -176,7 +176,7 @@ auto GLRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::sh
     return buffer;
 }
 
-auto GLRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
+auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
                                     std::span<const GpuBufferDesc> vb_descs,
                                     const GpuBufferDesc* ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     // create VAO
@@ -184,7 +184,7 @@ auto GLRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    auto ret = MakeRef<GLGpuMesh>(mesh_desc);
+    auto ret = MakeRef<OpenGlGpuMesh>(mesh_desc);
     ret->vao = vao;
 
     // create EBO
@@ -227,7 +227,7 @@ auto GLRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     return ret;
 }
 
-void GLRenderDevice::setMesh(const GpuMesh* p_mesh) {
+void OpenGlRenderDevice::setMesh(const GpuMesh* p_mesh) {
     if (!p_mesh) {
         if (!m_dummy_vao) {
             glGenVertexArrays(1, &m_dummy_vao);
@@ -235,11 +235,11 @@ void GLRenderDevice::setMesh(const GpuMesh* p_mesh) {
         glBindVertexArray(m_dummy_vao);
         return;
     }
-    auto mesh = reinterpret_cast<const GLGpuMesh*>(p_mesh);
+    auto mesh = reinterpret_cast<const OpenGlGpuMesh*>(p_mesh);
     glBindVertexArray(mesh->vao);
 }
 
-void GLRenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
+void OpenGlRenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
     if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
         const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
@@ -250,60 +250,60 @@ void GLRenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buff
     }
 }
 
-void GLRenderDevice::drawElements(uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::drawElements(uint32_t p_count, uint32_t p_offset) {
     glDrawElements(m_stateCache.topology, p_count, GL_UNSIGNED_INT, (void*)(p_offset * sizeof(uint32_t)));
 }
 
-void GLRenderDevice::drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     glDrawElementsInstanced(m_stateCache.topology, p_count, GL_UNSIGNED_INT, (void*)(p_offset * sizeof(uint32_t)), p_instance_count);
 }
 
-void GLRenderDevice::drawArrays(uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::drawArrays(uint32_t p_count, uint32_t p_offset) {
     glDrawArrays(m_stateCache.topology, p_offset, p_count);
 }
 
-void GLRenderDevice::drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     glDrawArraysInstanced(m_stateCache.topology, p_offset, p_count, p_instance_count);
 }
 
-void GLRenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
+void OpenGlRenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
     unused(p_num_groups_x);
     unused(p_num_groups_y);
     unused(p_num_groups_z);
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
+void OpenGlRenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
     unused(p_slot);
     unused(p_texture);
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
+void OpenGlRenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
     unused(p_slot);
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
+void OpenGlRenderDevice::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
     unused(slot);
     unused(buffer);
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::unbindStructuredBuffer(int slot) {
+void OpenGlRenderDevice::unbindStructuredBuffer(int slot) {
     unused(slot);
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void GLRenderDevice::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
+void OpenGlRenderDevice::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
     bindStructuredBuffer(slot, buffer);
 }
 
-void GLRenderDevice::unbindStructuredBufferSRV(int slot) {
+void OpenGlRenderDevice::unbindStructuredBufferSRV(int slot) {
     unbindStructuredBuffer(slot);
 }
 
-auto GLRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
+auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     GLuint handle = 0;
 
     glGenBuffers(1, &handle);
@@ -317,37 +317,37 @@ auto GLRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result
     glBindBufferBase(GL_UNIFORM_BUFFER, p_desc.slot, handle);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    auto buffer = MakeRef<OpenGlUniformBuffer>(p_desc);
+    auto buffer = MakeRef<OpenGlConstantBuffer>(p_desc);
     buffer->handle = handle;
     return buffer;
 }
 
-auto GLRenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto OpenGlRenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
     unused(p_desc);
     CRASH_NOW();
     return nullptr;
 }
 
-void GLRenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
+void OpenGlRenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
     unused(p_desc);
     unused(p_buffer);
     CRASH_NOW();
 }
 
-void GLRenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
-    auto buffer = reinterpret_cast<const OpenGlUniformBuffer*>(p_buffer);
+void OpenGlRenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
+    auto buffer = reinterpret_cast<const OpenGlConstantBuffer*>(p_buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, buffer->handle);
     glBufferData(GL_UNIFORM_BUFFER, p_size, p_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void GLRenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
-    auto buffer = reinterpret_cast<const OpenGlUniformBuffer*>(p_buffer);
+void OpenGlRenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
+    auto buffer = reinterpret_cast<const OpenGlConstantBuffer*>(p_buffer);
     DEV_ASSERT(p_size + p_offset <= buffer->capacity);
     glBindBufferRange(GL_UNIFORM_BUFFER, p_buffer->GetSlot(), buffer->handle, p_offset, p_size);
 }
 
-void GLRenderDevice::bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
+void OpenGlRenderDevice::bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
     if (p_handle == 0) {
         return;
     }
@@ -357,21 +357,21 @@ void GLRenderDevice::bindTexture(Dimension p_dimension, uint64_t p_handle, int p
     glBindTexture(texture_type, static_cast<GLuint>(p_handle));
 }
 
-void GLRenderDevice::unbindTexture(Dimension p_dimension, int p_slot) {
+void OpenGlRenderDevice::unbindTexture(Dimension p_dimension, int p_slot) {
     const GLuint texture_type = gl::ConvertDimension(p_dimension);
 
     glActiveTexture(GL_TEXTURE0 + p_slot);
     glBindTexture(texture_type, 0);
 }
 
-void GLRenderDevice::generateMipmap(const GpuTexture* base) {
+void OpenGlRenderDevice::generateMipmap(const GpuTexture* base) {
     auto dimension = gl::ConvertDimension(base->desc.dimension);
     glBindTexture(dimension, base->GetHandle32());
     glGenerateMipmap(dimension);
     glBindTexture(dimension, 0);
 }
 
-Ref<GpuTexture> GLRenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     GLuint texture_id = 0;
     glGenTextures(1, &texture_id);
 
@@ -451,11 +451,11 @@ Ref<GpuTexture> GLRenderDevice::createTextureImpl(const GpuTextureDesc& p_textur
     return texture;
 }
 
-void GLRenderDevice::setStencilRef(uint32_t p_ref) {
+void OpenGlRenderDevice::setStencilRef(uint32_t p_ref) {
     glStencilFunc(gl::Convert(m_stateCache.stencilFunc), p_ref, 0xFF);
 }
 
-void GLRenderDevice::setBlendState(const BlendDesc& p_desc, const float*, uint32_t) {
+void OpenGlRenderDevice::setBlendState(const BlendDesc& p_desc, const float*, uint32_t) {
     const auto& desc = p_desc.renderTargets[0];
     if (desc.blendEnabled) {
         glEnable(GL_BLEND);
@@ -479,8 +479,8 @@ void GLRenderDevice::setBlendState(const BlendDesc& p_desc, const float*, uint32
     glBlendFunc(src_blend, dest_blend);
 }
 
-void GLRenderDevice::setRenderTargets(const RenderTargetDesc& p_target) {
-    GLuint fbo = m_fbo_cache->GetOrCreateFbo(p_target);
+void OpenGlRenderDevice::setRenderTargets(const RenderTargetDesc& p_target) {
+    GLuint fbo = m_fbo_cache->getOrCreateFbo(p_target);
     DEV_ASSERT(fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
@@ -511,11 +511,11 @@ void GLRenderDevice::setRenderTargets(const RenderTargetDesc& p_target) {
     }
 }
 
-void GLRenderDevice::unsetRenderTargets() {
+void OpenGlRenderDevice::unsetRenderTargets() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void GLRenderDevice::render() {
+void OpenGlRenderDevice::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -536,7 +536,7 @@ void GLRenderDevice::render() {
     }
 }
 
-void GLRenderDevice::present() {
+void OpenGlRenderDevice::present() {
     CAVE_PROFILE_EVENT();
 
     if (m_app->specification().enableImgui) {

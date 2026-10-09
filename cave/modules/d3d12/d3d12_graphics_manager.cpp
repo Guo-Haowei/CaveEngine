@@ -42,7 +42,7 @@ struct D3d12GpuTexture : public GpuTexture {
         uint64_t handle = srvHandle.index;
         switch (desc.dimension) {
             case Dimension::Texture2D:
-            case Dimension::TEXTURE_CUBE_ARRAY:
+            case Dimension::TextureCubeArray:
                 return handle;
             default:
                 CRASH_NOW();
@@ -867,12 +867,12 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
 
                 resource_type = DescriptorResourceType::Texture2D;
                 break;
-            case Dimension::TEXTURE_CUBE:
+            case Dimension::TextureCube:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
                 srv_desc.TextureCube.MipLevels = texture_desc.MipLevels;
                 srv_desc.TextureCube.MostDetailedMip = 0;
                 break;
-            case Dimension::TEXTURE_CUBE_ARRAY:
+            case Dimension::TextureCubeArray:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
                 srv_desc.TextureCubeArray.MipLevels = texture_desc.MipLevels;
                 srv_desc.TextureCubeArray.MostDetailedMip = 0;

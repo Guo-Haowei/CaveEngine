@@ -367,14 +367,14 @@ inline GLenum ConvertDimension(Dimension p_dimension) {
     switch (p_dimension) {
         case Dimension::Texture2D:
             return GL_TEXTURE_2D;
-        case Dimension::TEXTURE_3D:
+        case Dimension::Texture3D:
             return GL_TEXTURE_3D;
-        case Dimension::TEXTURE_2D_ARRAY:
+        case Dimension::Texture2DArray:
             return GL_TEXTURE_2D_ARRAY;
-        case Dimension::TEXTURE_CUBE:
+        case Dimension::TextureCube:
             return GL_TEXTURE_CUBE_MAP;
 #if !USING(PLATFORM_WASM)
-        case Dimension::TEXTURE_CUBE_ARRAY:
+        case Dimension::TextureCubeArray:
             return GL_TEXTURE_CUBE_MAP_ARRAY;
 #endif
         default:

@@ -24,7 +24,7 @@ public:
     explicit D3d11ViewCache(ID3D11Device* device) noexcept;
     ~D3d11ViewCache();
 
-    void Clear();
+    void clear();
 
     ID3D11RenderTargetView* getOrCreateRtv(const ColorAttachmentDesc& desc);
     ID3D11DepthStencilView* getOrCreateDsv(const DepthAttachmentDesc& desc);

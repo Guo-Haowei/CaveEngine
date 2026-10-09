@@ -13,16 +13,16 @@ struct OpenGlPipelineState : public PipelineState {
     ~OpenGlPipelineState();
 };
 
-class GLPipelineStateManager : public PipelineStateManager {
+class OpenGlPipelineStateManager : public PipelineStateManager {
 public:
-    explicit GLPipelineStateManager() noexcept
+    explicit OpenGlPipelineStateManager() noexcept
         : PipelineStateManager(Backend::OpenGL) {}
 
     auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
     auto computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
 
 private:
-    auto CreatePipelineImpl(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>>;
+    auto createPipelineImpl(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>>;
 };
 
 }  // namespace cave::render

@@ -10,14 +10,14 @@ enum class BufferUsage {
     STAGING = 3,
 };
 
-enum class Dimension : uint32_t {
-    TEXTURE_1D,
-    TEXTURE_1D_ARRAY,
+enum class Dimension : uint8_t {
+    Texture1D,
+    Texture1DArray,
     Texture2D,
-    TEXTURE_2D_ARRAY,
-    TEXTURE_CUBE,
-    TEXTURE_CUBE_ARRAY,
-    TEXTURE_3D,
+    Texture2DArray,
+    TextureCube,
+    TextureCubeArray,
+    Texture3D,
 };
 
 enum CpuAccessFlags {

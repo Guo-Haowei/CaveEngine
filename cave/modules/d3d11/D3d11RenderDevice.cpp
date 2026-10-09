@@ -402,10 +402,10 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
     DXGI_FORMAT srv_format = d3d::Convert(format);
     // @TODO: refactor this
     bool gen_mip_map = p_texture_desc.bindFlags & BIND_SHADER_RESOURCE;
-    if (p_texture_desc.dimension == Dimension::TEXTURE_CUBE) {
+    if (p_texture_desc.dimension == Dimension::TextureCube) {
         gen_mip_map = false;
     }
-    if (p_texture_desc.dimension == Dimension::TEXTURE_CUBE_ARRAY) {
+    if (p_texture_desc.dimension == Dimension::TextureCubeArray) {
         gen_mip_map = false;
     }
 
@@ -431,7 +431,7 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
             break;
     }
 
-    if (p_texture_desc.dimension == Dimension::TEXTURE_3D) {
+    if (p_texture_desc.dimension == Dimension::Texture3D) {
         D3D11_TEXTURE3D_DESC texture_desc{};
         texture_desc.Width = p_texture_desc.width;
         texture_desc.Height = p_texture_desc.height;

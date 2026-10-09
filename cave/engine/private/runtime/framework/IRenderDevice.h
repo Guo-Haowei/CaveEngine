@@ -9,7 +9,7 @@ struct MaterialConstantBuffer;
 namespace cave {
 
 enum ClearFlags : uint32_t;
-enum class Dimension : uint32_t;
+enum class Dimension : uint8_t;
 enum PipelineStateName : uint8_t;
 
 class Scene;

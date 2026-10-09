@@ -39,20 +39,12 @@ struct OpenGlGpuTexture : public GpuTexture {
     uint64_t residentHandle = 0;
 };
 
-// struct OpenGlFramebuffer : public render::RenderTarget {
-//     ~OpenGlFramebuffer() { Clear(); }
-//
-//     void Clear();
-//
-//     uint32_t handle = 0;
-// };
-
-struct OpenGlUniformBuffer : public GpuConstantBuffer {
+struct OpenGlConstantBuffer : public GpuConstantBuffer {
     using GpuConstantBuffer::GpuConstantBuffer;
 
-    ~OpenGlUniformBuffer() { Clear(); }
+    ~OpenGlConstantBuffer() { clear(); }
 
-    void Clear();
+    void clear();
 
     uint32_t handle = 0;
 };
@@ -60,9 +52,9 @@ struct OpenGlUniformBuffer : public GpuConstantBuffer {
 struct OpenGlStructuredBuffer : public GpuStructuredBuffer {
     using GpuStructuredBuffer::GpuStructuredBuffer;
 
-    ~OpenGlStructuredBuffer() { Clear(); }
+    ~OpenGlStructuredBuffer() { clear(); }
 
-    void Clear();
+    void clear();
 
     uint32_t handle = 0;
 };

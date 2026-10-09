@@ -15,11 +15,11 @@ D3d11ViewCache::D3d11ViewCache(ID3D11Device* device) noexcept
 }
 
 D3d11ViewCache::~D3d11ViewCache() {
-    Clear();
+    clear();
     m_device = nullptr;
 }
 
-void D3d11ViewCache::Clear() {
+void D3d11ViewCache::clear() {
     resetStats();
     m_rtvs.clear();
     m_dsvs.clear();
