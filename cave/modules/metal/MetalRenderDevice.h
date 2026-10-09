@@ -16,7 +16,6 @@ public:
 
     void FinalizeImpl() override;
     void setStencilRef(uint32_t ref) override;
-    void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask) override;
     void setRenderTargets(const RenderTargetDesc& target) override;
     void unsetRenderTargets() override;
     void clear(const RenderTargetDesc& target) override;

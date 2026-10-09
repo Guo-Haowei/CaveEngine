@@ -1,10 +1,10 @@
-#include "GLPipelineStateManager.h"
+#include "OpenGlPipelineStateManager.h"
 
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
-#include "GLDefines.h"
-#include "GLHelpers.h"
+#include "OpenGlDefines.h"
+#include "OpenGlHelpers.h"
 
 #include <fstream>
 
@@ -126,15 +126,15 @@ static auto CreateShader(std::string_view shader_name, GLenum shader_type) -> Re
     return shader_id;
 }
 
-auto GLPipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
-    return CreatePipelineImpl(pipeline_state_desc);
+auto OpenGlPipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+    return createPipelineImpl(pipeline_state_desc);
 }
 
-auto GLPipelineStateManager::computePipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
-    return CreatePipelineImpl(pipeline_state_desc);
+auto OpenGlPipelineStateManager::computePipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+    return createPipelineImpl(pipeline_state_desc);
 }
 
-auto GLPipelineStateManager::CreatePipelineImpl(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
+auto OpenGlPipelineStateManager::createPipelineImpl(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
     GLuint program_id = glCreateProgram();
     Vector<GLuint> shaders;
     auto create_shader_helper = [&](std::string_view path, GLenum type) {

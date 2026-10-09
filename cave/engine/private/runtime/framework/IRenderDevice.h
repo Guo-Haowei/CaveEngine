@@ -9,7 +9,7 @@ struct MaterialConstantBuffer;
 namespace cave {
 
 enum ClearFlags : uint32_t;
-enum class Dimension : uint32_t;
+enum class Dimension : uint8_t;
 enum PipelineStateName : uint8_t;
 
 class Scene;
@@ -95,7 +95,6 @@ public:
     virtual void setPipelineState(PipelineStateName name) = 0;
 
     virtual void setStencilRef(uint32_t ref) = 0;
-    virtual void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask) = 0;
 
     virtual void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) = 0;
     virtual void unbindStructuredBuffer(int slot) = 0;

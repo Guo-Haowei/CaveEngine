@@ -1,4 +1,4 @@
-#include "d3d_common.h"
+#include "D3dCommon.h"
 
 #include "cave/core/string/StringUtils.h"
 
@@ -119,13 +119,13 @@ auto CompileShader(std::string_view shader_name,
 }
 
 #if USING(USE_D3D_DEBUG_NAME)
-void SetDebugName(ID3D11DeviceChild* p_resource, const std::string& p_name) {
-    p_resource->SetPrivateData(WKPDID_D3DDebugObjectName, (uint32_t)p_name.length(), p_name.c_str());
+void SetDebugName(ID3D11DeviceChild* resource, std::string_view name) {
+    resource->SetPrivateData(WKPDID_D3DDebugObjectName, (uint32_t)name.length(), name.data());
 }
 
-void SetDebugName(ID3D12DeviceChild* p_resource, const std::string& p_name) {
-    std::wstring name(p_name.begin(), p_name.end());
-    p_resource->SetName(name.c_str());
+void SetDebugName(ID3D12DeviceChild* resource, std::string_view name) {
+    std::wstring wname(name.begin(), name.end());
+    resource->SetName(wname.c_str());
 }
 #endif
 

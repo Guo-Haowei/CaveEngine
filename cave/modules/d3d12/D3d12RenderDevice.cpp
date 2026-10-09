@@ -1,4 +1,4 @@
-#include "d3d12_graphics_manager.h"
+#include "D3d12RenderDevice.h"
 
 #include <imgui/backends/imgui_impl_dx12.h>
 #ifdef min
@@ -8,11 +8,14 @@
 #undef max
 #endif
 
+#include "D3d12PipelineStateManager.h"
+#include "D3d12Resources.h"
+#include "D3d12ViewCache.h"
+
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "../d3d_common/d3d_common.h"
-#include "d3d12_pipeline_state_manager.h"
+#include "../d3d_common/D3dCommon.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_private.h"
 #include "engine/private/renderer/sampler.h"
@@ -21,7 +24,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 
 #define INCLUDE_AS_D3D12
-#include "../d3d_common/d3d_convert.h"
+#include "../d3d_common/D3dConvert.h"
 
 namespace cave {
 #include "structured_buffer.hlsl.h"
@@ -31,37 +34,6 @@ namespace cave::render {
 
 using namespace cave::math;
 using Microsoft::WRL::ComPtr;
-
-// @TODO: refactor
-struct D3d12GpuTexture : public GpuTexture {
-    using GpuTexture::GpuTexture;
-
-    uint64_t GetHandle() const final { return srvHandle.gpuHandle.ptr; }
-
-    uint64_t GetResidentHandle() const final {
-        uint64_t handle = srvHandle.index;
-        switch (desc.dimension) {
-            case Dimension::Texture2D:
-            case Dimension::TEXTURE_CUBE_ARRAY:
-                return handle;
-            default:
-                CRASH_NOW();
-                return 0;
-        }
-    }
-
-    uint64_t GetUavHandle() const final { return uavHandle.index; }
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> texture;
-
-    DescriptorHeapHandle srvHandle;
-    DescriptorHeapHandle uavHandle;
-};
-
-// struct D3d12Framebuffer : public render::RenderTarget {
-//     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvs;
-//     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> dsvs;
-// };
 
 struct D3d12ConstantBuffer : public GpuConstantBuffer {
     using GpuConstantBuffer::GpuConstantBuffer;
@@ -100,32 +72,53 @@ struct D3d12FrameContext : FrameContext {
     uint64_t m_fenceValue = 0;
 };
 
-D3d12GraphicsManager::D3d12GraphicsManager()
-    : RenderDevice("D3d12GraphicsManager", rhi::Backend::Direct3D12, NUM_FRAMES_IN_FLIGHT) {
+static const char* D3D12ResourceStateToString(D3D12_RESOURCE_STATES state) {
+    switch (state) {
+        case D3D12_RESOURCE_STATE_COMMON:
+            return "COMMON / PRESENT";
+        case D3D12_RESOURCE_STATE_RENDER_TARGET:
+            return "RENDER_TARGET";
+        case D3D12_RESOURCE_STATE_DEPTH_WRITE:
+            return "DEPTH_WRITE";
+        case D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE:
+            return "PIXEL_SHADER_RESOURCE";
+        case D3D12_RESOURCE_STATE_COPY_DEST:
+            return "COPY_DEST";
+        case D3D12_RESOURCE_STATE_COPY_SOURCE:
+            return "COPY_SOURCE";
+        case D3D12_RESOURCE_STATE_UNORDERED_ACCESS:
+            return "UNORDERED_ACCESS";
+        default:
+            return "OTHER / COMBINED";
+    }
+}
+
+D3d12RenderDevice::D3d12RenderDevice()
+    : RenderDevice("D3d12RenderDevice", rhi::Backend::D3d12, NUM_FRAMES_IN_FLIGHT) {
     m_pipeline_state_manager = MakeOwner<D3d12PipelineStateManager>(this);
 }
 
-auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
+auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
     const int w = DisplayService::singleton().windowSize().x;
     const int h = DisplayService::singleton().windowSize().y;
     DEV_ASSERT(w > 0 && h > 0);
 
-    if (auto res = CreateDevice(); !res) {
+    if (auto res = createDevice(); !res) {
         return CAVE_ERROR(res.error());
     }
 
     if (m_enableValidationLayer) {
-        if (EnableDebugLayer()) {
+        if (enableDebugLayer()) {
             LOG_INFO("[GraphicsManager_DX12] Debug layer enabled");
         } else {
             LOG_ERROR("[GraphicsManager_DX12] Debug layer not enabled");
         }
     }
 
-    if (auto res = CreateDescriptorHeaps(); !res) {
+    if (auto res = createDescriptorHeaps(); !res) {
         return CAVE_ERROR(res.error());
     }
-    if (auto res = InitGraphicsContext(); !res) {
+    if (auto res = initGraphicsContext(); !res) {
         return CAVE_ERROR(res.error());
     }
     if (auto res = m_copyContext.Initialize(this); !res) {
@@ -142,15 +135,17 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
         m_depthStencilDescriptor = handle.cpuHandle;
     }
 
-    if (auto res = CreateSwapChain(w, h); !res) {
+    if (auto res = createSwapChain(w, h); !res) {
         return CAVE_ERROR(res.error());
     }
-    if (auto res = CreateRenderTarget(w, h); !res) {
+    if (auto res = createRenderTarget(w, h); !res) {
         return CAVE_ERROR(res.error());
     }
-    if (auto res = CreateRootSignature(); !res) {
+    if (auto res = createRootSignature(); !res) {
         return CAVE_ERROR(res.error());
     }
+
+    m_view_cache = MakeOwner<D3d12ViewCache>(m_device.Get(), m_rtvDescHeap, m_dsvDescHeap);
 
     // Create debug buffer.
     {
@@ -197,16 +192,16 @@ auto D3d12GraphicsManager::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-void D3d12GraphicsManager::FinalizeImpl() {
+void D3d12RenderDevice::FinalizeImpl() {
     if (m_initialized) {
-        CleanupRenderTarget();
+        cleanupRenderTarget();
 
-        FinalizeGraphicsContext();
+        finalizeGraphicsContext();
         m_copyContext.Finalize();
     }
 }
 
-void D3d12GraphicsManager::render() {
+void D3d12RenderDevice::render() {
     ID3D12GraphicsCommandList* cmd_list = m_graphicsCommandList.Get();
 
     Vec2i dim = DisplayService::singleton().windowSize();
@@ -249,7 +244,7 @@ void D3d12GraphicsManager::render() {
     cmd_list->ResourceBarrier(1, &barrier);
 }
 
-void D3d12GraphicsManager::present() {
+void D3d12RenderDevice::present() {
     if (m_app->specification().enableImgui) {
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
@@ -260,7 +255,7 @@ void D3d12GraphicsManager::present() {
     D3D_CALL(m_swapChain->Present(1, 0));  // Present with vsync
 }
 
-void D3d12GraphicsManager::beginFrame() {
+void D3d12RenderDevice::beginFrame() {
     // @TODO: wait for swap chain
     D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(getCurrentFrame());
     frame.Wait(m_graphicsFenceEvent, m_graphicsQueueFence.Get());
@@ -283,13 +278,13 @@ void D3d12GraphicsManager::beginFrame() {
     m_graphicsCommandList->SetComputeRootDescriptorTable(7, handle);
 }
 
-void D3d12GraphicsManager::endFrame() {
+void D3d12RenderDevice::endFrame() {
     D3D_CALL(m_graphicsCommandList->Close());
     ID3D12CommandList* cmdLists[] = { m_graphicsCommandList.Get() };
     m_graphicsCommandQueue->ExecuteCommandLists(std::size(cmdLists), cmdLists);
 }
 
-void D3d12GraphicsManager::moveToNextFrame() {
+void D3d12RenderDevice::moveToNextFrame() {
     uint64_t fenceValue = m_lastSignaledFenceValue + 1;
     m_graphicsCommandQueue->Signal(m_graphicsQueueFence.Get(), fenceValue);
     m_lastSignaledFenceValue = fenceValue;
@@ -299,143 +294,145 @@ void D3d12GraphicsManager::moveToNextFrame() {
     m_frameIndex = (m_frameIndex + 1) % static_cast<uint32_t>(m_frameContexts.size());
 }
 
-Ref<FrameContext> D3d12GraphicsManager::createFrameContext() {
+Ref<FrameContext> D3d12RenderDevice::createFrameContext() {
     return MakeOwner<D3d12FrameContext>();
 }
 
-void D3d12GraphicsManager::setStencilRef(uint32_t p_ref) {
-    m_graphicsCommandList->OMSetStencilRef(p_ref);
+void D3d12RenderDevice::setStencilRef(uint32_t ref) {
+    m_graphicsCommandList->OMSetStencilRef(ref);
 }
 
-void D3d12GraphicsManager::setBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) {
-    unused(p_desc);
-    unused(p_factor);
-    unused(p_mask);
-}
+void D3d12RenderDevice::setRenderTargets(const RenderTargetDesc& p_desc) {
+    constexpr size_t kMaxRenderTargets = 8;
+    DEV_ASSERT(p_desc.colors.size() <= kMaxRenderTargets);
 
-void D3d12GraphicsManager::setRenderTargets(const RenderTargetDesc& p_desc) {
-    unused(p_desc);
-    DEV_ASSERT(0);
+    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, kMaxRenderTargets> rtvs{};
+    uint32_t rtv_count = 0;
 
-#if 0
-    ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
+    // 1. Transition and collect color attachment RTVs
+    for (const auto& color : p_desc.colors) {
+        if (!color.tex) continue;
+        auto* d3d_tex = static_cast<D3d12GpuTexture*>(color.tex.get());
 
-    auto framebuffer = reinterpret_cast<const D3d12Framebuffer*>(p_framebuffer);
-    if (const auto& option = framebuffer->desc.depth) {
-        const auto& tex = option->tex;
-        if (tex->desc.type == AttachmentType::SHADOW_CUBE_ARRAY) {
-            D3D12_CPU_DESCRIPTOR_HANDLE dsv{ framebuffer->dsvs[p_index] };
-            command_list->OMSetRenderTargets(0, nullptr, false, &dsv);
-            return;
+        // Ensure texture is in RENDER_TARGET state BEFORE clearing or binding
+        TransitionTexture(d3d_tex, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+        D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle = m_view_cache->getOrCreateRtv(color);
+        rtvs[rtv_count++] = rtv_handle;
+
+        if (color.load == LoadOp::Clear) {
+            m_graphicsCommandList->ClearRenderTargetView(rtv_handle, color.clear_color, 0, nullptr);
         }
     }
 
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvs;
-    for (auto& rtv : framebuffer->rtvs) {
-        rtvs.emplace_back(rtv);
-    }
-
+    // 2. Transition and collect depth attachment DSV
+    D3D12_CPU_DESCRIPTOR_HANDLE dsv_handle{};
     const D3D12_CPU_DESCRIPTOR_HANDLE* dsv_ptr = nullptr;
-    if (!framebuffer->dsvs.empty()) {
-        dsv_ptr = &(framebuffer->dsvs[0]);
+
+    if (p_desc.depth && p_desc.depth->tex) {
+        auto* d3d_depth = static_cast<D3d12GpuTexture*>(p_desc.depth->tex.get());
+
+        // Ensure depth texture is in DEPTH_WRITE state BEFORE clearing or binding
+        TransitionTexture(d3d_depth, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+        dsv_handle = m_view_cache->getOrCreateDsv(*p_desc.depth);
+        dsv_ptr = &dsv_handle;
+
+        UINT clear_flags = 0;
+        if (p_desc.depth->depth_load == LoadOp::Clear) clear_flags |= D3D12_CLEAR_FLAG_DEPTH;
+        if (p_desc.depth->stencil_load == LoadOp::Clear) clear_flags |= D3D12_CLEAR_FLAG_STENCIL;
+
+        if (clear_flags) {
+            m_graphicsCommandList->ClearDepthStencilView(
+                dsv_handle,
+                static_cast<D3D12_CLEAR_FLAGS>(clear_flags),
+                p_desc.depth->clear_depth,
+                p_desc.depth->clear_stencil,
+                0, nullptr);
+        }
     }
-    command_list->OMSetRenderTargets((uint32_t)rtvs.size(), rtvs.data(), false, dsv_ptr);
-#endif
+
+    // 3. Bind targets
+    m_graphicsCommandList->OMSetRenderTargets(rtv_count, rtvs.data(), FALSE, dsv_ptr);
 }
 
-void D3d12GraphicsManager::unsetRenderTargets() {
+void D3d12RenderDevice::unsetRenderTargets() {
+    m_graphicsCommandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 }
 
-void D3d12GraphicsManager::beginPass(const CompiledPass& p_pass) {
+void D3d12RenderDevice::beginPass(const CompiledPass& p_pass) {
     RenderDevice::beginPass(p_pass);
-    DEV_ASSERT(0);
-#if 0
-    ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
-    for (auto& texture : p_framebuffer->outSrvs) {
-        D3D12_RESOURCE_STATES resource_state{};
-        if (texture->desc.bindFlags & BIND_RENDER_TARGET) {
-            resource_state = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        } else if (texture->desc.bindFlags & BIND_DEPTH_STENCIL) {
-            resource_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-        } else {
-            CRASH_NOW();
-        }
 
-        auto d3d_texture = reinterpret_cast<D3d12GpuTexture*>(texture.get());
-        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(d3d_texture->texture.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, resource_state);
-        command_list->ResourceBarrier(1, &barriers);
+    // Transition all sampled textures to PIXEL_SHADER_RESOURCE
+    for (auto& texture : p_pass.srvs) {
+        if (!texture) continue;
+        auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
+        TransitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
-#endif
 }
 
-void D3d12GraphicsManager::endPass(const CompiledPass& p_pass) {
+void D3d12RenderDevice::endPass(const CompiledPass& p_pass) {
     RenderDevice::endPass(p_pass);
-    DEV_ASSERT(0);
+
     unsetRenderTargets();
-#if 0
-    ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
-    for (auto& texture : p_framebuffer->outSrvs) {
-        D3D12_RESOURCE_STATES resource_state{};
-        if (texture->desc.bindFlags & BIND_RENDER_TARGET) {
-            resource_state = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        } else if (texture->desc.bindFlags & BIND_DEPTH_STENCIL) {
-            resource_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-        } else {
-            CRASH_NOW();
-        }
 
-        auto d3d_texture = reinterpret_cast<D3d12GpuTexture*>(texture.get());
-        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(d3d_texture->texture.Get(), resource_state, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        command_list->ResourceBarrier(1, &barriers);
+    for (auto& uav : p_pass.uavs) {
+        if (!uav) continue;
+        auto* d3d_tex = static_cast<D3d12GpuTexture*>(uav.get());
+
+        auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(d3d_tex->texture.Get());
+        m_graphicsCommandList->ResourceBarrier(1, &barrier);
     }
-#endif
 }
 
-void D3d12GraphicsManager::clear(const RenderTargetDesc& p_target) {
-    unused(p_target);
-#if 0
-    auto framebuffer = reinterpret_cast<const D3d12Framebuffer*>(p_framebuffer);
-
-    if (p_flags & CLEAR_COLOR_BIT) {
-        DEV_ASSERT(p_clear_color);
-        for (auto& rtv : framebuffer->rtvs) {
-            m_graphicsCommandList->ClearRenderTargetView(rtv, p_clear_color, 0, nullptr);
-        }
-    }
-
-    D3D12_CLEAR_FLAGS clear_flags{ static_cast<D3D12_CLEAR_FLAGS>(0) };
-    if (p_flags & CLEAR_DEPTH_BIT) {
-        clear_flags |= D3D12_CLEAR_FLAG_DEPTH;
-    }
-    if (p_flags & CLEAR_STENCIL_BIT) {
-        clear_flags |= D3D12_CLEAR_FLAG_STENCIL;
-    }
-    if (clear_flags) {
-        // @TODO: better way?
-        DEV_ASSERT_INDEX(p_index, framebuffer->dsvs.size());
-        m_graphicsCommandList->ClearDepthStencilView(framebuffer->dsvs[p_index], clear_flags, p_clear_depth, p_clear_stencil, 0, nullptr);
-    }
-#endif
+void D3d12RenderDevice::clear(const RenderTargetDesc&) {
+    DEV_ASSERT(0);
 }
 
-void D3d12GraphicsManager::setViewport(const Viewport& p_viewport) {
-    CD3DX12_VIEWPORT viewport(
-        static_cast<float>(p_viewport.topLeftX),
-        static_cast<float>(p_viewport.topLeftY),
-        static_cast<float>(p_viewport.width),
-        static_cast<float>(p_viewport.height));
+void D3d12RenderDevice::setViewport(const Viewport& viewport) {
+    D3D12_VIEWPORT vp{
+        .TopLeftX = static_cast<float>(viewport.topLeftX),
+        .TopLeftY = static_cast<float>(viewport.topLeftY),
+        .Width = static_cast<float>(viewport.width),
+        .Height = static_cast<float>(viewport.height),
+        .MinDepth = 0.0f,
+        .MaxDepth = 1.0f,
+    };
 
-    D3D12_RECT rect{};
-    rect.left = 0;
-    rect.top = 0;
-    rect.right = p_viewport.topLeftX + p_viewport.width;
-    rect.bottom = p_viewport.topLeftY + p_viewport.height;
+    D3D12_RECT rect{
+        .left = 0,
+        .top = 0,
+        .right = viewport.topLeftX + viewport.width,
+        .bottom = viewport.topLeftY + viewport.height,
+    };
 
-    m_graphicsCommandList->RSSetViewports(1, &viewport);
+    m_graphicsCommandList->RSSetViewports(1, &vp);
     m_graphicsCommandList->RSSetScissorRects(1, &rect);
 }
 
-ID3D12Resource* D3d12GraphicsManager::UploadBuffer(uint32_t p_byte_size, const void* p_init_data, ID3D12Resource* p_out_buffer) {
+void D3d12RenderDevice::TransitionTexture(D3d12GpuTexture* texture, D3D12_RESOURCE_STATES target_state) {
+    if (!texture || !texture->texture) return;
+
+    if (texture->currentState != target_state) {
+#if 0
+        LOG_INFO(LogChannel::Render,
+                 "[Barrier] Texture '{}' (0x{:x}) | {} -> {}",
+                 texture->desc.name.empty() ? "Unnamed" : texture->desc.name.c_str(),
+                 reinterpret_cast<uintptr_t>(texture->texture.Get()),
+                 D3D12ResourceStateToString(texture->currentState),
+                 D3D12ResourceStateToString(target_state));
+#endif
+
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            texture->texture.Get(),
+            texture->currentState,
+            target_state);
+        m_graphicsCommandList->ResourceBarrier(1, &barrier);
+        texture->currentState = target_state;
+    }
+}
+
+ID3D12Resource* D3d12RenderDevice::uploadBuffer(uint32_t p_byte_size, const void* p_init_data, ID3D12Resource* p_out_buffer) {
     if (p_byte_size == 0) {
         DEV_ASSERT(p_init_data == nullptr);
         return nullptr;
@@ -467,11 +464,11 @@ ID3D12Resource* D3d12GraphicsManager::UploadBuffer(uint32_t p_byte_size, const v
     return p_out_buffer;
 };
 
-auto D3d12GraphicsManager::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
+auto D3d12RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
     auto ret = std::make_shared<D3d12Buffer>(p_desc);
 
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
-    ret->buffer = UploadBuffer(size_in_byte, p_desc.initial_data, nullptr);
+    ret->buffer = uploadBuffer(size_in_byte, p_desc.initial_data, nullptr);
     if (ret->buffer == nullptr) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
@@ -479,10 +476,10 @@ auto D3d12GraphicsManager::createBuffer(const GpuBufferDesc& p_desc) -> Result<s
     return ret;
 }
 
-auto D3d12GraphicsManager::createMeshImpl(const GpuMeshDesc& p_desc,
-                                          std::span<const GpuBufferDesc> p_vb_descs,
-                                          const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
-    auto ret = std::make_shared<D3d12MeshBuffers>(p_desc);
+auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
+                                       std::span<const GpuBufferDesc> p_vb_descs,
+                                       const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> {
+    auto ret = MakeRef<D3d12MeshBuffers>(p_desc);
     for (uint32_t index = 0; index < (uint32_t)p_vb_descs.size(); ++index) {
         const auto& vb_desc = p_vb_descs[index];
         if (vb_desc.element_count == 0) {
@@ -519,74 +516,78 @@ auto D3d12GraphicsManager::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d12GraphicsManager::setMesh(const GpuMesh* p_mesh) {
-    auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(p_mesh);
+void D3d12RenderDevice::setMesh(const GpuMesh* gpu_mesh) {
+    if (DEV_VERIFY(gpu_mesh)) {
+        auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(gpu_mesh);
 
-    m_graphicsCommandList->IASetVertexBuffers(0, MESH_MAX_VERTEX_BUFFER_COUNT, mesh->vbvs);
-    if (mesh->indexBuffer) {
-        m_graphicsCommandList->IASetIndexBuffer(&mesh->ibv);
+        m_graphicsCommandList->IASetVertexBuffers(0,
+                                                  mesh->desc.enabledVertexCount,
+                                                  mesh->vbvs);
+        if (mesh->indexBuffer) {
+            m_graphicsCommandList->IASetIndexBuffer(&mesh->ibv);
+        }
     }
 }
 
-void D3d12GraphicsManager::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
+void D3d12RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
     if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
         auto buffer = reinterpret_cast<D3d12Buffer*>(p_buffer);
         const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
-        UploadBuffer(size_in_byte, p_desc.initial_data, buffer->buffer.Get());
+        uploadBuffer(size_in_byte, p_desc.initial_data, buffer->buffer.Get());
     }
 }
 
-void D3d12GraphicsManager::drawElements(uint32_t p_count, uint32_t p_offset) {
+void D3d12RenderDevice::drawElements(uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawIndexedInstanced(p_count, 1, p_offset, 0, 0);
 }
 
-void D3d12GraphicsManager::drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void D3d12RenderDevice::drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawIndexedInstanced(p_count, p_instance_count, p_offset, 0, 0);
 }
 
-void D3d12GraphicsManager::drawArrays(uint32_t p_count, uint32_t p_offset) {
+void D3d12RenderDevice::drawArrays(uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawInstanced(p_count, 1, p_offset, 0);
 }
 
-void D3d12GraphicsManager::drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void D3d12RenderDevice::drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     m_graphicsCommandList->DrawInstanced(p_count, p_instance_count, p_offset, 0);
 }
 
-void D3d12GraphicsManager::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
+void D3d12RenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
     m_graphicsCommandList->Dispatch(p_num_groups_x, p_num_groups_y, p_num_groups_z);
 }
 
-void D3d12GraphicsManager::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
+void D3d12RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
     unused(p_slot);
     unused(p_texture);
 }
 
-void D3d12GraphicsManager::unbindUnorderedAccessView(uint32_t p_slot) {
+void D3d12RenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
     unused(p_slot);
 }
 
-void D3d12GraphicsManager::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
+void D3d12RenderDevice::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
     unused(p_slot);
     auto uav = reinterpret_cast<const D3d12StructuredBuffer*>(p_buffer);
     if (DEV_VERIFY(uav)) {
     }
 }
 
-void D3d12GraphicsManager::unbindStructuredBuffer(int p_slot) {
+void D3d12RenderDevice::unbindStructuredBuffer(int p_slot) {
     unused(p_slot);
 }
 
-void D3d12GraphicsManager::bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) {
+void D3d12RenderDevice::bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) {
     unused(p_slot);
     unused(p_buffer);
 }
 
-void D3d12GraphicsManager::unbindStructuredBufferSRV(int p_slot) {
+void D3d12RenderDevice::unbindStructuredBufferSRV(int p_slot) {
     unused(p_slot);
 }
 
-auto D3d12GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
+auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_byte);
@@ -608,7 +609,7 @@ auto D3d12GraphicsManager::createConstantBuffer(const GpuBufferDesc& p_desc) -> 
     return result;
 }
 
-auto D3d12GraphicsManager::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
     DEV_ASSERT(!p_desc.initial_data && "TODO: initial data");
 
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -651,14 +652,14 @@ auto D3d12GraphicsManager::createStructuredBuffer(const GpuBufferDesc& p_desc) -
     return result;
 }
 
-void D3d12GraphicsManager::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
+void D3d12RenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
     if (p_size) {
         auto cb = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
         memcpy(cb->mappedData, p_data, p_size);
     }
 }
 
-void D3d12GraphicsManager::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
+void D3d12RenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
     auto buffer = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
     DEV_ASSERT(p_size + p_offset <= buffer->capacity);
 
@@ -669,16 +670,15 @@ void D3d12GraphicsManager::bindConstantBufferRange(const GpuConstantBuffer* p_bu
     m_graphicsCommandList->SetComputeRootConstantBufferView(buffer->desc.slot, batch_address);
 }
 
-std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
-    unused(p_sampler_desc);
-
-    auto initial_data = reinterpret_cast<const uint8_t*>(p_texture_desc.initialData);
+Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc&) {
+    auto initial_data = reinterpret_cast<const uint8_t*>(texture_desc.initialData);
 
     bool gen_mip_map = false;
-    PixelFormat format = p_texture_desc.format;
+    PixelFormat format = texture_desc.format;
     DXGI_FORMAT texture_format = d3d::Convert(format);
     DXGI_FORMAT srv_format = d3d::Convert(format);
-    D3D12_RESOURCE_STATES initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
+
+    D3D12_RESOURCE_STATES initial_state = D3D12_RESOURCE_STATE_COMMON;
 
     // @TODO: refactor
     switch (format) {
@@ -698,13 +698,10 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
         default:
             break;
     }
-    switch (p_texture_desc.type) {
-        case AttachmentType::NONE:
-            initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
-            break;
-        default:
-            initial_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-            break;
+    if (texture_desc.type == AttachmentType::NONE)
+        initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
+    else if (texture_desc.initialData) {
+        initial_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     }
 
     D3D12_HEAP_PROPERTIES props{};
@@ -732,25 +729,25 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
         return flags;
     };
 
-    D3D12_RESOURCE_DESC texture_desc{};
-    texture_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    texture_desc.Alignment = 0;
-    texture_desc.Width = p_texture_desc.width;
-    texture_desc.Height = p_texture_desc.height;
-    texture_desc.DepthOrArraySize = static_cast<UINT16>(p_texture_desc.arraySize);
-    texture_desc.MipLevels = static_cast<UINT16>(gen_mip_map ? 0 : p_texture_desc.mipLevels);
-    texture_desc.Format = texture_format;
-    texture_desc.SampleDesc = { 1, 0 };
-    texture_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    texture_desc.Flags = ConvertBindFlags(p_texture_desc.bindFlags);
+    D3D12_RESOURCE_DESC resource_desc{};
+    resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    resource_desc.Alignment = 0;
+    resource_desc.Width = texture_desc.width;
+    resource_desc.Height = texture_desc.height;
+    resource_desc.DepthOrArraySize = static_cast<UINT16>(texture_desc.arraySize);
+    resource_desc.MipLevels = static_cast<UINT16>(gen_mip_map ? 0 : texture_desc.mipLevels);
+    resource_desc.Format = texture_format;
+    resource_desc.SampleDesc = { 1, 0 };
+    resource_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    resource_desc.Flags = ConvertBindFlags(texture_desc.bindFlags);
 
     ID3D12Resource* texture_ptr = nullptr;
-    D3D_FAIL_V(m_device->CreateCommittedResource(&props, D3D12_HEAP_FLAG_NONE, &texture_desc, initial_state, NULL, IID_PPV_ARGS(&texture_ptr)), nullptr);
+    D3D_FAIL_V(m_device->CreateCommittedResource(&props, D3D12_HEAP_FLAG_NONE, &resource_desc, initial_state, NULL, IID_PPV_ARGS(&texture_ptr)), nullptr);
 
     if (initial_data) {
         // Create a temporary upload resource to move the data in
         uint32_t byte_width = 1;
-        switch (p_texture_desc.format) {
+        switch (texture_desc.format) {
             case PixelFormat::R32G32B32_FLOAT:
             case PixelFormat::R32G32B32A32_FLOAT:
                 byte_width = 4;
@@ -758,18 +755,18 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
             default:
                 break;
         }
-        const uint32_t upload_pitch = byte_width * Align(4 * static_cast<int>(p_texture_desc.width), D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-        const uint32_t upload_size = p_texture_desc.height * upload_pitch;
-        texture_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-        texture_desc.Alignment = 0;
-        texture_desc.Width = upload_size;
-        texture_desc.Height = 1;
-        texture_desc.DepthOrArraySize = 1;
-        texture_desc.MipLevels = 1;
-        texture_desc.Format = DXGI_FORMAT_UNKNOWN;
-        texture_desc.SampleDesc = { 1, 0 };
-        texture_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-        texture_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+        const uint32_t upload_pitch = byte_width * Align(4 * static_cast<int>(texture_desc.width), D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+        const uint32_t upload_size = texture_desc.height * upload_pitch;
+        resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+        resource_desc.Alignment = 0;
+        resource_desc.Width = upload_size;
+        resource_desc.Height = 1;
+        resource_desc.DepthOrArraySize = 1;
+        resource_desc.MipLevels = 1;
+        resource_desc.Format = DXGI_FORMAT_UNKNOWN;
+        resource_desc.SampleDesc = { 1, 0 };
+        resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+        resource_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
         props.Type = D3D12_HEAP_TYPE_UPLOAD;
         props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -777,15 +774,15 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
 
         // @TODO: refactor
         ComPtr<ID3D12Resource> upload_buffer;
-        D3D_FAIL_V(m_device->CreateCommittedResource(&props, D3D12_HEAP_FLAG_NONE, &texture_desc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, IID_PPV_ARGS(&upload_buffer)), nullptr);
+        D3D_FAIL_V(m_device->CreateCommittedResource(&props, D3D12_HEAP_FLAG_NONE, &resource_desc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, IID_PPV_ARGS(&upload_buffer)), nullptr);
 
         // Write pixels into the upload resource
         void* mapped = NULL;
         D3D12_RANGE range = { 0, upload_size };
 
         upload_buffer->Map(0, &range, &mapped);
-        const uint32_t byte_per_row = 4 * byte_width * p_texture_desc.width;
-        for (uint32_t y = 0; y < p_texture_desc.height; y++) {
+        const uint32_t byte_per_row = 4 * byte_width * texture_desc.width;
+        for (uint32_t y = 0; y < texture_desc.height; y++) {
             memcpy((void*)((uintptr_t)mapped + y * upload_pitch), initial_data + y * byte_per_row, byte_per_row);
         }
         upload_buffer->Unmap(0, &range);
@@ -794,9 +791,9 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
         D3D12_TEXTURE_COPY_LOCATION source_location = {};
         source_location.pResource = upload_buffer.Get();
         source_location.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-        source_location.PlacedFootprint.Footprint.Format = d3d::Convert(p_texture_desc.format);
-        source_location.PlacedFootprint.Footprint.Width = p_texture_desc.width;
-        source_location.PlacedFootprint.Footprint.Height = p_texture_desc.height;
+        source_location.PlacedFootprint.Footprint.Format = d3d::Convert(texture_desc.format);
+        source_location.PlacedFootprint.Footprint.Width = texture_desc.width;
+        source_location.PlacedFootprint.Footprint.Height = texture_desc.height;
         source_location.PlacedFootprint.Footprint.Depth = 1;
         source_location.PlacedFootprint.Footprint.RowPitch = upload_pitch;
 
@@ -853,31 +850,31 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
         CloseHandle(event);
     }
 
-    auto gpu_texture = std::make_shared<D3d12GpuTexture>(p_texture_desc);
+    auto gpu_texture = std::make_shared<D3d12GpuTexture>(texture_desc);
     // Create a shader resource view for the texture
-    if (p_texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
+    if (texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
         srv_desc.Format = srv_format;
         DescriptorResourceType resource_type{};
-        switch (p_texture_desc.dimension) {
+        switch (texture_desc.dimension) {
             case Dimension::Texture2D:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-                srv_desc.Texture2D.MipLevels = texture_desc.MipLevels;
+                srv_desc.Texture2D.MipLevels = resource_desc.MipLevels;
                 srv_desc.Texture2D.MostDetailedMip = 0;
 
                 resource_type = DescriptorResourceType::Texture2D;
                 break;
-            case Dimension::TEXTURE_CUBE:
+            case Dimension::TextureCube:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-                srv_desc.TextureCube.MipLevels = texture_desc.MipLevels;
+                srv_desc.TextureCube.MipLevels = resource_desc.MipLevels;
                 srv_desc.TextureCube.MostDetailedMip = 0;
                 break;
-            case Dimension::TEXTURE_CUBE_ARRAY:
+            case Dimension::TextureCubeArray:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-                srv_desc.TextureCubeArray.MipLevels = texture_desc.MipLevels;
+                srv_desc.TextureCubeArray.MipLevels = resource_desc.MipLevels;
                 srv_desc.TextureCubeArray.MostDetailedMip = 0;
                 srv_desc.TextureCubeArray.First2DArrayFace = 0;
-                srv_desc.TextureCubeArray.NumCubes = p_texture_desc.arraySize / 6;
+                srv_desc.TextureCubeArray.NumCubes = texture_desc.arraySize / 6;
 
                 resource_type = DescriptorResourceType::TextureCubeArray;
                 break;
@@ -892,134 +889,36 @@ std::shared_ptr<GpuTexture> D3d12GraphicsManager::createTextureImpl(const GpuTex
         gpu_texture->srvHandle = srv_handle;
     }
 
-    if (p_texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
+    if (texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
         LOG_ERROR("@TODO: fix hard code");
-#if 0
-        D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
-        uav_desc.Format = texture_format;
-        uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-        uav_desc.Texture2D.MipSlice = 0;
-        auto uav_handle = m_srvDescHeap.AllocBindlessHandle(DescriptorResourceType::RWTexture2D);
-        m_device->CreateUnorderedAccessView(texture_ptr, nullptr, &uav_desc, uav_handle.cpuHandle);
-        gpu_texture->uavHandle = uav_handle;
-#endif
     }
 
     gpu_texture->texture = ComPtr<ID3D12Resource>(texture_ptr);
-    SetDebugName(texture_ptr, p_texture_desc.name);
+    SetDebugName(texture_ptr, texture_desc.name);
     return gpu_texture;
 }
 
-void D3d12GraphicsManager::bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) {
-    unused(p_dimension);
-    unused(p_handle);
-    unused(p_slot);
+void D3d12RenderDevice::bindTexture(Dimension, uint64_t handle, int slot) {
+    if (handle != 0) {
+        D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle;
+        gpu_handle.ptr = handle;
+
+        // Root Parameter 7 maps to SRVs in space0 (t0..t31)
+        if (slot == 0) {
+            m_graphicsCommandList->SetGraphicsRootDescriptorTable(7, gpu_handle);
+        }
+    }
 }
 
-void D3d12GraphicsManager::unbindTexture(Dimension p_dimension, int p_slot) {
-    unused(p_dimension);
-    unused(p_slot);
+void D3d12RenderDevice::unbindTexture(Dimension, int) {
 }
 
-void D3d12GraphicsManager::generateMipmap(const GpuTexture* p_texture) {
+void D3d12RenderDevice::generateMipmap(const GpuTexture* p_texture) {
     unused(p_texture);
     CRASH_NOW();
 }
 
-#if 0
-std::shared_ptr<RenderTarget> D3d12GraphicsManager::CreateFramebuffer(const RenderTargetDesc& p_subpass_desc) {
-    auto framebuffer = std::make_shared<D3d12Framebuffer>(p_subpass_desc);
-
-    for (const auto& color_attachment : p_subpass_desc.colors) {
-        auto tex = reinterpret_cast<const D3d12GpuTexture*>(color_attachment.tex.get());
-        switch (tex->desc.type) {
-            case AttachmentType::COLOR_2D: {
-                auto handle = m_rtvDescHeap.AllocHandle();
-                m_device->CreateRenderTargetView(tex->texture.Get(), nullptr, handle.cpuHandle);
-                framebuffer->rtvs.emplace_back(handle.cpuHandle);
-            } break;
-            case AttachmentType::COLOR_CUBE: {
-                for (uint32_t face = 0; face < tex->desc.arraySize; ++face) {
-                    auto handle = m_rtvDescHeap.AllocHandle();
-                    D3D12_RENDER_TARGET_VIEW_DESC desc{};
-                    desc.Format = d3d::Convert(tex->desc.format);
-                    desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
-                    desc.Texture2DArray.MipSlice = 0;
-                    desc.Texture2DArray.ArraySize = 1;
-                    desc.Texture2DArray.FirstArraySlice = face;
-
-                    m_device->CreateRenderTargetView(tex->texture.Get(), &desc, handle.cpuHandle);
-                    framebuffer->rtvs.push_back(handle.cpuHandle);
-                }
-            } break;
-
-            default:
-                CRASH_NOW();
-                break;
-        }
-    }
-
-    if (const auto& option = framebuffer->desc.depth) {
-        auto tex = reinterpret_cast<const D3d12GpuTexture*>(option->tex.get());
-        switch (tex->desc.type) {
-            case AttachmentType::DEPTH_2D: {
-                // ComPtr<ID3D11DepthStencilView> dsv;
-                // D3D11_DEPTH_STENCIL_VIEW_DESC desc{};
-                // desc.Format = DXGI_FORMAT_D32_FLOAT;
-                // desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-                // desc.Texture2D.MipSlice = 0;
-
-                // D3D_FAIL_V_MSG(m_device->CreateDepthStencilView(texture->texture.Get(), &desc, dsv.GetAddressOf()),
-                //                nullptr,
-                //                "Failed to create depth stencil view");
-                // framebuffer->dsvs.push_back(dsv);
-                CRASH_NOW();
-            } break;
-            case AttachmentType::DEPTH_STENCIL_2D: {
-                D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
-                // @TODO: fix hard code
-                dsv_desc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
-                dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-                dsv_desc.Texture2D.MipSlice = 0;
-                auto handle = m_dsvDescHeap.AllocHandle();
-                m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, handle.cpuHandle);
-                framebuffer->dsvs.emplace_back(handle.cpuHandle);
-            } break;
-            case AttachmentType::SHADOW_2D: {
-                D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
-                dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
-                dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-                dsv_desc.Texture2D.MipSlice = 0;
-
-                auto handle = m_dsvDescHeap.AllocHandle();
-                m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, handle.cpuHandle);
-                framebuffer->dsvs.emplace_back(handle.cpuHandle);
-            } break;
-            case AttachmentType::SHADOW_CUBE_ARRAY: {
-                for (uint32_t face = 0; face < tex->desc.arraySize; ++face) {
-                    D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
-                    dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
-                    dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
-                    dsv_desc.Texture2DArray.MipSlice = 0;
-                    dsv_desc.Texture2DArray.ArraySize = 1;
-                    dsv_desc.Texture2DArray.FirstArraySlice = face;
-
-                    auto handle = m_dsvDescHeap.AllocHandle();
-                    m_device->CreateDepthStencilView(tex->texture.Get(), &dsv_desc, handle.cpuHandle);
-                    framebuffer->dsvs.emplace_back(handle.cpuHandle);
-                }
-            } break;
-            default:
-                CRASH_NOW();
-                break;
-        }
-    }
-
-    return framebuffer;
-}
-#endif
-
-auto D3d12GraphicsManager::CreateDevice() -> Result<void> {
+auto D3d12RenderDevice::createDevice() -> Result<void> {
 #if USING(DEBUG_BUILD)
     if (m_enableValidationLayer) {
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_debugController)))) {
@@ -1082,8 +981,8 @@ auto D3d12GraphicsManager::CreateDevice() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d12GraphicsManager::InitGraphicsContext() -> Result<void> {
-    m_graphicsCommandQueue = CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+auto D3d12RenderDevice::initGraphicsContext() -> Result<void> {
+    m_graphicsCommandQueue = createCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     DEV_ASSERT(m_graphicsCommandQueue);
 
     [[maybe_unused]] int frame_idx = 0;
@@ -1112,8 +1011,8 @@ auto D3d12GraphicsManager::InitGraphicsContext() -> Result<void> {
     return Result<void>();
 }
 
-void D3d12GraphicsManager::FinalizeGraphicsContext() {
-    FlushGraphicsContext();
+void D3d12RenderDevice::finalizeGraphicsContext() {
+    flushGraphicsContext();
 
     m_graphicsQueueFence.Reset();
     m_lastSignaledFenceValue = 0;
@@ -1127,7 +1026,7 @@ void D3d12GraphicsManager::FinalizeGraphicsContext() {
     m_frameContexts.clear();
 }
 
-void D3d12GraphicsManager::FlushGraphicsContext() {
+void D3d12RenderDevice::flushGraphicsContext() {
     for (auto& it : m_frameContexts) {
         D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(*it.get());
         frame.Wait(m_graphicsFenceEvent, m_graphicsQueueFence.Get());
@@ -1135,7 +1034,7 @@ void D3d12GraphicsManager::FlushGraphicsContext() {
     m_frameIndex = 0;
 }
 
-ID3D12CommandQueue* D3d12GraphicsManager::CreateCommandQueue(D3D12_COMMAND_LIST_TYPE p_type) {
+ID3D12CommandQueue* D3d12RenderDevice::createCommandQueue(D3D12_COMMAND_LIST_TYPE p_type) {
     D3D12_COMMAND_QUEUE_DESC desc;
     desc.Type = p_type;
     desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -1166,7 +1065,7 @@ ID3D12CommandQueue* D3d12GraphicsManager::CreateCommandQueue(D3D12_COMMAND_LIST_
     return queue;
 }
 
-auto D3d12GraphicsManager::EnableDebugLayer() -> Result<void> {
+auto D3d12RenderDevice::enableDebugLayer() -> Result<void> {
 #if USING(DEBUG_BUILD)
     D3D_FAIL(D3D12GetDebugInterface(IID_PPV_ARGS(&m_debugController)),
              "failed to get debug interface");
@@ -1200,7 +1099,7 @@ auto D3d12GraphicsManager::EnableDebugLayer() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
+auto D3d12RenderDevice::createDescriptorHeaps() -> Result<void> {
     if (auto res = m_rtvDescHeap.Initialize(64, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_device.Get(), false); !res) {
         return CAVE_ERROR(res.error());
     }
@@ -1214,7 +1113,7 @@ auto D3d12GraphicsManager::CreateDescriptorHeaps() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void> {
+auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayService*>(DisplayService::singletonPtr());
     DEV_ASSERT(display_manager);
 
@@ -1253,7 +1152,7 @@ auto D3d12GraphicsManager::CreateSwapChain(uint32_t p_width, uint32_t p_height) 
     return Result<void>();
 }
 
-auto D3d12GraphicsManager::CreateRenderTarget(uint32_t p_width, uint32_t p_height) -> Result<void> {
+auto D3d12RenderDevice::createRenderTarget(uint32_t p_width, uint32_t p_height) -> Result<void> {
     for (int32_t i = 0; i < NUM_FRAMES_IN_FLIGHT; i++) {
         ID3D12Resource* backbuffer = nullptr;
         D3D_CALL(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&backbuffer)));
@@ -1300,7 +1199,7 @@ auto D3d12GraphicsManager::CreateRenderTarget(uint32_t p_width, uint32_t p_heigh
     return Result<void>();
 }
 
-void D3d12GraphicsManager::InitStaticSamplers() {
+void D3d12RenderDevice::initStaticSamplers() {
     auto FillSamplerDesc = [](uint32_t p_slot, const SamplerDesc& p_desc) {
         CD3DX12_STATIC_SAMPLER_DESC sampler_desc(
             p_slot,
@@ -1323,7 +1222,7 @@ void D3d12GraphicsManager::InitStaticSamplers() {
 #undef SAMPLER_STATE
 }
 
-auto D3d12GraphicsManager::CreateRootSignature() -> Result<void> {
+auto D3d12RenderDevice::createRootSignature() -> Result<void> {
     // @TODO: Order from most frequent to least frequent.
     CD3DX12_ROOT_PARAMETER params[16]{};
     int idx = 0;
@@ -1353,7 +1252,7 @@ auto D3d12GraphicsManager::CreateRootSignature() -> Result<void> {
     params[idx++].InitAsDescriptorTable(1, &srvRangeBindless);  // Bindless SRVs
     params[idx++].InitAsDescriptorTable(1, &uavRangeBindless);  // Bindless UAVs
 
-    InitStaticSamplers();
+    initStaticSamplers();
 
     CD3DX12_ROOT_SIGNATURE_DESC root_signature_desc(idx,
                                                     params,
@@ -1378,18 +1277,18 @@ auto D3d12GraphicsManager::CreateRootSignature() -> Result<void> {
     return Result<void>();
 }
 
-void D3d12GraphicsManager::onWindowResize(int p_width, int p_height) {
+void D3d12RenderDevice::onWindowResize(int p_width, int p_height) {
     if (m_swapChain) {
-        CleanupRenderTarget();
+        cleanupRenderTarget();
         D3D_CALL(m_swapChain->ResizeBuffers(0, p_width, p_height,
                                             DXGI_FORMAT_UNKNOWN,
                                             DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT));
 
-        [[maybe_unused]] auto err = CreateRenderTarget(p_width, p_height);
+        [[maybe_unused]] auto err = createRenderTarget(p_width, p_height);
     }
 }
 
-void D3d12GraphicsManager::setPipelineStateImpl(PipelineStateName name) {
+void D3d12RenderDevice::setPipelineStateImpl(PipelineStateName name) {
     auto pipeline = reinterpret_cast<D3d12PipelineState*>(m_pipeline_state_manager->findPSO(name));
     DEV_ASSERT(pipeline);
 
@@ -1399,8 +1298,8 @@ void D3d12GraphicsManager::setPipelineStateImpl(PipelineStateName name) {
     m_graphicsCommandList->SetPipelineState(pipeline->pso.Get());
 }
 
-void D3d12GraphicsManager::CleanupRenderTarget() {
-    FlushGraphicsContext();
+void D3d12RenderDevice::cleanupRenderTarget() {
+    flushGraphicsContext();
 
     for (uint32_t i = 0; i < NUM_BACK_BUFFERS; ++i) {
         SafeRelease(m_renderTargets[i]);

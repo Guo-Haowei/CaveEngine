@@ -217,12 +217,12 @@ GpuTextureDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
             desc.dimension = Dimension::Texture2D;
             break;
         case AttachmentType::COLOR_CUBE:
-            desc.dimension = Dimension::TEXTURE_CUBE;
+            desc.dimension = Dimension::TextureCube;
             desc.miscFlags |= RESOURCE_MISC_TEXTURECUBE;
             DEV_ASSERT(array_size == 6);
             break;
         case AttachmentType::SHADOW_CUBE_ARRAY:
-            desc.dimension = Dimension::TEXTURE_CUBE_ARRAY;
+            desc.dimension = Dimension::TextureCubeArray;
             desc.miscFlags |= RESOURCE_MISC_TEXTURECUBE;
             DEV_ASSERT(array_size / 6 > 0);
             break;

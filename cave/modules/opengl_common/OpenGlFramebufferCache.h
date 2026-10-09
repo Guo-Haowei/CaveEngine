@@ -1,5 +1,5 @@
 #pragma once
-#include "GLPrerequisites.h"
+#include "OpenGlPrerequisites.h"
 
 #include "cave/core/hash/Hash.h"
 
@@ -32,14 +32,14 @@ struct FboAttachmentKey {
 
     bool operator==(const FboAttachmentKey&) const = default;
 
-    size_t Hash(size_t& p_inout) const noexcept {
-        cave::Hash::add(p_inout, tex);
-        cave::Hash::add(p_inout, kind);
-        cave::Hash::add(p_inout, mip);
-        cave::Hash::add(p_inout, first_slice);
-        cave::Hash::add(p_inout, slice_count);
-        cave::Hash::add(p_inout, attachment_point);
-        return p_inout;
+    size_t Hash(size_t& inout) const noexcept {
+        cave::Hash::add(inout, tex);
+        cave::Hash::add(inout, kind);
+        cave::Hash::add(inout, mip);
+        cave::Hash::add(inout, first_slice);
+        cave::Hash::add(inout, slice_count);
+        cave::Hash::add(inout, attachment_point);
+        return inout;
     }
 };
 
@@ -54,42 +54,31 @@ struct FboKey {
 };
 
 struct FboKeyHash {
-    size_t operator()(const FboKey& p_key) const noexcept {
+    size_t operator()(const FboKey& key) const noexcept {
         size_t hash = 0;
-        cave::Hash::add(hash, p_key.numColors);
-        cave::Hash::add(hash, p_key.hasDepthStencil);
+        cave::Hash::add(hash, key.numColors);
+        cave::Hash::add(hash, key.hasDepthStencil);
         for (size_t i = 0; i < cave::render::kMaxColorAttachments; ++i) {
-            p_key.colors[i].Hash(hash);
+            key.colors[i].Hash(hash);
         }
-        p_key.depthStencil.Hash(hash);
+        key.depthStencil.Hash(hash);
         return hash;
     }
 };
 
-class GLFramebufferCache {
+class OpenGlFramebufferCache {
 public:
-    struct Stats {
-        uint32_t fbo_count = 0;
-        uint32_t fbo_hits = 0;
-        uint32_t fbo_misses = 0;
-    };
+    explicit OpenGlFramebufferCache() noexcept;
+    ~OpenGlFramebufferCache();
 
-    explicit GLFramebufferCache() noexcept;
-    ~GLFramebufferCache();
+    void clear();
 
-    void Clear();
-
-    GLuint GetOrCreateFbo(const RenderTargetDesc& p_desc);
-
-    Stats GetStats() const;
-    void ResetStats() { m_stats = {}; }
+    GLuint getOrCreateFbo(const RenderTargetDesc& desc);
 
 private:
-    GLuint CreateFbo(const FboKey& p_key);
+    GLuint createFbo(const FboKey& key);
 
-    std::unordered_map<FboKey, GLuint, FboKeyHash> m_fbos;
-
-    mutable Stats m_stats{};
+    HashMap<FboKey, GLuint, FboKeyHash> m_fbos;
 };
 
 }  // namespace cave::render

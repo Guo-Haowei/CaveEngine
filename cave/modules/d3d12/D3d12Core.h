@@ -6,13 +6,13 @@
 #include <atomic>
 #include <mutex>
 
-#include "../d3d_common/d3d_common.h"
+#include "../d3d_common/D3dCommon.h"
 #include "descriptor_table_defines.hlsl.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave::render {
 
-class D3d12GraphicsManager;
+class D3d12RenderDevice;
 
 enum class DescriptorResourceType : uint8_t {
 #define DESCRIPTOR_ENUM(ENUM, ...) ENUM,
@@ -132,7 +132,7 @@ public:
         // ID3D12Resource* uploadResource = nullptr;
     };
 
-    auto Initialize(D3d12GraphicsManager* p_device) -> Result<void>;
+    auto Initialize(D3d12RenderDevice* p_device) -> Result<void>;
 
     void Finalize();
 
@@ -141,7 +141,7 @@ public:
     void submit(CopyCommand p_cmd);
 
 private:
-    D3d12GraphicsManager* m_device = nullptr;
+    D3d12RenderDevice* m_device = nullptr;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_queue;
     std::vector<CopyCommand> m_freeList;
     std::mutex m_lock;

@@ -7,13 +7,12 @@
 #include "engine/private/renderer/graphics_dvars.h"
 
 #if USING(PLATFORM_WINDOWS)
-#include "modules/d3d11/d3d11_graphics_manager.h"
-#include "modules/d3d12/d3d12_graphics_manager.h"
-#include "modules/opengl4/GL4RenderDevice.h"
-// #include "modules/vk/vulkan_graphics_manager.h"
+#include "modules/d3d11/D3d11RenderDevice.h"
+#include "modules/d3d12/D3d12RenderDevice.h"
+#include "modules/opengl4/OpenGl4RenderDevice.h"
 #elif USING(PLATFORM_APPLE)
 #include "modules/metal/MetalRenderDevice.h"
-#include "modules/opengl4/GL4RenderDevice.h"
+#include "modules/opengl4/OpenGl4RenderDevice.h"
 #elif USING(PLATFORM_WASM)
 #include "modules/opengles3/GLES3RenderDevice.h"
 #endif
@@ -42,23 +41,23 @@ DisplayService* CreateDisplayService() {
 static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
     using rhi::Backend;
 
-    if (backend == Backend::Direct3D11) {
+    if (backend == Backend::D3d11) {
 #if USING(PLATFORM_WINDOWS)
-        return new D3d11GraphicsManager;
+        return new D3d11RenderDevice;
 #else
         return nullptr;
 #endif
     }
 
-    if (backend == Backend::Direct3D12) {
+    if (backend == Backend::D3d12) {
 #if USING(PLATFORM_WINDOWS)
-        return new D3d12GraphicsManager;
+        return new D3d12RenderDevice;
 #else
         return nullptr;
 #endif
     }
 
-    if (backend == Backend::OpenGL) {
+    if (backend == Backend::OpenGl) {
 #if USING(PLATFORM_WASM)
         return new GLES3RenderDevice;
 #else

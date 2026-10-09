@@ -55,13 +55,13 @@ static inline D3D_SRV_DIMENSION ConvertDimension(Dimension p_dimension) {
     switch (p_dimension) {
         case Dimension::Texture2D:
             return D3D_SRV_DIMENSION_TEXTURE2D;
-        case Dimension::TEXTURE_3D:
+        case Dimension::Texture3D:
             return D3D_SRV_DIMENSION_TEXTURE3D;
-        case Dimension::TEXTURE_2D_ARRAY:
+        case Dimension::Texture2DArray:
             return D3D_SRV_DIMENSION_TEXTURE2DARRAY;
-        case Dimension::TEXTURE_CUBE:
+        case Dimension::TextureCube:
             return D3D_SRV_DIMENSION_TEXTURECUBE;
-        case Dimension::TEXTURE_CUBE_ARRAY:
+        case Dimension::TextureCubeArray:
             return D3D_SRV_DIMENSION_TEXTURECUBEARRAY;
         default:
             CRASH_NOW();
@@ -69,13 +69,13 @@ static inline D3D_SRV_DIMENSION ConvertDimension(Dimension p_dimension) {
     }
 }
 
-auto CompileShader(std::string_view p_path,
-                   const char* p_target,
-                   const D3D_SHADER_MACRO* p_defines) -> Result<Microsoft::WRL::ComPtr<ID3DBlob>>;
+auto CompileShader(std::string_view path,
+                   const char* target,
+                   const D3D_SHADER_MACRO* defines) -> Result<Microsoft::WRL::ComPtr<ID3DBlob>>;
 
 #if USING(USE_D3D_DEBUG_NAME)
-void SetDebugName(ID3D11DeviceChild* p_resource, const std::string& p_name);
-void SetDebugName(ID3D12DeviceChild* p_resource, const std::string& p_name);
+void SetDebugName(ID3D11DeviceChild* resource, std::string_view name);
+void SetDebugName(ID3D12DeviceChild* resource, std::string_view name);
 #else
 #define SetDebugName(...)
 #endif

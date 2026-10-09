@@ -1,6 +1,6 @@
-#include "GLResources.h"
+#include "OpenGlResources.h"
 
-#include "GLHelpers.h"
+#include "OpenGlHelpers.h"
 
 namespace cave {
 
@@ -19,21 +19,14 @@ void OpenGlGpuTexture::Clear() {
     }
 }
 
-// void OpenGlFramebuffer::Clear() {
-//     if (handle) {
-//         glDeleteFramebuffers(1, &handle);
-//         handle = 0;
-//     }
-// }
-
-void OpenGlUniformBuffer::Clear() {
+void OpenGlConstantBuffer::clear() {
     if (handle) {
         glDeleteBuffers(1, &handle);
         handle = 0;
     }
 }
 
-void OpenGlStructuredBuffer::Clear() {
+void OpenGlStructuredBuffer::clear() {
     if (handle) {
         glDeleteBuffers(1, &handle);
         handle = 0;

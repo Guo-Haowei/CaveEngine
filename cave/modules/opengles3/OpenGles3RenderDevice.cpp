@@ -7,7 +7,7 @@
 #include "engine/private/drivers/glfw/glfw_display_manager.h"
 #include "engine/private/runtime/ImGuiManager.h"
 
-#include "../opengl_common/GLPrerequisites.h"
+#include "../opengl_common/OpenGlPrerequisites.h"
 
 namespace cave {
 

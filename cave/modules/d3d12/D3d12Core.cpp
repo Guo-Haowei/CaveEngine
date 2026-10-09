@@ -1,7 +1,7 @@
-#include "d3d12_core.h"
+#include "D3d12Core.h"
 
-#include "../d3d_common/d3d_common.h"
-#include "d3d12_graphics_manager.h"
+#include "../d3d_common/D3dCommon.h"
+#include "D3d12RenderDevice.h"
 
 namespace cave::render {
 
@@ -18,7 +18,7 @@ auto DescriptorHeapBase::Initialize(int p_count, D3D12_DESCRIPTOR_HEAP_TYPE p_ty
     m_desc.NodeMask = 1;
     m_capacity = p_count;
 
-    const char* name = "";
+    std::string_view name = "";
     switch (p_type) {
         case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
             name = "CBV_SRV_UAV";
@@ -126,10 +126,10 @@ DescriptorHeapHandle DescriptorHeapSrv::AllocBindlessHandle(DescriptorResourceTy
 
 //------------------------------------------------------------------------------
 // CopyContext
-auto CopyContext::Initialize(D3d12GraphicsManager* p_device) -> Result<void> {
+auto CopyContext::Initialize(D3d12RenderDevice* p_device) -> Result<void> {
     DEV_ASSERT(p_device);
     m_device = p_device;
-    m_queue = p_device->CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
+    m_queue = p_device->createCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
 
     if (DEV_VERIFY(m_queue)) {
         return Result<void>();

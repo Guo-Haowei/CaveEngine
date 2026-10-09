@@ -14,15 +14,14 @@ struct D3d12PipelineState : public PipelineState {
 
 class D3d12PipelineStateManager : public PipelineStateManager {
 public:
-    explicit D3d12PipelineStateManager(IRenderDevice* p_graphics_manager) noexcept;
+    explicit D3d12PipelineStateManager(IRenderDevice* device) noexcept;
 
 protected:
-    auto graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> final;
-    auto computePipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> final;
+    auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
+    auto computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
 
 private:
     IRenderDevice* m_device;
-    std::vector<D3D_SHADER_MACRO> m_defines;
 };
 
 }  // namespace cave::render

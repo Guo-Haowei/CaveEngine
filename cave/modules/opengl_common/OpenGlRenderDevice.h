@@ -2,30 +2,29 @@
 
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "GLDefines.h"
+#include "OpenGlDefines.h"
 
 struct GLFWwindow;
 
 namespace cave::render {
 
-class GLFramebufferCache;
+class OpenGlFramebufferCache;
 
 // @TODO: fix
-struct GLGpuMesh : GpuMesh {
+struct OpenGlGpuMesh : GpuMesh {
     using GpuMesh::GpuMesh;
 
     uint32_t vao{ 0 };
 };
 
-class GLRenderDevice : public RenderDevice {
+class OpenGlRenderDevice : public RenderDevice {
 public:
-    GLRenderDevice();
-    ~GLRenderDevice();
+    OpenGlRenderDevice();
+    ~OpenGlRenderDevice();
 
     void FinalizeImpl() override;
 
     void setStencilRef(uint32_t ref) override;
-    void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask) override;
 
     void setRenderTargets(const RenderTargetDesc& target) override;
     void unsetRenderTargets() override;
@@ -79,7 +78,7 @@ protected:
     void setPipelineStateImpl(PipelineStateName name) override;
 
     // @TODO: rename
-    RIDAllocator<GLGpuMesh> m_meshes;
+    RIDAllocator<OpenGlGpuMesh> m_meshes;
 
     GLFWwindow* m_window;
 
@@ -94,9 +93,11 @@ protected:
     } m_stateCache;
 
 private:
+    void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask);
+
     uint32_t m_dummy_vao;  // for drawing with gl_VertexID
 
-    Owner<GLFramebufferCache> m_fbo_cache;
+    Owner<OpenGlFramebufferCache> m_fbo_cache;
 };
 
 }  // namespace cave::render
