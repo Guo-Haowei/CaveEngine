@@ -6,8 +6,8 @@
 namespace cave::render {
 
 template<typename T>
-struct D3D11TextureKey {
-    using Self = D3D11TextureKey<T>;
+struct D3d11TextureKey {
+    using Self = D3d11TextureKey<T>;
 
     ID3D11Resource* resource;
     DXGI_FORMAT format;
@@ -19,23 +19,23 @@ struct D3D11TextureKey {
     friend bool operator==(const Self&, const Self&) = default;
 };
 
-using D3D11RtvKey = D3D11TextureKey<D3D11_RTV_DIMENSION>;
-using D3D11DsvKey = D3D11TextureKey<D3D11_DSV_DIMENSION>;
+using D3D11RtvKey = D3d11TextureKey<D3D11_RTV_DIMENSION>;
+using D3D11DsvKey = D3d11TextureKey<D3D11_DSV_DIMENSION>;
 
 }  // namespace cave::render
 
 namespace std {
 
 template<typename T>
-struct hash<cave::render::D3D11TextureKey<T>> {
-    std::size_t operator()(const cave::render::D3D11TextureKey<T>& p_key) const {
+struct hash<cave::render::D3d11TextureKey<T>> {
+    std::size_t operator()(const cave::render::D3d11TextureKey<T>& key) const {
         size_t hash = 0;
-        cave::Hash::add(hash, p_key.resource);
-        cave::Hash::add(hash, p_key.format);
-        cave::Hash::add(hash, p_key.dimension);
-        cave::Hash::add(hash, p_key.mip_slice);
-        cave::Hash::add(hash, p_key.first_array_slice);
-        cave::Hash::add(hash, p_key.array_size);
+        cave::Hash::add(hash, key.resource);
+        cave::Hash::add(hash, key.format);
+        cave::Hash::add(hash, key.dimension);
+        cave::Hash::add(hash, key.mip_slice);
+        cave::Hash::add(hash, key.first_array_slice);
+        cave::Hash::add(hash, key.array_size);
         return hash;
     }
 };

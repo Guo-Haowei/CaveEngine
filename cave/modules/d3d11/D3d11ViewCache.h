@@ -1,7 +1,7 @@
 #pragma once
 #include <wrl/client.h>
 
-#include "D3D11ViewKeys.h"
+#include "D3d11ViewKeys.h"
 
 #include "cave/core/base/NonCopyable.h"
 
@@ -10,7 +10,7 @@ namespace cave::render {
 struct ColorAttachmentDesc;
 struct DepthAttachmentDesc;
 
-class D3D11ViewCache : public NonCopyable {
+class D3d11ViewCache : public NonCopyable {
 public:
     struct Stats {
         uint32_t rtv_count = 0;
@@ -21,25 +21,25 @@ public:
         uint32_t dsv_misses = 0;
     };
 
-    explicit D3D11ViewCache(ID3D11Device* p_device) noexcept;
-    ~D3D11ViewCache();
+    explicit D3d11ViewCache(ID3D11Device* device) noexcept;
+    ~D3d11ViewCache();
 
     void Clear();
 
-    ID3D11RenderTargetView* GetOrCreateRtv(const ColorAttachmentDesc& p_desc);
-    ID3D11DepthStencilView* GetOrCreateDsv(const DepthAttachmentDesc& p_desc);
+    ID3D11RenderTargetView* getOrCreateRtv(const ColorAttachmentDesc& desc);
+    ID3D11DepthStencilView* getOrCreateDsv(const DepthAttachmentDesc& desc);
 
-    Stats GetStats() const;
-    void ResetStats() { m_stats = {}; }
+    Stats getStats() const;
+    void resetStats() { m_stats = {}; }
 
 private:
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> CreateRtv(const D3D11RtvKey& p_key);
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> CreateDsv(const D3D11DsvKey& p_key);
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> createRtv(const D3D11RtvKey& key);
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> createDsv(const D3D11DsvKey& key);
 
     ID3D11Device* m_device{ nullptr };
 
-    std::unordered_map<D3D11RtvKey, Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> m_rtvs;
-    std::unordered_map<D3D11DsvKey, Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_dsvs;
+    HashMap<D3D11RtvKey, Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> m_rtvs;
+    HashMap<D3D11DsvKey, Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_dsvs;
 
     mutable Stats m_stats{};
 };

@@ -10,30 +10,30 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-D3D11ViewCache::D3D11ViewCache(ID3D11Device* p_device) noexcept
-    : m_device(p_device) {
+D3d11ViewCache::D3d11ViewCache(ID3D11Device* device) noexcept
+    : m_device(device) {
 }
 
-D3D11ViewCache::~D3D11ViewCache() {
+D3d11ViewCache::~D3d11ViewCache() {
     Clear();
     m_device = nullptr;
 }
 
-void D3D11ViewCache::Clear() {
-    ResetStats();
+void D3d11ViewCache::Clear() {
+    resetStats();
     m_rtvs.clear();
     m_dsvs.clear();
 }
 
-static D3D11RtvKey MakeRtvKey(const ColorAttachmentDesc& p_desc);
-static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& p_desc);
+static D3D11RtvKey MakeRtvKey(const ColorAttachmentDesc& desc);
+static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& desc);
 
-ID3D11RenderTargetView* D3D11ViewCache::GetOrCreateRtv(const ColorAttachmentDesc& p_desc) {
-    const D3D11RtvKey key = MakeRtvKey(p_desc);
+ID3D11RenderTargetView* D3d11ViewCache::getOrCreateRtv(const ColorAttachmentDesc& desc) {
+    const D3D11RtvKey key = MakeRtvKey(desc);
 
     auto [it, inserted] = m_rtvs.try_emplace(key);
     if (inserted) {
-        it->second = CreateRtv(key);
+        it->second = createRtv(key);
         ++m_stats.rtv_misses;
         // LOG_WARN("rtv cache miss {}", p_desc.tex->desc.name);
     } else {
@@ -43,12 +43,12 @@ ID3D11RenderTargetView* D3D11ViewCache::GetOrCreateRtv(const ColorAttachmentDesc
     return it->second.Get();
 }
 
-ID3D11DepthStencilView* D3D11ViewCache::GetOrCreateDsv(const DepthAttachmentDesc& p_desc) {
-    const D3D11DsvKey key = MakeDsvKey(p_desc);
+ID3D11DepthStencilView* D3d11ViewCache::getOrCreateDsv(const DepthAttachmentDesc& desc) {
+    const D3D11DsvKey key = MakeDsvKey(desc);
 
     auto [it, inserted] = m_dsvs.try_emplace(key);
     if (inserted) {
-        it->second = CreateDsv(key);
+        it->second = createDsv(key);
         ++m_stats.dsv_misses;
         // LOG_WARN("dsv cache miss {}", p_desc.tex->desc.name);
     } else {
@@ -58,29 +58,29 @@ ID3D11DepthStencilView* D3D11ViewCache::GetOrCreateDsv(const DepthAttachmentDesc
     return it->second.Get();
 }
 
-ComPtr<ID3D11RenderTargetView> D3D11ViewCache::CreateRtv(const D3D11RtvKey& p_key) {
+ComPtr<ID3D11RenderTargetView> D3d11ViewCache::createRtv(const D3D11RtvKey& key) {
     D3D11_RENDER_TARGET_VIEW_DESC desc{};
-    desc.Format = p_key.format;
-    desc.ViewDimension = p_key.dimension;
-    desc.Texture2DArray.MipSlice = p_key.mip_slice;
-    desc.Texture2DArray.FirstArraySlice = p_key.first_array_slice;
-    desc.Texture2DArray.ArraySize = p_key.array_size;
+    desc.Format = key.format;
+    desc.ViewDimension = key.dimension;
+    desc.Texture2DArray.MipSlice = key.mip_slice;
+    desc.Texture2DArray.FirstArraySlice = key.first_array_slice;
+    desc.Texture2DArray.ArraySize = key.array_size;
 
     ComPtr<ID3D11RenderTargetView> rtv;
-    m_device->CreateRenderTargetView(p_key.resource, &desc, rtv.GetAddressOf());
+    m_device->CreateRenderTargetView(key.resource, &desc, rtv.GetAddressOf());
     return rtv;
 }
 
-ComPtr<ID3D11DepthStencilView> D3D11ViewCache::CreateDsv(const D3D11DsvKey& p_key) {
+ComPtr<ID3D11DepthStencilView> D3d11ViewCache::createDsv(const D3D11DsvKey& key) {
     D3D11_DEPTH_STENCIL_VIEW_DESC desc{};
-    desc.Format = p_key.format;
-    desc.ViewDimension = p_key.dimension;
-    desc.Texture2DArray.MipSlice = p_key.mip_slice;
-    desc.Texture2DArray.FirstArraySlice = p_key.first_array_slice;
-    desc.Texture2DArray.ArraySize = p_key.array_size;
+    desc.Format = key.format;
+    desc.ViewDimension = key.dimension;
+    desc.Texture2DArray.MipSlice = key.mip_slice;
+    desc.Texture2DArray.FirstArraySlice = key.first_array_slice;
+    desc.Texture2DArray.ArraySize = key.array_size;
 
     ComPtr<ID3D11DepthStencilView> dsv;
-    m_device->CreateDepthStencilView(p_key.resource, &desc, dsv.GetAddressOf());
+    m_device->CreateDepthStencilView(key.resource, &desc, dsv.GetAddressOf());
     return dsv;
 }
 
@@ -148,7 +148,7 @@ static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& desc) {
     };
 }
 
-D3D11ViewCache::Stats D3D11ViewCache::GetStats() const {
+D3d11ViewCache::Stats D3d11ViewCache::getStats() const {
     m_stats.rtv_count = static_cast<uint32_t>(m_rtvs.size());
     m_stats.dsv_count = static_cast<uint32_t>(m_dsvs.size());
 

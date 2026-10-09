@@ -43,7 +43,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
 
     if (backend == Backend::Direct3D11) {
 #if USING(PLATFORM_WINDOWS)
-        return new D3d11GraphicsManager;
+        return new D3d11RenderDevice;
 #else
         return nullptr;
 #endif

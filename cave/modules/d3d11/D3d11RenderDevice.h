@@ -7,7 +7,7 @@
 
 namespace cave::render {
 
-class D3D11ViewCache;
+class D3d11ViewCache;
 
 struct D3d11Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -23,9 +23,9 @@ struct D3d11MeshBuffers : GpuMesh {
     using GpuMesh::GpuMesh;
 };
 
-class D3d11GraphicsManager : public RenderDevice {
+class D3d11RenderDevice : public RenderDevice {
 public:
-    D3d11GraphicsManager();
+    D3d11RenderDevice();
 
     void FinalizeImpl() final;
 
@@ -96,7 +96,7 @@ protected:
     auto createSampler(uint32_t p_slot, D3D11_SAMPLER_DESC p_desc) -> Result<void>;
     auto initSamplers() -> Result<void>;
 
-    Owner<D3D11ViewCache> m_view_cache;
+    Owner<D3d11ViewCache> m_view_cache;
 
     Microsoft::WRL::ComPtr<ID3D11Device> m_device;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
