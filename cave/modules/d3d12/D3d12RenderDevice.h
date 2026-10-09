@@ -1,9 +1,11 @@
 #pragma once
-#include "d3d12_core.h"
+#include "D3d12Core.h"
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave::render {
+
+class D3d12ViewCache;
 
 struct D3d12Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -22,64 +24,63 @@ struct D3d12MeshBuffers : GpuMesh {
     D3D12_INDEX_BUFFER_VIEW ibv;
 };
 
-class D3d12GraphicsManager : public RenderDevice {
+class D3d12RenderDevice : public RenderDevice {
 public:
-    D3d12GraphicsManager();
+    D3d12RenderDevice();
 
     void FinalizeImpl() final;
 
-    void setStencilRef(uint32_t p_ref) final;
-    void setBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) final;
+    void setStencilRef(uint32_t ref) final;
 
-    void setRenderTargets(const RenderTargetDesc& p_desc) final;
+    void setRenderTargets(const RenderTargetDesc& desc) final;
     void unsetRenderTargets() final;
 
-    void clear(const RenderTargetDesc& p_target) final;
+    void clear(const RenderTargetDesc& target) final;
 
-    void setViewport(const Viewport& p_viewport) final;
+    void setViewport(const Viewport& viewport) final;
 
-    auto createBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> final;
-    void updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) final;
+    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> final;
+    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) final;
 
-    auto createMeshImpl(const GpuMeshDesc& p_desc,
-                        std::span<const GpuBufferDesc> p_vb_descs,
-                        const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> final;
+    auto createMeshImpl(const GpuMeshDesc& desc,
+                        std::span<const GpuBufferDesc> vb_descs,
+                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> final;
 
-    void setMesh(const GpuMesh* p_mesh) final;
+    void setMesh(const GpuMesh* mesh) final;
 
-    void drawElements(uint32_t p_count, uint32_t p_offset) final;
-    void drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
-    void drawArrays(uint32_t p_count, uint32_t p_offset) final;
-    void drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) final;
+    void drawElements(uint32_t count, uint32_t offset) final;
+    void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
+    void drawArrays(uint32_t count, uint32_t offset) final;
+    void drawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
 
-    void dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) final;
-    void bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) final;
-    void unbindUnorderedAccessView(uint32_t p_slot) final;
+    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) final;
+    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
+    void unbindUnorderedAccessView(uint32_t slot) final;
 
-    auto createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuStructuredBuffer>> final;
-    void bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) final;
-    void unbindStructuredBuffer(int p_slot) final;
-    void bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) final;
-    void unbindStructuredBufferSRV(int p_slot) final;
+    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> final;
+    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) final;
+    void unbindStructuredBuffer(int slot) final;
+    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) final;
+    void unbindStructuredBufferSRV(int slot) final;
 
-    auto createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> final;
-    void updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) final;
-    void bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) final;
+    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> final;
+    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) final;
+    void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) final;
 
     // @TODO: remove Dimension
-    void bindTexture(Dimension p_dimension, uint64_t p_handle, int p_slot) final;
-    void unbindTexture(Dimension p_dimension, int p_slot) final;
+    void bindTexture(Dimension dimension, uint64_t handle, int slot) final;
+    void unbindTexture(Dimension dimension, int slot) final;
 
-    void generateMipmap(const GpuTexture* p_texture) final;
+    void generateMipmap(const GpuTexture* texture) final;
 
-    ID3D12CommandQueue* CreateCommandQueue(D3D12_COMMAND_LIST_TYPE p_type);
+    ID3D12CommandQueue* createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 
     ID3D12Device4* const GetDevice() const { return m_device.Get(); }
     ID3D12RootSignature* const GetRootSignature() const { return m_rootSignature.Get(); }
 
 protected:
     auto InitializeInternal() -> Result<void> final;
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) final;
+    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) final;
 
     void render() final;
     void present() final;
@@ -89,27 +90,27 @@ protected:
     void moveToNextFrame() final;
     Ref<FrameContext> createFrameContext() final;
 
-    void beginPass(const CompiledPass& p_pass) final;
-    void endPass(const CompiledPass& p_pass) final;
+    void beginPass(const CompiledPass& pass) final;
+    void endPass(const CompiledPass& pass) final;
 
-    void onWindowResize(int p_width, int p_height) final;
-    void setPipelineStateImpl(PipelineStateName p_name) final;
+    void onWindowResize(int width, int height) final;
+    void setPipelineStateImpl(PipelineStateName name) final;
 
 private:
-    auto CreateDevice() -> Result<void>;
-    auto InitGraphicsContext() -> Result<void>;
-    void FinalizeGraphicsContext();
-    void FlushGraphicsContext();
+    auto createDevice() -> Result<void>;
+    auto initGraphicsContext() -> Result<void>;
+    void finalizeGraphicsContext();
+    void flushGraphicsContext();
 
-    ID3D12Resource* UploadBuffer(uint32_t p_byte_size, const void* p_init_data, ID3D12Resource* p_out_buffer);
+    ID3D12Resource* uploadBuffer(uint32_t byte_size, const void* init_data, ID3D12Resource* out_buffer);
 
-    auto EnableDebugLayer() -> Result<void>;
-    auto CreateDescriptorHeaps() -> Result<void>;
-    auto CreateRootSignature() -> Result<void>;
-    auto CreateSwapChain(uint32_t p_width, uint32_t p_height) -> Result<void>;
-    auto CreateRenderTarget(uint32_t p_width, uint32_t p_height) -> Result<void>;
-    void CleanupRenderTarget();
-    void InitStaticSamplers();
+    auto enableDebugLayer() -> Result<void>;
+    auto createDescriptorHeaps() -> Result<void>;
+    auto createRootSignature() -> Result<void>;
+    auto createSwapChain(uint32_t width, uint32_t height) -> Result<void>;
+    auto createRenderTarget(uint32_t width, uint32_t height) -> Result<void>;
+    void cleanupRenderTarget();
+    void initStaticSamplers();
 
     // @TODO: get rid of magic numbers
     DescriptorHeap m_rtvDescHeap;
@@ -136,10 +137,10 @@ private:
 
     // Render Target
 
-    ID3D12Resource* m_renderTargets[NUM_BACK_BUFFERS] = { nullptr };
-    D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetDescriptor[NUM_BACK_BUFFERS] = {};
-    ID3D12Resource* m_depthStencilBuffer = nullptr;
-    D3D12_CPU_DESCRIPTOR_HANDLE m_depthStencilDescriptor = {};
+    ID3D12Resource* m_renderTargets[NUM_BACK_BUFFERS]{ nullptr };
+    D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetDescriptor[NUM_BACK_BUFFERS]{};
+    ID3D12Resource* m_depthStencilBuffer{ nullptr };
+    D3D12_CPU_DESCRIPTOR_HANDLE m_depthStencilDescriptor{};
 
     uint32_t m_backbufferIndex = 0;
 
@@ -147,11 +148,13 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D12Resource> m_debugVertexData;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_debugIndexData;
-    std::vector<CD3DX12_STATIC_SAMPLER_DESC> m_staticSamplers;
+    Vector<CD3DX12_STATIC_SAMPLER_DESC> m_staticSamplers;
 
-    std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_textures;
+    Vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_textures;
 
     RIDAllocator<D3d12MeshBuffers> m_meshes;
+
+    Owner<D3d12ViewCache> m_view_cache;
 };
 
 }  // namespace cave::render

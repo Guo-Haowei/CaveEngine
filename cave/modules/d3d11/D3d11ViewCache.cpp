@@ -10,17 +10,12 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-D3d11ViewCache::D3d11ViewCache(ID3D11Device* device) noexcept
-    : m_device(device) {
-}
-
 D3d11ViewCache::~D3d11ViewCache() {
     clear();
     m_device = nullptr;
 }
 
 void D3d11ViewCache::clear() {
-    resetStats();
     m_rtvs.clear();
     m_dsvs.clear();
 }
@@ -34,10 +29,6 @@ ID3D11RenderTargetView* D3d11ViewCache::getOrCreateRtv(const ColorAttachmentDesc
     auto [it, inserted] = m_rtvs.try_emplace(key);
     if (inserted) {
         it->second = createRtv(key);
-        ++m_stats.rtv_misses;
-        // LOG_WARN("rtv cache miss {}", p_desc.tex->desc.name);
-    } else {
-        ++m_stats.rtv_hits;
     }
 
     return it->second.Get();
@@ -49,10 +40,6 @@ ID3D11DepthStencilView* D3d11ViewCache::getOrCreateDsv(const DepthAttachmentDesc
     auto [it, inserted] = m_dsvs.try_emplace(key);
     if (inserted) {
         it->second = createDsv(key);
-        ++m_stats.dsv_misses;
-        // LOG_WARN("dsv cache miss {}", p_desc.tex->desc.name);
-    } else {
-        ++m_stats.dsv_hits;
     }
 
     return it->second.Get();
@@ -114,22 +101,19 @@ static D3D11RtvKey MakeRtvKey(const ColorAttachmentDesc& desc) {
 static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& desc) {
     const D3d11GpuTexture* tex = reinterpret_cast<const D3d11GpuTexture*>(desc.tex.get());
 
-    DXGI_FORMAT format{};
+    DXGI_FORMAT format = d3d::ToDsvFormat(d3d::Convert(tex->desc.format));
     D3D11_DSV_DIMENSION dimension{};
 
     // @TODO: do not rely on attachment type
     switch (tex->desc.type) {
         case AttachmentType::DEPTH_STENCIL_2D: {
-            format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
             dimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         } break;
         case AttachmentType::DEPTH_2D:
         case AttachmentType::SHADOW_2D: {
-            format = DXGI_FORMAT_D32_FLOAT;
             dimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         } break;
         case AttachmentType::SHADOW_CUBE_ARRAY: {
-            format = DXGI_FORMAT_D32_FLOAT;
             dimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
             CRASH_NOW();
         } break;
@@ -146,13 +130,6 @@ static D3D11DsvKey MakeDsvKey(const DepthAttachmentDesc& desc) {
         .first_array_slice = desc.view.first_array_slice,
         .array_size = desc.view.array_size,
     };
-}
-
-D3d11ViewCache::Stats D3d11ViewCache::getStats() const {
-    m_stats.rtv_count = static_cast<uint32_t>(m_rtvs.size());
-    m_stats.dsv_count = static_cast<uint32_t>(m_dsvs.size());
-
-    return m_stats;
 }
 
 }  // namespace cave::render

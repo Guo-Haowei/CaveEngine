@@ -88,8 +88,6 @@ void OpenGlFramebufferCache::clear() {
         }
     }
     m_fbos.clear();
-
-    resetStats();
 }
 
 GLuint OpenGlFramebufferCache::getOrCreateFbo(const RenderTargetDesc& desc) {
@@ -98,17 +96,9 @@ GLuint OpenGlFramebufferCache::getOrCreateFbo(const RenderTargetDesc& desc) {
     auto [it, inserted] = m_fbos.try_emplace(key);
     if (inserted) {
         it->second = createFbo(key);
-        ++m_stats.fbo_misses;
-    } else {
-        ++m_stats.fbo_hits;
     }
 
     return it->second;
-}
-
-OpenGlFramebufferCache::Stats OpenGlFramebufferCache::getStats() const {
-    m_stats.fbo_count = static_cast<uint32_t>(m_fbos.size());
-    return m_stats;
 }
 
 GLuint OpenGlFramebufferCache::createFbo(const FboKey& key) {

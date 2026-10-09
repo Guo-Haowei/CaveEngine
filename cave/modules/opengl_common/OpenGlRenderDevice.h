@@ -25,7 +25,6 @@ public:
     void FinalizeImpl() override;
 
     void setStencilRef(uint32_t ref) override;
-    void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask) override;
 
     void setRenderTargets(const RenderTargetDesc& target) override;
     void unsetRenderTargets() override;
@@ -94,6 +93,8 @@ protected:
     } m_stateCache;
 
 private:
+    void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask);
+
     uint32_t m_dummy_vao;  // for drawing with gl_VertexID
 
     Owner<OpenGlFramebufferCache> m_fbo_cache;

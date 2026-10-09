@@ -2,16 +2,16 @@
 
 #include <imgui/backends/imgui_impl_dx11.h>
 
-#include "cave/runtime/display/DisplayService.h"
-#include "cave/runtime/framework/IApplication.h"
-
 #include "D3D11ViewCache.h"
-
-// @TODO: refactor
-#include "../d3d_common/D3dCommon.h"
 #include "D3d11Helpers.h"
 #include "D3d11PipelineStateManager.h"
 #include "D3d11Resources.h"
+
+#include "cave/runtime/display/DisplayService.h"
+#include "cave/runtime/framework/IApplication.h"
+
+// @TODO: refactor
+#include "../d3d_common/D3dCommon.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/gpu_resource.h"
@@ -48,7 +48,7 @@ auto D3d11RenderDevice::InitializeInternal() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
-    m_view_cache = std::make_unique<D3d11ViewCache>(m_device.Get());
+    m_view_cache = MakeOwner<D3d11ViewCache>(m_device.Get());
 
     m_meshes.set_description("GPU-Mesh-Allocator");
 
@@ -107,12 +107,6 @@ void D3d11RenderDevice::setStencilRef(uint32_t p_ref) {
             m_stateCache.stencilRef = p_ref;
         }
     }
-}
-
-void D3d11RenderDevice::setBlendState(const BlendDesc& p_desc, const float* p_factor, uint32_t p_mask) {
-    unused(p_desc);
-    unused(p_factor);
-    unused(p_mask);
 }
 
 void D3d11RenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
@@ -611,53 +605,19 @@ void D3d11RenderDevice::unsetRenderTargets() {
     m_deviceContext->OMSetRenderTargets(std::size(rtvs), rtvs, nullptr);
 }
 
-void D3d11RenderDevice::clear(const RenderTargetDesc& p_target) {
+void D3d11RenderDevice::clear(const RenderTargetDesc&) {
     DEV_ASSERT(0);
-    unused(p_target);
-#if 0
-    // @TODO: refactor
-    const bool clear_color = p_flags & CLEAR_COLOR_BIT;
-    const bool clear_depth = p_flags & CLEAR_DEPTH_BIT;
-    const bool clear_stencil = p_flags & CLEAR_STENCIL_BIT;
-    if (p_framebuffer->desc.type == RenderTargetDesc::Screen) {
-        if (clear_color) {
-            m_deviceContext->ClearRenderTargetView(m_windowRtv.Get(), p_clear_color);
-        }
-        return;
-    }
-
-    auto framebuffer = reinterpret_cast<const D3d11Framebuffer*>(p_framebuffer);
-
-    if (clear_color) {
-        for (auto& rtv : framebuffer->rtvs) {
-            m_deviceContext->ClearRenderTargetView(rtv.Get(), p_clear_color);
-        }
-    }
-
-    uint32_t clear_flags = 0;
-    if (clear_depth) {
-        clear_flags |= D3D11_CLEAR_DEPTH;
-    }
-    if (clear_stencil) {
-        clear_flags |= D3D11_CLEAR_STENCIL;
-    }
-    if (clear_flags) {
-        // @TODO: better way?
-        DEV_ASSERT_INDEX(p_index, framebuffer->dsvs.size());
-        m_deviceContext->ClearDepthStencilView(framebuffer->dsvs[p_index].Get(), clear_flags, p_clear_depth, p_clear_stencil);
-    }
-#endif
 }
 
-void D3d11RenderDevice::setViewport(const Viewport& p_viewport) {
-    D3D11_VIEWPORT vp{};
-    // @TODO: gl and d3d use different viewport
-    vp.TopLeftX = static_cast<float>(p_viewport.topLeftX);
-    vp.TopLeftY = static_cast<float>(p_viewport.topLeftY);
-    vp.Width = static_cast<float>(p_viewport.width);
-    vp.Height = static_cast<float>(p_viewport.height);
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
+void D3d11RenderDevice::setViewport(const Viewport& viewport) {
+    D3D11_VIEWPORT vp{
+        .TopLeftX = static_cast<float>(viewport.topLeftX),
+        .TopLeftY = static_cast<float>(viewport.topLeftY),
+        .Width = static_cast<float>(viewport.width),
+        .Height = static_cast<float>(viewport.height),
+        .MinDepth = 0.0f,
+        .MaxDepth = 1.0f,
+    };
 
     m_deviceContext->RSSetViewports(1, &vp);
 }

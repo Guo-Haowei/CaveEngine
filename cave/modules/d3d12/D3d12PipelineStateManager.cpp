@@ -1,7 +1,7 @@
-#include "d3d12_pipeline_state_manager.h"
+#include "D3d12PipelineStateManager.h"
 
 #include "../d3d_common/D3dCommon.h"
-#include "d3d12_graphics_manager.h"
+#include "D3d12RenderDevice.h"
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/D3dConvert.h"
 
@@ -9,22 +9,19 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* p_device) noexcept
+D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* device) noexcept
     : PipelineStateManager(Backend::D3d12)
-    , m_device(p_device) {
-    m_defines.push_back({ "HLSL_LANG", "1" });
-    m_defines.push_back({ "HLSL_LANG_D3D12", "1" });
-    m_defines.push_back({ nullptr, nullptr });
+    , m_device(device) {
 }
 
 auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
+    auto graphics_manager = reinterpret_cast<D3d12RenderDevice*>(m_device);
 
     auto pipeline_state = MakeOwner<D3d12PipelineState>(p_desc);
 
     ComPtr<ID3DBlob> cs_blob;
     if (!p_desc.cs.empty()) {
-        auto res = CompileShader(p_desc.cs, "cs_5_1", m_defines.data());
+        auto res = CompileShader(p_desc.cs, "cs_5_1", nullptr);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -35,37 +32,37 @@ auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc)
     pso_desc.pRootSignature = graphics_manager->GetRootSignature();
     pso_desc.CS = CD3DX12_SHADER_BYTECODE(cs_blob.Get());
 
-    ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(m_device)->GetDevice();
+    ID3D12Device4* device = reinterpret_cast<D3d12RenderDevice*>(m_device)->GetDevice();
     D3D_FAIL_V(device->CreateComputePipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), CAVE_ERROR(ErrorCode::ERR_CANT_CREATE));
 
     return pipeline_state;
 }
 
-auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d12GraphicsManager*>(m_device);
+auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> {
+    auto graphics_manager = reinterpret_cast<D3d12RenderDevice*>(m_device);
 
-    auto pipeline_state = MakeOwner<D3d12PipelineState>(p_desc);
+    auto pipeline_state = MakeOwner<D3d12PipelineState>(desc);
     ComPtr<ID3DBlob> vs_blob;
     ComPtr<ID3DBlob> ps_blob;
 
-    if (!p_desc.vs.empty()) {
-        auto res = CompileShader(p_desc.vs, "vs_5_1", m_defines.data());
+    if (!desc.vs.empty()) {
+        auto res = CompileShader(desc.vs, "vs_5_1", nullptr);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
         vs_blob = *res;
     }
-    if (!p_desc.ps.empty()) {
-        auto res = CompileShader(p_desc.ps, "ps_5_1", m_defines.data());
+    if (!desc.ps.empty()) {
+        auto res = CompileShader(desc.ps, "ps_5_1", nullptr);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
         ps_blob = *res;
     }
 
-    std::vector<D3D12_INPUT_ELEMENT_DESC> elements;
-    elements.reserve(p_desc.input_layout_desc->elements.size());
-    for (const auto& ele : p_desc.input_layout_desc->elements) {
+    Vector<D3D12_INPUT_ELEMENT_DESC> elements;
+    elements.reserve(desc.input_layout_desc->elements.size());
+    for (const auto& ele : desc.input_layout_desc->elements) {
         D3D12_INPUT_ELEMENT_DESC ildesc;
         ildesc.SemanticName = ele.semantic_name.c_str();
         ildesc.SemanticIndex = ele.semantic_index;
@@ -79,17 +76,17 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc
     DEV_ASSERT(elements.size());
 
     D3D12_RASTERIZER_DESC rasterizer_desc{};
-    rasterizer_desc.FillMode = d3d::Convert(p_desc.rasterizer_desc->fillMode);
-    rasterizer_desc.CullMode = d3d::Convert(p_desc.rasterizer_desc->cullMode);
-    rasterizer_desc.FrontCounterClockwise = p_desc.rasterizer_desc->frontCounterClockwise;
-    rasterizer_desc.DepthBias = p_desc.rasterizer_desc->depthBias;
-    rasterizer_desc.SlopeScaledDepthBias = p_desc.rasterizer_desc->slopeScaledDepthBias;
-    rasterizer_desc.DepthClipEnable = p_desc.rasterizer_desc->depthClipEnable;
-    // rasterizer_desc.ScissorEnable = p_desc.rasterizerDesc->scissorEnable;
-    rasterizer_desc.MultisampleEnable = p_desc.rasterizer_desc->multisampleEnable;
-    rasterizer_desc.AntialiasedLineEnable = p_desc.rasterizer_desc->antialiasedLineEnable;
+    rasterizer_desc.FillMode = d3d::Convert(desc.rasterizer_desc->fillMode);
+    rasterizer_desc.CullMode = d3d::Convert(desc.rasterizer_desc->cullMode);
+    rasterizer_desc.FrontCounterClockwise = desc.rasterizer_desc->frontCounterClockwise;
+    rasterizer_desc.DepthBias = desc.rasterizer_desc->depthBias;
+    rasterizer_desc.SlopeScaledDepthBias = desc.rasterizer_desc->slopeScaledDepthBias;
+    rasterizer_desc.DepthClipEnable = desc.rasterizer_desc->depthClipEnable;
+    // rasterizer_desc.ScissorEnable = desc.rasterizerDesc->scissorEnable;
+    rasterizer_desc.MultisampleEnable = desc.rasterizer_desc->multisampleEnable;
+    rasterizer_desc.AntialiasedLineEnable = desc.rasterizer_desc->antialiasedLineEnable;
 
-    D3D12_DEPTH_STENCIL_DESC depth_stencil_desc = d3d::Convert(p_desc.depth_stencil_desc);
+    D3D12_DEPTH_STENCIL_DESC depth_stencil_desc = d3d::Convert(desc.depth_stencil_desc);
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc = {};
     pso_desc.pRootSignature = graphics_manager->GetRootSignature();
@@ -97,21 +94,21 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& p_desc
     if (ps_blob) {
         pso_desc.PS = CD3DX12_SHADER_BYTECODE(ps_blob.Get());
     }
-    pso_desc.BlendState = d3d::Convert(p_desc.blend_desc);
+    pso_desc.BlendState = d3d::Convert(desc.blend_desc);
     pso_desc.SampleMask = UINT_MAX;
     pso_desc.RasterizerState = rasterizer_desc;
     pso_desc.DepthStencilState = depth_stencil_desc;
     pso_desc.InputLayout = { elements.data(), (uint32_t)elements.size() };
-    pso_desc.PrimitiveTopologyType = d3d::ConvertToType(p_desc.primitive_topology);
+    pso_desc.PrimitiveTopologyType = d3d::ConvertToType(desc.primitive_topology);
     pso_desc.SampleDesc.Count = 1;
 
-    pso_desc.NumRenderTargets = p_desc.num_render_targets;
-    for (uint32_t index = 0; index < p_desc.num_render_targets; ++index) {
-        pso_desc.RTVFormats[index] = d3d::Convert(p_desc.rtv_formats[index]);
+    pso_desc.NumRenderTargets = desc.num_render_targets;
+    for (uint32_t index = 0; index < desc.num_render_targets; ++index) {
+        pso_desc.RTVFormats[index] = d3d::Convert(desc.rtv_formats[index]);
     }
-    pso_desc.DSVFormat = d3d::Convert(p_desc.dsv_format);
+    pso_desc.DSVFormat = d3d::Convert(desc.dsv_format);
 
-    ID3D12Device4* device = reinterpret_cast<D3d12GraphicsManager*>(m_device)->GetDevice();
+    ID3D12Device4* device = reinterpret_cast<D3d12RenderDevice*>(m_device)->GetDevice();
     D3D_FAIL_V(device->CreateGraphicsPipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), nullptr);
 
     return pipeline_state;

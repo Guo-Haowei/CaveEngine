@@ -8,7 +8,7 @@
 
 #if USING(PLATFORM_WINDOWS)
 #include "modules/d3d11/D3d11RenderDevice.h"
-#include "modules/d3d12/d3d12_graphics_manager.h"
+#include "modules/d3d12/D3d12RenderDevice.h"
 #include "modules/opengl4/OpenGl4RenderDevice.h"
 #elif USING(PLATFORM_APPLE)
 #include "modules/metal/MetalRenderDevice.h"
@@ -51,7 +51,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
 
     if (backend == Backend::D3d12) {
 #if USING(PLATFORM_WINDOWS)
-        return new D3d12GraphicsManager;
+        return new D3d12RenderDevice;
 #else
         return nullptr;
 #endif

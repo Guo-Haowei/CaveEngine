@@ -69,13 +69,13 @@ static inline D3D_SRV_DIMENSION ConvertDimension(Dimension p_dimension) {
     }
 }
 
-auto CompileShader(std::string_view p_path,
-                   const char* p_target,
-                   const D3D_SHADER_MACRO* p_defines) -> Result<Microsoft::WRL::ComPtr<ID3DBlob>>;
+auto CompileShader(std::string_view path,
+                   const char* target,
+                   const D3D_SHADER_MACRO* defines) -> Result<Microsoft::WRL::ComPtr<ID3DBlob>>;
 
 #if USING(USE_D3D_DEBUG_NAME)
-void SetDebugName(ID3D11DeviceChild* p_resource, const std::string& p_name);
-void SetDebugName(ID3D12DeviceChild* p_resource, const std::string& p_name);
+void SetDebugName(ID3D11DeviceChild* resource, std::string_view name);
+void SetDebugName(ID3D12DeviceChild* resource, std::string_view name);
 #else
 #define SetDebugName(...)
 #endif

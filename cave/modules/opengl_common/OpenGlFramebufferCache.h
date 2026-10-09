@@ -68,12 +68,6 @@ struct FboKeyHash {
 
 class OpenGlFramebufferCache {
 public:
-    struct Stats {
-        uint32_t fbo_count = 0;
-        uint32_t fbo_hits = 0;
-        uint32_t fbo_misses = 0;
-    };
-
     explicit OpenGlFramebufferCache() noexcept;
     ~OpenGlFramebufferCache();
 
@@ -81,15 +75,10 @@ public:
 
     GLuint getOrCreateFbo(const RenderTargetDesc& desc);
 
-    Stats getStats() const;
-    void resetStats() { m_stats = {}; }
-
 private:
     GLuint createFbo(const FboKey& key);
 
     HashMap<FboKey, GLuint, FboKeyHash> m_fbos;
-
-    mutable Stats m_stats{};
 };
 
 }  // namespace cave::render

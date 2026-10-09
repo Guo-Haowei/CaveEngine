@@ -97,6 +97,21 @@ static inline DXGI_FORMAT Convert(PixelFormat format) {
     }
 }
 
+static DXGI_FORMAT ToDsvFormat(DXGI_FORMAT format) {
+    switch (format) {
+        case DXGI_FORMAT_R32G8X24_TYPELESS:
+            return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+        case DXGI_FORMAT_R32_TYPELESS:
+            return DXGI_FORMAT_D32_FLOAT;
+        case DXGI_FORMAT_R24G8_TYPELESS:
+            return DXGI_FORMAT_D24_UNORM_S8_UINT;
+        case DXGI_FORMAT_R16_TYPELESS:
+            return DXGI_FORMAT_D16_UNORM;
+        default:
+            return format;  // Already a typed format (e.g., DXGI_FORMAT_D32_FLOAT)
+    }
+}
+
 static inline D3D_(INPUT_CLASSIFICATION) Convert(InputClassification p_input_classification) {
     switch (p_input_classification) {
         case InputClassification::PER_VERTEX_DATA:

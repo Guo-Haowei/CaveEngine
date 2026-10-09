@@ -50,7 +50,6 @@ public:
     void setPipelineState(PipelineStateName) override {}
 
     void setStencilRef(uint32_t) override {}
-    void setBlendState(const BlendDesc&, const float*, uint32_t) override {}
 
     void bindStructuredBuffer(int, const GpuStructuredBuffer*) override {}
     void unbindStructuredBuffer(int) override {}
