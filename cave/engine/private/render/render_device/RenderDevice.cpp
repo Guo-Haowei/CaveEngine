@@ -407,15 +407,12 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
         }
     };
 
-    [[maybe_unused]]
-    const bool is_metal = backend() == rhi::Backend::Metal;
-
-    bind_resources();
-
     if (has_rt_or_ds) {
         setRenderTargets(desc);
         setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
     }
+
+    bind_resources();
 }
 
 void RenderDevice::endPass(const CompiledPass& pass) {
@@ -438,12 +435,9 @@ void RenderDevice::endPass(const CompiledPass& pass) {
         }
     };
 
-    [[maybe_unused]]
-    const bool is_metal = backend() == rhi::Backend::Metal;
+    unbind_resources();
 
     unsetRenderTargets();
-
-    unbind_resources();
 }
 
 void RenderDevice::Execute(const FrameData& framedata, const CompiledPass& pass) {
