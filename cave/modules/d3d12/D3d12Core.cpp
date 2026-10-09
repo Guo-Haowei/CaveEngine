@@ -1,6 +1,6 @@
 #include "d3d12_core.h"
 
-#include "../d3d_common/d3d_common.h"
+#include "../d3d_common/D3dCommon.h"
 #include "d3d12_graphics_manager.h"
 
 namespace cave::render {

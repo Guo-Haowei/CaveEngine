@@ -1,4 +1,4 @@
-#include "d3d_common.h"
+#include "D3dCommon.h"
 
 #include "cave/core/string/StringUtils.h"
 

@@ -4,7 +4,7 @@
 
 // @TODO: refactor
 #include "D3d11Resources.h"
-#include "../d3d_common/d3d_convert.h"
+#include "../d3d_common/D3dConvert.h"
 
 namespace cave::render {
 

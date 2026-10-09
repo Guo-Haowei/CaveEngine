@@ -11,7 +11,7 @@
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "../d3d_common/d3d_common.h"
+#include "../d3d_common/D3dCommon.h"
 #include "d3d12_pipeline_state_manager.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_private.h"
@@ -21,7 +21,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 
 #define INCLUDE_AS_D3D12
-#include "../d3d_common/d3d_convert.h"
+#include "../d3d_common/D3dConvert.h"
 
 namespace cave {
 #include "structured_buffer.hlsl.h"
