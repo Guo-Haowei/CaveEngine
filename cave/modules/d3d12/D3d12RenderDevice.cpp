@@ -891,15 +891,6 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
 
     if (texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
         LOG_ERROR("@TODO: fix hard code");
-#if 0
-        D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
-        uav_desc.Format = texture_format;
-        uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-        uav_desc.Texture2D.MipSlice = 0;
-        auto uav_handle = m_srvDescHeap.AllocBindlessHandle(DescriptorResourceType::RWTexture2D);
-        m_device->CreateUnorderedAccessView(texture_ptr, nullptr, &uav_desc, uav_handle.cpuHandle);
-        gpu_texture->uavHandle = uav_handle;
-#endif
     }
 
     gpu_texture->texture = ComPtr<ID3D12Resource>(texture_ptr);
@@ -907,7 +898,16 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     return gpu_texture;
 }
 
-void D3d12RenderDevice::bindTexture(Dimension, uint64_t, int) {
+void D3d12RenderDevice::bindTexture(Dimension, uint64_t handle, int slot) {
+    if (handle != 0) {
+        D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle;
+        gpu_handle.ptr = handle;
+
+        // Root Parameter 7 maps to SRVs in space0 (t0..t31)
+        if (slot == 0) {
+            m_graphicsCommandList->SetGraphicsRootDescriptorTable(7, gpu_handle);
+        }
+    }
 }
 
 void D3d12RenderDevice::unbindTexture(Dimension, int) {
