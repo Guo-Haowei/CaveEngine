@@ -212,10 +212,6 @@ void MetalRenderDevice::setStencilRef(uint32_t ref) {
         [(id<MTLRenderCommandEncoder>)m_encoder setStencilReferenceValue:ref];
 }
 
-void MetalRenderDevice::setBlendState(const BlendDesc&, const float*, uint32_t) {
-    // Blend is immutable in Metal
-}
-
 auto MetalRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
     const size_t bytes = size_t(desc.element_count) * desc.element_size;
     id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
@@ -411,7 +407,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
 
     bool gen_mip_map = (d.bindFlags & BIND_SHADER_RESOURCE) != 0;
 
-    if (d.dimension == Dimension::TEXTURE_CUBE || d.dimension == Dimension::TEXTURE_CUBE_ARRAY) {
+    if (d.dimension == Dimension::TextureCube || d.dimension == Dimension::TextureCubeArray) {
         gen_mip_map = false;
     } else if (d.mipLevels == 1) {
         gen_mip_map = false;
@@ -449,7 +445,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
         return levels;
     };
 
-    const uint32_t max_mip_levels = getFullMipCount(d.width, d.height, d.dimension == Dimension::TEXTURE_3D ? d.depth : 1);
+    const uint32_t max_mip_levels = getFullMipCount(d.width, d.height, d.dimension == Dimension::Texture3D ? d.depth : 1);
 
     uint32_t mip_levels = d.mipLevels;
 
@@ -474,24 +470,21 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
         td.textureType = MTLTextureType2D;
         td.arrayLength = 1;
         break;
-
-    case Dimension::TEXTURE_2D_ARRAY:
+    case Dimension::Texture2DArray:
         if (d.arraySize == 0)
             return nullptr;
 
         td.textureType = MTLTextureType2DArray;
         td.arrayLength = d.arraySize;
         break;
-
-    case Dimension::TEXTURE_CUBE:
+    case Dimension::TextureCube:
         if (d.width != d.height)
             return nullptr;
 
         td.textureType = MTLTextureTypeCube;
         td.arrayLength = 1;
         break;
-
-    case Dimension::TEXTURE_CUBE_ARRAY:
+    case Dimension::TextureCubeArray:
         if (d.width != d.height)
             return nullptr;
 
@@ -502,7 +495,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
         td.arrayLength = d.arraySize / 6;
         break;
 
-    case Dimension::TEXTURE_3D:
+    case Dimension::Texture3D:
         if (d.depth == 0)
             return nullptr;
 
@@ -547,7 +540,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& d, co
 
         const NSUInteger row_pitch = static_cast<NSUInteger>(d.width) * bytes_per_pixel;
 
-        if (d.dimension == Dimension::TEXTURE_3D) {
+        if (d.dimension == Dimension::Texture3D) {
             const NSUInteger image_pitch = row_pitch * static_cast<NSUInteger>(d.height);
 
             [texture replaceRegion:MTLRegionMake3D(0, 0, 0, d.width, d.height, d.depth) mipmapLevel:0 slice:0 withBytes:d.initialData bytesPerRow:row_pitch bytesPerImage:image_pitch];
