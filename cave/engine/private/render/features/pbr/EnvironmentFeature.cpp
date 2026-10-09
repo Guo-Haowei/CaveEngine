@@ -17,11 +17,6 @@ constexpr const char RG_PASS_BAKE_SKYBOX[] = "p:env_skybox";
 constexpr const char RG_PASS_BAKE_DIFFUSE[] = "p:diffuse";
 constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
 
-constexpr const char RG_RES_IBL[] = "r:ibl";
-constexpr const char RG_RES_ENV_SKYBOX_CUBE[] = "r:env_cube";
-constexpr const char RG_RES_ENV_DIFFUSE_CUBE[] = "r:diffuse_cube";
-constexpr const char RG_RES_ENV_PREFILTERED_CUBE[] = "r:prefiltered_cube";
-
 static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
     CAVE_PROFILE_EVENT();
 
@@ -59,9 +54,7 @@ static void PrefilteredFunc(RenderPassExcutionContext& ctx,
     cmd.drawSkybox();
 }
 
-EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph, const RenderOptions& plan) {
-    unused(plan);
-
+EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph, const RenderOptions&) {
     if (m_env_texture) {
         DEV_ASSERT(m_env_cube);
         DEV_ASSERT(m_diffuse);

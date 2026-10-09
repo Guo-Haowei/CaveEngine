@@ -87,16 +87,16 @@ void RenderDevice::eventReceived(std::shared_ptr<IEvent> p_event) {
     }
 }
 
-void RenderDevice::setPipelineState(PipelineStateName p_name) {
-    setPipelineStateImpl(p_name);
+void RenderDevice::setPipelineState(PipelineStateName name) {
+    setPipelineStateImpl(name);
 }
 
-void RenderDevice::requestTexture(ImageAsset* p_image) {
-    m_loadedImages.push(p_image);
+void RenderDevice::requestTexture(ImageAsset* image) {
+    m_loadedImages.push(image);
 }
 
-void RenderDevice::requestMesh(MeshAsset* p_mesh) {
-    m_loadedMeshes.push(p_mesh);
+void RenderDevice::requestMesh(MeshAsset* mesh) {
+    m_loadedMeshes.push(mesh);
 }
 
 void RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
@@ -394,7 +394,7 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
         setRenderTargets(desc);
         setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
     }
-    
+
     // bind srvs
     for (int i = 0; i < (int)pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = pass.srvs[i].get()) {
@@ -428,7 +428,7 @@ void RenderDevice::endPass(const CompiledPass& pass) {
             unbindUnorderedAccessView(i);
         }
     }
-    
+
     unsetRenderTargets();
 }
 
@@ -439,7 +439,7 @@ void RenderDevice::Execute(const FrameData& framedata, const CompiledPass& pass)
         .cmd = *this,
         .services = m_app->services(),
     };
-    
+
     beginEvent(pass.name);
     beginPass(pass);
     if (pass.execute_func) {

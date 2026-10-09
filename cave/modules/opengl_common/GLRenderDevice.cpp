@@ -364,9 +364,9 @@ void GLRenderDevice::unbindTexture(Dimension p_dimension, int p_slot) {
     glBindTexture(texture_type, 0);
 }
 
-void GLRenderDevice::generateMipmap(const GpuTexture* p_texture) {
-    auto dimension = gl::ConvertDimension(p_texture->desc.dimension);
-    glBindTexture(dimension, p_texture->GetHandle32());
+void GLRenderDevice::generateMipmap(const GpuTexture* base) {
+    auto dimension = gl::ConvertDimension(base->desc.dimension);
+    glBindTexture(dimension, base->GetHandle32());
     glGenerateMipmap(dimension);
     glBindTexture(dimension, 0);
 }
@@ -455,7 +455,7 @@ void GLRenderDevice::setStencilRef(uint32_t p_ref) {
     glStencilFunc(gl::Convert(m_stateCache.stencilFunc), p_ref, 0xFF);
 }
 
-void GLRenderDevice::setBlendState(const BlendDesc& p_desc, const float* , uint32_t ) {
+void GLRenderDevice::setBlendState(const BlendDesc& p_desc, const float*, uint32_t) {
     const auto& desc = p_desc.renderTargets[0];
     if (desc.blendEnabled) {
         glEnable(GL_BLEND);

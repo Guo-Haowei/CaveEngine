@@ -95,7 +95,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                    .blend_desc = &s_transparent,
                    .num_render_targets = 1,
                    .rtv_formats = { RT_FMT_TONE },
-                   .dsv_format = PixelFormat::D32_FLOAT_S8X24_UINT,  // gbuffer
                });
 
     CREATE_PSO(PSO_UI_OVERLAY, {
@@ -107,7 +106,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                    .blend_desc = &s_transparent,
                                    .num_render_targets = 1,
                                    .rtv_formats = { RT_FMT_TONE },
-                                   .dsv_format = {},
                                });
 
     CREATE_PSO(PSO_PREPASS,
