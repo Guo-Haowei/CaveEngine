@@ -6,6 +6,56 @@ namespace cave::render {
 
 namespace {
 
+void FillTextureView(const TextureViewDesc& view, FboAttachmentKey& key) {
+    key.first_slice = view.first_array_slice;
+    key.mip = view.mip_slice;
+    key.slice_count = view.array_size;
+}
+
+FboAttachmentKey MakeColorAttachment(const ColorAttachmentDesc& desc, uint8_t attachment) {
+    FboAttachmentKey key{};
+    key.tex = static_cast<uint32_t>(desc.tex->GetHandle());
+    key.attachment_point = attachment;
+    switch (desc.tex->desc.type) {
+        case AttachmentType::COLOR_2D: {
+            key.kind = AttachKind::Tex2D;
+        } break;
+        case AttachmentType::COLOR_CUBE: {
+            key.kind = AttachKind::CubeFace;
+        } break;
+        default: {
+            CRASH_NOW();
+        } break;
+    }
+    FillTextureView(desc.view, key);
+    return key;
+}
+
+FboAttachmentKey MakeDepthAttachment(const DepthAttachmentDesc& desc) {
+    FboAttachmentKey key{};
+    key.attachment_point = 255;
+    key.tex = static_cast<uint32_t>(desc.tex->GetHandle());
+    switch (desc.tex->desc.type) {
+        case AttachmentType::DEPTH_STENCIL_2D: {
+            key.kind = AttachKind::Tex2D;
+            key.attachment_point = 254;
+        } break;
+        case AttachmentType::DEPTH_2D:
+        case AttachmentType::SHADOW_2D: {
+            key.kind = AttachKind::Tex2D;
+        } break;
+        case AttachmentType::SHADOW_CUBE_ARRAY: {
+            key.kind = AttachKind::CubeFace;
+            CRASH_NOW();
+        } break;
+        default: {
+            CRASH_NOW();
+        } break;
+    }
+    FillTextureView(desc.view, key);
+    return key;
+}
+
 FboKey MakeFboKey(const RenderTargetDesc& desc) {
     FboKey key{};
     key.numColors = static_cast<uint8_t>(desc.colors.size());
@@ -128,56 +178,6 @@ GLuint OpenGlFramebufferCache::createFbo(const FboKey& key) {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return fbo_handle;
-}
-
-static void FillTextureView(const TextureViewDesc& view, FboAttachmentKey& key) {
-    key.first_slice = view.first_array_slice;
-    key.mip = view.mip_slice;
-    key.slice_count = view.array_size;
-}
-
-static FboAttachmentKey MakeColorAttachment(const ColorAttachmentDesc& desc, uint8_t attachment) {
-    FboAttachmentKey key{};
-    key.tex = static_cast<uint32_t>(desc.tex->GetHandle());
-    key.attachment_point = attachment;
-    switch (desc.tex->desc.type) {
-        case AttachmentType::COLOR_2D: {
-            key.kind = AttachKind::Tex2D;
-        } break;
-        case AttachmentType::COLOR_CUBE: {
-            key.kind = AttachKind::CubeFace;
-        } break;
-        default: {
-            CRASH_NOW();
-        } break;
-    }
-    FillTextureView(desc.view, key);
-    return key;
-}
-
-static FboAttachmentKey MakeDepthAttachment(const DepthAttachmentDesc& desc) {
-    FboAttachmentKey key{};
-    key.attachment_point = 255;
-    key.tex = static_cast<uint32_t>(desc.tex->GetHandle());
-    switch (desc.tex->desc.type) {
-        case AttachmentType::DEPTH_STENCIL_2D: {
-            key.kind = AttachKind::Tex2D;
-            key.attachment_point = 254;
-        } break;
-        case AttachmentType::DEPTH_2D:
-        case AttachmentType::SHADOW_2D: {
-            key.kind = AttachKind::Tex2D;
-        } break;
-        case AttachmentType::SHADOW_CUBE_ARRAY: {
-            key.kind = AttachKind::CubeFace;
-            CRASH_NOW();
-        } break;
-        default: {
-            CRASH_NOW();
-        } break;
-    }
-    FillTextureView(desc.view, key);
-    return key;
 }
 
 }  // namespace cave::render

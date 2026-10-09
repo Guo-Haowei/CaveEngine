@@ -476,11 +476,11 @@ void ImGuiService::drawTexture(ImDrawList& list,
 
     switch (m_backend) {
         case Backend::Metal:
-        case Backend::Direct3D11:
-        case Backend::Direct3D12: {
+        case Backend::D3d11:
+        case Backend::D3d12: {
             list.AddImage(handle, min, max);
         } break;
-        case Backend::OpenGL: {
+        case Backend::OpenGl: {
             ImVec2 uv_min = ImVec2(0, 1);
             ImVec2 uv_max = ImVec2(1, 0);
             list.AddImage(handle, min, max, uv_min, uv_max);

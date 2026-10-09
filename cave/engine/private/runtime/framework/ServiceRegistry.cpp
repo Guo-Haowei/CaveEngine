@@ -41,7 +41,7 @@ DisplayService* CreateDisplayService() {
 static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
     using rhi::Backend;
 
-    if (backend == Backend::Direct3D11) {
+    if (backend == Backend::D3d11) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d11RenderDevice;
 #else
@@ -49,7 +49,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
 #endif
     }
 
-    if (backend == Backend::Direct3D12) {
+    if (backend == Backend::D3d12) {
 #if USING(PLATFORM_WINDOWS)
         return new D3d12GraphicsManager;
 #else
@@ -57,7 +57,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
 #endif
     }
 
-    if (backend == Backend::OpenGL) {
+    if (backend == Backend::OpenGl) {
 #if USING(PLATFORM_WASM)
         return new GLES3RenderDevice;
 #else

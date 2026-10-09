@@ -33,14 +33,14 @@
         stmt;                                                                                                                \
         GLenum err = glGetError();                                                                                           \
         if (err != GL_NO_ERROR) {                                                                                            \
-            ::cave::ReportErrorImpl(__FUNCTION__, __FILE__, __LINE__, std::format("OpenGL Error (0x{:0>8X}): " #stmt, err)); \
+            ::cave::ReportErrorImpl(__FUNCTION__, __FILE__, __LINE__, std::format("OpenGl Error (0x{:0>8X}): " #stmt, err)); \
         }                                                                                                                    \
     } while (0)
 
 namespace cave::render {
 
 OpenGlRenderDevice::OpenGlRenderDevice()
-    : RenderDevice("OpenGlRenderDevice", rhi::Backend::OpenGL, 1) {
+    : RenderDevice("OpenGlRenderDevice", rhi::Backend::OpenGl, 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
     m_pipeline_state_manager = MakeOwner<OpenGlPipelineStateManager>();
@@ -177,8 +177,8 @@ auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std
 }
 
 auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
-                                    std::span<const GpuBufferDesc> vb_descs,
-                                    const GpuBufferDesc* ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
+                                        std::span<const GpuBufferDesc> vb_descs,
+                                        const GpuBufferDesc* ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     // create VAO
     uint32_t vao;
     glGenVertexArrays(1, &vao);

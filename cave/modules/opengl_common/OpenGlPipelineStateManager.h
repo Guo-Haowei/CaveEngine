@@ -16,7 +16,7 @@ struct OpenGlPipelineState : public PipelineState {
 class OpenGlPipelineStateManager : public PipelineStateManager {
 public:
     explicit OpenGlPipelineStateManager() noexcept
-        : PipelineStateManager(Backend::OpenGL) {}
+        : PipelineStateManager(Backend::OpenGl) {}
 
     auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
     auto computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;

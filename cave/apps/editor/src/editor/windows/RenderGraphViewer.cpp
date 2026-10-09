@@ -26,7 +26,7 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
 
     auto draw_node = [&passes, this](int id, float x, float y) {
         const CompiledPass& pass = passes[id];
-        const bool flip_image = m_backend == Backend::OpenGL;
+        const bool flip_image = m_backend == Backend::OpenGl;
 
         ImNodes::BeginNode(id);
 

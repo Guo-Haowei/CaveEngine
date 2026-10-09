@@ -72,7 +72,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
 
     switch (m_backend) {
         case Backend::Null:
-        case Backend::Direct3D12:
+        case Backend::D3d12:
         case Backend::Vulkan:
             return Result<void>();
         default:

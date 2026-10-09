@@ -101,7 +101,7 @@ struct D3d12FrameContext : FrameContext {
 };
 
 D3d12GraphicsManager::D3d12GraphicsManager()
-    : RenderDevice("D3d12GraphicsManager", rhi::Backend::Direct3D12, NUM_FRAMES_IN_FLIGHT) {
+    : RenderDevice("D3d12GraphicsManager", rhi::Backend::D3d12, NUM_FRAMES_IN_FLIGHT) {
     m_pipeline_state_manager = MakeOwner<D3d12PipelineStateManager>(this);
 }
 

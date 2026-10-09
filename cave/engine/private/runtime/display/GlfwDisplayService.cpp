@@ -42,7 +42,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
 
     switch (backend_) {
-        case Backend::OpenGL:
+        case Backend::OpenGl:
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, CAVE_GL_VERSION_MAJOR);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, CAVE_GL_VERSION_MINOR);
             if (DVAR_GET_BOOL(gfx_gpu_validation)) {
@@ -92,7 +92,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
     glfwGetWindowSize(window_, &frame_size_.x, &frame_size_.y);
 
     switch (backend_) {
-        case Backend::OpenGL:
+        case Backend::OpenGl:
             glfwMakeContextCurrent(window_);
             break;
         case Backend::Vulkan:
@@ -101,8 +101,8 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
             }
             break;
         case Backend::Metal:
-        case Backend::Direct3D11:
-        case Backend::Direct3D12:
+        case Backend::D3d11:
+        case Backend::D3d12:
             break;
         default:
             return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", (int)backend_);
@@ -112,7 +112,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
         imgui->setDisplayCallbacks(
             [this]() {
                 switch (backend_) {
-                    case Backend::OpenGL:
+                    case Backend::OpenGl:
                         ImGui_ImplGlfw_InitForOpenGL(window_, false);
                         break;
                     case Backend::Vulkan:

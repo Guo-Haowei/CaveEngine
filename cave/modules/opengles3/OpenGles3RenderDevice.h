@@ -6,10 +6,10 @@ struct GLFWwindow;
 
 namespace cave {
 
-class OpenGLES3GraphicsManager : public CommonOpenGLGraphicsManager {
+class OpenGLES3GraphicsManager : public OpenGlRenderDevice {
 public:
     OpenGLES3GraphicsManager()
-        : CommonOpenGLGraphicsManager() {}
+        : OpenGlRenderDevice() {}
 
 protected:
     auto InitializeInternal() -> Result<void> final;

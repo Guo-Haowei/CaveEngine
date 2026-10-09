@@ -1,10 +1,10 @@
-#include "D3d11PipelineStateManager.h"
+#include "d3d11_pipeline_state_manager.h"
 
 #include "cave/runtime/framework/IApplication.h"
 
 #include "../d3d_common/d3d_common.h"
-#include "D3d11RenderDevice.h"
-#include "D3d11Helpers.h"
+#include "d3d11_graphics_manager.h"
+#include "d3d11_helpers.h"
 #define INCLUDE_AS_D3D11
 #include "../d3d_common/d3d_convert.h"
 
@@ -15,13 +15,13 @@ using Microsoft::WRL::ComPtr;
 D3d11PipelineStateManager::D3d11PipelineStateManager(IRenderDevice* device) noexcept
     : PipelineStateManager(Backend::D3d11)
     , m_device(device) {
-    // m_defines.push_back({ "HLSL_LANG", "1" });
-    // m_defines.push_back({ "HLSL_LANG_D3D11", "1" });
-    // m_defines.push_back({ nullptr, nullptr });
+    m_defines.push_back({ "HLSL_LANG", "1" });
+    m_defines.push_back({ "HLSL_LANG_D3D11", "1" });
+    m_defines.push_back({ nullptr, nullptr });
 }
 
 auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d11RenderDevice*>(m_device);
+    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(m_device);
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
     if (!device) {
@@ -33,7 +33,7 @@ auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeli
     HRESULT hr = S_OK;
     ComPtr<ID3DBlob> vsblob;
     if (!pipeline_state_desc.vs.empty()) {
-        auto res = CompileShader(pipeline_state_desc.vs, "vs_5_0", nullptr);
+        auto res = CompileShader(pipeline_state_desc.vs, "vs_5_0", m_defines.data());
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -45,7 +45,7 @@ auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeli
         vsblob = blob;
     }
     if (!pipeline_state_desc.ps.empty()) {
-        auto res = CompileShader(pipeline_state_desc.ps, "ps_5_0", nullptr);
+        auto res = CompileShader(pipeline_state_desc.ps, "ps_5_0", m_defines.data());
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -127,7 +127,7 @@ auto D3d11PipelineStateManager::graphicsPipeline(const PipelineStateDesc& pipeli
 }
 
 auto D3d11PipelineStateManager::computePipeline(const PipelineStateDesc& pipeline_state_desc) -> Result<Owner<PipelineState>> {
-    auto graphics_manager = reinterpret_cast<D3d11RenderDevice*>(RenderDevice::singletonPtr());
+    auto graphics_manager = reinterpret_cast<D3d11GraphicsManager*>(RenderDevice::singletonPtr());
     auto& device = graphics_manager->GetD3dDevice();
     DEV_ASSERT(device);
 
@@ -137,7 +137,7 @@ auto D3d11PipelineStateManager::computePipeline(const PipelineStateDesc& pipelin
 
     auto pipeline_state = MakeOwner<D3d11PipelineState>(pipeline_state_desc);
 
-    auto res = CompileShader(pipeline_state_desc.cs, "cs_5_0", nullptr);
+    auto res = CompileShader(pipeline_state_desc.cs, "cs_5_0", m_defines.data());
     if (!res) {
         return CAVE_ERROR(res.error());
     }

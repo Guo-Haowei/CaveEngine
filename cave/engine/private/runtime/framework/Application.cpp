@@ -93,7 +93,7 @@ auto Application::setupModules() -> Result<void> {
     m_scene_registry = MakeOwner<SceneRegistry>();
 
     m_view_manager = MakeOwner<ViewManager>(*m_scene_registry,
-                                            m_app_spec.backend == rhi::Backend::OpenGL);
+                                            m_app_spec.backend == rhi::Backend::OpenGl);
     m_engine_services.view_manager = m_view_manager.get();
 
     m_renderer = new render::Renderer(m_engine_services);

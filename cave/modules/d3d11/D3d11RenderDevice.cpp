@@ -30,7 +30,7 @@ using Microsoft::WRL::ComPtr;
 static constexpr size_t kMaxRenderTargets = 8;
 
 D3d11RenderDevice::D3d11RenderDevice()
-    : RenderDevice("D3d11RenderDevice", rhi::Backend::Direct3D11, 1) {
+    : RenderDevice("D3d11RenderDevice", rhi::Backend::D3d11, 1) {
     m_pipeline_state_manager = MakeOwner<D3d11PipelineStateManager>(this);
 }
 
@@ -698,8 +698,8 @@ auto D3d11RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std:
 }
 
 auto D3d11RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
-                                          std::span<const GpuBufferDesc> p_vb_descs,
-                                          const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
+                                       std::span<const GpuBufferDesc> p_vb_descs,
+                                       const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
     auto ret = std::make_shared<D3d11MeshBuffers>(p_desc);
 
     for (uint32_t index = 0; index < (uint32_t)p_vb_descs.size(); ++index) {
