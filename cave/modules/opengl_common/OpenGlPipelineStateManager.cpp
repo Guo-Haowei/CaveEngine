@@ -1,10 +1,10 @@
-#include "GLPipelineStateManager.h"
+#include "OpenGlPipelineStateManager.h"
 
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
-#include "GLDefines.h"
-#include "GLHelpers.h"
+#include "OpenGlDefines.h"
+#include "OpenGlHelpers.h"
 
 #include <fstream>
 

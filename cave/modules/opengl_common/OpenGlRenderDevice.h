@@ -2,7 +2,7 @@
 
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
-#include "GLDefines.h"
+#include "OpenGlDefines.h"
 
 struct GLFWwindow;
 

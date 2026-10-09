@@ -1,4 +1,4 @@
-#include "GLRenderDevice.h"
+#include "OpenGlRenderDevice.h"
 
 #include <imgui/backends/imgui_impl_opengl3.h>
 
@@ -13,10 +13,10 @@
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
-#include "GLFramebufferCache.h"
-#include "GLHelpers.h"
-#include "GLPipelineStateManager.h"
-#include "GLResources.h"
+#include "OpenGlFramebufferCache.h"
+#include "OpenGlHelpers.h"
+#include "OpenGlPipelineStateManager.h"
+#include "OpenGlResources.h"
 
 // @NOTE: include GLFW after opengl
 // @TODO: opengl shouldn't know about glfw

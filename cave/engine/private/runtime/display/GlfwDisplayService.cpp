@@ -13,7 +13,7 @@
 #include "engine/private/runtime/input/GlfwKeyboardMouseDevice.h"
 #include "engine/private/runtime/input/InputService.h"
 
-#include "modules/opengl_common/GLDefines.h"
+#include "modules/opengl_common/OpenGlDefines.h"
 
 // @TODO: refactor
 // do not put ImGui code here

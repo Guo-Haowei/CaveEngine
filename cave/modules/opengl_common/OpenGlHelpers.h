@@ -7,7 +7,7 @@
 #include "engine/private/render/rhi/PipelineState.h"
 #include "engine/private/renderer/sampler.h"
 
-#include "GLPrerequisites.h"
+#include "OpenGlPrerequisites.h"
 
 // @TODO: wrap all enums for better debugging information
 

@@ -1,6 +1,6 @@
-#include "GLResources.h"
+#include "OpenGlResources.h"
 
-#include "GLHelpers.h"
+#include "OpenGlHelpers.h"
 
 namespace cave {
 
