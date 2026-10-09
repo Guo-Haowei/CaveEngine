@@ -7,10 +7,9 @@
 #include "engine/private/renderer/graphics_dvars.h"
 
 #if USING(PLATFORM_WINDOWS)
-#include "modules/d3d11/d3d11_graphics_manager.h"
+#include "modules/d3d11/D3d11RenderDevice.h"
 #include "modules/d3d12/d3d12_graphics_manager.h"
 #include "modules/opengl4/GL4RenderDevice.h"
-// #include "modules/vk/vulkan_graphics_manager.h"
 #elif USING(PLATFORM_APPLE)
 #include "modules/metal/MetalRenderDevice.h"
 #include "modules/opengl4/GL4RenderDevice.h"

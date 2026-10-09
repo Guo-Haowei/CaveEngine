@@ -1,4 +1,4 @@
-#include "d3d11_graphics_manager.h"
+#include "D3d11RenderDevice.h"
 
 #include <imgui/backends/imgui_impl_dx11.h>
 
@@ -9,9 +9,9 @@
 
 // @TODO: refactor
 #include "../d3d_common/d3d_common.h"
-#include "d3d11_helpers.h"
-#include "d3d11_pipeline_state_manager.h"
-#include "d3d11_resources.h"
+#include "D3d11Helpers.h"
+#include "D3d11PipelineStateManager.h"
+#include "D3d11Resources.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/gpu_resource.h"

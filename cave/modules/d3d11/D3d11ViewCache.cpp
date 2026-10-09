@@ -1,9 +1,9 @@
-#include "D3D11ViewCache.h"
+#include "D3d11ViewCache.h"
 
 #include "engine/private/render/rhi/RenderTarget.h"
 
 // @TODO: refactor
-#include "d3d11_resources.h"
+#include "D3d11Resources.h"
 #include "../d3d_common/d3d_convert.h"
 
 namespace cave::render {

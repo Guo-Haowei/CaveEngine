@@ -1,10 +1,10 @@
-#include "d3d11_pipeline_state_manager.h"
+#include "D3d11PipelineStateManager.h"
 
 #include "cave/runtime/framework/IApplication.h"
 
 #include "../d3d_common/d3d_common.h"
-#include "d3d11_graphics_manager.h"
-#include "d3d11_helpers.h"
+#include "D3d11RenderDevice.h"
+#include "D3d11Helpers.h"
 #define INCLUDE_AS_D3D11
 #include "../d3d_common/d3d_convert.h"
 
