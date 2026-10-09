@@ -72,7 +72,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
 
     switch (m_backend) {
         case Backend::Null:
-        case Backend::D3d12:
         case Backend::Vulkan:
             return Result<void>();
         default:
@@ -107,6 +106,10 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                    .num_render_targets = 1,
                                    .rtv_formats = { RT_FMT_TONE },
                                });
+
+    if (m_backend == Backend::D3d12) {
+        return Result<void>();
+    }
 
     CREATE_PSO(PSO_PREPASS,
                {

@@ -390,46 +390,60 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
         has_rt_or_ds = true;
     }
 
+    auto bind_resources = [this, &pass]() {
+        // bind srvs
+        for (int i = 0; i < (int)pass.srvs.size(); ++i) {
+            if (const GpuTexture* srv = pass.srvs[i].get()) {
+                DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+                bindTexture(srv->desc.dimension, srv->GetHandle(), i);
+            }
+        }
+        // bind uavs
+        for (int i = 0; i < (int)pass.uavs.size(); ++i) {
+            if (GpuTexture* uav = pass.uavs[i].get()) {
+                DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+                bindUnorderedAccessView(i, uav);
+            }
+        }
+    };
+
+    [[maybe_unused]]
+    const bool is_metal = backend() == rhi::Backend::Metal;
+
+    bind_resources();
+
     if (has_rt_or_ds) {
         setRenderTargets(desc);
         setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
     }
-
-    // bind srvs
-    for (int i = 0; i < (int)pass.srvs.size(); ++i) {
-        if (const GpuTexture* srv = pass.srvs[i].get()) {
-            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-            bindTexture(srv->desc.dimension, srv->GetHandle(), i);
-        }
-    }
-    // bind uavs
-    for (int i = 0; i < (int)pass.uavs.size(); ++i) {
-        if (GpuTexture* uav = pass.uavs[i].get()) {
-            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-            bindUnorderedAccessView(i, uav);
-        }
-    }
 }
 
 void RenderDevice::endPass(const CompiledPass& pass) {
-    // unbind srvs
-    for (int i = 0; i < (int)pass.srvs.size(); ++i) {
-        if (const GpuTexture* srv = pass.srvs[i].get()) {
-            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-            unbindTexture(srv->desc.dimension, i);
+    auto unbind_resources = [this, &pass]() {
+        // unbind srvs
+        for (int i = 0; i < (int)pass.srvs.size(); ++i) {
+            if (const GpuTexture* srv = pass.srvs[i].get()) {
+                DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+                unbindTexture(srv->desc.dimension, i);
+            }
         }
-    }
 
-    // unbind uavs
-    for (int i = 0; i < (int)pass.uavs.size(); ++i) {
-        if (GpuTexture* uav = pass.uavs[i].get()) {
-            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-            bindUnorderedAccessView(i, uav);
-            unbindUnorderedAccessView(i);
+        // unbind uavs
+        for (int i = 0; i < (int)pass.uavs.size(); ++i) {
+            if (GpuTexture* uav = pass.uavs[i].get()) {
+                DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+                bindUnorderedAccessView(i, uav);
+                unbindUnorderedAccessView(i);
+            }
         }
-    }
+    };
+
+    [[maybe_unused]]
+    const bool is_metal = backend() == rhi::Backend::Metal;
 
     unsetRenderTargets();
+
+    unbind_resources();
 }
 
 void RenderDevice::Execute(const FrameData& framedata, const CompiledPass& pass) {

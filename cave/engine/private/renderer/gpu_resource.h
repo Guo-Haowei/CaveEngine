@@ -167,8 +167,8 @@ struct GpuMeshDesc {
 
 struct GpuMesh {
     const GpuMeshDesc desc;
-    std::shared_ptr<GpuBuffer> indexBuffer;
-    std::array<std::shared_ptr<GpuBuffer>, MESH_MAX_VERTEX_BUFFER_COUNT> vertexBuffers;
+    Ref<GpuBuffer> indexBuffer;
+    std::array<Ref<GpuBuffer>, MESH_MAX_VERTEX_BUFFER_COUNT> vertexBuffers;
 
     GpuMesh() = default;
     GpuMesh(const GpuMeshDesc& p_desc)

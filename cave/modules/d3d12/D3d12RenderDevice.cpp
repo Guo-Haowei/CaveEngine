@@ -72,6 +72,27 @@ struct D3d12FrameContext : FrameContext {
     uint64_t m_fenceValue = 0;
 };
 
+static const char* D3D12ResourceStateToString(D3D12_RESOURCE_STATES state) {
+    switch (state) {
+        case D3D12_RESOURCE_STATE_COMMON:
+            return "COMMON / PRESENT";
+        case D3D12_RESOURCE_STATE_RENDER_TARGET:
+            return "RENDER_TARGET";
+        case D3D12_RESOURCE_STATE_DEPTH_WRITE:
+            return "DEPTH_WRITE";
+        case D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE:
+            return "PIXEL_SHADER_RESOURCE";
+        case D3D12_RESOURCE_STATE_COPY_DEST:
+            return "COPY_DEST";
+        case D3D12_RESOURCE_STATE_COPY_SOURCE:
+            return "COPY_SOURCE";
+        case D3D12_RESOURCE_STATE_UNORDERED_ACCESS:
+            return "UNORDERED_ACCESS";
+        default:
+            return "OTHER / COMBINED";
+    }
+}
+
 D3d12RenderDevice::D3d12RenderDevice()
     : RenderDevice("D3d12RenderDevice", rhi::Backend::D3d12, NUM_FRAMES_IN_FLIGHT) {
     m_pipeline_state_manager = MakeOwner<D3d12PipelineStateManager>(this);
@@ -277,8 +298,8 @@ Ref<FrameContext> D3d12RenderDevice::createFrameContext() {
     return MakeOwner<D3d12FrameContext>();
 }
 
-void D3d12RenderDevice::setStencilRef(uint32_t p_ref) {
-    m_graphicsCommandList->OMSetStencilRef(p_ref);
+void D3d12RenderDevice::setStencilRef(uint32_t ref) {
+    m_graphicsCommandList->OMSetStencilRef(ref);
 }
 
 void D3d12RenderDevice::setRenderTargets(const RenderTargetDesc& p_desc) {
@@ -291,15 +312,10 @@ void D3d12RenderDevice::setRenderTargets(const RenderTargetDesc& p_desc) {
     // 1. Transition and collect color attachment RTVs
     for (const auto& color : p_desc.colors) {
         if (!color.tex) continue;
-
         auto* d3d_tex = static_cast<D3d12GpuTexture*>(color.tex.get());
 
-        // State transition barrier
-        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            d3d_tex->texture.Get(),
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_RENDER_TARGET);
-        m_graphicsCommandList->ResourceBarrier(1, &barrier);
+        // Ensure texture is in RENDER_TARGET state BEFORE clearing or binding
+        TransitionTexture(d3d_tex, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
         D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle = m_view_cache->getOrCreateRtv(color);
         rtvs[rtv_count++] = rtv_handle;
@@ -316,11 +332,8 @@ void D3d12RenderDevice::setRenderTargets(const RenderTargetDesc& p_desc) {
     if (p_desc.depth && p_desc.depth->tex) {
         auto* d3d_depth = static_cast<D3d12GpuTexture*>(p_desc.depth->tex.get());
 
-        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            d3d_depth->texture.Get(),
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE);
-        m_graphicsCommandList->ResourceBarrier(1, &barrier);
+        // Ensure depth texture is in DEPTH_WRITE state BEFORE clearing or binding
+        TransitionTexture(d3d_depth, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
         dsv_handle = m_view_cache->getOrCreateDsv(*p_desc.depth);
         dsv_ptr = &dsv_handle;
@@ -350,20 +363,11 @@ void D3d12RenderDevice::unsetRenderTargets() {
 void D3d12RenderDevice::beginPass(const CompiledPass& p_pass) {
     RenderDevice::beginPass(p_pass);
 
-    ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
+    // Transition all sampled textures to PIXEL_SHADER_RESOURCE
     for (auto& texture : p_pass.srvs) {
-        D3D12_RESOURCE_STATES resource_state{};
-        if (texture->desc.bindFlags & BIND_RENDER_TARGET) {
-            resource_state = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        } else if (texture->desc.bindFlags & BIND_DEPTH_STENCIL) {
-            resource_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-        } else {
-            CRASH_NOW();
-        }
-
-        auto d3d_texture = reinterpret_cast<D3d12GpuTexture*>(texture.get());
-        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(d3d_texture->texture.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, resource_state);
-        command_list->ResourceBarrier(1, &barriers);
+        if (!texture) continue;
+        auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
+        TransitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 }
 
@@ -371,20 +375,13 @@ void D3d12RenderDevice::endPass(const CompiledPass& p_pass) {
     RenderDevice::endPass(p_pass);
 
     unsetRenderTargets();
-    ID3D12GraphicsCommandList* command_list = m_graphicsCommandList.Get();
-    for (auto& texture : p_pass.srvs) {
-        D3D12_RESOURCE_STATES resource_state{};
-        if (texture->desc.bindFlags & BIND_RENDER_TARGET) {
-            resource_state = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        } else if (texture->desc.bindFlags & BIND_DEPTH_STENCIL) {
-            resource_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-        } else {
-            CRASH_NOW();
-        }
 
-        auto d3d_texture = reinterpret_cast<D3d12GpuTexture*>(texture.get());
-        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(d3d_texture->texture.Get(), resource_state, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        command_list->ResourceBarrier(1, &barriers);
+    for (auto& uav : p_pass.uavs) {
+        if (!uav) continue;
+        auto* d3d_tex = static_cast<D3d12GpuTexture*>(uav.get());
+
+        auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(d3d_tex->texture.Get());
+        m_graphicsCommandList->ResourceBarrier(1, &barrier);
     }
 }
 
@@ -411,6 +408,28 @@ void D3d12RenderDevice::setViewport(const Viewport& viewport) {
 
     m_graphicsCommandList->RSSetViewports(1, &vp);
     m_graphicsCommandList->RSSetScissorRects(1, &rect);
+}
+
+void D3d12RenderDevice::TransitionTexture(D3d12GpuTexture* texture, D3D12_RESOURCE_STATES target_state) {
+    if (!texture || !texture->texture) return;
+
+    if (texture->currentState != target_state) {
+#if 0
+        LOG_INFO(LogChannel::Render,
+                 "[Barrier] Texture '{}' (0x{:x}) | {} -> {}",
+                 texture->desc.name.empty() ? "Unnamed" : texture->desc.name.c_str(),
+                 reinterpret_cast<uintptr_t>(texture->texture.Get()),
+                 D3D12ResourceStateToString(texture->currentState),
+                 D3D12ResourceStateToString(target_state));
+#endif
+
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            texture->texture.Get(),
+            texture->currentState,
+            target_state);
+        m_graphicsCommandList->ResourceBarrier(1, &barrier);
+        texture->currentState = target_state;
+    }
 }
 
 ID3D12Resource* D3d12RenderDevice::uploadBuffer(uint32_t p_byte_size, const void* p_init_data, ID3D12Resource* p_out_buffer) {
@@ -459,8 +478,8 @@ auto D3d12RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std:
 
 auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
                                        std::span<const GpuBufferDesc> p_vb_descs,
-                                       const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
-    auto ret = std::make_shared<D3d12MeshBuffers>(p_desc);
+                                       const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> {
+    auto ret = MakeRef<D3d12MeshBuffers>(p_desc);
     for (uint32_t index = 0; index < (uint32_t)p_vb_descs.size(); ++index) {
         const auto& vb_desc = p_vb_descs[index];
         if (vb_desc.element_count == 0) {
@@ -497,12 +516,16 @@ auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d12RenderDevice::setMesh(const GpuMesh* p_mesh) {
-    auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(p_mesh);
+void D3d12RenderDevice::setMesh(const GpuMesh* gpu_mesh) {
+    if (DEV_VERIFY(gpu_mesh)) {
+        auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(gpu_mesh);
 
-    m_graphicsCommandList->IASetVertexBuffers(0, MESH_MAX_VERTEX_BUFFER_COUNT, mesh->vbvs);
-    if (mesh->indexBuffer) {
-        m_graphicsCommandList->IASetIndexBuffer(&mesh->ibv);
+        m_graphicsCommandList->IASetVertexBuffers(0,
+                                                  mesh->desc.enabledVertexCount,
+                                                  mesh->vbvs);
+        if (mesh->indexBuffer) {
+            m_graphicsCommandList->IASetIndexBuffer(&mesh->ibv);
+        }
     }
 }
 
@@ -654,7 +677,8 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     PixelFormat format = texture_desc.format;
     DXGI_FORMAT texture_format = d3d::Convert(format);
     DXGI_FORMAT srv_format = d3d::Convert(format);
-    D3D12_RESOURCE_STATES initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
+
+    D3D12_RESOURCE_STATES initial_state = D3D12_RESOURCE_STATE_COMMON;
 
     // @TODO: refactor
     switch (format) {
@@ -674,13 +698,10 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         default:
             break;
     }
-    switch (texture_desc.type) {
-        case AttachmentType::NONE:
-            initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
-            break;
-        default:
-            initial_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-            break;
+    if (texture_desc.type == AttachmentType::NONE)
+        initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
+    else if (texture_desc.initialData) {
+        initial_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     }
 
     D3D12_HEAP_PROPERTIES props{};

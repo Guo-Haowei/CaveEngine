@@ -5,6 +5,7 @@
 
 namespace cave::render {
 
+struct D3d12GpuTexture;
 class D3d12ViewCache;
 
 struct D3d12Buffer : GpuBuffer {
@@ -102,8 +103,6 @@ private:
     void finalizeGraphicsContext();
     void flushGraphicsContext();
 
-    ID3D12Resource* uploadBuffer(uint32_t byte_size, const void* init_data, ID3D12Resource* out_buffer);
-
     auto enableDebugLayer() -> Result<void>;
     auto createDescriptorHeaps() -> Result<void>;
     auto createRootSignature() -> Result<void>;
@@ -111,6 +110,9 @@ private:
     auto createRenderTarget(uint32_t width, uint32_t height) -> Result<void>;
     void cleanupRenderTarget();
     void initStaticSamplers();
+
+    ID3D12Resource* uploadBuffer(uint32_t byte_size, const void* init_data, ID3D12Resource* out_buffer);
+    void TransitionTexture(D3d12GpuTexture* texture, D3D12_RESOURCE_STATES target_state);
 
     // @TODO: get rid of magic numbers
     DescriptorHeap m_rtvDescHeap;

@@ -31,6 +31,8 @@ struct D3d12GpuTexture : public GpuTexture {
 
     DescriptorHeapHandle srvHandle;
     DescriptorHeapHandle uavHandle;
+
+    D3D12_RESOURCE_STATES currentState{ D3D12_RESOURCE_STATE_COMMON };
 };
 
 }  // namespace cave::render
