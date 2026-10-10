@@ -6,8 +6,8 @@ void OS::Finalize() {
     SetLogger(nullptr);
 }
 
-void OS::addLogger(std::unique_ptr<ILogSink>&& logger) {
-    logger_.addLogger(std::move(logger));
+void OS::addLogger(Owner<ILogSink>&& logger) {
+    m_logger.addLogger(std::move(logger));
 }
 
 }  // namespace cave

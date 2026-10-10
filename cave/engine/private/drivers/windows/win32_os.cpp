@@ -23,7 +23,7 @@ void OS::Initialize() {
     }
 #endif
 
-    SetLogger(&logger_);
+    SetLogger(&m_logger);
 }
 
 bool IsAnsiSupported() {

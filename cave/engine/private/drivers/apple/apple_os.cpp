@@ -17,6 +17,8 @@ void OS::Initialize() {
     } else {
         addLogger(MakeOwner<StdLogger>());
     }
+
+    SetLogger(&m_logger);
 }
 
 bool IsAnsiSupported() {

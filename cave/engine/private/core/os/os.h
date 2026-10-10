@@ -9,12 +9,12 @@ public:
     void Initialize();
     void Finalize();
 
-    void addLogger(std::unique_ptr<ILogSink>&& logger);
+    void addLogger(Owner<ILogSink>&& logger);
 
-    CompositeLogger& logger() { return logger_; }
+    CompositeLogger& logger() { return m_logger; }
 
 protected:
-    CompositeLogger logger_;
+    CompositeLogger m_logger;
 };
 
 bool IsAnsiSupported();
