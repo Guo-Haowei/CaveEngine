@@ -101,7 +101,7 @@ if(WIN32)
         opengl_4_backend
         d3d11_backend
         d3d12_backend
-        # vk_backend
+        vulkan_backend
     )
 elseif(APPLE)
     list(APPEND TARGET_LIBS

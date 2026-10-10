@@ -1,4 +1,4 @@
-#include "vulkan_helpers.h"
+#include "VulkanHelpers.h"
 
 namespace cave {
 
