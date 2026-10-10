@@ -2,9 +2,9 @@
 #pragma once
 
 #define SRV_DEFINES              \
-    TEXTURE_2D(BaseColorMap, 30) \
-    TEXTURE_2D(NormalMap, 31)    \
-    TEXTURE_2D(MaterialMap, 32)
+    TEXTURE_2D(BaseColorMap, 20) \
+    TEXTURE_2D(NormalMap, 21)    \
+    TEXTURE_2D(MaterialMap, 22)
 
 #if defined(__SLANG__)
 #ifndef TEXTURE_2D

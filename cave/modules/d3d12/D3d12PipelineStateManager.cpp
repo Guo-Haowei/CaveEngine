@@ -61,19 +61,22 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
     }
 
     Vector<D3D12_INPUT_ELEMENT_DESC> elements;
-    elements.reserve(desc.input_layout_desc->elements.size());
-    for (const auto& ele : desc.input_layout_desc->elements) {
-        D3D12_INPUT_ELEMENT_DESC ildesc;
-        ildesc.SemanticName = ele.semantic_name.c_str();
-        ildesc.SemanticIndex = ele.semantic_index;
-        ildesc.Format = d3d::Convert(ele.format);
-        ildesc.InputSlot = ele.input_slot;
-        ildesc.AlignedByteOffset = ele.aligned_byte_offset;
-        ildesc.InputSlotClass = d3d::Convert(ele.input_slot_class);
-        ildesc.InstanceDataStepRate = ele.instance_data_step_rate;
-        elements.push_back(ildesc);
+
+    if (desc.input_layout_desc && desc.input_layout_desc->elements.size()) {
+        elements.reserve(desc.input_layout_desc->elements.size());
+        for (const auto& ele : desc.input_layout_desc->elements) {
+            D3D12_INPUT_ELEMENT_DESC ildesc;
+            ildesc.SemanticName = ele.semantic_name.c_str();
+            ildesc.SemanticIndex = ele.semantic_index;
+            ildesc.Format = d3d::Convert(ele.format);
+            ildesc.InputSlot = ele.input_slot;
+            ildesc.AlignedByteOffset = ele.aligned_byte_offset;
+            ildesc.InputSlotClass = d3d::Convert(ele.input_slot_class);
+            ildesc.InstanceDataStepRate = ele.instance_data_step_rate;
+            elements.push_back(ildesc);
+        }
+        DEV_ASSERT(elements.size());
     }
-    DEV_ASSERT(elements.size());
 
     D3D12_RASTERIZER_DESC rasterizer_desc{};
     rasterizer_desc.FillMode = d3d::Convert(desc.rasterizer_desc->fillMode);

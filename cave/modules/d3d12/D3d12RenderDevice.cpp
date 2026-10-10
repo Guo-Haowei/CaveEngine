@@ -99,6 +99,8 @@ D3d12RenderDevice::D3d12RenderDevice()
 }
 
 auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
+    m_capabilities.supportComputeShaders = false;
+
     const int w = DisplayService::singleton().windowSize().x;
     const int h = DisplayService::singleton().windowSize().y;
     DEV_ASSERT(w > 0 && h > 0);
@@ -913,9 +915,8 @@ void D3d12RenderDevice::bindTexture(Dimension, uint64_t handle, int slot) {
 void D3d12RenderDevice::unbindTexture(Dimension, int) {
 }
 
-void D3d12RenderDevice::generateMipmap(const GpuTexture* p_texture) {
-    unused(p_texture);
-    CRASH_NOW();
+void D3d12RenderDevice::generateMipmap(const GpuTexture* texture) {
+    unused(texture);
 }
 
 auto D3d12RenderDevice::createDevice() -> Result<void> {
