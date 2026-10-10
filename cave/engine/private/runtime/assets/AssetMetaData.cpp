@@ -2,7 +2,7 @@
 #include "cave/runtime/assets/AssetMetaData.h"
 #include "cave/runtime/assets/IAsset.h"
 
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/io/FileAccess.h"
 #include "engine/private/runtime/serialization/YamlInclude.h"
 
 #include <chrono>

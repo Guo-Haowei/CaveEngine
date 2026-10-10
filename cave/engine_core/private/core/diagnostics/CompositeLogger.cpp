@@ -1,20 +1,15 @@
-#include <mutex>
-#include <vector>
-
+#include "cave/core/containers/Containers.h"
 #include "cave/core/diagnostics/CompositeLogger.h"
 #include "cave/core/error/ErrorMacros.h"
 
+#include <mutex>
+
 namespace cave {
 
-// @TODO: fix this part
-// #if USING(ENABLE_ASSERT)
-// #define ASSERT_OPERATION_THREAD() DEV_ASSERT(thread::IsMainThread())
-// #else
-// #endif
 #define ASSERT_OPERATION_THREAD() ((void)0)
 
 struct GroupedLog {
-    std::vector<LogEvent> logs;
+    Vector<LogEvent> logs;
     void add(LogEvent log);
     void clear() { logs.clear(); }
 };
@@ -41,8 +36,8 @@ public:
     void submit(const LogEvent& log);
 
     void addLogger(std::unique_ptr<ILogSink>&& logger);
-    void addLevel(LogLevel level) { level_filter_ |= level; }
-    void removeLevel(LogLevel level) { level_filter_ &= ~level; }
+    void addLevel(LogLevel level) { m_level_filter |= level; }
+    void removeLevel(LogLevel level) { m_level_filter &= ~level; }
 
     void flush();
 
@@ -54,131 +49,131 @@ public:
 
 private:
     struct Buffer {
-        std::vector<LogEvent> buffer;
+        Vector<LogEvent> buffer;
         std::mutex mutex;
     };
 
-    std::vector<std::unique_ptr<ILogSink>> loggers_;
+    Vector<Owner<ILogSink>> m_loggers;
 
-    GroupedLog all_logs_;
-    GroupedLog errors_;
-    GroupedLog warnings_;
+    GroupedLog m_all_logs;
+    GroupedLog m_errors;
+    GroupedLog m_warnings;
 
-    Buffer buffer_;
+    Buffer m_buffer;
 
-    uint32_t level_filter_{ LOG_LEVEL_ALL };
+    uint32_t m_level_filter{ LOG_LEVEL_ALL };
 };
 
 CompositeLogger::CompositeLogger()
-    : impl_(new Impl()) {
+    : m_impl(new Impl) {
 }
 
 CompositeLogger::~CompositeLogger() {
-    if (impl_) {
-        delete impl_;
-        impl_ = nullptr;
+    if (m_impl) {
+        delete m_impl;
+        m_impl = nullptr;
     }
 }
 
 void CompositeLogger::submit(const LogEvent& log) {
-    impl_->submit(log);
+    m_impl->submit(log);
 }
 
-void CompositeLogger::addLogger(std::unique_ptr<ILogSink>&& logger) {
-    impl_->addLogger(std::move(logger));
+void CompositeLogger::addLogger(Owner<ILogSink>&& logger) {
+    m_impl->addLogger(std::move(logger));
 }
 
 void CompositeLogger::addLevel(LogLevel level) {
-    impl_->addLevel(level);
+    m_impl->addLevel(level);
 }
 
 void CompositeLogger::removeLevel(LogLevel level) {
-    impl_->removeLevel(level);
+    m_impl->removeLevel(level);
 }
 
 void CompositeLogger::flush() {
-    impl_->flush();
+    m_impl->flush();
 }
 
 void CompositeLogger::clearLog() {
-    impl_->clearLog();
+    m_impl->clearLog();
 }
 
 std::span<const LogEvent> CompositeLogger::allLogs() const {
-    return impl_->allLogs();
+    return m_impl->allLogs();
 }
 
 std::span<const LogEvent> CompositeLogger::warningLogs() const {
-    return impl_->warningLogs();
+    return m_impl->warningLogs();
 }
 
 std::span<const LogEvent> CompositeLogger::errorLogs() const {
-    return impl_->errorLogs();
+    return m_impl->errorLogs();
 }
 
-void CompositeLogger::Impl::addLogger(std::unique_ptr<ILogSink>&& logger) {
-    loggers_.emplace_back(std::move(logger));
+void CompositeLogger::Impl::addLogger(Owner<ILogSink>&& logger) {
+    m_loggers.emplace_back(std::move(logger));
 }
 
 void CompositeLogger::Impl::submit(const LogEvent& log) {
     // @TODO: set verbose
-    if (!(level_filter_ & log.level)) {
+    if (!(m_level_filter & log.level)) {
         return;
     }
 
-    for (auto& logger : loggers_) {
+    for (auto& logger : m_loggers) {
         logger->submit(log);
     }
 
-    buffer_.mutex.lock();
-    buffer_.buffer.emplace_back(log);
-    buffer_.mutex.unlock();
+    m_buffer.mutex.lock();
+    m_buffer.buffer.emplace_back(log);
+    m_buffer.mutex.unlock();
 }
 
 void CompositeLogger::Impl::flush() {
     ASSERT_OPERATION_THREAD();
 
-    buffer_.mutex.lock();
+    m_buffer.mutex.lock();
 
-    for (LogEvent& log : buffer_.buffer) {
+    for (LogEvent& log : m_buffer.buffer) {
         switch (log.level) {
             case LogLevel::LOG_LEVEL_FATAL:
             case LogLevel::LOG_LEVEL_ERROR: {
-                errors_.add(log);
+                m_errors.add(log);
             } break;
             case LogLevel::LOG_LEVEL_WARN: {
-                warnings_.add(log);
+                m_warnings.add(log);
             } break;
             default:
                 break;
         }
-        all_logs_.add(std::move(log));
+        m_all_logs.add(std::move(log));
     }
 
-    buffer_.buffer.clear();
-    buffer_.mutex.unlock();
+    m_buffer.buffer.clear();
+    m_buffer.mutex.unlock();
 }
 
 void CompositeLogger::Impl::clearLog() {
     ASSERT_OPERATION_THREAD();
-    all_logs_.clear();
-    errors_.clear();
-    warnings_.clear();
+    m_all_logs.clear();
+    m_errors.clear();
+    m_warnings.clear();
 }
 
 std::span<const LogEvent> CompositeLogger::Impl::allLogs() const {
     ASSERT_OPERATION_THREAD();
-    return all_logs_.logs;
+    return m_all_logs.logs;
 }
 
 std::span<const LogEvent> CompositeLogger::Impl::warningLogs() const {
     ASSERT_OPERATION_THREAD();
-    return warnings_.logs;
+    return m_warnings.logs;
 }
 
 std::span<const LogEvent> CompositeLogger::Impl::errorLogs() const {
     ASSERT_OPERATION_THREAD();
-    return errors_.logs;
+    return m_errors.logs;
 }
 
 }  // namespace cave

@@ -34,3 +34,4 @@ target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_LIBS})
 target_precompile_headers(${TARGET_NAME} PRIVATE pch.h)
 
 target_set_warning_level(${TARGET_NAME})
+target_set_debug_symbol(${TARGET_NAME})

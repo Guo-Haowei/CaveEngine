@@ -1,6 +1,6 @@
 #include "BlobAsset.h"
 
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/io/FileAccess.h"
 
 namespace cave {
 

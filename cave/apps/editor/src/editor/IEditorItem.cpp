@@ -1,4 +1,3 @@
-#pragma once
 #include "IEditorItem.h"
 
 #include "editor/EditorState.h"

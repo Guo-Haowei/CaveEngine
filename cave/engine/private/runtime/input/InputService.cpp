@@ -7,7 +7,6 @@
 
 namespace cave {
 
-using namespace cave::literals;
 using namespace cave::math;
 
 InputService::InputService(GameInput& game_input)
@@ -76,14 +75,14 @@ UIInput InputService::buildUIInput() {
 
     UIInput input{};
 
-    input.submit_down = m_game_input.isPressed("ui_accept"_sid, player_id);
-    input.submit_pressed = m_game_input.isJustPressed("ui_accept"_sid, player_id);
-    input.submit_released = m_game_input.isJustReleased("ui_accept"_sid, player_id);
+    input.submit_down = m_game_input.isPressed(CAVE_SID("ui_accept"), player_id);
+    input.submit_pressed = m_game_input.isJustPressed(CAVE_SID("ui_accept"), player_id);
+    input.submit_released = m_game_input.isJustReleased(CAVE_SID("ui_accept"), player_id);
 
-    input.left_pressed = m_game_input.isJustPressed("ui_left"_sid, player_id);
-    input.right_pressed = m_game_input.isJustPressed("ui_right"_sid, player_id);
-    input.up_pressed = m_game_input.isJustPressed("ui_up"_sid, player_id);
-    input.down_pressed = m_game_input.isJustPressed("ui_down"_sid, player_id);
+    input.left_pressed = m_game_input.isJustPressed(CAVE_SID("ui_left"), player_id);
+    input.right_pressed = m_game_input.isJustPressed(CAVE_SID("ui_right"), player_id);
+    input.up_pressed = m_game_input.isJustPressed(CAVE_SID("ui_up"), player_id);
+    input.down_pressed = m_game_input.isJustPressed(CAVE_SID("ui_down"), player_id);
 
     const PointerState& pointer = m_pointers[device_id.value];
     Vec2f window_pos = m_app->services().displayService().windowPos();

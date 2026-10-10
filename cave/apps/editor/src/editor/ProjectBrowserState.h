@@ -19,7 +19,7 @@ public:
     Option<StateRequest> popRequest() override;
 
 #if USING(DEBUG_BUILD)
-    DebugId debugId() const { return m_debug_id; }
+    DebugId debugId() const override { return m_debug_id; }
 #endif
 
 private:

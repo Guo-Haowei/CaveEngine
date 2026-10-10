@@ -100,7 +100,6 @@ void ProjectBrowserState::selectProject(std::string_view path) {
 }
 
 void ProjectBrowserState::drawUI() {
-    static int selectedIndex = -1;
     static char search[128] = "";
 
     ImGui::SeparatorText("MY PROJECTS");

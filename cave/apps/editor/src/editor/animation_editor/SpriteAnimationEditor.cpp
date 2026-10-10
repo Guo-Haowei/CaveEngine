@@ -25,6 +25,7 @@ using namespace ::cave::math;
 
 namespace {
 
+#if 0
 void ImageSourceDropTarget(DragDropService& drag_drop, IDocument& doc, uint64_t checkerboard) {
     auto asset = doc.handle<SpriteAnimationAsset>().get();
     DEV_ASSERT(asset);
@@ -41,6 +42,7 @@ void ImageSourceDropTarget(DragDropService& drag_drop, IDocument& doc, uint64_t 
         asset->SetGuid(handle.unwrap_unchecked().guid());
     }
 }
+#endif
 
 }  // namespace
 

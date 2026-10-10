@@ -48,7 +48,6 @@ private:
 
     float m_move_speed{ 10.0f };
     float m_rotate_speed{ 10.0f };
-    float m_scroll_speed{ 2.0f };
 };
 
 }  // namespace cave

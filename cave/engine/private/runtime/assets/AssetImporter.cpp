@@ -1,6 +1,6 @@
 #include "AssetImporter.h"
 
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/io/FileAccess.h"
 #include "engine/private/renderer/pixel_format.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/assets/ImageAsset.h"

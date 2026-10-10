@@ -73,9 +73,20 @@ function(target_set_warning_level TARGET)
     if(MSVC)
         target_compile_options(${TARGET} PRIVATE /W4 /WX)
     elseif(APPLE OR EMSCRIPTEN)
-        target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic)
     else()
         message(FATAL_ERROR "Platform not supported")
+    endif()
+endfunction()
+
+function(target_set_debug_symbol TARGET)
+    if(APPLE)
+        set_target_properties(${TARGET} PROPERTIES
+            XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS
+            "$<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,YES,NO>"
+            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT
+            "$<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,dwarf-with-dsym,>"
+        )
     endif()
 endfunction()
 

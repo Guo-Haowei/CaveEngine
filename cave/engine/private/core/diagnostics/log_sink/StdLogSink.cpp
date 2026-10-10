@@ -3,13 +3,16 @@
 namespace cave {
 
 void StdLogger::submit(const LogEvent& log) {
-    const char* tag = ToString(log.level);
-
     // @TODO: stderr vs stdout
     FILE* file = stdout;
     fflush(file);
 
-    fprintf(file, "%s%s", tag, log.message.c_str());
+    fprintf(file, "[%s]  %s  %s  %s\n",
+            log.time_str,
+            ToString(log.level),
+            ToString(log.channel),
+            log.message.c_str());
+
     fflush(file);
 }
 

@@ -2,7 +2,7 @@
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/Vec.h"
 
-#include "geomath.h"
+#include "Geomath.h"
 
 // @TODO: refactor
 namespace cave::math {

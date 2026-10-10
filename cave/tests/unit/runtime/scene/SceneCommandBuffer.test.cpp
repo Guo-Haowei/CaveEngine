@@ -7,7 +7,6 @@
 
 namespace cave::scene {
 
-using namespace cave::literals;
 using namespace ecs;
 
 TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
@@ -19,13 +18,13 @@ TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {
     Entity e2 = cb.createEntity();
 
     cb.addComponent(e1, NameComponent_Id);
-    cb.setProperty(e1, NameComponent_Id, "name"_sid, FixedString<64>("e1"));
+    cb.setProperty(e1, NameComponent_Id, CAVE_SID("name"), FixedString<64>("e1"));
 
     cb.addComponent(e2, NameComponent_Id);
     cb.addComponent(e2, HierarchyComponent_Id);
 
-    cb.setProperty(e2, NameComponent_Id, "name"_sid, FixedString<64>("e2"));
-    cb.setProperty(e2, HierarchyComponent_Id, "parent_id"_sid, e1);
+    cb.setProperty(e2, NameComponent_Id, CAVE_SID("name"), FixedString<64>("e2"));
+    cb.setProperty(e2, HierarchyComponent_Id, CAVE_SID("parent_id"), e1);
 
     MetaRegistry reg = MetaRegistry::builtin();
 

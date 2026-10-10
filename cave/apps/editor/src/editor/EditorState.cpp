@@ -114,8 +114,17 @@ void EditorState::onEnter(const StateRequest& request) {
         panel->onAttach();
     }
 
+// @TODO: refactor
+#if USING(PLATFORM_WINDOWS)
+#define CAVE_GAME_MODULE_FORMAT "{}.dll"
+#elif USING(PLATFORM_APPLE)
+#define CAVE_GAME_MODULE_FORMAT "lib{}.dylib"
+#else
+#error "Unsupported platform"
+#endif
+
     // load pie
-    auto game_dll = std::format("{}.dll", request.arg0);
+    auto game_dll = std::format(CAVE_GAME_MODULE_FORMAT, request.arg0);
     ensureGameModuleLoaded(game_dll.c_str());
 
     m_workspace->restoreTabs();
@@ -204,7 +213,7 @@ void EditorState::dockSpace() {
     ui::DockSpace({
         "DockSpace Demo",
         [this]() { m_menu_bar->drawUI(); },
-        [this]() {
+        []() {
             CompositeLogger& logger = OS::singleton().logger();
             const uint32_t error_count = static_cast<uint32_t>(logger.errorLogs().size());
             const uint32_t warning_count = static_cast<uint32_t>(logger.warningLogs().size());

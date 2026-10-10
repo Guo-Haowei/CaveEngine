@@ -1,6 +1,6 @@
-#include "engine/private/core/io/archive.h"
+#include "engine/private/io/Archive.h"
 
-#include "engine/private/core/io/file_access_unix.h"
+#include "engine/private/io/FileAccessUnix.h"
 
 namespace cave {
 

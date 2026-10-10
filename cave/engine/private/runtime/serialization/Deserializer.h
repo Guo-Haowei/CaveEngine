@@ -1,6 +1,6 @@
 #pragma once
 // @TODO: refactor defines.h
-#include "defines.h"
+#include "Defines.h"
 
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/Box.h"

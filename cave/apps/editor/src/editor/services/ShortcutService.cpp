@@ -45,7 +45,7 @@ bool ShortcutService::handleIntent(Intent& intent) {
         return true;
     }
 
-    if (auto save_all = dynamic_cast<const SaveAllIntent*>(&intent)) {
+    if (auto save_all = dynamic_cast<const SaveAllIntent*>(&intent); save_all) {
         m_editor_services.document().saveAll();
         return true;
     }
@@ -113,7 +113,7 @@ void ShortcutService::initShortcuts() {
     m_shortcuts[std::to_underlying(Shortcut::Open)] = {
         "Open",
         "Ctrl+O",
-        [this]() {
+        []() {
             LOG_WARN("Ctrl+O");
             // m_editor.BufferCommand(std::make_shared<OpenProjectCommand>(true));
         },

@@ -8,7 +8,7 @@ public:
     void submit(const LogEvent& log) override;
 
 private:
-    std::mutex console_mutex_;
+    std::mutex m_console_mutex;
 };
 
 }  // namespace cave

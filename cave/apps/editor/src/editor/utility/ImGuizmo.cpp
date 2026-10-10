@@ -37,7 +37,7 @@
 #define _freea(x)
 #endif
 
-#include "engine/private/core/math/geomath.h"
+#include "engine/private/core/math/Geomath.h"
 
 // includes patches for multiview from
 // https://github.com/CedricGuillemet/ImGuizmo/issues/15
@@ -2499,7 +2499,6 @@ void DrawAxes(const glm::mat4& p_projection_view_matrix, const float p_length) {
 
     vec_t frustum[6];
     ComputeFrustumPlanes(frustum, view_projection.m16);
-    matrix_t res = view_projection;
 
     auto draw_line = [&](vec_t a, vec_t b, ImU32 color) {
         if (!ClipLine(a, b, frustum)) {

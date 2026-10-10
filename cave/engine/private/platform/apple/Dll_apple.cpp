@@ -12,7 +12,7 @@ Dll::~Dll() {
 bool Dll::load(const char* path) {
     unload();
 
-    ::dlerror();  // Clear any previous error.
+    ::dlerror();
     m_handle = ::dlopen(path, RTLD_NOW | RTLD_LOCAL);
     if (!m_handle) {
         const char* error = ::dlerror();
@@ -33,13 +33,13 @@ void Dll::unload() {
     }
 }
 
-void* Dll::symbol(const char* p_name) const {
+void* Dll::symbol(const char* name) const {
     if (!m_handle) {
         return nullptr;
     }
 
-    ::dlerror();  // Clear any previous error.
-    void* result = ::dlsym(m_handle, p_name);
+    ::dlerror();
+    void* result = ::dlsym(m_handle, name);
     return ::dlerror() ? nullptr : result;
 }
 

@@ -5,7 +5,7 @@
 #include "cave/core/diagnostics/CommandRegistry.h"
 #include "cave/core/diagnostics/ILogSink.h"
 
-#include "engine/private/core/io/archive.h"
+#include "engine/private/io/Archive.h"
 
 namespace cave {
 

@@ -28,3 +28,4 @@ set_target_properties(${TARGET_NAME} PROPERTIES FOLDER applications)
 
 target_precompile_headers(${TARGET_NAME} PRIVATE src/pch.h)
 target_set_warning_level(${TARGET_NAME})
+target_set_debug_symbol(${TARGET_NAME})

@@ -44,6 +44,7 @@ SceneTab::SceneTab(EditorState& editor,
         [this]() {
             return !m_editor.isPlaying();
         },
+        nullptr,
     };
     m_pause_button = {
         "SceneTab.pause",
@@ -55,6 +56,7 @@ SceneTab::SceneTab(EditorState& editor,
         [this]() {
             return m_editor.isPlaying();
         },
+        nullptr,
     };
 }
 

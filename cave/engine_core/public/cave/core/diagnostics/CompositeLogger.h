@@ -2,11 +2,11 @@
 // File: cave/core/diagnostics/CompositeLogger.h
 // =============================================================================
 #pragma once
-#include <memory>
 #include <span>
 
 #include "cave/core/CoreExport.h"
 #include "cave/core/diagnostics/ILogSink.h"
+#include "cave/core/memory/Pointer.h"
 
 namespace cave {
 
@@ -17,7 +17,7 @@ public:
 
     void submit(const LogEvent& log) override;
 
-    void addLogger(std::unique_ptr<ILogSink>&& logger);
+    void addLogger(Owner<ILogSink>&& logger);
 
     void addLevel(LogLevel level);
     void removeLevel(LogLevel level);
@@ -33,7 +33,7 @@ public:
 private:
     class Impl;
 
-    Impl* impl_{};
+    Impl* m_impl{};
 };
 
 }  // namespace cave

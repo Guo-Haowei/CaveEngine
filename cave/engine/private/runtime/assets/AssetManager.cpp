@@ -9,7 +9,7 @@
 #include "cave/runtime/framework/IApplication.h"
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/io/FileAccess.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/assets/AssetImporter.h"
 #include "engine/private/runtime/assets/BlobAsset.h"

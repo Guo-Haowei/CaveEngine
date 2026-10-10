@@ -20,7 +20,6 @@
 namespace chess {
 
 using namespace ::cave;
-using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 
@@ -140,36 +139,36 @@ void ChessGridSelectorAdapter::tickPointer(const IGameInput& input) {
     const int file = (int)std::roundf(p.z);
     const int rank = (int)std::roundf(p.x);
     m_controller->focus(file, rank);
-    if (input.isJustPressed("ui_accept"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_accept"))) {
         m_controller->confirm();
     }
-    if (input.isJustPressed("ui_back"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_back"))) {
         m_controller->cancel();
     }
 }
 
 void ChessGridSelectorAdapter::tickKeyboard(const IGameInput& input) {
-    if (input.isJustPressed("ui_right"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_right"))) {
         m_controller->moveFocus(1, 0);
     }
-    if (input.isJustPressed("ui_left"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_left"))) {
         m_controller->moveFocus(-1, 0);
     }
-    if (input.isJustPressed("ui_up"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_up"))) {
         m_controller->moveFocus(0, 1);
     }
-    if (input.isJustPressed("ui_down"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_down"))) {
         m_controller->moveFocus(0, -1);
     }
-    if (input.isJustPressed("ui_accept"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_accept"))) {
         m_controller->confirm();
     }
-    if (input.isJustPressed("ui_back"_sid)) {
+    if (input.isJustPressed(CAVE_SID("ui_back"))) {
         m_controller->cancel();
     }
 
-    const float dx = input.getStrength("ui_axis_x"_sid);
-    const float dy = input.getStrength("ui_axis_y"_sid);
+    const float dx = input.getStrength(CAVE_SID("ui_axis_x"));
+    const float dy = input.getStrength(CAVE_SID("ui_axis_y"));
     if (dx > 0.5f) {
         m_controller->moveFocus(1, 0);
     } else if (dx < -0.5f) {

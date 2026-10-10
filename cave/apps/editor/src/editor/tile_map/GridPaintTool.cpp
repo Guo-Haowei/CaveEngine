@@ -43,7 +43,6 @@ void GridPaintTool::buildStrokePreview() {
                 m_stroke.brush,
                 m_preview);
         } break;
-
         case GridPaintMode::Line: {
             ForEachGridLine(
                 m_stroke.start.x,
@@ -54,7 +53,6 @@ void GridPaintTool::buildStrokePreview() {
                     appendBrush(coord, m_stroke.brush, m_preview);
                 });
         } break;
-
         case GridPaintMode::Rect: {
             ForEachGridRect(
                 m_stroke.start,
@@ -63,6 +61,8 @@ void GridPaintTool::buildStrokePreview() {
                     appendBrush(coord, m_stroke.brush, m_preview);
                 });
         } break;
+        default:
+            break;
     }
 }
 
@@ -77,6 +77,8 @@ void GridPaintTool::buildHoverPreview(GridCoord coord,
         case GridPaintMode::Line:
         case GridPaintMode::Rect:
             appendBrush(coord, m_brush, m_preview);
+            break;
+        default:
             break;
     }
 }

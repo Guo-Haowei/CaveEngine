@@ -1,6 +1,6 @@
 #pragma once
 // @TODO: refactor defines.h
-#include "defines.h"
+#include "Defines.h"
 
 #include "cave/core/ids/Entity.h"
 #include "cave/core/math/Angle.h"
@@ -9,7 +9,7 @@
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
 
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/io/FileAccess.h"
 
 namespace cave {
 

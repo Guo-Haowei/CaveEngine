@@ -32,10 +32,8 @@ target_compile_definitions(${TARGET_NAME}
 )
 
 if(WIN32)
-    target_link_libraries(${TARGET_NAME}
-        PUBLIC
-            optick
-    )
+    target_link_libraries(${TARGET_NAME} PUBLIC optick)
 endif()
 
 target_set_warning_level(${TARGET_NAME})
+target_set_debug_symbol(${TARGET_NAME})

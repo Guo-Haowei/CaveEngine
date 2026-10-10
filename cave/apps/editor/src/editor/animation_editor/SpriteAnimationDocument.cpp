@@ -12,7 +12,6 @@
 
 namespace cave {
 
-using namespace ::cave::literals;
 using ecs::Entity;
 
 SpriteAnimationDocument::SpriteAnimationDocument(EngineServices& services, const Guid& guid)

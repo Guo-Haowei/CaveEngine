@@ -1,6 +1,6 @@
 #include "cave/runtime/script/lua/LuaScriptComponent.h"
 
-#include "engine/private/core/io/archive.h"
+#include "engine/private/io/Archive.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 

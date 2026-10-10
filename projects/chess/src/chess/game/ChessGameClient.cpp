@@ -12,7 +12,6 @@
 namespace chess {
 
 using namespace ::cave;
-using namespace ::cave::literals;
 using namespace ::chess::core;
 
 ChessGameClient::ChessGameClient(IntentBus& intent_bus,

@@ -109,7 +109,7 @@ public:
     }
 
     const uint8_t* bytes() const { return m_bytes.data(); }
-    const size_t byteSize() const { return m_bytes.size(); }
+    size_t byteSize() const { return m_bytes.size(); }
 
     uint32_t allocationCount() const noexcept { return m_next_entity - kSceneCmdTmpBase; }
 

@@ -28,11 +28,12 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     dxguid.lib
 )
 
-target_set_warning_level(${TARGET_NAME})
-
-target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/private/pch.h)
-
 target_compile_definitions(${TARGET_NAME} PRIVATE
     -D_CRT_SECURE_NO_WARNINGS
     -DROOT_FOLDER="${PROJECT_SOURCE_DIR}/"
 )
+
+target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/private/pch.h)
+
+target_set_warning_level(${TARGET_NAME})
+target_set_debug_symbol(${TARGET_NAME})
