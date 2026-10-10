@@ -254,7 +254,7 @@ void D3d12RenderDevice::present() {
             ImGui::RenderPlatformWindowsDefault();
         }
     }
-    D3D_CALL(m_swapChain->Present(1, 0));  // Present with vsync
+    D3D_CALL(m_swap_chain->Present(1, 0));  // Present with vsync
 }
 
 void D3d12RenderDevice::beginFrame() {
@@ -266,10 +266,10 @@ void D3d12RenderDevice::beginFrame() {
 
     WaitForSingleObject(m_swapChainWaitObject, INFINITE);
 
-    m_backbufferIndex = m_swapChain->GetCurrentBackBufferIndex();
+    m_backbufferIndex = m_swap_chain->GetCurrentBackBufferIndex();
 
-    m_graphicsCommandList->SetGraphicsRootSignature(m_rootSignature.Get());
-    m_graphicsCommandList->SetComputeRootSignature(m_rootSignature.Get());
+    m_graphicsCommandList->SetGraphicsRootSignature(m_root_signature.Get());
+    m_graphicsCommandList->SetComputeRootSignature(m_root_signature.Get());
 
     ID3D12DescriptorHeap* heap = m_srvDescHeap.GetHeap();
     m_graphicsCommandList->SetDescriptorHeaps(1, &heap);
@@ -466,8 +466,8 @@ ID3D12Resource* D3d12RenderDevice::uploadBuffer(uint32_t p_byte_size, const void
     return p_out_buffer;
 };
 
-auto D3d12RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
-    auto ret = std::make_shared<D3d12Buffer>(p_desc);
+auto D3d12RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> {
+    auto ret = MakeRef<D3d12Buffer>(p_desc);
 
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
     ret->buffer = uploadBuffer(size_in_byte, p_desc.initial_data, nullptr);
@@ -519,15 +519,19 @@ auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
 }
 
 void D3d12RenderDevice::setMesh(const GpuMesh* gpu_mesh) {
-    if (DEV_VERIFY(gpu_mesh)) {
-        auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(gpu_mesh);
+    if (!gpu_mesh) {
+        m_graphicsCommandList->IASetVertexBuffers(0, 0, nullptr);
+        m_graphicsCommandList->IASetIndexBuffer(nullptr);
+        return;
+    }
 
-        m_graphicsCommandList->IASetVertexBuffers(0,
-                                                  mesh->desc.enabledVertexCount,
-                                                  mesh->vbvs);
-        if (mesh->indexBuffer) {
-            m_graphicsCommandList->IASetIndexBuffer(&mesh->ibv);
-        }
+    auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(gpu_mesh);
+
+    m_graphicsCommandList->IASetVertexBuffers(0,
+                                              mesh->desc.enabledVertexCount,
+                                              mesh->vbvs);
+    if (mesh->indexBuffer) {
+        m_graphicsCommandList->IASetIndexBuffer(&mesh->ibv);
     }
 }
 
@@ -589,7 +593,7 @@ void D3d12RenderDevice::unbindStructuredBufferSRV(int p_slot) {
     unused(p_slot);
 }
 
-auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuConstantBuffer>> {
+auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_byte);
@@ -602,7 +606,7 @@ auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Res
                  nullptr, IID_PPV_ARGS(&buffer)),
              "Failed to create CommittedResource");
 
-    auto result = std::make_shared<D3d12ConstantBuffer>(p_desc);
+    auto result = MakeRef<D3d12ConstantBuffer>(p_desc);
     result->buffer = buffer;
 
     D3D_FAIL(result->buffer->Map(0, nullptr, reinterpret_cast<void**>(&result->mappedData)),
@@ -611,7 +615,7 @@ auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Res
     return result;
 }
 
-auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuStructuredBuffer>> {
     DEV_ASSERT(!p_desc.initial_data && "TODO: initial data");
 
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -648,7 +652,7 @@ auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> R
     auto handle = m_srvDescHeap.AllocHandle();
     m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpuHandle);
 
-    auto result = std::make_shared<D3d12StructuredBuffer>(p_desc);
+    auto result = MakeRef<D3d12StructuredBuffer>(p_desc);
     result->buffer = buffer;
     result->handle = handle;
     return result;
@@ -852,7 +856,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         CloseHandle(event);
     }
 
-    auto gpu_texture = std::make_shared<D3d12GpuTexture>(texture_desc);
+    auto gpu_texture = MakeRef<D3d12GpuTexture>(texture_desc);
     // Create a shader resource view for the texture
     if (texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
@@ -895,20 +899,33 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         LOG_ERROR("@TODO: fix hard code");
     }
 
+    if (initial_data) {
+        gpu_texture->currentState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    } else {
+        gpu_texture->currentState = initial_state;
+    }
+
     gpu_texture->texture = ComPtr<ID3D12Resource>(texture_ptr);
     SetDebugName(texture_ptr, texture_desc.name);
     return gpu_texture;
 }
 
 void D3d12RenderDevice::bindTexture(Dimension, uint64_t handle, int slot) {
-    if (handle != 0) {
-        D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle;
-        gpu_handle.ptr = handle;
 
-        // Root Parameter 7 maps to SRVs in space0 (t0..t31)
-        if (slot == 0) {
-            m_graphicsCommandList->SetGraphicsRootDescriptorTable(7, gpu_handle);
-        }
+    if (handle != 0 && slot >= 0 && slot < 128) {
+        uint64_t heap_offset = handle - m_srvDescHeap.GetStartGpu().ptr;
+        D3D12_CPU_DESCRIPTOR_HANDLE src_cpu_handle{ m_srvDescHeap.GetStartCpu().ptr + heap_offset };
+
+        // Calculate destination CPU handle for register(tN)
+        CD3DX12_CPU_DESCRIPTOR_HANDLE dest_cpu_handle(m_srvDescHeap.GetStartCpu());
+        dest_cpu_handle.Offset(slot, m_srvDescHeap.GetIncrementSize());
+
+        // Copy source descriptor into slot p_slot (t0, t30, t31, t32, etc.)
+        m_device->CopyDescriptorsSimple(
+            1,
+            dest_cpu_handle,
+            src_cpu_handle,
+            D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 }
 
@@ -922,8 +939,8 @@ void D3d12RenderDevice::generateMipmap(const GpuTexture* texture) {
 auto D3d12RenderDevice::createDevice() -> Result<void> {
 #if USING(DEBUG_BUILD)
     if (m_enableValidationLayer) {
-        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_debugController)))) {
-            m_debugController->EnableDebugLayer();
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_debug_controller)))) {
+            m_debug_controller->EnableDebugLayer();
         }
     }
 #endif
@@ -1068,18 +1085,17 @@ ID3D12CommandQueue* D3d12RenderDevice::createCommandQueue(D3D12_COMMAND_LIST_TYP
 
 auto D3d12RenderDevice::enableDebugLayer() -> Result<void> {
 #if USING(DEBUG_BUILD)
-    D3D_FAIL(D3D12GetDebugInterface(IID_PPV_ARGS(&m_debugController)),
+    D3D_FAIL(D3D12GetDebugInterface(IID_PPV_ARGS(&m_debug_controller)),
              "failed to get debug interface");
 
-    m_debugController->EnableDebugLayer();
+    m_debug_controller->EnableDebugLayer();
 
     ComPtr<ID3D12Debug> debug_device;
     m_device->QueryInterface(IID_PPV_ARGS(debug_device.GetAddressOf()));
 
     ComPtr<ID3D12InfoQueue> info_queue;
 
-    D3D_FAIL(m_device->QueryInterface(IID_PPV_ARGS(&info_queue)),
-             "failed to query info queue interface");
+    D3D_FAIL(m_device->QueryInterface(IID_PPV_ARGS(&info_queue)), "failed to query info queue interface");
 
     info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
     info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
@@ -1088,7 +1104,7 @@ auto D3d12RenderDevice::enableDebugLayer() -> Result<void> {
     D3D12_MESSAGE_ID ignore_list[] = {
         D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,
         D3D12_MESSAGE_ID_CLEARDEPTHSTENCILVIEW_MISMATCHINGCLEARVALUE,
-        // D3D12_MESSAGE_ID_COPY_DESCRIPTORS_INVALID_RANGES
+        D3D12_MESSAGE_ID_COMMAND_LIST_DRAW_VERTEX_BUFFER_NOT_SET,
     };
 
     D3D12_INFO_QUEUE_FILTER filter = {};
@@ -1101,10 +1117,10 @@ auto D3d12RenderDevice::enableDebugLayer() -> Result<void> {
 }
 
 auto D3d12RenderDevice::createDescriptorHeaps() -> Result<void> {
-    if (auto res = m_rtvDescHeap.Initialize(64, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_device.Get(), false); !res) {
+    if (auto res = m_rtvDescHeap.Initialize(128, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_device.Get(), false); !res) {
         return CAVE_ERROR(res.error());
     }
-    if (auto res = m_dsvDescHeap.Initialize(64, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, m_device.Get(), false); !res) {
+    if (auto res = m_dsvDescHeap.Initialize(128, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, m_device.Get(), false); !res) {
         return CAVE_ERROR(res.error());
     }
     if (auto res = m_srvDescHeap.Initialize(512, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_device.Get(), true); !res) {
@@ -1145,10 +1161,10 @@ auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> 
                  &pSwapChain),
              "Failed to create swapchain");
 
-    m_swapChain.Attach(reinterpret_cast<IDXGISwapChain3*>(pSwapChain));
+    m_swap_chain.Attach(reinterpret_cast<IDXGISwapChain3*>(pSwapChain));
 
-    m_swapChain->SetMaximumFrameLatency(NUM_BACK_BUFFERS);
-    m_swapChainWaitObject = m_swapChain->GetFrameLatencyWaitableObject();
+    m_swap_chain->SetMaximumFrameLatency(NUM_BACK_BUFFERS);
+    m_swapChainWaitObject = m_swap_chain->GetFrameLatencyWaitableObject();
 
     return Result<void>();
 }
@@ -1156,7 +1172,7 @@ auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> 
 auto D3d12RenderDevice::createRenderTarget(uint32_t p_width, uint32_t p_height) -> Result<void> {
     for (int32_t i = 0; i < NUM_FRAMES_IN_FLIGHT; i++) {
         ID3D12Resource* backbuffer = nullptr;
-        D3D_CALL(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&backbuffer)));
+        D3D_CALL(m_swap_chain->GetBuffer(i, IID_PPV_ARGS(&backbuffer)));
         m_device->CreateRenderTargetView(backbuffer, nullptr, m_renderTargetDescriptor[i]);
         std::wstring name = std::wstring(L"Render Target Buffer") + std::to_wstring(i);
         backbuffer->SetName(name.c_str());
@@ -1272,16 +1288,16 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create root signature");
     }
 
-    D3D_FAIL(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)),
+    D3D_FAIL(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_root_signature)),
              "Failed to create root signature");
 
     return Result<void>();
 }
 
 void D3d12RenderDevice::onWindowResize(int p_width, int p_height) {
-    if (m_swapChain) {
+    if (m_swap_chain) {
         cleanupRenderTarget();
-        D3D_CALL(m_swapChain->ResizeBuffers(0, p_width, p_height,
+        D3D_CALL(m_swap_chain->ResizeBuffers(0, p_width, p_height,
                                             DXGI_FORMAT_UNKNOWN,
                                             DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT));
 

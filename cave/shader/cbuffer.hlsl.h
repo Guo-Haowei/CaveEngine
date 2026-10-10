@@ -1,4 +1,4 @@
-/// File: cbuffer.hlsl.h
+/// File: cbuffer.slang.h
 #ifndef CBUFFER_INCLUDED
 #define CBUFFER_INCLUDED
 #include "shader_defines.hlsl.h"
@@ -50,29 +50,11 @@ struct ConstantBufferBase {
 #define CAVE_CBUFFER(NAME, REG, DEF) \
     struct NAME : public ConstantBufferBase<NAME, REG> DEF
 
-struct sampler_t {
-    union {
-        int4 handle_d3d;
-        uint64_t handle_gl;
-    };
-    sampler_t() { handle_gl = 0; }
-
-    void Set32(int p_value) { handle_d3d.x = handle_d3d.y = p_value; }
-    void Set64(uint64_t p_value) { handle_gl = p_value; }
-};
-
-static_assert(sizeof(sampler_t) == sizeof(int4));
-
-using sampler3D = sampler_t;
-using samplerCube = sampler_t;
-
 // @TODO: remove this constraint
 #elif defined(__SLANG__)
 #define CAVE_CBUFFER(NAME, REG, DEF) cbuffer NAME : register(b##REG) DEF
 
 #define TextureHandle int4
-#define sampler2D     int4
-#define samplerCube   int4
 #endif
 
 #include "cbuffer_list.hlsl.h"

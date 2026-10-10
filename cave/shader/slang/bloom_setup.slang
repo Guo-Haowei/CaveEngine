@@ -1,5 +1,5 @@
 /// File: bloom_setup.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "common.slang"
 
 TEXTURE_2D(u_Texture0, 0); // t_TextureLighting

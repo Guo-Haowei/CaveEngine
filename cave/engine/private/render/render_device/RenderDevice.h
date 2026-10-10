@@ -12,7 +12,7 @@
 #include "engine/private/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 }  // namespace cave
 
 // @TODO: refactor

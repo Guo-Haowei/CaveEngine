@@ -1,5 +1,5 @@
 /// File: mesh.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "input_output.slang"
 
 [shader("vertex")]

@@ -1,5 +1,5 @@
 /// File: particle_emission.cs.hlsl
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 #include "shader_resource_defines.hlsl.h"
 
 float Random(float3 co, uint index) {

@@ -1,5 +1,5 @@
 /// File: voxelization.ps.glsl
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 
 in vec3 pass_position;
 in vec3 pass_normal;

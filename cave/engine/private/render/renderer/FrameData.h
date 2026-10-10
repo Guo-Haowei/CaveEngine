@@ -14,7 +14,7 @@
 #include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave {
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 }  // namespace cave
 
 namespace cave::render {

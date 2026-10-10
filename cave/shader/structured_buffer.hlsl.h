@@ -1,6 +1,6 @@
 #ifndef STRUCTURED_BUFFER_HLSL_H_INCLUDED
 #define STRUCTURED_BUFFER_HLSL_H_INCLUDED
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 
 struct Particle {
     float4 position;

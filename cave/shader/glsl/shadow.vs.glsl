@@ -1,5 +1,5 @@
 /// File: shadow.vs.glsl
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "../vsinput.glsl.h"
 
 void main() {

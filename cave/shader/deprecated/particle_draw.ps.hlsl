@@ -1,5 +1,5 @@
 /// File: particle_draw.ps.hlsl
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 #include "hlsl/input_output.hlsl"
 #include "sampler.hlsl.h"
 #include "shader_resource_defines.hlsl.h"

@@ -1,5 +1,5 @@
 /// File: shadowmap_point.ps.hlsl
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 #include "hlsl/input_output.hlsl"
 
 float ps_main(VS_OUTPUT_POSITION input)

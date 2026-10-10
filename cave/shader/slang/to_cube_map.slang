@@ -1,5 +1,5 @@
 /// File: to_cube_map.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "input_output.slang"
 #include "common.slang"
 

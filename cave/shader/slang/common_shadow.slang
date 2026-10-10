@@ -1,5 +1,5 @@
 /// File: common_shadow.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 
 float shadowTest(
 #if defined(__TARGET_GLSL__)
