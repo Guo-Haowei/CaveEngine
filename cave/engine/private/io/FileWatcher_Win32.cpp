@@ -1,12 +1,7 @@
 #include "cave/io/FileWatcher.h"
 
-// @TODO: refactor
 #if USING(PLATFORM_WINDOWS)
 #include "engine/private/drivers/windows/win32_prerequisites.h"
-#elif USING(PLATFORM_APPLE)
-#else
-#error "Platform not supported"
-#endif
 
 namespace cave {
 
@@ -25,7 +20,7 @@ void FileWatcher::start(std::string_view path) {
 
 void FileWatcher::stop() {
     m_stop = true;
-#if USING(PLATFORM_WINDOWS)
+
     if (m_dir_handle != INVALID_HANDLE_VALUE) {
         ::CancelIoEx(m_dir_handle, nullptr);
     }
@@ -38,11 +33,9 @@ void FileWatcher::stop() {
         ::CloseHandle(m_dir_handle);
         m_dir_handle = INVALID_HANDLE_VALUE;
     }
-#endif
 }
 
 void FileWatcher::watchLoop() {
-#if USING(PLATFORM_WINDOWS)
     std::wstring path(m_path.begin(), m_path.end());
 
     m_dir_handle = ::CreateFileW(
@@ -82,7 +75,8 @@ void FileWatcher::watchLoop() {
 
         m_changed.store(true);  // flag to main thread
     }
-#endif
 }
 
 }  // namespace cave
+
+#endif
