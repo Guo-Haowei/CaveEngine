@@ -1,6 +1,8 @@
 #pragma once
 #include "cave/core/containers/StringHash.h"
+
 #include "engine/private/runtime/assets/AssetManager.h"
+
 #include "editor/services/EditorServices.h"
 
 namespace cave {

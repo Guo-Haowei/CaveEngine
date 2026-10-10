@@ -2,7 +2,7 @@
 
 #include "cave/core/string/StringUtils.h"
 
-#include "engine/private/core/io/file_access.h"
+#include "engine/private/core/io/FileAccess.h"
 #include "engine/private/core/variant/DvarParser.h"
 
 namespace cave {
