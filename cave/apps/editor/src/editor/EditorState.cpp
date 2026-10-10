@@ -116,11 +116,11 @@ void EditorState::onEnter(const StateRequest& request) {
 
 // @TODO: refactor
 #if USING(PLATFORM_WINDOWS)
-    #define CAVE_GAME_MODULE_FORMAT "{}.dll"
+#define CAVE_GAME_MODULE_FORMAT "{}.dll"
 #elif USING(PLATFORM_APPLE)
-    #define CAVE_GAME_MODULE_FORMAT "lib{}.dylib"
+#define CAVE_GAME_MODULE_FORMAT "lib{}.dylib"
 #else
-    #error "Unsupported platform"
+#error "Unsupported platform"
 #endif
 
     // load pie
