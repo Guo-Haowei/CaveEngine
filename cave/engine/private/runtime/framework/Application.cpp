@@ -9,7 +9,7 @@
 #include "cave/core/time/FrameTime.h"
 #include "cave/runtime/display/DisplayService.h"
 
-#include "engine/private/core/io/FileAccess.h"
+#include "engine/private/io/FileAccess.h"
 #include "engine/private/core/os/os.h"
 #include "engine/private/render/renderer/Renderer.h"
 #include "engine/private/render/render_device/RenderDevice.h"

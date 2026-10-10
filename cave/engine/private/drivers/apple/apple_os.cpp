@@ -2,7 +2,7 @@
 
 #include "engine/private/core/diagnostics/log_sink/AnsiLogSink.h"
 #include "engine/private/core/diagnostics/log_sink/StdLogSink.h"
-#include "engine/private/core/io/FileAccessUnix.h"
+#include "engine/private/io/FileAccessUnix.h"
 #include "engine/private/core/os/os.h"
 
 namespace cave {

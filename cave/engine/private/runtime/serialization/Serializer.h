@@ -9,7 +9,7 @@
 #include "cave/core/containers/FixedStack.h"
 #include "cave/core/containers/FixedString.h"
 
-#include "engine/private/core/io/FileAccess.h"
+#include "engine/private/io/FileAccess.h"
 
 namespace cave {
 

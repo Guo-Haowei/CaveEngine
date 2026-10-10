@@ -1,7 +1,7 @@
 #include "YamlDeserializer.h"
 
 #include "cave/core/ids/Guid.h"
-#include "engine/private/core/io/FileAccess.h"
+#include "engine/private/io/FileAccess.h"
 
 namespace cave {
 
