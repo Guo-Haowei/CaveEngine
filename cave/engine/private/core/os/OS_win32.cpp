@@ -9,7 +9,7 @@
 
 namespace cave {
 
-void OS::Initialize() {
+void OS::initialize() {
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_RESOURCE);
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_USERDATA);
     FileAccess::MakeDefault<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
@@ -17,50 +17,11 @@ void OS::Initialize() {
     addLogger(MakeOwner<Win32Logger>());
     addLogger(MakeOwner<DebugConsoleLogger>());
 
-#if 0
-    if (EnableAnsi()) {
-        addLogger(MakeOwner<AnsiLogger>());
-    }
-#endif
-
     SetLogger(&m_logger);
 }
 
-bool IsAnsiSupported() {
-    HANDLE console = ::GetStdHandle(STD_OUTPUT_HANDLE);
-    if (console == INVALID_HANDLE_VALUE) {
-        return false;
-    }
-
-    DWORD mode = 0;
-    if (!::GetConsoleMode(console, &mode)) {
-        return false;
-    }
-
-    return mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-}
-
-bool EnableAnsi() {
-    HANDLE console = ::GetStdHandle(STD_OUTPUT_HANDLE);
-    if (console == INVALID_HANDLE_VALUE) {
-        return false;
-    }
-
-    DWORD mode = 0;
-    if (!::GetConsoleMode(console, &mode)) {
-        return false;
-    }
-
-    if (mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) {
-        return true;
-    }
-
-    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    if (!::SetConsoleMode(console, mode)) {
-        return false;
-    }
-
-    return true;
+void OS::finalize() {
+    SetLogger(nullptr);
 }
 
 }  // namespace cave

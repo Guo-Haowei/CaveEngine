@@ -27,7 +27,7 @@ void Win32Logger::submit(const LogEvent& log) {
     FILE* file = stdout;
     fflush(file);
 
-    console_mutex_.lock();
+    m_console_mutex.lock();
     GetConsoleScreenBufferInfo(stdout_handle, &buffer_info);
     const WORD old_color_attrs = buffer_info.wAttributes;
     SetConsoleTextAttribute(stdout_handle, new_color);
@@ -38,7 +38,7 @@ void Win32Logger::submit(const LogEvent& log) {
             log.message.c_str());
     SetConsoleTextAttribute(stdout_handle, old_color_attrs);
     fflush(file);
-    console_mutex_.unlock();
+    m_console_mutex.unlock();
 }
 
 }  // namespace cave

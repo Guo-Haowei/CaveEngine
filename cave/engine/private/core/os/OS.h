@@ -6,19 +6,17 @@ namespace cave {
 
 class OS : public Singleton<OS> {
 public:
-    void Initialize();
-    void Finalize();
+    void initialize();
+    void finalize();
 
-    void addLogger(Owner<ILogSink>&& logger);
+    void addLogger(Owner<ILogSink>&& logger) {
+        m_logger.addLogger(std::move(logger));
+    }
 
     CompositeLogger& logger() { return m_logger; }
 
 protected:
     CompositeLogger m_logger;
 };
-
-bool IsAnsiSupported();
-
-bool EnableAnsi();
 
 }  // namespace cave

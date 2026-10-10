@@ -17,7 +17,7 @@ bool InitializeCore() {
     }
 
     s_os = new OS;
-    s_os->Initialize();
+    s_os->initialize();
 
     MetaRegistry::builtin(s_meta_reg);
 
@@ -35,7 +35,7 @@ void FinalizeCore() {
     jobsystem::Finalize();
     thread::Finailize();
 
-    s_os->Finalize();
+    s_os->finalize();
     delete s_os;
     s_os = nullptr;
 }
