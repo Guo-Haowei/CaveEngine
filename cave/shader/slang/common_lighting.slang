@@ -162,7 +162,7 @@ float3 area_light(float3x3 Minv, float3 N, float3 V, float3 world_position, floa
 }
 
 float3 compute_lighting(
-#if defined(__TARGET_GLSL__)
+#if defined(__TARGET_OPENGL__)
                         Sampler2D shadow_map,
 #else
                         Texture2D shadow_map,

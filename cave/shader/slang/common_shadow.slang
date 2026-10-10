@@ -2,7 +2,7 @@
 #include "../cbuffer.slang.h"
 
 float shadowTest(
-#if defined(__TARGET_GLSL__)
+#if defined(__TARGET_OPENGL__)
                  Sampler2D shadow_map,
 #else
                  Texture2D shadow_map,
@@ -14,10 +14,10 @@ float shadowTest(
     lightSpacePos = mul(light.projection_matrix, lightSpacePos);
     lightSpacePos /= lightSpacePos.w;
 
-#if defined(__TARGET_HLSL__) || defined(__TARGET_METAL__)
+#if defined(__TARGET_D3D11__) || defined(__TARGET_METAL__)
     lightSpacePos.y = -lightSpacePos.y;
     lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
-#elif defined(__TARGET_GLSL__)
+#elif defined(__TARGET_OPENGL__)
     lightSpacePos.xyz = 0.5 * lightSpacePos.xyz + 0.5;
 #else
 #error

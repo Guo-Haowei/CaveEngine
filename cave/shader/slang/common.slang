@@ -1,13 +1,13 @@
 #pragma once
 
-#if defined(__TARGET_GLSL__)
+#if defined(__TARGET_OPENGL__)
 #define TEXTURE_2D(NAME, BINDING) [vk::binding(BINDING, 0)] Sampler2D NAME;
 #define TEXTURE_CUBE(NAME, BINDING) [vk::binding(BINDING, 0)] SamplerCube NAME;
 
 #define SAMPLE_TEXTURE_2D(SAM, DUMMY, UV) SAM.Sample(UV)
 #define SAMPLE_TEXTURE_LEVEL(SAM, DUMMY, UVW, MIP) SAM.SampleLevel(UVW, MIP)
 
-#elif defined(__TARGET_HLSL__) || defined(__TARGET_METAL__)
+#elif defined(__TARGET_D3D11__) || defined(__TARGET_METAL__)
 
 #define TEXTURE_2D(NAME, BINDING) Texture2D NAME : register(t##BINDING);
 #define TEXTURE_CUBE(NAME, BINDING) TextureCube NAME : register(t##BINDING);
@@ -26,7 +26,7 @@
 float3 NdcToViewPos(float2 uv, float raw_depth, float4x4 inv_cam_proj) {
     float2 ndc = 2.0f * uv - 1.0f;
 
-#if defined(__TARGET_GLSL__) && !defined(__TARGET_SPIRV__)
+#if defined(__TARGET_OPENGL__) && !defined(__TARGET_SPIRV__)
     float clip_depth = 2.0f * raw_depth - 1.0f;
 #else
     ndc.y = -ndc.y;

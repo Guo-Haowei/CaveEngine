@@ -6,6 +6,18 @@ import subprocess
 import sys
 from pathlib import Path
 
+PLATFORM_APIS = {
+    "windows": ["d3d11", "d3d12", "opengl"],
+    "apple": ["metal"],
+}
+
+API_INFO = {
+    "d3d11": ("hlsl", "__TARGET_D3D11__"),
+    "d3d12": ("hlsl", "__TARGET_D3D11__"),
+    "opengl": ("glsl", "__TARGET_OPENGL__"),
+    "metal": ("metal", "__TARGET_METAL__"),
+}
+
 
 def run_command(cmd: list[str], label: str, input_file: Path, stage: str) -> bool:
     print(cmd)
@@ -33,30 +45,10 @@ def compile_slang_to_spirv(
         "-stage", stage,
         "-target", "spirv",
         "-no-mangle",
-        "-D__TARGET_GLSL__",
+        "-D__TARGET_OPENGL__",
         "-o", str(spv_file),
     ]
     return run_command(cmd, "slangc SPIR-V", input_file, stage)
-
-
-def compile_spirv_to_glsl(
-    spirv_cross_bin: str,
-    spv_file: Path,
-    output_file: Path,
-    glsl_version: str | None,
-    input_file: Path,
-    stage: str,
-) -> bool:
-    cmd = [
-        spirv_cross_bin,
-        str(spv_file),
-        "--output", str(output_file),
-    ]
-
-    if glsl_version:
-        cmd.extend(["--version", glsl_version])
-
-    return run_command(cmd, "spirv-cross", input_file, stage)
 
 
 def run_slangc(
@@ -65,10 +57,10 @@ def run_slangc(
     entry_point: str,
     stage: str,
     target_lang: str,
-    glsl_version: str | None,
+    define: str,
     output_file: Path,
     spirv_cross_bin: str = "spirv-cross",
-    varying_locations: list[int] | None = None,
+    
 ) -> bool:
     if target_lang == "glsl":
         spv_file = output_file.with_suffix(".spv")
@@ -83,15 +75,16 @@ def run_slangc(
             ):
                 return False
 
-            if not compile_spirv_to_glsl(
+            cmd = [
                 spirv_cross_bin,
-                spv_file,
-                output_file,
-                glsl_version,
-                input_file,
-                stage,
-            ):
+                str(spv_file),
+                "--output", str(output_file),
+                "--version", "460"
+            ]
+
+            if not run_command(cmd, "spirv-cross", input_file, stage):
                 return False
+
         finally:
             spv_file.unlink(missing_ok=True)
 
@@ -105,11 +98,7 @@ def run_slangc(
             "-no-mangle",
         ]
 
-        if target_lang == "hlsl":
-            cmd.append("-D__TARGET_HLSL__")
-        elif target_lang == "metal":
-            cmd.append("-D__TARGET_METAL__")
-
+        cmd.append(f"-D{define}")
         cmd.extend(["-o", str(output_file)])
 
         if not run_command(cmd, "slangc", input_file, stage):
@@ -128,28 +117,25 @@ def has_entry_point(content: str, entry_point: str | None) -> bool:
 
 def compile_folder(
     source_folder: Path,
-    platform: str,
-    lang: str,
-    custom_output_folder: Path | None = None,
+    api: str,
     entry_vs: str | None = "vs_main",
     entry_gs: str | None = None,
     entry_ps: str | None = "ps_main",
     entry_cs: str | None = "cs_main",
     slangc_path: str = "slangc",
     spirv_cross_path: str = "spirv-cross",
-    varying_locations: list[int] | None = None,
 ) -> None:
+    lang, define = API_INFO[api]
+
     if not source_folder.exists() or not source_folder.is_dir():
         print(f"Error: Source folder '{source_folder}' does not exist.", file=sys.stderr)
         sys.exit(1)
 
-    output_folder = custom_output_folder or Path(f"{lang}_generated")
+    output_folder = Path(f"{api}_generated")
     if output_folder.exists():
         shutil.rmtree(output_folder)
 
     output_folder.mkdir(parents=True, exist_ok=True)
-
-    glsl_version = "410" if platform == "apple" else "460"
 
     slang_files = list(source_folder.glob("*.slang"))
     if not slang_files:
@@ -157,7 +143,7 @@ def compile_folder(
         return
 
     print(f"Found {len(slang_files)} shader file(s) in '{source_folder}'.")
-    print(f"Target Language: {lang.upper()} (Platform: {platform})")
+    print(f"Target Language: {lang.upper()}")
     print(f"Output Directory: '{output_folder.resolve()}'\n")
 
     total_compiled = 0
@@ -196,10 +182,9 @@ def compile_folder(
                 entry_point=entry_point,
                 stage=stage,
                 target_lang=lang,
-                glsl_version=glsl_version,
+                define=define,
                 output_file=output_folder / output_name,
                 spirv_cross_bin=spirv_cross_path,
-                varying_locations=varying_locations,
             )
 
             if success:
@@ -216,6 +201,28 @@ def compile_folder(
 
 
 def main() -> None:
+    if sys.platform == "darwin":
+        platform = "apple"
+    elif sys.platform.startswith("win") or sys.platform == "win32":
+        platform = "windows"
+    else:
+        print(
+            f"Error: Unsupported host platform '{sys.platform}'. "
+            f"This script only supports Windows and macOS.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    allowed_apis = PLATFORM_APIS.get(platform, [])
+    if not allowed_apis:
+        print(
+            f"Error: No graphics APIs configured for platform '{platform}'.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    all_api_choices = allowed_apis + ["all"]
+
     parser = argparse.ArgumentParser(
         description="Batch compile .slang shaders to language-specific output."
     )
@@ -226,22 +233,10 @@ def main() -> None:
         help="Folder containing .slang files (default: ./slang)",
     )
     parser.add_argument(
-        "-o", "--output-folder",
-        type=Path,
-        default=None,
-        help="Output folder (default: '<lang>_generated')",
-    )
-    default_platform = "apple" if sys.platform == "darwin" else "windows"
-    parser.add_argument(
-        "--platform",
-        choices=["windows", "apple"],
-        default=default_platform,
-        help=f"Target platform (default: {default_platform})",
-    )
-    parser.add_argument(
-        "--lang",
-        choices=["hlsl", "glsl", "metal"],
-        help="Target shading language",
+        "--api",
+        choices=all_api_choices,
+        default=all_api_choices[0],
+        help=f"Target graphics API (default: '{all_api_choices[0]}')",
     )
     parser.add_argument(
         "--entry-vs",
@@ -276,17 +271,19 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    compile_folder(
-        source_folder=args.source_folder,
-        platform=args.platform,
-        lang=args.lang,
-        custom_output_folder=args.output_folder,
-        entry_vs=args.entry_vs,
-        entry_gs=args.entry_gs,
-        entry_ps=args.entry_ps,
-        entry_cs=args.entry_cs,
-        slangc_path=args.slangc_path,
-        spirv_cross_path=args.spirv_cross_path,
+    if args.api != "all":
+        allowed_apis = [args.api]
+
+    for api in allowed_apis:
+        compile_folder(
+            source_folder=args.source_folder,
+            api=api,
+            entry_vs=args.entry_vs,
+            entry_gs=args.entry_gs,
+            entry_ps=args.entry_ps,
+            entry_cs=args.entry_cs,
+            slangc_path=args.slangc_path,
+            spirv_cross_path=args.spirv_cross_path,
     )
 
 

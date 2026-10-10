@@ -40,7 +40,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
         offset = mul(c_cam_proj, offset);
         offset.xy /= offset.w;
 
-#if defined(__TARGET_GLSL__)
+#if defined(__TARGET_OPENGL__)
         offset.xy = offset.xy * 0.5f + 0.5f;
 #else
         offset.xy = float2(offset.x * 0.5f + 0.5f, 0.5f - offset.y * 0.5f);
