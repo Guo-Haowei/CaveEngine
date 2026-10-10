@@ -7,7 +7,6 @@
 
 namespace cave::scene {
 
-using namespace cave::literals;
 using namespace ecs;
 
 TEST(SceneCommandBuffer, playback_should_resolve_temp_entity) {

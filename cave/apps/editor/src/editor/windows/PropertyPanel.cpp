@@ -21,7 +21,6 @@
 
 namespace cave {
 
-using namespace ::cave::literals;
 using namespace ::cave::math;
 
 // @TODO: refactor this

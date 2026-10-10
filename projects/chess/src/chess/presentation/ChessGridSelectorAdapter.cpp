@@ -20,7 +20,6 @@
 namespace chess {
 
 using namespace ::cave;
-using namespace ::cave::literals;
 using namespace ::cave::math;
 using namespace ::chess::core;
 

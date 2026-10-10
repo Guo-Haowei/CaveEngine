@@ -17,7 +17,6 @@
 
 namespace chess {
 
-using namespace ::cave::literals;
 using namespace ::cave;
 using cave::math::Vec2i;
 using core::Color;

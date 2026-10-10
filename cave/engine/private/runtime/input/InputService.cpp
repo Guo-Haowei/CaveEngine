@@ -7,7 +7,6 @@
 
 namespace cave {
 
-using namespace cave::literals;
 using namespace cave::math;
 
 InputService::InputService(GameInput& game_input)
