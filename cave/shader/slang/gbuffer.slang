@@ -15,7 +15,7 @@ struct ps_output {
 ps_output ps_main(VS_OUTPUT_MESH input) {
     float4 color = c_baseColor;
 
-    if (c_hasBaseColorMap != 0) {
+    if (c_has_base_color_map != 0) {
         color = SAMPLE_TEXTURE_2D(BaseColorMap, s_linearMipWrapSampler, input.uv);
     }
 
@@ -26,7 +26,7 @@ ps_output ps_main(VS_OUTPUT_MESH input) {
     float metallic;
     float roughness;
 
-    if (c_hasMaterialMap != 0) {
+    if (c_has_material_map != 0) {
         float3 value = SAMPLE_TEXTURE_2D(MaterialMap, s_linearMipWrapSampler, input.uv).rgb;
         metallic = value.b;
         roughness = value.g;
@@ -36,7 +36,7 @@ ps_output ps_main(VS_OUTPUT_MESH input) {
     }
 
     float3 N;
-    if (c_hasNormalMap != 0) {
+    if (c_has_normal_map != 0) {
         float3x3 TBN;
         TBN[0] = normalize(input.T);
         TBN[1] = normalize(input.B);
@@ -52,7 +52,7 @@ ps_output ps_main(VS_OUTPUT_MESH input) {
 
     output.normal = float4(0.5f * N + 0.5f, 1.0f);
 
-    output.out_emissive_roughness_metallic.r = c_emissivePower;
+    output.out_emissive_roughness_metallic.r = c_emissive_power;
     output.out_emissive_roughness_metallic.g = roughness;
     output.out_emissive_roughness_metallic.b = metallic;
     output.out_emissive_roughness_metallic.a = 1.0f;

@@ -3,14 +3,22 @@
 #if defined(__TARGET_OPENGL__)
 #define TEXTURE_2D(NAME, BINDING) [vk::binding(BINDING, 0)] Sampler2D NAME;
 #define TEXTURE_CUBE(NAME, BINDING) [vk::binding(BINDING, 0)] SamplerCube NAME;
+#elif defined(__TARGET_D3D11__) || defined(__TARGET_METAL__)
+#define TEXTURE_2D(NAME, BINDING) Texture2D NAME : register(t##BINDING);
+#define TEXTURE_CUBE(NAME, BINDING) TextureCube NAME : register(t##BINDING);
+#elif defined(__TARGET_D3D12__)
+#define TEXTURE_2D(NAME, BINDING) Texture2D NAME : register(t##BINDING);
+#define TEXTURE_CUBE(NAME, BINDING) TextureCube NAME : register(t##BINDING);
+#else
+#error "Language NOT supported!"
+#endif
+
+#if defined(__TARGET_OPENGL__)
 
 #define SAMPLE_TEXTURE_2D(SAM, DUMMY, UV) SAM.Sample(UV)
 #define SAMPLE_TEXTURE_LEVEL(SAM, DUMMY, UVW, MIP) SAM.SampleLevel(UVW, MIP)
 
-#elif defined(__TARGET_D3D11__) || defined(__TARGET_METAL__)
-
-#define TEXTURE_2D(NAME, BINDING) Texture2D NAME : register(t##BINDING);
-#define TEXTURE_CUBE(NAME, BINDING) TextureCube NAME : register(t##BINDING);
+#else // #if defined(__TARGET_OPENGL__)
 
 #define SAMPLE_TEXTURE_2D(TEX, SAM, UV) TEX.Sample(SAM, UV)
 #define SAMPLE_TEXTURE_LEVEL(TEX, SAM, UVW, MIP) TEX.SampleLevel(SAM, UVW, MIP)
@@ -19,9 +27,7 @@
 #include "../sampler.slang.h"
 #undef SAMPLER_STATE
 
-#else
-#error "Language NOT supported!"
-#endif
+#endif // #if defined(__TARGET_OPENGL__)
 
 float3 NdcToViewPos(float2 uv, float raw_depth, float4x4 inv_cam_proj) {
     float2 ndc = 2.0f * uv - 1.0f;

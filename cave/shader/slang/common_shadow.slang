@@ -14,13 +14,11 @@ float shadowTest(
     lightSpacePos = mul(light.projection_matrix, lightSpacePos);
     lightSpacePos /= lightSpacePos.w;
 
-#if defined(__TARGET_D3D11__) || defined(__TARGET_METAL__)
-    lightSpacePos.y = -lightSpacePos.y;
-    lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
-#elif defined(__TARGET_OPENGL__)
+#if defined(__TARGET_OPENGL__)
     lightSpacePos.xyz = 0.5 * lightSpacePos.xyz + 0.5;
 #else
-#error
+    lightSpacePos.y = -lightSpacePos.y;
+    lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
 #endif
 
     float currentDepth = lightSpacePos.z;

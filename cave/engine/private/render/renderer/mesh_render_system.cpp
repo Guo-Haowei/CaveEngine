@@ -21,28 +21,28 @@ using namespace cave::math;
 static void FillMaterialConstantBuffer(bool is_opengl,
                                        const MaterialComponent* material,
                                        MaterialConstantBuffer& cb) {
-    cb.c_hasBaseColorMap = false;
-    cb.c_hasNormalMap = false;
-    cb.c_hasMaterialMap = false;
-    cb.c_hasHeightMap = false;
+    cb.c_has_base_color_map = false;
+    cb.c_has_normal_map = false;
+    cb.c_has_material_map = false;
+    cb.c_has_height_map = false;
 
-    cb.c_baseColorMapHandle.value = 0;
-    cb.c_normalMapHandle.value = 0;
-    cb.c_materialMapHandle.value = 0;
-    cb.c_heightMapHandle.value = 0;
+    cb.c_base_color_map_handle.value = 0;
+    cb.c_normal_map_handle.value = 0;
+    cb.c_material_map_handle.value = 0;
+    cb.c_height_map_handle.value = 0;
 
     if (!material) {
         cb.c_baseColor = Vec4f(1, 0, 1, 1);
         cb.c_metallic = 0.5f;
         cb.c_roughness = 0.5f;
-        cb.c_emissivePower = 0.0f;
+        cb.c_emissive_power = 0.0f;
         return;
     }
 
     cb.c_baseColor = material->base_color;
     cb.c_metallic = material->metallic;
     cb.c_roughness = material->roughness;
-    cb.c_emissivePower = material->emissive;
+    cb.c_emissive_power = material->emissive;
 
     // @TODO: [SCRUM-210] fix material
     const auto& images = material->m_images;
@@ -71,9 +71,9 @@ static void FillMaterialConstantBuffer(bool is_opengl,
         return true;
     };
 
-    cb.c_hasBaseColorMap = set_texture(TextureSlot::Base, cb.c_baseColorMapHandle);
-    cb.c_hasNormalMap = set_texture(TextureSlot::Normal, cb.c_normalMapHandle);
-    cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle);
+    cb.c_has_base_color_map = set_texture(TextureSlot::Base, cb.c_base_color_map_handle);
+    cb.c_has_normal_map = set_texture(TextureSlot::Normal, cb.c_normal_map_handle);
+    cb.c_has_material_map = set_texture(TextureSlot::MetallicRoughness, cb.c_material_map_handle);
 };
 
 using FilterObjectFunc1 = std::function<bool(const RenderableHeader&)>;

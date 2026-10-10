@@ -85,23 +85,27 @@ CAVE_CBUFFER(PerPassConstantBuffer, 1, {
 CAVE_CBUFFER(MaterialConstantBuffer, 2, {
     // 16
     float4 c_baseColor;
-    float4 _material_padding_0;
 
     float c_metallic;
     float c_roughness;
-    float c_reflectPower;
-    float c_emissivePower;
+    float c_reflect_power;
+    float c_emissive_power;
 
-    int c_hasBaseColorMap;
-    int c_hasMaterialMap;
-    int c_hasNormalMap;
-    int c_hasHeightMap;
+    int c_has_base_color_map;
+    int c_has_material_map;
+    int c_has_normal_map;
+    int c_has_height_map;
+
+    uint c_base_color_map_index;
+    uint c_normal_map_index;
+    uint c_material_map_index;
+    uint c_height_map_index;
 
     // 16
-    TextureHandle c_baseColorMapHandle;
-    TextureHandle c_normalMapHandle;
-    TextureHandle c_materialMapHandle;
-    TextureHandle c_heightMapHandle;
+    TextureHandle c_base_color_map_handle;
+    TextureHandle c_normal_map_handle;
+    TextureHandle c_material_map_handle;
+    TextureHandle c_height_map_handle;
 
     // 16
     float4x4 _material_padding_3;

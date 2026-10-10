@@ -13,7 +13,7 @@ PLATFORM_APIS = {
 
 API_INFO = {
     "d3d11": ("hlsl", "__TARGET_D3D11__"),
-    "d3d12": ("hlsl", "__TARGET_D3D11__"),
+    "d3d12": ("hlsl", "__TARGET_D3D12__"),
     "opengl": ("glsl", "__TARGET_OPENGL__"),
     "metal": ("metal", "__TARGET_METAL__"),
 }

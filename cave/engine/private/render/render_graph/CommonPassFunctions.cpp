@@ -43,9 +43,9 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
         gm.SetMesh(instance.gpuMesh);
 
         const MaterialConstantBuffer& material = p_data.materialCache.buffer[instance.materialIdx];
-        gm.BindTexture(Dimension::Texture2D, material.c_baseColorMapHandle, GetBaseColorMapSlot());
-        gm.BindTexture(Dimension::Texture2D, material.c_normalMapHandle, GetNormalMapSlot());
-        gm.BindTexture(Dimension::Texture2D, material.c_materialMapHandle, GetMaterialMapSlot());
+        gm.BindTexture(Dimension::Texture2D, material.c_base_color_map_handle, GetBaseColorMapSlot());
+        gm.BindTexture(Dimension::Texture2D, material.c_normal_map_handle, GetNormalMapSlot());
+        gm.BindTexture(Dimension::Texture2D, material.c_material_map_handle, GetMaterialMapSlot());
 
         gm.BindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), instance.materialIdx);
 
@@ -84,9 +84,9 @@ void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
 
         if (draw.mat_idx != -1) {
             const MaterialConstantBuffer& material = p_ctx.frameData.materialCache.buffer[draw.mat_idx];
-            gm.bindTexture(Dimension::Texture2D, material.c_baseColorMapHandle.value, GetBaseColorMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_normalMapHandle.value, GetNormalMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_materialMapHandle.value, GetMaterialMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_base_color_map_handle.value, GetBaseColorMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_normal_map_handle.value, GetNormalMapSlot());
+            gm.bindTexture(Dimension::Texture2D, material.c_material_map_handle.value, GetMaterialMapSlot());
 
             gm.bindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
         }
