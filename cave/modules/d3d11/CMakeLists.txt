@@ -27,6 +27,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     d3d_common
 )
 
-target_set_warning_level(${TARGET_NAME})
-
 target_precompile_headers(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cave/engine/private/pch.h)
+
+target_set_warning_level(${TARGET_NAME})
+target_set_debug_symbol(${TARGET_NAME})
