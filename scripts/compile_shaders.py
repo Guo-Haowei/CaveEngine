@@ -19,26 +19,6 @@ def run_command(cmd: list[str], label: str, input_file: Path, stage: str) -> boo
     return True
 
 
-def build_interface_renames(
-    stage: str,
-    varying_locations: list[int],
-) -> dict[str, dict[int, str]]:
-    """Use consistent names on adjacent shader-stage interfaces."""
-    directions_by_stage = {
-        "vertex": ("out",),
-        "geometry": ("in", "out"),
-        "fragment": ("in",),
-    }
-
-    renames: dict[str, dict[int, str]] = {}
-    for direction in directions_by_stage.get(stage, ()):
-        renames[direction] = {
-            location: f"varying_{location}"
-            for location in varying_locations
-        }
-    return renames
-
-
 def compile_slang_to_spirv(
     slangc_bin: str,
     input_file: Path,
@@ -64,7 +44,6 @@ def compile_spirv_to_glsl(
     spv_file: Path,
     output_file: Path,
     glsl_version: str | None,
-    interface_renames: dict[str, dict[int, str]],
     input_file: Path,
     stage: str,
 ) -> bool:
@@ -72,20 +51,10 @@ def compile_spirv_to_glsl(
         spirv_cross_bin,
         str(spv_file),
         "--output", str(output_file),
-        "--no-420pack-extension",
     ]
 
     if glsl_version:
         cmd.extend(["--version", glsl_version])
-
-    for direction, locations in interface_renames.items():
-        for location, name in sorted(locations.items()):
-            cmd.extend([
-                "--rename-interface-variable",
-                direction,
-                str(location),
-                name,
-            ])
 
     return run_command(cmd, "spirv-cross", input_file, stage)
 
@@ -103,10 +72,6 @@ def run_slangc(
 ) -> bool:
     if target_lang == "glsl":
         spv_file = output_file.with_suffix(".spv")
-        interface_renames = build_interface_renames(
-            stage,
-            varying_locations or [],
-        )
 
         try:
             if not compile_slang_to_spirv(
@@ -123,7 +88,6 @@ def run_slangc(
                 spv_file,
                 output_file,
                 glsl_version,
-                interface_renames,
                 input_file,
                 stage,
             ):
@@ -160,21 +124,6 @@ def has_entry_point(content: str, entry_point: str | None) -> bool:
     if not entry_point:
         return False
     return bool(re.search(rf"\b{re.escape(entry_point)}\b", content))
-
-
-def parse_varying_locations(value: str) -> list[int]:
-    """Parse a comma-separated list such as '0,1,3'."""
-    try:
-        locations = [int(item.strip()) for item in value.split(",") if item.strip()]
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(
-            "Varying locations must be comma-separated integers, e.g. 0,1,3"
-        ) from exc
-
-    if len(locations) != len(set(locations)):
-        raise argparse.ArgumentTypeError("Varying locations must not contain duplicates")
-
-    return locations
 
 
 def compile_folder(
@@ -315,12 +264,6 @@ def main() -> None:
         help="Compute shader entry point",
     )
     parser.add_argument(
-        "--varying-locations",
-        type=parse_varying_locations,
-        default=[],
-        help="Comma-separated interface locations to rename, e.g. 0,1",
-    )
-    parser.add_argument(
         "--slangc-path",
         default="slangc",
         help="Path to slangc",
@@ -344,7 +287,6 @@ def main() -> None:
         entry_cs=args.entry_cs,
         slangc_path=args.slangc_path,
         spirv_cross_path=args.spirv_cross_path,
-        varying_locations=args.varying_locations,
     )
 
 
