@@ -219,23 +219,6 @@ auto OpenGlPipelineStateManager::createPipelineImpl(const PipelineStateDesc& pip
 
     glUseProgram(program_id);
 
-#ifdef CAVE_CBUFFER
-#undef CAVE_CBUFFER
-#endif
-    auto set_uniform_buffer = [program_id](const char* name, int binding) {
-        GLuint index = glGetUniformBlockIndex(program_id, name);
-        if (index != GL_INVALID_INDEX) {
-            glUniformBlockBinding(program_id, index, binding);
-        }
-    };
-#define CAVE_CBUFFER(NAME, REG, DEF)                                      \
-    do {                                                                  \
-        set_uniform_buffer(#NAME, REG);                                   \
-        set_uniform_buffer("SLANG_ParameterGroup_" #NAME "_std140", REG); \
-    } while (0)
-#include "cbuffer_list.hlsl.h"
-#undef CAVE_CBUFFER
-
     // set textures
     for (int i = 0; i < 15; ++i) {
         auto name = std::format("u_Texture{}", i);
