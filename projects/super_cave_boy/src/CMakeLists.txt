@@ -14,21 +14,18 @@ target_include_directories(${TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/
 )
 
-set_target_properties(${TARGET_NAME}
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
-
-set_target_properties(${TARGET_NAME}
-    PROPERTIES
-    FOLDER games
-)
-
-target_set_warning_level(${TARGET_NAME})
-
 # @TODO: do not link the entire engine in the game DLL in the future.
 target_link_libraries(${TARGET_NAME} PRIVATE engine)
+
+set_target_properties(${TARGET_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    FOLDER games
+)
 
 target_compile_definitions(${TARGET_NAME} PRIVATE
     CAVE_GAME_DLL=1
 )
+
+target_set_warning_level(${TARGET_NAME})
+target_set_debug_symbol(${TARGET_NAME})
