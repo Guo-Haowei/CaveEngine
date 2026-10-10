@@ -64,15 +64,6 @@ private:
 
 #pragma warning(pop)
 
-// @TODO: remove this, use CAVE_SID instead
-namespace literals {
-
-constexpr StringId operator"" _sid(const char* str, std::size_t len) {
-    return StringId{ std::string_view{ str, len } };
-}
-
-}  // namespace literals
-
 }  // namespace cave
 
 namespace std {

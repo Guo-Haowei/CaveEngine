@@ -19,7 +19,7 @@ void Tab::onDeactivated() {
 
 void Tab::drawUI() {
     EditService& edit = m_editor_services.edit();
-    if (const bool dirty = edit.isDirty(m_doc_id)) {
+    if (edit.isDirty(m_doc_id)) {
         m_window_flags |= ImGuiWindowFlags_UnsavedDocument;
     } else {
         m_window_flags &= ~ImGuiWindowFlags_UnsavedDocument;

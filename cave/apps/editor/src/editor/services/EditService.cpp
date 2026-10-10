@@ -71,7 +71,7 @@ void EditService::submit(DocId doc_id, SceneCommandWriterFn&& func) {
         m_editor_services.selection().setSelection(doc_id, selection);
     }
 
-    submit(doc_id, std::move(executor.takeCommand()));
+    submit(doc_id, executor.takeCommand());
 }
 
 void EditService::undo(DocId doc_id) {

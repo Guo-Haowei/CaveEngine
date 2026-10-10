@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/core/Color.h"
 
-#include "engine/private/core/math/geomath.h"
+#include "engine/private/core/math/Geomath.h"
 
 // clang-format off
 namespace cave { struct ImageAsset; }

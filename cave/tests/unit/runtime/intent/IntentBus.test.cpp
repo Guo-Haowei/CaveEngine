@@ -24,13 +24,13 @@ TEST(IntentBus, can_only_add_intent_handler_once_per_intent) {
     IntentBus dispatcher;
     TestIntentHandler handler;
 
-    bool ok = dispatcher.addHandler("test"_sid, &handler);
+    bool ok = dispatcher.addHandler(CAVE_SID("test"), &handler);
     EXPECT_TRUE(ok);
-    ok = dispatcher.addHandler("test"_sid, &handler);
+    ok = dispatcher.addHandler(CAVE_SID("test"), &handler);
     EXPECT_FALSE(ok);
-    ok = dispatcher.removeHandler("test"_sid, &handler);
+    ok = dispatcher.removeHandler(CAVE_SID("test"), &handler);
     EXPECT_TRUE(ok);
-    ok = dispatcher.removeHandler("test"_sid, &handler);
+    ok = dispatcher.removeHandler(CAVE_SID("test"), &handler);
     EXPECT_FALSE(ok);
 }
 
@@ -39,13 +39,13 @@ TEST(IntentBus, can_add_different_handlers_to_same_intent) {
     TestIntentHandler handler1;
     TestIntentHandler handler2;
 
-    bool ok = dispatcher.addHandler("test"_sid, &handler1);
+    bool ok = dispatcher.addHandler(CAVE_SID("test"), &handler1);
     EXPECT_TRUE(ok);
-    ok = dispatcher.addHandler("test"_sid, &handler2);
+    ok = dispatcher.addHandler(CAVE_SID("test"), &handler2);
     EXPECT_TRUE(ok);
-    ok = dispatcher.removeHandler("test"_sid, &handler1);
+    ok = dispatcher.removeHandler(CAVE_SID("test"), &handler1);
     EXPECT_TRUE(ok);
-    ok = dispatcher.removeHandler("test"_sid, &handler2);
+    ok = dispatcher.removeHandler(CAVE_SID("test"), &handler2);
     EXPECT_TRUE(ok);
 }
 

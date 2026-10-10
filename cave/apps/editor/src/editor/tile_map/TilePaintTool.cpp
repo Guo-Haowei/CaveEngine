@@ -78,7 +78,6 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
 
     const bool is_painting = m_paint_tool.currentAction() == GridPaintAction::Paint;
 
-    bool selection_valid = false;
     Vec2f uv_min{ 0, 0 };
     Vec2f uv_max{ 0, 0 };
     if (!selections.empty()) {
@@ -86,7 +85,6 @@ void TilePaintTool::drawGhostTiles(const TileSetAsset& tile_set) {
         const auto& frames = tile_set.frames();
         uv_min = frames[atlas_index].min();
         uv_max = frames[atlas_index].max();
-        selection_valid = true;
     }
 
     ICanvas& canvas = m_ctx.engine_services.canvas();

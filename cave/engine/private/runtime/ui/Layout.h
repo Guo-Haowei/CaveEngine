@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/core/math/geomath.h"
+#include "engine/private/core/math/Geomath.h"
 
 namespace cave {
 

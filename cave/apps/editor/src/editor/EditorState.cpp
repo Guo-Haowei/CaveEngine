@@ -213,7 +213,7 @@ void EditorState::dockSpace() {
     ui::DockSpace({
         "DockSpace Demo",
         [this]() { m_menu_bar->drawUI(); },
-        [this]() {
+        []() {
             CompositeLogger& logger = OS::singleton().logger();
             const uint32_t error_count = static_cast<uint32_t>(logger.errorLogs().size());
             const uint32_t warning_count = static_cast<uint32_t>(logger.warningLogs().size());
