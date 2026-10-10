@@ -24,7 +24,7 @@ private:
     std::string m_path;
     std::thread m_thread;
     std::atomic<bool> m_stop{ true };
-    std::atomic<bool> m_changed{ true };  // set to true to trigger build the first frame
+    std::atomic<bool> m_changed{ true };
 
     void* m_dir_handle{ nullptr };
 };
