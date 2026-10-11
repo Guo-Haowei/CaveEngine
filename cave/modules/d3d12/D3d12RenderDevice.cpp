@@ -376,25 +376,10 @@ void D3d12RenderDevice::unsetRenderTargets() {
 void D3d12RenderDevice::beginPass(const CompiledPass& pass) {
     RenderDevice::beginPass(pass);
 
-    // 1. Transition all sampled textures to PIXEL_SHADER_RESOURCE
     for (auto& texture : pass.srvs) {
         if (!texture) continue;
         auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
         TransitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
-
-    // 2. Map Render Graph texture inputs into PerPassConstantBuffer payload
-    PerPassConstantBuffer pass_cb{};
-    // ... Fill pass_cb.c_viewMatrix and c_projectionMatrix from SceneView ...
-
-    for (size_t slot = 0; slot < pass.srvs.size() && slot < 32; ++slot) {
-        if (auto& texture = pass.srvs[slot]) {
-            auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
-            // srvHandle.index stores the slot index allocated via AllocBindlessHandle()
-            pass_cb.c_pass_textures[slot] = static_cast<uint32_t>(d3d_tex->srvHandle.index);
-        } else {
-            pass_cb.c_pass_textures[slot] = 0;  // Fallback dummy handle index
-        }
     }
 }
 

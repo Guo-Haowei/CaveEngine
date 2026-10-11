@@ -26,8 +26,8 @@ TextureCube g_TexturesCube[16] : register(t0, space2);
 // Texture Accessor
 // -----------------------------------------------------------------------------
 #if defined(__TARGET_D3D12__)
-    #define TEX_2D(NAME) (g_Textures2D[NonUniformResourceIndex(c_pass_textures[NAME])])
-    #define TEX_CUBE(NAME) (g_TexturesCube[NonUniformResourceIndex(c_pass_textures[NAME])])
+    #define TEX_2D(NAME) (g_Textures2D[NonUniformResourceIndex(c_pass_textures[NAME].x)])
+    #define TEX_CUBE(NAME) (g_TexturesCube[NonUniformResourceIndex(c_pass_textures[NAME].x)])
 #else
     #define TEX_2D(NAME) NAME
     #define TEX_CUBE(NAME) NAME

@@ -96,6 +96,7 @@ def run_slangc(
             "-stage", stage,
             "-target", target_lang,
             "-no-mangle",
+            "-line-directive-mode", "none"
         ]
 
         cmd.append(f"-D{define}")

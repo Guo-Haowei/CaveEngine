@@ -209,16 +209,15 @@ static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data
     out_data.passCache.resize(graph.getCompiledPass().size());
     for (const CompiledPass& pass : graph.getCompiledPass()) {
         auto& cache = out_data.passCache[idx++];
-        std::memset(cache.c_pass_textures, 0, sizeof(cache.c_pass_textures));
+        std::memset(&cache, 0, sizeof(cache));
         DEV_ASSERT(pass.srvs.size() <= std::size(cache.c_pass_textures));
         for (size_t slot = 0; slot < pass.srvs.size(); ++slot) {
             const auto& texture = pass.srvs[slot];
             if (texture) {
-                cache.c_pass_textures[slot] = (uint32_t)texture->GetResidentHandle();
+                cache.c_pass_textures[slot].x = (uint32_t)texture->GetResidentHandle();
             }
         }
     }
-    return;
 }
 
 static void FillEnvConstants(FrameData& out_data) {
