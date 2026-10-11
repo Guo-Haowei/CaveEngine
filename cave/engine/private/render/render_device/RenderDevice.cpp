@@ -59,7 +59,7 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
     for (int i = 0; i < num_frames; ++i) {
         FrameContext& frame_context = *m_frameContexts[i].get();
         frame_context.batchCb = *CreateUniformCheckSize<PerBatchConstantBuffer>(*this, 4096 * 16);
-        frame_context.passCb = *CreateUniformCheckSize<PerPassConstantBuffer>(*this, 32);
+        frame_context.passCb = *CreateUniformCheckSize<PerViewConstantBuffer>(*this, 32);
         frame_context.materialCb = *CreateUniformCheckSize<MaterialConstantBuffer>(*this, 2048 * 16);
         frame_context.boneCb = *CreateUniformCheckSize<BoneConstantBuffer>(*this, 16);
         frame_context.pointShadowCb = *CreateUniformCheckSize<PointShadowConstantBuffer>(*this, 6 * MAX_POINT_LIGHT_SHADOW_COUNT);

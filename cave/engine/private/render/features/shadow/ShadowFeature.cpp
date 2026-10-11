@@ -13,9 +13,9 @@ namespace cave::render {
 constexpr const char kPassShadow[] = "p:shadow";
 constexpr const char kResShadowMap[] = "r:shadow";
 
-extern void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
-                                const std::vector<DrawItem>& p_commands,
-                                bool p_is_prepass);
+extern void ExecuteDrawCommands(RenderPassExcutionContext& ctx,
+                                std::span<const DrawItem> draws,
+                                bool is_prepass);
 
 static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
@@ -29,7 +29,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     const auto& frame = cmd.getCurrentFrame();
 
     const PassContext& pass = p_ctx.frameData.shadowPasses[0];
-    cmd.bindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_DPETH);
     ExecuteDrawCommands(p_ctx, shadow_commands, false);

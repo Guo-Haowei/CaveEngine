@@ -56,44 +56,44 @@ static void DrawInstacedGeometry(const RenderSystem& p_data, const std::vector<I
 }
 #endif
 
-void ExecuteDrawCommands(RenderPassExcutionContext& p_ctx,
-                         const std::vector<DrawItem>& p_commands,
-                         bool p_is_prepass) {
+void ExecuteDrawCommands(RenderPassExcutionContext& ctx,
+                         std::span<const DrawItem> draws,
+                         bool is_prepass) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: remove
-    auto& gm = p_ctx.cmd;
-    auto& frame = gm.getCurrentFrame();
-    for (const DrawItem& draw : p_commands) {
+    auto& cmd = ctx.cmd;
+    auto& frame = cmd.getCurrentFrame();
+    for (const DrawItem& draw : draws) {
 
         const bool has_bone = draw.bone_idx >= 0;
         if (has_bone) {
-            gm.bindConstantBufferSlot<BoneConstantBuffer>(frame.boneCb.get(), draw.bone_idx);
+            cmd.bindConstantBufferSlot<BoneConstantBuffer>(frame.boneCb.get(), draw.bone_idx);
         }
 
-        gm.bindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
+        cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
 
-        gm.setMesh(draw.mesh_data);
+        cmd.setMesh(draw.mesh_data);
 
         // @TODO: instead of dowing this,
         // set flag directly from draw.flags
-        const bool has_flags = p_is_prepass && draw.flags;
+        const bool has_flags = is_prepass && draw.flags;
         if (has_flags) {
-            gm.setStencilRef(draw.flags);
+            cmd.setStencilRef(draw.flags);
         }
 
         if (draw.mat_idx != -1) {
-            const MaterialConstantBuffer& material = p_ctx.frameData.materialCache.buffer[draw.mat_idx];
-            gm.bindTexture(Dimension::Texture2D, material.c_base_color_map_handle.value, GetBaseColorMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_normal_map_handle.value, GetNormalMapSlot());
-            gm.bindTexture(Dimension::Texture2D, material.c_material_map_handle.value, GetMaterialMapSlot());
+            const MaterialConstantBuffer& material = ctx.frameData.materialCache.buffer[draw.mat_idx];
+            cmd.bindTexture(Dimension::Texture2D, material.c_base_color_map_handle.value, GetBaseColorMapSlot());
+            cmd.bindTexture(Dimension::Texture2D, material.c_normal_map_handle.value, GetNormalMapSlot());
+            cmd.bindTexture(Dimension::Texture2D, material.c_material_map_handle.value, GetMaterialMapSlot());
 
-            gm.bindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
+            cmd.bindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
         }
-        gm.drawElements(draw.index.count, draw.index.offset);
+        cmd.drawElements(draw.index.count, draw.index.offset);
 
         if (has_flags) {
-            gm.setStencilRef(STENCIL_FLAG_NONE);
+            cmd.setStencilRef(STENCIL_FLAG_NONE);
         }
     }
 }
@@ -110,7 +110,7 @@ void DepthPrepassFunc(RenderPassExcutionContext& ctx) {
     }
 
     const PassContext& pass = ctx.frameData.mainPass;
-    cmd.bindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_PREPASS);
     ExecuteDrawCommands(ctx, prepass_commands, true);
@@ -128,7 +128,7 @@ void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     }
 
     const PassContext& pass = p_ctx.frameData.mainPass;
-    cmd.bindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_GBUFFER);
     ExecuteDrawCommands(p_ctx, deferred_commands, false);
@@ -170,7 +170,7 @@ void VoxelizationPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.Dispatch(group_size, group_size, group_size);
 
     const PassContext& pass = p_ctx.frameData.voxelPass;
-    cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.BindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     // @TODO: hack
     if (cmd.GetBackend() == Backend::OPENGL) {
@@ -210,7 +210,7 @@ static void EmitterPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.SetViewport(Viewport(width, height));
 
     const PassContext& pass = render_system.mainPass;
-    cmd.BindConstantBufferSlot<PerPassConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.BindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
 
     int particle_idx = 0;
     for (const auto& emitter : render_system.emitters) {
@@ -283,7 +283,7 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
     auto& gm = p_ctx.cmd;
 
     const PassContext& pass = p_ctx.frameData.mainPass;
-    gm.bindConstantBufferSlot<PerPassConstantBuffer>(gm.getCurrentFrame().passCb.get(), pass.pass_idx);
+    gm.bindConstantBufferSlot<PerViewConstantBuffer>(gm.getCurrentFrame().passCb.get(), pass.pass_idx);
 
     gm.setPipelineState(PSO_ENV_SKYBOX);
     gm.setStencilRef(STENCIL_FLAG_SKY);

@@ -86,22 +86,19 @@ struct FrameData {
     PerFrameConstantBuffer perFrameCache;
     BufferCache<PerBatchConstantBuffer> batchCache;
     BufferCache<MaterialConstantBuffer> materialCache;
-    Vector<PerPassConstantBuffer> passCache;
+    Vector<PerViewConstantBuffer> passCache;
     std::array<PointShadowConstantBuffer, MAX_POINT_LIGHT_SHADOW_COUNT * 6> pointShadowCache;
     BufferCache<BoneConstantBuffer> boneCache;
     // std::vector<EmitterConstantBuffer> emitterCache;
 
     // @TODO: rename
-    std::array<Owner<PassContext>, MAX_POINT_LIGHT_SHADOW_COUNT> pointShadowPasses;
     std::array<PassContext, 1> shadowPasses;  // @TODO: support multi ortho light
 
-    PassContext voxelPass;
     PassContext mainPass;
 
     std::array<Vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
 
     // std::vector<InstanceContext> instances;
-
     // std::vector<ParticleEmitterComponent> emitters;
 
     struct UpdateBuffer {

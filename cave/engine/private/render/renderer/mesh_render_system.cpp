@@ -211,7 +211,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                     light.projection_matrix = BuildOrthoRH(-size, size, -size, size, -size, 3.0f * size);
                 }
 
-                PerPassConstantBuffer pass_constant;
+                PerViewConstantBuffer pass_constant;
                 // @TODO: Build correct matrices
                 pass_constant.c_projectionMatrix = light.projection_matrix;
                 pass_constant.c_viewMatrix = light.view_matrix;
@@ -299,7 +299,7 @@ static void FillMainPass(const Scene& p_es,
     const Frustum& frustum = p_view.frustum;
 
     // main pass
-    PerPassConstantBuffer pass_constant;
+    PerViewConstantBuffer pass_constant;
     pass_constant.c_viewMatrix = camera.view;
     pass_constant.c_projectionMatrix = camera.proj;
 

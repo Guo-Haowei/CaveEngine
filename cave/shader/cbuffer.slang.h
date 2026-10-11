@@ -74,12 +74,12 @@ CAVE_CBUFFER(PerBatchConstantBuffer, 0, {
     int _per_batch_padding_3;
 });
 
-CAVE_CBUFFER(PerPassConstantBuffer, 1, {
+CAVE_CBUFFER(PerViewConstantBuffer, 1, {
     float4x4 c_viewMatrix;
     float4x4 c_projectionMatrix;
 
-    float4x4 _per_pass_padding_0;
-    float4x4 _per_pass_padding_1;
+    float4x4 _per_view_padding_0;
+    float4x4 _per_view_padding_1;
 });
 
 CAVE_CBUFFER(MaterialConstantBuffer, 2, {
@@ -114,22 +114,16 @@ CAVE_CBUFFER(MaterialConstantBuffer, 2, {
     float4x4 _material_padding_4;
 });
 
-// @TODO: change to unordered access buffer
-CAVE_CBUFFER(BoneConstantBuffer, 3, {
-    float4x4 c_bones[MAX_BONE_COUNT];
+CAVE_CBUFFER(PerPassConstantBuffer, 3, {
+    uint c_pass_textures[16];
+    float4x4 _per_pass_padding_0;
+    float4x4 _per_pass_padding_1;
+    float4x4 _per_pass_padding_2;
 });
 
-CAVE_CBUFFER(PointShadowConstantBuffer, 4, {
-    float4x4 c_pointLightMatrix;  // 64
-    float3 c_pointLightPosition;  // 12
-    float c_pointLightFar;        // 4
-
-    float4 _point_shadow_padding_0;  // 16
-    float4 _point_shadow_padding_1;  // 16
-    float4 _point_shadow_padding_2;  // 16
-
-    float4x4 _point_shadow_padding_3;  // 64
-    float4x4 _point_shadow_padding_4;  // 64
+// @TODO: change to unordered access buffer
+CAVE_CBUFFER(BoneConstantBuffer, 4, {
+    float4x4 c_bones[MAX_BONE_COUNT];
 });
 
 CAVE_CBUFFER(PerFrameConstantBuffer, 5, {
@@ -211,6 +205,19 @@ CAVE_CBUFFER(EmitterConstantBuffer, 6, {
     float4 _emitter_padding_3;
     float4x4 _emitter_padding_4;
     float4x4 _emitter_padding_5;
+});
+
+CAVE_CBUFFER(PointShadowConstantBuffer, 7, {
+    float4x4 c_pointLightMatrix;  // 64
+    float3 c_pointLightPosition;  // 12
+    float c_pointLightFar;        // 4
+
+    float4 _point_shadow_padding_0;  // 16
+    float4 _point_shadow_padding_1;  // 16
+    float4 _point_shadow_padding_2;  // 16
+
+    float4x4 _point_shadow_padding_3;  // 64
+    float4x4 _point_shadow_padding_4;  // 64
 });
 
 #endif
