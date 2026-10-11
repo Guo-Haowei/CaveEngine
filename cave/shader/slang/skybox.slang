@@ -23,6 +23,6 @@ float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET {
 #if !defined(__TARGET_OPENGL__)
     uvw.y = -uvw.y;
 #endif
-    float3 color = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_cubemapClampSampler, uvw, 0.0f).rgb;
+    float3 color = SAMPLE_CUBE_LEVEL(u_Texture0, s_cubemapClampSampler, uvw, 0.0f).rgb;
     return float4(color, 1.0f);
 }

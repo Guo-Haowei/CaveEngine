@@ -134,7 +134,7 @@ float3 LTC_Evaluate(float3 N, float3 V, float3 P, float3x3 Minv, float4 points[4
     texcoord = texcoord * LUT_SCALE + LUT_BIAS;
 
     // Fetch the form factor for horizon clipping
-    float scale = SAMPLE_TEXTURE_LEVEL(t_LTC2, s_linearClampSampler, texcoord, 0).w;
+    float scale = SAMPLE_LEVEL(t_LTC2, s_linearClampSampler, texcoord, 0).w;
 
     float sum = len * scale;
     if (!behind)
@@ -164,6 +164,8 @@ float3 area_light(float3x3 Minv, float3 N, float3 V, float3 world_position, floa
 float3 compute_lighting(
 #if defined(__TARGET_OPENGL__)
                         Sampler2D shadow_map,
+#elif defined(__TARGET_D3D12__)
+                        uint shadow_map,
 #else
                         Texture2D shadow_map,
 #endif
@@ -188,8 +190,8 @@ float3 compute_lighting(
     float2 uv = float2(roughness, sqrt(1.0 - NdotV));
     uv = uv * LUT_SCALE + LUT_BIAS;
 
-    float4 t1 = SAMPLE_TEXTURE_2D(t_LTC1, s_linearClampSampler, uv);
-    float4 t2 = SAMPLE_TEXTURE_2D(t_LTC2, s_linearClampSampler, uv);
+    float4 t1 = SAMPLE_2D(t_LTC1, s_linearClampSampler, uv);
+    float4 t2 = SAMPLE_2D(t_LTC2, s_linearClampSampler, uv);
 
     // GLSL mat3(col0, col1, col2) translates to HLSL/Slang float3x3 row construction
     float3x3 Minv = float3x3(
@@ -257,12 +259,12 @@ float3 compute_lighting(
     float3 diffuse = float3(0.0, 0.0, 0.0);
     float3 specular = float3(0.0, 0.0, 0.0);
     if (c_iblEnabled != 0) {
-        irradiance = SAMPLE_TEXTURE_2D(t_DiffuseIrradiance, s_cubemapClampSampler, N).rgb;
+        irradiance = SAMPLE_CUBE(t_DiffuseIrradiance, s_cubemapClampSampler, N).rgb;
         diffuse = irradiance * base_color.rgb;
 
-        float3 prefilteredColor = SAMPLE_TEXTURE_LEVEL(t_Prefiltered, s_cubemapClampLodSampler, R, roughness * MAX_REFLECTION_LOD).rgb;
+        float3 prefilteredColor = SAMPLE_CUBE_LEVEL(t_Prefiltered, s_cubemapClampLodSampler, R, roughness * MAX_REFLECTION_LOD).rgb;
         float2 brdf_uv = float2(NdotV, roughness);
-        float2 brdf = SAMPLE_TEXTURE_2D(t_BrdfLut, s_linearClampSampler, brdf_uv).rg;
+        float2 brdf = SAMPLE_2D(t_BrdfLut, s_linearClampSampler, brdf_uv).rg;
         specular = prefilteredColor * (F * brdf.x + brdf.y);
     }
 

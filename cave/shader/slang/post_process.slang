@@ -29,7 +29,7 @@ float4 ps_main(VS_OUTPUT_UV input)
 
     // Edge detection
     int width, height;
-    t_TextureHighlightSelect.GetDimensions(width, height);
+    TEX_2D(t_TextureHighlightSelect).GetDimensions(width, height);
     float2 texel_size = float2(width, height);
     texel_size = 1.0 / texel_size;
 
@@ -37,7 +37,7 @@ float4 ps_main(VS_OUTPUT_UV input)
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             float2 offset = uv + texel_size * float2(i - 1, j - 1);
-            I[i][j] = SAMPLE_TEXTURE_2D(t_TextureHighlightSelect, s_linearClampSampler, offset).r;
+            I[i][j] = SAMPLE_2D(t_TextureHighlightSelect, s_linearClampSampler, offset).r;
         }
     }
 
@@ -49,11 +49,11 @@ float4 ps_main(VS_OUTPUT_UV input)
         return float4(0.98, 0.64, 0.0, 1.0);
     }
 
-    float3 hdr_color = SAMPLE_TEXTURE_2D(t_TextureLighting, s_linearClampSampler, uv).rgb;
+    float3 hdr_color = SAMPLE_2D(t_TextureLighting, s_linearClampSampler, uv).rgb;
 
     // Bloom
     if (c_enableBloom == 1) {
-        float3 bloom = SAMPLE_TEXTURE_2D(t_BloomInputTexture, s_linearClampSampler, uv).rgb;
+        float3 bloom = SAMPLE_2D(t_BloomInputTexture, s_linearClampSampler, uv).rgb;
         hdr_color += bloom;
     }
 
