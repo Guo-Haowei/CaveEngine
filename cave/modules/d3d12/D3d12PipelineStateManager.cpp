@@ -21,7 +21,7 @@ auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc)
 
     ComPtr<ID3DBlob> cs_blob;
     if (!p_desc.cs.empty()) {
-        auto res = CompileShader(p_desc.cs, "cs_5_1", nullptr);
+        auto res = CompileShader(p_desc.cs, "cs_5_1", nullptr, false);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -46,14 +46,14 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
     ComPtr<ID3DBlob> ps_blob;
 
     if (!desc.vs.empty()) {
-        auto res = CompileShader(desc.vs, "vs_5_1", nullptr);
+        auto res = CompileShader(desc.vs, "vs_5_1", nullptr, false);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
         vs_blob = *res;
     }
     if (!desc.ps.empty()) {
-        auto res = CompileShader(desc.ps, "ps_5_1", nullptr);
+        auto res = CompileShader(desc.ps, "ps_5_1", nullptr, false);
         if (!res) {
             return CAVE_ERROR(res.error());
         }

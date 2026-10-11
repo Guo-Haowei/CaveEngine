@@ -257,7 +257,7 @@ struct ColliderProxy {
     bool is_trigger = false;
 };
 
-void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext& ctx) {
+void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext&) {
     SceneQuery& query = runtime.query();
     NativeScriptSystem* script_system = runtime.system<NativeScriptSystem>();
     if (!script_system) {

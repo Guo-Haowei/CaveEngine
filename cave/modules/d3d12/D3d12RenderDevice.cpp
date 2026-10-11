@@ -258,12 +258,10 @@ void D3d12RenderDevice::present() {
 }
 
 void D3d12RenderDevice::beginFrame() {
-    // @TODO: wait for swap chain
     D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(getCurrentFrame());
     frame.Wait(m_graphicsFenceEvent, m_graphicsQueueFence.Get());
     D3D_CALL(frame.m_commandAllocator->Reset());
     D3D_CALL(m_graphicsCommandList->Reset(frame.m_commandAllocator, nullptr));
-
     WaitForSingleObject(m_swapChainWaitObject, INFINITE);
 
     m_backbufferIndex = m_swap_chain->GetCurrentBackBufferIndex();
@@ -274,10 +272,23 @@ void D3d12RenderDevice::beginFrame() {
     ID3D12DescriptorHeap* heap = m_srvDescHeap.GetHeap();
     m_graphicsCommandList->SetDescriptorHeaps(1, &heap);
 
-    // @TODO: NO HARDCODE
-    CD3DX12_GPU_DESCRIPTOR_HANDLE handle{ m_srvDescHeap.GetStartGpu() };
-    m_graphicsCommandList->SetGraphicsRootDescriptorTable(7, handle);
-    m_graphicsCommandList->SetComputeRootDescriptorTable(7, handle);
+    // Root Param 8: Fixed SRVs (space0)
+    CD3DX12_GPU_DESCRIPTOR_HANDLE fixedSrvHandle{ m_srvDescHeap.GetStartGpu() };
+    m_graphicsCommandList->SetGraphicsRootDescriptorTable(8, fixedSrvHandle);
+
+    // Root Param 10: Bindless 2D SRVs (space1)
+    const uint32_t tex2dStart = Texture2D_START;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE bindless2dHandle(m_srvDescHeap.GetStartGpu());
+    bindless2dHandle.Offset(tex2dStart, m_srvDescHeap.GetIncrementSize());
+    m_graphicsCommandList->SetGraphicsRootDescriptorTable(10, bindless2dHandle);
+    m_graphicsCommandList->SetComputeRootDescriptorTable(10, bindless2dHandle);
+
+    // Root Param 11: Bindless Cube SRVs (space2)
+    const uint32_t texCubeStart = TextureCube_START;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE bindlessCubeHandle(m_srvDescHeap.GetStartGpu());
+    bindlessCubeHandle.Offset(texCubeStart, m_srvDescHeap.GetIncrementSize());
+    m_graphicsCommandList->SetGraphicsRootDescriptorTable(11, bindlessCubeHandle);
+    m_graphicsCommandList->SetComputeRootDescriptorTable(11, bindlessCubeHandle);
 }
 
 void D3d12RenderDevice::endFrame() {
@@ -362,14 +373,28 @@ void D3d12RenderDevice::unsetRenderTargets() {
     m_graphicsCommandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 }
 
-void D3d12RenderDevice::beginPass(const CompiledPass& p_pass) {
-    RenderDevice::beginPass(p_pass);
+void D3d12RenderDevice::beginPass(const CompiledPass& pass) {
+    RenderDevice::beginPass(pass);
 
-    // Transition all sampled textures to PIXEL_SHADER_RESOURCE
-    for (auto& texture : p_pass.srvs) {
+    // 1. Transition all sampled textures to PIXEL_SHADER_RESOURCE
+    for (auto& texture : pass.srvs) {
         if (!texture) continue;
         auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
         TransitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
+
+    // 2. Map Render Graph texture inputs into PerPassConstantBuffer payload
+    PerPassConstantBuffer pass_cb{};
+    // ... Fill pass_cb.c_viewMatrix and c_projectionMatrix from SceneView ...
+
+    for (size_t slot = 0; slot < pass.srvs.size() && slot < 32; ++slot) {
+        if (auto& texture = pass.srvs[slot]) {
+            auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
+            // srvHandle.index stores the slot index allocated via AllocBindlessHandle()
+            pass_cb.c_pass_textures[slot] = static_cast<uint32_t>(d3d_tex->srvHandle.index);
+        } else {
+            pass_cb.c_pass_textures[slot] = 0;  // Fallback dummy handle index
+        }
     }
 }
 
@@ -720,8 +745,6 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         DEV_ASSERT((p_bind_flags & (~supported_flags)) == 0);
 
         D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
-        // if (p_bind_flags & BIND_SHADER_RESOURCE) {
-        // }
         if (p_bind_flags & BIND_RENDER_TARGET) {
             flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
         }
@@ -874,6 +897,8 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
                 srv_desc.TextureCube.MipLevels = resource_desc.MipLevels;
                 srv_desc.TextureCube.MostDetailedMip = 0;
+
+                resource_type = DescriptorResourceType::TextureCube;
                 break;
             case Dimension::TextureCubeArray:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
@@ -911,22 +936,8 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
 }
 
 void D3d12RenderDevice::bindTexture(Dimension, uint64_t handle, int slot) {
-
-    if (handle != 0 && slot >= 0 && slot < 128) {
-        uint64_t heap_offset = handle - m_srvDescHeap.GetStartGpu().ptr;
-        D3D12_CPU_DESCRIPTOR_HANDLE src_cpu_handle{ m_srvDescHeap.GetStartCpu().ptr + heap_offset };
-
-        // Calculate destination CPU handle for register(tN)
-        CD3DX12_CPU_DESCRIPTOR_HANDLE dest_cpu_handle(m_srvDescHeap.GetStartCpu());
-        dest_cpu_handle.Offset(slot, m_srvDescHeap.GetIncrementSize());
-
-        // Copy source descriptor into slot p_slot (t0, t30, t31, t32, etc.)
-        m_device->CopyDescriptorsSimple(
-            1,
-            dest_cpu_handle,
-            src_cpu_handle,
-            D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    }
+    unused(handle);
+    unused(slot);
 }
 
 void D3d12RenderDevice::unbindTexture(Dimension, int) {
@@ -1240,10 +1251,10 @@ void D3d12RenderDevice::initStaticSamplers() {
 }
 
 auto D3d12RenderDevice::createRootSignature() -> Result<void> {
-    // @TODO: Order from most frequent to least frequent.
     CD3DX12_ROOT_PARAMETER params[16]{};
     int idx = 0;
 
+    // Root Params 0..7: CBVs (b0..b7)
     params[idx++].InitAsConstantBufferView(0);
     params[idx++].InitAsConstantBufferView(1);
     params[idx++].InitAsConstantBufferView(2);
@@ -1251,35 +1262,42 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
     params[idx++].InitAsConstantBufferView(4);
     params[idx++].InitAsConstantBufferView(5);
     params[idx++].InitAsConstantBufferView(6);
+    params[idx++].InitAsConstantBufferView(7);
 
+    // Descriptor Ranges
     CD3DX12_DESCRIPTOR_RANGE srvRange0;
     srvRange0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);  // t0..t31 space0
 
     CD3DX12_DESCRIPTOR_RANGE uavRange0;
-    uavRange0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);  // u0..u15 space0
+    uavRange0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);  // u0..u15 space0 (Fixed legacy)
 
-    CD3DX12_DESCRIPTOR_RANGE srvRangeBindless;
-    srvRangeBindless.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 512, 0, 1);  // t0..t511 space1
+    CD3DX12_DESCRIPTOR_RANGE srvRangeBindless2D;
+    srvRangeBindless2D.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 512, 0, 1);  // t0..t511 space1 (Bindless 2D)
+
+    CD3DX12_DESCRIPTOR_RANGE srvRangeBindlessCube;
+    srvRangeBindlessCube.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 128, 0, 2);  // t0..t127 space2 (Bindless Cube)
 
     CD3DX12_DESCRIPTOR_RANGE uavRangeBindless;
-    uavRangeBindless.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 64, 0, 1);  // u0..u63 space1
+    uavRangeBindless.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 64, 0, 1);  // u0..u63 space1 (Bindless UAV)
 
-    params[idx++].InitAsDescriptorTable(1, &srvRange0);         // Fixed SRVs
-    params[idx++].InitAsDescriptorTable(1, &uavRange0);         // Fixed UAVs
-    params[idx++].InitAsDescriptorTable(1, &srvRangeBindless);  // Bindless SRVs
-    params[idx++].InitAsDescriptorTable(1, &uavRangeBindless);  // Bindless UAVs
+    // Assign Root Parameters
+    params[idx++].InitAsDescriptorTable(1, &srvRange0);             // Param 8: Fixed SRVs
+    params[idx++].InitAsDescriptorTable(1, &uavRange0);             // Param 9: Fixed UAVs
+    params[idx++].InitAsDescriptorTable(1, &srvRangeBindless2D);    // Param 10: Bindless 2D (space1)
+    params[idx++].InitAsDescriptorTable(1, &srvRangeBindlessCube);  // Param 11: Bindless Cube (space2)
+    params[idx++].InitAsDescriptorTable(1, &uavRangeBindless);      // Param 12: Bindless UAV (space1)
 
     initStaticSamplers();
 
-    CD3DX12_ROOT_SIGNATURE_DESC root_signature_desc(idx,
-                                                    params,
-                                                    (uint32_t)m_staticSamplers.size(),
-                                                    m_staticSamplers.data(),
-                                                    D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    CD3DX12_ROOT_SIGNATURE_DESC root_signature_desc(
+        idx,
+        params,
+        (uint32_t)m_staticSamplers.size(),
+        m_staticSamplers.data(),
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     ComPtr<ID3DBlob> signature;
     ComPtr<ID3DBlob> error;
-    // @TODO: print error
     HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
     if (FAILED(hr)) {
         char buffer[256]{ 0 };

@@ -18,7 +18,7 @@ namespace cave::render {
 using namespace cave::math;
 
 // @TODO: fix this function OMG
-static void FillMaterialConstantBuffer(bool is_opengl,
+static void FillMaterialConstantBuffer(bool,
                                        const MaterialComponent* material,
                                        MaterialConstantBuffer& cb) {
     cb.c_has_base_color_map = false;
@@ -46,12 +46,13 @@ static void FillMaterialConstantBuffer(bool is_opengl,
 
     // @TODO: [SCRUM-210] fix material
     const auto& images = material->m_images;
-    unused(is_opengl);
-    auto set_texture = [&](TextureSlot p_idx,
-                           TextureHandle& p_out_handle) {
-        const int idx = std::to_underlying(p_idx);
+    auto set_texture = [images](TextureSlot slot,
+                                TextureHandle& out_handle,
+                                uint& resident_handle) {
+        const int idx = std::to_underlying(slot);
 
-        p_out_handle.value = 0;
+        std::memset(&out_handle, 0, sizeof(out_handle));
+        resident_handle = 0;
 
         if ((int)images.size() <= idx) {
             return false;
@@ -67,13 +68,20 @@ static void FillMaterialConstantBuffer(bool is_opengl,
             return false;
         }
 
-        p_out_handle.value = texture->GetHandle();
+        out_handle.value = texture->GetHandle();
+        resident_handle = (uint32_t)texture->GetResidentHandle();
         return true;
     };
 
-    cb.c_has_base_color_map = set_texture(TextureSlot::Base, cb.c_base_color_map_handle);
-    cb.c_has_normal_map = set_texture(TextureSlot::Normal, cb.c_normal_map_handle);
-    cb.c_has_material_map = set_texture(TextureSlot::MetallicRoughness, cb.c_material_map_handle);
+    cb.c_has_base_color_map = set_texture(TextureSlot::Base,
+                                          cb.c_base_color_map_handle,
+                                          cb.c_base_color_map_index);
+    cb.c_has_normal_map = set_texture(TextureSlot::Normal,
+                                      cb.c_normal_map_handle,
+                                      cb.c_normal_map_index);
+    cb.c_has_material_map = set_texture(TextureSlot::MetallicRoughness,
+                                        cb.c_material_map_handle,
+                                        cb.c_material_map_index);
 };
 
 using FilterObjectFunc1 = std::function<bool(const RenderableHeader&)>;
