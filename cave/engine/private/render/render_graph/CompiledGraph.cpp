@@ -10,7 +10,7 @@ void CompiledGraph::addResource(RGTextureId handle, const Ref<GpuTexture>& resou
     m_resource_lookup.insert({ handle, idx });
 }
 
-Ref<GpuTexture> CompiledGraph::FindResource(RGTextureId handle) {
+Ref<GpuTexture> CompiledGraph::findResource(RGTextureId handle) {
     auto it = m_resource_lookup.find(handle);
     if (it == m_resource_lookup.end()) {
         return nullptr;
@@ -66,7 +66,7 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
         size_t color_idx = 0;
         for (const auto& read : pass_builder.m_reads) {
             if ((bool)(read.access & ResourceAccess::DSV)) {
-                GpuTextureId depth_id = FindResource(read.handle);
+                GpuTextureId depth_id = findResource(read.handle);
                 pass_builder.m_depth->tex = depth_id;
                 break;
             }
@@ -74,12 +74,12 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
         for (const auto& write : pass_builder.m_writes) {
             switch (write.access) {
                 case ResourceAccess::DSV: {
-                    GpuTextureId depth_id = FindResource(write.handle);
+                    GpuTextureId depth_id = findResource(write.handle);
                     DEV_ASSERT(pass_builder.m_depth.has_value() && !pass_builder.m_depth->tex);
                     pass_builder.m_depth->tex = depth_id;
                 } break;
                 case ResourceAccess::RTV: {
-                    GpuTextureId color_id = FindResource(write.handle);
+                    GpuTextureId color_id = findResource(write.handle);
                     DEV_ASSERT(color_idx < pass_builder.m_colors.size());
                     ColorAttachmentDesc& color = pass_builder.m_colors[color_idx];
                     DEV_ASSERT(!color.tex && color_id);
@@ -94,11 +94,11 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
         for (const auto& read : pass_builder.m_reads) {
             switch (read.access) {
                 case ResourceAccess::SRV: {
-                    auto srv = FindResource(read.handle);
+                    auto srv = findResource(read.handle);
                     srvs.emplace_back(srv);
                 } break;
                 case ResourceAccess::UAV: {
-                    auto uav = FindResource(read.handle);
+                    auto uav = findResource(read.handle);
                     DEV_ASSERT(uav);
                     uavs.emplace_back(uav);
                 } break;
@@ -107,7 +107,9 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
             }
         }
 
-        CompiledPass& compiled_pass = m_compiled_pass[pass_idx++];
+        const int pass_id = pass_idx++;
+        CompiledPass& compiled_pass = m_compiled_pass[pass_id];
+        compiled_pass.pass_id = pass_id;
         compiled_pass.name = std::move(pass_builder.m_name);
         compiled_pass.execute_func = std::move(pass_builder.m_execute_func);
 

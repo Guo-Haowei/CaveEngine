@@ -17,7 +17,7 @@ struct D3d12GpuTexture : public GpuTexture {
         uint64_t handle = srvHandle.index;
         switch (desc.dimension) {
             case Dimension::Texture2D:
-            case Dimension::TextureCubeArray:
+            case Dimension::TextureCube:
                 return handle;
             default:
                 CRASH_NOW();

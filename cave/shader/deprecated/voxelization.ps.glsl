@@ -1,5 +1,5 @@
 /// File: voxelization.ps.glsl
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 
 in vec3 pass_position;
 in vec3 pass_normal;
@@ -22,7 +22,7 @@ layout(rgba16f, binding = 1) uniform image3D u_normal_texture;
 
 void main() {
     vec4 base_color = c_baseColor;
-    if (c_hasBaseColorMap != 0) {
+    if (c_has_base_color_map != 0) {
         base_color = texture(t_BaseColorMap, pass_uv);
     }
     if (base_color.a < 0.001) {
@@ -31,7 +31,7 @@ void main() {
 
     float metallic = c_metallic;
     float roughness = c_roughness;
-    if (c_hasMaterialMap != 0) {
+    if (c_has_material_map != 0) {
         // g roughness, b metallic
         vec3 mr = texture(t_MaterialMap, pass_uv).rgb;
         metallic = mr.b;
@@ -40,7 +40,7 @@ void main() {
 
     vec3 world_position = pass_position;
 
-    const float emissive = c_emissivePower;
+    const float emissive = c_emissive_power;
     const vec3 N = normalize(pass_normal);
 
     vec3 color = compute_lighting(t_ShadowMap,

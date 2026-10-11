@@ -257,7 +257,7 @@ struct ColliderProxy {
     bool is_trigger = false;
 };
 
-void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext& ctx) {
+void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext&) {
     SceneQuery& query = runtime.query();
     NativeScriptSystem* script_system = runtime.system<NativeScriptSystem>();
     if (!script_system) {
@@ -312,7 +312,7 @@ void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext& 
         return comp ? script_system->resolveScript(comp->handle) : nullptr;
     };
 
-    auto fire_enter_or_stay = [&resolve_script, &ctx](bool is_trigger, Entity self, Entity other, bool was_overlapping) {
+    auto fire_enter_or_stay = [&resolve_script](bool is_trigger, Entity self, Entity other, bool was_overlapping) {
         if (!is_trigger) return;
 
         if (auto* instance = resolve_script(self)) {
@@ -324,7 +324,7 @@ void CollisionSystem::runCollisionPair(SceneRuntime& runtime, SceneTickContext& 
         }
     };
 
-    auto fire_exit = [&resolve_script, &ctx](bool is_trigger, Entity self, Entity other) {
+    auto fire_exit = [&resolve_script](bool is_trigger, Entity self, Entity other) {
         if (!is_trigger) return;
         if (auto* instance = resolve_script(self)) {
             instance->onBodyExited(other);

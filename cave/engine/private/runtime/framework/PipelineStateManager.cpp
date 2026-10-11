@@ -107,10 +107,6 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                    .rtv_formats = { RT_FMT_TONE },
                                });
 
-    if (m_backend == Backend::D3d12) {
-        return Result<void>();
-    }
-
     CREATE_PSO(PSO_PREPASS,
                {
                    .vs = "mesh.vs",

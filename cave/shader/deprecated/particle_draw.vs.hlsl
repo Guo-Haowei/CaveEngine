@@ -1,5 +1,5 @@
 /// File: particle_draw.vs.hlsl
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 #include "hlsl/input_output.hlsl"
 
 #if defined(HLSL_LANG_D3D11)

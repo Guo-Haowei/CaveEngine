@@ -1,5 +1,5 @@
 /// File: primitive.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "input_output.slang"
 #include "common.slang"
 
@@ -24,7 +24,11 @@ VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
 [shader("fragment")]
 float4 ps_main(VS_OUTPUT_COLOR input) : SV_Target
 {
-    float4 color = SAMPLE_TEXTURE_2D(u_Texture0, s_pointWrapSampler, input.uv);
+#if defined(__TARGET_D3D12__)
+    float4 color = SAMPLE_2D(c_base_color_map_index, s_pointWrapSampler, input.uv);
+#else
+    float4 color = SAMPLE_2D(u_Texture0, s_pointWrapSampler, input.uv);
+#endif
 
     color *= input.color;
 

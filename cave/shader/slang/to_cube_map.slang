@@ -1,5 +1,5 @@
 /// File: to_cube_map.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "input_output.slang"
 #include "common.slang"
 
@@ -19,6 +19,6 @@ float4 ps_main(VS_OUTPUT_POSITION input)
     : SV_TARGET {
     float2 uv = sample_spherical_map(normalize(input.world_position));
 
-    float4 color = SAMPLE_TEXTURE_2D(u_Texture0, s_linearClampSampler, uv);
+    float4 color = SAMPLE_2D(u_Texture0, s_linearClampSampler, uv);
     return float4(color.rgb, 1.0f);
 }

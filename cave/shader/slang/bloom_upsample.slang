@@ -1,7 +1,10 @@
 /// File: bloom_upsample.slang
 #include "common.slang"
+#include "../cbuffer.slang.h"
 
 TEXTURE_2D(u_Texture0, 0); // t_BloomInputTexture
+#define t_BloomInputTexture u_Texture0
+
 RWTexture2D<float4> u_BloomOutputImage : register(u0);
 
 [shader("compute")]
@@ -17,7 +20,7 @@ void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
                        output_coord.y / output_image_size.y);
 
     uint input_width, input_height;
-    u_Texture0.GetDimensions(input_width, input_height);
+    TEX_2D(t_BloomInputTexture).GetDimensions(input_width, input_height);
     float x = 1.0f / input_width;
     float y = 1.0f / input_height;
     uv.x += 0.5f * x;
@@ -32,17 +35,17 @@ void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     // d - e - f
     // g - h - i
     // === ('e' is the current texel) ===
-    float3 a = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x - x, uv.y + y), 0).rgb;
-    float3 b = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x, uv.y + y), 0).rgb;
-    float3 c = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x + x, uv.y + y), 0).rgb;
+    float3 a = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - x, uv.y + y), 0).rgb;
+    float3 b = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y + y), 0).rgb;
+    float3 c = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + x, uv.y + y), 0).rgb;
 
-    float3 d = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x - x, uv.y), 0).rgb;
-    float3 e = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x, uv.y), 0).rgb;
-    float3 f = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x + x, uv.y), 0).rgb;
+    float3 d = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - x, uv.y), 0).rgb;
+    float3 e = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y), 0).rgb;
+    float3 f = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + x, uv.y), 0).rgb;
 
-    float3 g = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x - x, uv.y - y), 0).rgb;
-    float3 h = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x, uv.y - y), 0).rgb;
-    float3 i = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, float2(uv.x + x, uv.y - y), 0).rgb;
+    float3 g = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - x, uv.y - y), 0).rgb;
+    float3 h = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y - y), 0).rgb;
+    float3 i = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + x, uv.y - y), 0).rgb;
 
     // Apply weighted distribution, by using a 3x3 tent filter:
     //  1   | 1 2 1 |

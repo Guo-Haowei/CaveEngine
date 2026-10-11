@@ -18,9 +18,9 @@ class TransientPool;
 class CompiledGraph : public NonCopyable {
 public:
     void addResource(RGTextureId handle, const Ref<GpuTexture>& resource);
-    Ref<GpuTexture> FindResource(RGTextureId handle);
+    Ref<GpuTexture> findResource(RGTextureId handle);
 
-    std::span<const CompiledPass> GetCompiledPass() const {
+    std::span<const CompiledPass> getCompiledPass() const {
         return m_compiled_pass;
     }
 

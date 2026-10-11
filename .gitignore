@@ -6,8 +6,9 @@
 CMakeFiles/
 build/
 build-emscripten/
-glsl_generated/
-hlsl_generated/
+d3d11_generated/
+d3d12_generated/
+opengl_generated/
 metal_generated/
 
 # shader

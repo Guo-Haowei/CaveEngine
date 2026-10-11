@@ -1,5 +1,5 @@
 /// File: skybox.ps.glsl
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "input_output.slang"
 #include "common.slang"
 
@@ -20,9 +20,9 @@ VS_OUTPUT_POSITION vs_main(VS_INPUT_MESH input) {
 [shader("fragment")]
 float4 ps_main(VS_OUTPUT_POSITION input) : SV_TARGET {
     float3 uvw = input.world_position;
-#if defined(__TARGET_HLSL__) || defined(__TARGET_METAL__)
+#if !defined(__TARGET_OPENGL__)
     uvw.y = -uvw.y;
 #endif
-    float3 color = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_cubemapClampSampler, uvw, 0.0f).rgb;
+    float3 color = SAMPLE_CUBE_LEVEL(u_Texture0, s_cubemapClampSampler, uvw, 0.0f).rgb;
     return float4(color, 1.0f);
 }

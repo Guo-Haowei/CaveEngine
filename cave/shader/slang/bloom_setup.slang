@@ -1,5 +1,5 @@
 /// File: bloom_setup.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "common.slang"
 
 TEXTURE_2D(u_Texture0, 0); // t_TextureLighting
@@ -20,7 +20,7 @@ void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     float2 uv = float2(output_coord.x / output_image_size.x,
                        output_coord.y / output_image_size.y);
 
-    float3 color = SAMPLE_TEXTURE_LEVEL(u_Texture0, s_linearClampSampler, uv, 0).rgb;
+    float3 color = SAMPLE_LEVEL(u_Texture0, s_linearClampSampler, uv, 0).rgb;
     color = max(color, 0.0);
 
     const float luma = rgb_to_luma(color);

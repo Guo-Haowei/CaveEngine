@@ -12,7 +12,7 @@
 #include "engine/private/runtime/framework/PipelineStateManager.h"
 
 namespace cave {
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 }  // namespace cave
 
 // @TODO: refactor
@@ -30,13 +30,14 @@ namespace cave::render {
 struct CompiledPass;
 
 struct FrameContext {
-    Ref<GpuConstantBuffer> batchCb;
-    Ref<GpuConstantBuffer> materialCb;
-    Ref<GpuConstantBuffer> boneCb;
-    Ref<GpuConstantBuffer> passCb;
-    Ref<GpuConstantBuffer> emitterCb;
-    Ref<GpuConstantBuffer> pointShadowCb;
-    Ref<GpuConstantBuffer> perFrameCb;
+    Ref<GpuConstantBuffer> batch_cb;
+    Ref<GpuConstantBuffer> material_cb;
+    Ref<GpuConstantBuffer> bone_cb;
+    Ref<GpuConstantBuffer> view_cb;
+    Ref<GpuConstantBuffer> pass_cb;
+    Ref<GpuConstantBuffer> emitter_cb;
+    Ref<GpuConstantBuffer> per_frame_cb;
+    Ref<GpuConstantBuffer> point_shadow_cb;
 };
 
 class RenderDevice : public IRenderDevice,
@@ -102,7 +103,7 @@ protected:
     void endPass(const CompiledPass& pass) override;
 
 private:
-    void Execute(const FrameData& data, const CompiledPass& pass);
+    void execute(const FrameData& data, const CompiledPass& pass);
 };
 
 }  // namespace cave::render

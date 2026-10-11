@@ -1,4 +1,3 @@
-#pragma once
 #include "EnvironmentFeature.h"
 
 #include "cave/core/diagnostics/Profiler.h"
@@ -24,7 +23,7 @@ static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
 
     cmd.setPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
 
-    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batchCb.get(), face);
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), face);
     cmd.drawSkybox();
     if (face == 5) {
         GpuTextureId cubemap = ctx.pass.colors[0].tex;
@@ -38,7 +37,7 @@ static void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
     auto& cmd = ctx.cmd;
 
     cmd.setPipelineState(PSO_DIFFUSE_IRRADIANCE);
-    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batchCb.get(), face);
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), face);
     cmd.drawSkybox();
 }
 
@@ -50,7 +49,7 @@ static void PrefilteredFunc(RenderPassExcutionContext& ctx,
     auto& cmd = ctx.cmd;
     const int index = mip * 6 + face;
     cmd.setPipelineState(PSO_PREFILTER);
-    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batchCb.get(), index);
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), index);
     cmd.drawSkybox();
 }
 

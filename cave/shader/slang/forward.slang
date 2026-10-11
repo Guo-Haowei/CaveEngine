@@ -1,5 +1,5 @@
 /// File: forward.ps.hlsl
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "input_output.slang"
 
 #include "common.slang"
@@ -33,8 +33,13 @@ float4 ps_main(VS_OUTPUT_MESH input)
     float3 base_color = c_baseColor.rgb;
     float alpha = c_baseColor.a;
 
-    if (c_hasBaseColorMap != 0) {
-        float4 tmp = SAMPLE_TEXTURE_2D(BaseColorMap, s_linearMipWrapSampler, input.uv);
+    if (c_has_base_color_map != 0) {
+        float4 tmp =
+#if defined(__TARGET_D3D12__)
+        g_Textures2D[c_base_color_map_index].Sample(s_linearMipWrapSampler, input.uv);
+#else
+        SAMPLE_2D(BaseColorMap, s_linearMipWrapSampler, input.uv);
+#endif
         base_color = tmp.rgb;
         alpha = tmp.a;
     }
@@ -42,8 +47,13 @@ float4 ps_main(VS_OUTPUT_MESH input)
     float metallic;
     float roughness;
 
-    if (c_hasMaterialMap != 0) {
-        float3 value = SAMPLE_TEXTURE_2D(MaterialMap, s_linearMipWrapSampler, input.uv).rgb;
+    if (c_has_material_map != 0) {
+        float3 value =
+#if defined(__TARGET_D3D12__)
+        g_Textures2D[c_material_map_index].Sample(s_linearMipWrapSampler, input.uv).rgb;
+#else
+        SAMPLE_2D(MaterialMap, s_linearMipWrapSampler, input.uv).rgb;
+#endif
         metallic = value.b;
         roughness = value.g;
     } else {
@@ -52,12 +62,17 @@ float4 ps_main(VS_OUTPUT_MESH input)
     }
 
     float3 N;
-    if (c_hasNormalMap != 0) {
+    if (c_has_normal_map != 0) {
         float3x3 TBN;
         TBN[0] = normalize(input.T);
         TBN[1] = normalize(input.B);
         TBN[2] = normalize(input.normal);
-        float3 value = SAMPLE_TEXTURE_2D(NormalMap, s_linearMipWrapSampler, input.uv).rgb;
+        float3 value =
+#if defined(__TARGET_D3D12__)
+        g_Textures2D[c_normal_map_index].Sample(s_linearMipWrapSampler, input.uv).rgb;
+#else
+        SAMPLE_2D(NormalMap, s_linearMipWrapSampler, input.uv).rgb;
+#endif
         N = normalize(mul((2.0f * value) - 1.0f, TBN));
     } else {
         N = normalize(input.normal);
@@ -69,6 +84,6 @@ float4 ps_main(VS_OUTPUT_MESH input)
                                     N,
                                     metallic,
                                     roughness,
-                                    c_emissivePower);
+                                    c_emissive_power);
     return float4(color, alpha);
 }

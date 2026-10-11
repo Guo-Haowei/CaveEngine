@@ -77,7 +77,7 @@ public:
     ID3D12CommandQueue* createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 
     ID3D12Device4* const GetDevice() const { return m_device.Get(); }
-    ID3D12RootSignature* const GetRootSignature() const { return m_rootSignature.Get(); }
+    ID3D12RootSignature* const GetRootSignature() const { return m_root_signature.Get(); }
 
 protected:
     auto InitializeInternal() -> Result<void> final;
@@ -120,9 +120,9 @@ private:
     DescriptorHeapSrv m_srvDescHeap;
 
     Microsoft::WRL::ComPtr<ID3D12Device4> m_device;
-    Microsoft::WRL::ComPtr<ID3D12Debug> m_debugController;
+    Microsoft::WRL::ComPtr<ID3D12Debug> m_debug_controller;
     Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
-    Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
+    Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swap_chain;
 
     // Graphics Queue
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_graphicsCommandQueue;
@@ -146,7 +146,7 @@ private:
 
     uint32_t m_backbufferIndex = 0;
 
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> m_root_signature;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> m_debugVertexData;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_debugIndexData;

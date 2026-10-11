@@ -61,16 +61,16 @@ private:
                              std::span<const ResolvedView> views);
 
     auto buildRenderGraph(const RenderOptions& plan,
-                          const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
+                          const ResolvedView& view) -> Result<Ref<CompiledGraph>>;
 
     auto buildRenderGraphDeferred(const RenderOptions& plan,
-                                  const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
+                                  const ResolvedView& view) -> Result<Ref<CompiledGraph>>;
 
     auto buildRenderGraphPt(const RenderOptions& plan,
-                            const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
+                            const ResolvedView& view) -> Result<Ref<CompiledGraph>>;
 
     auto buildRenderGraph2d(const RenderOptions& plan,
-                            const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>>;
+                            const ResolvedView& view) -> Result<Ref<CompiledGraph>>;
 
     RenderScene& getOrCreateRenderScene(SceneId scene_id);
 
@@ -204,6 +204,22 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     cache.c_scene_dirty = true;
 }
 
+static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data) {
+    int idx = 0;
+    out_data.passCache.resize(graph.getCompiledPass().size());
+    for (const CompiledPass& pass : graph.getCompiledPass()) {
+        auto& cache = out_data.passCache[idx++];
+        std::memset(&cache, 0, sizeof(cache));
+        DEV_ASSERT(pass.srvs.size() <= std::size(cache.c_pass_textures));
+        for (size_t slot = 0; slot < pass.srvs.size(); ++slot) {
+            const auto& texture = pass.srvs[slot];
+            if (texture) {
+                cache.c_pass_textures[slot].x = (uint32_t)texture->GetResidentHandle();
+            }
+        }
+    }
+}
+
 static void FillEnvConstants(FrameData& out_data) {
     constexpr int count = kIBLMipChainMax * 6;
     if (out_data.batchCache.buffer.size() < count) {
@@ -283,6 +299,8 @@ void Renderer::Impl::tick(const FrameTime& time, std::span<const ResolvedView> v
             graph->resolveTextures(m_transient_pool);
 
             submission->render_graph.push_back(graph);
+
+            FillPerPassConstants(*graph, plan.frame_data[idx]);
         }
     }
 
@@ -341,7 +359,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
 }
 
 auto Renderer::Impl::buildRenderGraph(const RenderOptions& plan,
-                                      const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+                                      const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
     if (IsPathTracerActive()) [[unlikely]] {
         return buildRenderGraphPt(plan, view);
     }
@@ -350,7 +368,7 @@ auto Renderer::Impl::buildRenderGraph(const RenderOptions& plan,
 }
 
 auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
-                                              const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+                                              const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
     if (!m_brdf) {
         Ref<ImageAsset> image = m_services.assetManager().findImage("brdf.hdr");
         m_brdf = m_device.createTexture(image.get());
@@ -449,7 +467,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
 }
 
 auto Renderer::Impl::buildRenderGraph2d(const RenderOptions& plan,
-                                        const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+                                        const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
     unused(plan);
 
     RenderGraphBuilderExt graph(view.viewport_px);
@@ -461,7 +479,7 @@ auto Renderer::Impl::buildRenderGraph2d(const RenderOptions& plan,
 }
 
 auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
-                                        const ResolvedView& view) -> Result<std::shared_ptr<CompiledGraph>> {
+                                        const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
     RenderGraph graph(view.viewport_px);
 
     m_pathtracer.Build(graph, plan, { view.output });

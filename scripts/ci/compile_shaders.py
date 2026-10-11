@@ -7,14 +7,8 @@ def main():
     result = run_python_task(
         "Shader Compilation",
         "scripts/compile_shaders.py",
-        "--platform",
-        "apple",
         "--source-folder",
         "cave/shader/slang",
-        "--lang",
-        "glsl",
-        "--varying-locations",
-        "0,1,2,3"
     )
 
     finish(result)

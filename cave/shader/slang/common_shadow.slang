@@ -1,9 +1,11 @@
 /// File: common_shadow.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 
 float shadowTest(
-#if defined(__TARGET_GLSL__)
+#if defined(__TARGET_OPENGL__)
                  Sampler2D shadow_map,
+#elif defined(__TARGET_D3D12__)
+                 uint shadow_map,
 #else
                  Texture2D shadow_map,
 #endif
@@ -14,20 +16,18 @@ float shadowTest(
     lightSpacePos = mul(light.projection_matrix, lightSpacePos);
     lightSpacePos /= lightSpacePos.w;
 
-#if defined(__TARGET_HLSL__) || defined(__TARGET_METAL__)
-    lightSpacePos.y = -lightSpacePos.y;
-    lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
-#elif defined(__TARGET_GLSL__)
+#if defined(__TARGET_OPENGL__)
     lightSpacePos.xyz = 0.5 * lightSpacePos.xyz + 0.5;
 #else
-#error
+    lightSpacePos.y = -lightSpacePos.y;
+    lightSpacePos.xy = 0.5 * lightSpacePos.xy + 0.5;
 #endif
 
     float currentDepth = lightSpacePos.z;
 
     float shadow = 0.0;
     uint width, height;
-    shadow_map.GetDimensions(width, height);
+    TEX_2D(shadow_map).GetDimensions(width, height);
     float2 texelSize = 1.0 / float2(width, height);
 
     // @TODO: better bias
@@ -40,10 +40,10 @@ float shadowTest(
         float2(1.0, 1.0) * texelSize,
     };
 
-    float d0 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
-    float d1 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
-    float d2 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
-    float d3 = SAMPLE_TEXTURE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
+    float d0 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
+    float d1 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
+    float d2 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
+    float d3 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
 
     shadow +=
         (currentDepth - bias > d0 ? 1.0 : 0.0) +

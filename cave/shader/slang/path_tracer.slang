@@ -1,5 +1,5 @@
 /// File: pass_tracer.slang
-#include "../cbuffer.hlsl.h"
+#include "../cbuffer.slang.h"
 #include "../structured_buffer.hlsl.h"
 
 // @NOTE: include this at last

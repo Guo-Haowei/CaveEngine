@@ -13,7 +13,7 @@ static constexpr int DESCRIPTOR_MAX_COUNT = 512;
 // DescriptorHeapBase
 auto DescriptorHeapBase::Initialize(int p_count, D3D12_DESCRIPTOR_HEAP_TYPE p_type, ID3D12Device* p_device, bool p_shader_visible) -> Result<void> {
     m_desc.Type = p_type;
-    m_desc.NumDescriptors = DESCRIPTOR_MAX_COUNT;
+    m_desc.NumDescriptors = p_count;
     m_desc.Flags = p_shader_visible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     m_desc.NodeMask = 1;
     m_capacity = p_count;

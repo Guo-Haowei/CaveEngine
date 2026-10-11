@@ -1,4 +1,4 @@
-set(TARGET_NAME vk_backend)
+set(TARGET_NAME vulkan_backend)
 
 file(GLOB_RECURSE SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"

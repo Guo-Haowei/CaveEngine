@@ -18,62 +18,60 @@ namespace cave::render {
 using namespace cave::math;
 
 // @TODO: fix this function OMG
-static void FillMaterialConstantBuffer(bool is_opengl,
+static void FillMaterialConstantBuffer(bool,
                                        const MaterialComponent* material,
                                        MaterialConstantBuffer& cb) {
-    cb.c_hasBaseColorMap = false;
-    cb.c_hasNormalMap = false;
-    cb.c_hasMaterialMap = false;
-    cb.c_hasHeightMap = false;
 
-    cb.c_baseColorMapHandle.value = 0;
-    cb.c_normalMapHandle.value = 0;
-    cb.c_materialMapHandle.value = 0;
-    cb.c_heightMapHandle.value = 0;
+    std::memset(&cb, 0, sizeof(MaterialConstantBuffer));
 
     if (!material) {
         cb.c_baseColor = Vec4f(1, 0, 1, 1);
         cb.c_metallic = 0.5f;
         cb.c_roughness = 0.5f;
-        cb.c_emissivePower = 0.0f;
+        cb.c_emissive_power = 0.0f;
         return;
     }
 
     cb.c_baseColor = material->base_color;
     cb.c_metallic = material->metallic;
     cb.c_roughness = material->roughness;
-    cb.c_emissivePower = material->emissive;
+    cb.c_emissive_power = material->emissive;
 
     // @TODO: [SCRUM-210] fix material
     const auto& images = material->m_images;
-    unused(is_opengl);
-    auto set_texture = [&](TextureSlot p_idx,
-                           TextureHandle& p_out_handle) {
-        const int idx = std::to_underlying(p_idx);
-
-        p_out_handle.value = 0;
+    auto set_texture = [images](TextureSlot slot,
+                                TextureHandle& out_handle,
+                                uint& resident_handle) {
+        const int idx = std::to_underlying(slot);
 
         if ((int)images.size() <= idx) {
-            return false;
+            return 0;
         }
 
         const ImageAsset* image = images[idx].get();
         if (!image) {
-            return false;
+            return 0;
         }
 
         auto texture = reinterpret_cast<GpuTexture*>(image->gpu_texture.get());
         if (!texture) {
-            return false;
+            return 0;
         }
 
-        p_out_handle.value = texture->GetHandle();
-        return true;
+        out_handle.value = texture->GetHandle();
+        resident_handle = (uint)texture->GetResidentHandle();
+        return 1;
     };
 
-    cb.c_hasBaseColorMap = set_texture(TextureSlot::Base, cb.c_baseColorMapHandle);
-    cb.c_hasNormalMap = set_texture(TextureSlot::Normal, cb.c_normalMapHandle);
-    cb.c_hasMaterialMap = set_texture(TextureSlot::MetallicRoughness, cb.c_materialMapHandle);
+    cb.c_has_base_color_map = set_texture(TextureSlot::Base,
+                                          cb.c_base_color_map_handle,
+                                          cb.c_base_color_map_index);
+    cb.c_has_normal_map = set_texture(TextureSlot::Normal,
+                                      cb.c_normal_map_handle,
+                                      cb.c_normal_map_index);
+    cb.c_has_material_map = set_texture(TextureSlot::MetallicRoughness,
+                                        cb.c_material_map_handle,
+                                        cb.c_material_map_index);
 };
 
 using FilterObjectFunc1 = std::function<bool(const RenderableHeader&)>;
@@ -211,12 +209,12 @@ static void FillLightBuffer(const RenderScene& p_rs,
                     light.projection_matrix = BuildOrthoRH(-size, size, -size, size, -size, 3.0f * size);
                 }
 
-                PerPassConstantBuffer pass_constant;
+                PerViewConstantBuffer pass_constant;
                 // @TODO: Build correct matrices
                 pass_constant.c_projectionMatrix = light.projection_matrix;
                 pass_constant.c_viewMatrix = light.view_matrix;
-                p_framedata.shadowPasses[0].pass_idx = static_cast<int>(p_framedata.passCache.size());
-                p_framedata.passCache.emplace_back(pass_constant);
+                p_framedata.shadowPasses[0].pass_idx = static_cast<int>(p_framedata.viewCache.size());
+                p_framedata.viewCache.emplace_back(pass_constant);
 
                 Frustum light_frustum(light.projection_matrix * light.view_matrix);
                 FillPass(
@@ -299,12 +297,12 @@ static void FillMainPass(const Scene& p_es,
     const Frustum& frustum = p_view.frustum;
 
     // main pass
-    PerPassConstantBuffer pass_constant;
+    PerViewConstantBuffer pass_constant;
     pass_constant.c_viewMatrix = camera.view;
     pass_constant.c_projectionMatrix = camera.proj;
 
-    p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.passCache.size());
-    p_framedata.passCache.emplace_back(pass_constant);
+    p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.viewCache.size());
+    p_framedata.viewCache.emplace_back(pass_constant);
 
     FillPass(
         p_rs,
@@ -345,12 +343,12 @@ static void FillMainPass(const Scene& p_es,
         false);
 }
 
-void RunMeshRenderSystem(const Scene& p_scene,
-                         const RenderScene& p_rscene,
-                         const ResolvedView& p_view,
-                         FrameData& p_framedata) {
-    FillLightBuffer(p_rscene, p_scene, p_view, p_framedata);
-    FillMainPass(p_scene, p_rscene, p_view, p_framedata);
+void RunMeshRenderSystem(const Scene& scene,
+                         const RenderScene& rscene,
+                         const ResolvedView& view,
+                         FrameData& framedata) {
+    FillLightBuffer(rscene, scene, view, framedata);
+    FillMainPass(scene, rscene, view, framedata);
 }
 
 // @TODO: fix emitter

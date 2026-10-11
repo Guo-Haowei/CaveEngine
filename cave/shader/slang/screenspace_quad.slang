@@ -23,7 +23,7 @@ VS_OUTPUT_UV vs_main(uint vert_id : SV_VertexID) {
 
     output.position = float4(pos, 0.0f, 1.0f);
     output.uv = 0.5f * (pos + 1.0f);
-#if !defined(__TARGET_GLSL__)
+#if !defined(__TARGET_OPENGL__)
     output.uv.y = 1.0f - output.uv.y;
 #endif
     return output;

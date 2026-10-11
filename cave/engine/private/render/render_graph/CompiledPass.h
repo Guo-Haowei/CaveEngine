@@ -26,6 +26,7 @@ struct RenderPassExcutionContext {
 using ExecuteFunc = std::function<void(RenderPassExcutionContext& ctx)>;
 
 struct CompiledPass {
+    int pass_id;
     String name;
 
     Vector<ColorAttachmentDesc> colors;

@@ -11,7 +11,7 @@
 #include "cave/runtime/tile_map/TileSetAsset.h"
 
 // private
-#include "engine/private/core/math/geomath.h"
+#include "engine/private/core/math/Geomath.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/view/ResolvedView.h"
 

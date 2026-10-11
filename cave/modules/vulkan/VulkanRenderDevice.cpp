@@ -1,12 +1,13 @@
-#include "vulkan_graphics_manager.h"
+#include "VulkanRenderDevice.h"
+
+#include "VulkanHelpers.h"
 
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/null/NullPipelineStateManager.h"
-#include "vulkan_helpers.h"
-///////
+
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_vulkan.h"
 #include "imgui/imgui.h"
@@ -76,7 +77,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReport(VkDebugReportFlagsEXT p_flags,
     return VK_FALSE;
 }
 
-auto VulkanGraphicsManager::CreateInstance() -> Result<void> {
+auto VulkanRenderDevice::createInstance() -> Result<void> {
     uint32_t extensions_count = 0;
     const char** extensions = glfwGetRequiredInstanceExtensions(&extensions_count);
 
@@ -127,7 +128,7 @@ auto VulkanGraphicsManager::CreateInstance() -> Result<void> {
     return Result<void>();
 }
 
-auto VulkanGraphicsManager::SelectHardware() -> Result<void> {
+auto VulkanRenderDevice::selectHardware() -> Result<void> {
     uint32_t gpu_count;
     VK_CHECK_ERROR(vkEnumeratePhysicalDevices(g_Instance, &gpu_count, nullptr),
                    ErrorCode::ERR_CANT_CREATE);
@@ -192,7 +193,7 @@ auto VulkanGraphicsManager::SelectHardware() -> Result<void> {
     return Result<void>();
 }
 
-auto VulkanGraphicsManager::CreateDescriptorPool() -> Result<void> {
+auto VulkanRenderDevice::createDescriptorPool() -> Result<void> {
     VkDescriptorPoolSize pool_sizes[] = {
         { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
         { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
@@ -347,12 +348,12 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VulkanGraphicsManager::VulkanGraphicsManager()
-    : RenderDevice("VulkanGraphicsManager", rhi::Backend::Vulkan, NUM_FRAMES_IN_FLIGHT) {
-    m_pipelineStateManager = std::make_shared<NullPipelineStateManager>();
+VulkanRenderDevice::VulkanRenderDevice()
+    : RenderDevice("VulkanRenderDevice", rhi::Backend::Vulkan, NUM_FRAMES_IN_FLIGHT) {
+    m_pipeline_state_manager = MakeOwner<NullPipelineStateManager>();
 }
 
-auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
+auto VulkanRenderDevice::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->services().display_service);
     DEV_ASSERT(display_manager);
     if (!display_manager) {
@@ -361,13 +362,13 @@ auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
 
     m_window = display_manager->GetGlfwWindow();
 
-    if (auto res = CreateInstance(); !res) {
+    if (auto res = createInstance(); !res) {
         return CAVE_ERROR(res.error());
     }
-    if (auto res = SelectHardware(); !res) {
+    if (auto res = selectHardware(); !res) {
         return CAVE_ERROR(res.error());
     }
-    if (auto res = CreateDescriptorPool(); !res) {
+    if (auto res = createDescriptorPool(); !res) {
         return CAVE_ERROR(res.error());
     }
 
@@ -412,7 +413,7 @@ auto VulkanGraphicsManager::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-void VulkanGraphicsManager::FinalizeImpl() {
+void VulkanRenderDevice::FinalizeImpl() {
     if (g_Device) {
         VkResult err = vkDeviceWaitIdle(g_Device);
         check_vk_result(err);
@@ -422,15 +423,15 @@ void VulkanGraphicsManager::FinalizeImpl() {
     }
 }
 
-void VulkanGraphicsManager::OnWindowResize(int p_width, int p_height) {
-    if (p_width > 0 && p_height > 0) {
+void VulkanRenderDevice::onWindowResize(int width, int height) {
+    if (width > 0 && height > 0) {
         ImGui_ImplVulkan_SetMinImageCount(g_MinImageCount);
-        ImGui_ImplVulkanH_CreateOrResizeWindow(g_Instance, g_PhysicalDevice, g_Device, &g_MainWindowData, g_QueueFamily, g_Allocator, p_width, p_height, g_MinImageCount);
+        ImGui_ImplVulkanH_CreateOrResizeWindow(g_Instance, g_PhysicalDevice, g_Device, &g_MainWindowData, g_QueueFamily, g_Allocator, width, height, g_MinImageCount);
         g_MainWindowData.FrameIndex = 0;
     }
 }
 
-void VulkanGraphicsManager::Present() {
+void VulkanRenderDevice::present() {
     ImGui_ImplVulkanH_Window* wd = &g_MainWindowData;
 
     Vec4f clear_color{ 0.3f, 0.4f, 0.3f, 1.0f };

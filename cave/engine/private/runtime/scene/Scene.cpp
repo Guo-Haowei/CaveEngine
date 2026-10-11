@@ -110,7 +110,7 @@ void Scene::copy(const Scene& other) {
     for (auto& entry : other.m_storage.entries()) {
         if (entry.pool) {
             const uint32_t idx = m_storage.ensure(entry.type_id);
-            m_storage.m_entries[idx].pool = std::move(entry.pool->clone());
+            m_storage.m_entries[idx].pool = entry.pool->clone();
         }
     }
 

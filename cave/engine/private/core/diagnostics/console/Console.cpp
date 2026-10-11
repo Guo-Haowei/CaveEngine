@@ -4,7 +4,7 @@
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/os/os.h"
+#include "engine/private/core/os/OS.h"
 
 namespace cave {
 

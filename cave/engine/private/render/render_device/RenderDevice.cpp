@@ -36,7 +36,6 @@ using namespace math;
 
 template<typename T>
 static auto CreateUniformCheckSize(RenderDevice& p_graphics_manager, uint32_t p_max_count) {
-    static_assert(sizeof(T) % 256 == 0);
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
     buffer_desc.element_count = p_max_count;
@@ -58,13 +57,14 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
 
     for (int i = 0; i < num_frames; ++i) {
         FrameContext& frame_context = *m_frameContexts[i].get();
-        frame_context.batchCb = *CreateUniformCheckSize<PerBatchConstantBuffer>(*this, 4096 * 16);
-        frame_context.passCb = *CreateUniformCheckSize<PerPassConstantBuffer>(*this, 32);
-        frame_context.materialCb = *CreateUniformCheckSize<MaterialConstantBuffer>(*this, 2048 * 16);
-        frame_context.boneCb = *CreateUniformCheckSize<BoneConstantBuffer>(*this, 16);
-        frame_context.pointShadowCb = *CreateUniformCheckSize<PointShadowConstantBuffer>(*this, 6 * MAX_POINT_LIGHT_SHADOW_COUNT);
-        frame_context.perFrameCb = *CreateUniformCheckSize<PerFrameConstantBuffer>(*this, 1);
-        frame_context.emitterCb = *CreateUniformCheckSize<EmitterConstantBuffer>(*this, 32);
+        frame_context.batch_cb = *CreateUniformCheckSize<PerBatchConstantBuffer>(*this, 4096 * 16);
+        frame_context.view_cb = *CreateUniformCheckSize<PerViewConstantBuffer>(*this, 32);
+        frame_context.material_cb = *CreateUniformCheckSize<MaterialConstantBuffer>(*this, 2048 * 16);
+        frame_context.pass_cb = *CreateUniformCheckSize<PerPassConstantBuffer>(*this, 128);
+        frame_context.bone_cb = *CreateUniformCheckSize<BoneConstantBuffer>(*this, 16);
+        frame_context.per_frame_cb = *CreateUniformCheckSize<PerFrameConstantBuffer>(*this, 1);
+        frame_context.emitter_cb = *CreateUniformCheckSize<EmitterConstantBuffer>(*this, 32);
+        frame_context.point_shadow_cb = *CreateUniformCheckSize<PointShadowConstantBuffer>(*this, 6 * MAX_POINT_LIGHT_SHADOW_COUNT);
     }
 
     DEV_ASSERT(m_pipeline_state_manager);
@@ -240,7 +240,7 @@ Ref<GpuTexture> RenderDevice::createTexture(ImageAsset* image) {
     return image->gpu_texture;
 }
 
-void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
+void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: make it a function
@@ -272,27 +272,27 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& p_submission) {
         beginFrame();
 
         int idx = 0;
-        for (const FrameData& data : p_submission->frame_data) {
+        for (const FrameData& data : submission->frame_data) {
 
             auto& frame = getCurrentFrame();
-            updateConstantBuffer(frame.batchCb.get(), data.batchCache.buffer);
-            updateConstantBuffer(frame.materialCb.get(), data.materialCache.buffer);
-            updateConstantBuffer(frame.boneCb.get(), data.boneCache.buffer);
-            updateConstantBuffer(frame.passCb.get(), data.passCache);
-            // UpdateConstantBuffer(frame.emitterCb.get(), data->emitterCache);
+            updateConstantBuffer(frame.batch_cb.get(), data.batchCache.buffer);
+            updateConstantBuffer(frame.material_cb.get(), data.materialCache.buffer);
+            updateConstantBuffer(frame.bone_cb.get(), data.boneCache.buffer);
+            updateConstantBuffer(frame.view_cb.get(), data.viewCache);
+            updateConstantBuffer(frame.pass_cb.get(), data.passCache);
 
             updateConstantBuffer<PointShadowConstantBuffer, 6 * MAX_POINT_LIGHT_SHADOW_COUNT>(
-                frame.pointShadowCb.get(),
+                frame.point_shadow_cb.get(),
                 data.pointShadowCache);
-            updateConstantBuffer(frame.perFrameCb.get(),
+            updateConstantBuffer(frame.per_frame_cb.get(),
                                  &data.perFrameCache,
                                  sizeof(PerFrameConstantBuffer));
 
-            bindConstantBufferSlot<PerFrameConstantBuffer>(frame.perFrameCb.get(), 0);
+            bindConstantBufferSlot<PerFrameConstantBuffer>(frame.per_frame_cb.get(), 0);
 
-            auto& graph = p_submission->render_graph[idx++];
-            for (const CompiledPass& pass : graph->GetCompiledPass()) {
-                Execute(data, pass);
+            const auto& graph = submission->render_graph[idx++];
+            for (const CompiledPass& pass : graph->getCompiledPass()) {
+                execute(data, pass);
             }
         }
 
@@ -440,7 +440,7 @@ void RenderDevice::endPass(const CompiledPass& pass) {
     unsetRenderTargets();
 }
 
-void RenderDevice::Execute(const FrameData& framedata, const CompiledPass& pass) {
+void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass) {
     RenderPassExcutionContext ctx = {
         .frameData = framedata,
         .pass = pass,
@@ -450,9 +450,14 @@ void RenderDevice::Execute(const FrameData& framedata, const CompiledPass& pass)
 
     beginEvent(pass.name);
     beginPass(pass);
+
     if (pass.execute_func) {
+        auto& cmd = ctx.cmd;
+        cmd.bindConstantBufferSlot<PerPassConstantBuffer>(cmd.getCurrentFrame().pass_cb.get(), pass.pass_id);
+
         pass.execute_func(ctx);
     }
+
     endPass(pass);
     endEvent();
 }

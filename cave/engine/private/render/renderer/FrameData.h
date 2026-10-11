@@ -8,13 +8,13 @@
 
 #include "RenderPackets.h"
 
-#include "engine/private/core/math/geomath.h"
+#include "engine/private/core/math/Geomath.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave {
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 }  // namespace cave
 
 namespace cave::render {
@@ -86,22 +86,20 @@ struct FrameData {
     PerFrameConstantBuffer perFrameCache;
     BufferCache<PerBatchConstantBuffer> batchCache;
     BufferCache<MaterialConstantBuffer> materialCache;
+    Vector<PerViewConstantBuffer> viewCache;
     Vector<PerPassConstantBuffer> passCache;
     std::array<PointShadowConstantBuffer, MAX_POINT_LIGHT_SHADOW_COUNT * 6> pointShadowCache;
     BufferCache<BoneConstantBuffer> boneCache;
-    // std::vector<EmitterConstantBuffer> emitterCache;
+    // Vector<EmitterConstantBuffer> emitterCache;
 
     // @TODO: rename
-    std::array<Owner<PassContext>, MAX_POINT_LIGHT_SHADOW_COUNT> pointShadowPasses;
     std::array<PassContext, 1> shadowPasses;  // @TODO: support multi ortho light
 
-    PassContext voxelPass;
     PassContext mainPass;
 
     std::array<Vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
 
     // std::vector<InstanceContext> instances;
-
     // std::vector<ParticleEmitterComponent> emitters;
 
     struct UpdateBuffer {

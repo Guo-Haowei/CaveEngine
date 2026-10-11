@@ -1,5 +1,5 @@
 /// File: particle_kickoff.cs.hlsl
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 #include "shader_resource_defines.hlsl.h"
 
 [numthreads(1, 1, 1)] void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {

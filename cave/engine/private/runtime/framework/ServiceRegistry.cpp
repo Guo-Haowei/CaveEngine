@@ -10,6 +10,7 @@
 #include "modules/d3d11/D3d11RenderDevice.h"
 #include "modules/d3d12/D3d12RenderDevice.h"
 #include "modules/opengl4/OpenGl4RenderDevice.h"
+#include "modules/vulkan/VulkanRenderDevice.h"
 #elif USING(PLATFORM_APPLE)
 #include "modules/metal/MetalRenderDevice.h"
 #include "modules/opengl4/OpenGl4RenderDevice.h"
@@ -67,7 +68,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
 
 #if USING(PLATFORM_WINDOWS)
     if (backend == Backend::Vulkan) {
-        return nullptr;
+        return new VulkanRenderDevice;
     }
 #endif
 

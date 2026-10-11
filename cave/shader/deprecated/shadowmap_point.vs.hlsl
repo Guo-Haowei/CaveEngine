@@ -1,5 +1,5 @@
 /// File: shadowmap_point.vs.hlsl
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 #include "hlsl/input_output.hlsl"
 
 VS_OUTPUT_POSITION vs_main(VS_INPUT_MESH input,

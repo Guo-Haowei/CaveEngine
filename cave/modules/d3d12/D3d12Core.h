@@ -7,7 +7,7 @@
 #include <mutex>
 
 #include "../d3d_common/D3dCommon.h"
-#include "descriptor_table_defines.hlsl.h"
+#include "descriptor_table_defines.slang.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave::render {

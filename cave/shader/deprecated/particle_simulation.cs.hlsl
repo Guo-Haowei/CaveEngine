@@ -1,5 +1,5 @@
 /// File: particle_simulation.cs.hlsl
-#include "cbuffer.hlsl.h"
+#include "cbuffer.slang.h"
 #include "shader_resource_defines.hlsl.h"
 
 void push_dead_index(uint index) {
