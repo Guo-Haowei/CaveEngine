@@ -7,7 +7,7 @@
 #if USING(PLATFORM_APPLE)
 DVAR_STRING(gfx_backend, DVAR_FLAG_NONE, "Renderer backend", "metal");
 #else
-DVAR_STRING(gfx_backend, DVAR_FLAG_NONE, "Renderer backend", "empty");
+DVAR_STRING(gfx_backend, DVAR_FLAG_NONE, "Renderer backend", "d3d12");
 #endif
 DVAR_STRING(gfx_render_graph, DVAR_FLAG_NONE, "Renderer graph", "scene3d");
 DVAR_BOOL(gfx_gpu_validation, DVAR_FLAG_NONE, "Enable GPU validation", true);

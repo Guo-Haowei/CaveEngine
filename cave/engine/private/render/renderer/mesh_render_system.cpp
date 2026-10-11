@@ -21,15 +21,8 @@ using namespace cave::math;
 static void FillMaterialConstantBuffer(bool,
                                        const MaterialComponent* material,
                                        MaterialConstantBuffer& cb) {
-    cb.c_has_base_color_map = false;
-    cb.c_has_normal_map = false;
-    cb.c_has_material_map = false;
-    cb.c_has_height_map = false;
 
-    cb.c_base_color_map_handle.value = 0;
-    cb.c_normal_map_handle.value = 0;
-    cb.c_material_map_handle.value = 0;
-    cb.c_height_map_handle.value = 0;
+    std::memset(&cb, 0, sizeof(MaterialConstantBuffer));
 
     if (!material) {
         cb.c_baseColor = Vec4f(1, 0, 1, 1);
@@ -51,26 +44,23 @@ static void FillMaterialConstantBuffer(bool,
                                 uint& resident_handle) {
         const int idx = std::to_underlying(slot);
 
-        std::memset(&out_handle, 0, sizeof(out_handle));
-        resident_handle = 0;
-
         if ((int)images.size() <= idx) {
-            return false;
+            return 0;
         }
 
         const ImageAsset* image = images[idx].get();
         if (!image) {
-            return false;
+            return 0;
         }
 
         auto texture = reinterpret_cast<GpuTexture*>(image->gpu_texture.get());
         if (!texture) {
-            return false;
+            return 0;
         }
 
         out_handle.value = texture->GetHandle();
-        resident_handle = (uint32_t)texture->GetResidentHandle();
-        return true;
+        resident_handle = (uint)texture->GetResidentHandle();
+        return 1;
     };
 
     cb.c_has_base_color_map = set_texture(TextureSlot::Base,

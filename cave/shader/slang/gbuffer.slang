@@ -18,7 +18,7 @@ ps_output ps_main(VS_OUTPUT_MESH input) {
     if (c_has_base_color_map != 0) {
         color =
 #if defined(__TARGET_D3D12__)
-        SAMPLE_2D(c_base_color_map_index, s_linearMipWrapSampler, input.uv);
+        g_Textures2D[c_base_color_map_index].Sample(s_linearMipWrapSampler, input.uv);
 #else
         SAMPLE_2D(BaseColorMap, s_linearMipWrapSampler, input.uv);
 #endif
@@ -34,7 +34,7 @@ ps_output ps_main(VS_OUTPUT_MESH input) {
     if (c_has_material_map != 0) {
         float3 value =
 #if defined(__TARGET_D3D12__)
-        SAMPLE_2D(c_material_map_index, s_linearMipWrapSampler, input.uv).rgb;
+        g_Textures2D[c_material_map_index].Sample(s_linearMipWrapSampler, input.uv).rgb;
 #else
         SAMPLE_2D(MaterialMap, s_linearMipWrapSampler, input.uv).rgb;
 #endif
@@ -53,9 +53,9 @@ ps_output ps_main(VS_OUTPUT_MESH input) {
         TBN[2] = normalize(input.normal);
         float3 value =
 #if defined(__TARGET_D3D12__)
-         SAMPLE_2D(c_normal_map_index, s_linearMipWrapSampler, input.uv).rgb;
+        g_Textures2D[c_normal_map_index].Sample(s_linearMipWrapSampler, input.uv).rgb;
 #else
-         SAMPLE_2D(NormalMap, s_linearMipWrapSampler, input.uv).rgb;
+        SAMPLE_2D(NormalMap, s_linearMipWrapSampler, input.uv).rgb;
 #endif
         N = normalize(mul((2.0f * value) - 1.0f, TBN));
     } else {

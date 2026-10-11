@@ -2,7 +2,7 @@
 
 #if defined(__TARGET_D3D12__)
 // see descriptor_table_defines.slang.h
-Texture2D   g_Textures2D[128]   : register(t0, space1);
+Texture2D   g_Textures2D[128]  : register(t0, space1);
 TextureCube g_TexturesCube[16] : register(t0, space2);
 #endif
 
