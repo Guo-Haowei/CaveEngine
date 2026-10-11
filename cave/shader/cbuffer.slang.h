@@ -48,7 +48,7 @@ struct ConstantBufferBase {
 };
 
 #define CAVE_CBUFFER(NAME, REG, DEF) \
-    struct NAME : public ConstantBufferBase<NAME, REG> DEF
+    struct NAME : public ConstantBufferBase<NAME, REG> DEF; static_assert(sizeof(NAME) % 256 == 0)
 
 // @TODO: remove this constraint
 #elif defined(__SLANG__)

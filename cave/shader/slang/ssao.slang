@@ -8,6 +8,10 @@ TEXTURE_2D(u_Texture0, 0); // t_GbufferNormalMap
 TEXTURE_2D(u_Texture1, 1); // t_GbufferDepth
 TEXTURE_2D(u_Texture2, 2); // t_NoiseTexture
 
+#define t_GbufferNormalMap u_Texture0
+#define t_GbufferDepth     u_Texture1
+#define t_NoiseTexture     u_Texture2
+
 // @TODO: fix HARD CODE
 #define SSAO_KERNEL_BIAS 0.025f
 
@@ -16,16 +20,16 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     const float2 uv = input.uv;
 
     int2 texture_size;
-    TEX_2D(u_Texture0).GetDimensions(texture_size.x, texture_size.y);
+    TEX_2D(t_GbufferNormalMap).GetDimensions(texture_size.x, texture_size.y);
     float2 noise_scale = float2(texture_size) * (1.0f / SSAO_NOISE_SIZE);
 
-    float3 N = SAMPLE_2D(u_Texture0, s_pointClampSampler, uv).rgb;
+    float3 N = SAMPLE_2D(t_GbufferNormalMap, s_pointClampSampler, uv).rgb;
     N = 2.0f * N - 1.0f;
 
-    const float raw_depth = SAMPLE_2D(u_Texture1, s_pointClampSampler, uv).r;
+    const float raw_depth = SAMPLE_2D(t_GbufferDepth, s_pointClampSampler, uv).r;
     const float3 origin = NdcToViewPos(uv, raw_depth, c_inv_cam_proj);
 
-    float3 rvec = float3(SAMPLE_LEVEL(u_Texture2, s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
+    float3 rvec = float3(SAMPLE_LEVEL(t_NoiseTexture, s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
     float3 tangent = normalize(rvec - N * dot(rvec, N));
     float3 bitangent = cross(N, tangent);
     float3x3 TBN = float3x3(tangent, bitangent, N);
@@ -46,7 +50,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
         offset.xy = float2(offset.x * 0.5f + 0.5f, 0.5f - offset.y * 0.5f);
 #endif
 
-        const float depth2 = SAMPLE_2D(u_Texture1, s_pointClampSampler, offset.xy).r;
+        const float depth2 = SAMPLE_2D(t_GbufferDepth, s_pointClampSampler, offset.xy).r;
         const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2, c_inv_cam_proj);
         const float sample_depth = sampleOcclusionPos.z;
 
