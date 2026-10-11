@@ -762,6 +762,9 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         // Create a temporary upload resource to move the data in
         uint32_t byte_width = 1;
         switch (texture_desc.format) {
+            case PixelFormat::R32G32_FLOAT:
+                byte_width = 2;
+                break;
             case PixelFormat::R32G32B32_FLOAT:
             case PixelFormat::R32G32B32A32_FLOAT:
                 byte_width = 4;
