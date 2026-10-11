@@ -215,8 +215,8 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 // @TODO: Build correct matrices
                 pass_constant.c_projectionMatrix = light.projection_matrix;
                 pass_constant.c_viewMatrix = light.view_matrix;
-                p_framedata.shadowPasses[0].pass_idx = static_cast<int>(p_framedata.passCache.size());
-                p_framedata.passCache.emplace_back(pass_constant);
+                p_framedata.shadowPasses[0].pass_idx = static_cast<int>(p_framedata.viewCache.size());
+                p_framedata.viewCache.emplace_back(pass_constant);
 
                 Frustum light_frustum(light.projection_matrix * light.view_matrix);
                 FillPass(
@@ -303,8 +303,8 @@ static void FillMainPass(const Scene& p_es,
     pass_constant.c_viewMatrix = camera.view;
     pass_constant.c_projectionMatrix = camera.proj;
 
-    p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.passCache.size());
-    p_framedata.passCache.emplace_back(pass_constant);
+    p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.viewCache.size());
+    p_framedata.viewCache.emplace_back(pass_constant);
 
     FillPass(
         p_rs,
@@ -345,12 +345,12 @@ static void FillMainPass(const Scene& p_es,
         false);
 }
 
-void RunMeshRenderSystem(const Scene& p_scene,
-                         const RenderScene& p_rscene,
-                         const ResolvedView& p_view,
-                         FrameData& p_framedata) {
-    FillLightBuffer(p_rscene, p_scene, p_view, p_framedata);
-    FillMainPass(p_scene, p_rscene, p_view, p_framedata);
+void RunMeshRenderSystem(const Scene& scene,
+                         const RenderScene& rscene,
+                         const ResolvedView& view,
+                         FrameData& framedata) {
+    FillLightBuffer(rscene, scene, view, framedata);
+    FillMainPass(scene, rscene, view, framedata);
 }
 
 // @TODO: fix emitter

@@ -86,10 +86,11 @@ struct FrameData {
     PerFrameConstantBuffer perFrameCache;
     BufferCache<PerBatchConstantBuffer> batchCache;
     BufferCache<MaterialConstantBuffer> materialCache;
-    Vector<PerViewConstantBuffer> passCache;
+    Vector<PerViewConstantBuffer> viewCache;
+    Vector<PerPassConstantBuffer> passCache;
     std::array<PointShadowConstantBuffer, MAX_POINT_LIGHT_SHADOW_COUNT * 6> pointShadowCache;
     BufferCache<BoneConstantBuffer> boneCache;
-    // std::vector<EmitterConstantBuffer> emitterCache;
+    // Vector<EmitterConstantBuffer> emitterCache;
 
     // @TODO: rename
     std::array<PassContext, 1> shadowPasses;  // @TODO: support multi ortho light

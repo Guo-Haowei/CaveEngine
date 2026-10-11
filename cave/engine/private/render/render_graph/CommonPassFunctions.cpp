@@ -68,10 +68,10 @@ void ExecuteDrawCommands(RenderPassExcutionContext& ctx,
 
         const bool has_bone = draw.bone_idx >= 0;
         if (has_bone) {
-            cmd.bindConstantBufferSlot<BoneConstantBuffer>(frame.boneCb.get(), draw.bone_idx);
+            cmd.bindConstantBufferSlot<BoneConstantBuffer>(frame.bone_cb.get(), draw.bone_idx);
         }
 
-        cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(frame.batchCb.get(), draw.batch_idx);
+        cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(frame.batch_cb.get(), draw.batch_idx);
 
         cmd.setMesh(draw.mesh_data);
 
@@ -88,7 +88,7 @@ void ExecuteDrawCommands(RenderPassExcutionContext& ctx,
             cmd.bindTexture(Dimension::Texture2D, material.c_normal_map_handle.value, GetNormalMapSlot());
             cmd.bindTexture(Dimension::Texture2D, material.c_material_map_handle.value, GetMaterialMapSlot());
 
-            cmd.bindConstantBufferSlot<MaterialConstantBuffer>(frame.materialCb.get(), draw.mat_idx);
+            cmd.bindConstantBufferSlot<MaterialConstantBuffer>(frame.material_cb.get(), draw.mat_idx);
         }
         cmd.drawElements(draw.index.count, draw.index.offset);
 
@@ -110,7 +110,7 @@ void DepthPrepassFunc(RenderPassExcutionContext& ctx) {
     }
 
     const PassContext& pass = ctx.frameData.mainPass;
-    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_PREPASS);
     ExecuteDrawCommands(ctx, prepass_commands, true);
@@ -128,7 +128,7 @@ void GbufferPassFunc(RenderPassExcutionContext& p_ctx) {
     }
 
     const PassContext& pass = p_ctx.frameData.mainPass;
-    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_GBUFFER);
     ExecuteDrawCommands(p_ctx, deferred_commands, false);
@@ -283,7 +283,7 @@ void ForwardPassFunc(RenderPassExcutionContext& p_ctx) {
     auto& gm = p_ctx.cmd;
 
     const PassContext& pass = p_ctx.frameData.mainPass;
-    gm.bindConstantBufferSlot<PerViewConstantBuffer>(gm.getCurrentFrame().passCb.get(), pass.pass_idx);
+    gm.bindConstantBufferSlot<PerViewConstantBuffer>(gm.getCurrentFrame().view_cb.get(), pass.pass_idx);
 
     gm.setPipelineState(PSO_ENV_SKYBOX);
     gm.setStencilRef(STENCIL_FLAG_SKY);

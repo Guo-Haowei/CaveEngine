@@ -22,7 +22,7 @@ RenderGraphViewer::RenderGraphViewer(EditorState& p_editor)
 void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
     using namespace render;
 
-    std::span<const CompiledPass> passes = p_graph.GetCompiledPass();
+    std::span<const CompiledPass> passes = p_graph.getCompiledPass();
 
     auto draw_node = [&passes, this](int id, float x, float y) {
         const CompiledPass& pass = passes[id];

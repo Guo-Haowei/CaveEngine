@@ -8,8 +8,8 @@ namespace cave::render {
 
 struct RenderSubmission {
     uint64_t frame_index;
-    std::vector<FrameData> frame_data;
-    std::vector<std::shared_ptr<CompiledGraph>> render_graph;
+    Vector<FrameData> frame_data;
+    Vector<Ref<CompiledGraph>> render_graph;
 };
 
 }  // namespace cave::render

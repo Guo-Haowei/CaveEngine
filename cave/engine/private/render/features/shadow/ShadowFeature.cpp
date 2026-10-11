@@ -29,7 +29,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
     const auto& frame = cmd.getCurrentFrame();
 
     const PassContext& pass = p_ctx.frameData.shadowPasses[0];
-    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.passCb.get(), pass.pass_idx);
+    cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_DPETH);
     ExecuteDrawCommands(p_ctx, shadow_commands, false);

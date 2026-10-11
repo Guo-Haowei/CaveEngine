@@ -115,10 +115,9 @@ CAVE_CBUFFER(MaterialConstantBuffer, 2, {
 });
 
 CAVE_CBUFFER(PerPassConstantBuffer, 3, {
-    uint c_pass_textures[16];
+    uint c_pass_textures[32];
     float4x4 _per_pass_padding_0;
     float4x4 _per_pass_padding_1;
-    float4x4 _per_pass_padding_2;
 });
 
 // @TODO: change to unordered access buffer
