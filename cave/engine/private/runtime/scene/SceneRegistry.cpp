@@ -126,7 +126,7 @@ SceneId SceneRegistry::Impl::createScene(SceneDesc&& desc) {
     return registerScene(std::move(desc), MakeOwner<Scene>());
 }
 
-SceneId SceneRegistry::Impl::registerScene(SceneDesc&& desc, std::unique_ptr<Scene>&& scene) {
+SceneId SceneRegistry::Impl::registerScene(SceneDesc&& desc, Owner<Scene>&& scene) {
     SceneId id = Base::create(std::move(scene));
     m_slots[id.index].debug_name = std::move(desc.debug_name);
 
@@ -134,7 +134,7 @@ SceneId SceneRegistry::Impl::registerScene(SceneDesc&& desc, std::unique_ptr<Sce
     return id;
 }
 
-bool SceneRegistry::Impl::replaceScene(SceneId id, std::unique_ptr<Scene>&& scene) {
+bool SceneRegistry::Impl::replaceScene(SceneId id, Owner<Scene>&& scene) {
     DEBUG_PRINT("~{} {}", debugName(id), id.toString());
 
     return Base::replace(id, std::move(scene));

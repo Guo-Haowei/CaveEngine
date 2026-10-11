@@ -37,9 +37,8 @@ constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
 constexpr const char RG_RES_GBUFFER_COLOR1[] = "r:gbuffer1";
 constexpr const char RG_RES_GBUFFER_COLOR2[] = "r:gbuffer2";
 constexpr const char RG_RES_LIGHTING[] = "r:lighting";
-constexpr const char RG_RES_POST_PROCESS[] = "r:post_process";
-constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
-constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
+//constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
+//constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
 constexpr const char RG_RES_OUTLINE[] = "r:outline";
 
 extern void DepthPrepassFunc(RenderPassExcutionContext& ctx);

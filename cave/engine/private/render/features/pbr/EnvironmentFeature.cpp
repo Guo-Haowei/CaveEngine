@@ -1,4 +1,3 @@
-#pragma once
 #include "EnvironmentFeature.h"
 
 #include "cave/core/diagnostics/Profiler.h"

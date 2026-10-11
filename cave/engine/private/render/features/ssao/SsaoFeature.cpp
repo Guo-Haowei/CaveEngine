@@ -69,7 +69,6 @@ SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,
 
     constexpr const char RG_PASS_SSAO[] = "p:ssao";
     constexpr const char RG_RES_SSAO[] = "r:ssao";
-    constexpr const char RG_RES_SSAO_NOISE[] = "r:ssao_noise";
 
     if (!m_ssao_texture) {
         m_ssao_texture = GenerateSsaoNoise(m_device);

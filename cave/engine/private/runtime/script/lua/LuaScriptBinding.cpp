@@ -1,4 +1,4 @@
-#include "luaScriptBinding.h"
+#include "LuaScriptBinding.h"
 
 #include "cave/core/math/Vec.h"
 #include "cave/runtime/display/DisplayService.h"

@@ -54,7 +54,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
 
     const GpuTexture* current_tex = nullptr;
 
-    for (const PrimShape item : bucket.shapes) {
+    for (const PrimShape& item : bucket.shapes) {
         if (result.batches.empty() || item.tex != current_tex) {
             current_tex = item.tex;
             begin_batch(current_tex);
