@@ -54,10 +54,20 @@ static id<MTLLibrary> CompileMetalSource(id<MTLDevice> device, const std::string
 
 static MTLVertexFormat ToVertexFormat(PixelFormat format) {
     switch (format) {
+    case PixelFormat::R32G32_UINT:
+        return MTLVertexFormatUInt2;
+    case PixelFormat::R32G32_SINT:
+        return MTLVertexFormatInt2;
     case PixelFormat::R32G32_FLOAT:
         return MTLVertexFormatFloat2;
+    case PixelFormat::R32G32B32_UINT:
+        return MTLVertexFormatUInt3;
+    case PixelFormat::R32G32B32_SINT:
+        return MTLVertexFormatInt3;
     case PixelFormat::R32G32B32_FLOAT:
         return MTLVertexFormatFloat3;
+    case PixelFormat::R32G32B32A32_UINT:
+        return MTLVertexFormatUInt4;
     case PixelFormat::R32G32B32A32_SINT:
         return MTLVertexFormatInt4;
     case PixelFormat::R32G32B32A32_FLOAT:
@@ -69,14 +79,20 @@ static MTLVertexFormat ToVertexFormat(PixelFormat format) {
 
 static NSUInteger VertexFormatSize(PixelFormat format) {
     switch (format) {
+    case PixelFormat::R32G32_SINT:
+    case PixelFormat::R32G32_UINT:
     case PixelFormat::R32G32_FLOAT:
         return 2 * sizeof(float);
+    case PixelFormat::R32G32B32_SINT:
+    case PixelFormat::R32G32B32_UINT:
     case PixelFormat::R32G32B32_FLOAT:
         return 3 * sizeof(float);
     case PixelFormat::R32G32B32A32_SINT:
+    case PixelFormat::R32G32B32A32_UINT:
     case PixelFormat::R32G32B32A32_FLOAT:
-        return 4 * sizeof(uint32_t);
+        return 4 * sizeof(float);
     default:
+        CRASH_NOW();
         return 0;
     }
 }
