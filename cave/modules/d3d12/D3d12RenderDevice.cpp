@@ -1285,14 +1285,15 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
     return Result<void>();
 }
 
-void D3d12RenderDevice::onWindowResize(int p_width, int p_height) {
+void D3d12RenderDevice::onWindowResize(int width, int height) {
+    if (width <= 0 || height <= 0) return;
     if (m_swap_chain) {
         cleanupRenderTarget();
-        D3D_CALL(m_swap_chain->ResizeBuffers(0, p_width, p_height,
+        D3D_CALL(m_swap_chain->ResizeBuffers(0, width, height,
                                              DXGI_FORMAT_UNKNOWN,
                                              DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT));
 
-        [[maybe_unused]] auto err = createRenderTarget(p_width, p_height);
+        [[maybe_unused]] auto err = createRenderTarget(width, height);
     }
 }
 

@@ -26,7 +26,8 @@ struct BuildResult {
 };
 
 BuildResult BuildCanvasMesh(IRenderDevice& device,
-                            CanvasBucket&& bucket) {
+                            CanvasBucket&& bucket,
+                            const GpuTexture* default_tex) {
     BuildResult result;
 
     const uint32_t item_count = static_cast<uint32_t>(bucket.shapes.size());
@@ -38,6 +39,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
     Vector<Vec3f> positions;
     Vector<Vec2f> uvs;
     Vector<Vec4f> colors;
+    Vector<Vec2u> tex_ids;
 
     indices.reserve(item_count * 6);
     positions.reserve(item_count * 4);
@@ -65,6 +67,9 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         const uint32_t offset = static_cast<uint32_t>(positions.size());
         const uint32_t before_index_count = static_cast<uint32_t>(indices.size());
 
+        const uint64_t tex_id = (current_tex ? current_tex : default_tex)->GetResidentHandle();
+        const Vec2u packed_tex_id{ 0xFFFFFFFF & tex_id, tex_id << 32 };
+
         switch (item.type) {
             case PrimShapeType::Rect: {
                 positions.push_back(item.vertices[0].pos);
@@ -81,6 +86,11 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
                 colors.push_back(item.vertices[1].color);
                 colors.push_back(item.vertices[2].color);
                 colors.push_back(item.vertices[3].color);
+                
+                tex_ids.push_back(packed_tex_id);
+                tex_ids.push_back(packed_tex_id);
+                tex_ids.push_back(packed_tex_id);
+                tex_ids.push_back(packed_tex_id);
 
                 indices.push_back(offset + 0);
                 indices.push_back(offset + 1);
@@ -89,6 +99,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
                 indices.push_back(offset + 0);
                 indices.push_back(offset + 3);
                 indices.push_back(offset + 2);
+
             } break;
 
             default: {
@@ -114,7 +125,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         return {};
     }
 
-    std::array<GpuBufferDesc, 3> buffer_descs;
+    std::array<GpuBufferDesc, 4> buffer_descs;
     buffer_descs[0] = {
         .type = GpuBufferType::Vertex,
         .slot = 0,
@@ -136,6 +147,13 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         .element_count = vertex_count,
         .initial_data = colors.data(),
     };
+    buffer_descs[3] = {
+        .type = GpuBufferType::Vertex,
+        .slot = 3,
+        .element_size = sizeof(Vec2u),
+        .element_count = vertex_count,
+        .initial_data = tex_ids.data(),
+    };
 
     GpuBufferDesc index_desc = {
         .type = GpuBufferType::Index,
@@ -146,10 +164,11 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
 
     GpuMeshDesc desc;
     desc.drawCount = index_count;
-    desc.enabledVertexCount = 3;
+    desc.enabledVertexCount = static_cast<uint32_t>(buffer_descs.size());
     desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec3f), 0 };
     desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
     desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
+    desc.vertexLayout[3] = GpuMeshDesc::VertexLayout{ 3, sizeof(Vec2u), 0 };
 
     auto mesh_result = device.createMeshImpl(desc, buffer_descs, &index_desc);
     if (!mesh_result) {
@@ -190,7 +209,7 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
         return;
     }
 
-    auto result = BuildCanvasMesh(device, std::move(bucket));
+    auto result = BuildCanvasMesh(device, std::move(bucket), m_default_texture.get());
     if (!result.mesh) {
         return;
     }
