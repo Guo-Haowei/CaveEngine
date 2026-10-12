@@ -101,8 +101,9 @@ D3d12RenderDevice::D3d12RenderDevice()
 auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
     m_capabilities.supportComputeShaders = false;
 
-    const int w = DisplayService::singleton().windowSize().x;
-    const int h = DisplayService::singleton().windowSize().y;
+    const auto size = DisplayService::singleton().windowSize();
+    const int w = size.x;
+    const int h = size.y;
     DEV_ASSERT(w > 0 && h > 0);
 
     if (auto res = createDevice(); !res) {
@@ -1239,48 +1240,33 @@ void D3d12RenderDevice::initStaticSamplers() {
 }
 
 auto D3d12RenderDevice::createRootSignature() -> Result<void> {
-    CD3DX12_ROOT_PARAMETER params[16]{};
+    CD3DX12_ROOT_PARAMETER params[13]{};
     int idx = 0;
 
-    // Root Params 0..7: CBVs (b0..b7)
-    params[idx++].InitAsConstantBufferView(0);
-    params[idx++].InitAsConstantBufferView(1);
-    params[idx++].InitAsConstantBufferView(2);
-    params[idx++].InitAsConstantBufferView(3);
-    params[idx++].InitAsConstantBufferView(4);
-    params[idx++].InitAsConstantBufferView(5);
-    params[idx++].InitAsConstantBufferView(6);
-    params[idx++].InitAsConstantBufferView(7);
+    // Root Params 0..7: Inline CBVs (b0..b7 space0)
+    for (UINT i = 0; i < 8; ++i) {
+        params[idx++].InitAsConstantBufferView(i);
+    }
 
     // Descriptor Ranges
-    CD3DX12_DESCRIPTOR_RANGE srvRange0;
-    srvRange0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);  // t0..t31 space0
+    CD3DX12_DESCRIPTOR_RANGE ranges[5]{};
+    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);   // Param 8:  t0..t31 space0 (Fixed SRVs)
+    ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);   // Param 9:  u0..u15 space0 (Fixed UAVs / Compute)
+    ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 512, 0, 1);  // Param 10: t0..t511 space1 (Bindless 2D)
+    ranges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 128, 0, 2);  // Param 11: t0..t127 space2 (Bindless Cube)
+    ranges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 64, 0, 1);   // Param 12: u0..u63 space1 (Bindless UAV)
 
-    CD3DX12_DESCRIPTOR_RANGE uavRange0;
-    uavRange0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);  // u0..u15 space0 (Fixed legacy)
-
-    CD3DX12_DESCRIPTOR_RANGE srvRangeBindless2D;
-    srvRangeBindless2D.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 512, 0, 1);  // t0..t511 space1 (Bindless 2D)
-
-    CD3DX12_DESCRIPTOR_RANGE srvRangeBindlessCube;
-    srvRangeBindlessCube.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 128, 0, 2);  // t0..t127 space2 (Bindless Cube)
-
-    CD3DX12_DESCRIPTOR_RANGE uavRangeBindless;
-    uavRangeBindless.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 64, 0, 1);  // u0..u63 space1 (Bindless UAV)
-
-    // Assign Root Parameters
-    params[idx++].InitAsDescriptorTable(1, &srvRange0);             // Param 8: Fixed SRVs
-    params[idx++].InitAsDescriptorTable(1, &uavRange0);             // Param 9: Fixed UAVs
-    params[idx++].InitAsDescriptorTable(1, &srvRangeBindless2D);    // Param 10: Bindless 2D (space1)
-    params[idx++].InitAsDescriptorTable(1, &srvRangeBindlessCube);  // Param 11: Bindless Cube (space2)
-    params[idx++].InitAsDescriptorTable(1, &uavRangeBindless);      // Param 12: Bindless UAV (space1)
+    // Assign Descriptor Tables (Params 8..12)
+    for (size_t i = 0; i < std::size(ranges); ++i) {
+        params[idx++].InitAsDescriptorTable(1, &ranges[i]);
+    }
 
     initStaticSamplers();
 
     CD3DX12_ROOT_SIGNATURE_DESC root_signature_desc(
         idx,
         params,
-        (uint32_t)m_staticSamplers.size(),
+        static_cast<uint32_t>(m_staticSamplers.size()),
         m_staticSamplers.data(),
         D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -1288,10 +1274,9 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
     ComPtr<ID3DBlob> error;
     HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
     if (FAILED(hr)) {
-        char buffer[256]{ 0 };
-        StringUtils::sprintf(buffer, "%.*s", error->GetBufferSize(), error->GetBufferPointer());
-        LOG_ERROR("Failed to create root signature, reason {}", buffer);
-        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create root signature");
+        const char* errorMsg = error ? static_cast<const char*>(error->GetBufferPointer()) : "Unknown error";
+        LOG_ERROR("Failed to serialize root signature: {}", errorMsg);
+        return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to serialize root signature");
     }
 
     D3D_FAIL(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_root_signature)),
@@ -1300,14 +1285,15 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
     return Result<void>();
 }
 
-void D3d12RenderDevice::onWindowResize(int p_width, int p_height) {
+void D3d12RenderDevice::onWindowResize(int width, int height) {
+    if (width <= 0 || height <= 0) return;
     if (m_swap_chain) {
         cleanupRenderTarget();
-        D3D_CALL(m_swap_chain->ResizeBuffers(0, p_width, p_height,
+        D3D_CALL(m_swap_chain->ResizeBuffers(0, width, height,
                                              DXGI_FORMAT_UNKNOWN,
                                              DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT));
 
-        [[maybe_unused]] auto err = createRenderTarget(p_width, p_height);
+        [[maybe_unused]] auto err = createRenderTarget(width, height);
     }
 }
 

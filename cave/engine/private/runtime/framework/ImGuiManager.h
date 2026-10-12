@@ -21,11 +21,11 @@ public:
         : IService("ImGuiService")
         , m_backend(backend) {}
 
-    void Feed(std::vector<InputEvent>& events);
+    void feed(std::vector<InputEvent>& events);
 
-    bool WantKeyboard() const;
-    bool WantMouse() const;
-    bool WantTextInput() const;
+    bool wantKeyboard() const;
+    bool wantMouse() const;
+    bool wantTextInput() const;
 
     void setDisplayCallbacks(Callback initialize_func,
                              Callback finalize_func,
@@ -41,6 +41,8 @@ public:
     }
 
     void beginFrame();
+
+    void image(uint64_t tex, const ImVec2& size) const;
 
     void drawTexture(ImDrawList& list,
                      uint64_t tex,

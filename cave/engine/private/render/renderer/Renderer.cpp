@@ -52,6 +52,10 @@ public:
 
     void setMode(bool is_2d) { m_is_2d = is_2d; }
 
+#if USING(USE_RENDERER_DEBUG)
+    PoolSnapshot poolSnapshot() const { return m_transient_pool.snapshot(); }
+#endif
+
 #if USING(USE_COMMAND)
     bool cmdDump(CommandContext& ctx, const CommandArgs& args);
 #endif
@@ -490,6 +494,12 @@ auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
 RenderScene& Renderer::Impl::getOrCreateRenderScene(SceneId scene_id) {
     return m_scene_cache[scene_id];
 }
+
+#if USING(USE_RENDERER_DEBUG)
+PoolSnapshot Renderer::poolSnapshot() const {
+    return m_impl->poolSnapshot();
+}
+#endif
 
 #if USING(USE_COMMAND)
 bool Renderer::cmdDump(CommandContext& ctx, const CommandArgs& args) {

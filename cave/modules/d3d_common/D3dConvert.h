@@ -69,6 +69,12 @@ static inline DXGI_FORMAT Convert(PixelFormat format) {
             return DXGI_FORMAT_R32G32B32_FLOAT;
         case PixelFormat::R32G32B32A32_FLOAT:
             return DXGI_FORMAT_R32G32B32A32_FLOAT;
+        case PixelFormat::R32G32_UINT:
+            return DXGI_FORMAT_R32G32_UINT;
+        case PixelFormat::R32G32B32_UINT:
+            return DXGI_FORMAT_R32G32B32_UINT;
+        case PixelFormat::R32G32B32A32_UINT:
+            return DXGI_FORMAT_R32G32B32A32_UINT;
         case PixelFormat::R32G32_SINT:
             return DXGI_FORMAT_R32G32_SINT;
         case PixelFormat::R32G32B32_SINT:

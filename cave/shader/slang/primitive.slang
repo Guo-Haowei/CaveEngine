@@ -6,9 +6,9 @@
 TEXTURE_2D(u_Texture0, 0); // t_Sprite
 
 [shader("vertex")]
-VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
+VsPrimOutput vs_main(VsPrimInput input)
 {
-    VS_OUTPUT_COLOR output;
+    VsPrimOutput output;
 
     float4 position = float4(input.position, 1.0);
     position = Mul(c_cam_view, position);
@@ -17,15 +17,16 @@ VS_OUTPUT_COLOR vs_main(VS_INPUT_COLOR input)
     output.position = position;
     output.uv       = input.uv;
     output.color    = input.color;
+    output.tex_id   = input.tex_id;
 
     return output;
 }
 
 [shader("fragment")]
-float4 ps_main(VS_OUTPUT_COLOR input) : SV_Target
+float4 ps_main(VsPrimOutput input) : SV_Target
 {
 #if defined(__TARGET_D3D12__)
-    float4 color = SAMPLE_2D(c_base_color_map_index, s_pointWrapSampler, input.uv);
+    float4 color = g_Textures2D[input.tex_id.x].Sample(s_pointWrapSampler, input.uv);
 #else
     float4 color = SAMPLE_2D(u_Texture0, s_pointWrapSampler, input.uv);
 #endif

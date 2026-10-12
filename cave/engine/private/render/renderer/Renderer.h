@@ -4,6 +4,7 @@
 #include "cave/runtime/framework/IService.h"
 
 #include "engine/private/render/renderer/CanvasRenderer.h"
+#include "engine/private/render/renderer/RendererDebug.h"
 #include "engine/private/runtime/view/ResolvedView.h"
 
 // clang-format off
@@ -13,6 +14,8 @@ namespace cave { struct FrameData; }
 // clang-format on
 
 namespace cave::render {
+
+class TransientPool;
 
 struct RendererCapabilities {
     bool canRunBloom = false;
@@ -46,6 +49,10 @@ public:
     OverlayRenderer* tryGet() { return m_overlay_renderer.get(); }
     template<>
     UIRenderer* tryGet() { return m_ui_renderer.get(); }
+
+#if USING(USE_RENDERER_DEBUG)
+    PoolSnapshot poolSnapshot() const;
+#endif
 
 #if USING(USE_COMMAND)
     bool cmdDump(CommandContext& ctx, const CommandArgs& args);

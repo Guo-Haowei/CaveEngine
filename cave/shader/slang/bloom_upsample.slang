@@ -2,7 +2,7 @@
 #include "common.slang"
 #include "../cbuffer.slang.h"
 
-TEXTURE_2D(u_Texture0, 0); // t_BloomInputTexture
+TEXTURE_2D(u_Texture0, 0);
 #define t_BloomInputTexture u_Texture0
 
 RWTexture2D<float4> u_BloomOutputImage : register(u0);

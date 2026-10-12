@@ -47,7 +47,7 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
             desc.bindFlags |= BIND_UNORDERED_ACCESS;
         }
 
-        auto texture = pool.AcquireTexture({
+        auto texture = pool.acquireTexture({
             .texture = desc,
             .sampler = node.sampler,
         });

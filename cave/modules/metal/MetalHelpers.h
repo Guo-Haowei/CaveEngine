@@ -75,6 +75,12 @@ inline static MTLPixelFormat ToMetalTextureFormat(PixelFormat format) {
         return MTLPixelFormatRGB32Float;
     case PixelFormat::R32G32B32A32_FLOAT:
         return MTLPixelFormatRGBA32Float;
+    case PixelFormat::R32G32_UINT:
+        return MTLPixelFormatRG32Uint;
+    case PixelFormat::R32G32B32_UINT:
+        return MTLPixelFormatRGB32Uint;
+    case PixelFormat::R32G32B32A32_UINT:
+        return MTLPixelFormatRGBA32Sint;
     case PixelFormat::R32G32_SINT:
         return MTLPixelFormatRG32Sint;
     case PixelFormat::R32G32B32_SINT:

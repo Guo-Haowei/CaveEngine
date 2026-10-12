@@ -112,7 +112,7 @@ void InputService::tick(const FrameTime& time) {
 
     // *) Feed ImGui from remaining raw events
     if (ImGuiService* imgui = m_app->services().imgui) {
-        imgui->Feed(m_input_events);
+        imgui->feed(m_input_events);
 
         // Gate gameplay/editor mapping based on ImGui capture
         // const bool blockKeyboard = imgui->WantKeyboard();

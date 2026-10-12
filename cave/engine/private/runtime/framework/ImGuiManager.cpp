@@ -421,7 +421,7 @@ ImGuiKey ImGuiService::toImGuiKey(Key p_key) {
     // clang-format on
 }
 
-void ImGuiService::Feed(std::vector<InputEvent>& p_events) {
+void ImGuiService::feed(std::vector<InputEvent>& p_events) {
     ImGuiIO& io = ImGui::GetIO();
 
     for (auto& e : p_events) {
@@ -493,15 +493,23 @@ void ImGuiService::drawTexture(ImDrawList& list,
     }
 }
 
-bool ImGuiService::WantKeyboard() const {
+void ImGuiService::image(uint64_t tex, const ImVec2& size) const {
+    if (m_backend != rhi::Backend::OpenGl) {
+        ImGui::Image(tex, size);
+    } else {
+        ImGui::Image(tex, size, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+    }
+}
+
+bool ImGuiService::wantKeyboard() const {
     return ImGui::GetIO().WantCaptureKeyboard;
 }
 
-bool ImGuiService::WantMouse() const {
+bool ImGuiService::wantMouse() const {
     return ImGui::GetIO().WantCaptureMouse;
 }
 
-bool ImGuiService::WantTextInput() const {
+bool ImGuiService::wantTextInput() const {
     return ImGui::GetIO().WantTextInput;
 }
 

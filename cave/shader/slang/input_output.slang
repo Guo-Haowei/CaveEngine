@@ -40,14 +40,16 @@ struct VS_OUTPUT_MESH {
 };
 
 // Primitive
-struct VS_INPUT_COLOR {
+struct VsPrimInput {
     float3 position : POSITION;
     float2 uv : TEXCOORD;
     float4 color : COLOR;
+    nointerpolation uint2 tex_id : TEXID;
 };
 
-struct VS_OUTPUT_COLOR {
+struct VsPrimOutput {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
     float4 color : COLOR;
+    nointerpolation uint2 tex_id : TEXID;
 };
