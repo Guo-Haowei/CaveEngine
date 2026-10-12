@@ -86,7 +86,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
                 colors.push_back(item.vertices[1].color);
                 colors.push_back(item.vertices[2].color);
                 colors.push_back(item.vertices[3].color);
-                
+
                 tex_ids.push_back(packed_tex_id);
                 tex_ids.push_back(packed_tex_id);
                 tex_ids.push_back(packed_tex_id);
