@@ -8,6 +8,7 @@
 #include "engine/private/render/features/path_tracer/PathTracerFeature.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
+#include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 #include "editor/EditorDvars.h"
@@ -61,14 +62,12 @@ void RendererPanel::drawUIImpl() {
             return;
         }
 
-        // Adjustable preview scale
-        static float preview_h = 128.0f;
-        ImGui::SliderFloat("Preview Size", &preview_h, 64.0f, 256.0f, "%.0f px");
+        constexpr float preview_h = 128.0f;
 
         constexpr ImGuiTableFlags table_flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY;
 
         if (ImGui::BeginTable("##TexturePoolTable", 2, table_flags, ImVec2(0.0f, 400.0f))) {
-            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 160.0f);
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 64.0f);
             ImGui::TableSetupColumn("Texture", ImGuiTableColumnFlags_WidthStretch);
 
             ImGui::TableHeadersRow();
@@ -90,14 +89,15 @@ void RendererPanel::drawUIImpl() {
                 float aspect = (tex.height > 0) ? static_cast<float>(tex.width) / static_cast<float>(tex.height) : 1.0f;
                 ImVec2 img_size(preview_h * aspect, preview_h);
 
-                ImGui::Image(img_id, img_size);
+                m_engine_services.imgui->image(img_id, img_size);
 
                 // Hover popup for large inspection view
                 if (ImGui::IsItemHovered()) {
                     ImGui::BeginTooltip();
                     ImGui::Text("%.*s (%ux%u)", static_cast<int>(tex.debug_name.size()), tex.debug_name.data(), tex.width, tex.height);
                     constexpr float tooltip_h = 320.0f;
-                    ImGui::Image(img_id, ImVec2(tooltip_h * aspect, tooltip_h));
+                    m_engine_services.imgui->image(img_id, ImVec2(tooltip_h * aspect, tooltip_h));
+
                     ImGui::EndTooltip();
                 }
             }
