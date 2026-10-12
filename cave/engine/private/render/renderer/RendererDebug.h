@@ -1,4 +1,6 @@
 #pragma once
+#include "engine/private/renderer/gpu_resource.h"
+
 #define USE_RENDERER_DEBUG IN_USE
 
 #if USING(USE_RENDERER_DEBUG)
@@ -13,13 +15,15 @@ struct PoolTextureInfo {
     uint32_t width, height, depth;
     uint16_t mips;
     uint64_t bytes;
+
+    GpuTextureId texture;
 };
 
 struct PoolSnapshot {
-    std::vector<PoolTextureInfo> textures;
+    Vector<PoolTextureInfo> textures;
 };
 
-void RenderPoolDump_Cmd(TransientPool& p_pool, CommandContext& p_ctx, const CommandArgs& p_args);
+void RenderPoolDump_Cmd(TransientPool& pool, CommandContext& ctx, const CommandArgs& args);
 
 }  // namespace cave::render
 #endif

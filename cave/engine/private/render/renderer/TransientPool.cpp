@@ -4,26 +4,25 @@
 
 namespace cave::render {
 
-GpuTextureId TransientPool::AcquireTexture(const TransientTextureDesc& p_desc) {
+GpuTextureId TransientPool::acquireTexture(const TransientTextureDesc& desc) {
     // @TODO: use description hash key
     std::string key = std::format("{}@{}x{}",
-                                  p_desc.texture.name,
-                                  p_desc.texture.width,
-                                  p_desc.texture.height);
+                                  desc.texture.name,
+                                  desc.texture.width,
+                                  desc.texture.height);
 
     auto [it, inserted] = m_cache.try_emplace(std::move(key));
     if (!inserted) {
         return it->second;
     }
 
-    // LOG_WARN("cache miss for {}", key);
-    GpuTextureId tex = m_device.createTexture(p_desc.texture, p_desc.sampler);
+    GpuTextureId tex = m_device.createTexture(desc.texture, desc.sampler);
     it->second = tex;
     return tex;
 }
 
 #if USING(USE_RENDERER_DEBUG)
-PoolSnapshot TransientPool::Snapshot() const {
+PoolSnapshot TransientPool::snapshot() const {
     PoolSnapshot snapshot;
     snapshot.textures.resize(m_cache.size());
     int idx = 0;
@@ -33,6 +32,9 @@ PoolSnapshot TransientPool::Snapshot() const {
         info.width = tex->desc.width;
         info.height = tex->desc.height;
         info.depth = tex->desc.depth;
+        info.bytes = info.width * info.height * info.depth;  // @TODO: bytes per pixel
+
+        info.texture = tex;
     }
     return snapshot;
 }

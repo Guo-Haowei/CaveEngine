@@ -16,18 +16,18 @@ struct TransientTextureDesc {
 
 class TransientPool {
 public:
-    TransientPool(IRenderDevice& p_device)
-        : m_device(p_device) {}
+    TransientPool(IRenderDevice& device)
+        : m_device(device) {}
 
-    GpuTextureId AcquireTexture(const TransientTextureDesc& p_desc);
+    GpuTextureId acquireTexture(const TransientTextureDesc& desc);
 
 #if USING(USE_RENDERER_DEBUG)
-    PoolSnapshot Snapshot() const;
+    PoolSnapshot snapshot() const;
 #endif
 
 private:
     IRenderDevice& m_device;
-    std::unordered_map<std::string, GpuTextureId> m_cache;
+    HashMap<std::string, GpuTextureId> m_cache;
 };
 
 }  // namespace cave::render
