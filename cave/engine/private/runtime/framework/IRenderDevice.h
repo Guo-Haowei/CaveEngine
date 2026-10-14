@@ -3,16 +3,25 @@
 #include "cave/render/rhi/Backend.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 
-// @TODO: refactor
-struct MaterialConstantBuffer;
-
 namespace cave {
+
+class Scene;
+
+struct ImageAsset;
+class MeshAsset;
+
+}  // namespace cave
+
+namespace cave::render {
 
 enum ClearFlags : uint32_t;
 enum class Dimension : uint8_t;
 enum PipelineStateName : uint8_t;
 
-class Scene;
+struct RenderTargetDesc;
+struct FrameContext;
+struct RenderSubmission;
+struct CompiledPass;
 
 struct BlendDesc;
 struct GpuBuffer;
@@ -22,21 +31,10 @@ struct GpuMeshDesc;
 struct GpuStructuredBuffer;
 struct GpuTexture;
 struct GpuTextureDesc;
-struct ImageAsset;
-class MeshAsset;
 struct SamplerDesc;
 struct Viewport;
 
 struct GpuMesh;
-
-}  // namespace cave
-
-namespace cave::render {
-
-struct RenderTargetDesc;
-struct FrameContext;
-struct RenderSubmission;
-struct CompiledPass;
 
 struct RenderCapabilities {
     bool supportComputeShaders = true;
@@ -83,10 +81,10 @@ public:
 
     virtual void setMesh(const GpuMesh* mesh) = 0;
 
-    virtual void drawElements(uint32_t count, uint32_t offset = 0) = 0;
-    virtual void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
-    virtual void drawArrays(uint32_t count, uint32_t offset = 0) = 0;
-    virtual void drawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
+    virtual void drawIndexed(uint32_t count, uint32_t offset = 0) = 0;
+    virtual void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
+    virtual void draw(uint32_t count, uint32_t offset = 0) = 0;
+    virtual void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
 
     virtual void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) = 0;
     virtual void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) = 0;

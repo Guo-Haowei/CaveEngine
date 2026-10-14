@@ -143,7 +143,7 @@ void CopyContext::Finalize() {
 }
 
 CopyContext::CopyCommand CopyContext::Allocate(uint32_t p_staging_size) {
-    ID3D12Device4* const device = m_device->GetDevice();
+    ID3D12Device4* const device = m_device->getDevice();
     m_lock.lock();
     // create a new command list if there are no free ones
     if (m_freeList.empty()) {

@@ -2,7 +2,7 @@
 
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
-namespace cave {
+namespace cave::render {
 
 SamplerDesc CubemapNoMipSampler() {
     SamplerDesc desc(MinFilter::LINEAR,

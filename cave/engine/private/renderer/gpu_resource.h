@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/renderer/pixel_format.h"
 
-namespace cave {
+namespace cave::render {
 
 enum class BufferUsage {
     DEFAULT = 0,

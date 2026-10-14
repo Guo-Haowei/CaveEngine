@@ -37,7 +37,7 @@
 #include "engine/private/render/rhi/PipelineState.h"
 #include "engine/private/renderer/pixel_format.h"
 
-namespace cave::d3d {
+namespace cave::render::d3d {
 
 static inline DXGI_FORMAT Convert(PixelFormat format) {
     switch (format) {

@@ -8,13 +8,13 @@
 
 // clang-format off
 namespace cave { struct FrameData; }
-namespace cave { struct GpuTexture; }
 // clang-format on
 
 namespace cave::render {
 
 class IRenderDevice;
 struct CompiledPass;
+struct GpuTexture;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;

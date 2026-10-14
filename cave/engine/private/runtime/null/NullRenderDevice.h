@@ -38,10 +38,10 @@ public:
 
     void setMesh(const GpuMesh*) override {}
 
-    void drawElements(uint32_t, uint32_t) override {}
-    void drawElementsInstanced(uint32_t, uint32_t, uint32_t) override {}
-    void drawArrays(uint32_t, uint32_t) override {}
-    void drawArraysInstanced(uint32_t, uint32_t, uint32_t) override {}
+    void drawIndexed(uint32_t, uint32_t) override {}
+    void drawIndexedInstanced(uint32_t, uint32_t, uint32_t) override {}
+    void draw(uint32_t, uint32_t) override {}
+    void drawInstanced(uint32_t, uint32_t, uint32_t) override {}
 
     void dispatch(uint32_t, uint32_t, uint32_t) override {}
     void bindUnorderedAccessView(uint32_t, GpuTexture*) override {}

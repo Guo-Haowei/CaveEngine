@@ -223,7 +223,7 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
     for (const PrimBatch& batch : result.batches) {
         const uint64_t tex = (batch.tex ? batch.tex : m_default_texture.get())->GetHandle();
         device.bindTexture(Dimension::Texture2D, tex, kSpriteSlot);
-        device.drawElements(batch.index_count, batch.index_offset);
+        device.drawIndexed(batch.index_count, batch.index_offset);
     }
     device.unbindTexture(Dimension::Texture2D, kSpriteSlot);
 }

@@ -14,7 +14,7 @@
 #define D3D_CALL(HR)                 CRASH_COND_MSG(FAILED(HR), #HR)
 
 #if USING(USE_D3D_ASSERT)
-#define D3D(EXPR) ReportErrorIfFailed((EXPR), __FUNCTION__, __FILE__, __LINE__, #EXPR)
+#define D3D(EXPR) ::cave::render::ReportErrorIfFailed((EXPR), __FUNCTION__, __FILE__, __LINE__, #EXPR)
 #else
 #define D3D(EXPR) (EXPR)
 #endif
@@ -25,8 +25,8 @@
     } while (0)
 
 #if USING(USE_D3D_DEBUG_NAME)
-#define D3D11_SET_DEBUG_NAME(RES, NAME) ::cave::SetDebugName(RES, NAME)
-#define D3D12_SET_DEBUG_NAME(RES, NAME) ::cave::SetDebugName(RES, NAME)
+#define D3D11_SET_DEBUG_NAME(RES, NAME) ::cave::render::SetDebugName(RES, NAME)
+#define D3D12_SET_DEBUG_NAME(RES, NAME) ::cave::render::SetDebugName(RES, NAME)
 #else
 #define D3D11_SET_DEBUG_NAME(RES, NAME) ((void)0)
 #define D3D12_SET_DEBUG_NAME(RES, NAME) ((void)0)
@@ -35,7 +35,7 @@
 struct ID3D11DeviceChild;
 struct ID3D12DeviceChild;
 
-namespace cave {
+namespace cave::render {
 
 template<class T>
 void SafeRelease(T*& ptr) {
@@ -45,14 +45,14 @@ void SafeRelease(T*& ptr) {
     }
 }
 
-[[nodiscard]] HRESULT ReportErrorIfFailed(HRESULT p_result,
-                                          std::string_view p_function,
-                                          std::string_view p_file,
-                                          int p_line,
-                                          std::string_view p_error);
+[[nodiscard]] HRESULT ReportErrorIfFailed(HRESULT result,
+                                          std::string_view function,
+                                          std::string_view file,
+                                          int line,
+                                          std::string_view error);
 
-static inline D3D_SRV_DIMENSION ConvertDimension(Dimension p_dimension) {
-    switch (p_dimension) {
+static inline D3D_SRV_DIMENSION ConvertDimension(Dimension dimension) {
+    switch (dimension) {
         case Dimension::Texture2D:
             return D3D_SRV_DIMENSION_TEXTURE2D;
         case Dimension::Texture3D:

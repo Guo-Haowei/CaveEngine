@@ -8,7 +8,7 @@
 
 #include "engine/private/renderer/gpu_resource.h"
 
-namespace cave::d3d {
+namespace cave::render::d3d {
 
 inline uint32_t ConvertResourceMiscFlags(ResourceMiscFlags p_misc_flags) {
     // only support a few flags for now

@@ -29,10 +29,10 @@ auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc)
     }
 
     D3D12_COMPUTE_PIPELINE_STATE_DESC pso_desc = {};
-    pso_desc.pRootSignature = graphics_manager->GetRootSignature();
+    pso_desc.pRootSignature = graphics_manager->getRootSignature();
     pso_desc.CS = CD3DX12_SHADER_BYTECODE(cs_blob.Get());
 
-    ID3D12Device4* device = reinterpret_cast<D3d12RenderDevice*>(m_device)->GetDevice();
+    ID3D12Device4* device = reinterpret_cast<D3d12RenderDevice*>(m_device)->getDevice();
     D3D_FAIL_V(device->CreateComputePipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), CAVE_ERROR(ErrorCode::ERR_CANT_CREATE));
 
     return pipeline_state;
@@ -92,7 +92,7 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
     D3D12_DEPTH_STENCIL_DESC depth_stencil_desc = d3d::Convert(desc.depth_stencil_desc);
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc = {};
-    pso_desc.pRootSignature = graphics_manager->GetRootSignature();
+    pso_desc.pRootSignature = graphics_manager->getRootSignature();
     pso_desc.VS = CD3DX12_SHADER_BYTECODE(vs_blob.Get());
     if (ps_blob) {
         pso_desc.PS = CD3DX12_SHADER_BYTECODE(ps_blob.Get());
@@ -111,7 +111,7 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
     }
     pso_desc.DSVFormat = d3d::Convert(desc.dsv_format);
 
-    ID3D12Device4* device = reinterpret_cast<D3d12RenderDevice*>(m_device)->GetDevice();
+    ID3D12Device4* device = reinterpret_cast<D3d12RenderDevice*>(m_device)->getDevice();
     D3D_FAIL_V(device->CreateGraphicsPipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), nullptr);
 
     return pipeline_state;

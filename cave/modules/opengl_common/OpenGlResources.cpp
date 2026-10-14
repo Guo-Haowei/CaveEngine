@@ -2,7 +2,7 @@
 
 #include "OpenGlHelpers.h"
 
-namespace cave {
+namespace cave::render {
 
 void OpenGlBuffer::Clear() {
     if (handle) {
@@ -33,4 +33,4 @@ void OpenGlStructuredBuffer::clear() {
     }
 }
 
-}  // namespace cave
+}  // namespace cave::render

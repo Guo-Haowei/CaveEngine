@@ -41,7 +41,7 @@ static void PathTracerPresentFunc(RenderPassExcutionContext& p_ctx) {
     // cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.setPipelineState(PSO_POST_PROCESS);
     cmd.setMesh(nullptr);
-    cmd.drawArrays(6);
+    cmd.draw(6);
 }
 
 PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& p_graph,

@@ -1,13 +1,11 @@
 #pragma once
 #include "cave/core/ids/Entity.h"
 
-// clang-format off
-namespace cave { enum StencilFlags : uint8_t; }
-namespace cave { struct GpuMesh; }
-namespace cave { struct GpuTexture; }
-// clang-format on
-
 namespace cave::render {
+
+enum StencilFlags : uint8_t;
+struct GpuMesh;
+struct GpuTexture; 
 
 struct DrawItem {
     struct Range {

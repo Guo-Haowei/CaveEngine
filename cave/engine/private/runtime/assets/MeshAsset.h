@@ -6,12 +6,12 @@
 // @TODO: refactor
 namespace cave::render {
 struct BvhAccel;
+struct GpuMesh;
 }  // namespace cave::render
 
 namespace cave {
 
 class Archive;
-struct GpuMesh;
 
 enum class VertexAttributeName : uint8_t {
     POSITION = 0,
@@ -56,7 +56,7 @@ public:
     std::vector<MeshSubset> subsets;
 
     // Non-serialized
-    mutable std::shared_ptr<GpuMesh> gpuResource;
+    mutable std::shared_ptr<render::GpuMesh> gpuResource;
     mutable std::shared_ptr<render::BvhAccel> bvh;
     math::AABB localBound;
 

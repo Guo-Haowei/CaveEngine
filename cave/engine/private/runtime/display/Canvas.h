@@ -23,7 +23,7 @@ public:
                  const math::Vec2f& max,
                  const Draw2DOptions& options) override;
 
-    void addImage(const GpuTexture* texture,
+    void addImage(const render::GpuTexture* texture,
                   const math::Vec2f& min,
                   const math::Vec2f& max,
                   const ImageDrawOptions& options) override;
@@ -31,7 +31,7 @@ public:
     bool takeBucket(ViewId view_id, CanvasBucket& out) override;
 
 private:
-    void addImageImpl(const GpuTexture* texture,
+    void addImageImpl(const render::GpuTexture* texture,
                       const math::Vec2f& min,
                       const math::Vec2f& max,
                       const ImageDrawOptions& options);

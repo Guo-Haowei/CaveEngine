@@ -12,21 +12,21 @@
 #pragma comment(lib, "dxguid.lib")
 #endif
 
-namespace cave {
+namespace cave::render {
 
 namespace fs = std::filesystem;
 using Microsoft::WRL::ComPtr;
 
-HRESULT ReportErrorIfFailed(HRESULT p_result,
-                            std::string_view p_function,
-                            std::string_view p_file,
-                            int p_line,
-                            std::string_view p_error) {
-    if (FAILED(p_result)) {
-        ReportErrorImpl(p_function, p_file, p_line, p_error);
+HRESULT ReportErrorIfFailed(HRESULT result,
+                            std::string_view function,
+                            std::string_view file,
+                            int line,
+                            std::string_view error) {
+    if (FAILED(result)) {
+        ReportErrorImpl(function, file, line, error);
         // GENERATE_TRAP();
     }
-    return p_result;
+    return result;
 }
 
 // @TODO: refactor this. Shader will be included as const char* directly

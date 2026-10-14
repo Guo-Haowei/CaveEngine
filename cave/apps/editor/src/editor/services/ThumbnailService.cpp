@@ -49,6 +49,8 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
         return 0;
     }
 
+    using namespace render;
+
     GpuTextureDesc tex_desc{
         .type = AttachmentType::COLOR_2D,
         .dimension = Dimension::Texture2D,

@@ -89,7 +89,6 @@ void GL4RenderDevice::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->handle);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, p_slot, buffer->handle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    return;
 }
 
 void GL4RenderDevice::unbindStructuredBuffer(int p_slot) {

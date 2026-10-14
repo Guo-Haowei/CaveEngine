@@ -3,10 +3,11 @@
 
 // clang-format off
 namespace cave { class AssetRegistry; }
-namespace cave { struct GpuTexture; }
 // clang-format on
 
 namespace cave::render {
+
+struct GpuTexture; 
 
 class IRenderDevice;
 

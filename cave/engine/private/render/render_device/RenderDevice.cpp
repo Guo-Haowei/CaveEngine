@@ -367,7 +367,7 @@ void RenderDevice::updateEmitters(const Scene& p_scene) {
 
 void RenderDevice::drawSkybox() {
     setMesh(m_skybox_buffers.get());
-    drawElements(m_skybox_buffers->desc.drawCount);
+    drawIndexed(m_skybox_buffers->desc.drawCount);
 }
 
 void RenderDevice::beginPass(const CompiledPass& pass) {

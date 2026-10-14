@@ -11,7 +11,7 @@
 
 // @TODO: wrap all enums for better debugging information
 
-namespace cave::gl {
+namespace cave::render::gl {
 
 enum BUFFER_TYPE : uint32_t {
     ARRAY_BUFFER = GL_ARRAY_BUFFER,

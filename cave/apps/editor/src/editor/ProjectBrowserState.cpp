@@ -53,7 +53,7 @@ void ProjectBrowserState::drawRecentProjects() {
 
     // @TODO: use actual image
     std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage("scene@256x256.png");
-    GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
+    render::GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
     for (const ProjectInfo& project : m_project_list) {
         auto [hovered, clicked] = ui::AssetCard(texture ? texture->GetHandle() : 0,

@@ -76,6 +76,8 @@ ViewTabBase::ViewTabBase(EditorState& editor,
     , m_dim(dim)
     , m_preview_scene_id(scene_id) {
 
+    using namespace render;
+
     // @TODO: move it to somewhere else
     GpuTextureDesc desc{
         .type = AttachmentType::COLOR_2D,

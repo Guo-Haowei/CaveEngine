@@ -59,7 +59,7 @@ static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
 
     cmd.setPipelineState(PSO_SSAO);
     cmd.setMesh(nullptr);
-    cmd.drawArrays(6);
+    cmd.draw(6);
 }
 
 SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,

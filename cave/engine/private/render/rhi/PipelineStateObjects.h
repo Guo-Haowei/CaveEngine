@@ -1,7 +1,7 @@
 #pragma once
 #include "PipelineState.h"
 
-namespace cave {
+namespace cave::render {
 
 /// input layouts
 static const InputLayoutDesc s_input_layout_mesh = {

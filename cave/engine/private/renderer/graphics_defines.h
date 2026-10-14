@@ -1,6 +1,6 @@
 #pragma once
 
-namespace cave {
+namespace cave::render {
 
 // clang-format off
 enum ClearFlags : uint32_t {

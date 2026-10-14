@@ -62,18 +62,18 @@ void OpenGlRenderDevice::setPipelineStateImpl(PipelineStateName p_name) {
         const auto cull_mode = pipeline->desc.rasterizer_desc->cullMode;
         if (cull_mode != m_stateCache.cullMode) {
             switch (cull_mode) {
-                case cave::CullMode::NONE:
+                case CullMode::NONE:
                     glDisable(GL_CULL_FACE);
                     break;
-                case cave::CullMode::FRONT:
+                case CullMode::FRONT:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT);
                     break;
-                case cave::CullMode::BACK:
+                case CullMode::BACK:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_BACK);
                     break;
-                case cave::CullMode::FRONT_AND_BACK:
+                case CullMode::FRONT_AND_BACK:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT_AND_BACK);
                     break;
@@ -250,19 +250,19 @@ void OpenGlRenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_
     }
 }
 
-void OpenGlRenderDevice::drawElements(uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::drawIndexed(uint32_t p_count, uint32_t p_offset) {
     glDrawElements(m_stateCache.topology, p_count, GL_UNSIGNED_INT, (void*)(p_offset * sizeof(uint32_t)));
 }
 
-void OpenGlRenderDevice::drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::drawIndexedInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     glDrawElementsInstanced(m_stateCache.topology, p_count, GL_UNSIGNED_INT, (void*)(p_offset * sizeof(uint32_t)), p_instance_count);
 }
 
-void OpenGlRenderDevice::drawArrays(uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::draw(uint32_t p_count, uint32_t p_offset) {
     glDrawArrays(m_stateCache.topology, p_offset, p_count);
 }
 
-void OpenGlRenderDevice::drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void OpenGlRenderDevice::drawInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     glDrawArraysInstanced(m_stateCache.topology, p_offset, p_count, p_instance_count);
 }
 

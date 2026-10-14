@@ -727,19 +727,19 @@ void D3d11RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_b
     }
 }
 
-void D3d11RenderDevice::drawElements(uint32_t p_count, uint32_t p_offset) {
+void D3d11RenderDevice::drawIndexed(uint32_t p_count, uint32_t p_offset) {
     m_deviceContext->DrawIndexed(p_count, p_offset, 0);
 }
 
-void D3d11RenderDevice::drawElementsInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void D3d11RenderDevice::drawIndexedInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     m_deviceContext->DrawIndexedInstanced(p_count, p_instance_count, p_offset, 0, 0);
 }
 
-void D3d11RenderDevice::drawArrays(uint32_t p_count, uint32_t p_offset) {
+void D3d11RenderDevice::draw(uint32_t p_count, uint32_t p_offset) {
     m_deviceContext->Draw(p_count, p_offset);
 }
 
-void D3d11RenderDevice::drawArraysInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
+void D3d11RenderDevice::drawInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
     m_deviceContext->DrawInstanced(p_count, p_instance_count, p_offset, 0);
 }
 

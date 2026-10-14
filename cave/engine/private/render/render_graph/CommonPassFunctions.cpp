@@ -90,7 +90,7 @@ void ExecuteDrawCommands(RenderPassExcutionContext& ctx,
 
             cmd.bindConstantBufferSlot<MaterialConstantBuffer>(frame.material_cb.get(), draw.mat_idx);
         }
-        cmd.drawElements(draw.index.count, draw.index.offset);
+        cmd.drawIndexed(draw.index.count, draw.index.offset);
 
         if (has_flags) {
             cmd.setStencilRef(STENCIL_FLAG_NONE);
@@ -146,7 +146,7 @@ void HighlightPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.setPipelineState(PSO_HIGHLIGHT);
     cmd.setStencilRef(STENCIL_FLAG_HIGHLIGHT);
     cmd.setMesh(nullptr);
-    cmd.drawArrays(6);
+    cmd.draw(6);
     cmd.setStencilRef(STENCIL_FLAG_NONE);
 }
 
@@ -273,7 +273,7 @@ void LightingPassFunc(RenderPassExcutionContext& p_ctx) {
     cmd.setPipelineState(PSO_LIGHTING);
 
     cmd.setMesh(nullptr);
-    cmd.drawArrays(6);
+    cmd.draw(6);
 }
 
 /// Sky
@@ -350,7 +350,7 @@ void TonePassFunc(RenderPassExcutionContext& ctx) {
 
     cmd.setPipelineState(PSO_POST_PROCESS);
     cmd.setMesh(nullptr);
-    cmd.drawArrays(6);
+    cmd.draw(6);
 }
 
 void OverlayDrawFunc(RenderPassExcutionContext& ctx) {

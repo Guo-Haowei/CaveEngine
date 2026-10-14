@@ -49,10 +49,10 @@ public:
 
     void setMesh(const GpuMesh* mesh) final;
 
-    void drawElements(uint32_t count, uint32_t offset) final;
-    void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
-    void drawArrays(uint32_t count, uint32_t offset) final;
-    void drawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
+    void drawIndexed(uint32_t count, uint32_t offset) final;
+    void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
+    void draw(uint32_t count, uint32_t offset) final;
+    void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
 
     void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) final;
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
@@ -76,8 +76,8 @@ public:
 
     ID3D12CommandQueue* createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 
-    ID3D12Device4* const GetDevice() const { return m_device.Get(); }
-    ID3D12RootSignature* const GetRootSignature() const { return m_root_signature.Get(); }
+    ID3D12Device4* const getDevice() const { return m_device.Get(); }
+    ID3D12RootSignature* const getRootSignature() const { return m_root_signature.Get(); }
 
 protected:
     auto InitializeInternal() -> Result<void> final;
