@@ -202,4 +202,4 @@ struct ConstantBuffer {
     T cache;
 };
 
-}  // namespace cave
+}  // namespace cave::render

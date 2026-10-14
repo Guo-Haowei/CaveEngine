@@ -39,4 +39,4 @@ SamplerDesc ShadowMapSampler() {
     return desc;
 }
 
-}  // namespace cave
+}  // namespace cave::render

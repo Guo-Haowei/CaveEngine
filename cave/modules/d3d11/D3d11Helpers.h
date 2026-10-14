@@ -62,4 +62,4 @@ inline uint32_t ConvertCpuAccessFlags(uint32_t p_access_flags) {
     return flags;
 }
 
-}  // namespace cave::d3d
+}  // namespace cave::render::d3d

@@ -383,4 +383,4 @@ inline GLenum ConvertDimension(Dimension p_dimension) {
     }
 }
 
-}  // namespace cave::gl
+}  // namespace cave::render::gl

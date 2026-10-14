@@ -354,4 +354,4 @@ static inline D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertToType(PrimitiveTopology p_to
 #undef D3D_STENCIL_OP_
 #undef D3D_BLEND_
 
-}  // namespace cave::d3d
+}  // namespace cave::render::d3d

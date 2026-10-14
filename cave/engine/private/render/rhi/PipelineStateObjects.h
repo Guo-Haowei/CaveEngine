@@ -117,4 +117,4 @@ static const BlendDesc s_blend_state_off = {
     },
 };
 
-}  // namespace cave
+}  // namespace cave::render

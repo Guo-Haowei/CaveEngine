@@ -7,7 +7,7 @@ namespace cave { class AssetRegistry; }
 
 namespace cave::render {
 
-struct GpuTexture; 
+struct GpuTexture;
 
 class IRenderDevice;
 

@@ -57,7 +57,7 @@ void RendererPanel::drawUIImpl() {
 
     CollapseWindow("Texture Pool", [this]() {
         auto snapshot = m_renderer.poolSnapshot();
-        if (snapshot.textures.empty()) {
+        if (snapshot.textures.empty() || true) {
             ImGui::TextUnformatted("No textures in pool.");
             return;
         }

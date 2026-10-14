@@ -131,4 +131,4 @@ void SetDebugName(ID3D12DeviceChild* resource, std::string_view name) {
 }
 #endif
 
-}  // namespace cave
+}  // namespace cave::render

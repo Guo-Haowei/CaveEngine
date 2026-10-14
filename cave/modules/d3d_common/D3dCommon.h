@@ -81,4 +81,4 @@ void SetDebugName(ID3D12DeviceChild* resource, std::string_view name);
 #define SetDebugName(...)
 #endif
 
-}  // namespace cave
+}  // namespace cave::render

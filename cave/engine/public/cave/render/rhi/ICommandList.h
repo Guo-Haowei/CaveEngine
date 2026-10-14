@@ -11,13 +11,12 @@ namespace cave {
 enum class Dimension : uint8_t;
 enum PipelineStateName : uint8_t;
 struct GpuStructuredBuffer;
-}
+}  // namespace cave
 
 namespace cave::render {
 
 class ICommandList {
 public:
-
     virtual void draw(uint32_t count,
                       uint32_t offset = 0) = 0;
 

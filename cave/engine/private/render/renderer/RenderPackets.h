@@ -5,7 +5,7 @@ namespace cave::render {
 
 enum StencilFlags : uint8_t;
 struct GpuMesh;
-struct GpuTexture; 
+struct GpuTexture;
 
 struct DrawItem {
     struct Range {
