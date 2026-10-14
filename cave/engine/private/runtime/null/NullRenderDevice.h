@@ -38,18 +38,10 @@ public:
 
     void setMesh(const GpuMesh*) override {}
 
-    void drawIndexed(uint32_t, uint32_t) override {}
-    void drawIndexedInstanced(uint32_t, uint32_t, uint32_t) override {}
-    void draw(uint32_t, uint32_t) override {}
-    void drawInstanced(uint32_t, uint32_t, uint32_t) override {}
-
-    void dispatch(uint32_t, uint32_t, uint32_t) override {}
     void bindUnorderedAccessView(uint32_t, GpuTexture*) override {}
     void unbindUnorderedAccessView(uint32_t) override {}
 
     void setPipelineState(PipelineStateName) override {}
-
-    void setStencilRef(uint32_t) override {}
 
     void bindStructuredBuffer(int, const GpuStructuredBuffer*) override {}
     void unbindStructuredBuffer(int) override {}

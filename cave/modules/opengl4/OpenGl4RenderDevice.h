@@ -11,7 +11,6 @@ public:
     GL4RenderDevice()
         : OpenGlRenderDevice() {}
 
-    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) final;
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
     void unbindUnorderedAccessView(uint32_t slot) final;
 

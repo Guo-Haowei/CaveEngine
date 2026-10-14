@@ -312,9 +312,9 @@ Ref<FrameContext> D3d12RenderDevice::createFrameContext() {
     return MakeOwner<D3d12FrameContext>();
 }
 
-void D3d12RenderDevice::setStencilRef(uint32_t ref) {
-    m_graphicsCommandList->OMSetStencilRef(ref);
-}
+// void D3d12RenderDevice::setStencilRef(uint32_t ref) {
+//     m_graphicsCommandList->OMSetStencilRef(ref);
+// }
 
 void D3d12RenderDevice::setRenderTargets(const RenderTargetDesc& p_desc) {
     constexpr size_t kMaxRenderTargets = 8;
@@ -555,25 +555,25 @@ void D3d12RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_b
     }
 }
 
-void D3d12RenderDevice::drawIndexed(uint32_t count, uint32_t offset) {
-    m_graphicsCommandList->DrawIndexedInstanced(count, 1, offset, 0, 0);
-}
-
-void D3d12RenderDevice::drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
-    m_graphicsCommandList->DrawIndexedInstanced(count, instance_count, offset, 0, 0);
-}
-
-void D3d12RenderDevice::draw(uint32_t count, uint32_t offset) {
-    m_graphicsCommandList->DrawInstanced(count, 1, offset, 0);
-}
-
-void D3d12RenderDevice::drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
-    m_graphicsCommandList->DrawInstanced(count, instance_count, offset, 0);
-}
-
-void D3d12RenderDevice::dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) {
-    m_graphicsCommandList->Dispatch(num_groups_x, num_groups_y, num_groups_z);
-}
+// void D3d12RenderDevice::drawIndexed(uint32_t count, uint32_t offset) {
+//     m_graphicsCommandList->DrawIndexedInstanced(count, 1, offset, 0, 0);
+// }
+//
+// void D3d12RenderDevice::drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
+//     m_graphicsCommandList->DrawIndexedInstanced(count, instance_count, offset, 0, 0);
+// }
+//
+// void D3d12RenderDevice::draw(uint32_t count, uint32_t offset) {
+//     m_graphicsCommandList->DrawInstanced(count, 1, offset, 0);
+// }
+//
+// void D3d12RenderDevice::drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
+//     m_graphicsCommandList->DrawInstanced(count, instance_count, offset, 0);
+// }
+//
+// void D3d12RenderDevice::dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) {
+//     m_graphicsCommandList->Dispatch(num_groups_x, num_groups_y, num_groups_z);
+// }
 
 void D3d12RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
     unused(p_slot);

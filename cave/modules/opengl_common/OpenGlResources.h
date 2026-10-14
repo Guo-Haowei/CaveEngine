@@ -9,6 +9,12 @@
 
 namespace cave::render {
 
+struct OpenGlGpuMesh : GpuMesh {
+    using GpuMesh::GpuMesh;
+
+    uint32_t vao{ 0 };
+};
+
 struct OpenGlBuffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
 

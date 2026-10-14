@@ -42,8 +42,6 @@ auto GL4RenderDevice::InitializeInternal() -> Result<void> {
         }
     }
 
-    m_meshes.set_description("GPU-Mesh-Allocator");
-
     // query capabilities
     {
         GLint major = 0, minor = 0;
@@ -66,12 +64,6 @@ auto GL4RenderDevice::InitializeInternal() -> Result<void> {
     }
 
     return Result<void>();
-}
-
-void GL4RenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
-    glDispatchCompute(p_num_groups_x, p_num_groups_y, p_num_groups_z);
-    // @TODO: this probably shouldn't be here
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void GL4RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {

@@ -31,8 +31,6 @@ public:
 
     void FinalizeImpl() final;
 
-    void setStencilRef(uint32_t ref) final;
-
     void setRenderTargets(const RenderTargetDesc& desc) final;
     void unsetRenderTargets() final;
 
@@ -49,12 +47,6 @@ public:
 
     void setMesh(const GpuMesh* mesh) final;
 
-    void drawIndexed(uint32_t count, uint32_t offset) final;
-    void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
-    void draw(uint32_t count, uint32_t offset) final;
-    void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
-
-    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) final;
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
     void unbindUnorderedAccessView(uint32_t slot) final;
 

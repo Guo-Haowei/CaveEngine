@@ -2,29 +2,23 @@
 
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
+
 #include "OpenGlDefines.h"
 
 struct GLFWwindow;
 
 namespace cave::render {
 
+class OpenGlCommandList;
 class OpenGlFramebufferCache;
 
 // @TODO: fix
-struct OpenGlGpuMesh : GpuMesh {
-    using GpuMesh::GpuMesh;
-
-    uint32_t vao{ 0 };
-};
-
 class OpenGlRenderDevice : public RenderDevice {
 public:
     OpenGlRenderDevice();
     ~OpenGlRenderDevice();
 
     void FinalizeImpl() override;
-
-    void setStencilRef(uint32_t ref) override;
 
     void setRenderTargets(const RenderTargetDesc& target) override;
     void unsetRenderTargets() override;
@@ -42,12 +36,6 @@ public:
 
     void setMesh(const GpuMesh* mesh) override;
 
-    void drawIndexed(uint32_t count, uint32_t offset) override;
-    void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
-    void draw(uint32_t count, uint32_t offset) override;
-    void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
-
-    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) override;
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
     void unbindUnorderedAccessView(uint32_t slot) override;
 
@@ -68,6 +56,9 @@ public:
 
     void generateMipmap(const GpuTexture* texture) override;
 
+    // @TODO: refactor
+    ICommandList* getCommandList() const;
+
 protected:
     Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
 
@@ -76,9 +67,6 @@ protected:
 
     void onWindowResize(int, int) override {}
     void setPipelineStateImpl(PipelineStateName name) override;
-
-    // @TODO: rename
-    RIDAllocator<OpenGlGpuMesh> m_meshes;
 
     GLFWwindow* m_window;
 
@@ -93,10 +81,7 @@ protected:
     } m_stateCache;
 
 private:
-    void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask);
-
-    uint32_t m_dummy_vao;  // for drawing with gl_VertexID
-
+    Owner<OpenGlCommandList> m_command_list;
     Owner<OpenGlFramebufferCache> m_fbo_cache;
 };
 

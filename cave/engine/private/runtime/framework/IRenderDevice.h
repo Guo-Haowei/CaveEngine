@@ -81,18 +81,10 @@ public:
 
     virtual void setMesh(const GpuMesh* mesh) = 0;
 
-    virtual void drawIndexed(uint32_t count, uint32_t offset = 0) = 0;
-    virtual void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
-    virtual void draw(uint32_t count, uint32_t offset = 0) = 0;
-    virtual void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset = 0) = 0;
-
-    virtual void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) = 0;
     virtual void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) = 0;
     virtual void unbindUnorderedAccessView(uint32_t slot) = 0;
 
     virtual void setPipelineState(PipelineStateName name) = 0;
-
-    virtual void setStencilRef(uint32_t ref) = 0;
 
     virtual void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) = 0;
     virtual void unbindStructuredBuffer(int slot) = 0;

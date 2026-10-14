@@ -16,8 +16,6 @@ public:
 
     void FinalizeImpl() final;
 
-    void setStencilRef(uint32_t ref) override {}
-
     void setRenderTargets(const RenderTargetDesc& target) override {}
     void unsetRenderTargets() override {}
 
@@ -36,12 +34,6 @@ public:
 
     void setMesh(const GpuMesh* mesh) override {}
 
-    void drawIndexed(uint32_t count, uint32_t offset) override {}
-    void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override {}
-    void draw(uint32_t count, uint32_t offset) override {}
-    void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override {}
-
-    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) override {}
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override {}
     void unbindUnorderedAccessView(uint32_t slot) override {}
 
