@@ -6,6 +6,7 @@
 
 namespace cave::render {
 
+// @TODO: move these to rhi/Defines.h
 enum PipelineStateName : uint8_t;
 struct GpuStructuredBuffer;
 
@@ -25,6 +26,8 @@ public:
                                       uint32_t count,
                                       uint32_t offset = 0) = 0;
 
+    virtual void setPipelineState(PipelineStateName name) = 0;
+
     virtual void setStencilRef(uint32_t ref) = 0;
 
     // @TODO: remove these
@@ -35,8 +38,6 @@ public:
     virtual void unbindStructuredBuffer(int slot) = 0;
     virtual void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) = 0;
     virtual void unbindStructuredBufferSRV(int slot) = 0;
-
-    virtual void setPipelineState(PipelineStateName name) = 0;
 };
 
 }  // namespace cave::render

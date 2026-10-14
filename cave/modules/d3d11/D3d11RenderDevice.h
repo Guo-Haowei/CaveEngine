@@ -7,6 +7,7 @@
 
 namespace cave::render {
 
+class D3d11CommandList;
 class D3d11ViewCache;
 
 struct D3d11Buffer : GpuBuffer {
@@ -96,6 +97,7 @@ protected:
     auto initSamplers() -> Result<void>;
 
     Owner<D3d11ViewCache> m_view_cache;
+    Owner<D3d11CommandList> m_command_list;
 
     Microsoft::WRL::ComPtr<ID3D11Device> m_device;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
@@ -108,14 +110,6 @@ protected:
     std::vector<Microsoft::WRL::ComPtr<ID3D11SamplerState>> m_samplers;
 
     RIDAllocator<D3d11MeshBuffers> m_meshes;
-
-    // @TODO: cache
-    struct {
-        ID3D11RasterizerState* rasterizer = nullptr;
-        ID3D11DepthStencilState* depthStencil = nullptr;
-        uint32_t stencilRef = 0xFFFFFFFF;
-        ID3D11BlendState* blendState = nullptr;
-    } m_stateCache;
 };
 
 }  // namespace cave::render

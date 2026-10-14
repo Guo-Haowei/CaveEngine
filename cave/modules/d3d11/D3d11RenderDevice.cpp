@@ -2,6 +2,7 @@
 
 #include <imgui/backends/imgui_impl_dx11.h>
 
+#include "D3d11CommandList.h"
 #include "D3D11ViewCache.h"
 #include "D3d11Helpers.h"
 #include "D3d11PipelineStateManager.h"
@@ -38,6 +39,10 @@ auto D3d11RenderDevice::InitializeInternal() -> Result<void> {
     if (auto res = createDevice(); !res) {
         return CAVE_ERROR(res.error());
     }
+
+    m_command_list = MakeOwner<D3d11CommandList>(m_deviceContext,
+                                                 dynamic_cast<D3d11PipelineStateManager&>(*m_pipeline_state_manager));
+
     if (auto res = createSwapChain(); !res) {
         return CAVE_ERROR(res.error());
     }
@@ -75,9 +80,6 @@ void D3d11RenderDevice::render() {
     const float clear_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     m_deviceContext->ClearRenderTargetView(m_windowRtv.Get(), clear_color);
 
-    // @TODO: refactor this
-    // const auto [width, height] = m_app->GetDisplayService()->windowSize();
-
     if (m_app->isRuntime()) {
         CRASH_NOW();
     }
@@ -98,15 +100,6 @@ void D3d11RenderDevice::present() {
     }
 
     m_swapChain->Present(1, 0);  // Present with vsync
-}
-
-void D3d11RenderDevice::setStencilRef(uint32_t p_ref) {
-    if (m_stateCache.depthStencil) {
-        if (m_stateCache.stencilRef != p_ref) {
-            m_deviceContext->OMSetDepthStencilState(m_stateCache.depthStencil, p_ref);
-            m_stateCache.stencilRef = p_ref;
-        }
-    }
 }
 
 void D3d11RenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
@@ -330,22 +323,6 @@ void D3d11RenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffe
     }
 }
 
-void D3d11RenderDevice::bindTexture(Dimension, uint64_t handle, int slot) {
-    if (handle) {
-        ID3D11ShaderResourceView* srv = (ID3D11ShaderResourceView*)(handle);
-        m_deviceContext->PSSetShaderResources(slot, 1, &srv);
-        m_deviceContext->CSSetShaderResources(slot, 1, &srv);
-    }
-}
-
-void D3d11RenderDevice::unbindTexture(Dimension p_dimension, int p_slot) {
-    unused(p_dimension);
-
-    ID3D11ShaderResourceView* srv = nullptr;
-    m_deviceContext->PSSetShaderResources(p_slot, 1, &srv);
-    m_deviceContext->CSSetShaderResources(p_slot, 1, &srv);
-}
-
 void D3d11RenderDevice::generateMipmap(const GpuTexture* p_texture) {
     auto texture = reinterpret_cast<const D3d11GpuTexture*>(p_texture);
     m_deviceContext->GenerateMips(texture->srv.Get());
@@ -362,29 +339,6 @@ void D3d11RenderDevice::endEvent() {
     if (m_annotation) {
         m_annotation->EndEvent();
     }
-}
-
-void D3d11RenderDevice::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
-    auto structured_buffer = reinterpret_cast<const D3d11StructuredBuffer*>(p_buffer);
-    m_deviceContext->CSSetUnorderedAccessViews(p_slot, 1, structured_buffer->uav.GetAddressOf(), nullptr);
-}
-
-void D3d11RenderDevice::unbindStructuredBuffer(int p_slot) {
-    ID3D11UnorderedAccessView* uav = nullptr;
-    m_deviceContext->CSSetUnorderedAccessViews(p_slot, 1, &uav, nullptr);
-}
-
-void D3d11RenderDevice::bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) {
-    auto structured_buffer = reinterpret_cast<const D3d11StructuredBuffer*>(p_buffer);
-
-    if (structured_buffer->srv != nullptr) {
-        m_deviceContext->VSSetShaderResources(p_slot, 1, structured_buffer->srv.GetAddressOf());
-    }
-}
-
-void D3d11RenderDevice::unbindStructuredBufferSRV(int p_slot) {
-    ID3D11ShaderResourceView* srv = nullptr;
-    m_deviceContext->VSSetShaderResources(p_slot, 1, &srv);
 }
 
 Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc&) {
@@ -727,50 +681,53 @@ void D3d11RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_b
     }
 }
 
-void D3d11RenderDevice::drawIndexed(uint32_t p_count, uint32_t p_offset) {
-    m_deviceContext->DrawIndexed(p_count, p_offset, 0);
+// @TODO: remove the following
+void D3d11RenderDevice::drawIndexed(uint32_t count, uint32_t offset) {
+    m_command_list->drawIndexed(count, offset);
 }
 
-void D3d11RenderDevice::drawIndexedInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
-    m_deviceContext->DrawIndexedInstanced(p_count, p_instance_count, p_offset, 0, 0);
+void D3d11RenderDevice::drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
+    m_command_list->drawIndexedInstanced(instance_count, count, offset);
 }
 
-void D3d11RenderDevice::draw(uint32_t p_count, uint32_t p_offset) {
-    m_deviceContext->Draw(p_count, p_offset);
+void D3d11RenderDevice::draw(uint32_t count, uint32_t offset) {
+    m_command_list->draw(count, offset);
 }
 
-void D3d11RenderDevice::drawInstanced(uint32_t p_instance_count, uint32_t p_count, uint32_t p_offset) {
-    m_deviceContext->DrawInstanced(p_count, p_instance_count, p_offset, 0);
+void D3d11RenderDevice::drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
+    m_command_list->drawInstanced(instance_count, count, offset);
 }
 
-void D3d11RenderDevice::setPipelineStateImpl(PipelineStateName p_name) {
-    auto pipeline = reinterpret_cast<D3d11PipelineState*>(m_pipeline_state_manager->findPSO(p_name));
-    DEV_ASSERT(pipeline);
-    if (pipeline->cs) {
-        m_deviceContext->CSSetShader(pipeline->cs.Get(), nullptr, 0);
-        return;
-    }
+void D3d11RenderDevice::setStencilRef(uint32_t ref) {
+    m_command_list->setStencilRef(ref);
+}
 
-    m_deviceContext->VSSetShader(pipeline->vs.Get(), 0, 0);
-    m_deviceContext->IASetInputLayout(pipeline->input_layout.Get());
-    m_deviceContext->PSSetShader(pipeline->ps.Get(), 0, 0);
+void D3d11RenderDevice::setPipelineStateImpl(PipelineStateName name) {
+    m_command_list->setPipelineState(name);
+}
 
-    if (pipeline->rasterizer_state.Get() != m_stateCache.rasterizer) {
-        m_deviceContext->RSSetState(pipeline->rasterizer_state.Get());
-        m_stateCache.rasterizer = pipeline->rasterizer_state.Get();
-    }
-    if (pipeline->depth_stencil_state.Get() != m_stateCache.depthStencil) {
-        m_deviceContext->OMSetDepthStencilState(pipeline->depth_stencil_state.Get(), 0);
-        m_stateCache.depthStencil = pipeline->depth_stencil_state.Get();
-    }
-    if (pipeline->blend_state.Get() != m_stateCache.blendState) {
-        // @TODO: remove hard code mask
-        m_deviceContext->OMSetBlendState(pipeline->blend_state.Get(), nullptr, 0xFFFFFFFF);
-        m_stateCache.blendState = pipeline->blend_state.Get();
-    }
+void D3d11RenderDevice::bindTexture(Dimension dimension, uint64_t handle, int slot) {
+    m_command_list->bindTexture(dimension, handle, slot);
+}
 
-    auto topology = d3d::Convert(pipeline->desc.primitive_topology);
-    m_deviceContext->IASetPrimitiveTopology(topology);
+void D3d11RenderDevice::unbindTexture(Dimension dimension, int slot) {
+    m_command_list->unbindTexture(dimension, slot);
+}
+
+void D3d11RenderDevice::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
+    m_command_list->bindStructuredBuffer(slot, buffer);
+}
+
+void D3d11RenderDevice::unbindStructuredBuffer(int slot) {
+    m_command_list->unbindStructuredBuffer(slot);
+}
+
+void D3d11RenderDevice::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
+    m_command_list->bindStructuredBufferSRV(slot, buffer);
+}
+
+void D3d11RenderDevice::unbindStructuredBufferSRV(int slot) {
+    m_command_list->unbindStructuredBufferSRV(slot);
 }
 
 }  // namespace cave::render
