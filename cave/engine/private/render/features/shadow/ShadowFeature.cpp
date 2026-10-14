@@ -17,22 +17,23 @@ extern void ExecuteDrawCommands(RenderPassExcutionContext& ctx,
                                 std::span<const DrawItem> draws,
                                 bool is_prepass);
 
-static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
+static void ShadowPassFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    const auto& shadow_commands = p_ctx.frameData.commands[std::to_underlying(DrawPhase::Shadow)];
+    const auto& shadow_commands = ctx.frameData.commands[std::to_underlying(DrawPhase::Shadow)];
     if (shadow_commands.empty()) {
         return;
     }
 
-    auto& cmd = p_ctx.device;
-    const auto& frame = cmd.getCurrentFrame();
+    auto& device = ctx.device;
+    auto& cmd = ctx.command;
+    const auto& frame = device.getCurrentFrame();
 
-    const PassContext& pass = p_ctx.frameData.shadowPasses[0];
+    const PassContext& pass = ctx.frameData.shadowPasses[0];
     cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PSO_DPETH);
-    ExecuteDrawCommands(p_ctx, shadow_commands, false);
+    ExecuteDrawCommands(ctx, shadow_commands, false);
 }
 
 ShadowFeature::Outputs ShadowFeature::Build(RenderGraph& p_graph, const RenderOptions&) {

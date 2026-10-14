@@ -17,9 +17,9 @@ namespace cave::render {
 
 struct GpuScene {
     // @TODO: material
-    std::vector<GpuPtBvh> bvhs;
-    std::vector<GpuPtVertex> vertices;
-    std::vector<GpuPtIndex> indices;
+    Vector<GpuPtBvh> bvhs;
+    Vector<GpuPtVertex> vertices;
+    Vector<GpuPtIndex> indices;
 };
 
 // @TODO: make it a layer?
@@ -31,9 +31,9 @@ public:
 
     bool IsActive() const;
 
-    void BindData(IRenderDevice& p_gm);
+    void BindData(ICommandList& cmd);
 
-    void UnbindData(IRenderDevice& p_gm);
+    void UnbindData(ICommandList& cmd);
 
 private:
     bool CreateAccelStructure(const Scene& p_scene);

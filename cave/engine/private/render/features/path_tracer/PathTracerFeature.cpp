@@ -14,11 +14,11 @@ static constexpr const char RG_PASS_PATHTRACER_COMPUTE[] = "p:pathtracer_compute
 static constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present";
 static constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
 
-static void PathTracerComputeFunc(RenderPassExcutionContext& p_ctx) {
-    auto& cmd = p_ctx.device;
+static void PathTracerComputeFunc(RenderPassExcutionContext& ctx) {
+    auto& cmd = ctx.command;
 
     cmd.setPipelineState(PSO_PATH_TRACER);
-    const auto& input = p_ctx.pass.uavs[0];
+    const auto& input = ctx.pass.uavs[0];
 
     DEV_ASSERT(input);
 
@@ -33,10 +33,10 @@ static void PathTracerComputeFunc(RenderPassExcutionContext& p_ctx) {
     UnbindPathTracerData(cmd);
 }
 
-static void PathTracerPresentFunc(RenderPassExcutionContext& p_ctx) {
+static void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = p_ctx.device;
+    auto& cmd = ctx.command;
 
     // cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.setPipelineState(PSO_POST_PROCESS);
@@ -92,12 +92,12 @@ bool IsPathTracerActive() {
     return s_glob.pt.IsActive();
 }
 
-void BindPathTracerData(IRenderDevice& p_device) {
-    s_glob.pt.BindData(p_device);
+void BindPathTracerData(ICommandList& cmd) {
+    s_glob.pt.BindData(cmd);
 }
 
-void UnbindPathTracerData(IRenderDevice& p_device) {
-    s_glob.pt.UnbindData(p_device);
+void UnbindPathTracerData(ICommandList& cmd) {
+    s_glob.pt.UnbindData(cmd);
 }
 
 }  // namespace cave::render

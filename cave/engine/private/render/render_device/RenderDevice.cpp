@@ -288,7 +288,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
                                  &data.perFrameCache,
                                  sizeof(PerFrameConstantBuffer));
 
-            bindConstantBufferSlot<PerFrameConstantBuffer>(frame.per_frame_cb.get(), 0);
+            getCommandList()->bindConstantBufferSlot<PerFrameConstantBuffer>(frame.per_frame_cb.get(), 0);
 
             const auto& graph = submission->render_graph[idx++];
             for (const CompiledPass& pass : graph->getCompiledPass()) {
@@ -366,8 +366,10 @@ void RenderDevice::updateEmitters(const Scene& p_scene) {
 }
 
 void RenderDevice::drawSkybox() {
-    setMesh(m_skybox_buffers.get());
-    drawIndexed(m_skybox_buffers->desc.drawCount);
+    auto& cmd = *getCommandList();
+
+    cmd.setMesh(m_skybox_buffers.get());
+    cmd.drawIndexed(m_skybox_buffers->desc.drawCount);
 }
 
 void RenderDevice::beginPass(const CompiledPass& pass) {
@@ -395,7 +397,7 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
         for (int i = 0; i < (int)pass.srvs.size(); ++i) {
             if (const GpuTexture* srv = pass.srvs[i].get()) {
                 DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                bindTexture(srv->desc.dimension, srv->GetHandle(), i);
+                getCommandList()->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
             }
         }
         // bind uavs
@@ -421,7 +423,7 @@ void RenderDevice::endPass(const CompiledPass& pass) {
         for (int i = 0; i < (int)pass.srvs.size(); ++i) {
             if (const GpuTexture* srv = pass.srvs[i].get()) {
                 DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                unbindTexture(srv->desc.dimension, i);
+                getCommandList()->unbindTexture(srv->desc.dimension, i);
             }
         }
 
@@ -455,8 +457,9 @@ void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass)
     beginPass(pass);
 
     if (pass.execute_func) {
-        auto& cmd = ctx.device;
-        cmd.bindConstantBufferSlot<PerPassConstantBuffer>(cmd.getCurrentFrame().pass_cb.get(), pass.pass_id);
+        auto& device = ctx.device;
+
+        device.getCommandList()->bindConstantBufferSlot<PerPassConstantBuffer>(device.getCurrentFrame().pass_cb.get(), pass.pass_id);
 
         pass.execute_func(ctx);
     }

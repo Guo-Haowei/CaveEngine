@@ -330,21 +330,21 @@ bool PathTracer::IsActive() const {
     return true;
 }
 
-void PathTracer::BindData(IRenderDevice& device) {
+void PathTracer::BindData(ICommandList& cmd) {
     // @TODO: check null
-    device.bindStructuredBuffer(GetGlobalPtMeshesSlot(), m_ptMeshBuffer.get());
-    device.bindStructuredBuffer(GetGlobalPtBvhsSlot(), m_ptBvhBuffer.get());
-    device.bindStructuredBuffer(GetGlobalPtVerticesSlot(), m_ptVertexBuffer.get());
-    device.bindStructuredBuffer(GetGlobalPtIndicesSlot(), m_ptIndexBuffer.get());
-    device.bindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_ptMaterialBuffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtMeshesSlot(), m_ptMeshBuffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtBvhsSlot(), m_ptBvhBuffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtVerticesSlot(), m_ptVertexBuffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtIndicesSlot(), m_ptIndexBuffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_ptMaterialBuffer.get());
 }
 
-void PathTracer::UnbindData(IRenderDevice& device) {
-    device.unbindStructuredBuffer(GetGlobalPtBvhsSlot());
-    device.unbindStructuredBuffer(GetGlobalPtVerticesSlot());
-    device.unbindStructuredBuffer(GetGlobalPtIndicesSlot());
-    device.unbindStructuredBuffer(GetGlobalPtMeshesSlot());
-    device.unbindStructuredBuffer(GetGlobalPtMaterialsSlot());
+void PathTracer::UnbindData(ICommandList& cmd) {
+    cmd.unbindStructuredBuffer(GetGlobalPtBvhsSlot());
+    cmd.unbindStructuredBuffer(GetGlobalPtVerticesSlot());
+    cmd.unbindStructuredBuffer(GetGlobalPtIndicesSlot());
+    cmd.unbindStructuredBuffer(GetGlobalPtMeshesSlot());
+    cmd.unbindStructuredBuffer(GetGlobalPtMaterialsSlot());
 }
 
 }  // namespace cave::render

@@ -19,26 +19,28 @@ constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
 static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = ctx.device;
+    auto& device = ctx.device;
+    auto& cmd = ctx.command;
 
     cmd.setPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
 
-    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), face);
-    cmd.drawSkybox();
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), face);
+    device.drawSkybox();
     if (face == 5) {
         GpuTextureId cubemap = ctx.pass.colors[0].tex;
-        cmd.generateMipmap(cubemap.get());
+        device.generateMipmap(cubemap.get());
     }
 }
 
 static void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = ctx.device;
+    auto& device = ctx.device;
+    auto& cmd = ctx.command;
 
     cmd.setPipelineState(PSO_DIFFUSE_IRRADIANCE);
-    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), face);
-    cmd.drawSkybox();
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), face);
+    device.drawSkybox();
 }
 
 static void PrefilteredFunc(RenderPassExcutionContext& ctx,
@@ -46,11 +48,13 @@ static void PrefilteredFunc(RenderPassExcutionContext& ctx,
                             uint16_t face) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = ctx.device;
+    auto& device = ctx.device;
+    auto& cmd = ctx.command;
+
     const int index = mip * 6 + face;
     cmd.setPipelineState(PSO_PREFILTER);
-    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), index);
-    cmd.drawSkybox();
+    cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), index);
+    device.drawSkybox();
 }
 
 EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph, const RenderOptions&) {

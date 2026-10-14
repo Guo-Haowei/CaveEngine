@@ -49,13 +49,13 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
     return p_device.createTexture(desc, PointWrapSampler());
 }
 
-static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
+static void SsaoPassFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
-    if (!p_ctx.frameData.options.enable_ssao) {
+    if (!ctx.frameData.options.enable_ssao) {
         return;
     }
 
-    auto& cmd = p_ctx.device;
+    auto& cmd = ctx.command;
 
     cmd.setPipelineState(PSO_SSAO);
     cmd.setMesh(nullptr);
