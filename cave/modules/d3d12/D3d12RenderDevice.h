@@ -108,8 +108,8 @@ private:
     Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swap_chain;
 
     // Graphics Queue
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_graphicsCommandQueue;
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_graphicsCommandList;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_graphics_command_queue;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_graphics_command_list;
     Microsoft::WRL::ComPtr<ID3D12Fence1> m_graphicsQueueFence;
 
     uint64_t m_lastSignaledFenceValue = 0;
