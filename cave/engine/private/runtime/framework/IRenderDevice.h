@@ -1,6 +1,7 @@
 #pragma once
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/framework/IService.h"
-#include "cave/render/rhi/Backend.h"
+
 #include "engine/private/runtime/framework/EventQueue.h"
 
 namespace cave {
@@ -15,7 +16,6 @@ class MeshAsset;
 namespace cave::render {
 
 enum ClearFlags : uint32_t;
-enum class Dimension : uint8_t;
 enum PipelineStateName : uint8_t;
 
 struct RenderTargetDesc;

@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/render/rhi/Backend.h"
+#include "cave/render/rhi/Defines.h"
 
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/render/rhi/PipelineState.h"

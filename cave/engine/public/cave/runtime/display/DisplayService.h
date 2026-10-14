@@ -4,7 +4,7 @@
 #pragma once
 #include "cave/core/math/Vec.h"
 #include "cave/core/base/Singleton.h"
-#include "cave/render/rhi/Backend.h"
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/framework/IService.h"
 
 namespace cave {

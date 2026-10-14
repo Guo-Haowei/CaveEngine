@@ -6,7 +6,7 @@
 
 #include "cave/core/error/Result.h"
 #include "cave/core/base/NonCopyable.h"
-#include "cave/render/rhi/Backend.h"
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 namespace cave {

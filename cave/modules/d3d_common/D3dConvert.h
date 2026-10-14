@@ -284,13 +284,13 @@ static inline auto Convert(const DepthStencilDesc* p_in) {
 #if defined(INCLUDE_AS_D3D11)
 static inline D3D11_USAGE Convert(BufferUsage p_usage) {
     switch (p_usage) {
-        case BufferUsage::IMMUTABLE:
+        case BufferUsage::Immutable:
             return D3D11_USAGE_IMMUTABLE;
-        case BufferUsage::DYNAMIC:
+        case BufferUsage::Dynamic:
             return D3D11_USAGE_DYNAMIC;
-        case BufferUsage::STAGING:
+        case BufferUsage::Staging:
             return D3D11_USAGE_STAGING;
-        case BufferUsage::DEFAULT:
+        case BufferUsage::Default:
             [[fallthrough]];
         default:
             return D3D11_USAGE_DEFAULT;

@@ -2,18 +2,12 @@
 // File: cave/render/rhi/ICommandList.h
 // =============================================================================
 #pragma once
-#include <cstdint>
-
 #include "cave/render/rhi/Defines.h"
 
-// @TODO: refactor
-namespace cave {
-enum class Dimension : uint8_t;
+namespace cave::render {
+
 enum PipelineStateName : uint8_t;
 struct GpuStructuredBuffer;
-}  // namespace cave
-
-namespace cave::render {
 
 class ICommandList {
 public:

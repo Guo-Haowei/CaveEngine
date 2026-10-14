@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/render/rhi/Backend.h"
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/display/DisplayService.h"
 
 struct GLFWwindow;
