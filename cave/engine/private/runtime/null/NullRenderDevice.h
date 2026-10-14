@@ -41,21 +41,10 @@ public:
     void bindUnorderedAccessView(uint32_t, GpuTexture*) override {}
     void unbindUnorderedAccessView(uint32_t) override {}
 
-    void setPipelineState(PipelineStateName) override {}
-
-    void bindStructuredBuffer(int, const GpuStructuredBuffer*) override {}
-    void unbindStructuredBuffer(int) override {}
-    void bindStructuredBufferSRV(int, const GpuStructuredBuffer*) override {}
-    void unbindStructuredBufferSRV(int) override {}
-
     void updateConstantBuffer(const GpuConstantBuffer*, const void*, size_t) override {}
-
-    void bindConstantBufferRange(const GpuConstantBuffer*, uint32_t, uint32_t) override {}
 
     Ref<GpuTexture> createTexture(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }
     Ref<GpuTexture> createTexture(ImageAsset*) override { return nullptr; }
-    void bindTexture(Dimension, uint64_t, int) override {}
-    void unbindTexture(Dimension, int) override {}
 
     void beginEvent(std::string_view) override {}
     void endEvent() override {}
@@ -90,7 +79,6 @@ protected:
     void endPass(const CompiledPass&) override {}
 
     void onWindowResize(int, int) override {}
-    void setPipelineStateImpl(PipelineStateName) override {}
     void updateEmitters(const Scene&) override {}
 };
 

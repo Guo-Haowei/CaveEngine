@@ -57,16 +57,7 @@ public:
     // @TODO: refactor
     virtual ICommandList* getCommandList() const { return m_command_list.get(); }
 
-    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) override;
-    void unbindStructuredBuffer(int slot) override;
-    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
-    void unbindStructuredBufferSRV(int slot) override;
-
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
-    void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) override;
-
-    void bindTexture(Dimension dimension, uint64_t handle, int slot) override;
-    void unbindTexture(Dimension dimension, int slot) override;
 
     void setMesh(const GpuMesh* mesh) override;
     void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
@@ -82,7 +73,6 @@ protected:
     virtual void present() override;
 
     void onWindowResize(int width, int height) override;
-    void setPipelineStateImpl(PipelineStateName name) override;
 
     auto createDevice() -> Result<void>;
     auto createSwapChain() -> Result<void>;

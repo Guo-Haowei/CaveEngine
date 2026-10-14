@@ -14,9 +14,6 @@ public:
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
     void unbindUnorderedAccessView(uint32_t slot) final;
 
-    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) final;
-    void unbindStructuredBuffer(int slot) final;
-
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> final;
     void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) final;
 

@@ -59,8 +59,6 @@ public:
 
     auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> override;
 
-    void setPipelineState(PipelineStateName name) override;
-
     Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
     Ref<GpuTexture> createTexture(ImageAsset* image) override;
 

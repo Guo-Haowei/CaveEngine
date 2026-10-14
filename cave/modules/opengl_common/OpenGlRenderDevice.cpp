@@ -58,9 +58,6 @@ void OpenGlRenderDevice::FinalizeImpl() {
     m_pipeline_state_manager->finalize();
 }
 
-void OpenGlRenderDevice::setPipelineStateImpl(PipelineStateName ) {
-}
-
 void OpenGlRenderDevice::clear(const RenderTargetDesc& p_target) {
     unused(p_target);
     DEV_ASSERT(0);
@@ -167,20 +164,6 @@ void OpenGlRenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
     CRASH_NOW_MSG("compute shader not supported");
 }
 
-void OpenGlRenderDevice::bindStructuredBuffer(int, const GpuStructuredBuffer*) {
-}
-
-void OpenGlRenderDevice::unbindStructuredBuffer(int) {
-}
-
-void OpenGlRenderDevice::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
-    bindStructuredBuffer(slot, buffer);
-}
-
-void OpenGlRenderDevice::unbindStructuredBufferSRV(int slot) {
-    unbindStructuredBuffer(slot);
-}
-
 auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     GLuint handle = 0;
 
@@ -217,18 +200,6 @@ void OpenGlRenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer,
     glBindBuffer(GL_UNIFORM_BUFFER, buffer->handle);
     glBufferData(GL_UNIFORM_BUFFER, p_size, p_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
-void OpenGlRenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
-    auto buffer = reinterpret_cast<const OpenGlConstantBuffer*>(p_buffer);
-    DEV_ASSERT(p_size + p_offset <= buffer->capacity);
-    glBindBufferRange(GL_UNIFORM_BUFFER, p_buffer->GetSlot(), buffer->handle, p_offset, p_size);
-}
-
-void OpenGlRenderDevice::bindTexture(Dimension , uint64_t , int ) {
-}
-
-void OpenGlRenderDevice::unbindTexture(Dimension , int ) {
 }
 
 void OpenGlRenderDevice::generateMipmap(const GpuTexture* base) {
@@ -388,7 +359,7 @@ void OpenGlRenderDevice::present() {
     glfwSwapBuffers(m_window);
 }
 
-void OpenGlRenderDevice::setMesh(const GpuMesh* ) {
+void OpenGlRenderDevice::setMesh(const GpuMesh*) {
 }
 
 ICommandList* OpenGlRenderDevice::getCommandList() const {

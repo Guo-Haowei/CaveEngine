@@ -87,10 +87,6 @@ void RenderDevice::eventReceived(std::shared_ptr<IEvent> p_event) {
     }
 }
 
-void RenderDevice::setPipelineState(PipelineStateName name) {
-    setPipelineStateImpl(name);
-}
-
 void RenderDevice::requestTexture(ImageAsset* image) {
     m_loadedImages.push(image);
 }

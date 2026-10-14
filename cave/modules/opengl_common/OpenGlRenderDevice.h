@@ -39,20 +39,11 @@ public:
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
     void unbindUnorderedAccessView(uint32_t slot) override;
 
-    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) override;
-    void unbindStructuredBuffer(int slot) override;
-    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
-    void unbindStructuredBufferSRV(int slot) override;
-
     auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
     void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
 
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
-    void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) override;
-
-    void bindTexture(Dimension dimension, uint64_t handle, int slot) override;
-    void unbindTexture(Dimension dimension, int slot) override;
 
     void generateMipmap(const GpuTexture* texture) override;
 
@@ -66,7 +57,6 @@ protected:
     void present() override;
 
     void onWindowResize(int, int) override {}
-    void setPipelineStateImpl(PipelineStateName name) override;
 
     GLFWwindow* m_window;
 

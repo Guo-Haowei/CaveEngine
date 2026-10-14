@@ -51,19 +51,11 @@ public:
     void unbindUnorderedAccessView(uint32_t slot) final;
 
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> final;
-    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) final;
-    void unbindStructuredBuffer(int slot) final;
-    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) final;
-    void unbindStructuredBufferSRV(int slot) final;
 
     auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> final;
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) final;
-    void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) final;
 
     // @TODO: remove Dimension
-    void bindTexture(Dimension dimension, uint64_t handle, int slot) final;
-    void unbindTexture(Dimension dimension, int slot) final;
-
     void generateMipmap(const GpuTexture* texture) final;
 
     ID3D12CommandQueue* createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
@@ -87,7 +79,6 @@ protected:
     void endPass(const CompiledPass& pass) final;
 
     void onWindowResize(int width, int height) final;
-    void setPipelineStateImpl(PipelineStateName name) final;
 
 private:
     auto createDevice() -> Result<void>;

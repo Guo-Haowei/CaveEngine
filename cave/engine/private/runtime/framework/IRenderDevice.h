@@ -84,13 +84,6 @@ public:
     virtual void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) = 0;
     virtual void unbindUnorderedAccessView(uint32_t slot) = 0;
 
-    virtual void setPipelineState(PipelineStateName name) = 0;
-
-    virtual void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) = 0;
-    virtual void unbindStructuredBuffer(int slot) = 0;
-    virtual void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) = 0;
-    virtual void unbindStructuredBufferSRV(int slot) = 0;
-
     virtual void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) = 0;
     template<typename T>
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::vector<T>& vector) {
@@ -101,16 +94,8 @@ public:
         updateConstantBuffer(buffer, array.data(), sizeof(T) * N);
     }
 
-    virtual void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) = 0;
-    template<typename T>
-    void bindConstantBufferSlot(const GpuConstantBuffer* buffer, int slot) {
-        bindConstantBufferRange(buffer, sizeof(T), slot * sizeof(T));
-    }
-
     virtual Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
     virtual Ref<GpuTexture> createTexture(ImageAsset* image) = 0;
-    virtual void bindTexture(Dimension dimension, uint64_t handle, int slot) = 0;
-    virtual void unbindTexture(Dimension dimension, int slot) = 0;
 
     virtual void generateMipmap(const GpuTexture* texture) = 0;
 
@@ -149,7 +134,6 @@ protected:
     virtual void endPass(const CompiledPass& pass) = 0;
 
     virtual void onWindowResize(int width, int height) = 0;
-    virtual void setPipelineStateImpl(PipelineStateName name) = 0;
 
 protected:
     virtual void updateEmitters(const Scene& scene) = 0;

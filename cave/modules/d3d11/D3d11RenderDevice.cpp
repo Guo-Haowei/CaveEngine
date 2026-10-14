@@ -637,47 +637,6 @@ void D3d11RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_b
     }
 }
 
-// @TODO: remove the following
-void D3d11RenderDevice::setPipelineStateImpl(PipelineStateName name) {
-    m_command_list->setPipelineState(name);
-    CRASH_NOW();
-}
-
-void D3d11RenderDevice::bindTexture(Dimension dimension, uint64_t handle, int slot) {
-    m_command_list->bindTexture(dimension, handle, slot);
-    CRASH_NOW();
-}
-
-void D3d11RenderDevice::unbindTexture(Dimension dimension, int slot) {
-    m_command_list->unbindTexture(dimension, slot);
-    CRASH_NOW();
-}
-
-void D3d11RenderDevice::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
-    m_command_list->bindStructuredBuffer(slot, buffer);
-    CRASH_NOW();
-}
-
-void D3d11RenderDevice::unbindStructuredBuffer(int slot) {
-    m_command_list->unbindStructuredBuffer(slot);
-    CRASH_NOW();
-}
-
-void D3d11RenderDevice::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
-    m_command_list->bindStructuredBufferSRV(slot, buffer);
-    CRASH_NOW();
-}
-
-void D3d11RenderDevice::unbindStructuredBufferSRV(int slot) {
-    m_command_list->unbindStructuredBufferSRV(slot);
-    CRASH_NOW();
-}
-
-void D3d11RenderDevice::bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) {
-    m_command_list->bindConstantBufferRange(buffer, size, offset);
-    CRASH_NOW();
-}
-
 }  // namespace cave::render
 
 #undef INCLUDE_AS_D3D11

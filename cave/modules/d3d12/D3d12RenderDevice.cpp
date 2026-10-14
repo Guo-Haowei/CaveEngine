@@ -231,10 +231,6 @@ void D3d12RenderDevice::render() {
     // @TODO: refactor this
     if (m_app->isRuntime()) {
         CRASH_NOW();
-        // RenderGraphBuilder::DrawDebugImages(*GetRenderData(),
-        //                                               width,
-        //                                               height,
-        //                                               *this);
     }
 
     if (m_app->specification().enableImgui) {
@@ -311,10 +307,6 @@ void D3d12RenderDevice::moveToNextFrame() {
 Ref<FrameContext> D3d12RenderDevice::createFrameContext() {
     return MakeOwner<D3d12FrameContext>();
 }
-
-// void D3d12RenderDevice::setStencilRef(uint32_t ref) {
-//     m_graphicsCommandList->OMSetStencilRef(ref);
-// }
 
 void D3d12RenderDevice::setRenderTargets(const RenderTargetDesc& p_desc) {
     constexpr size_t kMaxRenderTargets = 8;
@@ -584,26 +576,6 @@ void D3d12RenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
     unused(p_slot);
 }
 
-void D3d12RenderDevice::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
-    unused(p_slot);
-    auto uav = reinterpret_cast<const D3d12StructuredBuffer*>(p_buffer);
-    if (DEV_VERIFY(uav)) {
-    }
-}
-
-void D3d12RenderDevice::unbindStructuredBuffer(int p_slot) {
-    unused(p_slot);
-}
-
-void D3d12RenderDevice::bindStructuredBufferSRV(int p_slot, const GpuStructuredBuffer* p_buffer) {
-    unused(p_slot);
-    unused(p_buffer);
-}
-
-void D3d12RenderDevice::unbindStructuredBufferSRV(int p_slot) {
-    unused(p_slot);
-}
-
 auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -674,17 +646,6 @@ void D3d12RenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, 
         auto cb = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
         memcpy(cb->mappedData, p_data, p_size);
     }
-}
-
-void D3d12RenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
-    auto buffer = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
-    DEV_ASSERT(p_size + p_offset <= buffer->capacity);
-
-    D3D12_GPU_VIRTUAL_ADDRESS batch_address = buffer->buffer->GetGPUVirtualAddress();
-
-    batch_address += p_offset;
-    m_graphicsCommandList->SetGraphicsRootConstantBufferView(buffer->desc.slot, batch_address);
-    m_graphicsCommandList->SetComputeRootConstantBufferView(buffer->desc.slot, batch_address);
 }
 
 Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc&) {
@@ -922,14 +883,6 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     gpu_texture->texture = ComPtr<ID3D12Resource>(texture_ptr);
     SetDebugName(texture_ptr, texture_desc.name);
     return gpu_texture;
-}
-
-void D3d12RenderDevice::bindTexture(Dimension, uint64_t handle, int slot) {
-    unused(handle);
-    unused(slot);
-}
-
-void D3d12RenderDevice::unbindTexture(Dimension, int) {
 }
 
 void D3d12RenderDevice::generateMipmap(const GpuTexture* texture) {
@@ -1297,6 +1250,28 @@ void D3d12RenderDevice::onWindowResize(int width, int height) {
     }
 }
 
+void D3d12RenderDevice::cleanupRenderTarget() {
+    flushGraphicsContext();
+
+    for (uint32_t i = 0; i < NUM_BACK_BUFFERS; ++i) {
+        SafeRelease(m_renderTargets[i]);
+    }
+    SafeRelease(m_depthStencilBuffer);
+}
+
+#if 0
+
+void D3d12RenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
+    auto buffer = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
+    DEV_ASSERT(p_size + p_offset <= buffer->capacity);
+
+    D3D12_GPU_VIRTUAL_ADDRESS batch_address = buffer->buffer->GetGPUVirtualAddress();
+
+    batch_address += p_offset;
+    m_graphicsCommandList->SetGraphicsRootConstantBufferView(buffer->desc.slot, batch_address);
+    m_graphicsCommandList->SetComputeRootConstantBufferView(buffer->desc.slot, batch_address);
+}
+
 void D3d12RenderDevice::setPipelineStateImpl(PipelineStateName name) {
     auto pipeline = reinterpret_cast<D3d12PipelineState*>(m_pipeline_state_manager->findPSO(name));
     DEV_ASSERT(pipeline);
@@ -1307,13 +1282,10 @@ void D3d12RenderDevice::setPipelineStateImpl(PipelineStateName name) {
     m_graphicsCommandList->SetPipelineState(pipeline->pso.Get());
 }
 
-void D3d12RenderDevice::cleanupRenderTarget() {
-    flushGraphicsContext();
-
-    for (uint32_t i = 0; i < NUM_BACK_BUFFERS; ++i) {
-        SafeRelease(m_renderTargets[i]);
-    }
-    SafeRelease(m_depthStencilBuffer);
+void D3d12RenderDevice::setStencilRef(uint32_t ref) {
+    m_graphicsCommandList->OMSetStencilRef(ref);
 }
+
+#endif
 
 }  // namespace cave::render

@@ -76,17 +76,6 @@ void GL4RenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
     glBindImageTexture(p_slot, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R11F_G11F_B10F);
 }
 
-void GL4RenderDevice::bindStructuredBuffer(int p_slot, const GpuStructuredBuffer* p_buffer) {
-    auto buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(p_buffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->handle);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, p_slot, buffer->handle);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-void GL4RenderDevice::unbindStructuredBuffer(int p_slot) {
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, p_slot, 0);
-}
-
 auto GL4RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
     GLuint handle = 0;
     glGenBuffers(1, &handle);
