@@ -93,7 +93,7 @@ auto Application::setupModules() -> Result<void> {
     m_scene_registry = MakeOwner<SceneRegistry>();
 
     m_view_manager = MakeOwner<ViewManager>(*m_scene_registry,
-                                            m_app_spec.backend == rhi::Backend::OpenGl);
+                                            m_app_spec.backend == render::Backend::OpenGl);
     m_engine_services.view_manager = m_view_manager.get();
 
     m_renderer = new render::Renderer(m_engine_services);
@@ -153,10 +153,10 @@ auto Application::initialize() -> Result<void> {
         std::string_view backend = DVAR_GET_STRING(gfx_backend);
         if (!backend.empty()) {
             do {
-#define BACKEND_DECLARE(ENUM, STR, DVAR)         \
-    if (backend == #DVAR) {                      \
-        m_app_spec.backend = rhi::Backend::ENUM; \
-        break;                                   \
+#define BACKEND_DECLARE(ENUM, STR, DVAR)            \
+    if (backend == #DVAR) {                         \
+        m_app_spec.backend = render::Backend::ENUM; \
+        break;                                      \
     }
                 BACKEND_LIST
 #undef BACKEND_DECLARE

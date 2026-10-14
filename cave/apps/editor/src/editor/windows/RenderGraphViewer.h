@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/rhi/Backend.h"
+#include "cave/render/rhi/Backend.h"
 
 #include "editor/windows/EditorWindow.h"
 
@@ -22,7 +22,7 @@ protected:
     void DrawNodes(const render::CompiledGraph& p_graph);
 
     bool m_firstFrame{ true };
-    rhi::Backend m_backend{ rhi::Backend::Null };
+    render::Backend m_backend{ render::Backend::Null };
 };
 
 }  // namespace cave

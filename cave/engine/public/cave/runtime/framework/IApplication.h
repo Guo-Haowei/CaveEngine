@@ -6,7 +6,7 @@
 
 #include "cave/core/error/Result.h"
 #include "cave/core/base/NonCopyable.h"
-#include "cave/rhi/Backend.h"
+#include "cave/render/rhi/Backend.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 namespace cave {
@@ -21,7 +21,7 @@ struct AppSpec {
     std::string_view name;
     int width;
     int height;
-    rhi::Backend backend;
+    render::Backend backend;
     bool decorated;
     bool fullscreen;
     bool vsync;
@@ -67,7 +67,7 @@ public:
     EngineServices& services() { return m_engine_services; }
 
     const AppSpec& specification() const { return m_app_spec; }
-    rhi::Backend backend() const { return m_app_spec.backend; }
+    render::Backend backend() const { return m_app_spec.backend; }
 
     static void run(IApplication* app);
 

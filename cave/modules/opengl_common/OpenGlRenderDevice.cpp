@@ -40,7 +40,7 @@
 namespace cave::render {
 
 OpenGlRenderDevice::OpenGlRenderDevice()
-    : RenderDevice("OpenGlRenderDevice", rhi::Backend::OpenGl, 1) {
+    : RenderDevice("OpenGlRenderDevice", Backend::OpenGl, 1) {
     m_dummy_vao = 0;
     m_window = nullptr;
     m_pipeline_state_manager = MakeOwner<OpenGlPipelineStateManager>();

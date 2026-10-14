@@ -13,7 +13,7 @@ struct MetalPipelineState final : PipelineState {
 
 class MetalPipelineStateManager final : public PipelineStateManager {
 public:
-    MetalPipelineStateManager() noexcept : PipelineStateManager(rhi::Backend::Metal) {}
+    MetalPipelineStateManager() noexcept : PipelineStateManager(Backend::Metal) {}
     auto graphicsPipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
     auto computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> final;
 };

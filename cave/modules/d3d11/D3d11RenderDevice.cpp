@@ -30,7 +30,7 @@ using Microsoft::WRL::ComPtr;
 static constexpr size_t kMaxRenderTargets = 8;
 
 D3d11RenderDevice::D3d11RenderDevice()
-    : RenderDevice("D3d11RenderDevice", rhi::Backend::D3d11, 1) {
+    : RenderDevice("D3d11RenderDevice", Backend::D3d11, 1) {
     m_pipeline_state_manager = MakeOwner<D3d11PipelineStateManager>(this);
 }
 

@@ -39,8 +39,8 @@ DisplayService* CreateDisplayService() {
 }
 
 // @TODO: move to RHI
-static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
-    using rhi::Backend;
+static IRenderDevice* SelectRenderDevice(Backend backend) {
+    using render::Backend;
 
     if (backend == Backend::D3d11) {
 #if USING(PLATFORM_WINDOWS)
@@ -81,7 +81,7 @@ static IRenderDevice* SelectRenderDevice(rhi::Backend backend) {
     return new NullRenderDevice;
 }
 
-IRenderDevice* CreateRenderDevice(rhi::Backend p_backend) {
+IRenderDevice* CreateRenderDevice(Backend p_backend) {
     if (IRenderDevice::s_createFunc) {
         return IRenderDevice::s_createFunc();
     }

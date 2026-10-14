@@ -7,7 +7,7 @@ namespace cave::render {
 class NullRenderDevice : public IRenderDevice {
 public:
     NullRenderDevice(std::string_view name = "EmptyRenderDevice")
-        : IRenderDevice(name, rhi::Backend::Null) {}
+        : IRenderDevice(name, Backend::Null) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}

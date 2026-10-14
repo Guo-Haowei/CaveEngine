@@ -94,7 +94,7 @@ static const char* D3D12ResourceStateToString(D3D12_RESOURCE_STATES state) {
 }
 
 D3d12RenderDevice::D3d12RenderDevice()
-    : RenderDevice("D3d12RenderDevice", rhi::Backend::D3d12, NUM_FRAMES_IN_FLIGHT) {
+    : RenderDevice("D3d12RenderDevice", Backend::D3d12, NUM_FRAMES_IN_FLIGHT) {
     m_pipeline_state_manager = MakeOwner<D3d12PipelineStateManager>(this);
 }
 

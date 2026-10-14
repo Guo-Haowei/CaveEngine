@@ -59,7 +59,7 @@ id<MTLSamplerState> createSampler(id<MTLDevice> device, MTLSamplerDescriptor* de
 
 } //  namespace
 
-MetalRenderDevice::MetalRenderDevice() : RenderDevice("MetalRenderDevice", rhi::Backend::Metal, 1) { m_pipeline_state_manager = MakeOwner<MetalPipelineStateManager>(); }
+MetalRenderDevice::MetalRenderDevice() : RenderDevice("MetalRenderDevice", Backend::Metal, 1) { m_pipeline_state_manager = MakeOwner<MetalPipelineStateManager>(); }
 
 MetalRenderDevice::~MetalRenderDevice() = default;
 

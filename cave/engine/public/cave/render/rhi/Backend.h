@@ -1,10 +1,10 @@
 // =============================================================================
-// File: cave/rhi/Backend.h
+// File: cave/render/rhi/Backend.h
 // =============================================================================
 #pragma once
 #include <cstdint>
 
-namespace cave::rhi {
+namespace cave::render {
 
 // clang-format off
 #define BACKEND_LIST                                    \
@@ -23,4 +23,4 @@ enum class Backend : uint8_t {
         Count,
 };
 
-}  // namespace cave::rhi
+}  // namespace cave::render

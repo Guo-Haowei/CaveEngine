@@ -349,7 +349,7 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VulkanRenderDevice::VulkanRenderDevice()
-    : RenderDevice("VulkanRenderDevice", rhi::Backend::Vulkan, NUM_FRAMES_IN_FLIGHT) {
+    : RenderDevice("VulkanRenderDevice", Backend::Vulkan, NUM_FRAMES_IN_FLIGHT) {
     m_pipeline_state_manager = MakeOwner<NullPipelineStateManager>();
 }
 

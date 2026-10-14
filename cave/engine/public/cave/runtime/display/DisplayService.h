@@ -4,7 +4,7 @@
 #pragma once
 #include "cave/core/math/Vec.h"
 #include "cave/core/base/Singleton.h"
-#include "cave/rhi/Backend.h"
+#include "cave/render/rhi/Backend.h"
 #include "cave/runtime/framework/IService.h"
 
 namespace cave {
@@ -15,7 +15,7 @@ struct WindowSpecfication {
     std::string title;
     int width;
     int height;
-    rhi::Backend backend;
+    render::Backend backend;
     bool decorated;
     bool fullscreen;
     bool vsync;

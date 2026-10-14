@@ -1,6 +1,6 @@
 #pragma once
 #include "cave/runtime/framework/IService.h"
-#include "cave/rhi/Backend.h"
+#include "cave/render/rhi/Backend.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 
 // @TODO: refactor
@@ -52,7 +52,7 @@ public:
     static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
     static constexpr int NUM_BACK_BUFFERS = 2;
 
-    IRenderDevice(std::string_view name, rhi::Backend backend)
+    IRenderDevice(std::string_view name, Backend backend)
         : IService(name)
         , m_backend(backend) {}
 
@@ -137,7 +137,7 @@ public:
 
     virtual void drawSkybox() = 0;
 
-    rhi::Backend backend() const { return m_backend; }
+    Backend backend() const { return m_backend; }
 
     const RenderCapabilities& getCapabilities() const { return m_capabilities; }
 
@@ -164,7 +164,7 @@ protected:
     RenderCapabilities m_capabilities{};
 
 private:
-    rhi::Backend m_backend;
+    Backend m_backend;
 };
 
 }  // namespace cave::render

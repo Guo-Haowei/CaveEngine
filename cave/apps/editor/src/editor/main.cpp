@@ -93,7 +93,7 @@ IApplication* CreateApp() {
     AppSpec spec{};
     spec.userFolder = user_string;
     spec.name = "Editor";
-    spec.backend = rhi::Backend::Null;
+    spec.backend = render::Backend::Null;
     spec.decorated = true;
     spec.fullscreen = false;
     spec.vsync = false;

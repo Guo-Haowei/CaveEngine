@@ -12,6 +12,6 @@ IAssetManager* CreateAssetService();
 
 DisplayService* CreateDisplayService();
 
-render::IRenderDevice* CreateRenderDevice(rhi::Backend p_backend);
+render::IRenderDevice* CreateRenderDevice(render::Backend backend);
 
 }  // namespace cave
