@@ -2,13 +2,16 @@
 #include <d3d11_1.h>
 #include <wrl/client.h>
 
+#include "D3d11CommandList.h"
+#include "D3d11Resources.h"
+
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave::render {
 
-class D3d11CommandList;
 class D3d11ViewCache;
+struct D3d11MeshBuffers;
 
 struct D3d11Buffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -18,10 +21,6 @@ struct D3d11Buffer : GpuBuffer {
     uint64_t GetHandle() const final {
         return (size_t)buffer.Get();
     }
-};
-
-struct D3d11MeshBuffers : GpuMesh {
-    using GpuMesh::GpuMesh;
 };
 
 class D3d11RenderDevice : public RenderDevice {
@@ -45,20 +44,20 @@ public:
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> final;
 
-    void setMesh(const GpuMesh* mesh) final;
-    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) final;
-
-    void drawIndexed(uint32_t count, uint32_t offset) final;
-    void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
-    void draw(uint32_t count, uint32_t offset) final;
-    void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
-
-    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) final;
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
-    void unbindUnorderedAccessView(uint32_t slot) final;
-
     auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> final;
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> final;
+
+    void generateMipmap(const GpuTexture* texture) final;
+
+    void beginEvent(std::string_view event) final;
+    void endEvent() final;
+
+    // For fast and dirty access to device and device context, try not to use it
+    Microsoft::WRL::ComPtr<ID3D11Device>& GetD3dDevice() { return m_device; }
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext>& GetD3dContext() { return m_deviceContext; }
+
+    // @TODO: refactor
+    virtual ICommandList* getCommandList() const { return m_command_list.get(); }
 
     void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) final;
     void unbindStructuredBuffer(int slot) final;
@@ -71,14 +70,17 @@ public:
     void bindTexture(Dimension dimension, uint64_t handle, int slot) final;
     void unbindTexture(Dimension dimension, int slot) final;
 
-    void generateMipmap(const GpuTexture* texture) final;
+    void setMesh(const GpuMesh* mesh) final;
+    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) final;
 
-    void beginEvent(std::string_view event) final;
-    void endEvent() final;
+    void drawIndexed(uint32_t count, uint32_t offset) final;
+    void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
+    void draw(uint32_t count, uint32_t offset) final;
+    void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
 
-    // For fast and dirty access to device and device context, try not to use it
-    Microsoft::WRL::ComPtr<ID3D11Device>& GetD3dDevice() { return m_device; }
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext>& GetD3dContext() { return m_deviceContext; }
+    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) final;
+    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
+    void unbindUnorderedAccessView(uint32_t slot) final;
 
 protected:
     virtual auto InitializeInternal() -> Result<void> final;

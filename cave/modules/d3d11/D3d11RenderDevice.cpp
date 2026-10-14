@@ -2,11 +2,9 @@
 
 #include <imgui/backends/imgui_impl_dx11.h>
 
-#include "D3d11CommandList.h"
 #include "D3D11ViewCache.h"
 #include "D3d11Helpers.h"
 #include "D3d11PipelineStateManager.h"
-#include "D3d11Resources.h"
 
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -100,10 +98,6 @@ void D3d11RenderDevice::present() {
     }
 
     m_swapChain->Present(1, 0);  // Present with vsync
-}
-
-void D3d11RenderDevice::dispatch(uint32_t p_num_groups_x, uint32_t p_num_groups_y, uint32_t p_num_groups_z) {
-    m_deviceContext->Dispatch(p_num_groups_x, p_num_groups_y, p_num_groups_z);
 }
 
 void D3d11RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
@@ -309,18 +303,6 @@ void D3d11RenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, 
     auto buffer = reinterpret_cast<const D3d11UniformBuffer*>(p_buffer);
     DEV_ASSERT(p_size <= buffer->capacity);
     buffer->data = (const char*)p_data;
-}
-
-void D3d11RenderDevice::bindConstantBufferRange(const GpuConstantBuffer* p_buffer, uint32_t p_size, uint32_t p_offset) {
-    auto buffer = reinterpret_cast<const D3d11UniformBuffer*>(p_buffer);
-    DEV_ASSERT(p_size + p_offset <= buffer->capacity);
-    D3D11_MAPPED_SUBRESOURCE mapped;
-    ZeroMemory(&mapped, sizeof(D3D11_MAPPED_SUBRESOURCE));
-    if (buffer->data) {
-        m_deviceContext->Map(buffer->internalBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-        memcpy(mapped.pData, buffer->data + p_offset, p_size);
-        m_deviceContext->Unmap(buffer->internalBuffer.Get(), 0);
-    }
 }
 
 void D3d11RenderDevice::generateMipmap(const GpuTexture* p_texture) {
@@ -638,34 +620,8 @@ auto D3d11RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d11RenderDevice::setMesh(const GpuMesh* p_mesh) {
-    if (!p_mesh) {
-        m_deviceContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-        m_deviceContext->IASetInputLayout(nullptr);
-        return;
-    }
-    auto mesh = reinterpret_cast<const D3d11MeshBuffers*>(p_mesh);
-
-    std::array<ID3D11Buffer*, MESH_MAX_VERTEX_BUFFER_COUNT> buffers{ nullptr };
-    std::array<uint32_t, MESH_MAX_VERTEX_BUFFER_COUNT> strides{ 0 };
-    std::array<uint32_t, MESH_MAX_VERTEX_BUFFER_COUNT> offsets{ 0 };
-
-    for (int index = 0; index < mesh->vertexBuffers.size(); ++index) {
-        const auto& vertex = mesh->vertexBuffers[index];
-        if (vertex == nullptr) {
-            continue;
-        }
-        buffers[index] = (ID3D11Buffer*)vertex->GetHandle();
-        strides[index] = p_mesh->desc.vertexLayout[index].strideInByte;
-        offsets[index] = p_mesh->desc.vertexLayout[index].offsetInByte;
-    }
-
-    m_deviceContext->IASetVertexBuffers(0, MESH_MAX_VERTEX_BUFFER_COUNT, buffers.data(), strides.data(), offsets.data());
-
-    if (mesh->indexBuffer) {
-        ID3D11Buffer* index_buffer = (ID3D11Buffer*)mesh->indexBuffer->GetHandle();
-        m_deviceContext->IASetIndexBuffer(index_buffer, DXGI_FORMAT_R32_UINT, 0);
-    }
+void D3d11RenderDevice::setMesh(const GpuMesh* mesh) {
+    m_command_list->setMesh(mesh);
 }
 
 void D3d11RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
@@ -728,6 +684,14 @@ void D3d11RenderDevice::bindStructuredBufferSRV(int slot, const GpuStructuredBuf
 
 void D3d11RenderDevice::unbindStructuredBufferSRV(int slot) {
     m_command_list->unbindStructuredBufferSRV(slot);
+}
+
+void D3d11RenderDevice::bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) {
+    m_command_list->bindConstantBufferRange(buffer, size, offset);
+}
+
+void D3d11RenderDevice::dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) {
+    m_command_list->dispatch(num_groups_x, num_groups_y, num_groups_z);
 }
 
 }  // namespace cave::render

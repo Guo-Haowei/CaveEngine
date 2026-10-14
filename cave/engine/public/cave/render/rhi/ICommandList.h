@@ -8,6 +8,8 @@ namespace cave::render {
 
 // @TODO: move these to rhi/Defines.h
 enum PipelineStateName : uint8_t;
+struct GpuConstantBuffer;
+struct GpuMesh;
 struct GpuStructuredBuffer;
 
 class ICommandList {
@@ -30,7 +32,22 @@ public:
 
     virtual void setStencilRef(uint32_t ref) = 0;
 
+    virtual void bindConstantBufferRange(const GpuConstantBuffer* buffer,
+                                         uint32_t size,
+                                         uint32_t offset) = 0;
+
+    template<typename T>
+    void bindConstantBufferSlot(const GpuConstantBuffer* buffer, int slot) {
+        bindConstantBufferRange(buffer, sizeof(T), slot * sizeof(T));
+    }
+
+    virtual void dispatch(uint32_t num_groups_x,
+                          uint32_t num_groups_y,
+                          uint32_t num_groups_z) = 0;
+
     // @TODO: remove these
+    virtual void setMesh(const GpuMesh* mesh) = 0;
+
     virtual void bindTexture(Dimension dimension, uint64_t handle, int slot) = 0;
     virtual void unbindTexture(Dimension dimension, int slot) = 0;
 

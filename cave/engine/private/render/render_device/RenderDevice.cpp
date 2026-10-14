@@ -441,10 +441,13 @@ void RenderDevice::endPass(const CompiledPass& pass) {
 }
 
 void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass) {
+    ICommandList* command = this->getCommandList();
+    DEV_ASSERT(command);
     RenderPassExcutionContext ctx = {
         .frameData = framedata,
         .pass = pass,
-        .cmd = *this,
+        .command = *command,
+        .device = *this,
         .services = m_app->services(),
     };
 
@@ -452,7 +455,7 @@ void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass)
     beginPass(pass);
 
     if (pass.execute_func) {
-        auto& cmd = ctx.cmd;
+        auto& cmd = ctx.device;
         cmd.bindConstantBufferSlot<PerPassConstantBuffer>(cmd.getCurrentFrame().pass_cb.get(), pass.pass_id);
 
         pass.execute_func(ctx);

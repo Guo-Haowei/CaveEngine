@@ -15,7 +15,7 @@ static constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present
 static constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
 
 static void PathTracerComputeFunc(RenderPassExcutionContext& p_ctx) {
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = p_ctx.device;
 
     cmd.setPipelineState(PSO_PATH_TRACER);
     const auto& input = p_ctx.pass.uavs[0];
@@ -36,7 +36,7 @@ static void PathTracerComputeFunc(RenderPassExcutionContext& p_ctx) {
 static void PathTracerPresentFunc(RenderPassExcutionContext& p_ctx) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = p_ctx.device;
 
     // cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.setPipelineState(PSO_POST_PROCESS);

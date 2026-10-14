@@ -12,6 +12,7 @@ namespace cave { struct FrameData; }
 
 namespace cave::render {
 
+class ICommandList;
 class IRenderDevice;
 struct CompiledPass;
 struct GpuTexture;
@@ -19,7 +20,8 @@ struct GpuTexture;
 struct RenderPassExcutionContext {
     const FrameData& frameData;
     const CompiledPass& pass;
-    IRenderDevice& cmd;
+    ICommandList& command;
+    IRenderDevice& device;
     EngineServices& services;
 };
 

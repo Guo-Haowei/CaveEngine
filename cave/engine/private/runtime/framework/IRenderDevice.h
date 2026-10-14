@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/render/rhi/Defines.h"
+#include "cave/render/rhi/ICommandList.h"
 #include "cave/runtime/framework/IService.h"
 
 #include "engine/private/runtime/framework/EventQueue.h"
@@ -138,6 +138,9 @@ public:
     Backend backend() const { return m_backend; }
 
     const RenderCapabilities& getCapabilities() const { return m_capabilities; }
+
+    // @TODO: refactor
+    virtual ICommandList* getCommandList() const { return nullptr; }
 
 protected:
     virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;

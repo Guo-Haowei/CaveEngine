@@ -41,4 +41,8 @@ struct D3d11StructuredBuffer : GpuStructuredBuffer {
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
 };
 
+struct D3d11MeshBuffers : GpuMesh {
+    using GpuMesh::GpuMesh;
+};
+
 }  // namespace cave::render

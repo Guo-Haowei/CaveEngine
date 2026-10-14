@@ -19,7 +19,7 @@ constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
 static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = ctx.cmd;
+    auto& cmd = ctx.device;
 
     cmd.setPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
 
@@ -34,7 +34,7 @@ static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
 static void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = ctx.cmd;
+    auto& cmd = ctx.device;
 
     cmd.setPipelineState(PSO_DIFFUSE_IRRADIANCE);
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), face);
@@ -46,7 +46,7 @@ static void PrefilteredFunc(RenderPassExcutionContext& ctx,
                             uint16_t face) {
     CAVE_PROFILE_EVENT();
 
-    auto& cmd = ctx.cmd;
+    auto& cmd = ctx.device;
     const int index = mip * 6 + face;
     cmd.setPipelineState(PSO_PREFILTER);
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(cmd.getCurrentFrame().batch_cb.get(), index);

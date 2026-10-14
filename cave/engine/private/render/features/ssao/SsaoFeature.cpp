@@ -55,7 +55,7 @@ static void SsaoPassFunc(RenderPassExcutionContext& p_ctx) {
         return;
     }
 
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = p_ctx.device;
 
     cmd.setPipelineState(PSO_SSAO);
     cmd.setMesh(nullptr);

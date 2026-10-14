@@ -25,7 +25,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& p_ctx) {
         return;
     }
 
-    auto& cmd = p_ctx.cmd;
+    auto& cmd = p_ctx.device;
     const auto& frame = cmd.getCurrentFrame();
 
     const PassContext& pass = p_ctx.frameData.shadowPasses[0];

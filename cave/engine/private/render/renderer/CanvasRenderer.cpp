@@ -214,18 +214,20 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
         return;
     }
 
-    device.setMesh(result.mesh.get());
+    ICommandList* command = device.getCommandList();
+
+    command->setMesh(result.mesh.get());
     // @TODO: clean this up
-    auto pso = m_screen_space ? PSO_UI_OVERLAY : PSO_PRIMITIVE;
-    device.setPipelineState(pso);
+    const PipelineStateName pso = m_screen_space ? PSO_UI_OVERLAY : PSO_PRIMITIVE;
+    command->setPipelineState(pso);
 
     constexpr int kSpriteSlot = 0;
     for (const PrimBatch& batch : result.batches) {
         const uint64_t tex = (batch.tex ? batch.tex : m_default_texture.get())->GetHandle();
-        device.bindTexture(Dimension::Texture2D, tex, kSpriteSlot);
-        device.drawIndexed(batch.index_count, batch.index_offset);
+        command->bindTexture(Dimension::Texture2D, tex, kSpriteSlot);
+        command->drawIndexed(batch.index_count, batch.index_offset);
     }
-    device.unbindTexture(Dimension::Texture2D, kSpriteSlot);
+    command->unbindTexture(Dimension::Texture2D, kSpriteSlot);
 }
 
 }  // namespace cave::render
