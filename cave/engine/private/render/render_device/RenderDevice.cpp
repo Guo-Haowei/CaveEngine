@@ -364,7 +364,7 @@ void RenderDevice::drawSkybox() {
 }
 
 void RenderDevice::beginPass(const CompiledPass& pass) {
-    RenderTargetDesc desc{
+    RenderingInfo desc{
         .colors = pass.colors,
         .depth = pass.depth,
     };
@@ -383,60 +383,52 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
         has_rt_or_ds = true;
     }
 
-    auto bind_resources = [this, &pass]() {
-        ICommandList* cmd = getCommandList();
-        DEV_ASSERT(cmd);
-
-        // bind srvs
-        for (int i = 0; i < (int)pass.srvs.size(); ++i) {
-            if (const GpuTexture* srv = pass.srvs[i].get()) {
-                DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                cmd->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
-            }
-        }
-        // bind uavs
-        for (int i = 0; i < (int)pass.uavs.size(); ++i) {
-            if (GpuTexture* uav = pass.uavs[i].get()) {
-                DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-                cmd->bindUnorderedAccessView(i, uav);
-            }
-        }
-    };
+    ICommandList* cmd = getCommandList();
+    DEV_ASSERT(cmd);
 
     if (has_rt_or_ds) {
-        setRenderTargets(desc);
-        setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
+        cmd->beginRendering(desc);
+        cmd->setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
     }
 
-    bind_resources();
+    // bind srvs
+    for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
+        if (const GpuTexture* srv = pass.srvs[i].get()) {
+            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            cmd->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
+        }
+    }
+    // bind uavs
+    for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
+        if (GpuTexture* uav = pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            cmd->bindUnorderedAccessView(i, uav);
+        }
+    }
 }
 
 void RenderDevice::endPass(const CompiledPass& pass) {
-    auto unbind_resources = [this, &pass]() {
-        ICommandList* cmd = getCommandList();
-        DEV_ASSERT(cmd);
+    ICommandList* cmd = getCommandList();
+    DEV_ASSERT(cmd);
 
-        // unbind srvs
-        for (int i = 0; i < (int)pass.srvs.size(); ++i) {
-            if (const GpuTexture* srv = pass.srvs[i].get()) {
-                DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                cmd->unbindTexture(srv->desc.dimension, i);
-            }
+    // unbind srvs
+    for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
+        if (const GpuTexture* srv = pass.srvs[i].get()) {
+            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            cmd->unbindTexture(srv->desc.dimension, i);
         }
+    }
 
-        // unbind uavs
-        for (int i = 0; i < (int)pass.uavs.size(); ++i) {
-            if (GpuTexture* uav = pass.uavs[i].get()) {
-                DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-                cmd->bindUnorderedAccessView(i, uav);
-                cmd->unbindUnorderedAccessView(i);
-            }
+    // unbind uavs
+    for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
+        if (GpuTexture* uav = pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            cmd->bindUnorderedAccessView(i, uav);
+            cmd->unbindUnorderedAccessView(i);
         }
-    };
+    }
 
-    unbind_resources();
-
-    unsetRenderTargets();
+    cmd->endRendering();
 }
 
 void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass) {

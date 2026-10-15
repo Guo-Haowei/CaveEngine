@@ -19,11 +19,6 @@ public:
     auto createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuStructuredBuffer>> override { return nullptr; }
     void updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) override {}
 
-    void setRenderTargets(const RenderTargetDesc&) override {}
-    void unsetRenderTargets() override {}
-
-    void setViewport(const Viewport&) override {}
-
     auto createBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
     void updateBuffer(const GpuBufferDesc&, GpuBuffer*) override {}
 

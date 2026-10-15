@@ -131,12 +131,12 @@ enum TOPOLOGY : uint32_t {
 static inline TOPOLOGY Convert(PrimitiveTopology p_topology) {
     switch (p_topology) {
 #if !USING(PLATFORM_WASM)
-        case PrimitiveTopology::POINT:
+        case PrimitiveTopology::Point:
             return TOPOLOGY_POINT;
 #endif
-        case PrimitiveTopology::LINE:
+        case PrimitiveTopology::Line:
             return TOPOLOGY_LINE;
-        case PrimitiveTopology::TRIANGLE:
+        case PrimitiveTopology::Triangle:
             return TOPOLOGY_TRIANGLE;
         default:
             CRASH_NOW();

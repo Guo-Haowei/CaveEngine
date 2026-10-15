@@ -26,8 +26,6 @@ namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
 
-static constexpr size_t kMaxRenderTargets = 8;
-
 D3d11RenderDevice::D3d11RenderDevice()
     : RenderDevice("D3d11RenderDevice", Backend::D3d11, 1) {
     m_pipeline_state_manager = MakeOwner<D3d11PipelineStateManager>(this);
@@ -37,9 +35,6 @@ auto D3d11RenderDevice::InitializeInternal() -> Result<void> {
     if (auto res = createDevice(); !res) {
         return CAVE_ERROR(res.error());
     }
-
-    m_command_list = MakeOwner<D3d11CommandList>(m_device_context,
-                                                 dynamic_cast<D3d11PipelineStateManager&>(*m_pipeline_state_manager));
 
     if (auto res = createSwapChain(); !res) {
         return CAVE_ERROR(res.error());
@@ -52,6 +47,10 @@ auto D3d11RenderDevice::InitializeInternal() -> Result<void> {
     }
 
     m_view_cache = MakeOwner<D3d11ViewCache>(m_device.Get());
+
+    m_command_list = MakeOwner<D3d11CommandList>(m_device_context,
+                                                 *m_view_cache,
+                                                 dynamic_cast<D3d11PipelineStateManager&>(*m_pipeline_state_manager));
 
     m_meshes.set_description("GPU-Mesh-Allocator");
 
@@ -487,59 +486,6 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
     SetDebugName(texture.Get(), p_texture_desc.name);
     gpu_texture->texture = texture;
     return gpu_texture;
-}
-
-void D3d11RenderDevice::setRenderTargets(const RenderTargetDesc& p_target) {
-    DEV_ASSERT(p_target.colors.size() <= kMaxRenderTargets);
-
-    ID3D11RenderTargetView* rtvs[kMaxRenderTargets]{ nullptr };
-    ID3D11DepthStencilView* dsv = nullptr;
-
-    uint32_t rtv_count = 0;
-    for (const ColorAttachmentDesc& color : p_target.colors) {
-        rtvs[rtv_count++] = m_view_cache->getOrCreateRtv(color);
-    }
-
-    if (p_target.depth) {
-        dsv = m_view_cache->getOrCreateDsv(*p_target.depth);
-    }
-
-    m_device_context->OMSetRenderTargets(rtv_count, rtvs, dsv);
-
-    // clear render targets
-    for (uint32_t idx = 0; idx < rtv_count; ++idx) {
-        const ColorAttachmentDesc& desc = p_target.colors[idx];
-        if (desc.load == LoadOp::Clear) {
-            m_device_context->ClearRenderTargetView(rtvs[idx], desc.clear_color);
-        }
-    }
-    if (dsv) {
-        const DepthAttachmentDesc& desc = *p_target.depth;
-        uint32_t clear_flag = 0;
-        if (desc.depth_load == LoadOp::Clear) clear_flag |= D3D11_CLEAR_DEPTH;
-        if (desc.stencil_load == LoadOp::Clear) clear_flag |= D3D11_CLEAR_STENCIL;
-        if (clear_flag) {
-            m_device_context->ClearDepthStencilView(dsv, clear_flag, desc.clear_depth, desc.clear_stencil);
-        }
-    }
-}
-
-void D3d11RenderDevice::unsetRenderTargets() {
-    ID3D11RenderTargetView* rtvs[kMaxRenderTargets]{ nullptr };
-    m_device_context->OMSetRenderTargets(std::size(rtvs), rtvs, nullptr);
-}
-
-void D3d11RenderDevice::setViewport(const Viewport& viewport) {
-    D3D11_VIEWPORT vp{
-        .TopLeftX = static_cast<float>(viewport.topLeftX),
-        .TopLeftY = static_cast<float>(viewport.topLeftY),
-        .Width = static_cast<float>(viewport.width),
-        .Height = static_cast<float>(viewport.height),
-        .MinDepth = 0.0f,
-        .MaxDepth = 1.0f,
-    };
-
-    m_device_context->RSSetViewports(1, &vp);
 }
 
 auto D3d11RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {

@@ -82,14 +82,6 @@ struct GpuTextureDesc {
     std::string name;
 };
 
-enum class GpuBufferType : uint8_t {
-    Unknown,
-    Vertex,
-    Index,
-    Constant,
-    Structured,
-};
-
 struct GpuBufferDesc {
     GpuBufferType type{ GpuBufferType::Unknown };
     // @TODO: need better flags than this

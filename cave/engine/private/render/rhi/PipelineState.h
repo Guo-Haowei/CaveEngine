@@ -70,7 +70,7 @@ struct PipelineStateDesc {
     std::string_view gs;
     std::string_view cs;
 
-    PrimitiveTopology primitive_topology{ PrimitiveTopology::TRIANGLE };
+    PrimitiveTopology primitive_topology{ PrimitiveTopology::Triangle };
     const RasterizerDesc* rasterizer_desc{};
     const DepthStencilDesc* depth_stencil_desc{};
     const InputLayoutDesc* input_layout_desc{};

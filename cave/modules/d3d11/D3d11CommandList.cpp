@@ -2,12 +2,15 @@
 
 #include "D3d11PipelineStateManager.h"
 #include "D3d11Resources.h"
+#include "D3D11ViewCache.h"
 
 // @TODO: refactor
 #define INCLUDE_AS_D3D11
 #include "../d3d_common/D3dConvert.h"
 
 namespace cave::render {
+
+static constexpr size_t kMaxRenderTargets = 8;
 
 void D3d11CommandList::draw(uint32_t count,
                             uint32_t offset) {
@@ -31,6 +34,46 @@ void D3d11CommandList::drawIndexedInstanced(uint32_t instance_count,
     m_device_context->DrawIndexedInstanced(count, instance_count, offset, 0, 0);
 }
 
+void D3d11CommandList::beginRendering(const RenderingInfo& info) {
+    DEV_ASSERT(info.colors.size() <= kMaxRenderTargets);
+
+    ID3D11RenderTargetView* rtvs[kMaxRenderTargets]{ nullptr };
+    ID3D11DepthStencilView* dsv = nullptr;
+
+    uint32_t rtv_count = 0;
+    for (const ColorAttachmentDesc& color : info.colors) {
+        rtvs[rtv_count++] = m_view_cache.getOrCreateRtv(color);
+    }
+
+    if (info.depth) {
+        dsv = m_view_cache.getOrCreateDsv(*info.depth);
+    }
+
+    m_device_context->OMSetRenderTargets(rtv_count, rtvs, dsv);
+
+    // clear render targets
+    for (uint32_t idx = 0; idx < rtv_count; ++idx) {
+        const ColorAttachmentDesc& desc = info.colors[idx];
+        if (desc.load == LoadOp::Clear) {
+            m_device_context->ClearRenderTargetView(rtvs[idx], desc.clear_color);
+        }
+    }
+    if (dsv) {
+        const DepthAttachmentDesc& desc = *info.depth;
+        uint32_t clear_flag = 0;
+        if (desc.depth_load == LoadOp::Clear) clear_flag |= D3D11_CLEAR_DEPTH;
+        if (desc.stencil_load == LoadOp::Clear) clear_flag |= D3D11_CLEAR_STENCIL;
+        if (clear_flag) {
+            m_device_context->ClearDepthStencilView(dsv, clear_flag, desc.clear_depth, desc.clear_stencil);
+        }
+    }
+}
+
+void D3d11CommandList::endRendering() {
+    ID3D11RenderTargetView* rtvs[kMaxRenderTargets]{ nullptr };
+    m_device_context->OMSetRenderTargets(std::size(rtvs), rtvs, nullptr);
+}
+
 void D3d11CommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
                                                uint32_t size,
                                                uint32_t offset) {
@@ -52,6 +95,19 @@ void D3d11CommandList::setStencilRef(uint32_t ref) {
             m_state_cache.stencilRef = ref;
         }
     }
+}
+
+void D3d11CommandList::setViewport(const Viewport& viewport) {
+    D3D11_VIEWPORT vp{
+        .TopLeftX = static_cast<float>(viewport.top_left_x),
+        .TopLeftY = static_cast<float>(viewport.top_left_y),
+        .Width = static_cast<float>(viewport.width),
+        .Height = static_cast<float>(viewport.height),
+        .MinDepth = 0.0f,
+        .MaxDepth = 1.0f,
+    };
+
+    m_device_context->RSSetViewports(1, &vp);
 }
 
 void D3d11CommandList::setPipelineState(PipelineStateName name) {

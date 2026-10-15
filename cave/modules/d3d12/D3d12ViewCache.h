@@ -1,7 +1,6 @@
 #pragma once
 #include <d3d12.h>
 #include "D3d12Core.h"
-#include "engine/private/render/rhi/RenderTarget.h"
 
 #include "cave/core/base/NonCopyable.h"
 

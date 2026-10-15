@@ -1,7 +1,6 @@
 #pragma once
 #include "cave/core/base/Singleton.h"
 
-#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 
 #include "engine/private/core/base/concurrent_queue.h"

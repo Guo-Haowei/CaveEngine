@@ -1,5 +1,6 @@
 #include "OpenGlCommandList.h"
 
+#include "OpenGlFramebufferCache.h"
 #include "OpenGlHelpers.h"
 #include "OpenGlResources.h"
 #include "OpenGlPipelineStateManager.h"
@@ -28,12 +29,59 @@ void OpenGlCommandList::drawIndexedInstanced(uint32_t instance_count,
     glDrawElementsInstanced(m_stateCache.topology, count, GL_UNSIGNED_INT, (void*)(offset * sizeof(uint32_t)), instance_count);
 }
 
+void OpenGlCommandList::beginRendering(const RenderingInfo& info) {
+    GLuint fbo = m_fbo_cache.getOrCreateFbo(info);
+    DEV_ASSERT(fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    uint32_t flags = 0;
+    if (info.depth) {
+        const DepthAttachmentDesc& desc = *info.depth;
+        if (desc.depth_load == LoadOp::Clear) {
+            flags |= GL_DEPTH_BUFFER_BIT;
+            glClearDepthf(desc.clear_depth);  // @TODO: cache
+        }
+        if (desc.stencil_load == LoadOp::Clear) {
+            flags |= GL_STENCIL_BUFFER_BIT;
+            glClearStencil(desc.clear_stencil);  // @TODO: cache
+        }
+    }
+    if (!info.colors.empty()) {
+        const ColorAttachmentDesc& desc = info.colors[0];
+        if (desc.load == LoadOp::Clear) {
+            flags |= GL_COLOR_BUFFER_BIT;
+            glClearColor(desc.clear_color[0],
+                         desc.clear_color[1],
+                         desc.clear_color[2],
+                         desc.clear_color[3]);
+        }
+    }
+    if (flags) {
+        glClear(flags);
+    }
+}
+
+void OpenGlCommandList::endRendering() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void OpenGlCommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
                                                 uint32_t size,
                                                 uint32_t offset) {
     auto gl_buffer = reinterpret_cast<const OpenGlConstantBuffer*>(buffer);
     DEV_ASSERT(size + offset <= gl_buffer->capacity);
     glBindBufferRange(GL_UNIFORM_BUFFER, buffer->GetSlot(), gl_buffer->handle, offset, size);
+}
+
+void OpenGlCommandList::setViewport(const Viewport& p_viewport) {
+    if (p_viewport.top_left_y) {
+        LOG_FATAL("TODO: adjust to bottom left y");
+    }
+
+    glViewport(p_viewport.top_left_x,
+               p_viewport.top_left_y,
+               p_viewport.width,
+               p_viewport.height);
 }
 
 void OpenGlCommandList::setStencilRef(uint32_t ref) {

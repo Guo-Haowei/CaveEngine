@@ -32,14 +32,12 @@ constexpr const char kPassOutline[] = "p:outline";
 constexpr const char kPassPostProcess[] = "p:post_process";
 constexpr const char kPassOverlay[] = "p:overlay";
 
-constexpr const char RG_RES_DEPTH_STENCIL[] = "r:depth";
-constexpr const char RG_RES_GBUFFER_COLOR0[] = "r:gbuffer0";
-constexpr const char RG_RES_GBUFFER_COLOR1[] = "r:gbuffer1";
-constexpr const char RG_RES_GBUFFER_COLOR2[] = "r:gbuffer2";
-constexpr const char RG_RES_LIGHTING[] = "r:lighting";
-// constexpr const char RG_RES_VOXEL_LIGHTING[] = "r:voxel_lighting";
-// constexpr const char RG_RES_VOXEL_NORMAL[] = "r:voxel_normal";
-constexpr const char RG_RES_OUTLINE[] = "r:outline";
+constexpr const char kResDepthStencil[] = "r:depth";
+constexpr const char kResColor0[] = "r:gbuffer0";
+constexpr const char kResColor1[] = "r:gbuffer1";
+constexpr const char kResColor2[] = "r:gbuffer2";
+constexpr const char kResLighting[] = "r:lighting";
+constexpr const char kResOutline[] = "r:outline";
 
 extern void DepthPrepassFunc(RenderPassExcutionContext& ctx);
 extern void GbufferPassFunc(RenderPassExcutionContext& ctx);
@@ -57,7 +55,7 @@ DepthPrepassOutput RenderGraphBuilderExt::addDepthPrepass() {
 
     DepthPrepassOutput out{
         .depth = createTexture({
-            RG_RES_DEPTH_STENCIL,
+            kResDepthStencil,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
         }),
     };
@@ -73,15 +71,15 @@ GbufferOutput RenderGraphBuilderExt::addGbufferPass(const DepthPrepassOutput& p_
 
     GbufferOutput out{
         .color0 = createTexture({
-            RG_RES_GBUFFER_COLOR0,
+            kResColor0,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_BASE_COLOR, AttachmentType::COLOR_2D),
         }),
         .color1 = createTexture({
-            RG_RES_GBUFFER_COLOR1,
+            kResColor1,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_NORMAL, AttachmentType::COLOR_2D),
         }),
         .color2 = createTexture({
-            RG_RES_GBUFFER_COLOR2,
+            kResColor2,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_MATERIAL, AttachmentType::COLOR_2D),
         }),
     };
@@ -99,7 +97,7 @@ LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in)
     LightingOutput out = {
         .dependency = createDependency(),
         .lighting = createTexture({
-            RG_RES_LIGHTING,
+            kResLighting,
             buildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
         }),
     };
@@ -237,7 +235,7 @@ HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_
 
     HighlightOutput out = {
         .outline = createTexture({
-            .debug_name = RG_RES_OUTLINE,
+            .debug_name = kResOutline,
             .resourceDesc = buildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT, AttachmentType::COLOR_2D),
             .samplerDesc = PointClampSampler(),
         }),
@@ -277,7 +275,7 @@ Pass2DOutput RenderGraphBuilderExt::add2dPass(const Pass2DInput& in) {
     RenderPass& pass = addRenderPass(kPass2D);
 
     RGTextureId depth = createTexture({
-        RG_RES_DEPTH_STENCIL,
+        kResDepthStencil,
         buildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
     });
 

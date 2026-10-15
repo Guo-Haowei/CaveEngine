@@ -7,12 +7,15 @@
 namespace cave::render {
 
 class D3d11PipelineStateManager;
+class D3d11ViewCache;
 
 class D3d11CommandList final : public ICommandList {
 public:
     explicit D3d11CommandList(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context,
+                              D3d11ViewCache& view_cache,
                               D3d11PipelineStateManager& pso_manager)
         : m_device_context(context)
+        , m_view_cache(view_cache)
         , m_pipeline_state_manager(pso_manager) {}
 
     void draw(uint32_t count,
@@ -29,13 +32,18 @@ public:
                               uint32_t count,
                               uint32_t offset) override;
 
-    void bindConstantBufferRange(const GpuConstantBuffer* buffer,
-                                 uint32_t size,
-                                 uint32_t offset) override;
+    void beginRendering(const RenderingInfo& info) override;
+    void endRendering() override;
+
+    void setViewport(const Viewport& viewport) override;
 
     void setPipelineState(PipelineStateName name) override;
 
     void setStencilRef(uint32_t ref) override;
+
+    void bindConstantBufferRange(const GpuConstantBuffer* buffer,
+                                 uint32_t size,
+                                 uint32_t offset) override;
 
     void dispatch(uint32_t num_groups_x,
                   uint32_t num_groups_y,
@@ -58,6 +66,7 @@ public:
 private:
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_device_context;
 
+    D3d11ViewCache& m_view_cache;
     D3d11PipelineStateManager& m_pipeline_state_manager;
 
     struct {

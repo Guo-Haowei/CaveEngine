@@ -20,11 +20,6 @@ public:
 
     void FinalizeImpl() override;
 
-    void setRenderTargets(const RenderTargetDesc& target) override;
-    void unsetRenderTargets() override;
-
-    void setViewport(const Viewport& viewport) override;
-
     auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
     void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 

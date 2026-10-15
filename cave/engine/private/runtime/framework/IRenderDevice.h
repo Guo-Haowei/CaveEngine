@@ -18,7 +18,6 @@ namespace cave::render {
 enum ClearFlags : uint32_t;
 enum PipelineStateName : uint8_t;
 
-struct RenderTargetDesc;
 struct FrameContext;
 struct RenderSubmission;
 struct CompiledPass;
@@ -62,11 +61,6 @@ public:
     virtual auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> = 0;
     virtual auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> = 0;
     virtual void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) = 0;
-
-    virtual void setRenderTargets(const RenderTargetDesc& desc) = 0;
-    virtual void unsetRenderTargets() = 0;
-
-    virtual void setViewport(const Viewport& viewport) = 0;
 
     virtual auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
     virtual void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) = 0;

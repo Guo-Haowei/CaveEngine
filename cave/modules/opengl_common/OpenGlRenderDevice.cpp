@@ -46,7 +46,7 @@ OpenGlRenderDevice::OpenGlRenderDevice()
     m_fbo_cache = MakeOwner<OpenGlFramebufferCache>();
 
     auto pso_manager = MakeOwner<OpenGlPipelineStateManager>();
-    m_command_list = MakeOwner<OpenGlCommandList>(*pso_manager);
+    m_command_list = MakeOwner<OpenGlCommandList>(*m_fbo_cache, *pso_manager);
     m_pipeline_state_manager = std::move(pso_manager);
 }
 
@@ -56,17 +56,6 @@ void OpenGlRenderDevice::FinalizeImpl() {
     m_fbo_cache.reset();
 
     m_pipeline_state_manager->finalize();
-}
-
-void OpenGlRenderDevice::setViewport(const Viewport& p_viewport) {
-    if (p_viewport.topLeftY) {
-        LOG_FATAL("TODO: adjust to bottom left y");
-    }
-
-    glViewport(p_viewport.topLeftX,
-               p_viewport.topLeftY,
-               p_viewport.width,
-               p_viewport.height);
 }
 
 auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
@@ -271,42 +260,6 @@ Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuTextureDesc& p_te
     texture->handle = texture_id;
     texture->residentHandle = resident_id;
     return texture;
-}
-
-void OpenGlRenderDevice::setRenderTargets(const RenderTargetDesc& p_target) {
-    GLuint fbo = m_fbo_cache->getOrCreateFbo(p_target);
-    DEV_ASSERT(fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    uint32_t flags = 0;
-    if (p_target.depth) {
-        const DepthAttachmentDesc& desc = *p_target.depth;
-        if (desc.depth_load == LoadOp::Clear) {
-            flags |= GL_DEPTH_BUFFER_BIT;
-            glClearDepthf(desc.clear_depth);  // @TODO: cache
-        }
-        if (desc.stencil_load == LoadOp::Clear) {
-            flags |= GL_STENCIL_BUFFER_BIT;
-            glClearStencil(desc.clear_stencil);  // @TODO: cache
-        }
-    }
-    if (!p_target.colors.empty()) {
-        const ColorAttachmentDesc& desc = p_target.colors[0];
-        if (desc.load == LoadOp::Clear) {
-            flags |= GL_COLOR_BUFFER_BIT;
-            glClearColor(desc.clear_color[0],
-                         desc.clear_color[1],
-                         desc.clear_color[2],
-                         desc.clear_color[3]);
-        }
-    }
-    if (flags) {
-        glClear(flags);
-    }
-}
-
-void OpenGlRenderDevice::unsetRenderTargets() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OpenGlRenderDevice::render() {

@@ -16,11 +16,6 @@ public:
 
     void FinalizeImpl() final;
 
-    void setRenderTargets(const RenderTargetDesc& target) override {}
-    void unsetRenderTargets() override {}
-
-    void setViewport(const Viewport& viewport) override {}
-
     auto createMeshImpl(const GpuMeshDesc& desc,
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> final {

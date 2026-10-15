@@ -1,7 +1,5 @@
 #include "D3d11ViewCache.h"
 
-#include "engine/private/render/rhi/RenderTarget.h"
-
 // @TODO: refactor
 #include "D3d11Resources.h"
 #include "../d3d_common/D3dConvert.h"

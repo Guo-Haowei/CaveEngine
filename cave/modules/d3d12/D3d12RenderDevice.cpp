@@ -138,6 +138,7 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
     m_view_cache = MakeOwner<D3d12ViewCache>(m_device.Get(), m_rtv_heap, m_dsv_heap);
 
     m_command_list = MakeOwner<D3d12CommandList>(m_graphics_command_list,
+                                                 *m_view_cache,
                                                  dynamic_cast<D3d12PipelineStateManager&>(*m_pipeline_state_manager));
 
     // Create debug buffer.
@@ -298,64 +299,6 @@ Ref<FrameContext> D3d12RenderDevice::createFrameContext() {
     return MakeOwner<D3d12FrameContext>();
 }
 
-void D3d12RenderDevice::setRenderTargets(const RenderTargetDesc& p_desc) {
-    constexpr size_t kMaxRenderTargets = 8;
-    DEV_ASSERT(p_desc.colors.size() <= kMaxRenderTargets);
-
-    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, kMaxRenderTargets> rtvs{};
-    uint32_t rtv_count = 0;
-
-    // 1. Transition and collect color attachment RTVs
-    for (const auto& color : p_desc.colors) {
-        if (!color.tex) continue;
-        auto* d3d_tex = static_cast<D3d12GpuTexture*>(color.tex.get());
-
-        // Ensure texture is in RENDER_TARGET state BEFORE clearing or binding
-        transitionTexture(d3d_tex, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-        D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle = m_view_cache->getOrCreateRtv(color);
-        rtvs[rtv_count++] = rtv_handle;
-
-        if (color.load == LoadOp::Clear) {
-            m_graphics_command_list->ClearRenderTargetView(rtv_handle, color.clear_color, 0, nullptr);
-        }
-    }
-
-    // 2. Transition and collect depth attachment DSV
-    D3D12_CPU_DESCRIPTOR_HANDLE dsv_handle{};
-    const D3D12_CPU_DESCRIPTOR_HANDLE* dsv_ptr = nullptr;
-
-    if (p_desc.depth && p_desc.depth->tex) {
-        auto* d3d_depth = static_cast<D3d12GpuTexture*>(p_desc.depth->tex.get());
-
-        // Ensure depth texture is in DEPTH_WRITE state BEFORE clearing or binding
-        transitionTexture(d3d_depth, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-        dsv_handle = m_view_cache->getOrCreateDsv(*p_desc.depth);
-        dsv_ptr = &dsv_handle;
-
-        UINT clear_flags = 0;
-        if (p_desc.depth->depth_load == LoadOp::Clear) clear_flags |= D3D12_CLEAR_FLAG_DEPTH;
-        if (p_desc.depth->stencil_load == LoadOp::Clear) clear_flags |= D3D12_CLEAR_FLAG_STENCIL;
-
-        if (clear_flags) {
-            m_graphics_command_list->ClearDepthStencilView(
-                dsv_handle,
-                static_cast<D3D12_CLEAR_FLAGS>(clear_flags),
-                p_desc.depth->clear_depth,
-                p_desc.depth->clear_stencil,
-                0, nullptr);
-        }
-    }
-
-    // 3. Bind targets
-    m_graphics_command_list->OMSetRenderTargets(rtv_count, rtvs.data(), FALSE, dsv_ptr);
-}
-
-void D3d12RenderDevice::unsetRenderTargets() {
-    m_graphics_command_list->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
-}
-
 void D3d12RenderDevice::beginPass(const CompiledPass& pass) {
     RenderDevice::beginPass(pass);
 
@@ -369,7 +312,7 @@ void D3d12RenderDevice::beginPass(const CompiledPass& pass) {
 void D3d12RenderDevice::endPass(const CompiledPass& p_pass) {
     RenderDevice::endPass(p_pass);
 
-    unsetRenderTargets();
+    // unsetRenderTargets();
 
     for (auto& uav : p_pass.uavs) {
         if (!uav) continue;
@@ -378,27 +321,6 @@ void D3d12RenderDevice::endPass(const CompiledPass& p_pass) {
         auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(d3d_tex->texture.Get());
         m_graphics_command_list->ResourceBarrier(1, &barrier);
     }
-}
-
-void D3d12RenderDevice::setViewport(const Viewport& viewport) {
-    D3D12_VIEWPORT vp{
-        .TopLeftX = static_cast<float>(viewport.topLeftX),
-        .TopLeftY = static_cast<float>(viewport.topLeftY),
-        .Width = static_cast<float>(viewport.width),
-        .Height = static_cast<float>(viewport.height),
-        .MinDepth = 0.0f,
-        .MaxDepth = 1.0f,
-    };
-
-    D3D12_RECT rect{
-        .left = 0,
-        .top = 0,
-        .right = viewport.topLeftX + viewport.width,
-        .bottom = viewport.topLeftY + viewport.height,
-    };
-
-    m_graphics_command_list->RSSetViewports(1, &vp);
-    m_graphics_command_list->RSSetScissorRects(1, &rect);
 }
 
 void D3d12RenderDevice::transitionTexture(D3d12GpuTexture* texture, D3D12_RESOURCE_STATES target_state) {

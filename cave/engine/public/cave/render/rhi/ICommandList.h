@@ -12,23 +12,24 @@ enum PipelineStateName : uint8_t;
 struct GpuConstantBuffer;
 struct GpuMesh;
 struct GpuStructuredBuffer;
-struct GpuTexture;
 
 class ICommandList {
 public:
     virtual void draw(uint32_t count,
                       uint32_t offset = 0) = 0;
-
     virtual void drawInstanced(uint32_t instance_count,
                                uint32_t count,
                                uint32_t offset = 0) = 0;
-
     virtual void drawIndexed(uint32_t count,
                              uint32_t offset = 0) = 0;
-
     virtual void drawIndexedInstanced(uint32_t instance_count,
                                       uint32_t count,
                                       uint32_t offset = 0) = 0;
+
+    virtual void beginRendering(const RenderingInfo& info) = 0;
+    virtual void endRendering() = 0;
+
+    virtual void setViewport(const Viewport& viewport) = 0;
 
     virtual void setPipelineState(PipelineStateName name) = 0;
 

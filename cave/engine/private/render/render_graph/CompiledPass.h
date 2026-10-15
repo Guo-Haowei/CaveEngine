@@ -1,9 +1,9 @@
 #pragma once
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 // @TODO: fix
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/graphics_defines.h"
 
 // clang-format off
