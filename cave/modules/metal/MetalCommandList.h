@@ -3,7 +3,6 @@
 #include <array>
 
 #include "cave/render/rhi/ICommandList.h"
-#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/graphics_defines.h"
 
 namespace cave::render {
@@ -20,33 +19,25 @@ public:
 
     // Transitional helpers.
     // Move these into ICommandList later.
-    void beginRendering(const RenderTargetDesc& target);
-    void endRendering();
-
-    void setViewport(const Viewport& viewport);
-
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture);
-
-    void unbindUnorderedAccessView(uint32_t slot);
 
     void generateMipmap(const GpuTexture* texture);
 
-    void beginEvent(std::string_view event);
-    void endEvent();
-
     // ICommandList
     void draw(uint32_t count, uint32_t offset) override;
-
     void drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
-
     void drawIndexed(uint32_t count, uint32_t offset) override;
-
     void drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override;
+
+    void beginRendering(const RenderingInfo& info) override;
+    void endRendering() override;
+
+    void pushDebugGroup(std::string_view name) override;
+    void popDebugGroup() override;
 
     void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) override;
 
+    void setViewport(const Viewport& viewport) override;
     void setPipelineState(PipelineStateName name) override;
-
     void setStencilRef(uint32_t ref) override;
 
     void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) override;
@@ -54,16 +45,15 @@ public:
     void setMesh(const GpuMesh* mesh) override;
 
     void bindTexture(Dimension dimension, uint64_t handle, int slot) override;
-
     void unbindTexture(Dimension dimension, int slot) override;
 
     void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) override;
-
     void unbindStructuredBuffer(int slot) override;
-
     void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
-
     void unbindStructuredBufferSRV(int slot) override;
+
+    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
+    void unbindUnorderedAccessView(uint32_t slot) override;
 
 private:
     void applyGraphicsPipeline();

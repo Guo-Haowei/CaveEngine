@@ -5,7 +5,6 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/core/math/geometry.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/graphics_dvars.h"
 #include "engine/private/runtime/display/GlfwDisplayService.h"

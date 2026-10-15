@@ -17,16 +17,6 @@ public:
 
     void FinalizeImpl() override;
 
-    void setRenderTargets(const RenderTargetDesc& target) override;
-
-    void unsetRenderTargets() override;
-
-    void setViewport(const Viewport& viewport) override;
-
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
-
-    void unbindUnorderedAccessView(uint32_t slot) override;
-
     void generateMipmap(const GpuTexture* texture) override;
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -61,10 +51,6 @@ protected:
     void present() override;
 
     void onWindowResize(int width, int height) override;
-
-    void beginEvent(std::string_view event) final;
-
-    void endEvent() final;
 
 private:
     GLFWwindow* m_window{};

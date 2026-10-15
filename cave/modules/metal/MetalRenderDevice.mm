@@ -148,7 +148,7 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
                                                                                              \
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to create sampler {}", #NAME); \
     } else {                                                                                 \
-        m_samplers[REG] = (__bridge_retained void*)sampler;                                  \
+        m_samplers[REG] = sampler;                                                           \
     }
 
 #include "sampler.slang.h"
@@ -242,41 +242,6 @@ void MetalRenderDevice::endFrame() {
 //---------------------------------------------------------------------------------------------------------------------
 // Transitional command wrappers
 //---------------------------------------------------------------------------------------------------------------------
-
-void MetalRenderDevice::setRenderTargets(const RenderTargetDesc& target) {
-
-    DEV_ASSERT(m_command_list);
-
-    m_command_list->beginRendering(target);
-}
-
-void MetalRenderDevice::unsetRenderTargets() {
-    if (m_command_list) {
-        m_command_list->endRendering();
-    }
-}
-
-void MetalRenderDevice::setViewport(const Viewport& viewport) {
-
-    DEV_ASSERT(m_command_list);
-
-    m_command_list->setViewport(viewport);
-}
-
-void MetalRenderDevice::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
-
-    DEV_ASSERT(m_command_list);
-
-    m_command_list->bindUnorderedAccessView(slot, texture);
-}
-
-void MetalRenderDevice::unbindUnorderedAccessView(uint32_t slot) {
-
-    DEV_ASSERT(m_command_list);
-
-    m_command_list->unbindUnorderedAccessView(slot);
-}
-
 void MetalRenderDevice::generateMipmap(const GpuTexture* texture) {
 
     DEV_ASSERT(m_command_list);
@@ -756,22 +721,6 @@ void MetalRenderDevice::present() {
     if (m_command_buffer) {
         CFRelease(m_command_buffer);
         m_command_buffer = nullptr;
-    }
-}
-
-//---------------------------------------------------------------------------------------------------------------------
-// Debug
-//---------------------------------------------------------------------------------------------------------------------
-
-void MetalRenderDevice::beginEvent(std::string_view event) {
-    if (m_command_list) {
-        m_command_list->beginEvent(event);
-    }
-}
-
-void MetalRenderDevice::endEvent() {
-    if (m_command_list) {
-        m_command_list->endEvent();
     }
 }
 

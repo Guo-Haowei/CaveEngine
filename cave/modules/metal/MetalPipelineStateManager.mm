@@ -228,8 +228,8 @@ auto MetalPipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
     }
 
     auto result = MakeOwner<MetalPipelineState>(desc);
-    result->state = (__bridge_retained void*)state;
-    result->depth_state = (__bridge_retained void*)depth_state;
+    result->state = state;
+    result->depth_state = depth_state;
     return result;
 }
 
@@ -261,7 +261,7 @@ auto MetalPipelineStateManager::computePipeline(const PipelineStateDesc& desc) -
     }
 
     auto result = MakeOwner<MetalPipelineState>(desc);
-    result->state = (__bridge_retained void*)state;
+    result->state = state;
     return result;
 }
 

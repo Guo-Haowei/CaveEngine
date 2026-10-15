@@ -892,7 +892,7 @@ auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> 
     scd.Stereo = FALSE;
     scd.SampleDesc = { 1, 0 };
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  // how swap chain is to be used
-    scd.BufferCount = kNumFramesInFlight;             // back buffer count
+    scd.BufferCount = kNumFramesInFlight;               // back buffer count
     scd.Scaling = DXGI_SCALING_STRETCH;
     scd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     scd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;

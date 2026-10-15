@@ -36,7 +36,7 @@ public:
     void generateMipmap(const GpuTexture* texture) override;
 
     // @TODO: refactor
-    ICommandList* getCommandList() const;
+    ICommandList* getCommandList() const override;
 
 protected:
     Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;

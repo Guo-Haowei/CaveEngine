@@ -30,119 +30,70 @@ void MetalCommandList::resetCommandBuffer() {
 // Rendering
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
+static inline MTLLoadAction ConvertLoadOp(LoadOp op) {
+    switch (op) {
+    case LoadOp::Clear:
+        return MTLLoadActionClear;
+    case LoadOp::Load:
+        return MTLLoadActionLoad;
+    default:
+        return MTLLoadActionDontCare;
+    }
+}
 
-    // Metal can only have one active encoder type at a time.
-    endRendering();
-
+void MetalCommandList::beginRendering(const RenderingInfo& info) {
+    DEV_ASSERT(!m_encoder);
     DEV_ASSERT(m_command_buffer);
 
     MTLRenderPassDescriptor* pass = [MTLRenderPassDescriptor renderPassDescriptor];
 
-    //-----------------------------------------------------------------------------------------------------------------
-    // Color attachments
-    //-----------------------------------------------------------------------------------------------------------------
-
-    for (NSUInteger i = 0; i < target.colors.size() && i < 8; ++i) {
-        const auto& color = target.colors[i];
-
+    // Color
+    for (NSUInteger i = 0; i < info.colors.size() && i < 8; ++i) {
+        const auto& color = info.colors[i];
         if (!color.tex)
             continue;
 
         const auto* texture = static_cast<const MetalTexture*>(color.tex.get());
-
-        DEV_ASSERT(texture);
-        DEV_ASSERT(texture->object);
+        DEV_ASSERT(texture && texture->object);
 
         MTLRenderPassColorAttachmentDescriptor* attachment = pass.colorAttachments[i];
 
         attachment.texture = (__bridge id<MTLTexture>)texture->object;
         attachment.level = color.view.mip_slice;
         attachment.slice = color.view.first_array_slice;
-
-        switch (color.load) {
-        case LoadOp::Clear:
-            attachment.loadAction = MTLLoadActionClear;
-            break;
-        case LoadOp::Load:
-            attachment.loadAction = MTLLoadActionLoad;
-            break;
-        default:
-            attachment.loadAction = MTLLoadActionDontCare;
-            break;
-        }
-
+        attachment.loadAction = ConvertLoadOp(color.load);
         attachment.storeAction = MTLStoreActionStore;
         attachment.clearColor = MTLClearColorMake(color.clear_color[0], color.clear_color[1], color.clear_color[2], color.clear_color[3]);
     }
 
-    //-----------------------------------------------------------------------------------------------------------------
     // Depth / stencil
-    //-----------------------------------------------------------------------------------------------------------------
-
-    if (target.depth && target.depth->tex) {
-        const auto* texture = static_cast<const MetalTexture*>(target.depth->tex.get());
-
-        DEV_ASSERT(texture);
-        DEV_ASSERT(texture->object);
+    if (info.depth && info.depth->tex) {
+        const auto* texture = static_cast<const MetalTexture*>(info.depth->tex.get());
+        DEV_ASSERT(texture && texture->object);
 
         id<MTLTexture> metal_texture = (__bridge id<MTLTexture>)texture->object;
         pass.depthAttachment.texture = metal_texture;
-        pass.depthAttachment.level = target.depth->view.mip_slice;
-        pass.depthAttachment.slice = target.depth->view.first_array_slice;
-
-        switch (target.depth->depth_load) {
-        case LoadOp::Clear:
-            pass.depthAttachment.loadAction = MTLLoadActionClear;
-            break;
-        case LoadOp::Load:
-            pass.depthAttachment.loadAction = MTLLoadActionLoad;
-            break;
-        default:
-            pass.depthAttachment.loadAction = MTLLoadActionDontCare;
-            break;
-        }
-
+        pass.depthAttachment.level = info.depth->view.mip_slice;
+        pass.depthAttachment.slice = info.depth->view.first_array_slice;
+        pass.depthAttachment.loadAction = ConvertLoadOp(info.depth->depth_load);
         pass.depthAttachment.storeAction = MTLStoreActionStore;
-        pass.depthAttachment.clearDepth = target.depth->clear_depth;
+        pass.depthAttachment.clearDepth = info.depth->clear_depth;
 
-        //-----------------------------------------------------------------------------------------------------------------
-        // stencil
-        //-----------------------------------------------------------------------------------------------------------------
-
-        const PixelFormat format = target.depth->tex->desc.format;
+        const PixelFormat format = info.depth->tex->desc.format;
 
         if (HasStencil(format) || format == PixelFormat::R32G8X24_TYPELESS) {
             pass.stencilAttachment.texture = metal_texture;
-            pass.stencilAttachment.level = target.depth->view.mip_slice;
-            pass.stencilAttachment.slice = target.depth->view.first_array_slice;
-
-            switch (target.depth->stencil_load) {
-            case LoadOp::Clear:
-                pass.stencilAttachment.loadAction = MTLLoadActionClear;
-                break;
-            case LoadOp::Load:
-                pass.stencilAttachment.loadAction = MTLLoadActionLoad;
-                break;
-            default:
-                pass.stencilAttachment.loadAction = MTLLoadActionDontCare;
-                break;
-            }
-
+            pass.stencilAttachment.level = info.depth->view.mip_slice;
+            pass.stencilAttachment.slice = info.depth->view.first_array_slice;
+            pass.stencilAttachment.loadAction = ConvertLoadOp(info.depth->stencil_load);
             pass.stencilAttachment.storeAction = MTLStoreActionStore;
-            pass.stencilAttachment.clearStencil = target.depth->clear_stencil;
+            pass.stencilAttachment.clearStencil = info.depth->clear_stencil;
         }
     }
-
-    //-----------------------------------------------------------------------------------------------------------------
-    // Encoder
-    //-----------------------------------------------------------------------------------------------------------------
 
     id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)m_command_buffer;
     id<MTLRenderCommandEncoder> encoder = [command_buffer renderCommandEncoderWithDescriptor:pass];
     DEV_ASSERT(encoder);
-
-    // Keep the encoder alive through the opaque void*.
     m_encoder = encoder;
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -190,26 +141,28 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
 }
 
 void MetalCommandList::endRendering() {
-    if (!m_encoder)
-        return;
+    if (m_encoder) {
+        id<MTLRenderCommandEncoder> encoder = (id<MTLRenderCommandEncoder>)m_encoder;
 
-    id<MTLRenderCommandEncoder> encoder = (id<MTLRenderCommandEncoder>)m_encoder;
-
-    [encoder endEncoding];
-    m_encoder = nullptr;
+        [encoder endEncoding];
+        m_encoder = nullptr;
+    }
 }
 
 void MetalCommandList::setViewport(const Viewport& viewport) {
-    if (!m_encoder)
-        return;
+    DEV_ASSERT(m_encoder);
 
     id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)m_encoder;
 
-    MTLViewport metal_viewport{
-        static_cast<double>(viewport.topLeftX), static_cast<double>(viewport.topLeftY), static_cast<double>(viewport.width), static_cast<double>(viewport.height), 0.0, 1.0,
-    };
+    MTLViewport vp{};
+    vp.originX = static_cast<double>(viewport.top_left_x);
+    vp.originY = static_cast<double>(viewport.top_left_y);
+    vp.width = static_cast<double>(viewport.width);
+    vp.height = static_cast<double>(viewport.height);
+    vp.znear = 0.0;
+    vp.zfar = 1.0;
 
-    [encoder setViewport:metal_viewport];
+    [encoder setViewport:vp];
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -582,20 +535,17 @@ void MetalCommandList::generateMipmap(const GpuTexture* base) {
 // Debug markers
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::beginEvent(std::string_view event) {
-    if (!m_command_buffer)
-        return;
-
-    NSString* name = [[NSString alloc] initWithBytes:event.data() length:event.size() encoding:NSUTF8StringEncoding];
-
-    [(__bridge id<MTLCommandBuffer>)m_command_buffer pushDebugGroup:name];
+void MetalCommandList::pushDebugGroup(std::string_view event) {
+    if (m_command_buffer) {
+        NSString* name = [[NSString alloc] initWithBytes:event.data() length:event.size() encoding:NSUTF8StringEncoding];
+        [(__bridge id<MTLCommandBuffer>)m_command_buffer pushDebugGroup:name];
+    }
 }
 
-void MetalCommandList::endEvent() {
-    if (!m_command_buffer)
-        return;
-
-    [(__bridge id<MTLCommandBuffer>)m_command_buffer popDebugGroup];
+void MetalCommandList::popDebugGroup() {
+    if (m_command_buffer) {
+        [(__bridge id<MTLCommandBuffer>)m_command_buffer popDebugGroup];
+    }
 }
 
 } // namespace cave::render
