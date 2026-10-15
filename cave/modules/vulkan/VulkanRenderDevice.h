@@ -19,7 +19,6 @@ public:
     void setRenderTargets(const RenderTargetDesc& target) override {}
     void unsetRenderTargets() override {}
 
-    void clear(const RenderTargetDesc& target) override {}
     void setViewport(const Viewport& viewport) override {}
 
     auto createMeshImpl(const GpuMeshDesc& desc,
@@ -43,6 +42,8 @@ public:
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override {}
 
     void generateMipmap(const GpuTexture* texture) override {}
+
+    ICommandList* getCommandList() const override { return nullptr; }
 
 protected:
     auto InitializeInternal() -> Result<void> final;

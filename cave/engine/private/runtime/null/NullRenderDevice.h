@@ -22,8 +22,6 @@ public:
     void setRenderTargets(const RenderTargetDesc&) override {}
     void unsetRenderTargets() override {}
 
-    void clear(const RenderTargetDesc&) override {}
-
     void setViewport(const Viewport&) override {}
 
     auto createBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
@@ -62,6 +60,8 @@ public:
     void drawSkybox() override {}
 
     void eventReceived(Ref<IEvent>) override {}
+
+    ICommandList* getCommandList() const override { return nullptr; }
 
 protected:
     Ref<GpuTexture> createTextureImpl(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }

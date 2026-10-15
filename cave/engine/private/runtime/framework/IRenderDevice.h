@@ -66,8 +66,6 @@ public:
     virtual void setRenderTargets(const RenderTargetDesc& desc) = 0;
     virtual void unsetRenderTargets() = 0;
 
-    virtual void clear(const RenderTargetDesc& framebuffer) = 0;
-
     virtual void setViewport(const Viewport& viewport) = 0;
 
     virtual auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
@@ -117,7 +115,7 @@ public:
     const RenderCapabilities& getCapabilities() const { return m_capabilities; }
 
     // @TODO: refactor
-    virtual ICommandList* getCommandList() const { return nullptr; }
+    virtual ICommandList* getCommandList() const = 0;
 
 protected:
     virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;

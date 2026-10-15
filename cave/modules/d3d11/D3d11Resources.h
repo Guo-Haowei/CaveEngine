@@ -1,8 +1,4 @@
-#ifdef D3D11_RESOURCES_INCLUDED
-#error DO NOT INCLUDE THIS FILE IN HEADER
-#endif
-#define D3D11_RESOURCES_INCLUDED
-
+#pragma once
 #include <d3d11.h>
 #include <wrl/client.h>
 

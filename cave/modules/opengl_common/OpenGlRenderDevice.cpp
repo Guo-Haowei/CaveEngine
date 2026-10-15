@@ -58,11 +58,6 @@ void OpenGlRenderDevice::FinalizeImpl() {
     m_pipeline_state_manager->finalize();
 }
 
-void OpenGlRenderDevice::clear(const RenderTargetDesc& p_target) {
-    unused(p_target);
-    DEV_ASSERT(0);
-}
-
 void OpenGlRenderDevice::setViewport(const Viewport& p_viewport) {
     if (p_viewport.topLeftY) {
         LOG_FATAL("TODO: adjust to bottom left y");

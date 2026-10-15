@@ -541,10 +541,6 @@ void D3d11RenderDevice::unsetRenderTargets() {
     m_device_context->OMSetRenderTargets(std::size(rtvs), rtvs, nullptr);
 }
 
-void D3d11RenderDevice::clear(const RenderTargetDesc&) {
-    DEV_ASSERT(0);
-}
-
 void D3d11RenderDevice::setViewport(const Viewport& viewport) {
     D3D11_VIEWPORT vp{
         .TopLeftX = static_cast<float>(viewport.topLeftX),

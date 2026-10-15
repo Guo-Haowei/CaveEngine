@@ -26,9 +26,6 @@ namespace cave {
 #ifdef max
 #undef max
 #endif
-#ifdef GetMessage
-#undef GetMessage
-#endif
 
 namespace cave::render {
 
@@ -299,9 +296,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     }
 }
 
-void RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
-    unused(p_desc);
-    unused(p_buffer);
+void RenderDevice::updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) {
 }
 
 void RenderDevice::beginFrame() {
