@@ -1,7 +1,6 @@
 #pragma once
 #include "cave/core/base/Singleton.h"
 
-#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 
 #include "engine/private/core/base/concurrent_queue.h"
@@ -43,10 +42,8 @@ struct FrameContext {
 class RenderDevice : public IRenderDevice,
                      public Singleton<RenderDevice> {
 public:
-    // @TODO: rename to RenderTarget
-
-    RenderDevice(std::string_view name, rhi::Backend backend, int frame_count)
-        : IRenderDevice(name, backend), m_frameCount(frame_count) {}
+    RenderDevice(std::string_view name, Backend backend, int frame_count)
+        : IRenderDevice(name, backend), m_frame_count(frame_count) {}
 
     auto InitializeImpl() -> Result<void> final;
 
@@ -59,22 +56,24 @@ public:
 
     auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> override;
 
-    void setPipelineState(PipelineStateName name) override;
-
     Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
     Ref<GpuTexture> createTexture(ImageAsset* image) override;
 
     void requestTexture(ImageAsset* image) override;
     void requestMesh(MeshAsset* mesh) override;
 
-    void beginEvent(std::string_view event) override { unused(event); }
-    void endEvent() override {}
-
-    FrameContext& getCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
+    FrameContext& getCurrentFrame() override {
+        return *(m_frame_contexts[m_frame_index].get());
+    }
 
     void drawSkybox() override;
 
     void eventReceived(Ref<IEvent> event) final;
+
+private:
+    void execute(const FrameData& data, const CompiledPass& pass);
+    void beginPass(const CompiledPass& pass);
+    void endPass(const CompiledPass& pass);
 
 protected:
     virtual auto InitializeInternal() -> Result<void> = 0;
@@ -82,28 +81,20 @@ protected:
     void endFrame() override;
     void moveToNextFrame() override;
     Ref<FrameContext> createFrameContext() override;
-
-    bool m_enableValidationLayer;
-
-    ConcurrentQueue<ImageAsset*> m_loadedImages;
-    ConcurrentQueue<MeshAsset*> m_loadedMeshes;
-
-    Owner<PipelineStateManager> m_pipeline_state_manager;
-    std::vector<Ref<FrameContext>> m_frameContexts;
-    int m_frameIndex{ 0 };
-    const int m_frameCount;
-
-    Ref<GpuMesh> m_screenQuadBuffers;
-    Ref<GpuMesh> m_skybox_buffers;
-
-protected:
     void updateEmitters(const Scene& scene) override;
 
-    void beginPass(const CompiledPass& pass) override;
-    void endPass(const CompiledPass& pass) override;
+    bool m_enable_validation_layer;
 
-private:
-    void execute(const FrameData& data, const CompiledPass& pass);
+    ConcurrentQueue<ImageAsset*> m_loaded_images;
+    ConcurrentQueue<MeshAsset*> m_loaded_meshes;
+
+    Owner<PipelineStateManager> m_pipeline_state_manager;
+    std::vector<Ref<FrameContext>> m_frame_contexts;
+    int m_frame_index{ 0 };
+    const int m_frame_count;
+
+    Ref<GpuMesh> m_screen_quad_buffers;
+    Ref<GpuMesh> m_skybox_buffers;
 };
 
 }  // namespace cave::render

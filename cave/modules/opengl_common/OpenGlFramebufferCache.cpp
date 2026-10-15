@@ -1,6 +1,6 @@
 #include "OpenGlFramebufferCache.h"
 
-#include "engine/private/render/rhi/RenderTarget.h"
+#include "engine/private/renderer/gpu_resource.h"
 
 namespace cave::render {
 
@@ -56,7 +56,7 @@ FboAttachmentKey MakeDepthAttachment(const DepthAttachmentDesc& desc) {
     return key;
 }
 
-FboKey MakeFboKey(const RenderTargetDesc& desc) {
+FboKey MakeFboKey(const RenderingInfo& desc) {
     FboKey key{};
     key.numColors = static_cast<uint8_t>(desc.colors.size());
 
@@ -90,7 +90,7 @@ void OpenGlFramebufferCache::clear() {
     m_fbos.clear();
 }
 
-GLuint OpenGlFramebufferCache::getOrCreateFbo(const RenderTargetDesc& desc) {
+GLuint OpenGlFramebufferCache::getOrCreateFbo(const RenderingInfo& desc) {
     const FboKey key = MakeFboKey(desc);
 
     auto [it, inserted] = m_fbos.try_emplace(key);

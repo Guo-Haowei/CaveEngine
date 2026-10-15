@@ -62,7 +62,7 @@ protected:
     Owner<ICameraController> m_camera_controller;
     CameraComponent m_camera;
     TransformComponent m_camera_transform;
-    GpuTextureId m_texture;
+    render::GpuTextureId m_texture;
     ViewId m_view_id;
 };
 

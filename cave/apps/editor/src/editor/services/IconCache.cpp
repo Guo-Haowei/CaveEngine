@@ -49,7 +49,7 @@ void IconCache::clear() {
     }
 }
 
-GpuTextureId IconCache::getIcon(IconName name) const {
+render::GpuTextureId IconCache::getIcon(IconName name) const {
     DEV_ASSERT_INDEX(name, IconName::Count);
     const auto& image = m_cache[std::to_underlying(name)];
     return image ? image->gpu_texture : nullptr;

@@ -1,101 +1,67 @@
 #pragma once
 #include "D3d12Core.h"
+#include "D3d12Resources.h"
+
 #include "engine/private/core/base/rid_owner.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave::render {
 
 struct D3d12GpuTexture;
+class D3d12CommandList;
 class D3d12ViewCache;
 
-struct D3d12Buffer : GpuBuffer {
+struct D3d12Buffer final : GpuBuffer {
     using GpuBuffer::GpuBuffer;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
 
-    uint64_t GetHandle() const final {
+    uint64_t GetHandle() const override {
         return (size_t)buffer.Get();
     }
 };
 
-struct D3d12MeshBuffers : GpuMesh {
-    using GpuMesh::GpuMesh;
-
-    D3D12_VERTEX_BUFFER_VIEW vbvs[MESH_MAX_VERTEX_BUFFER_COUNT];
-    D3D12_INDEX_BUFFER_VIEW ibv;
-};
-
-class D3d12RenderDevice : public RenderDevice {
+class D3d12RenderDevice final : public RenderDevice {
 public:
     D3d12RenderDevice();
 
-    void FinalizeImpl() final;
+    void FinalizeImpl() override;
 
-    void setStencilRef(uint32_t ref) final;
-
-    void setRenderTargets(const RenderTargetDesc& desc) final;
-    void unsetRenderTargets() final;
-
-    void clear(const RenderTargetDesc& target) final;
-
-    void setViewport(const Viewport& viewport) final;
-
-    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> final;
-    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) final;
+    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 
     auto createMeshImpl(const GpuMeshDesc& desc,
                         std::span<const GpuBufferDesc> vb_descs,
-                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> final;
+                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    void setMesh(const GpuMesh* mesh) final;
+    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
 
-    void drawElements(uint32_t count, uint32_t offset) final;
-    void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
-    void drawArrays(uint32_t count, uint32_t offset) final;
-    void drawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) final;
-
-    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) final;
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) final;
-    void unbindUnorderedAccessView(uint32_t slot) final;
-
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> final;
-    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) final;
-    void unbindStructuredBuffer(int slot) final;
-    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) final;
-    void unbindStructuredBufferSRV(int slot) final;
-
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> final;
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) final;
-    void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) final;
+    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
+    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
 
     // @TODO: remove Dimension
-    void bindTexture(Dimension dimension, uint64_t handle, int slot) final;
-    void unbindTexture(Dimension dimension, int slot) final;
-
-    void generateMipmap(const GpuTexture* texture) final;
+    void generateMipmap(const GpuTexture* texture) override;
 
     ID3D12CommandQueue* createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 
-    ID3D12Device4* const GetDevice() const { return m_device.Get(); }
-    ID3D12RootSignature* const GetRootSignature() const { return m_root_signature.Get(); }
+    ID3D12Device4* const getDevice() const { return m_device.Get(); }
+    ID3D12RootSignature* const getRootSignature() const { return m_root_signature.Get(); }
+
+    ICommandList* getCommandList() const override;
 
 protected:
-    auto InitializeInternal() -> Result<void> final;
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) final;
+    auto InitializeInternal() -> Result<void> override;
+    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
 
-    void render() final;
-    void present() final;
+    void render() override;
+    void present() override;
 
-    void beginFrame() final;
-    void endFrame() final;
-    void moveToNextFrame() final;
-    Ref<FrameContext> createFrameContext() final;
+    void beginFrame() override;
+    void endFrame() override;
+    void moveToNextFrame() override;
+    Ref<FrameContext> createFrameContext() override;
 
-    void beginPass(const CompiledPass& pass) final;
-    void endPass(const CompiledPass& pass) final;
-
-    void onWindowResize(int width, int height) final;
-    void setPipelineStateImpl(PipelineStateName name) final;
+    void onWindowResize(int width, int height) override;
 
 private:
     auto createDevice() -> Result<void>;
@@ -112,12 +78,10 @@ private:
     void initStaticSamplers();
 
     ID3D12Resource* uploadBuffer(uint32_t byte_size, const void* init_data, ID3D12Resource* out_buffer);
-    void TransitionTexture(D3d12GpuTexture* texture, D3D12_RESOURCE_STATES target_state);
 
-    // @TODO: get rid of magic numbers
-    DescriptorHeap m_rtvDescHeap;
-    DescriptorHeap m_dsvDescHeap;
-    DescriptorHeapSrv m_srvDescHeap;
+    DescriptorHeap m_rtv_heap;
+    DescriptorHeap m_dsv_heap;
+    DescriptorHeapSrv m_srv_heap;
 
     Microsoft::WRL::ComPtr<ID3D12Device4> m_device;
     Microsoft::WRL::ComPtr<ID3D12Debug> m_debug_controller;
@@ -125,9 +89,9 @@ private:
     Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swap_chain;
 
     // Graphics Queue
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_graphicsCommandQueue;
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_graphicsCommandList;
-    Microsoft::WRL::ComPtr<ID3D12Fence1> m_graphicsQueueFence;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_graphics_command_queue;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_graphics_command_list;
+    Microsoft::WRL::ComPtr<ID3D12Fence1> m_graphics_queue_fence;
 
     uint64_t m_lastSignaledFenceValue = 0;
     HANDLE m_graphicsFenceEvent = NULL;
@@ -139,8 +103,8 @@ private:
 
     // Render Target
 
-    ID3D12Resource* m_renderTargets[NUM_BACK_BUFFERS]{ nullptr };
-    D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetDescriptor[NUM_BACK_BUFFERS]{};
+    ID3D12Resource* m_renderTargets[kNumBackBuffers]{ nullptr };
+    D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetDescriptor[kNumBackBuffers]{};
     ID3D12Resource* m_depthStencilBuffer{ nullptr };
     D3D12_CPU_DESCRIPTOR_HANDLE m_depthStencilDescriptor{};
 
@@ -156,6 +120,7 @@ private:
 
     RIDAllocator<D3d12MeshBuffers> m_meshes;
 
+    Owner<D3d12CommandList> m_command_list;
     Owner<D3d12ViewCache> m_view_cache;
 };
 

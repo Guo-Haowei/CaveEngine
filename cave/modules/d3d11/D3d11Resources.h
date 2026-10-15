@@ -1,12 +1,7 @@
-#ifdef D3D11_RESOURCES_INCLUDED
-#error DO NOT INCLUDE THIS FILE IN HEADER
-#endif
-#define D3D11_RESOURCES_INCLUDED
-
+#pragma once
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/gpu_resource.h"
 
 namespace cave::render {
@@ -39,6 +34,10 @@ struct D3d11StructuredBuffer : GpuStructuredBuffer {
     Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
+};
+
+struct D3d11MeshBuffers : GpuMesh {
+    using GpuMesh::GpuMesh;
 };
 
 }  // namespace cave::render

@@ -317,7 +317,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
                                          std::span<const ResolvedView> views) {
     FramePlan plan;
 
-    const bool is_opengl = m_device.backend() == rhi::Backend::OpenGl;
+    const bool is_opengl = m_device.backend() == Backend::OpenGl;
     RenderOptions options = {
         .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),

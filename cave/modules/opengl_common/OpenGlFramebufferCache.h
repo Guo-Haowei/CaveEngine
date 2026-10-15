@@ -2,10 +2,9 @@
 #include "OpenGlPrerequisites.h"
 
 #include "cave/core/hash/Hash.h"
+#include "cave/render/rhi/Defines.h"
 
 namespace cave::render {
-
-struct RenderTargetDesc;
 
 constexpr size_t kMaxColorAttachments = 8;
 
@@ -73,7 +72,7 @@ public:
 
     void clear();
 
-    GLuint getOrCreateFbo(const RenderTargetDesc& desc);
+    GLuint getOrCreateFbo(const RenderingInfo& desc);
 
 private:
     GLuint createFbo(const FboKey& key);

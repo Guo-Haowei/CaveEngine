@@ -1,44 +1,29 @@
 #pragma once
+#include "cave/render/rhi/Defines.h"
+
 #include "engine/private/renderer/pixel_format.h"
 
-namespace cave {
-
-enum class BufferUsage {
-    DEFAULT = 0,
-    IMMUTABLE = 1,
-    DYNAMIC = 2,
-    STAGING = 3,
-};
-
-enum class Dimension : uint8_t {
-    Texture1D,
-    Texture1DArray,
-    Texture2D,
-    Texture2DArray,
-    TextureCube,
-    TextureCubeArray,
-    Texture3D,
-};
+namespace cave::render {
 
 enum CpuAccessFlags {
-    CPU_ACCESS_WRITE = BIT(1),
-    CPU_ACCESS_READ = BIT(2),
+    CPU_ACCESS_WRITE = 1,
+    CPU_ACCESS_READ = 2,
 };
 DEFINE_ENUM_BITWISE_OPERATIONS(CpuAccessFlags)
 
 // clang-format off
 enum BindFlags : uint32_t {
-    BIND_NONE             = 0,
-    BIND_VERTEX_BUFFER    = BIT(0),
-    BIND_INDEX_BUFFER     = BIT(1),
-    BIND_CONSTANT_BUFFER  = BIT(2),
-    BIND_SHADER_RESOURCE  = BIT(3),
-    BIND_STREAM_OUTPUT    = BIT(4),
-    BIND_RENDER_TARGET    = BIT(5),
-    BIND_DEPTH_STENCIL    = BIT(6),
-    BIND_UNORDERED_ACCESS = BIT(7),
-    BIND_DECODER          = BIT(8),
-    BIND_VIDEO_ENCODER    = BIT(9),
+    BIND_NONE             = 0x0,
+    BIND_VERTEX_BUFFER    = 0x1,
+    BIND_INDEX_BUFFER     = 0x2,
+    BIND_CONSTANT_BUFFER  = 0x4,
+    BIND_SHADER_RESOURCE  = 0x8,
+    BIND_STREAM_OUTPUT    = 0x10,
+    BIND_RENDER_TARGET    = 0x20,
+    BIND_DEPTH_STENCIL    = 0x40,
+    BIND_UNORDERED_ACCESS = 0x80,
+    BIND_DECODER          = 0x100,
+    BIND_VIDEO_ENCODER    = 0x200,
 };
 // clang-format on
 DEFINE_ENUM_BITWISE_OPERATIONS(BindFlags)
@@ -95,14 +80,6 @@ struct GpuTextureDesc {
     const void* initialData;
     // @TODO: get rid of the name
     std::string name;
-};
-
-enum class GpuBufferType : uint8_t {
-    Unknown,
-    Vertex,
-    Index,
-    Constant,
-    Structured,
 };
 
 struct GpuBufferDesc {
@@ -202,4 +179,4 @@ struct ConstantBuffer {
     T cache;
 };
 
-}  // namespace cave
+}  // namespace cave::render

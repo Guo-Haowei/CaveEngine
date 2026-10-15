@@ -1,25 +1,27 @@
 #pragma once
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 // @TODO: fix
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/graphics_defines.h"
 
 // clang-format off
 namespace cave { struct FrameData; }
-namespace cave { struct GpuTexture; }
 // clang-format on
 
 namespace cave::render {
 
+class ICommandList;
 class IRenderDevice;
 struct CompiledPass;
+struct GpuTexture;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;
     const CompiledPass& pass;
-    IRenderDevice& cmd;
+    ICommandList& command;
+    IRenderDevice& device;
     EngineServices& services;
 };
 

@@ -11,7 +11,7 @@
 
 // @TODO: wrap all enums for better debugging information
 
-namespace cave::gl {
+namespace cave::render::gl {
 
 enum BUFFER_TYPE : uint32_t {
     ARRAY_BUFFER = GL_ARRAY_BUFFER,
@@ -131,12 +131,12 @@ enum TOPOLOGY : uint32_t {
 static inline TOPOLOGY Convert(PrimitiveTopology p_topology) {
     switch (p_topology) {
 #if !USING(PLATFORM_WASM)
-        case PrimitiveTopology::POINT:
+        case PrimitiveTopology::Point:
             return TOPOLOGY_POINT;
 #endif
-        case PrimitiveTopology::LINE:
+        case PrimitiveTopology::Line:
             return TOPOLOGY_LINE;
-        case PrimitiveTopology::TRIANGLE:
+        case PrimitiveTopology::Triangle:
             return TOPOLOGY_TRIANGLE;
         default:
             CRASH_NOW();
@@ -383,4 +383,4 @@ inline GLenum ConvertDimension(Dimension p_dimension) {
     }
 }
 
-}  // namespace cave::gl
+}  // namespace cave::render::gl

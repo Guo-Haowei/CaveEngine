@@ -70,7 +70,7 @@ const ResolvedUICanvas* UIRuntime::findResolved(SceneId scene_id,
 void UIRuntime::paint(const ResolvedView& resolved_view) {
     auto drawImage = [this](const ResolvedUIElement element,
                             const UIImageComponent& ui_image) {
-        const GpuTexture* texture = nullptr;
+        const render::GpuTexture* texture = nullptr;
 
         if (const auto* image_asset = ui_image.handle().get()) {
             texture = image_asset->gpu_texture.get();

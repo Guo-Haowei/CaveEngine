@@ -37,7 +37,7 @@
 #include "engine/private/render/rhi/PipelineState.h"
 #include "engine/private/renderer/pixel_format.h"
 
-namespace cave::d3d {
+namespace cave::render::d3d {
 
 static inline DXGI_FORMAT Convert(PixelFormat format) {
     switch (format) {
@@ -284,13 +284,13 @@ static inline auto Convert(const DepthStencilDesc* p_in) {
 #if defined(INCLUDE_AS_D3D11)
 static inline D3D11_USAGE Convert(BufferUsage p_usage) {
     switch (p_usage) {
-        case BufferUsage::IMMUTABLE:
+        case BufferUsage::Immutable:
             return D3D11_USAGE_IMMUTABLE;
-        case BufferUsage::DYNAMIC:
+        case BufferUsage::Dynamic:
             return D3D11_USAGE_DYNAMIC;
-        case BufferUsage::STAGING:
+        case BufferUsage::Staging:
             return D3D11_USAGE_STAGING;
-        case BufferUsage::DEFAULT:
+        case BufferUsage::Default:
             [[fallthrough]];
         default:
             return D3D11_USAGE_DEFAULT;
@@ -314,13 +314,13 @@ static inline D3D12_STATIC_BORDER_COLOR Convert(StaticBorderColor p_color) {
 }
 #endif
 
-static inline D3D_PRIMITIVE_TOPOLOGY Convert(PrimitiveTopology p_topology) {
-    switch (p_topology) {
-        case PrimitiveTopology::POINT:
+static inline D3D_PRIMITIVE_TOPOLOGY Convert(PrimitiveTopology topology) {
+    switch (topology) {
+        case PrimitiveTopology::Point:
             return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
-        case PrimitiveTopology::LINE:
+        case PrimitiveTopology::Line:
             return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
-        case PrimitiveTopology::TRIANGLE:
+        case PrimitiveTopology::Triangle:
             return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
         default:
             CRASH_NOW();
@@ -329,13 +329,13 @@ static inline D3D_PRIMITIVE_TOPOLOGY Convert(PrimitiveTopology p_topology) {
 }
 
 #if defined(INCLUDE_AS_D3D12)
-static inline D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertToType(PrimitiveTopology p_topology) {
-    switch (p_topology) {
-        case PrimitiveTopology::POINT:
+static inline D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertToType(PrimitiveTopology topology) {
+    switch (topology) {
+        case PrimitiveTopology::Point:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-        case PrimitiveTopology::LINE:
+        case PrimitiveTopology::Line:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-        case PrimitiveTopology::TRIANGLE:
+        case PrimitiveTopology::Triangle:
             return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         default:
             CRASH_NOW();
@@ -354,4 +354,4 @@ static inline D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertToType(PrimitiveTopology p_to
 #undef D3D_STENCIL_OP_
 #undef D3D_BLEND_
 
-}  // namespace cave::d3d
+}  // namespace cave::render::d3d

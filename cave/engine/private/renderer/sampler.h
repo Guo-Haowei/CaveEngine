@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/renderer/graphics_defines.h"
 
-namespace cave {
+namespace cave::render {
 
 struct SamplerDesc {
     constexpr SamplerDesc(MinFilter p_min_filter = MinFilter::POINT,
@@ -26,19 +26,19 @@ struct SamplerDesc {
         maxLod = p_max_lod;
 
         switch (p_border_color) {
-            case cave::StaticBorderColor::OPAQUE_BLACK:
+            case StaticBorderColor::OPAQUE_BLACK:
                 border[0] = 0.0f;
                 border[1] = 0.0f;
                 border[2] = 0.0f;
                 border[3] = 1.0f;
                 break;
-            case cave::StaticBorderColor::OPAQUE_WHITE:
+            case StaticBorderColor::OPAQUE_WHITE:
                 border[0] = 1.0f;
                 border[1] = 1.0f;
                 border[2] = 1.0f;
                 border[3] = 1.0f;
                 break;
-            case cave::StaticBorderColor::TRANSPARENT_BLACK:
+            case StaticBorderColor::TRANSPARENT_BLACK:
                 [[fallthrough]];
             default:
                 border[0] = 0.0f;
@@ -113,4 +113,4 @@ inline SamplerDesc env_cube_map_sampler_mip() {
     return desc;
 }
 
-}  // namespace cave
+}  // namespace cave::render

@@ -3,11 +3,16 @@
 #endif
 #define OPENGL_RESOURCES_INCLUDED
 
-#include "engine/private/render/rhi/RenderTarget.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "OpenGlDefines.h"
 
-namespace cave {
+namespace cave::render {
+
+struct OpenGlGpuMesh : GpuMesh {
+    using GpuMesh::GpuMesh;
+
+    uint32_t vao{ 0 };
+};
 
 struct OpenGlBuffer : GpuBuffer {
     using GpuBuffer::GpuBuffer;
@@ -59,4 +64,4 @@ struct OpenGlStructuredBuffer : public GpuStructuredBuffer {
     uint32_t handle = 0;
 };
 
-}  // namespace cave
+}  // namespace cave::render

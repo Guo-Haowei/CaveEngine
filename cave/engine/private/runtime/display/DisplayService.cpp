@@ -7,15 +7,13 @@
 
 namespace cave {
 
-using rhi::Backend;
-
 Result<void> DisplayService::InitializeImpl() {
     const auto& spec = m_app->specification();
 
     std::string title{ spec.name };
     switch (spec.backend) {
 #define BACKEND_DECLARE(ENUM, STR, ...) \
-    case Backend::ENUM:                 \
+    case render::Backend::ENUM:         \
         title.append(" [" STR "|");     \
         break;
         BACKEND_LIST

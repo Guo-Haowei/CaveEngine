@@ -7,7 +7,7 @@ namespace cave::render {
 class NullRenderDevice : public IRenderDevice {
 public:
     NullRenderDevice(std::string_view name = "EmptyRenderDevice")
-        : IRenderDevice(name, rhi::Backend::Null) {}
+        : IRenderDevice(name, Backend::Null) {}
 
     auto InitializeImpl() -> Result<void> override { return Result<void>(); }
     void FinalizeImpl() override {}
@@ -19,13 +19,6 @@ public:
     auto createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuStructuredBuffer>> override { return nullptr; }
     void updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) override {}
 
-    void setRenderTargets(const RenderTargetDesc&) override {}
-    void unsetRenderTargets() override {}
-
-    void clear(const RenderTargetDesc&) override {}
-
-    void setViewport(const Viewport&) override {}
-
     auto createBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
     void updateBuffer(const GpuBufferDesc&, GpuBuffer*) override {}
 
@@ -36,37 +29,10 @@ public:
         return nullptr;
     }
 
-    void setMesh(const GpuMesh*) override {}
-
-    void drawElements(uint32_t, uint32_t) override {}
-    void drawElementsInstanced(uint32_t, uint32_t, uint32_t) override {}
-    void drawArrays(uint32_t, uint32_t) override {}
-    void drawArraysInstanced(uint32_t, uint32_t, uint32_t) override {}
-
-    void dispatch(uint32_t, uint32_t, uint32_t) override {}
-    void bindUnorderedAccessView(uint32_t, GpuTexture*) override {}
-    void unbindUnorderedAccessView(uint32_t) override {}
-
-    void setPipelineState(PipelineStateName) override {}
-
-    void setStencilRef(uint32_t) override {}
-
-    void bindStructuredBuffer(int, const GpuStructuredBuffer*) override {}
-    void unbindStructuredBuffer(int) override {}
-    void bindStructuredBufferSRV(int, const GpuStructuredBuffer*) override {}
-    void unbindStructuredBufferSRV(int) override {}
-
     void updateConstantBuffer(const GpuConstantBuffer*, const void*, size_t) override {}
-
-    void bindConstantBufferRange(const GpuConstantBuffer*, uint32_t, uint32_t) override {}
 
     Ref<GpuTexture> createTexture(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }
     Ref<GpuTexture> createTexture(ImageAsset*) override { return nullptr; }
-    void bindTexture(Dimension, uint64_t, int) override {}
-    void unbindTexture(Dimension, int) override {}
-
-    void beginEvent(std::string_view) override {}
-    void endEvent() override {}
 
     void generateMipmap(const GpuTexture*) override {}
 
@@ -82,6 +48,8 @@ public:
 
     void eventReceived(Ref<IEvent>) override {}
 
+    ICommandList* getCommandList() const override { return nullptr; }
+
 protected:
     Ref<GpuTexture> createTextureImpl(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }
 
@@ -94,11 +62,7 @@ protected:
 
     Ref<FrameContext> createFrameContext() override { return nullptr; }
 
-    void beginPass(const CompiledPass&) override {}
-    void endPass(const CompiledPass&) override {}
-
     void onWindowResize(int, int) override {}
-    void setPipelineStateImpl(PipelineStateName) override {}
     void updateEmitters(const Scene&) override {}
 };
 

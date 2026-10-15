@@ -39,7 +39,7 @@ struct ImageAsset : IAsset {
 
     // @TODO: write data to meta
     // @TODO: refactor
-    Ref<GpuTexture> gpu_texture;
+    Ref<render::GpuTexture> gpu_texture;
 
     Result<void> loadFromDisk(const AssetMetaData& meta) override;
 

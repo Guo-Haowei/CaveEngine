@@ -9,9 +9,11 @@
 
 #include "cave/render/PrimitiveData.h"
 
-namespace cave {
-
+namespace cave::render {
 struct GpuTexture;
+}  // namespace cave::render
+
+namespace cave {
 
 enum class PrimShapeType : uint8_t {
     Line = 0,
@@ -23,7 +25,7 @@ enum class PrimShapeType : uint8_t {
 struct PrimShape {
     PrimShapeType type;
     std::array<render::PrimVert, 4> vertices;
-    const GpuTexture* tex{};
+    const render::GpuTexture* tex{};
     int z_index = 0;
 };
 
@@ -60,7 +62,7 @@ public:
                               float thickness,
                               const Draw2DOptions& options = {}) = 0;
 
-    virtual void addImage(const GpuTexture* texture,
+    virtual void addImage(const render::GpuTexture* texture,
                           const math::Vec2f& min,
                           const math::Vec2f& max,
                           const ImageDrawOptions& options = {}) = 0;

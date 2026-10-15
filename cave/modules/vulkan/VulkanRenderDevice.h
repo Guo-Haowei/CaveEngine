@@ -16,14 +16,6 @@ public:
 
     void FinalizeImpl() final;
 
-    void setStencilRef(uint32_t ref) override {}
-
-    void setRenderTargets(const RenderTargetDesc& target) override {}
-    void unsetRenderTargets() override {}
-
-    void clear(const RenderTargetDesc& target) override {}
-    void setViewport(const Viewport& viewport) override {}
-
     auto createMeshImpl(const GpuMeshDesc& desc,
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> final {
@@ -34,32 +26,14 @@ public:
         return nullptr;
     }
 
-    void setMesh(const GpuMesh* mesh) override {}
-
-    void drawElements(uint32_t count, uint32_t offset) override {}
-    void drawElementsInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override {}
-    void drawArrays(uint32_t count, uint32_t offset) override {}
-    void drawArraysInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) override {}
-
-    void dispatch(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z) override {}
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override {}
-    void unbindUnorderedAccessView(uint32_t slot) override {}
-
     auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override { return nullptr; }
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override { return nullptr; }
 
-    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) override {}
-    void unbindStructuredBuffer(int slot) override {}
-    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override {}
-    void unbindStructuredBufferSRV(int slot) override {}
-
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override {}
-    void bindConstantBufferRange(const GpuConstantBuffer* buffer, uint32_t size, uint32_t offset) override {}
-
-    void bindTexture(Dimension dimension, uint64_t handle, int slot) override {}
-    void unbindTexture(Dimension dimension, int slot) override {}
 
     void generateMipmap(const GpuTexture* texture) override {}
+
+    ICommandList* getCommandList() const override { return nullptr; }
 
 protected:
     auto InitializeInternal() -> Result<void> final;
@@ -69,7 +43,6 @@ protected:
     void present() final;
 
     void onWindowResize(int width, int height) final;
-    void setPipelineStateImpl(PipelineStateName name) override {}
 
 private:
     auto createInstance() -> Result<void>;

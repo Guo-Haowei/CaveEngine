@@ -24,7 +24,7 @@ struct ResolvedView {
     Scene* scene{ nullptr };
 
     ViewHighlight highlight;
-    GpuTextureId output;
+    render::GpuTextureId output;
 };
 
 }  // namespace cave

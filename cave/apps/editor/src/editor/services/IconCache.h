@@ -28,14 +28,14 @@ public:
     void init();
     void clear();
 
-    GpuTextureId getIcon(IconName name) const;
+    render::GpuTextureId getIcon(IconName name) const;
     uint64_t getIconHandle(IconName name) const;
 
 private:
     AssetRegistry& m_asset_reg;
     IAssetManager& m_asset_manager;
 
-    std::array<std::shared_ptr<ImageAsset>, kMaxIcons> m_cache;
+    std::array<Ref<ImageAsset>, kMaxIcons> m_cache;
 };
 
 }  // namespace cave

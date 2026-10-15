@@ -18,7 +18,7 @@
 #error "NOT IMPLEMENTED"
 #endif
 
-namespace cave::gl {
+namespace cave::render::gl {
 
 enum BUFFER_TYPE : uint32_t;
 enum COMPARISON_FUNC : uint32_t;
@@ -27,4 +27,4 @@ enum BLEND : uint32_t;
 enum BLEND_OP : uint32_t;
 enum TOPOLOGY : uint32_t;
 
-}  // namespace cave::gl
+}  // namespace cave::render::gl

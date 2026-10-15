@@ -27,10 +27,10 @@
 namespace cave {
 
 auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Result<void> {
-    using rhi::Backend;
+    using render::Backend;
 
-    backend_ = spec.backend;
-    title_ = spec.title;
+    m_backend = spec.backend;
+    m_title = spec.title;
 
     glfwSetErrorCallback([](int code, const char* desc) { LOG_FATAL("[glfw] error({}): {}", code, desc); });
 
@@ -41,7 +41,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
     glfwWindowHint(GLFW_DECORATED, spec.decorated);
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
 
-    switch (backend_) {
+    switch (m_backend) {
         case Backend::OpenGl:
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, CAVE_GL_VERSION_MAJOR);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, CAVE_GL_VERSION_MINOR);
@@ -54,15 +54,15 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
             break;
     }
 
-    window_ = glfwCreateWindow(spec.width,
-                               spec.height,
-                               spec.title.c_str(),
-                               nullptr, nullptr);
-    DEV_ASSERT(window_);
+    m_window = glfwCreateWindow(spec.width,
+                                spec.height,
+                                spec.title.c_str(),
+                                nullptr, nullptr);
+    DEV_ASSERT(m_window);
 
-    glfwSetWindowSizeCallback(window_, windowSizeCallback);
+    glfwSetWindowSizeCallback(m_window, windowSizeCallback);
 
-    glfwSetWindowCloseCallback(window_, [](GLFWwindow* window) {
+    glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) {
         glfwSetWindowShouldClose(window, GLFW_FALSE);
         QuitVote vote = DisplayService::singleton().GetApp()->onQuitRequested({ QuitReason::WindowClose });
         switch (vote) {
@@ -79,7 +79,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
     {
         InputDeviceId kb_id = InputDeviceId::nextId();
         auto keyboard_mouse_device = MakeOwner<GlfwKeyboardMouseDevice>(kb_id);
-        keyboard_mouse_device->InstallCallbacks(window_);
+        keyboard_mouse_device->InstallCallbacks(m_window);
         input.addDevice(std::move(keyboard_mouse_device));
     }
     {
@@ -88,12 +88,12 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
         input.addDevice(std::move(keyboard_mouse_device));
     }
 
-    glfwSetWindowPos(window_, 40, 40);
-    glfwGetWindowSize(window_, &frame_size_.x, &frame_size_.y);
+    glfwSetWindowPos(m_window, 40, 40);
+    glfwGetWindowSize(m_window, &frame_size_.x, &frame_size_.y);
 
-    switch (backend_) {
+    switch (m_backend) {
         case Backend::OpenGl:
-            glfwMakeContextCurrent(window_);
+            glfwMakeContextCurrent(m_window);
             break;
         case Backend::Vulkan:
             if (!glfwVulkanSupported()) {
@@ -105,27 +105,27 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
         case Backend::D3d12:
             break;
         default:
-            return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", (int)backend_);
+            return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "backend '{}' not supported by glfw", (int)m_backend);
     }
 
     if (ImGuiService* imgui = m_app->services().imgui) {
         imgui->setDisplayCallbacks(
             [this]() {
-                switch (backend_) {
+                switch (m_backend) {
                     case Backend::OpenGl:
-                        ImGui_ImplGlfw_InitForOpenGL(window_, false);
+                        ImGui_ImplGlfw_InitForOpenGL(m_window, false);
                         break;
                     case Backend::Vulkan:
-                        ImGui_ImplGlfw_InitForVulkan(window_, false);
+                        ImGui_ImplGlfw_InitForVulkan(m_window, false);
                         break;
                     default:
-                        ImGui_ImplGlfw_InitForOther(window_, false);
+                        ImGui_ImplGlfw_InitForOther(m_window, false);
                         break;
                 }
 
-                glfwSetWindowFocusCallback(window_, ImGui_ImplGlfw_WindowFocusCallback);
-                glfwSetCursorEnterCallback(window_, ImGui_ImplGlfw_CursorEnterCallback);
-                glfwSetCharCallback(window_, ImGui_ImplGlfw_CharCallback);
+                glfwSetWindowFocusCallback(m_window, ImGui_ImplGlfw_WindowFocusCallback);
+                glfwSetCursorEnterCallback(m_window, ImGui_ImplGlfw_CursorEnterCallback);
+                glfwSetCharCallback(m_window, ImGui_ImplGlfw_CharCallback);
             },
             []() {
                 ImGui_ImplGlfw_Shutdown();
@@ -139,33 +139,33 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
 }
 
 void GlfwDisplayService::FinalizeImpl() {
-    glfwDestroyWindow(window_);
+    glfwDestroyWindow(m_window);
     glfwTerminate();
 }
 
 bool GlfwDisplayService::shouldClose() {
-    return glfwWindowShouldClose(window_);
+    return glfwWindowShouldClose(m_window);
 }
 
 void GlfwDisplayService::beginFrame() {
     glfwPollEvents();
     int x, y;
-    glfwGetWindowPos(window_, &x, &y);
+    glfwGetWindowPos(m_window, &x, &y);
     window_pos_.x = (float)x;
     window_pos_.y = (float)y;
 }
 
 std::string_view GlfwDisplayService::title() {
-    return glfwGetWindowTitle(window_);
+    return glfwGetWindowTitle(m_window);
 }
 
 void GlfwDisplayService::title(std::string_view p_title) {
-    glfwSetWindowTitle(window_, p_title.data());
+    glfwSetWindowTitle(m_window, p_title.data());
 }
 
 void* GlfwDisplayService::nativeWindow() {
 #if USING(PLATFORM_WINDOWS)
-    return glfwGetWin32Window(window_);
+    return glfwGetWin32Window(m_window);
 #else
     CRASH_NOW();
     return nullptr;

@@ -471,7 +471,7 @@ void ImGuiService::drawTexture(ImDrawList& list,
                                uint64_t tex,
                                const ImVec2& min,
                                const ImVec2& max) const {
-    using rhi::Backend;
+    using render::Backend;
     auto handle = (ImTextureID)tex;
 
     switch (m_backend) {
@@ -494,7 +494,7 @@ void ImGuiService::drawTexture(ImDrawList& list,
 }
 
 void ImGuiService::image(uint64_t tex, const ImVec2& size) const {
-    if (m_backend != rhi::Backend::OpenGl) {
+    if (m_backend != render::Backend::OpenGl) {
         ImGui::Image(tex, size);
     } else {
         ImGui::Image(tex, size, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });

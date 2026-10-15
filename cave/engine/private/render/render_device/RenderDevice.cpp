@@ -26,37 +26,34 @@ namespace cave {
 #ifdef max
 #undef max
 #endif
-#ifdef GetMessage
-#undef GetMessage
-#endif
 
 namespace cave::render {
 
 using namespace math;
 
 template<typename T>
-static auto CreateUniformCheckSize(RenderDevice& p_graphics_manager, uint32_t p_max_count) {
+static auto CreateUniformCheckSize(RenderDevice& device, uint32_t max_count) {
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
-    buffer_desc.element_count = p_max_count;
+    buffer_desc.element_count = max_count;
     buffer_desc.element_size = sizeof(T);
-    return p_graphics_manager.createConstantBuffer(buffer_desc);
+    return device.createConstantBuffer(buffer_desc);
 }
 
 auto RenderDevice::InitializeImpl() -> Result<void> {
-    m_enableValidationLayer = DVAR_GET_BOOL(gfx_gpu_validation);
+    m_enable_validation_layer = DVAR_GET_BOOL(gfx_gpu_validation);
 
-    const int num_frames = (m_app->backend() == Backend::D3d12) ? NUM_FRAMES_IN_FLIGHT : 1;
-    m_frameContexts.resize(num_frames);
+    const int num_frames = (m_app->backend() == Backend::D3d12) ? kNumFramesInFlight : 1;
+    m_frame_contexts.resize(num_frames);
     for (int i = 0; i < num_frames; ++i) {
-        m_frameContexts[i] = createFrameContext();
+        m_frame_contexts[i] = createFrameContext();
     }
     if (auto res = InitializeInternal(); !res) {
         return CAVE_ERROR(res.error());
     }
 
     for (int i = 0; i < num_frames; ++i) {
-        FrameContext& frame_context = *m_frameContexts[i].get();
+        FrameContext& frame_context = *m_frame_contexts[i].get();
         frame_context.batch_cb = *CreateUniformCheckSize<PerBatchConstantBuffer>(*this, 4096 * 16);
         frame_context.view_cb = *CreateUniformCheckSize<PerViewConstantBuffer>(*this, 32);
         frame_context.material_cb = *CreateUniformCheckSize<MaterialConstantBuffer>(*this, 2048 * 16);
@@ -87,16 +84,12 @@ void RenderDevice::eventReceived(std::shared_ptr<IEvent> p_event) {
     }
 }
 
-void RenderDevice::setPipelineState(PipelineStateName name) {
-    setPipelineStateImpl(name);
-}
-
 void RenderDevice::requestTexture(ImageAsset* image) {
-    m_loadedImages.push(image);
+    m_loaded_images.push(image);
 }
 
 void RenderDevice::requestMesh(MeshAsset* mesh) {
-    m_loadedMeshes.push(mesh);
+    m_loaded_meshes.push(mesh);
 }
 
 void RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
@@ -244,7 +237,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     CAVE_PROFILE_EVENT();
 
     // @TODO: make it a function
-    auto loaded_images = m_loadedImages.pop_all();
+    auto loaded_images = m_loaded_images.pop_all();
     while (!loaded_images.empty()) {
         ImageAsset* image = loaded_images.front();
         DEV_ASSERT(image);
@@ -254,7 +247,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
             createTexture(image);
         }
     }
-    auto loaded_meshes = m_loadedMeshes.pop_all();
+    auto loaded_meshes = m_loaded_meshes.pop_all();
     while (!loaded_meshes.empty()) {
         MeshAsset* mesh = loaded_meshes.front();
         DEV_ASSERT(mesh);
@@ -288,7 +281,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
                                  &data.perFrameCache,
                                  sizeof(PerFrameConstantBuffer));
 
-            bindConstantBufferSlot<PerFrameConstantBuffer>(frame.per_frame_cb.get(), 0);
+            getCommandList()->bindConstantBufferSlot<PerFrameConstantBuffer>(frame.per_frame_cb.get(), 0);
 
             const auto& graph = submission->render_graph[idx++];
             for (const CompiledPass& pass : graph->getCompiledPass()) {
@@ -303,9 +296,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     }
 }
 
-void RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
-    unused(p_desc);
-    unused(p_buffer);
+void RenderDevice::updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) {
 }
 
 void RenderDevice::beginFrame() {
@@ -366,100 +357,123 @@ void RenderDevice::updateEmitters(const Scene& p_scene) {
 }
 
 void RenderDevice::drawSkybox() {
-    setMesh(m_skybox_buffers.get());
-    drawElements(m_skybox_buffers->desc.drawCount);
+    auto& cmd = *getCommandList();
+
+    cmd.setMesh(m_skybox_buffers.get());
+    cmd.drawIndexed(m_skybox_buffers->desc.drawCount);
 }
 
 void RenderDevice::beginPass(const CompiledPass& pass) {
-    RenderTargetDesc desc{
+    RenderingInfo desc{
         .colors = pass.colors,
         .depth = pass.depth,
     };
 
     // @TODO: build render target
     uint32_t width = 0, height = 0;
-    bool has_rt_or_ds = false;
+    bool has_target = false;
     if (!desc.colors.empty()) {
         width = desc.colors[0].tex->desc.width;
         height = desc.colors[0].tex->desc.height;
-        has_rt_or_ds = true;
+        has_target = true;
     }
     if (desc.depth) {
         width = desc.depth->tex->desc.width;
         height = desc.depth->tex->desc.height;
-        has_rt_or_ds = true;
+        has_target = true;
     }
 
-    auto bind_resources = [this, &pass]() {
-        // bind srvs
-        for (int i = 0; i < (int)pass.srvs.size(); ++i) {
-            if (const GpuTexture* srv = pass.srvs[i].get()) {
-                DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                bindTexture(srv->desc.dimension, srv->GetHandle(), i);
-            }
-        }
-        // bind uavs
-        for (int i = 0; i < (int)pass.uavs.size(); ++i) {
-            if (GpuTexture* uav = pass.uavs[i].get()) {
-                DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-                bindUnorderedAccessView(i, uav);
-            }
-        }
-    };
+    ICommandList* cmd = getCommandList();
+    DEV_ASSERT(cmd);
 
-    if (has_rt_or_ds) {
-        setRenderTargets(desc);
-        setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
+    if (has_target) {
+        cmd->beginRendering(desc);
+        cmd->setViewport(pass.viewport ? *pass.viewport : Viewport(width, height));
     }
 
-    bind_resources();
+    // bind srvs
+    for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
+        if (const GpuTexture* srv = pass.srvs[i].get()) {
+            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            cmd->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
+        }
+    }
+    // bind uavs
+    for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
+        if (GpuTexture* uav = pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            cmd->bindUnorderedAccessView(i, uav);
+        }
+    }
+
+    // transition srvs
+#if 0
+    for (auto& texture : pass.srvs) {
+        if (!texture) continue;
+        auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
+        transitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
+#endif
 }
 
 void RenderDevice::endPass(const CompiledPass& pass) {
-    auto unbind_resources = [this, &pass]() {
-        // unbind srvs
-        for (int i = 0; i < (int)pass.srvs.size(); ++i) {
-            if (const GpuTexture* srv = pass.srvs[i].get()) {
-                DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                unbindTexture(srv->desc.dimension, i);
-            }
+    ICommandList* cmd = getCommandList();
+    DEV_ASSERT(cmd);
+
+    // unbind srvs
+    for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
+        if (const GpuTexture* srv = pass.srvs[i].get()) {
+            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            cmd->unbindTexture(srv->desc.dimension, i);
         }
+    }
 
-        // unbind uavs
-        for (int i = 0; i < (int)pass.uavs.size(); ++i) {
-            if (GpuTexture* uav = pass.uavs[i].get()) {
-                DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-                bindUnorderedAccessView(i, uav);
-                unbindUnorderedAccessView(i);
-            }
+    // unbind uavs
+    for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
+        if (GpuTexture* uav = pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            cmd->unbindUnorderedAccessView(i);
         }
-    };
+    }
 
-    unbind_resources();
+#if 0
+    for (auto& uav : pass.uavs) {
+        if (!uav) continue;
+        auto* d3d_tex = static_cast<D3d12GpuTexture*>(uav.get());
 
-    unsetRenderTargets();
+        auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(d3d_tex->texture.Get());
+        m_graphics_command_list->ResourceBarrier(1, &barrier);
+    }
+#endif
+
+    cmd->endRendering();
 }
 
 void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass) {
+    ICommandList* cmd = this->getCommandList();
+    DEV_ASSERT(cmd);
     RenderPassExcutionContext ctx = {
         .frameData = framedata,
         .pass = pass,
-        .cmd = *this,
+        .command = *cmd,
+        .device = *this,
         .services = m_app->services(),
     };
 
-    beginEvent(pass.name);
+    cmd->pushDebugGroup(pass.name);
     beginPass(pass);
 
     if (pass.execute_func) {
-        auto& cmd = ctx.cmd;
-        cmd.bindConstantBufferSlot<PerPassConstantBuffer>(cmd.getCurrentFrame().pass_cb.get(), pass.pass_id);
+        auto& device = ctx.device;
+
+        device.getCommandList()->bindConstantBufferSlot<PerPassConstantBuffer>(device.getCurrentFrame().pass_cb.get(), pass.pass_id);
 
         pass.execute_func(ctx);
     }
 
     endPass(pass);
-    endEvent();
+
+    cmd->popDebugGroup();
 }
 
 }  // namespace cave::render

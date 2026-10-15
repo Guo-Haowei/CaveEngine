@@ -3,8 +3,6 @@
 
 namespace cave::render {
 
-using rhi::Backend;
-
 struct OpenGlPipelineState : public PipelineState {
     using PipelineState::PipelineState;
 

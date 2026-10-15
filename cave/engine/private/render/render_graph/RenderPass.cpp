@@ -59,9 +59,9 @@ RenderPass& RenderPass::readOrWriteDepth(Vector<Resource>& array,
             .tex = nullptr,
             .view = tex_view_desc,
             .depth_load = depth_load,
-            .clear_depth = clear_depth,
             .stencil_load = stencil_load,
             .clear_stencil = clear_stencil,
+            .clear_depth = clear_depth,
         };
         m_depth = desc;
     }

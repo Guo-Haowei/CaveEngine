@@ -2,7 +2,7 @@
 #include "engine/private/renderer/graphics_defines.h"
 #include "engine/private/renderer/pixel_format.h"
 
-namespace cave {
+namespace cave::render {
 
 struct InputLayoutDesc {
     struct Element {
@@ -70,7 +70,7 @@ struct PipelineStateDesc {
     std::string_view gs;
     std::string_view cs;
 
-    PrimitiveTopology primitive_topology{ PrimitiveTopology::TRIANGLE };
+    PrimitiveTopology primitive_topology{ PrimitiveTopology::Triangle };
     const RasterizerDesc* rasterizer_desc{};
     const DepthStencilDesc* depth_stencil_desc{};
     const InputLayoutDesc* input_layout_desc{};
@@ -141,4 +141,4 @@ static inline const char* EnumToString(PipelineStateName name) {
     return s_table[name];
 }
 
-}  // namespace cave
+}  // namespace cave::render

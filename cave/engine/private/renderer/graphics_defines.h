@@ -1,6 +1,6 @@
 #pragma once
 
-namespace cave {
+namespace cave::render {
 
 // clang-format off
 enum ClearFlags : uint32_t {
@@ -128,23 +128,4 @@ struct BlendDesc {
     RenderTargetBlendDesc renderTargets[8]{};
 };
 
-// @TODO: refactor
-enum class PrimitiveTopology : uint8_t {
-    UNDEFINED = 0,
-    POINT,
-    LINE,
-    TRIANGLE,
-    PATCH,
-};
-
-struct Viewport {
-    Viewport(int p_width, int p_height)
-        : width(p_width), height(p_height), topLeftX(0), topLeftY(0) {}
-
-    int width;
-    int height;
-    int topLeftX;
-    int topLeftY;
-};
-
-}  // namespace cave
+}  // namespace cave::render

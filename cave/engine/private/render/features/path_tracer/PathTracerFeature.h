@@ -11,7 +11,7 @@ class Scene;
 namespace cave::render {
 
 struct RenderOptions;
-class IRenderDevice;
+class ICommandList;
 class RenderGraph;
 
 class PathTracerFeature {
@@ -37,7 +37,7 @@ enum class PathTracerMode {
 void RequestPathTracerUpdate(Scene& p_scene);
 void SetPathTracerMode(PathTracerMode p_mode);
 bool IsPathTracerActive();
-void BindPathTracerData(IRenderDevice& p_device);
-void UnbindPathTracerData(IRenderDevice& p_device);
+void BindPathTracerData(ICommandList& p_device);
+void UnbindPathTracerData(ICommandList& p_device);
 
 }  // namespace cave::render

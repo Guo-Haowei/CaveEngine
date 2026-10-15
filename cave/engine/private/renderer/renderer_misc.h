@@ -1,7 +1,7 @@
 #pragma once
 #include "gpu_resource.h"
 
-namespace cave {
+namespace cave::render {
 
 template<typename T>
 static GpuBufferDesc CreateDesc(const std::vector<T>& p_data) {
@@ -14,4 +14,4 @@ static GpuBufferDesc CreateDesc(const std::vector<T>& p_data) {
     return desc;
 }
 
-}  // namespace cave
+}  // namespace cave::render

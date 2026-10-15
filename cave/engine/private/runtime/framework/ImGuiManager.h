@@ -1,5 +1,5 @@
 #pragma once
-#include "cave/rhi/Backend.h"
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/framework/IService.h"
 
 enum ImGuiKey : int;
@@ -17,7 +17,7 @@ class ImGuiService : public IService {
     using Callback = std::function<void()>;
 
 public:
-    ImGuiService(rhi::Backend backend)
+    ImGuiService(render::Backend backend)
         : IService("ImGuiService")
         , m_backend(backend) {}
 
@@ -56,7 +56,7 @@ protected:
 private:
     static ImGuiKey toImGuiKey(Key k);
 
-    const rhi::Backend m_backend;
+    const render::Backend m_backend;
 
     Callback m_displayInitializeFunc;
     Callback m_displayBeginFrameFunc;

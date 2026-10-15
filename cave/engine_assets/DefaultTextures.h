@@ -30,8 +30,8 @@ Ref<ImageAsset> CreateCheckerBoardImage() {
     Vector<uint8_t> pixels;
     pixels.reserve(Info::kTextureSizePx * Info::kTextureSizePx * kChannelCount);
 
-    for (int y = 0; y < Info::kTextureSizePx; ++y) {
-        for (int x = 0; x < Info::kTextureSizePx; ++x) {
+    for (uint32_t y = 0; y < Info::kTextureSizePx; ++y) {
+        for (uint32_t x = 0; x < Info::kTextureSizePx; ++x) {
             const bool is_light = ((x / Info::kCellSizePx) + (y / Info::kCellSizePx)) % 2 == 0;
             const Pixel pixel = is_light ? kLight : kDark;
             pixels.push_back(pixel.r);

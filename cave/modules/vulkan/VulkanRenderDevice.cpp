@@ -87,7 +87,7 @@ auto VulkanRenderDevice::createInstance() -> Result<void> {
     create_info.enabledExtensionCount = extensions_count;
     create_info.ppEnabledExtensionNames = extensions;
 
-    if (!m_enableValidationLayer) {
+    if (!m_enable_validation_layer) {
         // create instance and return if no validation layer needed
         VK_CHECK_ERROR(vkCreateInstance(&create_info, g_Allocator, &g_Instance),
                        ErrorCode::ERR_CANT_CREATE);
@@ -349,7 +349,7 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VulkanRenderDevice::VulkanRenderDevice()
-    : RenderDevice("VulkanRenderDevice", rhi::Backend::Vulkan, NUM_FRAMES_IN_FLIGHT) {
+    : RenderDevice("VulkanRenderDevice", Backend::Vulkan, kNumFramesInFlight) {
     m_pipeline_state_manager = MakeOwner<NullPipelineStateManager>();
 }
 

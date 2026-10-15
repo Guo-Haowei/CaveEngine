@@ -1,7 +1,7 @@
 #pragma once
 #include "PipelineState.h"
 
-namespace cave {
+namespace cave::render {
 
 /// input layouts
 static const InputLayoutDesc s_input_layout_mesh = {
@@ -117,4 +117,4 @@ static const BlendDesc s_blend_state_off = {
     },
 };
 
-}  // namespace cave
+}  // namespace cave::render
