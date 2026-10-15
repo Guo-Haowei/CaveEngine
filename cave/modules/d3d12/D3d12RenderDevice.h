@@ -61,9 +61,6 @@ protected:
     void moveToNextFrame() override;
     Ref<FrameContext> createFrameContext() override;
 
-    void beginPass(const CompiledPass& pass) override;
-    void endPass(const CompiledPass& pass) override;
-
     void onWindowResize(int width, int height) override;
 
 private:
@@ -81,7 +78,6 @@ private:
     void initStaticSamplers();
 
     ID3D12Resource* uploadBuffer(uint32_t byte_size, const void* init_data, ID3D12Resource* out_buffer);
-    void transitionTexture(D3d12GpuTexture* texture, D3D12_RESOURCE_STATES target_state);
 
     DescriptorHeap m_rtv_heap;
     DescriptorHeap m_dsv_heap;
@@ -107,8 +103,8 @@ private:
 
     // Render Target
 
-    ID3D12Resource* m_renderTargets[NUM_BACK_BUFFERS]{ nullptr };
-    D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetDescriptor[NUM_BACK_BUFFERS]{};
+    ID3D12Resource* m_renderTargets[kNumBackBuffers]{ nullptr };
+    D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetDescriptor[kNumBackBuffers]{};
     ID3D12Resource* m_depthStencilBuffer{ nullptr };
     D3D12_CPU_DESCRIPTOR_HANDLE m_depthStencilDescriptor{};
 

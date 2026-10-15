@@ -20,7 +20,6 @@ enum PipelineStateName : uint8_t;
 
 struct FrameContext;
 struct RenderSubmission;
-struct CompiledPass;
 
 struct BlendDesc;
 struct GpuBuffer;
@@ -35,6 +34,7 @@ struct Viewport;
 
 struct GpuMesh;
 
+// @TODO: refactor this
 struct RenderCapabilities {
     bool supportComputeShaders = true;
     bool supportGeometryShaders = true;
@@ -46,8 +46,8 @@ class IRenderDevice : public IService,
                       public EventListener,
                       public ServiceCreateRegistry<IRenderDevice> {
 public:
-    static constexpr int NUM_FRAMES_IN_FLIGHT = 2;
-    static constexpr int NUM_BACK_BUFFERS = 2;
+    static constexpr int kNumFramesInFlight = 2;
+    static constexpr int kNumBackBuffers = 2;
 
     IRenderDevice(std::string_view name, Backend backend)
         : IService(name)
@@ -113,9 +113,6 @@ protected:
     virtual void endFrame() = 0;
     virtual void moveToNextFrame() = 0;
     virtual Ref<FrameContext> createFrameContext() = 0;
-
-    virtual void beginPass(const CompiledPass& pass) = 0;
-    virtual void endPass(const CompiledPass& pass) = 0;
 
     virtual void onWindowResize(int width, int height) = 0;
 

@@ -30,7 +30,7 @@ auto OpenGl4RenderDevice::InitializeInternal() -> Result<void> {
     LOG_TRACE("[opengl] renderer: {}", (const char*)glGetString(GL_RENDERER));
     LOG_TRACE("[opengl] version: {}", (const char*)glGetString(GL_VERSION));
 
-    if (m_enableValidationLayer) {
+    if (m_enable_validation_layer) {
         int flags;
         glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
         if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {

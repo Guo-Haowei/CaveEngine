@@ -62,9 +62,6 @@ protected:
 
     Ref<FrameContext> createFrameContext() override { return nullptr; }
 
-    void beginPass(const CompiledPass&) override {}
-    void endPass(const CompiledPass&) override {}
-
     void onWindowResize(int, int) override {}
     void updateEmitters(const Scene&) override {}
 };

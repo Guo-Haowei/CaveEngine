@@ -59,29 +59,8 @@ struct D3d12FrameContext : FrameContext {
     uint64_t m_fenceValue = 0;
 };
 
-static const char* D3D12ResourceStateToString(D3D12_RESOURCE_STATES state) {
-    switch (state) {
-        case D3D12_RESOURCE_STATE_COMMON:
-            return "COMMON / PRESENT";
-        case D3D12_RESOURCE_STATE_RENDER_TARGET:
-            return "RENDER_TARGET";
-        case D3D12_RESOURCE_STATE_DEPTH_WRITE:
-            return "DEPTH_WRITE";
-        case D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE:
-            return "PIXEL_SHADER_RESOURCE";
-        case D3D12_RESOURCE_STATE_COPY_DEST:
-            return "COPY_DEST";
-        case D3D12_RESOURCE_STATE_COPY_SOURCE:
-            return "COPY_SOURCE";
-        case D3D12_RESOURCE_STATE_UNORDERED_ACCESS:
-            return "UNORDERED_ACCESS";
-        default:
-            return "OTHER / COMBINED";
-    }
-}
-
 D3d12RenderDevice::D3d12RenderDevice()
-    : RenderDevice("D3d12RenderDevice", Backend::D3d12, NUM_FRAMES_IN_FLIGHT) {
+    : RenderDevice("D3d12RenderDevice", Backend::D3d12, kNumFramesInFlight) {
     m_pipeline_state_manager = MakeOwner<D3d12PipelineStateManager>(this);
 }
 
@@ -97,7 +76,7 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
-    if (m_enableValidationLayer) {
+    if (m_enable_validation_layer) {
         if (enableDebugLayer()) {
             LOG_INFO(LogChannel::RHI, "Debug layer enabled");
         } else {
@@ -115,7 +94,7 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
         return CAVE_ERROR(res.error());
     }
 
-    for (int i = 0; i < NUM_BACK_BUFFERS; i++) {
+    for (int i = 0; i < kNumBackBuffers; i++) {
         auto handle = m_rtv_heap.AllocHandle();
         m_renderTargetDescriptor[i] = handle.cpuHandle;
     }
@@ -171,7 +150,7 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
         imgui->setRenderCallbacks(
             [this]() {
                 ImGui_ImplDX12_Init(m_device.Get(),
-                                    NUM_FRAMES_IN_FLIGHT,
+                                    kNumFramesInFlight,
                                     d3d::Convert(DEFAULT_SURFACE_FORMAT),
                                     m_srv_heap.GetHeap(),
                                     m_srv_heap.GetStartCpu(),
@@ -292,57 +271,11 @@ void D3d12RenderDevice::moveToNextFrame() {
 
     D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(getCurrentFrame());
     frame.m_fenceValue = fenceValue;
-    m_frameIndex = (m_frameIndex + 1) % static_cast<uint32_t>(m_frameContexts.size());
+    m_frame_index = (m_frame_index + 1) % static_cast<uint32_t>(m_frame_contexts.size());
 }
 
 Ref<FrameContext> D3d12RenderDevice::createFrameContext() {
     return MakeOwner<D3d12FrameContext>();
-}
-
-void D3d12RenderDevice::beginPass(const CompiledPass& pass) {
-    RenderDevice::beginPass(pass);
-
-    for (auto& texture : pass.srvs) {
-        if (!texture) continue;
-        auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
-        transitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
-}
-
-void D3d12RenderDevice::endPass(const CompiledPass& p_pass) {
-    RenderDevice::endPass(p_pass);
-
-    // unsetRenderTargets();
-
-    for (auto& uav : p_pass.uavs) {
-        if (!uav) continue;
-        auto* d3d_tex = static_cast<D3d12GpuTexture*>(uav.get());
-
-        auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(d3d_tex->texture.Get());
-        m_graphics_command_list->ResourceBarrier(1, &barrier);
-    }
-}
-
-void D3d12RenderDevice::transitionTexture(D3d12GpuTexture* texture, D3D12_RESOURCE_STATES target_state) {
-    if (!texture || !texture->texture) return;
-
-    if (texture->currentState != target_state) {
-#if 0
-        LOG_INFO(LogChannel::Render,
-                 "[Barrier] Texture '{}' (0x{:x}) | {} -> {}",
-                 texture->desc.name.empty() ? "Unnamed" : texture->desc.name.c_str(),
-                 reinterpret_cast<uintptr_t>(texture->texture.Get()),
-                 D3D12ResourceStateToString(texture->currentState),
-                 D3D12ResourceStateToString(target_state));
-#endif
-
-        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            texture->texture.Get(),
-            texture->currentState,
-            target_state);
-        m_graphics_command_list->ResourceBarrier(1, &barrier);
-        texture->currentState = target_state;
-    }
 }
 
 ID3D12Resource* D3d12RenderDevice::uploadBuffer(uint32_t p_byte_size, const void* p_init_data, ID3D12Resource* p_out_buffer) {
@@ -753,7 +686,7 @@ void D3d12RenderDevice::generateMipmap(const GpuTexture* texture) {
 
 auto D3d12RenderDevice::createDevice() -> Result<void> {
 #if USING(DEBUG_BUILD)
-    if (m_enableValidationLayer) {
+    if (m_enable_validation_layer) {
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_debug_controller)))) {
             m_debug_controller->EnableDebugLayer();
         }
@@ -819,7 +752,7 @@ auto D3d12RenderDevice::initGraphicsContext() -> Result<void> {
     DEV_ASSERT(m_graphics_command_queue);
 
     [[maybe_unused]] int frame_idx = 0;
-    for (auto& it : m_frameContexts) {
+    for (auto& it : m_frame_contexts) {
         D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(*it.get());
         D3D_FAIL(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&frame.m_commandAllocator)),
                  "failed to create command allocator");
@@ -856,15 +789,15 @@ void D3d12RenderDevice::finalizeGraphicsContext() {
     m_graphics_command_list.Reset();
     m_graphics_command_queue.Reset();
 
-    m_frameContexts.clear();
+    m_frame_contexts.clear();
 }
 
 void D3d12RenderDevice::flushGraphicsContext() {
-    for (auto& it : m_frameContexts) {
+    for (auto& it : m_frame_contexts) {
         D3d12FrameContext& frame = reinterpret_cast<D3d12FrameContext&>(*it.get());
         frame.Wait(m_graphicsFenceEvent, m_graphics_queue_fence.Get());
     }
-    m_frameIndex = 0;
+    m_frame_index = 0;
 }
 
 ID3D12CommandQueue* D3d12RenderDevice::createCommandQueue(D3D12_COMMAND_LIST_TYPE p_type) {
@@ -959,7 +892,7 @@ auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> 
     scd.Stereo = FALSE;
     scd.SampleDesc = { 1, 0 };
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  // how swap chain is to be used
-    scd.BufferCount = NUM_FRAMES_IN_FLIGHT;             // back buffer count
+    scd.BufferCount = kNumFramesInFlight;             // back buffer count
     scd.Scaling = DXGI_SCALING_STRETCH;
     scd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     scd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -978,14 +911,14 @@ auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> 
 
     m_swap_chain.Attach(reinterpret_cast<IDXGISwapChain3*>(pSwapChain));
 
-    m_swap_chain->SetMaximumFrameLatency(NUM_BACK_BUFFERS);
+    m_swap_chain->SetMaximumFrameLatency(kNumBackBuffers);
     m_swapChainWaitObject = m_swap_chain->GetFrameLatencyWaitableObject();
 
     return Result<void>();
 }
 
 auto D3d12RenderDevice::createRenderTarget(uint32_t p_width, uint32_t p_height) -> Result<void> {
-    for (int32_t i = 0; i < NUM_FRAMES_IN_FLIGHT; i++) {
+    for (int32_t i = 0; i < kNumFramesInFlight; i++) {
         ID3D12Resource* backbuffer = nullptr;
         D3D_CALL(m_swap_chain->GetBuffer(i, IID_PPV_ARGS(&backbuffer)));
         m_device->CreateRenderTargetView(backbuffer, nullptr, m_renderTargetDescriptor[i]);
@@ -1115,7 +1048,7 @@ void D3d12RenderDevice::onWindowResize(int width, int height) {
 void D3d12RenderDevice::cleanupRenderTarget() {
     flushGraphicsContext();
 
-    for (uint32_t i = 0; i < NUM_BACK_BUFFERS; ++i) {
+    for (uint32_t i = 0; i < kNumBackBuffers; ++i) {
         SafeRelease(m_renderTargets[i]);
     }
     SafeRelease(m_depthStencilBuffer);

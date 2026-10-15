@@ -111,7 +111,7 @@ void D3d11RenderDevice::onWindowResize(int width, int height) {
 
 auto D3d11RenderDevice::createDevice() -> Result<void> {
     D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_1;
-    UINT create_device_flags = m_enableValidationLayer ? D3D11_CREATE_DEVICE_DEBUG : 0;
+    UINT create_device_flags = m_enable_validation_layer ? D3D11_CREATE_DEVICE_DEBUG : 0;
 
     HRESULT hr = D3D11CreateDevice(
         nullptr,
