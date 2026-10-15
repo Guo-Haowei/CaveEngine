@@ -11,13 +11,13 @@ TextureCube g_TexturesCube[16] : register(t0, space2);
 // -----------------------------------------------------------------------------
 #if defined(__TARGET_OPENGL__)
     #define TEXTURE_2D(NAME, BINDING)   [vk::binding(BINDING, 0)] Sampler2D NAME;
-    #define TEXTURE_CUBE(NAME, BINDING)  [vk::binding(BINDING, 0)] SamplerCube NAME;
+    #define TEXTURE_CUBE(NAME, BINDING) [vk::binding(BINDING, 0)] SamplerCube NAME;
 #elif defined(__TARGET_D3D11__) || defined(__TARGET_METAL__)
     #define TEXTURE_2D(NAME, BINDING)   Texture2D NAME : register(t##BINDING);
-    #define TEXTURE_CUBE(NAME, BINDING)  TextureCube NAME : register(t##BINDING);
+    #define TEXTURE_CUBE(NAME, BINDING) TextureCube NAME : register(t##BINDING);
 #elif defined(__TARGET_D3D12__)
     #define TEXTURE_2D(NAME, BINDING)   static const uint NAME = BINDING;
-    #define TEXTURE_CUBE(NAME, BINDING)  static const uint NAME = BINDING;
+    #define TEXTURE_CUBE(NAME, BINDING) static const uint NAME = BINDING;
 #else
     #error "Language NOT supported!"
 #endif
@@ -26,10 +26,12 @@ TextureCube g_TexturesCube[16] : register(t0, space2);
 // Texture Accessor
 // -----------------------------------------------------------------------------
 #if defined(__TARGET_D3D12__)
-    #define TEX_2D(NAME) (g_Textures2D[NonUniformResourceIndex(c_pass_textures[NAME].x)])
-    #define TEX_CUBE(NAME) (g_TexturesCube[NonUniformResourceIndex(c_pass_textures[NAME].x)])
+    #define PASS(IDX)     (c_pass_textures[IDX].x)
+    #define TEX_2D(IDX)   (g_Textures2D[(IDX)])
+    #define TEX_CUBE(IDX) (g_TexturesCube[(IDX)])
 #else
-    #define TEX_2D(NAME) NAME
+    #define PASS(NAME)     NAME
+    #define TEX_2D(NAME)   NAME
     #define TEX_CUBE(NAME) NAME
 #endif
 

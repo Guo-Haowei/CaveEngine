@@ -32,6 +32,8 @@ using namespace math;
 
 template<typename T>
 static auto CreateUniformCheckSize(RenderDevice& device, uint32_t max_count) {
+    static_assert(sizeof(T) % 256 == 0);
+
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
     buffer_desc.element_count = max_count;

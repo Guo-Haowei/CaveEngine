@@ -47,18 +47,17 @@ struct ConstantBufferBase {
     static constexpr int GetUniformBufferSlot() { return N; }
 };
 
-#define CAVE_CBUFFER(NAME, REG, DEF)                        \
-    struct NAME : public ConstantBufferBase<NAME, REG> DEF; \
-    static_assert(sizeof(NAME) % 256 == 0)
+#define CAVE_CBUFFER(NAME, REG) \
+    struct NAME : public ConstantBufferBase<NAME, REG>
 
 // @TODO: remove this constraint
 #elif defined(__SLANG__)
-#define CAVE_CBUFFER(NAME, REG, DEF) cbuffer NAME : register(b##REG) DEF
+#define CAVE_CBUFFER(NAME, REG) cbuffer NAME : register(b##REG)
 
 #define TextureHandle int4
 #endif
 
-CAVE_CBUFFER(PerBatchConstantBuffer, 0, {
+CAVE_CBUFFER(PerBatchConstantBuffer, 0) {
     float4x4 c_world_matrix;
     float4x4 c_cube_proj_view_matrix;
 
@@ -73,17 +72,17 @@ CAVE_CBUFFER(PerBatchConstantBuffer, 0, {
     int c_mesh_flag;
     int _per_batch_padding_2;
     int _per_batch_padding_3;
-});
+};
 
-CAVE_CBUFFER(PerViewConstantBuffer, 1, {
+CAVE_CBUFFER(PerViewConstantBuffer, 1) {
     float4x4 c_viewMatrix;
     float4x4 c_projectionMatrix;
 
     float4x4 _per_view_padding_0;
     float4x4 _per_view_padding_1;
-});
+};
 
-CAVE_CBUFFER(MaterialConstantBuffer, 2, {
+CAVE_CBUFFER(MaterialConstantBuffer, 2) {
     // 16
     float4 c_baseColor;
 
@@ -97,10 +96,18 @@ CAVE_CBUFFER(MaterialConstantBuffer, 2, {
     int c_has_normal_map;
     int c_has_height_map;
 
+    // these names are special to match Texture2D
+#if defined(__TARGET_D3D12__)
+    uint BaseColorMap;
+    uint NormalMap;
+    uint MaterialMap;
+    uint HeightMap;
+#else
     uint c_base_color_map_index;
     uint c_normal_map_index;
     uint c_material_map_index;
     uint c_height_map_index;
+#endif
 
     // 16
     TextureHandle c_base_color_map_handle;
@@ -113,23 +120,23 @@ CAVE_CBUFFER(MaterialConstantBuffer, 2, {
 
     // 16
     float4x4 _material_padding_4;
-});
+};
 
-CAVE_CBUFFER(PerPassConstantBuffer, 3, {
+CAVE_CBUFFER(PerPassConstantBuffer, 3) {
     uint4 c_pass_textures[15];
 
     uint c_output_uav0;
     uint c_output_uav1;
     uint c_output_uav2;
     uint c_output_uav3;
-});
+};
 
 // @TODO: change to unordered access buffer
-CAVE_CBUFFER(BoneConstantBuffer, 4, {
+CAVE_CBUFFER(BoneConstantBuffer, 4) {
     float4x4 c_bones[MAX_BONE_COUNT];
-});
+};
 
-CAVE_CBUFFER(PerFrameConstantBuffer, 5, {
+CAVE_CBUFFER(PerFrameConstantBuffer, 5) {
     Light c_lights[MAX_LIGHT_COUNT];
 
     float4 c_ssaoKernel[SSAO_KERNEL_SIZE];
@@ -182,9 +189,9 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5, {
     // float c_voxelWorldSizeHalf;  // 16
 
     ForceField c_forceFields[MAX_FORCE_FIELD_COUNT];
-});
+};
 
-CAVE_CBUFFER(EmitterConstantBuffer, 6, {
+CAVE_CBUFFER(EmitterConstantBuffer, 6) {
     float4 c_particleColor;
     float3 c_seeds;
     float c_emitterScale;
@@ -208,9 +215,9 @@ CAVE_CBUFFER(EmitterConstantBuffer, 6, {
     float4 _emitter_padding_3;
     float4x4 _emitter_padding_4;
     float4x4 _emitter_padding_5;
-});
+};
 
-CAVE_CBUFFER(PointShadowConstantBuffer, 7, {
+CAVE_CBUFFER(PointShadowConstantBuffer, 7) {
     float4x4 c_pointLightMatrix;  // 64
     float3 c_pointLightPosition;  // 12
     float c_pointLightFar;        // 4
@@ -221,6 +228,6 @@ CAVE_CBUFFER(PointShadowConstantBuffer, 7, {
 
     float4x4 _point_shadow_padding_3;  // 64
     float4x4 _point_shadow_padding_4;  // 64
-});
+};
 
 #endif

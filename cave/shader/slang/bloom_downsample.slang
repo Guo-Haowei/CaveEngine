@@ -33,22 +33,22 @@ void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     // - l - m -
     // g - h - i
     // === ('e' is the current texel) ===
-    float3 a = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - 2 * x, uv.y + 2 * y), 0).rgb;
-    float3 b = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y + 2 * y), 0).rgb;
-    float3 c = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + 2 * x, uv.y + 2 * y), 0).rgb;
+    float3 a = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - 2 * x, uv.y + 2 * y), 0).rgb;
+    float3 b = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x, uv.y + 2 * y), 0).rgb;
+    float3 c = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + 2 * x, uv.y + 2 * y), 0).rgb;
 
-    float3 d = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - 2 * x, uv.y), 0).rgb;
-    float3 e = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y), 0).rgb;
-    float3 f = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + 2 * x, uv.y), 0).rgb;
+    float3 d = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - 2 * x, uv.y), 0).rgb;
+    float3 e = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x, uv.y), 0).rgb;
+    float3 f = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + 2 * x, uv.y), 0).rgb;
 
-    float3 g = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - 2 * x, uv.y - 2 * y), 0).rgb;
-    float3 h = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y - 2 * y), 0).rgb;
-    float3 i = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + 2 * x, uv.y - 2 * y), 0).rgb;
+    float3 g = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - 2 * x, uv.y - 2 * y), 0).rgb;
+    float3 h = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x, uv.y - 2 * y), 0).rgb;
+    float3 i = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + 2 * x, uv.y - 2 * y), 0).rgb;
 
-    float3 j = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - x, uv.y + y), 0).rgb;
-    float3 k = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + x, uv.y + y), 0).rgb;
-    float3 l = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - x, uv.y - y), 0).rgb;
-    float3 m = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + x, uv.y - y), 0).rgb;
+    float3 j = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - x, uv.y + y), 0).rgb;
+    float3 k = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + x, uv.y + y), 0).rgb;
+    float3 l = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - x, uv.y - y), 0).rgb;
+    float3 m = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + x, uv.y - y), 0).rgb;
 
     // This shows 5 square areas that are being sampled. But some of them overlap,
     // so to have an energy preserving downsample we need to make some adjustments.

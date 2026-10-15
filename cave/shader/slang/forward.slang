@@ -34,12 +34,7 @@ float4 ps_main(VS_OUTPUT_MESH input)
     float alpha = c_baseColor.a;
 
     if (c_has_base_color_map != 0) {
-        float4 tmp =
-#if defined(__TARGET_D3D12__)
-        g_Textures2D[c_base_color_map_index].Sample(s_linearMipWrapSampler, input.uv);
-#else
-        SAMPLE_2D(BaseColorMap, s_linearMipWrapSampler, input.uv);
-#endif
+        float4 tmp = SAMPLE_2D(BaseColorMap, s_linearMipWrapSampler, input.uv);
         base_color = tmp.rgb;
         alpha = tmp.a;
     }
@@ -48,12 +43,7 @@ float4 ps_main(VS_OUTPUT_MESH input)
     float roughness;
 
     if (c_has_material_map != 0) {
-        float3 value =
-#if defined(__TARGET_D3D12__)
-        g_Textures2D[c_material_map_index].Sample(s_linearMipWrapSampler, input.uv).rgb;
-#else
-        SAMPLE_2D(MaterialMap, s_linearMipWrapSampler, input.uv).rgb;
-#endif
+        float3 value = SAMPLE_2D(MaterialMap, s_linearMipWrapSampler, input.uv).rgb;
         metallic = value.b;
         roughness = value.g;
     } else {
@@ -67,12 +57,7 @@ float4 ps_main(VS_OUTPUT_MESH input)
         TBN[0] = normalize(input.T);
         TBN[1] = normalize(input.B);
         TBN[2] = normalize(input.normal);
-        float3 value =
-#if defined(__TARGET_D3D12__)
-        g_Textures2D[c_normal_map_index].Sample(s_linearMipWrapSampler, input.uv).rgb;
-#else
-        SAMPLE_2D(NormalMap, s_linearMipWrapSampler, input.uv).rgb;
-#endif
+        float3 value = SAMPLE_2D(NormalMap, s_linearMipWrapSampler, input.uv).rgb;
         N = normalize(mul((2.0f * value) - 1.0f, TBN));
     } else {
         N = normalize(input.normal);
