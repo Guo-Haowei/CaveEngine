@@ -616,10 +616,6 @@ auto D3d11RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d11RenderDevice::setMesh(const GpuMesh* mesh) {
-    m_command_list->setMesh(mesh);
-}
-
 void D3d11RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
     if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {

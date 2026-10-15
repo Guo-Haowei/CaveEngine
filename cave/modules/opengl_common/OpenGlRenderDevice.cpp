@@ -354,9 +354,6 @@ void OpenGlRenderDevice::present() {
     glfwSwapBuffers(m_window);
 }
 
-void OpenGlRenderDevice::setMesh(const GpuMesh*) {
-}
-
 ICommandList* OpenGlRenderDevice::getCommandList() const {
     return m_command_list.get();
 }

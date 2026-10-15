@@ -507,23 +507,6 @@ auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d12RenderDevice::setMesh(const GpuMesh* gpu_mesh) {
-    if (!gpu_mesh) {
-        m_graphics_command_list->IASetVertexBuffers(0, 0, nullptr);
-        m_graphics_command_list->IASetIndexBuffer(nullptr);
-        return;
-    }
-
-    auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(gpu_mesh);
-
-    m_graphics_command_list->IASetVertexBuffers(0,
-                                                mesh->desc.enabledVertexCount,
-                                                mesh->vbvs);
-    if (mesh->indexBuffer) {
-        m_graphics_command_list->IASetIndexBuffer(&mesh->ibv);
-    }
-}
-
 void D3d12RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
     DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
     if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {

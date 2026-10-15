@@ -34,8 +34,6 @@ public:
         return nullptr;
     }
 
-    void setMesh(const GpuMesh*) override {}
-
     void bindUnorderedAccessView(uint32_t, GpuTexture*) override {}
     void unbindUnorderedAccessView(uint32_t) override {}
 

@@ -57,7 +57,6 @@ public:
 
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
 
-    void setMesh(const GpuMesh* mesh) override;
     void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 
     void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
