@@ -28,7 +28,7 @@ struct D3d12ConstantBuffer : public GpuConstantBuffer {
 struct D3d12GpuTexture : public GpuTexture {
     using GpuTexture::GpuTexture;
 
-    uint64_t GetHandle() const final { return srv_handle.gpuHandle.ptr; }
+    uint64_t GetHandle() const final { return srv_handle.gpu_handle.ptr; }
 
     uint64_t GetResidentHandle() const final {
         uint64_t handle = srv_handle.index;

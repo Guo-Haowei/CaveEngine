@@ -95,12 +95,12 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
 
     for (int i = 0; i < kNumBackBuffers; i++) {
         auto handle = m_rtv_heap.AllocHandle();
-        m_renderTargetDescriptor[i] = handle.cpuHandle;
+        m_renderTargetDescriptor[i] = handle.cpu_handle;
     }
 
     {
         auto handle = m_dsv_heap.AllocHandle();
-        m_depthStencilDescriptor = handle.cpuHandle;
+        m_depthStencilDescriptor = handle.cpu_handle;
     }
 
     if (auto res = createSwapChain(w, h); !res) {
@@ -413,7 +413,7 @@ auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> R
     uav_desc.Buffer.StructureByteStride = p_desc.element_size;
 
     auto handle = m_srv_heap.AllocHandle();
-    m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpuHandle);
+    m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpu_handle);
 
     auto result = MakeRef<D3d12StructuredBuffer>(p_desc);
     result->buffer = buffer;
@@ -614,21 +614,16 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     if (texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
         srv_desc.Format = srv_format;
-        DescriptorResourceType resource_type{};
         switch (texture_desc.dimension) {
             case Dimension::Texture2D:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
                 srv_desc.Texture2D.MipLevels = resource_desc.MipLevels;
                 srv_desc.Texture2D.MostDetailedMip = 0;
-
-                resource_type = DescriptorResourceType::Texture2D;
                 break;
             case Dimension::TextureCube:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
                 srv_desc.TextureCube.MipLevels = resource_desc.MipLevels;
                 srv_desc.TextureCube.MostDetailedMip = 0;
-
-                resource_type = DescriptorResourceType::TextureCube;
                 break;
             case Dimension::TextureCubeArray:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
@@ -636,17 +631,15 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
                 srv_desc.TextureCubeArray.MostDetailedMip = 0;
                 srv_desc.TextureCubeArray.First2DArrayFace = 0;
                 srv_desc.TextureCubeArray.NumCubes = texture_desc.arraySize / 6;
-
-                resource_type = DescriptorResourceType::TextureCubeArray;
                 break;
             default:
                 CRASH_NOW();
                 break;
         }
 
-        auto srv_handle = m_srv_heap.AllocBindlessHandle(resource_type);
+        auto srv_handle = m_srv_heap.AllocHandle();
         srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        m_device->CreateShaderResourceView(texture_ptr, &srv_desc, srv_handle.cpuHandle);
+        m_device->CreateShaderResourceView(texture_ptr, &srv_desc, srv_handle.cpu_handle);
         gpu_texture->srv_handle = srv_handle;
     }
 
@@ -666,7 +659,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         }
 
         auto uav_handle = m_srv_heap.AllocHandle();
-        m_device->CreateUnorderedAccessView(texture_ptr, nullptr, &uav_desc, uav_handle.cpuHandle);
+        m_device->CreateUnorderedAccessView(texture_ptr, nullptr, &uav_desc, uav_handle.cpu_handle);
         gpu_texture->uav_handle = uav_handle;
     }
 
@@ -999,8 +992,8 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
 
     // Descriptor Ranges
     CD3DX12_DESCRIPTOR_RANGE ranges[2]{};
-    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);   // Param 8:  t0..t31 space0 (Fixed SRVs)
-    ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);   // Param 9:  u0..u15 space0 (Fixed UAVs / Compute)
+    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);  // Param 8:  t0..t31 space0 (Fixed SRVs)
+    ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);  // Param 9:  u0..u15 space0 (Fixed UAVs / Compute)
 
     // Assign Descriptor Tables (Params 8...9)
     for (size_t i = 0; i < std::size(ranges); ++i) {

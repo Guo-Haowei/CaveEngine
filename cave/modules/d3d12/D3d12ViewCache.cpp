@@ -43,9 +43,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3d12ViewCache::getOrCreateRtv(const ColorAttachment
         rtvDesc.Texture2D.MipSlice = key.mipSlice;
     }
 
-    m_device->CreateRenderTargetView(resource, &rtvDesc, handle.cpuHandle);
-    m_rtvCache[key] = handle.cpuHandle;
-    return handle.cpuHandle;
+    m_device->CreateRenderTargetView(resource, &rtvDesc, handle.cpu_handle);
+    m_rtvCache[key] = handle.cpu_handle;
+    return handle.cpu_handle;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE D3d12ViewCache::getOrCreateDsv(const DepthAttachmentDesc& attachment) {
@@ -84,9 +84,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3d12ViewCache::getOrCreateDsv(const DepthAttachment
         dsvDesc.Texture2D.MipSlice = key.mipSlice;
     }
 
-    m_device->CreateDepthStencilView(resource, &dsvDesc, handle.cpuHandle);
-    m_dsvCache[key] = handle.cpuHandle;
-    return handle.cpuHandle;
+    m_device->CreateDepthStencilView(resource, &dsvDesc, handle.cpu_handle);
+    m_dsvCache[key] = handle.cpu_handle;
+    return handle.cpu_handle;
 }
 
 }  // namespace cave::render
