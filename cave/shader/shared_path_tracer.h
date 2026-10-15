@@ -5,7 +5,7 @@
 #include <cmath>
 
 namespace cave {
-#include "structured_buffer.hlsl.h"
+#include "structured_buffer.slang.h"
 
 #define inout
 #define in

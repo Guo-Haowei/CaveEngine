@@ -1,6 +1,6 @@
 /// File: pass_tracer.slang
 #include "../cbuffer.slang.h"
-#include "../structured_buffer.hlsl.h"
+#include "../structured_buffer.slang.h"
 
 // @NOTE: include this at last
 #include "../shared_path_tracer.h"

@@ -3,7 +3,7 @@
 #include "cave/core/math/Vec.h"
 
 namespace cave {
-#include "structured_buffer.hlsl.h"
+#include "structured_buffer.slang.h"
 }  // namespace cave
 
 namespace cave::render {

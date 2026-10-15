@@ -28,7 +28,7 @@
 #include "../d3d_common/D3dConvert.h"
 
 namespace cave {
-#include "structured_buffer.hlsl.h"
+#include "structured_buffer.slang.h"
 }  // namespace cave
 
 namespace cave::render {
@@ -662,17 +662,33 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         auto srv_handle = m_srv_heap.AllocBindlessHandle(resource_type);
         srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         m_device->CreateShaderResourceView(texture_ptr, &srv_desc, srv_handle.cpuHandle);
-        gpu_texture->srvHandle = srv_handle;
+        gpu_texture->srv_handle = srv_handle;
     }
 
     if (texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
-        LOG_ERROR("@TODO: fix hard code");
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
+        uav_desc.Format = d3d::Convert(texture_desc.format);
+
+        switch (texture_desc.dimension) {
+            case Dimension::Texture2D:
+                uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+                uav_desc.Texture2D.MipSlice = 0;
+                uav_desc.Texture2D.PlaneSlice = 0;
+                break;
+            default:
+                CRASH_NOW();
+                break;
+        }
+
+        auto uav_handle = m_srv_heap.AllocHandle();
+        m_device->CreateUnorderedAccessView(texture_ptr, nullptr, &uav_desc, uav_handle.cpuHandle);
+        gpu_texture->uav_handle = uav_handle;
     }
 
     if (initial_data) {
-        gpu_texture->currentState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+        gpu_texture->current_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     } else {
-        gpu_texture->currentState = initial_state;
+        gpu_texture->current_state = initial_state;
     }
 
     gpu_texture->texture = ComPtr<ID3D12Resource>(texture_ptr);

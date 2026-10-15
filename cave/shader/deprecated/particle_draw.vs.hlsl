@@ -3,7 +3,7 @@
 #include "hlsl/input_output.hlsl"
 
 #if defined(HLSL_LANG_D3D11)
-#include "structured_buffer.hlsl.h"
+#include "structured_buffer.slang.h"
 #define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
     StructuredBuffer<DATA_TYPE> NAME : register(t##REG);
 SBUFFER_LIST
