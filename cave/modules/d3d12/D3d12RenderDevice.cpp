@@ -184,10 +184,10 @@ void D3d12RenderDevice::render() {
 
     // bind the frame buffer
     D3D12_CPU_DESCRIPTOR_HANDLE dsv_handle = m_depthStencilDescriptor;
-    D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle = m_renderTargetDescriptor[m_backbufferIndex];
+    D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle = m_renderTargetDescriptor[m_back_buffer_index];
 
     // transfer resource state
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_backbufferIndex],
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_back_buffer_index],
                                                         D3D12_RESOURCE_STATE_PRESENT,
                                                         D3D12_RESOURCE_STATE_RENDER_TARGET);
     cmd_list->ResourceBarrier(1, &barrier);
@@ -206,7 +206,7 @@ void D3d12RenderDevice::render() {
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd_list);
     }
 
-    barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_backbufferIndex],
+    barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_back_buffer_index],
                                                    D3D12_RESOURCE_STATE_RENDER_TARGET,
                                                    D3D12_RESOURCE_STATE_PRESENT);
     cmd_list->ResourceBarrier(1, &barrier);
@@ -230,31 +230,17 @@ void D3d12RenderDevice::beginFrame() {
     D3D_CALL(m_graphics_command_list->Reset(frame.m_commandAllocator, nullptr));
     WaitForSingleObject(m_swapChainWaitObject, INFINITE);
 
-    m_backbufferIndex = m_swap_chain->GetCurrentBackBufferIndex();
-
-    m_graphics_command_list->SetGraphicsRootSignature(m_root_signature.Get());
-    m_graphics_command_list->SetComputeRootSignature(m_root_signature.Get());
+    m_back_buffer_index = m_swap_chain->GetCurrentBackBufferIndex();
 
     ID3D12DescriptorHeap* heap = m_srv_heap.GetHeap();
     m_graphics_command_list->SetDescriptorHeaps(1, &heap);
 
+    m_graphics_command_list->SetGraphicsRootSignature(m_root_signature.Get());
+    m_graphics_command_list->SetComputeRootSignature(m_root_signature.Get());
+
     // Root Param 8: Fixed SRVs (space0)
-    CD3DX12_GPU_DESCRIPTOR_HANDLE fixedSrvHandle{ m_srv_heap.GetStartGpu() };
-    m_graphics_command_list->SetGraphicsRootDescriptorTable(8, fixedSrvHandle);
-
-    // Root Param 10: Bindless 2D SRVs (space1)
-    const uint32_t tex2dStart = Texture2D_START;
-    CD3DX12_GPU_DESCRIPTOR_HANDLE bindless2dHandle(m_srv_heap.GetStartGpu());
-    bindless2dHandle.Offset(tex2dStart, m_srv_heap.GetIncrementSize());
-    m_graphics_command_list->SetGraphicsRootDescriptorTable(10, bindless2dHandle);
-    m_graphics_command_list->SetComputeRootDescriptorTable(10, bindless2dHandle);
-
-    // Root Param 11: Bindless Cube SRVs (space2)
-    const uint32_t texCubeStart = TextureCube_START;
-    CD3DX12_GPU_DESCRIPTOR_HANDLE bindlessCubeHandle(m_srv_heap.GetStartGpu());
-    bindlessCubeHandle.Offset(texCubeStart, m_srv_heap.GetIncrementSize());
-    m_graphics_command_list->SetGraphicsRootDescriptorTable(11, bindlessCubeHandle);
-    m_graphics_command_list->SetComputeRootDescriptorTable(11, bindlessCubeHandle);
+    CD3DX12_GPU_DESCRIPTOR_HANDLE fixed_srv_handle{ m_srv_heap.GetStartGpu() };
+    m_graphics_command_list->SetGraphicsRootDescriptorTable(8, fixed_srv_handle);
 }
 
 void D3d12RenderDevice::endFrame() {
@@ -1012,37 +998,41 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
     }
 
     // Descriptor Ranges
-    CD3DX12_DESCRIPTOR_RANGE ranges[5]{};
+    CD3DX12_DESCRIPTOR_RANGE ranges[2]{};
     ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);   // Param 8:  t0..t31 space0 (Fixed SRVs)
     ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);   // Param 9:  u0..u15 space0 (Fixed UAVs / Compute)
-    ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 512, 0, 1);  // Param 10: t0..t511 space1 (Bindless 2D)
-    ranges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 128, 0, 2);  // Param 11: t0..t127 space2 (Bindless Cube)
-    ranges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 64, 0, 1);   // Param 12: u0..u63 space1 (Bindless UAV)
 
-    // Assign Descriptor Tables (Params 8..12)
+    // Assign Descriptor Tables (Params 8...9)
     for (size_t i = 0; i < std::size(ranges); ++i) {
         params[idx++].InitAsDescriptorTable(1, &ranges[i]);
     }
 
     initStaticSamplers();
 
-    CD3DX12_ROOT_SIGNATURE_DESC root_signature_desc(
-        idx,
-        params,
-        static_cast<uint32_t>(m_staticSamplers.size()),
-        m_staticSamplers.data(),
-        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    const D3D12_ROOT_SIGNATURE_FLAGS root_sig_flags =
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+        D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+
+    CD3DX12_ROOT_SIGNATURE_DESC root_sig_desc;
+    root_sig_desc.Init(idx,
+                       params,
+                       static_cast<uint32_t>(m_staticSamplers.size()),
+                       m_staticSamplers.data(),
+                       root_sig_flags);
 
     ComPtr<ID3DBlob> signature;
     ComPtr<ID3DBlob> error;
-    HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+    HRESULT hr = D3D12SerializeRootSignature(&root_sig_desc, D3D_ROOT_SIGNATURE_VERSION_1_0, &signature, &error);
     if (FAILED(hr)) {
         const char* errorMsg = error ? static_cast<const char*>(error->GetBufferPointer()) : "Unknown error";
         LOG_ERROR("Failed to serialize root signature: {}", errorMsg);
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to serialize root signature");
     }
 
-    D3D_FAIL(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_root_signature)),
+    D3D_FAIL(m_device->CreateRootSignature(0,
+                                           signature->GetBufferPointer(),
+                                           signature->GetBufferSize(),
+                                           IID_PPV_ARGS(&m_root_signature)),
              "Failed to create root signature");
 
     return Result<void>();

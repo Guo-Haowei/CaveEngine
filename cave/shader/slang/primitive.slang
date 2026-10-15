@@ -26,7 +26,8 @@ VsPrimOutput vs_main(VsPrimInput input)
 float4 ps_main(VsPrimOutput input) : SV_Target
 {
 #if defined(__TARGET_D3D12__)
-    float4 color = g_Textures2D[input.tex_id.x].Sample(s_pointWrapSampler, input.uv);
+    Texture2D<float4> tex = ResourceDescriptorHeap[input.tex_id.x];
+    float4 color = tex.Sample(s_pointWrapSampler, input.uv);
 #else
     float4 color = SAMPLE_2D(u_Texture0, s_pointWrapSampler, input.uv);
 #endif

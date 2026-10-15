@@ -313,8 +313,8 @@ Ref<FrameContext> RenderDevice::createFrameContext() {
     return MakeRef<FrameContext>();
 }
 
-Ref<GpuTexture> RenderDevice::createTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
-    auto texture = createTextureImpl(p_texture_desc, p_sampler_desc);
+Ref<GpuTexture> RenderDevice::createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) {
+    auto texture = createTextureImpl(texture_desc, sampler_desc);
     return texture;
 }
 

@@ -1,11 +1,5 @@
 #pragma once
 
-#if defined(__TARGET_D3D12__)
-// see descriptor_table_defines.slang.h
-Texture2D   g_Textures2D[128]  : register(t0, space1);
-TextureCube g_TexturesCube[16] : register(t0, space2);
-#endif
-
 // -----------------------------------------------------------------------------
 // Texture Declarations
 // -----------------------------------------------------------------------------
@@ -27,8 +21,8 @@ TextureCube g_TexturesCube[16] : register(t0, space2);
 // -----------------------------------------------------------------------------
 #if defined(__TARGET_D3D12__)
     #define PASS(IDX)     (c_pass_textures[IDX].x)
-    #define TEX_2D(IDX)   (g_Textures2D[(IDX)])
-    #define TEX_CUBE(IDX) (g_TexturesCube[(IDX)])
+    #define TEX_2D(IDX)   ((Texture2D<float4>)ResourceDescriptorHeap[(IDX)])
+    #define TEX_CUBE(IDX) ((TextureCube<float4>)ResourceDescriptorHeap[(IDX)])
 #else
     #define PASS(NAME)     NAME
     #define TEX_2D(NAME)   NAME

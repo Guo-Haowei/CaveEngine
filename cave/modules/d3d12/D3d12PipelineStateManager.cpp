@@ -5,6 +5,9 @@
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/D3dConvert.h"
 
+#include <filesystem>
+#include <fstream>
+
 namespace cave::render {
 
 using Microsoft::WRL::ComPtr;
@@ -14,23 +17,32 @@ D3d12PipelineStateManager::D3d12PipelineStateManager(IRenderDevice* device) noex
     , m_device(device) {
 }
 
-auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& p_desc) -> Result<Owner<PipelineState>> {
+static std::vector<uint8_t> ReadBinaryFile(std::string_view path) {
+    String file_name{ path };
+    file_name.append(".dxil");
+    auto fullpath = std::filesystem::path{ ROOT_FOLDER } / "cave" / "shader" / "d3d12_generated" / file_name;
+
+    std::ifstream file(fullpath.string(), std::ios::ate | std::ios::binary);
+    if (!file.is_open()) {
+        return {};
+    }
+    size_t fileSize = (size_t)file.tellg();
+    std::vector<uint8_t> buffer(fileSize);
+    file.seekg(0);
+    file.read((char*)buffer.data(), fileSize);
+    return buffer;
+}
+
+auto D3d12PipelineStateManager::computePipeline(const PipelineStateDesc& desc) -> Result<Owner<PipelineState>> {
     auto graphics_manager = reinterpret_cast<D3d12RenderDevice*>(m_device);
 
-    auto pipeline_state = MakeOwner<D3d12PipelineState>(p_desc);
+    auto pipeline_state = MakeOwner<D3d12PipelineState>(desc);
 
-    ComPtr<ID3DBlob> cs_blob;
-    if (!p_desc.cs.empty()) {
-        auto res = CompileShader(p_desc.cs, "cs_5_1", nullptr, false);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        cs_blob = *res;
-    }
+    auto cs_blob = ReadBinaryFile(desc.cs);
 
     D3D12_COMPUTE_PIPELINE_STATE_DESC pso_desc = {};
     pso_desc.pRootSignature = graphics_manager->getRootSignature();
-    pso_desc.CS = CD3DX12_SHADER_BYTECODE(cs_blob.Get());
+    pso_desc.CS = { cs_blob.data(), cs_blob.size() };
 
     ID3D12Device4* device = reinterpret_cast<D3d12RenderDevice*>(m_device)->getDevice();
     D3D_FAIL_V(device->CreateComputePipelineState(&pso_desc, IID_PPV_ARGS(&pipeline_state->pso)), CAVE_ERROR(ErrorCode::ERR_CANT_CREATE));
@@ -42,23 +54,8 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
     auto graphics_manager = reinterpret_cast<D3d12RenderDevice*>(m_device);
 
     auto pipeline_state = MakeOwner<D3d12PipelineState>(desc);
-    ComPtr<ID3DBlob> vs_blob;
-    ComPtr<ID3DBlob> ps_blob;
-
-    if (!desc.vs.empty()) {
-        auto res = CompileShader(desc.vs, "vs_5_1", nullptr, false);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        vs_blob = *res;
-    }
-    if (!desc.ps.empty()) {
-        auto res = CompileShader(desc.ps, "ps_5_1", nullptr, false);
-        if (!res) {
-            return CAVE_ERROR(res.error());
-        }
-        ps_blob = *res;
-    }
+    auto vs_blob = ReadBinaryFile(desc.vs);
+    auto ps_blob = ReadBinaryFile(desc.ps);
 
     Vector<D3D12_INPUT_ELEMENT_DESC> elements;
 
@@ -93,10 +90,8 @@ auto D3d12PipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc = {};
     pso_desc.pRootSignature = graphics_manager->getRootSignature();
-    pso_desc.VS = CD3DX12_SHADER_BYTECODE(vs_blob.Get());
-    if (ps_blob) {
-        pso_desc.PS = CD3DX12_SHADER_BYTECODE(ps_blob.Get());
-    }
+    pso_desc.VS = { vs_blob.data(), vs_blob.size() };
+    pso_desc.PS = { ps_blob.data(), ps_blob.size() };
     pso_desc.BlendState = d3d::Convert(desc.blend_desc);
     pso_desc.SampleMask = UINT_MAX;
     pso_desc.RasterizerState = rasterizer_desc;

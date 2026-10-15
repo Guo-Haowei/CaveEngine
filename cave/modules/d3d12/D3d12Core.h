@@ -54,11 +54,11 @@ public:
                             ID3D12Device* p_device,
                             bool p_shard_visible) -> Result<void>;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE GetStartCpu() const { return m_startCpu; }
-    D3D12_GPU_DESCRIPTOR_HANDLE GetStartGpu() const { return m_startGpu; };
+    D3D12_CPU_DESCRIPTOR_HANDLE GetStartCpu() const { return m_start_cpu; }
+    D3D12_GPU_DESCRIPTOR_HANDLE GetStartGpu() const { return m_start_gpu; };
     ID3D12DescriptorHeap* GetHeap() { return m_heap.Get(); }
 
-    uint32_t GetIncrementSize() const { return m_incrementSize; }
+    uint32_t GetIncrementSize() const { return m_increment_size; }
 
 protected:
     struct Space {
@@ -70,11 +70,11 @@ protected:
     DescriptorHeapHandle AllocHandle(const Space& p_space);
 
     D3D12_DESCRIPTOR_HEAP_DESC m_desc{};
-    D3D12_CPU_DESCRIPTOR_HANDLE m_startCpu{};
-    D3D12_GPU_DESCRIPTOR_HANDLE m_startGpu{};
+    D3D12_CPU_DESCRIPTOR_HANDLE m_start_cpu{};
+    D3D12_GPU_DESCRIPTOR_HANDLE m_start_gpu{};
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap{};
 
-    uint32_t m_incrementSize{ 0 };
+    uint32_t m_increment_size{ 0 };
     int m_capacity{ 0 };
 };
 
