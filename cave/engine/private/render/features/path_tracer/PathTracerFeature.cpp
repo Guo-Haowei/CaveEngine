@@ -44,27 +44,27 @@ static void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
     cmd.draw(6);
 }
 
-PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& p_graph,
+PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& graph,
                                                     const RenderOptions&,
-                                                    const Inputs& p_in) {
+                                                    const Inputs& inputs) {
     CAVE_PROFILE_EVENT();
 
-    RGTextureId accumulated = p_graph.createTexture({
+    RGTextureId accumulated = graph.createTexture({
         RG_RES_PATHTRACER,
-        p_graph.buildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
+        graph.buildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
                                         AttachmentType::COLOR_2D),
         LinearClampSampler(),
     });
 
-    RGTextureId out = p_graph.importTexture({ p_in.out });
+    RGTextureId out = graph.importTexture({ inputs.out });
 
-    RenderPass& compute_pass = p_graph.addRenderPass(RG_PASS_PATHTRACER_COMPUTE);
+    RenderPass& compute_pass = graph.addRenderPass(RG_PASS_PATHTRACER_COMPUTE);
 
     compute_pass
         .read(ResourceAccess::UAV, accumulated)
         .setExecuteFunc(PathTracerComputeFunc);
 
-    RenderPass& present_pass = p_graph.addRenderPass(RG_PASS_PATHTRACER_PRESENT);
+    RenderPass& present_pass = graph.addRenderPass(RG_PASS_PATHTRACER_PRESENT);
     present_pass
         .read(ResourceAccess::SRV, accumulated)
         .writeColor(out, {}, LoadOp::Load)

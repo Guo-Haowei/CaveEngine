@@ -1,7 +1,7 @@
 #include "AssetImporter.h"
 
 #include "engine/private/io/FileAccess.h"
-#include "engine/private/renderer/pixel_format.h"
+#include "cave/render/rhi/PixelFormat.h"
 #include "engine/private/runtime/assets/BlobAsset.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/scene/Scene.h"

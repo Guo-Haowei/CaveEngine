@@ -226,7 +226,7 @@ void D3d12CommandList::transitionTexture(D3d12GpuTexture* texture, D3D12_RESOURC
         return;
     }
 
-    if (texture->currentState != target_state) {
+    if (texture->current_state != target_state) {
 #if 0
         LOG_INFO(LogChannel::RHI,
                  "[Barrier] Texture '{}' (0x{:x}) | {} -> {}",
@@ -238,10 +238,10 @@ void D3d12CommandList::transitionTexture(D3d12GpuTexture* texture, D3D12_RESOURC
 
         auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
             texture->texture.Get(),
-            texture->currentState,
+            texture->current_state,
             target_state);
         m_command_list->ResourceBarrier(1, &barrier);
-        texture->currentState = target_state;
+        texture->current_state = target_state;
     }
 }
 

@@ -1,3 +1,6 @@
+// =============================================================================
+// File: cave/render/rhi/PixelFormat.h
+// =============================================================================
 #pragma once
 
 namespace cave {
@@ -50,8 +53,8 @@ enum class PixelFormat {
 };
 
 // @TODO: refactor
-uint32_t ChannelSize(PixelFormat p_format);
+uint32_t ChannelSize(PixelFormat format);
 
-uint32_t ChannelCount(PixelFormat p_format);
+uint32_t ChannelCount(PixelFormat format);
 
 }  // namespace cave

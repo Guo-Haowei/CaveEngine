@@ -35,7 +35,7 @@
 #endif
 
 #include "engine/private/render/rhi/PipelineState.h"
-#include "engine/private/renderer/pixel_format.h"
+#include "cave/render/rhi/PixelFormat.h"
 
 namespace cave::render::d3d {
 
