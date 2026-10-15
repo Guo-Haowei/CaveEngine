@@ -91,9 +91,8 @@ ViewTabBase::ViewTabBase(EditorState& editor,
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .miscFlags = RESOURCE_MISC_NONE,
     };
-    m_texture = m_engine_services.renderDevice().createTexture(
-        desc,
-        PointClampSampler());
+
+    m_texture = m_engine_services.renderDevice().createTexture(desc, PointClampSampler());
 }
 
 void ViewTabBase::onCreate() {
@@ -131,9 +130,8 @@ void ViewTabBase::onCreate() {
     m_camera_transform.updateTransform();
     m_camera.update(m_camera_transform.worldMatrix());
 
-    m_view_id = m_view_manager.createView(
-        "SceneView",
-        { 0, 0, kTextureWidth, kTextureHeight });
+    m_view_id = m_view_manager.createView("SceneView",
+                                          { 0, 0, kTextureWidth, kTextureHeight });
 
     m_engine_services.sceneScheduler().add(this);
 }
