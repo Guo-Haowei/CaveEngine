@@ -8,6 +8,8 @@
 #define INCLUDE_AS_D3D12
 #include "../d3d_common/D3dConvert.h"
 
+#include <pix.h>
+
 namespace cave::render {
 
 void D3d12CommandList::draw(uint32_t count, uint32_t offset) {
@@ -78,6 +80,15 @@ void D3d12CommandList::beginRendering(const RenderingInfo& info) {
 
 void D3d12CommandList::endRendering() {
     m_command_list->OMSetRenderTargets(0, nullptr, false, nullptr);
+}
+
+void D3d12CommandList::pushDebugGroup(std::string_view name) {
+    std::wstring name_wstr(name.begin(), name.end());
+    PIXBeginEvent(m_command_list.Get(), PIX_COLOR_DEFAULT, name_wstr.c_str());
+}
+
+void D3d12CommandList::popDebugGroup() {
+    PIXEndEvent(m_command_list.Get());
 }
 
 void D3d12CommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,

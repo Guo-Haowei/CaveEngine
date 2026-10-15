@@ -64,9 +64,6 @@ public:
     void requestTexture(ImageAsset* image) override;
     void requestMesh(MeshAsset* mesh) override;
 
-    void beginEvent(std::string_view event) override { unused(event); }
-    void endEvent() override {}
-
     FrameContext& getCurrentFrame() override { return *(m_frameContexts[m_frameIndex].get()); }
 
     void drawSkybox() override;

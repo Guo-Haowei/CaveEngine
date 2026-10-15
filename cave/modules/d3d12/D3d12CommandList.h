@@ -33,6 +33,9 @@ public:
     void beginRendering(const RenderingInfo& info) override;
     void endRendering() override;
 
+    void pushDebugGroup(std::string_view name) override;
+    void popDebugGroup() override;
+
     void setViewport(const Viewport& viewport) override;
 
     void setPipelineState(PipelineStateName name) override;

@@ -48,9 +48,10 @@ auto D3d11RenderDevice::InitializeInternal() -> Result<void> {
 
     m_view_cache = MakeOwner<D3d11ViewCache>(m_device.Get());
 
-    m_command_list = MakeOwner<D3d11CommandList>(m_device_context,
-                                                 *m_view_cache,
-                                                 dynamic_cast<D3d11PipelineStateManager&>(*m_pipeline_state_manager));
+    m_command_list = MakeOwner<D3d11CommandList>(*m_view_cache,
+                                                 dynamic_cast<D3d11PipelineStateManager&>(*m_pipeline_state_manager),
+                                                 m_device_context,
+                                                 m_annotation);
 
     m_meshes.set_description("GPU-Mesh-Allocator");
 
@@ -286,31 +287,21 @@ auto D3d11RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> R
     return structured_buffer;
 }
 
-void D3d11RenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
-    auto buffer = reinterpret_cast<const D3d11UniformBuffer*>(p_buffer);
-    DEV_ASSERT(p_size <= buffer->capacity);
-    buffer->data = (const char*)p_data;
+void D3d11RenderDevice::updateConstantBuffer(const GpuConstantBuffer* buffer,
+                                             const void* data,
+                                             size_t size) {
+    auto d3d_buffer = reinterpret_cast<const D3d11UniformBuffer*>(buffer);
+    DEV_ASSERT(size <= d3d_buffer->capacity);
+    d3d_buffer->data = (const char*)data;
 }
 
-void D3d11RenderDevice::generateMipmap(const GpuTexture* p_texture) {
-    auto texture = reinterpret_cast<const D3d11GpuTexture*>(p_texture);
-    m_device_context->GenerateMips(texture->srv.Get());
+void D3d11RenderDevice::generateMipmap(const GpuTexture* texture) {
+    auto d3d_tex = reinterpret_cast<const D3d11GpuTexture*>(texture);
+    m_device_context->GenerateMips(d3d_tex->srv.Get());
 }
 
-void D3d11RenderDevice::beginEvent(std::string_view p_event) {
-    if (m_annotation) {
-        std::wstring wideStr(p_event.begin(), p_event.end());
-        m_annotation->BeginEvent(wideStr.c_str());
-    }
-}
-
-void D3d11RenderDevice::endEvent() {
-    if (m_annotation) {
-        m_annotation->EndEvent();
-    }
-}
-
-Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc&) {
+Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc,
+                                                     const SamplerDesc&) {
     ComPtr<ID3D11ShaderResourceView> srv;
     ComPtr<ID3D11UnorderedAccessView> uav;
 

@@ -90,19 +90,6 @@ void OpenGl4RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const Gp
     }
 }
 
-void OpenGl4RenderDevice::beginEvent(std::string_view event) {
-    unused(event);
-#if !USING(PLATFORM_APPLE)
-    glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, event.data());
-#endif
-}
-
-void OpenGl4RenderDevice::endEvent() {
-#if !USING(PLATFORM_APPLE)
-    glPopDebugGroup();
-#endif
-}
-
 void APIENTRY DebugCallback(GLenum p_source,
                             GLenum p_type,
                             uint32_t p_id,

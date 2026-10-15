@@ -432,17 +432,17 @@ void RenderDevice::endPass(const CompiledPass& pass) {
 }
 
 void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass) {
-    ICommandList* command = this->getCommandList();
-    DEV_ASSERT(command);
+    ICommandList* cmd = this->getCommandList();
+    DEV_ASSERT(cmd);
     RenderPassExcutionContext ctx = {
         .frameData = framedata,
         .pass = pass,
-        .command = *command,
+        .command = *cmd,
         .device = *this,
         .services = m_app->services(),
     };
 
-    beginEvent(pass.name);
+    cmd->pushDebugGroup(pass.name);
     beginPass(pass);
 
     if (pass.execute_func) {
@@ -454,7 +454,8 @@ void RenderDevice::execute(const FrameData& framedata, const CompiledPass& pass)
     }
 
     endPass(pass);
-    endEvent();
+
+    cmd->popDebugGroup();
 }
 
 }  // namespace cave::render

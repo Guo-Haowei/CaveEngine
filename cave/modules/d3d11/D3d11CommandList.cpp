@@ -74,6 +74,19 @@ void D3d11CommandList::endRendering() {
     m_device_context->OMSetRenderTargets(std::size(rtvs), rtvs, nullptr);
 }
 
+void D3d11CommandList::pushDebugGroup(std::string_view name) {
+    if (m_annotation) {
+        std::wstring name_wstr(name.begin(), name.end());
+        m_annotation->BeginEvent(name_wstr.c_str());
+    }
+}
+
+void D3d11CommandList::popDebugGroup() {
+    if (m_annotation) {
+        m_annotation->EndEvent();
+    }
+}
+
 void D3d11CommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
                                                uint32_t size,
                                                uint32_t offset) {

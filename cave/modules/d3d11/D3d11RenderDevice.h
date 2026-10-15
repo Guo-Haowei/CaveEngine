@@ -40,9 +40,6 @@ public:
 
     void generateMipmap(const GpuTexture* texture) override;
 
-    void beginEvent(std::string_view event) override;
-    void endEvent() override;
-
     // For fast and dirty access to device and device context, try not to use it
     Microsoft::WRL::ComPtr<ID3D11Device>& GetD3dDevice() { return m_device; }
     Microsoft::WRL::ComPtr<ID3D11DeviceContext>& GetD3dContext() { return m_device_context; }

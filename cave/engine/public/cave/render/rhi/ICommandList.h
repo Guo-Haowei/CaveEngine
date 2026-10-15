@@ -29,6 +29,9 @@ public:
     virtual void beginRendering(const RenderingInfo& info) = 0;
     virtual void endRendering() = 0;
 
+    virtual void pushDebugGroup(std::string_view name) = 0;
+    virtual void popDebugGroup() = 0;
+
     virtual void setViewport(const Viewport& viewport) = 0;
 
     virtual void setPipelineState(PipelineStateName name) = 0;

@@ -11,12 +11,14 @@ class D3d11ViewCache;
 
 class D3d11CommandList final : public ICommandList {
 public:
-    explicit D3d11CommandList(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context,
-                              D3d11ViewCache& view_cache,
-                              D3d11PipelineStateManager& pso_manager)
-        : m_device_context(context)
-        , m_view_cache(view_cache)
-        , m_pipeline_state_manager(pso_manager) {}
+    explicit D3d11CommandList(D3d11ViewCache& view_cache,
+                              D3d11PipelineStateManager& pso_manager,
+                              Microsoft::WRL::ComPtr<ID3D11DeviceContext> context,
+                              Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> annotation)
+        : m_view_cache(view_cache)
+        , m_pipeline_state_manager(pso_manager)
+        , m_device_context(context)
+        , m_annotation(annotation) {}
 
     void draw(uint32_t count,
               uint32_t offset) override;
@@ -34,6 +36,9 @@ public:
 
     void beginRendering(const RenderingInfo& info) override;
     void endRendering() override;
+
+    void pushDebugGroup(std::string_view name) override;
+    void popDebugGroup() override;
 
     void setViewport(const Viewport& viewport) override;
 
@@ -64,10 +69,11 @@ public:
     void unbindUnorderedAccessView(uint32_t slot) override;
 
 private:
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_device_context;
-
     D3d11ViewCache& m_view_cache;
     D3d11PipelineStateManager& m_pipeline_state_manager;
+
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_device_context;
+    Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_annotation;
 
     struct {
         ID3D11RasterizerState* rasterizer = nullptr;

@@ -34,9 +34,6 @@ public:
     Ref<GpuTexture> createTexture(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }
     Ref<GpuTexture> createTexture(ImageAsset*) override { return nullptr; }
 
-    void beginEvent(std::string_view) override {}
-    void endEvent() override {}
-
     void generateMipmap(const GpuTexture*) override {}
 
     void requestTexture(ImageAsset*) override {}

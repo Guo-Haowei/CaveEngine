@@ -86,9 +86,6 @@ public:
 
     virtual void generateMipmap(const GpuTexture* texture) = 0;
 
-    virtual void beginEvent(std::string_view event) = 0;
-    virtual void endEvent() = 0;
-
     virtual void requestTexture(ImageAsset* image) = 0;
     virtual void requestMesh(MeshAsset* mesh) = 0;
 

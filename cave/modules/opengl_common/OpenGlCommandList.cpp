@@ -65,6 +65,19 @@ void OpenGlCommandList::endRendering() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void OpenGlCommandList::pushDebugGroup(std::string_view name) {
+    unused(name);
+#if !USING(PLATFORM_APPLE)
+    glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, name.data());
+#endif
+}
+
+void OpenGlCommandList::popDebugGroup() {
+#if !USING(PLATFORM_APPLE)
+    glPopDebugGroup();
+#endif
+}
+
 void OpenGlCommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
                                                 uint32_t size,
                                                 uint32_t offset) {

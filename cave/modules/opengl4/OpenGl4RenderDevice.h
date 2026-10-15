@@ -12,9 +12,6 @@ public:
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
     void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
 
-    void beginEvent(std::string_view event) override;
-    void endEvent() override;
-
 protected:
     auto InitializeInternal() -> Result<void> override;
 };
