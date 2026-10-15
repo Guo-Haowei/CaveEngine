@@ -28,7 +28,7 @@
 #include "engine/private/runtime/view/ViewManager.h"
 
 // @TODO: remove
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 
 #if USING(PLATFORM_WASM)
 static cave::IApplication* s_app = nullptr;

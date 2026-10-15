@@ -19,7 +19,6 @@
 
 #include "../d3d_common/D3dCommon.h"
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/renderer/graphics_private.h"
 #include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"

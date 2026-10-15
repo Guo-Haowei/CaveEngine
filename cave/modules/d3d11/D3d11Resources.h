@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave::render {
 

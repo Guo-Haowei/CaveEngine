@@ -3,7 +3,7 @@
 #endif
 #define OPENGL_RESOURCES_INCLUDED
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 #include "OpenGlDefines.h"
 
 namespace cave::render {

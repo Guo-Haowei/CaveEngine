@@ -9,8 +9,8 @@
 #include "RenderPackets.h"
 
 #include "engine/private/core/math/Geomath.h"
-#include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/render/rhi/gpu_resource.h"
+#include "engine/private/render/renderer/GraphicsDefines.h"
 #include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave {

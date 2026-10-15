@@ -1,6 +1,6 @@
 #include "CanvasRenderer.h"
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"

@@ -11,7 +11,7 @@
 #include "engine/private/runtime/scene/SceneRegistry.h"
 
 // @TODO: refactor
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 

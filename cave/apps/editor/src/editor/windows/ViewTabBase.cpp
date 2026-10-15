@@ -16,8 +16,7 @@
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
-
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 

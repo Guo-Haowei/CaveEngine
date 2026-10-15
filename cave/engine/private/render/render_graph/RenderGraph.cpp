@@ -7,9 +7,6 @@
 #include "RenderGraphDefines.h"
 #include "RenderPass.h"
 
-// @TODO: refactor
-#include "engine/private/renderer/renderer_misc.h"
-
 namespace cave::render {
 
 #define DEBUG_GRAPH_COMPILE NOT_IN_USE

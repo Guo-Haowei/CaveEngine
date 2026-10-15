@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 #include "editor/thumbnail/ThumbnailKey.h"
 #include "editor/thumbnail/PreviewBuilder.h"

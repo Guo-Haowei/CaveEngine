@@ -6,7 +6,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/input/GlfwGamepadDevice.h"

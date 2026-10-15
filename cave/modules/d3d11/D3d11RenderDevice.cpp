@@ -14,8 +14,7 @@
 #include "../d3d_common/D3dCommon.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/graphics_private.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 

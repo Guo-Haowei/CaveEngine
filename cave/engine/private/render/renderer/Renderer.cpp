@@ -30,7 +30,7 @@
 #include "engine/private/render/render_graph/CommonPasses.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 
 namespace cave::render {
 

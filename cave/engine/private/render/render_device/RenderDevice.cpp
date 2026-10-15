@@ -11,8 +11,7 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/renderer_misc.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 

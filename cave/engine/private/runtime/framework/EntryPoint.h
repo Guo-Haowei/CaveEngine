@@ -8,7 +8,7 @@
 #include "engine/private/runtime/framework/CommonDvars.h"
 #undef DEFINE_DVAR
 #define DEFINE_DVAR
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #undef DEFINE_DVAR
 
 namespace cave {
@@ -27,7 +27,7 @@ static void InitializeDvars(int argc, const char** argv) {
 #include "engine/private/runtime/framework/CommonDvars.h"
 #undef REGISTER_DVAR
 #define REGISTER_DVAR
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #undef REGISTER_DVAR
     RegisterExtraDvars();
 

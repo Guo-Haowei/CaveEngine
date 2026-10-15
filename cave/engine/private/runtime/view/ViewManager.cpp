@@ -6,7 +6,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
 // @TODO: remove
-#include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/render/renderer/GraphicsDefines.h"
 
 namespace cave {
 

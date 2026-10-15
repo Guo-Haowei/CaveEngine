@@ -5,7 +5,7 @@
 
 #include "cave/render/rhi/Sampler.h"
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/render/rhi/PipelineState.h"
 
 #include "OpenGlPrerequisites.h"

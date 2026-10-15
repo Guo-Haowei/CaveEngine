@@ -2,7 +2,7 @@
 #include "engine/private/render/render_graph/RGTextureId.h"
 
 // @TODO: refactor this
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 class Scene;

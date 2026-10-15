@@ -6,7 +6,7 @@
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Box.h"
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 // @TODO: should not view raw scene
 namespace cave {
