@@ -148,17 +148,6 @@ void OpenGlRenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_
     }
 }
 
-void OpenGlRenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
-    unused(p_slot);
-    unused(p_texture);
-    CRASH_NOW_MSG("compute shader not supported");
-}
-
-void OpenGlRenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
-    unused(p_slot);
-    CRASH_NOW_MSG("compute shader not supported");
-}
-
 auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     GLuint handle = 0;
 

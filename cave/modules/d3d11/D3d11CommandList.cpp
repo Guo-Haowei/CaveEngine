@@ -158,4 +158,16 @@ void D3d11CommandList::unbindStructuredBufferSRV(int slot) {
     m_device_context->VSSetShaderResources(slot, 1, &srv);
 }
 
+void D3d11CommandList::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
+    DEV_ASSERT(p_texture);
+
+    ID3D11UnorderedAccessView* ptr = reinterpret_cast<ID3D11UnorderedAccessView*>(p_texture->GetUavHandle());
+    m_device_context->CSSetUnorderedAccessViews(p_slot, 1, &ptr, nullptr);
+}
+
+void D3d11CommandList::unbindUnorderedAccessView(uint32_t p_slot) {
+    ID3D11UnorderedAccessView* uav = nullptr;
+    m_device_context->CSSetUnorderedAccessViews(p_slot, 1, &uav, nullptr);
+}
+
 }  // namespace cave::render

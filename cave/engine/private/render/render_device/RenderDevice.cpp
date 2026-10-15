@@ -384,18 +384,21 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
     }
 
     auto bind_resources = [this, &pass]() {
+        ICommandList* cmd = getCommandList();
+        DEV_ASSERT(cmd);
+
         // bind srvs
         for (int i = 0; i < (int)pass.srvs.size(); ++i) {
             if (const GpuTexture* srv = pass.srvs[i].get()) {
                 DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                getCommandList()->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
+                cmd->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
             }
         }
         // bind uavs
         for (int i = 0; i < (int)pass.uavs.size(); ++i) {
             if (GpuTexture* uav = pass.uavs[i].get()) {
                 DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-                bindUnorderedAccessView(i, uav);
+                cmd->bindUnorderedAccessView(i, uav);
             }
         }
     };
@@ -410,11 +413,14 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
 
 void RenderDevice::endPass(const CompiledPass& pass) {
     auto unbind_resources = [this, &pass]() {
+        ICommandList* cmd = getCommandList();
+        DEV_ASSERT(cmd);
+
         // unbind srvs
         for (int i = 0; i < (int)pass.srvs.size(); ++i) {
             if (const GpuTexture* srv = pass.srvs[i].get()) {
                 DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-                getCommandList()->unbindTexture(srv->desc.dimension, i);
+                cmd->unbindTexture(srv->desc.dimension, i);
             }
         }
 
@@ -422,8 +428,8 @@ void RenderDevice::endPass(const CompiledPass& pass) {
         for (int i = 0; i < (int)pass.uavs.size(); ++i) {
             if (GpuTexture* uav = pass.uavs[i].get()) {
                 DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
-                bindUnorderedAccessView(i, uav);
-                unbindUnorderedAccessView(i);
+                cmd->bindUnorderedAccessView(i, uav);
+                cmd->unbindUnorderedAccessView(i);
             }
         }
     };

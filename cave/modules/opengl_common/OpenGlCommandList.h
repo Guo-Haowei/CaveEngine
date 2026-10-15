@@ -51,6 +51,9 @@ public:
     void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
     void unbindStructuredBufferSRV(int slot) override;
 
+    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
+    void unbindUnorderedAccessView(uint32_t slot) override;
+
 private:
     void setBlendState(const BlendDesc& desc, const float* factor, uint32_t mask);
 

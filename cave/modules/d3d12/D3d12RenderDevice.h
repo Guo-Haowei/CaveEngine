@@ -39,9 +39,6 @@ public:
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
-    void unbindUnorderedAccessView(uint32_t slot) override;
-
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
 
     auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;

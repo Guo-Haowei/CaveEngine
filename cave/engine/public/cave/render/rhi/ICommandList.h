@@ -8,9 +8,11 @@ namespace cave::render {
 
 // @TODO: move these to rhi/Defines.h
 enum PipelineStateName : uint8_t;
+
 struct GpuConstantBuffer;
 struct GpuMesh;
 struct GpuStructuredBuffer;
+struct GpuTexture;
 
 class ICommandList {
 public:
@@ -55,6 +57,9 @@ public:
     virtual void unbindStructuredBuffer(int slot) = 0;
     virtual void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) = 0;
     virtual void unbindStructuredBufferSRV(int slot) = 0;
+
+    virtual void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) = 0;
+    virtual void unbindUnorderedAccessView(uint32_t slot) = 0;
 };
 
 }  // namespace cave::render

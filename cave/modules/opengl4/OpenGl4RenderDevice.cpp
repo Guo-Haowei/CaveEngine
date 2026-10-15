@@ -14,7 +14,7 @@ namespace cave::render {
 
 void APIENTRY DebugCallback(GLenum, GLenum, unsigned int, GLenum, GLsizei, const char*, const void*);
 
-auto GL4RenderDevice::InitializeInternal() -> Result<void> {
+auto OpenGl4RenderDevice::InitializeInternal() -> Result<void> {
     auto display_manager = dynamic_cast<GlfwDisplayService*>(m_app->services().display_service);
     DEV_ASSERT(display_manager);
     if (!display_manager) {
@@ -66,29 +66,19 @@ auto GL4RenderDevice::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-void GL4RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
-    DEV_ASSERT(p_texture);
-    auto internal_format = gl::ConvertInternalFormat(p_texture->desc.format);
-    glBindImageTexture(p_slot, p_texture->GetHandle32(), 0, GL_TRUE, 0, GL_READ_WRITE, internal_format);
-}
-
-void GL4RenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
-    glBindImageTexture(p_slot, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R11F_G11F_B10F);
-}
-
-auto GL4RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto OpenGl4RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuStructuredBuffer>> {
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, handle);
     glBufferData(GL_SHADER_STORAGE_BUFFER, p_desc.element_count * p_desc.element_size, p_desc.initial_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-    auto buffer = std::make_shared<OpenGlStructuredBuffer>(p_desc);
+    auto buffer = MakeRef<OpenGlStructuredBuffer>(p_desc);
     buffer->handle = handle;
     return buffer;
 }
 
-void GL4RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
+void OpenGl4RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
     auto buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(p_buffer);
     if (DEV_VERIFY(buffer)) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->handle);
@@ -100,14 +90,14 @@ void GL4RenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStr
     }
 }
 
-void GL4RenderDevice::beginEvent(std::string_view event) {
+void OpenGl4RenderDevice::beginEvent(std::string_view event) {
     unused(event);
 #if !USING(PLATFORM_APPLE)
     glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, event.data());
 #endif
 }
 
-void GL4RenderDevice::endEvent() {
+void OpenGl4RenderDevice::endEvent() {
 #if !USING(PLATFORM_APPLE)
     glPopDebugGroup();
 #endif

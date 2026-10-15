@@ -62,7 +62,7 @@ static IRenderDevice* SelectRenderDevice(Backend backend) {
 #if USING(PLATFORM_WASM)
         return new GLES3RenderDevice;
 #else
-        return new GL4RenderDevice;
+        return new OpenGl4RenderDevice;
 #endif
     }
 

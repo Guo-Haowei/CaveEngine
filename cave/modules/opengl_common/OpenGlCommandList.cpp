@@ -206,4 +206,14 @@ void OpenGlCommandList::unbindStructuredBufferSRV(int slot) {
     unbindStructuredBuffer(slot);
 }
 
+void OpenGlCommandList::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
+    DEV_ASSERT(texture);
+    auto internal_format = gl::ConvertInternalFormat(texture->desc.format);
+    glBindImageTexture(slot, texture->GetHandle32(), 0, GL_TRUE, 0, GL_READ_WRITE, internal_format);
+}
+
+void OpenGlCommandList::unbindUnorderedAccessView(uint32_t slot) {
+    glBindImageTexture(slot, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R11F_G11F_B10F);
+}
+
 }  // namespace cave::render

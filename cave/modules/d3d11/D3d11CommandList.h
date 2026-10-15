@@ -52,6 +52,9 @@ public:
     void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
     void unbindStructuredBufferSRV(int slot) override;
 
+    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
+    void unbindUnorderedAccessView(uint32_t slot) override;
+
 private:
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_device_context;
 

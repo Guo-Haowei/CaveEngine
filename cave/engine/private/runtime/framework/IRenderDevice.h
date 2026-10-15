@@ -77,9 +77,6 @@ public:
                                 std::span<const GpuBufferDesc> vb_descs,
                                 const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> = 0;
 
-    virtual void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) = 0;
-    virtual void unbindUnorderedAccessView(uint32_t slot) = 0;
-
     virtual void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) = 0;
     template<typename T>
     void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::vector<T>& vector) {
@@ -136,8 +133,7 @@ protected:
 
     RenderCapabilities m_capabilities{};
 
-private:
-    Backend m_backend;
+    const Backend m_backend;
 };
 
 }  // namespace cave::render

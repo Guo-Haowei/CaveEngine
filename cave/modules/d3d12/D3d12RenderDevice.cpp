@@ -516,15 +516,6 @@ void D3d12RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_b
     }
 }
 
-void D3d12RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
-    unused(p_slot);
-    unused(p_texture);
-}
-
-void D3d12RenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
-    unused(p_slot);
-}
-
 auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
     const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);

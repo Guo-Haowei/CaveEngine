@@ -104,4 +104,13 @@ void D3d12CommandList::unbindStructuredBufferSRV(int slot) {
     unused(slot);
 }
 
+void D3d12CommandList::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
+    unused(slot);
+    unused(texture);
+}
+
+void D3d12CommandList::unbindUnorderedAccessView(uint32_t slot) {
+    unused(slot);
+}
+
 }  // namespace cave::render

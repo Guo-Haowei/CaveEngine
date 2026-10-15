@@ -34,9 +34,6 @@ public:
         return nullptr;
     }
 
-    void bindUnorderedAccessView(uint32_t, GpuTexture*) override {}
-    void unbindUnorderedAccessView(uint32_t) override {}
-
     void updateConstantBuffer(const GpuConstantBuffer*, const void*, size_t) override {}
 
     Ref<GpuTexture> createTexture(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }

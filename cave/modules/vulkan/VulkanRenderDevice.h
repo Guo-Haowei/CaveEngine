@@ -31,9 +31,6 @@ public:
         return nullptr;
     }
 
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override {}
-    void unbindUnorderedAccessView(uint32_t slot) override {}
-
     auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override { return nullptr; }
     auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override { return nullptr; }
 

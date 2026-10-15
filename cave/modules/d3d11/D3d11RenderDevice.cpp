@@ -100,18 +100,6 @@ void D3d11RenderDevice::present() {
     m_swapChain->Present(1, 0);  // Present with vsync
 }
 
-void D3d11RenderDevice::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
-    DEV_ASSERT(p_texture);
-
-    ID3D11UnorderedAccessView* ptr = reinterpret_cast<ID3D11UnorderedAccessView*>(p_texture->GetUavHandle());
-    m_device_context->CSSetUnorderedAccessViews(p_slot, 1, &ptr, nullptr);
-}
-
-void D3d11RenderDevice::unbindUnorderedAccessView(uint32_t p_slot) {
-    ID3D11UnorderedAccessView* uav = nullptr;
-    m_device_context->CSSetUnorderedAccessViews(p_slot, 1, &uav, nullptr);
-}
-
 void D3d11RenderDevice::onWindowResize(int width, int height) {
     if (m_device) {
         m_windowRtv.Reset();

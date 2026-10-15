@@ -59,9 +59,6 @@ public:
 
     void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
-    void unbindUnorderedAccessView(uint32_t slot) override;
-
 protected:
     virtual auto InitializeInternal() -> Result<void> override;
     virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
