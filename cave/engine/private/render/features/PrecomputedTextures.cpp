@@ -1,10 +1,10 @@
 #include "PrecomputedTextures.h"
 
-#include "engine/private/render/features/LTCMatrix.h"
-#include "engine/private/runtime/framework/IRenderDevice.h"
+#include "cave/render/rhi/Sampler.h"
 
 // @TODO: rename
-#include "engine/private/renderer/sampler.h"
+#include "engine/private/render/features/LTCMatrix.h"
+#include "engine/private/runtime/framework/IRenderDevice.h"
 
 namespace cave::render {
 

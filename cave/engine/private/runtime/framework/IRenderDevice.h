@@ -15,7 +15,6 @@ class MeshAsset;
 
 namespace cave::render {
 
-enum ClearFlags : uint32_t;
 enum PipelineStateName : uint8_t;
 
 struct FrameContext;

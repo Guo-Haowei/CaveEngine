@@ -2,6 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/time/FrameTime.h"
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 #include "engine/private/runtime/framework/AssetRegistry.h"
@@ -11,7 +12,6 @@
 
 // @TODO: refactor
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/sampler.h"
 
 namespace cave {
 

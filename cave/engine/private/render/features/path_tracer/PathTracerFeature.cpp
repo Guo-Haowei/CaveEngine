@@ -38,7 +38,6 @@ static void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
 
     auto& cmd = ctx.command;
 
-    // cmd.Clear(fb, CLEAR_COLOR_BIT);
     cmd.setPipelineState(PSO_POST_PROCESS);
     cmd.setMesh(nullptr);
     cmd.draw(6);
@@ -52,7 +51,7 @@ PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& graph,
     RGTextureId accumulated = graph.createTexture({
         RG_RES_PATHTRACER,
         graph.buildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
-                                        AttachmentType::COLOR_2D),
+                                      AttachmentType::COLOR_2D),
         LinearClampSampler(),
     });
 

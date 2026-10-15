@@ -1,7 +1,7 @@
 #pragma once
 
+#include "cave/render/rhi/Sampler.h"
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/sampler.h"
 
 #import <Metal/Metal.h>
 

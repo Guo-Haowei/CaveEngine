@@ -14,12 +14,12 @@
 #include "D3d12ViewCache.h"
 
 #include "cave/core/string/StringUtils.h"
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "../d3d_common/D3dCommon.h"
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/renderer/graphics_private.h"
-#include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -984,16 +984,16 @@ void D3d12RenderDevice::initStaticSamplers() {
     auto FillSamplerDesc = [](uint32_t p_slot, const SamplerDesc& p_desc) {
         CD3DX12_STATIC_SAMPLER_DESC sampler_desc(
             p_slot,
-            d3d::Convert(p_desc.minFilter, p_desc.magFilter),
-            d3d::Convert(p_desc.addressU),
-            d3d::Convert(p_desc.addressV),
-            d3d::Convert(p_desc.addressW),
-            p_desc.mipLodBias,
-            p_desc.maxAnisotropy,
-            d3d::Convert(p_desc.comparisonFunc),
-            d3d::Convert(p_desc.staticBorderColor),
-            p_desc.minLod,
-            p_desc.maxLod);
+            d3d::Convert(p_desc.min_filter, p_desc.mag_filter),
+            d3d::Convert(p_desc.address_u),
+            d3d::Convert(p_desc.address_v),
+            d3d::Convert(p_desc.address_w),
+            p_desc.mip_lod_bias,
+            p_desc.max_anisotropy,
+            d3d::Convert(p_desc.comparison_func),
+            d3d::Convert(p_desc.static_border_color),
+            p_desc.min_lod,
+            p_desc.max_lod);
 
         return sampler_desc;
     };

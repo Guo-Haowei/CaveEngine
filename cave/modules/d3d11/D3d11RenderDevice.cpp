@@ -6,6 +6,7 @@
 #include "D3d11Helpers.h"
 #include "D3d11PipelineStateManager.h"
 
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
 
@@ -15,7 +16,6 @@
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/renderer/gpu_resource.h"
 #include "engine/private/renderer/graphics_private.h"
-#include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -193,19 +193,19 @@ auto D3d11RenderDevice::initSamplers() -> Result<void> {
     auto FillSamplerDesc = [](const SamplerDesc& p_desc) {
         D3D11_SAMPLER_DESC sampler_desc;
 
-        sampler_desc.Filter = d3d::Convert(p_desc.minFilter, p_desc.magFilter);
-        sampler_desc.AddressU = d3d::Convert(p_desc.addressU);
-        sampler_desc.AddressV = d3d::Convert(p_desc.addressV);
-        sampler_desc.AddressW = d3d::Convert(p_desc.addressW);
-        sampler_desc.MipLODBias = p_desc.mipLodBias;
-        sampler_desc.MaxAnisotropy = p_desc.maxAnisotropy;
-        sampler_desc.ComparisonFunc = d3d::Convert(p_desc.comparisonFunc);
+        sampler_desc.Filter = d3d::Convert(p_desc.min_filter, p_desc.mag_filter);
+        sampler_desc.AddressU = d3d::Convert(p_desc.address_u);
+        sampler_desc.AddressV = d3d::Convert(p_desc.address_v);
+        sampler_desc.AddressW = d3d::Convert(p_desc.address_w);
+        sampler_desc.MipLODBias = p_desc.mip_lod_bias;
+        sampler_desc.MaxAnisotropy = p_desc.max_anisotropy;
+        sampler_desc.ComparisonFunc = d3d::Convert(p_desc.comparison_func);
         sampler_desc.BorderColor[0] = p_desc.border[0];
         sampler_desc.BorderColor[1] = p_desc.border[1];
         sampler_desc.BorderColor[2] = p_desc.border[2];
         sampler_desc.BorderColor[3] = p_desc.border[3];
-        sampler_desc.MinLOD = p_desc.minLod;
-        sampler_desc.MaxLOD = p_desc.maxLod;
+        sampler_desc.MinLOD = p_desc.min_lod;
+        sampler_desc.MaxLOD = p_desc.max_lod;
         return sampler_desc;
     };
 

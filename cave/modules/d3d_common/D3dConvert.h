@@ -120,9 +120,9 @@ static DXGI_FORMAT ToDsvFormat(DXGI_FORMAT format) {
 
 static inline D3D_(INPUT_CLASSIFICATION) Convert(InputClassification p_input_classification) {
     switch (p_input_classification) {
-        case InputClassification::PER_VERTEX_DATA:
+        case InputClassification::PerVertexData:
             return D3D_INPUT_CLASSIFICATION_(PER_VERTEX_DATA);
-        case InputClassification::PER_INSTANCE_DATA:
+        case InputClassification::PerInstanceData:
             return D3D_INPUT_CLASSIFICATION_(PER_INSTANCE_DATA);
     }
     return D3D_INPUT_CLASSIFICATION_(PER_VERTEX_DATA);
@@ -130,9 +130,9 @@ static inline D3D_(INPUT_CLASSIFICATION) Convert(InputClassification p_input_cla
 
 static inline D3D_(FILL_MODE) Convert(FillMode p_fill_mode) {
     switch (p_fill_mode) {
-        case FillMode::SOLID:
+        case FillMode::Solid:
             return D3D_FILL_MODE_(SOLID);
-        case FillMode::WIREFRAME:
+        case FillMode::Wireframe:
             return D3D_FILL_MODE_(WIREFRAME);
     }
     return D3D_FILL_MODE_(SOLID);
@@ -140,11 +140,11 @@ static inline D3D_(FILL_MODE) Convert(FillMode p_fill_mode) {
 
 static inline D3D_(CULL_MODE) Convert(CullMode p_cull_mode) {
     switch (p_cull_mode) {
-        case CullMode::NONE:
+        case CullMode::None:
             return D3D_CULL_MODE_(NONE);
-        case CullMode::FRONT:
+        case CullMode::Front:
             return D3D_CULL_MODE_(FRONT);
-        case CullMode::BACK:
+        case CullMode::Back:
             return D3D_CULL_MODE_(BACK);
     }
     return D3D_CULL_MODE_(NONE);
@@ -165,11 +165,11 @@ static inline D3D_(COMPARISON_FUNC) Convert(ComparisonFunc p_func) {
 
 static inline D3D_(TEXTURE_ADDRESS_MODE) Convert(AddressMode p_mode) {
     switch (p_mode) {
-        case AddressMode::WRAP:
+        case AddressMode::Wrap:
             return D3D_TEXTURE_ADDRESS_MODE_(WRAP);
-        case AddressMode::CLAMP:
+        case AddressMode::Clamp:
             return D3D_TEXTURE_ADDRESS_MODE_(CLAMP);
-        case AddressMode::BORDER:
+        case AddressMode::Border:
             return D3D_TEXTURE_ADDRESS_MODE_(BORDER);
         default:
             CRASH_NOW();
@@ -220,8 +220,8 @@ static inline D3D_(STENCIL_OP) Convert(StencilOp p_op) {
 
 // @TODO: refactor this
 static inline D3D_(FILTER) Convert(MinFilter p_min_filter, MagFilter p_mag_filter) {
-    const bool min_linear = p_min_filter != MinFilter::POINT;
-    const bool mag_linear = p_mag_filter != MagFilter::POINT;
+    const bool min_linear = p_min_filter != MinFilter::Point;
+    const bool mag_linear = p_mag_filter != MagFilter::Point;
     const bool mip_linear = true;
 
     const auto filter = static_cast<D3D_(FILTER)>((min_linear << 4) | (mag_linear << 2) | mip_linear);
@@ -301,11 +301,11 @@ static inline D3D11_USAGE Convert(BufferUsage p_usage) {
 #if defined(INCLUDE_AS_D3D12)
 static inline D3D12_STATIC_BORDER_COLOR Convert(StaticBorderColor p_color) {
     switch (p_color) {
-        case StaticBorderColor::TRANSPARENT_BLACK:
+        case StaticBorderColor::TransparentBlack:
             return D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-        case StaticBorderColor::OPAQUE_BLACK:
+        case StaticBorderColor::OpaqueBlack:
             return D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
-        case StaticBorderColor::OPAQUE_WHITE:
+        case StaticBorderColor::OpaqueWhite:
             return D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
         default:
             CRASH_NOW();

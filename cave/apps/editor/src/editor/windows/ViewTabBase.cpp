@@ -1,5 +1,6 @@
 #include "ViewTabBase.h"
 
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 #include "editor/services/EditorServices.h"
@@ -8,16 +9,15 @@
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
 #include "editor/play/PIESession.h"
+#include "editor/EditorState.h"
 
 // @TODO: remove
-#include "editor/EditorState.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
 
 #include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/sampler.h"
 
 namespace cave {
 

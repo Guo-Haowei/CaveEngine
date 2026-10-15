@@ -1,77 +1,12 @@
 #pragma once
+#include "cave/render/rhi/Defines.h"
 
 namespace cave::render {
-
-// clang-format off
-enum ClearFlags : uint32_t {
-    CLEAR_NONE        = 0,
-    CLEAR_COLOR_BIT   = BIT(0),
-    CLEAR_DEPTH_BIT   = BIT(1),
-    CLEAR_STENCIL_BIT = BIT(2),
-};
-// clang-format on
-DEFINE_ENUM_BITWISE_OPERATIONS(ClearFlags);
 
 enum StencilFlags : uint8_t {
     STENCIL_FLAG_NONE = 0,
     STENCIL_FLAG_HIGHLIGHT = 1,
     STENCIL_FLAG_SKY = 255,
-};
-
-enum class MagFilter : uint8_t {
-    POINT,
-    LINEAR,
-};
-
-enum class MinFilter : uint8_t {
-    POINT,
-    LINEAR,
-    LINEAR_MIPMAP_LINEAR,
-};
-
-enum class AddressMode : uint8_t {
-    WRAP,
-    CLAMP,
-    BORDER,
-};
-
-enum class StaticBorderColor {
-    TRANSPARENT_BLACK = 0,
-    OPAQUE_BLACK,
-    OPAQUE_WHITE,
-};
-
-enum class InputClassification : uint8_t {
-    PER_VERTEX_DATA = 0,
-    PER_INSTANCE_DATA,
-};
-
-enum class FillMode : uint8_t {
-    WIREFRAME = 0,
-    SOLID,
-};
-
-enum class CullMode : uint8_t {
-    NONE = 0,
-    FRONT,
-    BACK,
-    FRONT_AND_BACK,
-};
-
-#define COMPARISON_FUNC_ENUM_LIST          \
-    COMPARISON_FUNC_ENUM(NEVER, 1)         \
-    COMPARISON_FUNC_ENUM(LESS, 2)          \
-    COMPARISON_FUNC_ENUM(EQUAL, 3)         \
-    COMPARISON_FUNC_ENUM(LESS_EQUAL, 4)    \
-    COMPARISON_FUNC_ENUM(GREATER, 5)       \
-    COMPARISON_FUNC_ENUM(NOT_EQUAL, 6)     \
-    COMPARISON_FUNC_ENUM(GREATER_EQUAL, 7) \
-    COMPARISON_FUNC_ENUM(ALWAYS, 8)
-
-enum class ComparisonFunc : uint8_t {
-#define COMPARISON_FUNC_ENUM(ENUM, VALUE) ENUM = VALUE,
-    COMPARISON_FUNC_ENUM_LIST
-#undef COMPARISON_FUNC_ENUM
 };
 
 #define STENCIL_OP_ENUM_LIST     \

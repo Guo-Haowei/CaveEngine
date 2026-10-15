@@ -1,6 +1,7 @@
 #include "RenderGraph.h"
 
 #include "cave/core/algorithm/Graph.h"
+#include "cave/render/rhi/Sampler.h"
 
 #include "CompiledGraph.h"
 #include "RenderGraphDefines.h"
@@ -8,7 +9,6 @@
 
 // @TODO: refactor
 #include "engine/private/renderer/renderer_misc.h"
-#include "engine/private/renderer/sampler.h"
 
 namespace cave::render {
 

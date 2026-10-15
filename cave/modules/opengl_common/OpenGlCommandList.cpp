@@ -132,18 +132,18 @@ void OpenGlCommandList::setPipelineState(PipelineStateName name) {
         const auto cull_mode = pipeline->desc.rasterizer_desc->cullMode;
         if (cull_mode != m_stateCache.cullMode) {
             switch (cull_mode) {
-                case CullMode::NONE:
+                case CullMode::None:
                     glDisable(GL_CULL_FACE);
                     break;
-                case CullMode::FRONT:
+                case CullMode::Front:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT);
                     break;
-                case CullMode::BACK:
+                case CullMode::Back:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_BACK);
                     break;
-                case CullMode::FRONT_AND_BACK:
+                case CullMode::FrontAndBack:
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT_AND_BACK);
                     break;

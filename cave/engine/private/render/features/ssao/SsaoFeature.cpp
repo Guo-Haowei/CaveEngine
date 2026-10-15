@@ -1,14 +1,13 @@
 #include "SsaoFeature.h"
 
-#include "cave/core/math/Vec.h"
-
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/render/render_graph/RenderGraph.h"
+#include "cave/core/math/Vec.h"
+#include "cave/render/rhi/Sampler.h"
 
 // @TODO: remove this
+#include "engine/private/render/render_graph/RenderGraph.h"
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/core/base/random.h"
-#include "engine/private/renderer/sampler.h"
 #include "engine/private/render/rhi/PipelineState.h"
 
 namespace cave {
