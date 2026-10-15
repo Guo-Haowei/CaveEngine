@@ -44,7 +44,6 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
     //-----------------------------------------------------------------------------------------------------------------
 
     for (NSUInteger i = 0; i < target.colors.size() && i < 8; ++i) {
-
         const auto& color = target.colors[i];
 
         if (!color.tex)
@@ -58,27 +57,22 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
         MTLRenderPassColorAttachmentDescriptor* attachment = pass.colorAttachments[i];
 
         attachment.texture = (__bridge id<MTLTexture>)texture->object;
-
         attachment.level = color.view.mip_slice;
-
         attachment.slice = color.view.first_array_slice;
 
         switch (color.load) {
         case LoadOp::Clear:
             attachment.loadAction = MTLLoadActionClear;
             break;
-
         case LoadOp::Load:
             attachment.loadAction = MTLLoadActionLoad;
             break;
-
         default:
             attachment.loadAction = MTLLoadActionDontCare;
             break;
         }
 
         attachment.storeAction = MTLStoreActionStore;
-
         attachment.clearColor = MTLClearColorMake(color.clear_color[0], color.clear_color[1], color.clear_color[2], color.clear_color[3]);
     }
 
@@ -93,29 +87,23 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
         DEV_ASSERT(texture->object);
 
         id<MTLTexture> metal_texture = (__bridge id<MTLTexture>)texture->object;
-
         pass.depthAttachment.texture = metal_texture;
-
         pass.depthAttachment.level = target.depth->view.mip_slice;
-
         pass.depthAttachment.slice = target.depth->view.first_array_slice;
 
         switch (target.depth->depth_load) {
         case LoadOp::Clear:
             pass.depthAttachment.loadAction = MTLLoadActionClear;
             break;
-
         case LoadOp::Load:
             pass.depthAttachment.loadAction = MTLLoadActionLoad;
             break;
-
         default:
             pass.depthAttachment.loadAction = MTLLoadActionDontCare;
             break;
         }
 
         pass.depthAttachment.storeAction = MTLStoreActionStore;
-
         pass.depthAttachment.clearDepth = target.depth->clear_depth;
 
         //-----------------------------------------------------------------------------------------------------------------
@@ -125,29 +113,23 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
         const PixelFormat format = target.depth->tex->desc.format;
 
         if (HasStencil(format) || format == PixelFormat::R32G8X24_TYPELESS) {
-
             pass.stencilAttachment.texture = metal_texture;
-
             pass.stencilAttachment.level = target.depth->view.mip_slice;
-
             pass.stencilAttachment.slice = target.depth->view.first_array_slice;
 
             switch (target.depth->stencil_load) {
             case LoadOp::Clear:
                 pass.stencilAttachment.loadAction = MTLLoadActionClear;
                 break;
-
             case LoadOp::Load:
                 pass.stencilAttachment.loadAction = MTLLoadActionLoad;
                 break;
-
             default:
                 pass.stencilAttachment.loadAction = MTLLoadActionDontCare;
                 break;
             }
 
             pass.stencilAttachment.storeAction = MTLStoreActionStore;
-
             pass.stencilAttachment.clearStencil = target.depth->clear_stencil;
         }
     }
@@ -157,13 +139,11 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
     //-----------------------------------------------------------------------------------------------------------------
 
     id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)m_command_buffer;
-
     id<MTLRenderCommandEncoder> encoder = [command_buffer renderCommandEncoderWithDescriptor:pass];
-
     DEV_ASSERT(encoder);
 
     // Keep the encoder alive through the opaque void*.
-    m_encoder = (__bridge_retained void*)encoder;
+    m_encoder = encoder;
 
     //-----------------------------------------------------------------------------------------------------------------
     // Global samplers
@@ -186,16 +166,13 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
     //-----------------------------------------------------------------------------------------------------------------
 
     for (uint32_t slot = 0; slot < m_constant_buffers.size(); ++slot) {
-
         void* buffer = m_constant_buffers[slot];
 
         if (!buffer)
             continue;
 
         id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buffer;
-
         [encoder setVertexBuffer:metal_buffer offset:0 atIndex:slot];
-
         [encoder setFragmentBuffer:metal_buffer offset:0 atIndex:slot];
     }
 
@@ -204,33 +181,25 @@ void MetalCommandList::beginRendering(const RenderTargetDesc& target) {
     //-----------------------------------------------------------------------------------------------------------------
 
     for (uint32_t slot = 0; slot < m_bound_textures.size(); ++slot) {
-
         if (!m_bound_textures[slot])
             continue;
 
         id<MTLTexture> texture = (__bridge id<MTLTexture>)reinterpret_cast<void*>(m_bound_textures[slot]);
-
         [encoder setFragmentTexture:texture atIndex:slot];
     }
-
-    // Re-apply logical command-list state after creating a new encoder.
-    applyGraphicsPipeline();
-    applyMesh();
 }
 
 void MetalCommandList::endRendering() {
     if (!m_encoder)
         return;
 
-    id<MTLRenderCommandEncoder> encoder = (__bridge_transfer id<MTLRenderCommandEncoder>)m_encoder;
+    id<MTLRenderCommandEncoder> encoder = (id<MTLRenderCommandEncoder>)m_encoder;
 
     [encoder endEncoding];
-
     m_encoder = nullptr;
 }
 
 void MetalCommandList::setViewport(const Viewport& viewport) {
-
     if (!m_encoder)
         return;
 
@@ -248,11 +217,8 @@ void MetalCommandList::setViewport(const Viewport& viewport) {
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::setPipelineState(PipelineStateName name) {
-
     m_current_pso = m_pipeline_state_manager.findPSO(name);
-
     DEV_ASSERT(m_current_pso);
-
     applyGraphicsPipeline();
 }
 
@@ -281,15 +247,12 @@ void MetalCommandList::applyGraphicsPipeline() {
         MTLCullMode cull_mode = MTLCullModeNone;
 
         switch (pipeline->desc.rasterizer_desc->cullMode) {
-
         case CullMode::FRONT:
             cull_mode = MTLCullModeFront;
             break;
-
         case CullMode::BACK:
             cull_mode = MTLCullModeBack;
             break;
-
         default:
             break;
         }
@@ -301,7 +264,6 @@ void MetalCommandList::applyGraphicsPipeline() {
 }
 
 void MetalCommandList::setStencilRef(uint32_t ref) {
-
     m_stencil_ref = ref;
 
     if (!m_encoder)
@@ -315,7 +277,6 @@ void MetalCommandList::setStencilRef(uint32_t ref) {
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::setMesh(const GpuMesh* mesh) {
-
     m_current_mesh = mesh;
 
     applyMesh();
@@ -346,12 +307,10 @@ void MetalCommandList::applyMesh() {
     const MetalBuffer* dummy_buffer = nullptr;
 
     for (const auto& vertex_buffer : mesh->vertexBuffers) {
-
         if (!vertex_buffer)
             continue;
 
         dummy_buffer = static_cast<const MetalBuffer*>(vertex_buffer.get());
-
         break;
     }
 
@@ -381,7 +340,6 @@ void MetalCommandList::applyMesh() {
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::draw(uint32_t count, uint32_t offset) {
-
     if (!m_encoder)
         return;
 
@@ -389,7 +347,6 @@ void MetalCommandList::draw(uint32_t count, uint32_t offset) {
 }
 
 void MetalCommandList::drawInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
-
     if (!m_encoder)
         return;
 
@@ -399,7 +356,6 @@ void MetalCommandList::drawInstanced(uint32_t instance_count, uint32_t count, ui
 void MetalCommandList::drawIndexed(uint32_t count, uint32_t offset) { drawIndexedInstanced(1, count, offset); }
 
 void MetalCommandList::drawIndexedInstanced(uint32_t instance_count, uint32_t count, uint32_t offset) {
-
     if (!m_encoder || !m_current_mesh) {
         return;
     }
@@ -421,7 +377,6 @@ void MetalCommandList::drawIndexedInstanced(uint32_t instance_count, uint32_t co
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::bindConstantBufferRange(const GpuConstantBuffer* base, uint32_t size, uint32_t offset) {
-
     DEV_ASSERT(base);
 
     const auto* buffer = static_cast<const MetalConstantBuffer*>(base);
@@ -447,7 +402,6 @@ void MetalCommandList::bindConstantBufferRange(const GpuConstantBuffer* base, ui
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::bindTexture(Dimension, uint64_t handle, int slot) {
-
     if (slot < 0 || slot >= static_cast<int>(m_bound_textures.size())) {
         return;
     }
@@ -508,7 +462,6 @@ void MetalCommandList::unbindUnorderedAccessView(uint32_t slot) {
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::bindStructuredBuffer(int, const GpuStructuredBuffer*) {
-
     // TODO:
     // Implement when Metal structured buffer
     // resources are implemented.
@@ -525,7 +478,6 @@ void MetalCommandList::unbindStructuredBufferSRV(int slot) { unbindStructuredBuf
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) {
-
     if (!m_current_pso || !m_command_buffer) {
         return;
     }
@@ -598,7 +550,6 @@ void MetalCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) {
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::generateMipmap(const GpuTexture* base) {
-
     if (!base || !m_command_buffer) {
         return;
     }
@@ -632,7 +583,6 @@ void MetalCommandList::generateMipmap(const GpuTexture* base) {
 //---------------------------------------------------------------------------------------------------------------------
 
 void MetalCommandList::beginEvent(std::string_view event) {
-
     if (!m_command_buffer)
         return;
 
