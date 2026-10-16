@@ -23,14 +23,14 @@ public:
         RGTextureId processed{};
     };
 
-    SsaoFeature(IRenderDevice& p_device)
-        : m_device(p_device) {}
+    SsaoFeature(IRenderDevice& device)
+        : m_device(device) {}
 
-    [[nodiscard]] Outputs Build(RenderGraph& p_graph,
-                                const RenderOptions& p_plan,
-                                const Inputs& p_in);
+    [[nodiscard]] Outputs build(RenderGraph& graph,
+                                const Inputs& in,
+                                const RenderOptions& plan);
 
-    static KernelData CreateKernel();
+    static KernelData createKernel();
 
 private:
     GpuTextureId m_ssao_texture{};

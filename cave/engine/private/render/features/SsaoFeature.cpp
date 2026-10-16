@@ -61,30 +61,28 @@ static void SsaoPassFunc(RenderPassExcutionContext& ctx) {
     cmd.draw(6);
 }
 
-SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,
-                                        const RenderOptions& p_plan,
-                                        const Inputs& p_in) {
-    unused(p_plan);
-
-    constexpr const char RG_PASS_SSAO[] = "p:ssao";
-    constexpr const char RG_RES_SSAO[] = "r:ssao";
+SsaoFeature::Outputs SsaoFeature::build(RenderGraph& graph,
+                                        const Inputs& inputs,
+                                        const RenderOptions&) {
+    constexpr const char kPassSsao[] = "p:ssao";
+    constexpr const char kResSsao[] = "r:ssao";
 
     if (!m_ssao_texture) {
         m_ssao_texture = GenerateSsaoNoise(m_device);
     }
 
-    RGTextureId noise = p_graph.importTexture({ m_ssao_texture });
+    RGTextureId noise = graph.importTexture({ m_ssao_texture });
 
-    RenderPass& pass = p_graph.addRenderPass(RG_PASS_SSAO);
+    RenderPass& pass = graph.addRenderPass(kPassSsao);
     Outputs out{
-        .processed = p_graph.createTexture({
-            RG_RES_SSAO,
-            p_graph.buildDefaultTextureDesc(kFormatSsao, AttachmentType::COLOR_2D),
+        .processed = graph.createTexture({
+            kResSsao,
+            graph.buildDefaultTextureDesc(kFormatSsao, AttachmentType::COLOR_2D),
         })
     };
 
-    pass.read(ResourceAccess::SRV, p_in.normal)
-        .read(ResourceAccess::SRV, p_in.depth)
+    pass.read(ResourceAccess::SRV, inputs.normal)
+        .read(ResourceAccess::SRV, inputs.depth)
         .read(ResourceAccess::SRV, noise)
         .writeColor(out.processed, {}, LoadOp::Clear)
         .setExecuteFunc(SsaoPassFunc);
@@ -92,7 +90,7 @@ SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,
     return out;
 }
 
-KernelData SsaoFeature::CreateKernel() {
+KernelData SsaoFeature::createKernel() {
     auto lerp = [](float a, float b, float f) {
         return a + f * (b - a);
     };

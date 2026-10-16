@@ -63,8 +63,8 @@ void BloomUpSampleFunc(RenderPassExcutionContext& ctx) {
 
 }  // namespace
 
-BloomFeature::Outputs BloomFeature::Build(RenderGraph& graph,
-                                          const BloomFeature::Inputs& inputs,
+BloomFeature::Outputs BloomFeature::build(RenderGraph& graph,
+                                          const Inputs& inputs,
                                           const RenderOptions&) {
     const auto& vp = graph.viewport();
     const int width = vp.w;

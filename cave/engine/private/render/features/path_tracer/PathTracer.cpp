@@ -17,6 +17,7 @@ namespace cave {
 }
 
 namespace cave::render {
+
 template<typename T>
 static auto CreateBuffer(IRenderDevice* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
     GpuBufferDesc desc{
@@ -51,7 +52,7 @@ static void ConstructMesh(const MeshAsset& p_mesh, GpuScene& p_gpu_scene) {
     }
 }
 
-void PathTracer::Update(const Scene& p_scene) {
+void PathTracer::update(const Scene& p_scene) {
     switch (m_mode) {
         case PathTracerMode::NONE:
             return;
@@ -65,12 +66,12 @@ void PathTracer::Update(const Scene& p_scene) {
             return;
     }
 
-    if (!m_ptIndexBuffer) {
-        CreateAccelStructure(p_scene);
+    if (!m_index_buffer) {
+        createAccelStructure(p_scene);
     }
 
     std::vector<GpuPtMesh> meshes;
-    UpdateAccelStructure(p_scene);
+    updateAccelStructure(p_scene);
     // @TODO: update mesh buffers
 }
 
@@ -122,7 +123,7 @@ static void AppendBvhs(const std::vector<GpuPtBvh>& p_source, std::vector<GpuPtB
     }
 }
 
-void PathTracer::UpdateAccelStructure(const Scene& scene) {
+void PathTracer::updateAccelStructure(const Scene& scene) {
     const auto dirty_flag = SCENE_DIRTY_NONE;
     // @TODO: refactor
     auto gm = RenderDevice::singletonPtr();
@@ -131,7 +132,7 @@ void PathTracer::UpdateAccelStructure(const Scene& scene) {
     {
         Vector<GpuPtMaterial> materials;
         for (auto&& mesh_it : m_meshs) {
-            auto material_id = mesh_it.second.materialId;
+            auto material_id = mesh_it.second.material_id;
             auto mat_it = materials_lookup.find(material_id);
             if (mat_it != materials_lookup.end()) {
                 continue;
@@ -158,8 +159,8 @@ void PathTracer::UpdateAccelStructure(const Scene& scene) {
         };
 
         // @TODO: only change when material is dirty
-        if ((dirty_flag != SCENE_DIRTY_NONE) || m_ptMaterialBuffer == nullptr) {
-            m_ptMaterialBuffer = *gm->createStructuredBuffer(desc);
+        if ((dirty_flag != SCENE_DIRTY_NONE) || m_material_buffer == nullptr) {
+            m_material_buffer = *gm->createStructuredBuffer(desc);
         }
     }
 
@@ -184,8 +185,8 @@ void PathTracer::UpdateAccelStructure(const Scene& scene) {
                 GpuPtMesh gpu_pt_mesh;
                 gpu_pt_mesh.transform = transform.worldMatrix();
                 gpu_pt_mesh.transformInv = glm::inverse(gpu_pt_mesh.transform);
-                gpu_pt_mesh.rootBvhId = cache.rootBvhId;
-                auto mat_it = materials_lookup.find(cache.materialId);
+                gpu_pt_mesh.rootBvhId = cache.root_bvh_id;
+                auto mat_it = materials_lookup.find(cache.material_id);
                 DEV_ASSERT(mat_it != materials_lookup.end());
                 gpu_pt_mesh.materialId = mat_it->second;
 
@@ -201,14 +202,14 @@ void PathTracer::UpdateAccelStructure(const Scene& scene) {
             .initial_data = meshes.data(),
         };
 
-        if ((dirty_flag & SCENE_DIRTY_WORLD) || m_ptMeshBuffer == nullptr) {
-            m_ptMeshBuffer = *gm->createStructuredBuffer(desc);
+        if ((dirty_flag & SCENE_DIRTY_WORLD) || m_mesh_buffer == nullptr) {
+            m_mesh_buffer = *gm->createStructuredBuffer(desc);
         }
     }
 }
 
-bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
-    DEV_ASSERT(m_ptVertexBuffer == nullptr);
+bool PathTracer::createAccelStructure(const Scene& p_scene) {
+    DEV_ASSERT(m_vertex_buffer == nullptr);
 
     // @TODO: refactor
     auto gm = RenderDevice::singletonPtr();
@@ -233,8 +234,8 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
             const int vertex_count = (int)gpu_scene.vertices.size();
 
             MeshData meta{
-                .rootBvhId = bvh_count,
-                .materialId = renderer.materialInstances()[0],
+                .root_bvh_id = bvh_count,
+                .material_id = renderer.materialInstances()[0],
             };
             m_meshs[handle.guid()] = meta;
 
@@ -250,9 +251,9 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     const uint32_t triangle_count = (uint32_t)gpu_scene.indices.size();
     const uint32_t bvh_count = (uint32_t)gpu_scene.bvhs.size();
 
-    m_ptBvhBuffer = *CreateBuffer(gm, GetGlobalPtBvhsSlot(), gpu_scene.bvhs);
-    m_ptVertexBuffer = *CreateBuffer(gm, GetGlobalPtVerticesSlot(), gpu_scene.vertices);
-    m_ptIndexBuffer = *CreateBuffer(gm, GetGlobalPtIndicesSlot(), gpu_scene.indices);
+    m_bvh_buffer = *CreateBuffer(gm, GetGlobalPtBvhsSlot(), gpu_scene.bvhs);
+    m_vertex_buffer = *CreateBuffer(gm, GetGlobalPtVerticesSlot(), gpu_scene.vertices);
+    m_index_buffer = *CreateBuffer(gm, GetGlobalPtIndicesSlot(), gpu_scene.indices);
 
     stopwatch.stop();
     LOG_INFO("Path tracer scene loaded in {}, contains {} triangles, {} BVH",
@@ -318,28 +319,29 @@ bool PathTracer::CreateAccelStructure(const Scene& p_scene) {
     return true;
 }
 
-bool PathTracer::IsActive() const {
+bool PathTracer::isActive() const {
     if (m_mode != PathTracerMode::INTERACTIVE) {
         return false;
     }
 
-    if (m_ptBvhBuffer == nullptr) {
+    if (m_bvh_buffer == nullptr) {
         return false;
     }
 
     return true;
 }
 
-void PathTracer::BindData(ICommandList& cmd) {
+// @TODO: use different one
+void PathTracer::bindData(ICommandList& cmd) {
     // @TODO: check null
-    cmd.bindStructuredBuffer(GetGlobalPtMeshesSlot(), m_ptMeshBuffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtBvhsSlot(), m_ptBvhBuffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtVerticesSlot(), m_ptVertexBuffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtIndicesSlot(), m_ptIndexBuffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_ptMaterialBuffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtMeshesSlot(), m_mesh_buffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtBvhsSlot(), m_bvh_buffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtVerticesSlot(), m_vertex_buffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtIndicesSlot(), m_index_buffer.get());
+    cmd.bindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_material_buffer.get());
 }
 
-void PathTracer::UnbindData(ICommandList& cmd) {
+void PathTracer::unbindData(ICommandList& cmd) {
     cmd.unbindStructuredBuffer(GetGlobalPtBvhsSlot());
     cmd.unbindStructuredBuffer(GetGlobalPtVerticesSlot());
     cmd.unbindStructuredBuffer(GetGlobalPtIndicesSlot());

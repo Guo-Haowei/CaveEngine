@@ -198,7 +198,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     // SSAO
     {
         // @TODO: do this properly
-        static auto kernel_data = SsaoFeature::CreateKernel();
+        static auto kernel_data = SsaoFeature::createKernel();
         cache.c_ssaoEnabled = options.enable_ssao;
         cache.c_ssao_kernal_radius = options.ssaoKernelRadius;
         constexpr size_t kernel_size = sizeof(kernel_data);
@@ -399,9 +399,9 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     RGTextureId ltc1 = graph.importTexture({ m_ltc1 });
     RGTextureId ltc2 = graph.importTexture({ m_ltc2 });
 
-    auto env_outputs = m_env.Build(graph, plan);
+    auto env_outputs = m_env.build(graph, plan);
 
-    auto shadow_outputs = m_shadow.Build(graph, plan);
+    auto shadow_outputs = m_shadow.build(graph, plan);
 
     // @TODO: refactor the following
     auto prepass_outputs = graph.addDepthPrepass();
@@ -417,7 +417,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
             .normal = gbuffer_outputs.color1,
             .depth = prepass_outputs.depth,
         };
-        ssao_outputs = m_ssao.Build(graph, plan, ssao_inputs);
+        ssao_outputs = m_ssao.build(graph, ssao_inputs, plan);
     }
 
     auto lighting_outputs = graph.addLightingPass({
@@ -453,7 +453,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     };
 
     if (plan.enable_bloom) {
-        bloom_output = m_bloom.Build(graph,
+        bloom_output = m_bloom.build(graph,
                                      {
                                          .dependency = forward_outputs.dependency,
                                          .color = lighting_outputs.lighting,
@@ -481,9 +481,8 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     return graph.compile();
 }
 
-auto Renderer::Impl::buildRenderGraph2d(const RenderOptions& plan,
+auto Renderer::Impl::buildRenderGraph2d(const RenderOptions&,
                                         const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
-    unused(plan);
 
     RenderGraphBuilderExt graph(view.viewport_px);
 
@@ -497,7 +496,7 @@ auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
                                         const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
     RenderGraph graph(view.viewport_px);
 
-    m_pathtracer.Build(graph, plan, { view.output });
+    m_pathtracer.build(graph, { view.output }, plan);
 
     return graph.compile();
 }

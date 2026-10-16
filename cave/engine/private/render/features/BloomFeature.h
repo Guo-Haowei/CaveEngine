@@ -20,7 +20,7 @@ public:
         RGTextureId bloom;
     };
 
-    [[nodiscard]] Outputs Build(RenderGraph& graph,
+    [[nodiscard]] Outputs build(RenderGraph& graph,
                                 const Inputs& inputs,
                                 const RenderOptions& plan);
 };

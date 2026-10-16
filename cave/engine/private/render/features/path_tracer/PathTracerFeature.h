@@ -22,9 +22,9 @@ public:
 
     struct Outputs {};
 
-    Outputs Build(RenderGraph& p_graph,
-                  const RenderOptions& p_plan,
-                  const Inputs& p_in);
+    Outputs build(RenderGraph& graph,
+                  const Inputs& inputs,
+                  const RenderOptions& plan);
 };
 
 enum class PathTracerMode {

@@ -25,33 +25,33 @@ struct GpuScene {
 // @TODO: make it a layer?
 class PathTracer {
 public:
-    void SetMode(PathTracerMode p_mode) { m_mode = p_mode; }
+    void setMode(PathTracerMode mode) { m_mode = mode; }
 
-    void Update(const Scene& p_scene);
+    void update(const Scene& scene);
 
-    bool IsActive() const;
+    bool isActive() const;
 
-    void BindData(ICommandList& cmd);
+    void bindData(ICommandList& cmd);
 
-    void UnbindData(ICommandList& cmd);
+    void unbindData(ICommandList& cmd);
 
 private:
-    bool CreateAccelStructure(const Scene& p_scene);
-    void UpdateAccelStructure(const Scene& p_scene);
+    bool createAccelStructure(const Scene& scene);
+    void updateAccelStructure(const Scene& scene);
 
-    std::shared_ptr<GpuStructuredBuffer> m_ptBvhBuffer;
-    std::shared_ptr<GpuStructuredBuffer> m_ptVertexBuffer;
-    std::shared_ptr<GpuStructuredBuffer> m_ptIndexBuffer;
-    std::shared_ptr<GpuStructuredBuffer> m_ptMeshBuffer;
-    std::shared_ptr<GpuStructuredBuffer> m_ptMaterialBuffer;
+    Ref<GpuStructuredBuffer> m_bvh_buffer;
+    Ref<GpuStructuredBuffer> m_vertex_buffer;
+    Ref<GpuStructuredBuffer> m_index_buffer;
+    Ref<GpuStructuredBuffer> m_mesh_buffer;
+    Ref<GpuStructuredBuffer> m_material_buffer;
 
     struct MeshData {
-        int rootBvhId;
-        ecs::Entity materialId;
+        int root_bvh_id;
+        ecs::Entity material_id;
     };
 
     // @TODO: rename
-    std::map<Guid, MeshData> m_meshs;
+    HashMap<Guid, MeshData> m_meshs;
 
     PathTracerMode m_mode{ PathTracerMode::NONE };
 };

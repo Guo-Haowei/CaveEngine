@@ -12,7 +12,7 @@ public:
         RGTextureId shadow{};
     };
 
-    [[nodiscard]] Outputs Build(RenderGraph& graph, const RenderOptions& plan);
+    [[nodiscard]] Outputs build(RenderGraph& graph, const RenderOptions& plan);
 
 private:
     // @TODO: reuse shadow map, shadow atlas, etc

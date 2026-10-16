@@ -22,7 +22,7 @@ public:
         RGTextureId ibl_prefiltered{};
     };
 
-    [[nodiscard]] Outputs Build(RenderGraph& graph, const RenderOptions& plan);
+    [[nodiscard]] Outputs build(RenderGraph& graph, const RenderOptions& plan);
 
 private:
     TransientPool& m_pool;

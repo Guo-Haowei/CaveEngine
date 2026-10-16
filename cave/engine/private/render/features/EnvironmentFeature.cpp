@@ -65,15 +65,15 @@ void PrefilteredFunc(RenderPassExcutionContext& ctx,
 
 }  // namespace
 
-EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph, const RenderOptions&) {
+EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const RenderOptions&) {
     if (m_env_texture) {
         DEV_ASSERT(m_env_cube);
         DEV_ASSERT(m_diffuse);
         DEV_ASSERT(m_specular);
 
-        RGTextureId env_cube_id = render_graph.importTexture({ m_env_cube });
-        RGTextureId diffuse_id = render_graph.importTexture({ m_diffuse });
-        RGTextureId specular_id = render_graph.importTexture({ m_specular });
+        RGTextureId env_cube_id = graph.importTexture({ m_env_cube });
+        RGTextureId diffuse_id = graph.importTexture({ m_diffuse });
+        RGTextureId specular_id = graph.importTexture({ m_specular });
         return {
             .skybox = env_cube_id,
             .ibl_diffuse = diffuse_id,
@@ -134,15 +134,15 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
         }
     }
 
-    RGTextureId env_hdr = render_graph.importTexture({ m_env_texture });
-    RGTextureId env_cube = render_graph.importTexture({ m_env_cube });
-    RGTextureId diffuse = render_graph.importTexture({ m_diffuse });
-    RGTextureId specular = render_graph.importTexture({ m_specular });
+    RGTextureId env_hdr = graph.importTexture({ m_env_texture });
+    RGTextureId env_cube = graph.importTexture({ m_env_cube });
+    RGTextureId diffuse = graph.importTexture({ m_diffuse });
+    RGTextureId specular = graph.importTexture({ m_specular });
 
     // bake environment cubemap
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", kPassBakeSkybox, face);
-        RenderPass& pass = render_graph.addRenderPass(pass_name);
+        RenderPass& pass = graph.addRenderPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
@@ -156,7 +156,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
     // bake irradiance map
     for (uint16_t face = 0; face < 6; ++face) {
         std::string pass_name = std::format("{}_{}", kPassBakeDiffuse, face);
-        RenderPass& pass = render_graph.addRenderPass(pass_name);
+        RenderPass& pass = graph.addRenderPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
@@ -177,7 +177,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
                 .array_size = 1,
             };
             std::string pass_name = std::format("{}_{}_{}", kPassBakePrefiltered, mip, face);
-            RenderPass& pass = render_graph.addRenderPass(pass_name);
+            RenderPass& pass = graph.addRenderPass(pass_name);
             pass.read(ResourceAccess::SRV, env_cube)
                 .writeColor(specular, view_desc, LoadOp::Load)
                 .setViewport(Viewport(w, h))

@@ -47,9 +47,9 @@ void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
 
 }  // namespace
 
-PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& graph,
-                                                    const RenderOptions&,
-                                                    const Inputs& inputs) {
+PathTracerFeature::Outputs PathTracerFeature::build(RenderGraph& graph,
+                                                    const Inputs& inputs,
+                                                    const RenderOptions&) {
     CAVE_PROFILE_EVENT();
 
     RGTextureId accumulated = graph.createTexture({
@@ -63,6 +63,7 @@ PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& graph,
 
     RenderPass& compute_pass = graph.addRenderPass(kPassPathTracerCompute);
 
+    // @TODO: read GpuStructuredBuffer as UAV
     compute_pass
         .read(ResourceAccess::UAV, accumulated)
         .setExecuteFunc(PathTracerComputeFunc);
@@ -83,24 +84,24 @@ static struct {
 
 void RequestPathTracerUpdate(Scene& p_scene) {
     // @TODO: refactor
-    s_glob.pt.Update(p_scene);
+    s_glob.pt.update(p_scene);
 }
 
 // path tracer
 void SetPathTracerMode(PathTracerMode p_mode) {
-    s_glob.pt.SetMode(p_mode);
+    s_glob.pt.setMode(p_mode);
 }
 
 bool IsPathTracerActive() {
-    return s_glob.pt.IsActive();
+    return s_glob.pt.isActive();
 }
 
 void BindPathTracerData(ICommandList& cmd) {
-    s_glob.pt.BindData(cmd);
+    s_glob.pt.bindData(cmd);
 }
 
 void UnbindPathTracerData(ICommandList& cmd) {
-    s_glob.pt.UnbindData(cmd);
+    s_glob.pt.unbindData(cmd);
 }
 
 }  // namespace cave::render
