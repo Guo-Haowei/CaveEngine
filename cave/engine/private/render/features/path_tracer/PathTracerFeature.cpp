@@ -10,11 +10,13 @@
 
 namespace cave::render {
 
-static constexpr const char RG_PASS_PATHTRACER_COMPUTE[] = "p:pathtracer_compute";
-static constexpr const char RG_PASS_PATHTRACER_PRESENT[] = "p:pathtracer_present";
-static constexpr const char RG_RES_PATHTRACER[] = "r:pathtracer";
+namespace {
 
-static void PathTracerComputeFunc(RenderPassExcutionContext& ctx) {
+constexpr const char kPassPathTracerCompute[] = "p:pathtracer_compute";
+constexpr const char kPassPathTracerPresent[] = "p:pathtracer_present";
+constexpr const char kResPathTracer[] = "r:pathtracer";
+
+void PathTracerComputeFunc(RenderPassExcutionContext& ctx) {
     auto& cmd = ctx.command;
 
     cmd.setPipelineState(PSO_PATH_TRACER);
@@ -33,7 +35,7 @@ static void PathTracerComputeFunc(RenderPassExcutionContext& ctx) {
     UnbindPathTracerData(cmd);
 }
 
-static void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
+void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 
     auto& cmd = ctx.command;
@@ -43,13 +45,15 @@ static void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
     cmd.draw(6);
 }
 
+}  // namespace
+
 PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& graph,
                                                     const RenderOptions&,
                                                     const Inputs& inputs) {
     CAVE_PROFILE_EVENT();
 
     RGTextureId accumulated = graph.createTexture({
-        RG_RES_PATHTRACER,
+        kResPathTracer,
         graph.buildDefaultTextureDesc(PixelFormat::R32G32B32A32_FLOAT,
                                       AttachmentType::COLOR_2D),
         LinearClampSampler(),
@@ -57,13 +61,13 @@ PathTracerFeature::Outputs PathTracerFeature::Build(RenderGraph& graph,
 
     RGTextureId out = graph.importTexture({ inputs.out });
 
-    RenderPass& compute_pass = graph.addRenderPass(RG_PASS_PATHTRACER_COMPUTE);
+    RenderPass& compute_pass = graph.addRenderPass(kPassPathTracerCompute);
 
     compute_pass
         .read(ResourceAccess::UAV, accumulated)
         .setExecuteFunc(PathTracerComputeFunc);
 
-    RenderPass& present_pass = graph.addRenderPass(RG_PASS_PATHTRACER_PRESENT);
+    RenderPass& present_pass = graph.addRenderPass(kPassPathTracerPresent);
     present_pass
         .read(ResourceAccess::SRV, accumulated)
         .writeColor(out, {}, LoadOp::Load)
