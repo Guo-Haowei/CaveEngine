@@ -45,9 +45,9 @@ ShadowFeature::Outputs ShadowFeature::build(RenderGraph& graph, const RenderOpti
         .shadow = graph.createTexture({
             kResShadowMap,
             graph.buildDefaultTextureDesc(PixelFormat::D32_FLOAT,
-                                            AttachmentType::SHADOW_2D,
-                                            shadow_res,
-                                            shadow_res),
+                                          AttachmentType::SHADOW_2D,
+                                          shadow_res,
+                                          shadow_res),
             ShadowMapSampler(),
         })
     };
