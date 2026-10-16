@@ -38,7 +38,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
 
     for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
         float3 samplePos = mul(c_ssaoKernel[i].xyz, TBN);
-        samplePos = origin.xyz + samplePos * c_ssaoKernalRadius;
+        samplePos = origin.xyz + samplePos * c_ssao_kernal_radius;
 
         float4 offset = float4(samplePos, 1.0);
         offset = mul(c_cam_proj, offset);
@@ -54,7 +54,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
         const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2, c_inv_cam_proj);
         const float sample_depth = sampleOcclusionPos.z;
 
-        const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(abs(origin.z) - abs(sample_depth)));
+        const float range_check = smoothstep(0.0, 1.0, c_ssao_kernal_radius / abs(abs(origin.z) - abs(sample_depth)));
 
         const float increment = (abs(sample_depth) <= abs(samplePos.z) - SSAO_KERNEL_BIAS) ? 1.0f : 0.0f;
 

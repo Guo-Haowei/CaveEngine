@@ -64,8 +64,6 @@ D3d12RenderDevice::D3d12RenderDevice()
 }
 
 auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
-    m_capabilities.supportComputeShaders = false;
-
     const auto size = DisplayService::singleton().windowSize();
     const int w = size.x;
     const int h = size.y;

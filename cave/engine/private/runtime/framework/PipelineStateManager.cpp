@@ -214,7 +214,7 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                      .rtv_formats = { kFormatTone },
                                  });
 
-    if (capabilities.supportComputeShaders) {
+    if (capabilities.support_cs) {
         CREATE_PSO(PSO_BLOOM_SETUP, { .type = PipelineStateType::COMPUTE, .cs = "bloom_setup.cs" });
         CREATE_PSO(PSO_BLOOM_DOWNSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_downsample.cs" });
         CREATE_PSO(PSO_BLOOM_UPSAMPLE, { .type = PipelineStateType::COMPUTE, .cs = "bloom_upsample.cs" });
@@ -267,8 +267,11 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                   });
     }
 
-    if (capabilities.supportComputeShaders) {
-        CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
+    // @HACK: skip d3d12
+    if (m_backend != Backend::D3d12) {
+        if (capabilities.support_cs) {
+            CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
+        }
     }
 
 #if USING(CAVE_PARTICLE)

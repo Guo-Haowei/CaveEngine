@@ -20,13 +20,15 @@
 // Texture Accessor
 // -----------------------------------------------------------------------------
 #if defined(__TARGET_D3D12__)
-    #define PASS(IDX)     (c_pass_textures[IDX].x)
-    #define TEX_2D(IDX)   ((Texture2D<float4>)ResourceDescriptorHeap[(IDX)])
-    #define TEX_CUBE(IDX) ((TextureCube<float4>)ResourceDescriptorHeap[(IDX)])
+    #define PASS(IDX)      (c_pass_textures[IDX].x)
+    #define TEX_2D(IDX)    ((Texture2D<float4>)ResourceDescriptorHeap[(IDX)])
+    #define TEX_CUBE(IDX)  ((TextureCube<float4>)ResourceDescriptorHeap[(IDX)])
+    #define RW_TEX_2D(IDX) ((RWTexture2D<float4>)ResourceDescriptorHeap[(IDX)])
 #else
-    #define PASS(NAME)     NAME
-    #define TEX_2D(NAME)   NAME
-    #define TEX_CUBE(NAME) NAME
+    #define PASS(NAME)      NAME
+    #define TEX_2D(NAME)    NAME
+    #define TEX_CUBE(NAME)  NAME
+    #define RW_TEX_2D(NAME) NAME
 #endif
 
 // -----------------------------------------------------------------------------

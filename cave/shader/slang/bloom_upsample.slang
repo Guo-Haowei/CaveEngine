@@ -5,15 +5,23 @@
 TEXTURE_2D(u_Texture0, 0);
 #define t_BloomInputTexture u_Texture0
 
+#if !defined(__TARGET_D3D12__)
 RWTexture2D<float4> u_BloomOutputImage : register(u0);
+#endif
 
 [shader("compute")]
 [numthreads(16, 16, 1)]
 void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     const uint2 output_coord = dispatch_thread_id.xy;
 
+#if defined(__TARGET_D3D12__)
+    RWTexture2D<float4> output = RW_TEX_2D(c_output_uav0);
+#else
+    RWTexture2D<float4> output = u_BloomOutputImage;
+#endif
+
     uint width, height;
-    u_BloomOutputImage.GetDimensions(width, height);
+    output.GetDimensions(width, height);
     float2 output_image_size = float2(width, height);
 
     float2 uv = float2(output_coord.x / output_image_size.x,
@@ -56,7 +64,7 @@ void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     upsample += (a + c + g + i);
     upsample *= 1.0 / 16.0;
 
-    float3 final_color = u_BloomOutputImage.Load(output_coord).rgb;
+    float3 final_color = output.Load(output_coord).rgb;
     final_color = lerp(final_color, upsample, 0.6);
-    u_BloomOutputImage[output_coord] = float4(final_color, 1.0f);
+    output[output_coord] = float4(final_color, 1.0f);
 }

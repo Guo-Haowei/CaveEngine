@@ -164,9 +164,9 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5) {
     int c_ptObjectCount;
 
     float c_cam_fovy;  // 16
-    float c_texelSize;
-    float c_bloomThreshold;
-    float c_ssaoKernalRadius;
+    float c_texel_size;
+    float c_bloom_threshold;
+    float c_ssao_kernal_radius;
 
     uint c_DiffuseIrradianceResidentHandle;
     uint c_PrefilteredResidentHandle;

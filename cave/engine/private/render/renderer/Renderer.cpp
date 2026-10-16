@@ -183,7 +183,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
 
     // Bloom
     {
-        cache.c_bloomThreshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
+        cache.c_bloom_threshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
         cache.c_enableBloom = options.enable_bloom;
 
         cache.c_debugVoxelId = options.debugVoxelId;
@@ -200,7 +200,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
         // @TODO: do this properly
         static auto kernel_data = SsaoFeature::CreateKernel();
         cache.c_ssaoEnabled = options.enable_ssao;
-        cache.c_ssaoKernalRadius = options.ssaoKernelRadius;
+        cache.c_ssao_kernal_radius = options.ssaoKernelRadius;
         constexpr size_t kernel_size = sizeof(kernel_data);
         static_assert(sizeof(cache.c_ssaoKernel) == kernel_size);
         memcpy(cache.c_ssaoKernel, kernel_data.data(), kernel_size);
@@ -221,6 +221,13 @@ static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data
             const auto& texture = pass.srvs[slot];
             if (texture) {
                 cache.c_pass_textures[slot].x = (uint32_t)texture->GetResidentHandle();
+            }
+        }
+
+        uint* uavs = &cache.c_output_uav0;
+        for (size_t slot = 0; slot < pass.uavs.size(); ++slot) {
+            if (const auto& texture = pass.uavs[slot]) {
+                uavs[slot] = (uint32_t)texture->GetUavHandle();
             }
         }
     }
@@ -278,7 +285,7 @@ Renderer::Impl::Impl(EngineServices& services)
 }
 
 auto Renderer::Impl::initialize() -> Result<void> {
-    m_capabilities.canRunBloom = m_device.getCapabilities().supportComputeShaders;
+    m_capabilities.canRunBloom = m_device.getCapabilities().support_cs;
     m_capabilities.canRunIBL = true;
     return Result<void>();
 }

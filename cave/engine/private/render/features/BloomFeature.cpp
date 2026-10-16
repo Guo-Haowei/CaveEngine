@@ -16,7 +16,6 @@ namespace {
 constexpr int kBloomMipChainMax = 7;
 constexpr const char kPassBloomSetup[] = "p:bloom_setup";
 
-/// Bloom
 void BloomSetupFunc(RenderPassExcutionContext& ctx) {
     CAVE_PROFILE_EVENT();
 

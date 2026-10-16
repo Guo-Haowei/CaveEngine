@@ -35,9 +35,9 @@ struct GpuMesh;
 
 // @TODO: refactor this
 struct RenderCapabilities {
-    bool supportComputeShaders = true;
-    bool supportGeometryShaders = true;
-    bool supportStructuredBuffers = true;
+    bool support_cs = true;
+    bool support_gs = true;
+    bool support_sbo = true;
 };
 
 // @TODO: split this class to RenderDevice and RHI
