@@ -174,7 +174,7 @@ void D3d12CommandList::barriers(std::span<const Ref<GpuResource>> resources) {
         barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         barrier.Transition.pResource = native_res;
         barrier.Transition.StateBefore = state;
-        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
         if (barrier.Transition.StateBefore == barrier.Transition.StateAfter) {

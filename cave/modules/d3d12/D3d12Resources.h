@@ -30,6 +30,10 @@ struct D3d12GpuBuffer final : public GpuResource {
     uint64_t getSrvHandle() const override { return srv_handle.index; }
     uint64_t getUavHandle() const override { return uav_handle.index; }
 
+    uint64_t getResidentHandle() const override {
+        return srv_handle.index;
+    }
+
     DescriptorHeapHandle srv_handle;
     DescriptorHeapHandle uav_handle;
 
@@ -37,21 +41,13 @@ struct D3d12GpuBuffer final : public GpuResource {
 };
 
 // @TODO: refactor
-struct D3d12GpuTexture : public GpuResource {
+struct D3d12GpuTexture final : public GpuResource {
     using GpuResource::GpuResource;
 
-    uint64_t getHandle() const final { return srv_handle.gpu_handle.ptr; }
+    uint64_t getHandle() const override { return srv_handle.gpu_handle.ptr; }
 
-    uint64_t getResidentHandle() const final {
-        uint64_t handle = srv_handle.index;
-        switch (desc.dimension) {
-            case Dimension::Texture2D:
-            case Dimension::TextureCube:
-                return handle;
-            default:
-                CRASH_NOW();
-                return 0;
-        }
+    uint64_t getResidentHandle() const override {
+        return srv_handle.index;
     }
 
     uint64_t getUavHandle() const final { return uav_handle.index; }

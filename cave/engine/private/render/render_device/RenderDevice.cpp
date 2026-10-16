@@ -393,8 +393,8 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
     }
 
     // transition srvs
-    std::span<const Ref<GpuResource>> srvs{ pass.srvs.data(), pass.srvs.size() };
-    cmd->barriers(srvs);
+    // std::span<const Ref<GpuResource>> srvs{ pass.srvs.data(), pass.srvs.size() };
+    // cmd->barriers(srvs);
 }
 
 void RenderDevice::endPass(const CompiledPass& pass) {
