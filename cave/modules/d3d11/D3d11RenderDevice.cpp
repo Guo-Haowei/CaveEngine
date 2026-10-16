@@ -262,13 +262,16 @@ auto D3d11RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> R
     D3D_FAIL(m_device->CreateBuffer(&buffer_desc, init_data_ref, buffer.GetAddressOf()),
              "Failed to create buffer (StructuredBuffer)");
 
-    D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
-    uav_desc.Format = DXGI_FORMAT_UNKNOWN;
-    uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-    uav_desc.Buffer.FirstElement = 0;
-    uav_desc.Buffer.NumElements = desc.elementCount();
-    D3D_FAIL(m_device->CreateUnorderedAccessView(buffer.Get(), &uav_desc, uav.GetAddressOf()),
-             "Failed to create UAV (StructuredBuffer)");
+    if (desc.bind_flags & BIND_UNORDERED_ACCESS) {
+        D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
+        uav_desc.Format = DXGI_FORMAT_UNKNOWN;
+        uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+        uav_desc.Buffer.FirstElement = 0;
+        uav_desc.Buffer.NumElements = desc.elementCount();
+        D3D_FAIL(m_device->CreateUnorderedAccessView(buffer.Get(), &uav_desc, uav.GetAddressOf()),
+                 "Failed to create UAV (StructuredBuffer)");
+    }
+
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
     srv_desc.Format = DXGI_FORMAT_UNKNOWN;

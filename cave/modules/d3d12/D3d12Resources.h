@@ -10,10 +10,10 @@ struct D3d12MeshBuffers : GpuMesh {
     D3D12_INDEX_BUFFER_VIEW ibv;
 };
 
-struct D3d12Buffer final : public GpuResource {
+struct D3d12GpuBuffer final : public GpuResource {
     using GpuResource::GpuResource;
 
-    ~D3d12Buffer() {
+    ~D3d12GpuBuffer() {
         if (buffer && mappedData) {
             buffer->Unmap(0, nullptr);
             mappedData = nullptr;
@@ -26,7 +26,14 @@ struct D3d12Buffer final : public GpuResource {
 
     Microsoft::WRL::ComPtr<ID3D12Resource> buffer{};
     uint8_t* mappedData{ nullptr };
-    DescriptorHeapHandle handle;
+
+    uint64_t getSrvHandle() const override { return srv_handle.index; }
+    uint64_t getUavHandle() const override { return uav_handle.index; }
+
+    DescriptorHeapHandle srv_handle;
+    DescriptorHeapHandle uav_handle;
+
+    D3D12_RESOURCE_STATES current_state;
 };
 
 // @TODO: refactor

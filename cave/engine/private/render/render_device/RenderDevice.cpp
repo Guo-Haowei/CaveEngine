@@ -393,13 +393,8 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
     }
 
     // transition srvs
-#if 0
-    for (auto& texture : pass.srvs) {
-        if (!texture) continue;
-        auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
-        transitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
-#endif
+    std::span<const Ref<GpuResource>> srvs{ pass.srvs.data(), pass.srvs.size() };
+    cmd->barriers(srvs);
 }
 
 void RenderDevice::endPass(const CompiledPass& pass) {

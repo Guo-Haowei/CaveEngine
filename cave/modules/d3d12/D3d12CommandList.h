@@ -50,6 +50,8 @@ public:
                   uint32_t num_groups_y,
                   uint32_t num_groups_z) override;
 
+    void barriers(std::span<const Ref<GpuResource>> resources) override;
+
     // @TODO: remove these
     void setMesh(const GpuMesh* mesh) override;
 

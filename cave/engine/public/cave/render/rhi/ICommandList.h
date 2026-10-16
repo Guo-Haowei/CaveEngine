@@ -50,6 +50,8 @@ public:
                           uint32_t num_groups_y,
                           uint32_t num_groups_z) = 0;
 
+    virtual void barriers(std::span<const Ref<GpuResource>> resources) { unused(resources); }
+
     // @TODO: remove these
     virtual void setMesh(const GpuMesh* mesh) = 0;
 

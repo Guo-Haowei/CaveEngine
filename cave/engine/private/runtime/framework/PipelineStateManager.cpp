@@ -267,11 +267,8 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                                   });
     }
 
-    // @HACK: skip d3d12
-    if (m_backend != Backend::D3d12) {
-        if (capabilities.support_cs) {
-            CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
-        }
+    if (capabilities.support_cs) {
+        CREATE_PSO(PSO_PATH_TRACER, { .type = PipelineStateType::COMPUTE, .cs = "path_tracer.cs" });
     }
 
 #if USING(CAVE_PARTICLE)
