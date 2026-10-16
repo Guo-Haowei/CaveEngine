@@ -68,18 +68,6 @@ struct ForwardOutput {
     RGDependencyId dependency;
 };
 
-struct BloomInput {
-    RGDependencyId dependency;
-
-    RGTextureId color;
-};
-
-struct BloomOut {
-    RGDependencyId dependency;
-
-    RGTextureId bloom;
-};
-
 struct HighlightInput {
     RGTextureId stencil{};
 };
@@ -113,9 +101,6 @@ public:
 
     [[nodiscard]]
     ForwardOutput addForwardPass(const ForwardInput& in);
-
-    [[nodiscard]]
-    BloomOut addBloomPasses(const BloomInput& in);
 
     [[nodiscard]]
     HighlightOutput addHighlightPass(const HighlightInput& in);

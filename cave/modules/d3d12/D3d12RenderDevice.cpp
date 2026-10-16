@@ -150,7 +150,7 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
             [this]() {
                 ImGui_ImplDX12_Init(m_device.Get(),
                                     kNumFramesInFlight,
-                                    d3d::Convert(DEFAULT_SURFACE_FORMAT),
+                                    d3d::Convert(kDefaultSurfaceFormat),
                                     m_srv_heap.GetHeap(),
                                     m_srv_heap.GetStartCpu(),
                                     m_srv_heap.GetStartGpu());
@@ -882,7 +882,7 @@ auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> 
     // fill the swap chain description struct
     scd.Width = p_width;
     scd.Height = p_height;
-    scd.Format = d3d::Convert(DEFAULT_SURFACE_FORMAT);
+    scd.Format = d3d::Convert(kDefaultSurfaceFormat);
     scd.Stereo = FALSE;
     scd.SampleDesc = { 1, 0 };
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  // how swap chain is to be used
@@ -922,7 +922,7 @@ auto D3d12RenderDevice::createRenderTarget(uint32_t p_width, uint32_t p_height) 
     }
 
     D3D12_CLEAR_VALUE depthOptimizedClearValue{};
-    depthOptimizedClearValue.Format = d3d::Convert(DEFAULT_DEPTH_STENCIL_FORMAT);
+    depthOptimizedClearValue.Format = d3d::Convert(kDefaultDepthStencilFormat);
     depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
     depthOptimizedClearValue.DepthStencil.Stencil = 0;
 
@@ -940,7 +940,7 @@ auto D3d12RenderDevice::createRenderTarget(uint32_t p_width, uint32_t p_height) 
     resource_desc.Height = p_height;
     resource_desc.DepthOrArraySize = 1;
     resource_desc.MipLevels = 1;
-    resource_desc.Format = d3d::Convert(DEFAULT_DEPTH_STENCIL_FORMAT);
+    resource_desc.Format = d3d::Convert(kDefaultDepthStencilFormat);
     resource_desc.SampleDesc = { 1, 0 };
     resource_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resource_desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;

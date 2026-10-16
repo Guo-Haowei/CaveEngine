@@ -294,52 +294,6 @@ void ForwardPassFunc(RenderPassExcutionContext& ctx) {
     ExecuteDrawCommands(ctx, ctx.frameData.commands[std::to_underlying(DrawPhase::Forward)], false);
 }
 
-/// Bloom
-void BloomSetupFunc(RenderPassExcutionContext& ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = ctx.command;
-
-    auto uav = ctx.pass.uavs[0];
-
-    cmd.setPipelineState(PSO_BLOOM_SETUP);
-
-    const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
-    const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
-
-    cmd.dispatch(work_group_x, work_group_y, 1);
-}
-
-void BloomDownSampleFunc(RenderPassExcutionContext& ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = ctx.command;
-
-    cmd.setPipelineState(PSO_BLOOM_DOWNSAMPLE);
-
-    auto uav = ctx.pass.uavs[0];
-
-    const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
-    const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
-
-    cmd.dispatch(work_group_x, work_group_y, 1);
-}
-
-void BloomUpSampleFunc(RenderPassExcutionContext& ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = ctx.command;
-
-    auto uav = ctx.pass.uavs[0];
-
-    cmd.setPipelineState(PSO_BLOOM_UPSAMPLE);
-
-    const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
-    const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
-
-    cmd.dispatch(work_group_x, work_group_y, 1);
-}
-
 /// Tone
 /// Change to post processing?
 void TonePassFunc(RenderPassExcutionContext& ctx) {

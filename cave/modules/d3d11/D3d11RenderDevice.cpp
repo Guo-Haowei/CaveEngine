@@ -149,7 +149,7 @@ auto D3d11RenderDevice::createSwapChain() -> Result<void> {
     buffer_desc.Width = 0;
     buffer_desc.Height = 0;
     buffer_desc.RefreshRate = { 60, 1 };
-    buffer_desc.Format = d3d::Convert(DEFAULT_SURFACE_FORMAT);
+    buffer_desc.Format = d3d::Convert(kDefaultSurfaceFormat);
     buffer_desc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
     DXGI_SWAP_CHAIN_DESC swap_chain_desc{};

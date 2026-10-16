@@ -17,9 +17,10 @@
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
 #include "engine/private/render/features/path_tracer/PathTracerFeature.h"
-#include "engine/private/render/features/pbr/EnvironmentFeature.h"
-#include "engine/private/render/features/shadow/ShadowFeature.h"
-#include "engine/private/render/features/ssao/SsaoFeature.h"
+#include "engine/private/render/features/BloomFeature.h"
+#include "engine/private/render/features/EnvironmentFeature.h"
+#include "engine/private/render/features/ShadowFeature.h"
+#include "engine/private/render/features/SsaoFeature.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
@@ -86,6 +87,7 @@ private:
 
     // features
     TransientPool m_transient_pool;
+    BloomFeature m_bloom;
     EnvironmentFeature m_env;
     ShadowFeature m_shadow;
     SsaoFeature m_ssao;
@@ -438,16 +440,18 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
         .lighting = lighting_outputs.lighting,
     });
 
-    BloomOut bloom_output = {
+    BloomFeature::Outputs bloom_output = {
         .dependency = RGDependencyId::null(),
         .bloom = RGTextureId::null(),
     };
 
     if (plan.enable_bloom) {
-        bloom_output = graph.addBloomPasses({
-            .dependency = forward_outputs.dependency,
-            .color = lighting_outputs.lighting,
-        });
+        bloom_output = m_bloom.Build(graph,
+                                     {
+                                         .dependency = forward_outputs.dependency,
+                                         .color = lighting_outputs.lighting,
+                                     },
+                                     plan);
     }
 
     auto highlight_output = graph.addHighlightPass({

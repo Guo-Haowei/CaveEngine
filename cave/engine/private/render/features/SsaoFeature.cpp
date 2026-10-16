@@ -79,7 +79,7 @@ SsaoFeature::Outputs SsaoFeature::Build(RenderGraph& p_graph,
     Outputs out{
         .processed = p_graph.createTexture({
             RG_RES_SSAO,
-            p_graph.buildDefaultTextureDesc(RT_FMT_SSAO, AttachmentType::COLOR_2D),
+            p_graph.buildDefaultTextureDesc(kFormatSsao, AttachmentType::COLOR_2D),
         })
     };
 

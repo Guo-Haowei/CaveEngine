@@ -60,6 +60,8 @@ public:
     RGTextureId importTexture(ImportDesc&& info);
     RGDependencyId createDependency();
 
+    const math::IntRect& viewport() const { return m_viewport; }
+
 protected:
     math::IntRect m_viewport;
 
