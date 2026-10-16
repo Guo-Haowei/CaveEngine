@@ -15,7 +15,7 @@ API_INFO = {
     "d3d11": ("hlsl", "sm_5_0"),
     "d3d12": ("dxil", "sm_6_6"),
     "opengl": ("glsl", "glsl_460"),
-    "metal": ("metal",  "metal_3_0"),
+    "metal": ("metal",  None),
 }
 
 
@@ -97,12 +97,14 @@ def run_slangc(
             "-entry", entry_point,
             "-stage", stage,
             "-target", lang,
-            "-profile", profile,
             "-no-mangle",
             "-line-directive-mode", "none",
             f"-D{define}",
             "-o", str(output_file)
         ]
+
+        if profile:
+            cmd.extend(["-profile", profile])
 
         if not run_command(cmd, "slangc", input_file, stage):
             return False

@@ -111,10 +111,10 @@ inline static MTLPixelFormat ToMetalTextureFormat(PixelFormat format) {
 
 inline static MTLSamplerMinMagFilter ToMetalFilter(MinFilter filter) {
     switch (filter) {
-    case MinFilter::POINT:
+    case MinFilter::Point:
         return MTLSamplerMinMagFilterNearest;
-    case MinFilter::LINEAR:
-    case MinFilter::LINEAR_MIPMAP_LINEAR:
+    case MinFilter::Linear:
+    case MinFilter::LinearMipmapLinear:
         return MTLSamplerMinMagFilterLinear;
     default:
         return MTLSamplerMinMagFilterLinear;
@@ -123,9 +123,9 @@ inline static MTLSamplerMinMagFilter ToMetalFilter(MinFilter filter) {
 
 inline static MTLSamplerMinMagFilter ToMetalFilter(MagFilter filter) {
     switch (filter) {
-    case MagFilter::POINT:
+    case MagFilter::Point:
         return MTLSamplerMinMagFilterNearest;
-    case MagFilter::LINEAR:
+    case MagFilter::Linear:
     default:
         return MTLSamplerMinMagFilterLinear;
     }
@@ -133,9 +133,9 @@ inline static MTLSamplerMinMagFilter ToMetalFilter(MagFilter filter) {
 
 inline static MTLSamplerAddressMode ToMetalAddressMode(AddressMode mode) {
     switch (mode) {
-    case AddressMode::WRAP:
+    case AddressMode::Wrap:
         return MTLSamplerAddressModeRepeat;
-    case AddressMode::CLAMP:
+    case AddressMode::Clamp:
         return MTLSamplerAddressModeClampToEdge;
     default:
         return MTLSamplerAddressModeClampToEdge;
@@ -145,18 +145,18 @@ inline static MTLSamplerAddressMode ToMetalAddressMode(AddressMode mode) {
 inline static MTLSamplerDescriptor* FillMetalSamplerDesc(const SamplerDesc& src) {
     MTLSamplerDescriptor* desc = [MTLSamplerDescriptor new];
 
-    desc.minFilter = ToMetalFilter(src.minFilter);
-    desc.magFilter = ToMetalFilter(src.magFilter);
-    desc.mipFilter = src.minFilter == MinFilter::LINEAR_MIPMAP_LINEAR ? MTLSamplerMipFilterLinear : MTLSamplerMipFilterNearest;
+    desc.minFilter = ToMetalFilter(src.min_filter);
+    desc.magFilter = ToMetalFilter(src.mag_filter);
+    desc.mipFilter = src.min_filter == MinFilter::LinearMipmapLinear ? MTLSamplerMipFilterLinear : MTLSamplerMipFilterNearest;
 
-    desc.sAddressMode = ToMetalAddressMode(src.addressU);
-    desc.tAddressMode = ToMetalAddressMode(src.addressV);
-    desc.rAddressMode = ToMetalAddressMode(src.addressW);
+    desc.sAddressMode = ToMetalAddressMode(src.address_u);
+    desc.tAddressMode = ToMetalAddressMode(src.address_v);
+    desc.rAddressMode = ToMetalAddressMode(src.address_w);
 
-    desc.maxAnisotropy = std::max(1u, src.maxAnisotropy);
-    desc.compareFunction = ToCompare(src.comparisonFunc);
-    desc.lodMinClamp = src.minLod;
-    desc.lodMaxClamp = src.maxLod;
+    desc.maxAnisotropy = std::max(1u, src.max_anisotropy);
+    desc.compareFunction = ToCompare(src.comparison_func);
+    desc.lodMinClamp = src.min_lod;
+    desc.lodMaxClamp = src.max_lod;
 
     return desc;
 }
