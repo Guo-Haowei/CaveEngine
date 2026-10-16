@@ -9,10 +9,9 @@ namespace cave::render {
 
 class IRenderDevice;
 
-// just use unique name for reusing
 struct TransientTextureDesc {
-    GpuTextureDesc texture;
-    SamplerDesc sampler;
+    GpuResourceDesc texture;
+    SamplerDesc sampler;  // @TODO: remove sampler
 };
 
 class TransientPool {

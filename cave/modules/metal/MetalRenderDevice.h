@@ -42,7 +42,7 @@ public:
 protected:
     auto InitializeInternal() -> Result<void> override;
 
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& desc, const SamplerDesc& sampler) override;
+    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc& sampler) override;
 
     void beginFrame() override;
     void endFrame() override;

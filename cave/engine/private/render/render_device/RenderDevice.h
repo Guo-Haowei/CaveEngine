@@ -50,7 +50,7 @@ public:
 
     auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> override;
 
-    Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    Ref<GpuTexture> createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
     Ref<GpuTexture> createTexture(ImageAsset* image) override;
 
     void requestTexture(ImageAsset* image) override;

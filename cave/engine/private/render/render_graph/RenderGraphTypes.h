@@ -26,7 +26,7 @@ DEFINE_ENUM_BITWISE_OPERATIONS(ResourceAccess);
 
 struct RGTextureNode {
     RGTextureId handle;
-    GpuTextureDesc desc{};
+    GpuResourceDesc desc{};
     SamplerDesc sampler{};
     ResourceAccess access_mask{ ResourceAccess::None };
     GpuTextureId external{};

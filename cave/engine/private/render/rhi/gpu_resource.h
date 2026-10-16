@@ -139,23 +139,6 @@ struct GpuResourceDesc {
     }
 };
 
-struct GpuTextureDesc {
-    // @TODO remove AttachmentType
-    AttachmentType type;
-
-    Dimension dimension;
-    uint32_t width;
-    uint32_t height;
-    uint32_t depth;
-    uint32_t mip_levels;
-    uint32_t array_size;
-    PixelFormat format;
-    BindFlags bind_flags;
-    ResourceMiscFlags misc_flags;
-    const void* initial_data = nullptr;
-    std::string name;  // @TODO: use char[]
-};
-
 struct GpuBuffer {
     const GpuResourceDesc desc;
 
@@ -171,8 +154,8 @@ struct GpuBuffer {
 };
 
 struct GpuTexture {
-    GpuTexture(const GpuTextureDesc& p_desc)
-        : desc(p_desc) {}
+    GpuTexture(const GpuResourceDesc& desc)
+        : desc(desc) {}
 
     virtual ~GpuTexture() = default;
 
@@ -182,7 +165,7 @@ struct GpuTexture {
 
     uint32_t GetHandle32() const { return static_cast<uint32_t>(getHandle()); }
 
-    const GpuTextureDesc desc;
+    const GpuResourceDesc desc;
 };
 
 constexpr int kMeshMaxVertexBufferCount = 8;

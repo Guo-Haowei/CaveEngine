@@ -188,14 +188,14 @@ RGDependencyId RenderGraph::createDependency() {
 }
 
 ///  @TODO: remove this
-GpuTextureDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
-                                                    AttachmentType type,
-                                                    uint32_t width,
-                                                    uint32_t height,
-                                                    uint32_t array_size,
-                                                    ResourceMiscFlags misc_flag,
-                                                    uint32_t mips_level) {
-    GpuTextureDesc desc{};
+GpuResourceDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
+                                                     AttachmentType type,
+                                                     uint32_t width,
+                                                     uint32_t height,
+                                                     uint32_t array_size,
+                                                     ResourceMiscFlags misc_flag,
+                                                     uint32_t mips_level) {
+    GpuResourceDesc desc{};
     desc.type = type;
     desc.format = format;
     desc.array_size = array_size;

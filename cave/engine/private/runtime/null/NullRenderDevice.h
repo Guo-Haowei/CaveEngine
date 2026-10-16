@@ -31,7 +31,7 @@ public:
 
     void updateConstantBuffer(const GpuBuffer*, const void*, size_t) override {}
 
-    Ref<GpuTexture> createTexture(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }
+    Ref<GpuTexture> createTexture(const GpuResourceDesc&, const SamplerDesc&) override { return nullptr; }
     Ref<GpuTexture> createTexture(ImageAsset*) override { return nullptr; }
 
     void generateMipmap(const GpuTexture*) override {}
@@ -51,7 +51,7 @@ public:
     ICommandList* getCommandList() const override { return nullptr; }
 
 protected:
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }
+    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc&, const SamplerDesc&) override { return nullptr; }
 
     void render() override {}
     void present() override {}

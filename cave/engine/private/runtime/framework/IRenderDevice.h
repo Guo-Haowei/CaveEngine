@@ -25,7 +25,6 @@ struct GpuBuffer;
 struct GpuResourceDesc;
 struct GpuMeshDesc;
 struct GpuTexture;
-struct GpuTextureDesc;
 struct SamplerDesc;
 struct Viewport;
 
@@ -78,7 +77,7 @@ public:
         updateConstantBuffer(buffer, array.data(), sizeof(T) * N);
     }
 
-    virtual Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
+    virtual Ref<GpuTexture> createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
     virtual Ref<GpuTexture> createTexture(ImageAsset* image) = 0;
 
     virtual void generateMipmap(const GpuTexture* texture) = 0;
@@ -101,7 +100,7 @@ public:
     virtual ICommandList* getCommandList() const = 0;
 
 protected:
-    virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
+    virtual Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
 
     virtual void render() = 0;
     virtual void present() = 0;

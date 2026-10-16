@@ -154,7 +154,7 @@ auto RenderDevice::createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> {
 
 // @TODO: refactor this
 static void FillTextureAndSamplerDesc(const ImageAsset* image,
-                                      GpuTextureDesc& texture_desc,
+                                      GpuResourceDesc& texture_desc,
                                       SamplerDesc& sampler_desc) {
     DEV_ASSERT(image);
     bool is_hdr_file = false;
@@ -210,7 +210,7 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
 Ref<GpuTexture> RenderDevice::createTexture(ImageAsset* image) {
     DEV_ASSERT(image);
 
-    GpuTextureDesc texture_desc{};
+    GpuResourceDesc texture_desc{};
     SamplerDesc sampler_desc{};
     FillTextureAndSamplerDesc(image, texture_desc, sampler_desc);
 
@@ -298,7 +298,7 @@ Ref<FrameContext> RenderDevice::createFrameContext() {
     return MakeRef<FrameContext>();
 }
 
-Ref<GpuTexture> RenderDevice::createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) {
+Ref<GpuTexture> RenderDevice::createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) {
     auto texture = createTextureImpl(texture_desc, sampler_desc);
     return texture;
 }

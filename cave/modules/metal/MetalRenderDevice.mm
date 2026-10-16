@@ -422,7 +422,7 @@ static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
     }
 }
 
-Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc, const SamplerDesc&) {
+Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc&) {
     MTLPixelFormat texture_format = ToMetalTextureFormat(desc.format);
 
     DEV_ASSERT(texture_format != MTLPixelFormatInvalid);

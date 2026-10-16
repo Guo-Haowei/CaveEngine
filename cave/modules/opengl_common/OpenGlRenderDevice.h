@@ -39,7 +39,7 @@ public:
     ICommandList* getCommandList() const override;
 
 protected:
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
 
     void render() override;
     void present() override;

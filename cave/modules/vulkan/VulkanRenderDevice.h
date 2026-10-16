@@ -37,7 +37,7 @@ public:
 
 protected:
     auto InitializeInternal() -> Result<void> final;
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override { return nullptr; }
+    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override { return nullptr; }
 
     void render() override {}
     void present() final;

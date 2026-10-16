@@ -78,8 +78,7 @@ ViewTabBase::ViewTabBase(EditorState& editor,
     using namespace render;
 
     // @TODO: move it to somewhere else
-    GpuTextureDesc desc{
-        .type = AttachmentType::COLOR_2D,
+    GpuResourceDesc desc{
         .dimension = Dimension::Texture2D,
         .width = kTextureWidth,
         .height = kTextureHeight,
@@ -89,6 +88,7 @@ ViewTabBase::ViewTabBase(EditorState& editor,
         .format = PixelFormat::R16G16B16A16_FLOAT,
         .bind_flags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .misc_flags = RESOURCE_MISC_NONE,
+        .type = AttachmentType::COLOR_2D,
     };
 
     m_texture = m_engine_services.renderDevice().createTexture(desc, PointClampSampler());

@@ -43,7 +43,7 @@ public:
 
 protected:
     virtual auto InitializeInternal() -> Result<void> override;
-    virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    virtual Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
 
     virtual void render() override;
     virtual void present() override;

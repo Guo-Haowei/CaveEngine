@@ -30,7 +30,7 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
             continue;
         }
 
-        GpuTextureDesc desc = node.desc;
+        GpuResourceDesc desc = node.desc;
         // @TODO: get rid of the name
         desc.name = node.debug_name;
         ResourceAccess access = node.access_mask;

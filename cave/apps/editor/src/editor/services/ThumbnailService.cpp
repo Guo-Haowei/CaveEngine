@@ -51,8 +51,7 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
 
     using namespace render;
 
-    GpuTextureDesc tex_desc{
-        .type = AttachmentType::COLOR_2D,
+    GpuResourceDesc tex_desc{
         .dimension = Dimension::Texture2D,
         .width = w,
         .height = h,
@@ -62,6 +61,8 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
         .format = PixelFormat::R16G16B16A16_FLOAT,
         .bind_flags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .misc_flags = RESOURCE_MISC_NONE,
+
+        .type = AttachmentType::COLOR_2D,
     };
     auto tex = m_render_device.createTexture(
         tex_desc,

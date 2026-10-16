@@ -220,7 +220,7 @@ void RenderGraphBuilderExt::AddVoxelizationPass() {
     }
 
     const int voxel_size = DVAR_GET_INT(gfx_voxel_size);
-    GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
+    GpuResourceDesc desc = BuildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
                                                   AttachmentType::RW_TEXTURE,
                                                   voxel_size, voxel_size);
     desc.dimension = Dimension::TEXTURE_3D;

@@ -95,7 +95,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
         DEV_ASSERT(!m_specular);
 
         {
-            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
+            GpuResourceDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 kCubemapSize,
@@ -109,7 +109,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
         }
         {
 
-            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
+            GpuResourceDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 kIrradianceCubemapSize,
@@ -120,7 +120,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
             m_diffuse = m_device.createTexture(desc, CubemapNoMipSampler());
         }
         {
-            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
+            GpuResourceDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 kPrefilteredCubemapSize,

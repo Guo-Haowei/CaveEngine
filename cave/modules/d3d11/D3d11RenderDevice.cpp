@@ -299,7 +299,7 @@ void D3d11RenderDevice::generateMipmap(const GpuTexture* texture) {
     m_device_context->GenerateMips(d3d_tex->srv.Get());
 }
 
-Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc,
+Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuResourceDesc& p_texture_desc,
                                                      const SamplerDesc&) {
     ComPtr<ID3D11ShaderResourceView> srv;
     ComPtr<ID3D11UnorderedAccessView> uav;

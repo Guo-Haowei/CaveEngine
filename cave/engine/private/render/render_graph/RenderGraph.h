@@ -17,7 +17,7 @@ class RenderGraph {
 public:
     struct CreateDesc {
         std::string debug_name;
-        GpuTextureDesc resourceDesc;
+        GpuResourceDesc resourceDesc;
         SamplerDesc samplerDesc = PointClampSampler();
     };
 
@@ -33,19 +33,19 @@ public:
     [[nodiscard]]
     auto compile() -> Result<Ref<CompiledGraph>>;
 
-    static GpuTextureDesc buildDefaultTextureDesc(PixelFormat format,
-                                                  AttachmentType type,
-                                                  uint32_t width,
-                                                  uint32_t height,
-                                                  uint32_t array_size = 1,
-                                                  ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
-                                                  uint32_t mips_level = 0);
+    static GpuResourceDesc buildDefaultTextureDesc(PixelFormat format,
+                                                   AttachmentType type,
+                                                   uint32_t width,
+                                                   uint32_t height,
+                                                   uint32_t array_size = 1,
+                                                   ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
+                                                   uint32_t mips_level = 0);
 
-    GpuTextureDesc buildDefaultTextureDesc(PixelFormat format,
-                                           AttachmentType type,
-                                           uint32_t array_size = 1,
-                                           ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
-                                           uint32_t mips_level = 0) {
+    GpuResourceDesc buildDefaultTextureDesc(PixelFormat format,
+                                            AttachmentType type,
+                                            uint32_t array_size = 1,
+                                            ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
+                                            uint32_t mips_level = 0) {
 
         return buildDefaultTextureDesc(format,
                                        type,

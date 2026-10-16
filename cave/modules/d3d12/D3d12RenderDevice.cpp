@@ -419,7 +419,7 @@ void D3d12RenderDevice::updateConstantBuffer(const GpuBuffer* buffer, const void
     }
 }
 
-Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc&) {
+Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc&) {
     auto initial_data = reinterpret_cast<const uint8_t*>(texture_desc.initial_data);
 
     bool gen_mip_map = false;

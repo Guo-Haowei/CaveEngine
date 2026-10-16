@@ -31,8 +31,7 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
         ssao_noise.emplace_back(noise);
     }
 
-    GpuTextureDesc desc{
-        .type = AttachmentType::NONE,
+    GpuResourceDesc desc{
         .dimension = Dimension::Texture2D,
         .width = SSAO_NOISE_SIZE,
         .height = SSAO_NOISE_SIZE,
@@ -43,6 +42,8 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
         .bind_flags = BIND_SHADER_RESOURCE,
         .misc_flags = RESOURCE_MISC_NONE,
         .initial_data = ssao_noise.data(),
+
+        .type = AttachmentType::NONE,
     };
 
     return p_device.createTexture(desc, PointWrapSampler());

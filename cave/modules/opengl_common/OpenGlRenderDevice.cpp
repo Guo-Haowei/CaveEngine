@@ -184,7 +184,7 @@ void OpenGlRenderDevice::generateMipmap(const GpuTexture* base) {
     glBindTexture(dimension, 0);
 }
 
-Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuResourceDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     GLuint texture_id = 0;
     glGenTextures(1, &texture_id);
 
