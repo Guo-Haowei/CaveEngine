@@ -158,18 +158,18 @@ const RGTextureNode* RenderGraph::getLogicalTexture(RGTextureId handle) const {
     return &m_textures[handle.underlying() - 1];
 }
 
-RGTextureId RenderGraph::createTexture(CreateDesc&& info) {
+RGTextureId RenderGraph::createResource(CreateDesc&& info) {
     RGTextureId handle = allocHandle();
     m_textures.resize(m_handle_id);
     RGTextureNode& node = m_textures.back();
     node.handle = handle;
-    node.desc = info.resourceDesc;
-    node.sampler = info.samplerDesc;
+    node.desc = info.resource_desc;
+    node.sampler = info.sampler_desc;
     node.debug_name = std::move(info.debug_name);
     return handle;
 }
 
-RGTextureId RenderGraph::importTexture(ImportDesc&& info) {
+RGTextureId RenderGraph::importResource(ImportDesc&& info) {
     DEV_ASSERT(info.external);
     RGTextureId handle = allocHandle();
     m_textures.resize(m_handle_id);

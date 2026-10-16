@@ -42,7 +42,7 @@ ShadowFeature::Outputs ShadowFeature::build(RenderGraph& graph, const RenderOpti
     RenderPass& pass = graph.addRenderPass(kPassShadow);
 
     Outputs out{
-        .shadow = graph.createTexture({
+        .shadow = graph.createResource({
             kResShadowMap,
             graph.buildDefaultTextureDesc(PixelFormat::D32_FLOAT,
                                           AttachmentType::SHADOW_2D,

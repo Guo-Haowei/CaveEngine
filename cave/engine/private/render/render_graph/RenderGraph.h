@@ -17,12 +17,12 @@ class RenderGraph {
 public:
     struct CreateDesc {
         std::string debug_name;
-        GpuResourceDesc resourceDesc;
-        SamplerDesc samplerDesc = PointClampSampler();
+        GpuResourceDesc resource_desc;
+        SamplerDesc sampler_desc = PointClampSampler();
     };
 
     struct ImportDesc {
-        GpuTextureId external;
+        Ref<GpuResource> external;
     };
 
     RenderGraph(const math::IntRect& rect)
@@ -56,8 +56,8 @@ public:
                                        mips_level);
     }
 
-    RGTextureId createTexture(CreateDesc&& info);
-    RGTextureId importTexture(ImportDesc&& info);
+    RGTextureId createResource(CreateDesc&& info);
+    RGTextureId importResource(ImportDesc&& info);
     RGDependencyId createDependency();
 
     const math::IntRect& viewport() const { return m_viewport; }

@@ -172,25 +172,6 @@ void D3d12CommandList::unbindTexture(Dimension, int slot) {
     unused(slot);
 }
 
-void D3d12CommandList::bindStructuredBuffer(int slot, const GpuResource* buffer) {
-    unused(slot);
-    unused(buffer);
-}
-
-void D3d12CommandList::unbindStructuredBuffer(int slot) {
-    unused(slot);
-}
-
-void D3d12CommandList::bindStructuredBufferSRV(int slot, const GpuResource* buffer) {
-    unused(slot);
-
-    DEV_ASSERT(buffer);
-}
-
-void D3d12CommandList::unbindStructuredBufferSRV(int slot) {
-    unused(slot);
-}
-
 void D3d12CommandList::bindUnorderedAccessView(uint32_t slot, GpuResource* texture) {
     unused(slot);
     unused(texture);

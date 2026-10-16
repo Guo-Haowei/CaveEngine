@@ -379,9 +379,9 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
 
     // bind srvs
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
-        if (const GpuResource* srv = pass.srvs[i].get()) {
-            DEV_ASSERT(srv->desc.bind_flags & BIND_SHADER_RESOURCE);
-            cmd->bindTexture(srv->desc.dimension, srv->getHandle(), i);
+        if (const GpuResource* resource = pass.srvs[i].get()) {
+            DEV_ASSERT(resource->desc.bind_flags & BIND_SHADER_RESOURCE);
+            cmd->bindTexture(resource->desc.dimension, resource->getSrvHandle(), i);
         }
     }
     // bind uavs

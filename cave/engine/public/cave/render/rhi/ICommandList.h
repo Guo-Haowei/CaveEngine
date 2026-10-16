@@ -56,11 +56,6 @@ public:
     virtual void bindTexture(Dimension dimension, uint64_t handle, int slot) = 0;
     virtual void unbindTexture(Dimension dimension, int slot) = 0;
 
-    virtual void bindStructuredBuffer(int slot, const GpuResource* buffer) = 0;
-    virtual void unbindStructuredBuffer(int slot) = 0;
-    virtual void bindStructuredBufferSRV(int slot, const GpuResource* buffer) = 0;
-    virtual void unbindStructuredBufferSRV(int slot) = 0;
-
     virtual void bindUnorderedAccessView(uint32_t slot, GpuResource* texture) = 0;
     virtual void unbindUnorderedAccessView(uint32_t slot) = 0;
 };

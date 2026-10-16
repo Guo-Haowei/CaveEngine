@@ -37,7 +37,5 @@ enum class PathTracerMode {
 void RequestPathTracerUpdate(Scene& p_scene);
 void SetPathTracerMode(PathTracerMode p_mode);
 bool IsPathTracerActive();
-void BindPathTracerData(ICommandList& p_device);
-void UnbindPathTracerData(ICommandList& p_device);
 
 }  // namespace cave::render

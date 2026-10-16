@@ -71,9 +71,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
         DEV_ASSERT(m_diffuse);
         DEV_ASSERT(m_specular);
 
-        RGTextureId env_cube_id = graph.importTexture({ m_env_cube });
-        RGTextureId diffuse_id = graph.importTexture({ m_diffuse });
-        RGTextureId specular_id = graph.importTexture({ m_specular });
+        RGTextureId env_cube_id = graph.importResource({ m_env_cube });
+        RGTextureId diffuse_id = graph.importResource({ m_diffuse });
+        RGTextureId specular_id = graph.importResource({ m_specular });
         return {
             .skybox = env_cube_id,
             .ibl_diffuse = diffuse_id,
@@ -134,10 +134,10 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
         }
     }
 
-    RGTextureId env_hdr = graph.importTexture({ m_env_texture });
-    RGTextureId env_cube = graph.importTexture({ m_env_cube });
-    RGTextureId diffuse = graph.importTexture({ m_diffuse });
-    RGTextureId specular = graph.importTexture({ m_specular });
+    RGTextureId env_hdr = graph.importResource({ m_env_texture });
+    RGTextureId env_cube = graph.importResource({ m_env_cube });
+    RGTextureId diffuse = graph.importResource({ m_diffuse });
+    RGTextureId specular = graph.importResource({ m_specular });
 
     // bake environment cubemap
     for (uint16_t face = 0; face < 6; ++face) {

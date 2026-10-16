@@ -81,12 +81,7 @@ static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
     SBUFFER(int,             GlobalDeadIndices,         17, 1) \
     SBUFFER(int,             GlobalAliveIndicesPreSim,  18, 2) \
     SBUFFER(int,             GlobalAliveIndicesPostSim, 19, 3) \
-    SBUFFER(Particle,        GlobalParticleData,        20, 4) \
-    SBUFFER(GpuPtVertex,     GlobalPtVertices,          21, 5) \
-    SBUFFER(GpuPtIndex,      GlobalPtIndices,           22, 6) \
-    SBUFFER(GpuPtBvh,        GlobalPtBvhs,              23, 7) \
-    SBUFFER(GpuPtMesh,       GlobalPtMeshes,            24, 8) \
-    SBUFFER(GpuPtMaterial,   GlobalPtMaterials,         25, 9)
+    SBUFFER(Particle,        GlobalParticleData,        20, 4)
 // clang-format on
 
 SBUFFER_LIST

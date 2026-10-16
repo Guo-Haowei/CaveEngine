@@ -31,10 +31,6 @@ public:
 
     bool isActive() const;
 
-    void bindData(ICommandList& cmd);
-
-    void unbindData(ICommandList& cmd);
-
 private:
     bool createAccelStructure(const Scene& scene);
     void updateAccelStructure(const Scene& scene);
@@ -54,6 +50,8 @@ private:
     HashMap<Guid, MeshData> m_meshs;
 
     PathTracerMode m_mode{ PathTracerMode::NONE };
+
+    friend class PathTracerFeature;
 };
 
 }  // namespace cave::render

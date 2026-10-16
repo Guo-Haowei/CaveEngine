@@ -179,7 +179,7 @@ void OpenGlRenderDevice::updateConstantBuffer(const GpuResource* buffer, const v
 
 void OpenGlRenderDevice::generateMipmap(const GpuResource* base) {
     auto dimension = gl::ConvertDimension(base->desc.dimension);
-    glBindTexture(dimension, base->GetHandle32());
+    glBindTexture(dimension, base->getHandle32());
     glGenerateMipmap(dimension);
     glBindTexture(dimension, 0);
 }

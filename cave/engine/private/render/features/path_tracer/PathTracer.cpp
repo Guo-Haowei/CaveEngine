@@ -19,9 +19,8 @@ namespace cave {
 namespace cave::render {
 
 template<typename T>
-static auto CreateBuffer(IRenderDevice* device, uint32_t slot, const std::vector<T>& data) {
+static auto CreateBuffer(IRenderDevice* device, const std::vector<T>& data) {
     auto desc = GpuResourceDesc::structuredBuffer(sizeof(T), static_cast<uint32_t>(data.size()));
-    desc.deprecated_slot = slot;
     desc.initial_data = data.data();
 
     return device->createStructuredBuffer(desc);
@@ -149,7 +148,6 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
         }
 
         auto desc = GpuResourceDesc::structuredBuffer(sizeof(materials[0]), static_cast<uint32_t>(materials.size()));
-        desc.deprecated_slot = GetGlobalPtMaterialsSlot();
         desc.initial_data = materials.data();
 
         // @TODO: only change when material is dirty
@@ -190,7 +188,6 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
         }
 
         auto desc = GpuResourceDesc::structuredBuffer(sizeof(meshes[0]), static_cast<uint32_t>(meshes.size()));
-        desc.deprecated_slot = GetGlobalPtMeshesSlot();
         desc.initial_data = meshes.data();
 
         if ((dirty_flag & SCENE_DIRTY_WORLD) || m_mesh_buffer == nullptr) {
@@ -203,7 +200,7 @@ bool PathTracer::createAccelStructure(const Scene& p_scene) {
     DEV_ASSERT(m_vertex_buffer == nullptr);
 
     // @TODO: refactor
-    auto gm = RenderDevice::singletonPtr();
+    auto device = RenderDevice::singletonPtr();
     GpuScene gpu_scene;
 
     Stopwatch stopwatch;
@@ -242,9 +239,9 @@ bool PathTracer::createAccelStructure(const Scene& p_scene) {
     const uint32_t triangle_count = (uint32_t)gpu_scene.indices.size();
     const uint32_t bvh_count = (uint32_t)gpu_scene.bvhs.size();
 
-    m_bvh_buffer = *CreateBuffer(gm, GetGlobalPtBvhsSlot(), gpu_scene.bvhs);
-    m_vertex_buffer = *CreateBuffer(gm, GetGlobalPtVerticesSlot(), gpu_scene.vertices);
-    m_index_buffer = *CreateBuffer(gm, GetGlobalPtIndicesSlot(), gpu_scene.indices);
+    m_bvh_buffer = *CreateBuffer(device, gpu_scene.bvhs);
+    m_vertex_buffer = *CreateBuffer(device, gpu_scene.vertices);
+    m_index_buffer = *CreateBuffer(device, gpu_scene.indices);
 
     stopwatch.stop();
     LOG_INFO("Path tracer scene loaded in {}, contains {} triangles, {} BVH",
@@ -320,24 +317,6 @@ bool PathTracer::isActive() const {
     }
 
     return true;
-}
-
-// @TODO: use different one
-void PathTracer::bindData(ICommandList& cmd) {
-    // @TODO: check null
-    cmd.bindStructuredBuffer(GetGlobalPtMeshesSlot(), m_mesh_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtBvhsSlot(), m_bvh_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtVerticesSlot(), m_vertex_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtIndicesSlot(), m_index_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_material_buffer.get());
-}
-
-void PathTracer::unbindData(ICommandList& cmd) {
-    cmd.unbindStructuredBuffer(GetGlobalPtBvhsSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtVerticesSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtIndicesSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtMeshesSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtMaterialsSlot());
 }
 
 }  // namespace cave::render

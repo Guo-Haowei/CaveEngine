@@ -72,11 +72,11 @@ SsaoFeature::Outputs SsaoFeature::build(RenderGraph& graph,
         m_ssao_texture = GenerateSsaoNoise(m_device);
     }
 
-    RGTextureId noise = graph.importTexture({ m_ssao_texture });
+    RGTextureId noise = graph.importResource({ m_ssao_texture });
 
     RenderPass& pass = graph.addRenderPass(kPassSsao);
     Outputs out{
-        .processed = graph.createTexture({
+        .processed = graph.createResource({
             kResSsao,
             graph.buildDefaultTextureDesc(kFormatSsao, AttachmentType::COLOR_2D),
         })

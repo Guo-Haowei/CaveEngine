@@ -234,37 +234,30 @@ void OpenGlCommandList::setMesh(const GpuMesh* p_mesh) {
 }
 
 void OpenGlCommandList::bindTexture(Dimension dimension, uint64_t handle, int slot) {
-    if (handle) {
+    if (!handle) {
+        return;
+    }
+
+    const GLuint handle32 = static_cast<GLuint>(handle);
+    if (dimension == Dimension::Buffer) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, handle32);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, handle32);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    } else {
         const GLuint texture_type = gl::ConvertDimension(dimension);
         glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(texture_type, static_cast<GLuint>(handle));
+        glBindTexture(texture_type, handle32);
     }
 }
 
 void OpenGlCommandList::unbindTexture(Dimension dimension, int slot) {
-    const GLuint texture_type = gl::ConvertDimension(dimension);
-
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(texture_type, 0);
-}
-
-void OpenGlCommandList::bindStructuredBuffer(int slot, const GpuResource* buffer) {
-    auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, gl_buffer->handle);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, gl_buffer->handle);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-void OpenGlCommandList::unbindStructuredBuffer(int slot) {
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
-}
-
-void OpenGlCommandList::bindStructuredBufferSRV(int slot, const GpuResource* buffer) {
-    bindStructuredBuffer(slot, buffer);
-}
-
-void OpenGlCommandList::unbindStructuredBufferSRV(int slot) {
-    unbindStructuredBuffer(slot);
+    if (dimension == Dimension::Buffer) {
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+    } else {
+        const GLuint texture_type = gl::ConvertDimension(dimension);
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(texture_type, 0);
+    }
 }
 
 void OpenGlCommandList::bindUnorderedAccessView(uint32_t slot, GpuResource* texture) {

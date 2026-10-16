@@ -152,6 +152,7 @@ struct GpuResource {
     virtual uint64_t getHandle() const = 0;
     uint32_t getHandle32() const { return static_cast<uint32_t>(getHandle()); }
 
+    virtual uint64_t getSrvHandle() const { return getHandle(); }
     virtual uint64_t getUavHandle() const { return 0; }
     virtual uint64_t getResidentHandle() const { return 0; }
 };

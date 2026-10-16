@@ -86,7 +86,7 @@ BloomFeature::Outputs BloomFeature::build(RenderGraph& graph,
                                                           w, h);
 
         auto res_name = std::format(RG_RES_BLOOM_PREFIX "@{}x{}", w, h);
-        RGTextureId id = graph.createTexture({
+        RGTextureId id = graph.createResource({
             res_name,
             texture_desc,
             LinearClampSampler(),

@@ -203,30 +203,6 @@ void D3d11CommandList::unbindTexture(Dimension, int slot) {
     m_device_context->CSSetShaderResources(slot, 1, &srv);
 }
 
-void D3d11CommandList::bindStructuredBuffer(int slot, const GpuResource* buffer) {
-    auto structured_buffer = reinterpret_cast<const D3d11Buffer*>(buffer);
-    m_device_context->CSSetUnorderedAccessViews(slot, 1, structured_buffer->uav.GetAddressOf(), nullptr);
-}
-
-void D3d11CommandList::unbindStructuredBuffer(int slot) {
-    ID3D11UnorderedAccessView* uav = nullptr;
-    m_device_context->CSSetUnorderedAccessViews(slot, 1, &uav, nullptr);
-}
-
-void D3d11CommandList::bindStructuredBufferSRV(int slot, const GpuResource* buffer) {
-    DEV_ASSERT(buffer);
-
-    auto structured_buffer = reinterpret_cast<const D3d11Buffer*>(buffer);
-    if (structured_buffer->srv != nullptr) {
-        m_device_context->VSSetShaderResources(slot, 1, structured_buffer->srv.GetAddressOf());
-    }
-}
-
-void D3d11CommandList::unbindStructuredBufferSRV(int slot) {
-    ID3D11ShaderResourceView* srv = nullptr;
-    m_device_context->VSSetShaderResources(slot, 1, &srv);
-}
-
 void D3d11CommandList::bindUnorderedAccessView(uint32_t p_slot, GpuResource* p_texture) {
     DEV_ASSERT(p_texture);
 

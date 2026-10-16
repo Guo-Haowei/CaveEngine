@@ -32,6 +32,14 @@ struct D3d11Buffer : public GpuResource {
     uint64_t getHandle() const final {
         return (size_t)internal_buffer.Get();
     }
+
+    uint64_t getSrvHandle() const final {
+        return (size_t)srv.Get();
+    }
+
+    uint64_t getUavHandle() const final {
+        return (size_t)uav.Get();
+    }
 };
 
 struct D3d11MeshBuffers : GpuMesh {

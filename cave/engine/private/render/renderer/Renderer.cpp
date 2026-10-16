@@ -368,9 +368,9 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
 
     RenderGraphBuilderExt graph(view.viewport_px);
 
-    RGTextureId brdf = graph.importTexture({ m_brdf });
-    RGTextureId ltc1 = graph.importTexture({ m_ltc1 });
-    RGTextureId ltc2 = graph.importTexture({ m_ltc2 });
+    RGTextureId brdf = graph.importResource({ m_brdf });
+    RGTextureId ltc1 = graph.importResource({ m_ltc1 });
+    RGTextureId ltc2 = graph.importResource({ m_ltc2 });
 
     auto env_outputs = m_env.build(graph, plan);
 

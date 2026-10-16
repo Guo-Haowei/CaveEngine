@@ -60,11 +60,6 @@ public:
     void bindTexture(Dimension dimension, uint64_t handle, int slot) override;
     void unbindTexture(Dimension dimension, int slot) override;
 
-    void bindStructuredBuffer(int slot, const GpuResource* buffer) override;
-    void unbindStructuredBuffer(int slot) override;
-    void bindStructuredBufferSRV(int slot, const GpuResource* buffer) override;
-    void unbindStructuredBufferSRV(int slot) override;
-
     void bindUnorderedAccessView(uint32_t slot, GpuResource* texture) override;
     void unbindUnorderedAccessView(uint32_t slot) override;
 

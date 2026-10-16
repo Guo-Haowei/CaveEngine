@@ -2,10 +2,16 @@
 #include "../cbuffer.slang.h"
 #include "../structured_buffer.slang.h"
 
+RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
+
+StructuredBuffer<GpuPtBvh> GlobalPtBvhs : register(t0);
+StructuredBuffer<GpuPtVertex> GlobalPtVertices : register(t1);
+StructuredBuffer<GpuPtIndex> GlobalPtIndices : register(t2);
+StructuredBuffer<GpuPtMesh> GlobalPtMeshes : register(t3);
+StructuredBuffer<GpuPtMaterial> GlobalPtMaterials : register(t4);
+
 // @NOTE: include this at last
 #include "../shared_path_tracer.h"
-
-RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
 
 [shader("compute")]
 [numthreads(16, 16, 1)]
