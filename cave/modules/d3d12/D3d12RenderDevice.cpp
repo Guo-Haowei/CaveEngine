@@ -14,12 +14,11 @@
 #include "D3d12ViewCache.h"
 
 #include "cave/core/string/StringUtils.h"
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "../d3d_common/D3dCommon.h"
 #include "engine/private/core/math/MatrixTransform.h"
-#include "engine/private/renderer/graphics_private.h"
-#include "engine/private/renderer/sampler.h"
 #include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -28,7 +27,7 @@
 #include "../d3d_common/D3dConvert.h"
 
 namespace cave {
-#include "structured_buffer.hlsl.h"
+#include "structured_buffer.slang.h"
 }  // namespace cave
 
 namespace cave::render {
@@ -65,8 +64,6 @@ D3d12RenderDevice::D3d12RenderDevice()
 }
 
 auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
-    m_capabilities.supportComputeShaders = false;
-
     const auto size = DisplayService::singleton().windowSize();
     const int w = size.x;
     const int h = size.y;
@@ -96,12 +93,12 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
 
     for (int i = 0; i < kNumBackBuffers; i++) {
         auto handle = m_rtv_heap.AllocHandle();
-        m_renderTargetDescriptor[i] = handle.cpuHandle;
+        m_renderTargetDescriptor[i] = handle.cpu_handle;
     }
 
     {
         auto handle = m_dsv_heap.AllocHandle();
-        m_depthStencilDescriptor = handle.cpuHandle;
+        m_depthStencilDescriptor = handle.cpu_handle;
     }
 
     if (auto res = createSwapChain(w, h); !res) {
@@ -151,7 +148,7 @@ auto D3d12RenderDevice::InitializeInternal() -> Result<void> {
             [this]() {
                 ImGui_ImplDX12_Init(m_device.Get(),
                                     kNumFramesInFlight,
-                                    d3d::Convert(DEFAULT_SURFACE_FORMAT),
+                                    d3d::Convert(kDefaultSurfaceFormat),
                                     m_srv_heap.GetHeap(),
                                     m_srv_heap.GetStartCpu(),
                                     m_srv_heap.GetStartGpu());
@@ -185,10 +182,10 @@ void D3d12RenderDevice::render() {
 
     // bind the frame buffer
     D3D12_CPU_DESCRIPTOR_HANDLE dsv_handle = m_depthStencilDescriptor;
-    D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle = m_renderTargetDescriptor[m_backbufferIndex];
+    D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle = m_renderTargetDescriptor[m_back_buffer_index];
 
     // transfer resource state
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_backbufferIndex],
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_back_buffer_index],
                                                         D3D12_RESOURCE_STATE_PRESENT,
                                                         D3D12_RESOURCE_STATE_RENDER_TARGET);
     cmd_list->ResourceBarrier(1, &barrier);
@@ -207,7 +204,7 @@ void D3d12RenderDevice::render() {
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd_list);
     }
 
-    barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_backbufferIndex],
+    barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_back_buffer_index],
                                                    D3D12_RESOURCE_STATE_RENDER_TARGET,
                                                    D3D12_RESOURCE_STATE_PRESENT);
     cmd_list->ResourceBarrier(1, &barrier);
@@ -231,31 +228,17 @@ void D3d12RenderDevice::beginFrame() {
     D3D_CALL(m_graphics_command_list->Reset(frame.m_commandAllocator, nullptr));
     WaitForSingleObject(m_swapChainWaitObject, INFINITE);
 
-    m_backbufferIndex = m_swap_chain->GetCurrentBackBufferIndex();
-
-    m_graphics_command_list->SetGraphicsRootSignature(m_root_signature.Get());
-    m_graphics_command_list->SetComputeRootSignature(m_root_signature.Get());
+    m_back_buffer_index = m_swap_chain->GetCurrentBackBufferIndex();
 
     ID3D12DescriptorHeap* heap = m_srv_heap.GetHeap();
     m_graphics_command_list->SetDescriptorHeaps(1, &heap);
 
+    m_graphics_command_list->SetGraphicsRootSignature(m_root_signature.Get());
+    m_graphics_command_list->SetComputeRootSignature(m_root_signature.Get());
+
     // Root Param 8: Fixed SRVs (space0)
-    CD3DX12_GPU_DESCRIPTOR_HANDLE fixedSrvHandle{ m_srv_heap.GetStartGpu() };
-    m_graphics_command_list->SetGraphicsRootDescriptorTable(8, fixedSrvHandle);
-
-    // Root Param 10: Bindless 2D SRVs (space1)
-    const uint32_t tex2dStart = Texture2D_START;
-    CD3DX12_GPU_DESCRIPTOR_HANDLE bindless2dHandle(m_srv_heap.GetStartGpu());
-    bindless2dHandle.Offset(tex2dStart, m_srv_heap.GetIncrementSize());
-    m_graphics_command_list->SetGraphicsRootDescriptorTable(10, bindless2dHandle);
-    m_graphics_command_list->SetComputeRootDescriptorTable(10, bindless2dHandle);
-
-    // Root Param 11: Bindless Cube SRVs (space2)
-    const uint32_t texCubeStart = TextureCube_START;
-    CD3DX12_GPU_DESCRIPTOR_HANDLE bindlessCubeHandle(m_srv_heap.GetStartGpu());
-    bindlessCubeHandle.Offset(texCubeStart, m_srv_heap.GetIncrementSize());
-    m_graphics_command_list->SetGraphicsRootDescriptorTable(11, bindlessCubeHandle);
-    m_graphics_command_list->SetComputeRootDescriptorTable(11, bindlessCubeHandle);
+    CD3DX12_GPU_DESCRIPTOR_HANDLE fixed_srv_handle{ m_srv_heap.GetStartGpu() };
+    m_graphics_command_list->SetGraphicsRootDescriptorTable(8, fixed_srv_handle);
 }
 
 void D3d12RenderDevice::endFrame() {
@@ -428,7 +411,7 @@ auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> R
     uav_desc.Buffer.StructureByteStride = p_desc.element_size;
 
     auto handle = m_srv_heap.AllocHandle();
-    m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpuHandle);
+    m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpu_handle);
 
     auto result = MakeRef<D3d12StructuredBuffer>(p_desc);
     result->buffer = buffer;
@@ -629,21 +612,16 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     if (texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
         srv_desc.Format = srv_format;
-        DescriptorResourceType resource_type{};
         switch (texture_desc.dimension) {
             case Dimension::Texture2D:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
                 srv_desc.Texture2D.MipLevels = resource_desc.MipLevels;
                 srv_desc.Texture2D.MostDetailedMip = 0;
-
-                resource_type = DescriptorResourceType::Texture2D;
                 break;
             case Dimension::TextureCube:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
                 srv_desc.TextureCube.MipLevels = resource_desc.MipLevels;
                 srv_desc.TextureCube.MostDetailedMip = 0;
-
-                resource_type = DescriptorResourceType::TextureCube;
                 break;
             case Dimension::TextureCubeArray:
                 srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
@@ -651,28 +629,42 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
                 srv_desc.TextureCubeArray.MostDetailedMip = 0;
                 srv_desc.TextureCubeArray.First2DArrayFace = 0;
                 srv_desc.TextureCubeArray.NumCubes = texture_desc.arraySize / 6;
-
-                resource_type = DescriptorResourceType::TextureCubeArray;
                 break;
             default:
                 CRASH_NOW();
                 break;
         }
 
-        auto srv_handle = m_srv_heap.AllocBindlessHandle(resource_type);
+        auto srv_handle = m_srv_heap.AllocHandle();
         srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        m_device->CreateShaderResourceView(texture_ptr, &srv_desc, srv_handle.cpuHandle);
-        gpu_texture->srvHandle = srv_handle;
+        m_device->CreateShaderResourceView(texture_ptr, &srv_desc, srv_handle.cpu_handle);
+        gpu_texture->srv_handle = srv_handle;
     }
 
     if (texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
-        LOG_ERROR("@TODO: fix hard code");
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
+        uav_desc.Format = d3d::Convert(texture_desc.format);
+
+        switch (texture_desc.dimension) {
+            case Dimension::Texture2D:
+                uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+                uav_desc.Texture2D.MipSlice = 0;
+                uav_desc.Texture2D.PlaneSlice = 0;
+                break;
+            default:
+                CRASH_NOW();
+                break;
+        }
+
+        auto uav_handle = m_srv_heap.AllocHandle();
+        m_device->CreateUnorderedAccessView(texture_ptr, nullptr, &uav_desc, uav_handle.cpu_handle);
+        gpu_texture->uav_handle = uav_handle;
     }
 
     if (initial_data) {
-        gpu_texture->currentState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+        gpu_texture->current_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     } else {
-        gpu_texture->currentState = initial_state;
+        gpu_texture->current_state = initial_state;
     }
 
     gpu_texture->texture = ComPtr<ID3D12Resource>(texture_ptr);
@@ -888,7 +880,7 @@ auto D3d12RenderDevice::createSwapChain(uint32_t p_width, uint32_t p_height) -> 
     // fill the swap chain description struct
     scd.Width = p_width;
     scd.Height = p_height;
-    scd.Format = d3d::Convert(DEFAULT_SURFACE_FORMAT);
+    scd.Format = d3d::Convert(kDefaultSurfaceFormat);
     scd.Stereo = FALSE;
     scd.SampleDesc = { 1, 0 };
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  // how swap chain is to be used
@@ -928,7 +920,7 @@ auto D3d12RenderDevice::createRenderTarget(uint32_t p_width, uint32_t p_height) 
     }
 
     D3D12_CLEAR_VALUE depthOptimizedClearValue{};
-    depthOptimizedClearValue.Format = d3d::Convert(DEFAULT_DEPTH_STENCIL_FORMAT);
+    depthOptimizedClearValue.Format = d3d::Convert(kDefaultDepthStencilFormat);
     depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
     depthOptimizedClearValue.DepthStencil.Stencil = 0;
 
@@ -946,7 +938,7 @@ auto D3d12RenderDevice::createRenderTarget(uint32_t p_width, uint32_t p_height) 
     resource_desc.Height = p_height;
     resource_desc.DepthOrArraySize = 1;
     resource_desc.MipLevels = 1;
-    resource_desc.Format = d3d::Convert(DEFAULT_DEPTH_STENCIL_FORMAT);
+    resource_desc.Format = d3d::Convert(kDefaultDepthStencilFormat);
     resource_desc.SampleDesc = { 1, 0 };
     resource_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resource_desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
@@ -968,16 +960,16 @@ void D3d12RenderDevice::initStaticSamplers() {
     auto FillSamplerDesc = [](uint32_t p_slot, const SamplerDesc& p_desc) {
         CD3DX12_STATIC_SAMPLER_DESC sampler_desc(
             p_slot,
-            d3d::Convert(p_desc.minFilter, p_desc.magFilter),
-            d3d::Convert(p_desc.addressU),
-            d3d::Convert(p_desc.addressV),
-            d3d::Convert(p_desc.addressW),
-            p_desc.mipLodBias,
-            p_desc.maxAnisotropy,
-            d3d::Convert(p_desc.comparisonFunc),
-            d3d::Convert(p_desc.staticBorderColor),
-            p_desc.minLod,
-            p_desc.maxLod);
+            d3d::Convert(p_desc.min_filter, p_desc.mag_filter),
+            d3d::Convert(p_desc.address_u),
+            d3d::Convert(p_desc.address_v),
+            d3d::Convert(p_desc.address_w),
+            p_desc.mip_lod_bias,
+            p_desc.max_anisotropy,
+            d3d::Convert(p_desc.comparison_func),
+            d3d::Convert(p_desc.static_border_color),
+            p_desc.min_lod,
+            p_desc.max_lod);
 
         return sampler_desc;
     };
@@ -997,37 +989,41 @@ auto D3d12RenderDevice::createRootSignature() -> Result<void> {
     }
 
     // Descriptor Ranges
-    CD3DX12_DESCRIPTOR_RANGE ranges[5]{};
-    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);   // Param 8:  t0..t31 space0 (Fixed SRVs)
-    ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);   // Param 9:  u0..u15 space0 (Fixed UAVs / Compute)
-    ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 512, 0, 1);  // Param 10: t0..t511 space1 (Bindless 2D)
-    ranges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 128, 0, 2);  // Param 11: t0..t127 space2 (Bindless Cube)
-    ranges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 64, 0, 1);   // Param 12: u0..u63 space1 (Bindless UAV)
+    CD3DX12_DESCRIPTOR_RANGE ranges[2]{};
+    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 32, 0, 0);  // Param 8:  t0..t31 space0 (Fixed SRVs)
+    ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 16, 0, 0);  // Param 9:  u0..u15 space0 (Fixed UAVs / Compute)
 
-    // Assign Descriptor Tables (Params 8..12)
+    // Assign Descriptor Tables (Params 8...9)
     for (size_t i = 0; i < std::size(ranges); ++i) {
         params[idx++].InitAsDescriptorTable(1, &ranges[i]);
     }
 
     initStaticSamplers();
 
-    CD3DX12_ROOT_SIGNATURE_DESC root_signature_desc(
-        idx,
-        params,
-        static_cast<uint32_t>(m_staticSamplers.size()),
-        m_staticSamplers.data(),
-        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    const D3D12_ROOT_SIGNATURE_FLAGS root_sig_flags =
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+        D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+
+    CD3DX12_ROOT_SIGNATURE_DESC root_sig_desc;
+    root_sig_desc.Init(idx,
+                       params,
+                       static_cast<uint32_t>(m_staticSamplers.size()),
+                       m_staticSamplers.data(),
+                       root_sig_flags);
 
     ComPtr<ID3DBlob> signature;
     ComPtr<ID3DBlob> error;
-    HRESULT hr = D3D12SerializeRootSignature(&root_signature_desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+    HRESULT hr = D3D12SerializeRootSignature(&root_sig_desc, D3D_ROOT_SIGNATURE_VERSION_1_0, &signature, &error);
     if (FAILED(hr)) {
         const char* errorMsg = error ? static_cast<const char*>(error->GetBufferPointer()) : "Unknown error";
         LOG_ERROR("Failed to serialize root signature: {}", errorMsg);
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Failed to serialize root signature");
     }
 
-    D3D_FAIL(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_root_signature)),
+    D3D_FAIL(m_device->CreateRootSignature(0,
+                                           signature->GetBufferPointer(),
+                                           signature->GetBufferSize(),
+                                           IID_PPV_ARGS(&m_root_signature)),
              "Failed to create root signature");
 
     return Result<void>();

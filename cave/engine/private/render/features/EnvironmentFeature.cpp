@@ -12,11 +12,17 @@
 
 namespace cave::render {
 
-constexpr const char RG_PASS_BAKE_SKYBOX[] = "p:env_skybox";
-constexpr const char RG_PASS_BAKE_DIFFUSE[] = "p:diffuse";
-constexpr const char RG_PASS_BAKE_PREFILTERED[] = "p:prefiltered";
+namespace {
 
-static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
+constexpr const char kPassBakeSkybox[] = "p:env_skybox";
+constexpr const char kPassBakeDiffuse[] = "p:diffuse";
+constexpr const char kPassBakePrefiltered[] = "p:prefiltered";
+
+constexpr int kCubemapSize = 512;
+constexpr int kIrradianceCubemapSize = 32;
+constexpr int kPrefilteredCubemapSize = 512;
+
+void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
     CAVE_PROFILE_EVENT();
 
     auto& device = ctx.device;
@@ -32,7 +38,7 @@ static void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
     }
 }
 
-static void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
+void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
     CAVE_PROFILE_EVENT();
 
     auto& device = ctx.device;
@@ -43,9 +49,9 @@ static void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
     device.drawSkybox();
 }
 
-static void PrefilteredFunc(RenderPassExcutionContext& ctx,
-                            uint16_t mip,
-                            uint16_t face) {
+void PrefilteredFunc(RenderPassExcutionContext& ctx,
+                     uint16_t mip,
+                     uint16_t face) {
     CAVE_PROFILE_EVENT();
 
     auto& device = ctx.device;
@@ -57,15 +63,17 @@ static void PrefilteredFunc(RenderPassExcutionContext& ctx,
     device.drawSkybox();
 }
 
-EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph, const RenderOptions&) {
+}  // namespace
+
+EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const RenderOptions&) {
     if (m_env_texture) {
         DEV_ASSERT(m_env_cube);
         DEV_ASSERT(m_diffuse);
         DEV_ASSERT(m_specular);
 
-        RGTextureId env_cube_id = render_graph.importTexture({ m_env_cube });
-        RGTextureId diffuse_id = render_graph.importTexture({ m_diffuse });
-        RGTextureId specular_id = render_graph.importTexture({ m_specular });
+        RGTextureId env_cube_id = graph.importTexture({ m_env_cube });
+        RGTextureId diffuse_id = graph.importTexture({ m_diffuse });
+        RGTextureId specular_id = graph.importTexture({ m_specular });
         return {
             .skybox = env_cube_id,
             .ibl_diffuse = diffuse_id,
@@ -75,7 +83,6 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
 
     if (!m_env_texture) {
         const char* path = "sky.hdr";
-        // const char* path = "forest.hdr";
         std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage(path);
         if (!image) {
             return {};
@@ -91,8 +98,8 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
             GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
-                RT_SIZE_IBL_CUBEMAP,
-                RT_SIZE_IBL_CUBEMAP,
+                kCubemapSize,
+                kCubemapSize,
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
                 kIBLMipChainMax);
@@ -105,8 +112,8 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
             GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
-                RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
-                RT_SIZE_IBL_IRRADIANCE_CUBEMAP,
+                kIrradianceCubemapSize,
+                kIrradianceCubemapSize,
                 6);
             desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
@@ -116,8 +123,8 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
             GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
-                RT_SIZE_IBL_PREFILTERED_CUBEMAP,
-                RT_SIZE_IBL_PREFILTERED_CUBEMAP,
+                kPrefilteredCubemapSize,
+                kPrefilteredCubemapSize,
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
                 kIBLMipChainMax);
@@ -127,15 +134,15 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
         }
     }
 
-    RGTextureId env_hdr = render_graph.importTexture({ m_env_texture });
-    RGTextureId env_cube = render_graph.importTexture({ m_env_cube });
-    RGTextureId diffuse = render_graph.importTexture({ m_diffuse });
-    RGTextureId specular = render_graph.importTexture({ m_specular });
+    RGTextureId env_hdr = graph.importTexture({ m_env_texture });
+    RGTextureId env_cube = graph.importTexture({ m_env_cube });
+    RGTextureId diffuse = graph.importTexture({ m_diffuse });
+    RGTextureId specular = graph.importTexture({ m_specular });
 
     // bake environment cubemap
     for (uint16_t face = 0; face < 6; ++face) {
-        std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_SKYBOX, face);
-        RenderPass& pass = render_graph.addRenderPass(pass_name);
+        std::string pass_name = std::format("{}_{}", kPassBakeSkybox, face);
+        RenderPass& pass = graph.addRenderPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
@@ -148,8 +155,8 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
 
     // bake irradiance map
     for (uint16_t face = 0; face < 6; ++face) {
-        std::string pass_name = std::format("{}_{}", RG_PASS_BAKE_DIFFUSE, face);
-        RenderPass& pass = render_graph.addRenderPass(pass_name);
+        std::string pass_name = std::format("{}_{}", kPassBakeDiffuse, face);
+        RenderPass& pass = graph.addRenderPass(pass_name);
 
         TextureViewDesc view_desc{};
         view_desc.first_array_slice = face;
@@ -160,8 +167,8 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
             });
     }
 
-    int w = RT_SIZE_IBL_PREFILTERED_CUBEMAP;
-    int h = RT_SIZE_IBL_PREFILTERED_CUBEMAP;
+    int w = kPrefilteredCubemapSize;
+    int h = kPrefilteredCubemapSize;
     for (uint16_t mip = 0; mip < kIBLMipChainMax; ++mip, w /= 2, h /= 2) {
         for (uint16_t face = 0; face < 6; ++face) {
             TextureViewDesc view_desc{
@@ -169,8 +176,8 @@ EnvironmentFeature::Outputs EnvironmentFeature::Build(RenderGraph& render_graph,
                 .first_array_slice = face,
                 .array_size = 1,
             };
-            std::string pass_name = std::format("{}_{}_{}", RG_PASS_BAKE_PREFILTERED, mip, face);
-            RenderPass& pass = render_graph.addRenderPass(pass_name);
+            std::string pass_name = std::format("{}_{}_{}", kPassBakePrefiltered, mip, face);
+            RenderPass& pass = graph.addRenderPass(pass_name);
             pass.read(ResourceAccess::SRV, env_cube)
                 .writeColor(specular, view_desc, LoadOp::Load)
                 .setViewport(Viewport(w, h))

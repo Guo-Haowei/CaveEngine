@@ -4,7 +4,7 @@
 #include "engine/private/runtime/display/NullDisplayService.h"
 #include "engine/private/runtime/null/NullRenderDevice.h"
 #include "engine/private/runtime/null/NullPhysicsService.h"
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 
 #if USING(PLATFORM_WINDOWS)
 #include "modules/d3d11/D3d11RenderDevice.h"

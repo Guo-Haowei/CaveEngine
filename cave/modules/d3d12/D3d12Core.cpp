@@ -10,16 +10,16 @@ using namespace cave::math;
 static constexpr int DESCRIPTOR_MAX_COUNT = 512;
 
 //------------------------------------------------------------------------------
-// DescriptorHeapBase
-auto DescriptorHeapBase::Initialize(int p_count, D3D12_DESCRIPTOR_HEAP_TYPE p_type, ID3D12Device* p_device, bool p_shader_visible) -> Result<void> {
-    m_desc.Type = p_type;
-    m_desc.NumDescriptors = p_count;
-    m_desc.Flags = p_shader_visible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+// DescriptorHeap
+auto DescriptorHeap::Initialize(int count, D3D12_DESCRIPTOR_HEAP_TYPE type, ID3D12Device* device, bool shader_visible) -> Result<void> {
+    m_desc.Type = type;
+    m_desc.NumDescriptors = count;
+    m_desc.Flags = shader_visible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     m_desc.NodeMask = 1;
-    m_capacity = p_count;
+    m_capacity = count;
 
     std::string_view name = "";
-    switch (p_type) {
+    switch (type) {
         case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
             name = "CBV_SRV_UAV";
             break;
@@ -34,83 +34,32 @@ auto DescriptorHeapBase::Initialize(int p_count, D3D12_DESCRIPTOR_HEAP_TYPE p_ty
             break;
     }
 
-    D3D_FAIL(p_device->CreateDescriptorHeap(&m_desc, IID_PPV_ARGS(&m_heap)), "Failed to create heap {}", name);
+    D3D_FAIL(device->CreateDescriptorHeap(&m_desc, IID_PPV_ARGS(&m_heap)), "Failed to create heap {}", name);
 
     D3D12_SET_DEBUG_NAME(m_heap.Get(), name);
 
-    m_incrementSize = p_device->GetDescriptorHandleIncrementSize(p_type);
-    m_startCpu = m_heap->GetCPUDescriptorHandleForHeapStart();
-    if (p_shader_visible) {
-        m_startGpu = m_heap->GetGPUDescriptorHandleForHeapStart();
+    m_increment_size = device->GetDescriptorHandleIncrementSize(type);
+    m_start_cpu = m_heap->GetCPUDescriptorHandleForHeapStart();
+    if (shader_visible) {
+        m_start_gpu = m_heap->GetGPUDescriptorHandleForHeapStart();
+    } else {
+        m_start_gpu.ptr = 0;
     }
 
     return Result<void>();
 }
 
-DescriptorHeapHandle DescriptorHeapBase::AllocHandle(const Space& p_space) {
-    int index = p_space.counter.fetch_add(1);
-    DEV_ASSERT(index >= p_space.start && index < p_space.start + p_space.max);
-    CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_startCpu);
-    cpu_handle.Offset(index, m_incrementSize);
-    CD3DX12_GPU_DESCRIPTOR_HANDLE gpu_handle(m_startGpu);
-    gpu_handle.Offset(index, m_incrementSize);
-
-    return {
-        index - p_space.start,
-        cpu_handle,
-        gpu_handle,
-    };
-}
-
-//------------------------------------------------------------------------------
-// DescriptorHeap
-DescriptorHeap::DescriptorHeap() {
-    m_space.start = 0;
-    m_space.counter = 0;
-}
-
 DescriptorHeapHandle DescriptorHeap::AllocHandle() {
-    m_space.max = m_capacity;
-    return Base::AllocHandle(m_space);
-}
+    const int index = m_counter.fetch_add(1);
+    DEV_ASSERT_MSG(index < m_capacity, "DescriptorHeap is out of capacity!");
 
-//------------------------------------------------------------------------------
-// DescriptorSrv
-auto DescriptorHeapSrv::Initialize(int p_count,
-                                   D3D12_DESCRIPTOR_HEAP_TYPE p_type,
-                                   ID3D12Device* p_device,
-                                   bool p_shard_visible) -> Result<void> {
-    m_capacity = p_count;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_start_cpu);
+    cpu_handle.Offset(index, m_increment_size);
 
-    DEV_ASSERT(GetBindlessMax() < m_capacity);
-
-#define DESCRIPTOR_SPACE(ENUM, NUM, PREV, SPACE, ...) \
-    do {                                              \
-        m_spaces[SPACE].start = ENUM##_START;         \
-        m_spaces[SPACE].max = ENUM##_MAX_COUNT;       \
-        m_spaces[SPACE].counter = ENUM##_START;       \
-    } while (0);
-#define DESCRIPTOR_SRV DESCRIPTOR_SPACE
-#define DESCRIPTOR_UAV DESCRIPTOR_SPACE
-    DESCRIPTOR_TABLE
-#undef DESCRIPTOR_SRV
-#undef DESCRIPTOR_UAV
-#undef DESCRIPTOR_SPACE
-
-    // reserve 1 for imgui
-    m_spaces[0].counter = 1;
-    m_backCounter = m_capacity - 1;
-
-    return DescriptorHeapBase::Initialize(p_count, p_type, p_device, p_shard_visible);
-}
-
-DescriptorHeapHandle DescriptorHeapSrv::AllocHandle() {
-    int index = m_backCounter.fetch_add(-1);
-    DEV_ASSERT(index > GetBindlessMax() && index < m_capacity);
-    CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_startCpu);
-    cpu_handle.Offset(index, m_incrementSize);
-    CD3DX12_GPU_DESCRIPTOR_HANDLE gpu_handle(m_startGpu);
-    gpu_handle.Offset(index, m_incrementSize);
+    CD3DX12_GPU_DESCRIPTOR_HANDLE gpu_handle(m_start_gpu);
+    if (m_start_gpu.ptr != 0) {
+        gpu_handle.Offset(index, m_increment_size);
+    }
 
     return {
         index,
@@ -119,13 +68,24 @@ DescriptorHeapHandle DescriptorHeapSrv::AllocHandle() {
     };
 }
 
-DescriptorHeapHandle DescriptorHeapSrv::AllocBindlessHandle(DescriptorResourceType p_type) {
-    DEV_ASSERT_INDEX(p_type, DescriptorResourceType::COUNT);
-    return Base::AllocHandle(m_spaces[std::to_underlying(p_type)]);
+//------------------------------------------------------------------------------
+// DescriptorHeapSrv
+//------------------------------------------------------------------------------
+
+auto DescriptorHeapSrv::Initialize(int count,
+                                   D3D12_DESCRIPTOR_HEAP_TYPE type,
+                                   ID3D12Device* device,
+                                   bool shader_visible) -> Result<void> {
+    m_capacity = count;
+    // reserve 1 for imgui
+    m_counter = 1;
+
+    return DescriptorHeap::Initialize(count, type, device, shader_visible);
 }
 
 //------------------------------------------------------------------------------
 // CopyContext
+//------------------------------------------------------------------------------
 auto CopyContext::Initialize(D3d12RenderDevice* p_device) -> Result<void> {
     DEV_ASSERT(p_device);
     m_device = p_device;

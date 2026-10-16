@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/private/render/render_graph/RGTextureId.h"
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave::render {
 
@@ -22,7 +22,7 @@ public:
         RGTextureId ibl_prefiltered{};
     };
 
-    [[nodiscard]] Outputs Build(RenderGraph& graph, const RenderOptions& plan);
+    [[nodiscard]] Outputs build(RenderGraph& graph, const RenderOptions& plan);
 
 private:
     TransientPool& m_pool;

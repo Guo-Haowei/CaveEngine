@@ -1,6 +1,7 @@
 #include "RenderDevice.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/render/renderer/RenderSubmission.h"
@@ -10,9 +11,7 @@
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/core/math/geometry.h"
 #include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/renderer/graphics_dvars.h"
-#include "engine/private/renderer/renderer_misc.h"
-#include "engine/private/renderer/sampler.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -33,6 +32,8 @@ using namespace math;
 
 template<typename T>
 static auto CreateUniformCheckSize(RenderDevice& device, uint32_t max_count) {
+    static_assert(sizeof(T) % 256 == 0);
+
     GpuBufferDesc buffer_desc{};
     buffer_desc.slot = T::GetUniformBufferSlot();
     buffer_desc.element_count = max_count;
@@ -196,26 +197,26 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
     texture_desc.miscFlags |= RESOURCE_MISC_GENERATE_MIPS;
 
     if (is_hdr_file) {
-        sampler_desc.minFilter = MinFilter::LINEAR;
-        sampler_desc.magFilter = MagFilter::LINEAR;
-        sampler_desc.addressU = sampler_desc.addressV = AddressMode::CLAMP;
+        sampler_desc.min_filter = MinFilter::Linear;
+        sampler_desc.mag_filter = MagFilter::Linear;
+        sampler_desc.address_u = sampler_desc.address_v = AddressMode::Clamp;
         // p_texture_desc.bindFlags &= (~BIND_RENDER_TARGET);
     } else {
-        sampler_desc.minFilter = MinFilter::LINEAR_MIPMAP_LINEAR;
-        sampler_desc.magFilter = MagFilter::LINEAR;
+        sampler_desc.min_filter = MinFilter::LinearMipmapLinear;
+        sampler_desc.mag_filter = MagFilter::Linear;
     }
 
     // override sampler
     if (image->sampler == ImageAsset::Sampler::Point) {
-        sampler_desc.minFilter = MinFilter::POINT;
-        sampler_desc.magFilter = MagFilter::POINT;
+        sampler_desc.min_filter = MinFilter::Point;
+        sampler_desc.mag_filter = MagFilter::Point;
     }
 
     switch (image->address_mode) {
         case ImageAsset::AddressMode::Wrap: {
-            sampler_desc.addressU = AddressMode::WRAP;
-            sampler_desc.addressV = AddressMode::WRAP;
-            sampler_desc.addressW = AddressMode::WRAP;
+            sampler_desc.address_u = AddressMode::Wrap;
+            sampler_desc.address_v = AddressMode::Wrap;
+            sampler_desc.address_w = AddressMode::Wrap;
         } break;
         default:
             break;
@@ -312,8 +313,8 @@ Ref<FrameContext> RenderDevice::createFrameContext() {
     return MakeRef<FrameContext>();
 }
 
-Ref<GpuTexture> RenderDevice::createTexture(const GpuTextureDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
-    auto texture = createTextureImpl(p_texture_desc, p_sampler_desc);
+Ref<GpuTexture> RenderDevice::createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) {
+    auto texture = createTextureImpl(texture_desc, sampler_desc);
     return texture;
 }
 

@@ -17,9 +17,10 @@
 #include "engine/private/core/math/MatrixTransform.h"
 #include "engine/private/render/features/PrecomputedTextures.h"
 #include "engine/private/render/features/path_tracer/PathTracerFeature.h"
-#include "engine/private/render/features/pbr/EnvironmentFeature.h"
-#include "engine/private/render/features/shadow/ShadowFeature.h"
-#include "engine/private/render/features/ssao/SsaoFeature.h"
+#include "engine/private/render/features/BloomFeature.h"
+#include "engine/private/render/features/EnvironmentFeature.h"
+#include "engine/private/render/features/ShadowFeature.h"
+#include "engine/private/render/features/SsaoFeature.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
@@ -30,7 +31,7 @@
 #include "engine/private/render/render_graph/CommonPasses.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 
 namespace cave::render {
 
@@ -86,6 +87,7 @@ private:
 
     // features
     TransientPool m_transient_pool;
+    BloomFeature m_bloom;
     EnvironmentFeature m_env;
     ShadowFeature m_shadow;
     SsaoFeature m_ssao;
@@ -181,7 +183,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
 
     // Bloom
     {
-        cache.c_bloomThreshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
+        cache.c_bloom_threshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
         cache.c_enableBloom = options.enable_bloom;
 
         cache.c_debugVoxelId = options.debugVoxelId;
@@ -196,9 +198,9 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     // SSAO
     {
         // @TODO: do this properly
-        static auto kernel_data = SsaoFeature::CreateKernel();
+        static auto kernel_data = SsaoFeature::createKernel();
         cache.c_ssaoEnabled = options.enable_ssao;
-        cache.c_ssaoKernalRadius = options.ssaoKernelRadius;
+        cache.c_ssao_kernal_radius = options.ssaoKernelRadius;
         constexpr size_t kernel_size = sizeof(kernel_data);
         static_assert(sizeof(cache.c_ssaoKernel) == kernel_size);
         memcpy(cache.c_ssaoKernel, kernel_data.data(), kernel_size);
@@ -219,6 +221,13 @@ static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data
             const auto& texture = pass.srvs[slot];
             if (texture) {
                 cache.c_pass_textures[slot].x = (uint32_t)texture->GetResidentHandle();
+            }
+        }
+
+        uint* uavs = &cache.c_output_uav0;
+        for (size_t slot = 0; slot < pass.uavs.size(); ++slot) {
+            if (const auto& texture = pass.uavs[slot]) {
+                uavs[slot] = (uint32_t)texture->GetUavHandle();
             }
         }
     }
@@ -276,7 +285,7 @@ Renderer::Impl::Impl(EngineServices& services)
 }
 
 auto Renderer::Impl::initialize() -> Result<void> {
-    m_capabilities.canRunBloom = m_device.getCapabilities().supportComputeShaders;
+    m_capabilities.canRunBloom = m_device.getCapabilities().support_cs;
     m_capabilities.canRunIBL = true;
     return Result<void>();
 }
@@ -390,9 +399,9 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     RGTextureId ltc1 = graph.importTexture({ m_ltc1 });
     RGTextureId ltc2 = graph.importTexture({ m_ltc2 });
 
-    auto env_outputs = m_env.Build(graph, plan);
+    auto env_outputs = m_env.build(graph, plan);
 
-    auto shadow_outputs = m_shadow.Build(graph, plan);
+    auto shadow_outputs = m_shadow.build(graph, plan);
 
     // @TODO: refactor the following
     auto prepass_outputs = graph.addDepthPrepass();
@@ -408,7 +417,7 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
             .normal = gbuffer_outputs.color1,
             .depth = prepass_outputs.depth,
         };
-        ssao_outputs = m_ssao.Build(graph, plan, ssao_inputs);
+        ssao_outputs = m_ssao.build(graph, ssao_inputs, plan);
     }
 
     auto lighting_outputs = graph.addLightingPass({
@@ -438,16 +447,18 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
         .lighting = lighting_outputs.lighting,
     });
 
-    BloomOut bloom_output = {
+    BloomFeature::Outputs bloom_output = {
         .dependency = RGDependencyId::null(),
         .bloom = RGTextureId::null(),
     };
 
     if (plan.enable_bloom) {
-        bloom_output = graph.addBloomPasses({
-            .dependency = forward_outputs.dependency,
-            .color = lighting_outputs.lighting,
-        });
+        bloom_output = m_bloom.build(graph,
+                                     {
+                                         .dependency = forward_outputs.dependency,
+                                         .color = lighting_outputs.lighting,
+                                     },
+                                     plan);
     }
 
     auto highlight_output = graph.addHighlightPass({
@@ -470,9 +481,8 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
     return graph.compile();
 }
 
-auto Renderer::Impl::buildRenderGraph2d(const RenderOptions& plan,
+auto Renderer::Impl::buildRenderGraph2d(const RenderOptions&,
                                         const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
-    unused(plan);
 
     RenderGraphBuilderExt graph(view.viewport_px);
 
@@ -486,7 +496,7 @@ auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
                                         const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
     RenderGraph graph(view.viewport_px);
 
-    m_pathtracer.Build(graph, plan, { view.output });
+    m_pathtracer.build(graph, { view.output }, plan);
 
     return graph.compile();
 }

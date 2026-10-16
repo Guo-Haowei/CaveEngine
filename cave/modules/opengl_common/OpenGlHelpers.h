@@ -3,9 +3,10 @@
 #endif
 #define OPENGL_HELPERS_INCLUDED
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "cave/render/rhi/Sampler.h"
+
+#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/render/rhi/PipelineState.h"
-#include "engine/private/renderer/sampler.h"
 
 #include "OpenGlPrerequisites.h"
 
@@ -304,11 +305,11 @@ inline GLuint ConvertDataType(PixelFormat format) {
 
 inline GLenum ConvertFilter(MinFilter p_mode) {
     switch (p_mode) {
-        case MinFilter::POINT:
+        case MinFilter::Point:
             return GL_NEAREST;
-        case MinFilter::LINEAR:
+        case MinFilter::Linear:
             return GL_LINEAR;
-        case MinFilter::LINEAR_MIPMAP_LINEAR:
+        case MinFilter::LinearMipmapLinear:
             return GL_LINEAR_MIPMAP_LINEAR;
         default:
             CRASH_NOW();
@@ -318,9 +319,9 @@ inline GLenum ConvertFilter(MinFilter p_mode) {
 
 inline GLenum ConvertFilter(MagFilter p_mode) {
     switch (p_mode) {
-        case MagFilter::POINT:
+        case MagFilter::Point:
             return GL_NEAREST;
-        case MagFilter::LINEAR:
+        case MagFilter::Linear:
             return GL_LINEAR;
         default:
             CRASH_NOW();
@@ -330,12 +331,12 @@ inline GLenum ConvertFilter(MagFilter p_mode) {
 
 inline GLenum ConvertAddressMode(AddressMode p_mode) {
     switch (p_mode) {
-        case AddressMode::WRAP:
+        case AddressMode::Wrap:
             return GL_REPEAT;
-        case AddressMode::CLAMP:
+        case AddressMode::Clamp:
             return GL_CLAMP_TO_EDGE;
 #if !USING(PLATFORM_WASM)
-        case AddressMode::BORDER:
+        case AddressMode::Border:
             return GL_CLAMP_TO_BORDER;
 #endif
         default:
@@ -345,16 +346,16 @@ inline GLenum ConvertAddressMode(AddressMode p_mode) {
 }
 
 inline void SetSampler(GLenum p_texture_type, const SamplerDesc& p_desc) {
-    glTexParameteri(p_texture_type, GL_TEXTURE_MIN_FILTER, ConvertFilter(p_desc.minFilter));
-    glTexParameteri(p_texture_type, GL_TEXTURE_MAG_FILTER, ConvertFilter(p_desc.magFilter));
-    glTexParameteri(p_texture_type, GL_TEXTURE_WRAP_S, ConvertAddressMode(p_desc.addressU));
-    glTexParameteri(p_texture_type, GL_TEXTURE_WRAP_T, ConvertAddressMode(p_desc.addressV));
-    glTexParameteri(p_texture_type, GL_TEXTURE_WRAP_R, ConvertAddressMode(p_desc.addressW));
+    glTexParameteri(p_texture_type, GL_TEXTURE_MIN_FILTER, ConvertFilter(p_desc.min_filter));
+    glTexParameteri(p_texture_type, GL_TEXTURE_MAG_FILTER, ConvertFilter(p_desc.mag_filter));
+    glTexParameteri(p_texture_type, GL_TEXTURE_WRAP_S, ConvertAddressMode(p_desc.address_u));
+    glTexParameteri(p_texture_type, GL_TEXTURE_WRAP_T, ConvertAddressMode(p_desc.address_v));
+    glTexParameteri(p_texture_type, GL_TEXTURE_WRAP_R, ConvertAddressMode(p_desc.address_w));
 
     // @TODO: border
-    if (p_desc.addressU == AddressMode::BORDER ||
-        p_desc.addressV == AddressMode::BORDER ||
-        p_desc.addressW == AddressMode::BORDER) {
+    if (p_desc.address_u == AddressMode::Border ||
+        p_desc.address_v == AddressMode::Border ||
+        p_desc.address_w == AddressMode::Border) {
 #if !USING(PLATFORM_WASM)
         glTexParameterfv(p_texture_type, GL_TEXTURE_BORDER_COLOR, p_desc.border);
 #else

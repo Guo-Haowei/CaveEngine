@@ -23,13 +23,13 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     TEX_2D(t_GbufferNormalMap).GetDimensions(texture_size.x, texture_size.y);
     float2 noise_scale = float2(texture_size) * (1.0f / SSAO_NOISE_SIZE);
 
-    float3 N = SAMPLE_2D(t_GbufferNormalMap, s_pointClampSampler, uv).rgb;
+    float3 N = SAMPLE_2D(PASS(t_GbufferNormalMap), s_pointClampSampler, uv).rgb;
     N = 2.0f * N - 1.0f;
 
-    const float raw_depth = SAMPLE_2D(t_GbufferDepth, s_pointClampSampler, uv).r;
+    const float raw_depth = SAMPLE_2D(PASS(t_GbufferDepth), s_pointClampSampler, uv).r;
     const float3 origin = NdcToViewPos(uv, raw_depth, c_inv_cam_proj);
 
-    float3 rvec = float3(SAMPLE_LEVEL(t_NoiseTexture, s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
+    float3 rvec = float3(SAMPLE_LEVEL(PASS(t_NoiseTexture), s_pointWrapSampler, uv * noise_scale, 0.0f).xy, 0.0f);
     float3 tangent = normalize(rvec - N * dot(rvec, N));
     float3 bitangent = cross(N, tangent);
     float3x3 TBN = float3x3(tangent, bitangent, N);
@@ -38,7 +38,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
 
     for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
         float3 samplePos = mul(c_ssaoKernel[i].xyz, TBN);
-        samplePos = origin.xyz + samplePos * c_ssaoKernalRadius;
+        samplePos = origin.xyz + samplePos * c_ssao_kernal_radius;
 
         float4 offset = float4(samplePos, 1.0);
         offset = mul(c_cam_proj, offset);
@@ -50,11 +50,11 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
         offset.xy = float2(offset.x * 0.5f + 0.5f, 0.5f - offset.y * 0.5f);
 #endif
 
-        const float depth2 = SAMPLE_2D(t_GbufferDepth, s_pointClampSampler, offset.xy).r;
+        const float depth2 = SAMPLE_2D(PASS(t_GbufferDepth), s_pointClampSampler, offset.xy).r;
         const float3 sampleOcclusionPos = NdcToViewPos(offset.xy, depth2, c_inv_cam_proj);
         const float sample_depth = sampleOcclusionPos.z;
 
-        const float range_check = smoothstep(0.0, 1.0, c_ssaoKernalRadius / abs(abs(origin.z) - abs(sample_depth)));
+        const float range_check = smoothstep(0.0, 1.0, c_ssao_kernal_radius / abs(abs(origin.z) - abs(sample_depth)));
 
         const float increment = (abs(sample_depth) <= abs(samplePos.z) - SSAO_KERNEL_BIAS) ? 1.0f : 0.0f;
 

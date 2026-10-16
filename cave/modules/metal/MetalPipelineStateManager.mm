@@ -185,7 +185,7 @@ auto MetalPipelineStateManager::graphicsPipeline(const PipelineStateDesc& desc) 
 
             vd.layouts[buffer_index].stride = VertexFormatSize(e.format);
 
-            vd.layouts[buffer_index].stepFunction = e.input_slot_class == InputClassification::PER_VERTEX_DATA ? MTLVertexStepFunctionPerVertex : MTLVertexStepFunctionPerInstance;
+            vd.layouts[buffer_index].stepFunction = e.input_slot_class == InputClassification::PerVertexData ? MTLVertexStepFunctionPerVertex : MTLVertexStepFunctionPerInstance;
 
             vd.layouts[buffer_index].stepRate = std::max(1u, e.instance_data_step_rate);
         }

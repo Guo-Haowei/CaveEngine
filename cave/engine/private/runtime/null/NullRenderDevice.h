@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/render/renderer/GraphicsDefines.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 
 namespace cave::render {

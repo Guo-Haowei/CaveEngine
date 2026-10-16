@@ -70,6 +70,62 @@ enum class StoreOp : uint8_t {
     Store = 0,
 };
 
+enum class MagFilter : uint8_t {
+    Point,
+    Linear,
+};
+
+enum class MinFilter : uint8_t {
+    Point,
+    Linear,
+    LinearMipmapLinear,
+};
+
+enum class AddressMode : uint8_t {
+    Wrap,
+    Clamp,
+    Border,
+};
+
+enum class StaticBorderColor {
+    TransparentBlack = 0,
+    OpaqueBlack,
+    OpaqueWhite,
+};
+
+enum class InputClassification : uint8_t {
+    PerVertexData = 0,
+    PerInstanceData,
+};
+
+enum class FillMode : uint8_t {
+    Wireframe = 0,
+    Solid,
+};
+
+enum class CullMode : uint8_t {
+    None = 0,
+    Front,
+    Back,
+    FrontAndBack,
+};
+
+#define COMPARISON_FUNC_ENUM_LIST          \
+    COMPARISON_FUNC_ENUM(NEVER, 1)         \
+    COMPARISON_FUNC_ENUM(LESS, 2)          \
+    COMPARISON_FUNC_ENUM(EQUAL, 3)         \
+    COMPARISON_FUNC_ENUM(LESS_EQUAL, 4)    \
+    COMPARISON_FUNC_ENUM(GREATER, 5)       \
+    COMPARISON_FUNC_ENUM(NOT_EQUAL, 6)     \
+    COMPARISON_FUNC_ENUM(GREATER_EQUAL, 7) \
+    COMPARISON_FUNC_ENUM(ALWAYS, 8)
+
+enum class ComparisonFunc : uint8_t {
+#define COMPARISON_FUNC_ENUM(ENUM, VALUE) ENUM = VALUE,
+    COMPARISON_FUNC_ENUM_LIST
+#undef COMPARISON_FUNC_ENUM
+};
+
 struct TextureViewDesc {
     uint16_t mip_slice = 0;          // D3D: MipSlice
     uint16_t first_array_slice = 0;  // D3D: FirstArraySlice / First2DArrayFace

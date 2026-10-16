@@ -1,9 +1,10 @@
 #pragma once
+#include "cave/render/rhi/Sampler.h"
+
 #include "RGTextureId.h"
 
 // @TODO: refactor
-#include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/sampler.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave::render {
 

@@ -1,6 +1,6 @@
 /// File: pass_tracer.slang
 #include "../cbuffer.slang.h"
-#include "../structured_buffer.hlsl.h"
+#include "../structured_buffer.slang.h"
 
 // @NOTE: include this at last
 #include "../shared_path_tracer.h"
@@ -28,7 +28,10 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
         // screen position from [-1, 1]
         float2 uvJitter = (fPixelCoords + jitter) / float2(dims);
         float2 screen = 2.0 * uvJitter - 1.0;
+
+#if !defined(__TARGET_OPENGL__)
         screen.y = -screen.y;
+#endif
 
         // adjust for aspect ratio
         float2 resolution = float2(float(dims.x), float(dims.y));

@@ -1,6 +1,6 @@
 #pragma once
-#include "engine/private/renderer/graphics_defines.h"
-#include "engine/private/renderer/pixel_format.h"
+#include "engine/private/render/renderer/GraphicsDefines.h"
+#include "cave/render/rhi/PixelFormat.h"
 
 namespace cave::render {
 
@@ -19,8 +19,8 @@ struct InputLayoutDesc {
 };
 
 struct RasterizerDesc {
-    FillMode fillMode{ FillMode::SOLID };
-    CullMode cullMode{ CullMode::BACK };
+    FillMode fillMode{ FillMode::Solid };
+    CullMode cullMode{ CullMode::Back };
     bool frontCounterClockwise{ false };
     int depthBias{ 0 };
     float depthBiasClamp{ 0.0f };

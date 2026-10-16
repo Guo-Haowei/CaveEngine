@@ -10,7 +10,7 @@
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/view/ResolvedView.h"
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 
 namespace cave {
 

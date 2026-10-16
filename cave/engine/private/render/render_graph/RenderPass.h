@@ -1,5 +1,6 @@
 #pragma once
-#include "engine/private/renderer/sampler.h"
+#include "cave/render/rhi/Sampler.h"
+
 #include "CompiledPass.h"
 #include "RenderGraphTypes.h"
 

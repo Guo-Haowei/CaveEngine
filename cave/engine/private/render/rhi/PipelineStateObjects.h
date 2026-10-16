@@ -6,41 +6,41 @@ namespace cave::render {
 /// input layouts
 static const InputLayoutDesc s_input_layout_mesh = {
     .elements = {
-        { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, PixelFormat::R32G32B32_FLOAT, 1, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, PixelFormat::R32G32_FLOAT, 2, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "TANGENT", 0, PixelFormat::R32G32B32_FLOAT, 3, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "BONEINDEX", 0, PixelFormat::R32G32B32A32_SINT, 4, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "BONEWEIGHT", 0, PixelFormat::R32G32B32A32_FLOAT, 5, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 6, 0, InputClassification::PER_VERTEX_DATA, 0 },
+        { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PerVertexData, 0 },
+        { "NORMAL", 0, PixelFormat::R32G32B32_FLOAT, 1, 0, InputClassification::PerVertexData, 0 },
+        { "TEXCOORD", 0, PixelFormat::R32G32_FLOAT, 2, 0, InputClassification::PerVertexData, 0 },
+        { "TANGENT", 0, PixelFormat::R32G32B32_FLOAT, 3, 0, InputClassification::PerVertexData, 0 },
+        { "BONEINDEX", 0, PixelFormat::R32G32B32A32_SINT, 4, 0, InputClassification::PerVertexData, 0 },
+        { "BONEWEIGHT", 0, PixelFormat::R32G32B32A32_FLOAT, 5, 0, InputClassification::PerVertexData, 0 },
+        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 6, 0, InputClassification::PerVertexData, 0 },
     }
 };
 
 static const InputLayoutDesc s_input_layout_prim = {
     .elements = {
-        { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, PixelFormat::R32G32_FLOAT, 1, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 2, 0, InputClassification::PER_VERTEX_DATA, 0 },
-        { "TEXID", 0, PixelFormat::R32G32_UINT, 3, 0, InputClassification::PER_VERTEX_DATA, 0 },
+        { "POSITION", 0, PixelFormat::R32G32B32_FLOAT, 0, 0, InputClassification::PerVertexData, 0 },
+        { "TEXCOORD", 0, PixelFormat::R32G32_FLOAT, 1, 0, InputClassification::PerVertexData, 0 },
+        { "COLOR", 0, PixelFormat::R32G32B32A32_FLOAT, 2, 0, InputClassification::PerVertexData, 0 },
+        { "TEXID", 0, PixelFormat::R32G32_UINT, 3, 0, InputClassification::PerVertexData, 0 },
     }
 };
 
 /// rasterizer states
 static const RasterizerDesc s_rasterizer_cull_back = {
-    .fillMode = FillMode::SOLID,
-    .cullMode = CullMode::BACK,
+    .fillMode = FillMode::Solid,
+    .cullMode = CullMode::Back,
     .frontCounterClockwise = true,
 };
 
 static const RasterizerDesc s_rasterizer_cull_front = {
-    .fillMode = FillMode::SOLID,
-    .cullMode = CullMode::FRONT,
+    .fillMode = FillMode::Solid,
+    .cullMode = CullMode::Front,
     .frontCounterClockwise = true,
 };
 
 static const RasterizerDesc s_rasterizer_double_sided = {
-    .fillMode = FillMode::SOLID,
-    .cullMode = CullMode::NONE,
+    .fillMode = FillMode::Solid,
+    .cullMode = CullMode::None,
     .frontCounterClockwise = true,
 };
 

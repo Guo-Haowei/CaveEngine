@@ -1,18 +1,17 @@
 #include "CommonPasses.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/display/ICanvas.h"
 
-#include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/render/renderer/Renderer.h"
-#include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/renderer/renderer_misc.h"
-#include "engine/private/renderer/sampler.h"
 #include "RenderGraphDefines.h"
 #include "RenderPass.h"
 
 // @TODO: remove
+#include "engine/private/render/renderer/FrameData.h"
+#include "engine/private/render/renderer/Renderer.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -293,52 +292,6 @@ void ForwardPassFunc(RenderPassExcutionContext& ctx) {
     // draw transparent objects
     cmd.setPipelineState(PSO_FORWARD_TRANSPARENT);
     ExecuteDrawCommands(ctx, ctx.frameData.commands[std::to_underlying(DrawPhase::Forward)], false);
-}
-
-/// Bloom
-void BloomSetupFunc(RenderPassExcutionContext& ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = ctx.command;
-
-    auto uav = ctx.pass.uavs[0];
-
-    cmd.setPipelineState(PSO_BLOOM_SETUP);
-
-    const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
-    const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
-
-    cmd.dispatch(work_group_x, work_group_y, 1);
-}
-
-void BloomDownSampleFunc(RenderPassExcutionContext& ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = ctx.command;
-
-    cmd.setPipelineState(PSO_BLOOM_DOWNSAMPLE);
-
-    auto uav = ctx.pass.uavs[0];
-
-    const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
-    const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
-
-    cmd.dispatch(work_group_x, work_group_y, 1);
-}
-
-void BloomUpSampleFunc(RenderPassExcutionContext& ctx) {
-    CAVE_PROFILE_EVENT();
-
-    auto& cmd = ctx.command;
-
-    auto uav = ctx.pass.uavs[0];
-
-    cmd.setPipelineState(PSO_BLOOM_UPSAMPLE);
-
-    const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
-    const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
-
-    cmd.dispatch(work_group_x, work_group_y, 1);
 }
 
 /// Tone

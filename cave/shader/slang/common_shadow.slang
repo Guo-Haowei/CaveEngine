@@ -40,10 +40,10 @@ float shadowTest(
         float2(1.0, 1.0) * texelSize,
     };
 
-    float d0 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
-    float d1 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
-    float d2 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
-    float d3 = SAMPLE_LEVEL(shadow_map, s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
+    float d0 = SAMPLE_LEVEL(PASS(shadow_map), s_shadowSampler, lightSpacePos.xy + offsets[0], 0).r;
+    float d1 = SAMPLE_LEVEL(PASS(shadow_map), s_shadowSampler, lightSpacePos.xy + offsets[1], 0).r;
+    float d2 = SAMPLE_LEVEL(PASS(shadow_map), s_shadowSampler, lightSpacePos.xy + offsets[2], 0).r;
+    float d3 = SAMPLE_LEVEL(PASS(shadow_map), s_shadowSampler, lightSpacePos.xy + offsets[3], 0).r;
 
     shadow +=
         (currentDepth - bias > d0 ? 1.0 : 0.0) +

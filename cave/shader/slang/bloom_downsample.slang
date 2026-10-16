@@ -5,15 +5,23 @@
 TEXTURE_2D(u_Texture0, 0)
 #define t_BloomInputTexture u_Texture0
 
+#if !defined(__TARGET_D3D12__)
 RWTexture2D<float4> u_BloomOutputImage : register(u0);
+#endif
 
 [shader("compute")]
 [numthreads(16, 16, 1)]
 void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     const uint2 output_coord = dispatch_thread_id.xy;
 
+#if defined(__TARGET_D3D12__)
+    RWTexture2D<float4> output = RW_TEX_2D(c_output_uav0);
+#else
+    RWTexture2D<float4> output = u_BloomOutputImage;
+#endif
+
     uint width, height;
-    u_BloomOutputImage.GetDimensions(width, height);
+    output.GetDimensions(width, height);
     float2 output_image_size = float2(width, height);
 
     float2 uv = float2(output_coord.x / output_image_size.x,
@@ -33,22 +41,22 @@ void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     // - l - m -
     // g - h - i
     // === ('e' is the current texel) ===
-    float3 a = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - 2 * x, uv.y + 2 * y), 0).rgb;
-    float3 b = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y + 2 * y), 0).rgb;
-    float3 c = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + 2 * x, uv.y + 2 * y), 0).rgb;
+    float3 a = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - 2 * x, uv.y + 2 * y), 0).rgb;
+    float3 b = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x, uv.y + 2 * y), 0).rgb;
+    float3 c = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + 2 * x, uv.y + 2 * y), 0).rgb;
 
-    float3 d = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - 2 * x, uv.y), 0).rgb;
-    float3 e = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y), 0).rgb;
-    float3 f = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + 2 * x, uv.y), 0).rgb;
+    float3 d = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - 2 * x, uv.y), 0).rgb;
+    float3 e = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x, uv.y), 0).rgb;
+    float3 f = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + 2 * x, uv.y), 0).rgb;
 
-    float3 g = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - 2 * x, uv.y - 2 * y), 0).rgb;
-    float3 h = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x, uv.y - 2 * y), 0).rgb;
-    float3 i = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + 2 * x, uv.y - 2 * y), 0).rgb;
+    float3 g = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - 2 * x, uv.y - 2 * y), 0).rgb;
+    float3 h = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x, uv.y - 2 * y), 0).rgb;
+    float3 i = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + 2 * x, uv.y - 2 * y), 0).rgb;
 
-    float3 j = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - x, uv.y + y), 0).rgb;
-    float3 k = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + x, uv.y + y), 0).rgb;
-    float3 l = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x - x, uv.y - y), 0).rgb;
-    float3 m = SAMPLE_LEVEL(t_BloomInputTexture, s_linearClampSampler, float2(uv.x + x, uv.y - y), 0).rgb;
+    float3 j = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - x, uv.y + y), 0).rgb;
+    float3 k = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + x, uv.y + y), 0).rgb;
+    float3 l = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x - x, uv.y - y), 0).rgb;
+    float3 m = SAMPLE_LEVEL(PASS(t_BloomInputTexture), s_linearClampSampler, float2(uv.x + x, uv.y - y), 0).rgb;
 
     // This shows 5 square areas that are being sampled. But some of them overlap,
     // so to have an energy preserving downsample we need to make some adjustments.
@@ -71,5 +79,5 @@ void cs_main(uint3 dispatch_thread_id : SV_DISPATCHTHREADID) {
     final_color += (j + k + l + m) * 0.125f;
 
     final_color = max(final_color, 0.000f);
-    u_BloomOutputImage[output_coord] = float4(final_color, 1.0f);
+    output[output_coord] = float4(final_color, 1.0f);
 }

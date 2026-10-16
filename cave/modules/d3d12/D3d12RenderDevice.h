@@ -108,7 +108,7 @@ private:
     ID3D12Resource* m_depthStencilBuffer{ nullptr };
     D3D12_CPU_DESCRIPTOR_HANDLE m_depthStencilDescriptor{};
 
-    uint32_t m_backbufferIndex = 0;
+    uint32_t m_back_buffer_index = 0;
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_root_signature;
 

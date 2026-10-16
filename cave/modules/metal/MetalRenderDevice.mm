@@ -167,7 +167,7 @@ auto MetalRenderDevice::InitializeInternal() -> Result<void> {
     m_command_list = MakeOwner<MetalCommandList>(pipeline_manager, m_samplers, m_constant_buffers);
 
     // Keep current behavior.
-    m_capabilities.supportComputeShaders = false;
+    m_capabilities.support_cs = false;
 
     return Result<void>();
 }

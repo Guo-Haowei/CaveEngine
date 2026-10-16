@@ -1,7 +1,7 @@
 #pragma once
 #include "cave/render/rhi/ICommandList.h"
 
-#include "engine/private/renderer/graphics_defines.h"
+#include "engine/private/render/renderer/GraphicsDefines.h"
 
 #include "OpenGlDefines.h"
 

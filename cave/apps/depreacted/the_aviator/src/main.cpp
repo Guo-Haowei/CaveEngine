@@ -3,7 +3,7 @@
 #include <filesystem>
 
 #include "cave/core/string/StringUtils.h"
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/renderer/renderer.h"
 #include "engine/private/runtime/framework/CommonDvars.h"

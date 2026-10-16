@@ -16,7 +16,7 @@
 
 #include "engine/private/render/renderer/Renderer.h"
 // @TODO: remove
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 
 namespace cave {
 

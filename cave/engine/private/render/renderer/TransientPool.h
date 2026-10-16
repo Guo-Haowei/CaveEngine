@@ -1,8 +1,9 @@
 #pragma once
-#include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/sampler.h"
+#include "cave/render/rhi/Sampler.h"
 
 #include "RendererDebug.h"
+
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave::render {
 

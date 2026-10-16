@@ -1,5 +1,6 @@
 #include "ViewTabBase.h"
 
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/EngineServices.h"
 
 #include "editor/services/EditorServices.h"
@@ -8,16 +9,14 @@
 #include "editor/services/SelectionService.h"
 #include "editor/services/Workspace.h"
 #include "editor/play/PIESession.h"
+#include "editor/EditorState.h"
 
 // @TODO: remove
-#include "editor/EditorState.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
-
-#include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/sampler.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 
@@ -91,9 +90,8 @@ ViewTabBase::ViewTabBase(EditorState& editor,
         .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
         .miscFlags = RESOURCE_MISC_NONE,
     };
-    m_texture = m_engine_services.renderDevice().createTexture(
-        desc,
-        PointClampSampler());
+
+    m_texture = m_engine_services.renderDevice().createTexture(desc, PointClampSampler());
 }
 
 void ViewTabBase::onCreate() {
@@ -131,9 +129,8 @@ void ViewTabBase::onCreate() {
     m_camera_transform.updateTransform();
     m_camera.update(m_camera_transform.worldMatrix());
 
-    m_view_id = m_view_manager.createView(
-        "SceneView",
-        { 0, 0, kTextureWidth, kTextureHeight });
+    m_view_id = m_view_manager.createView("SceneView",
+                                          { 0, 0, kTextureWidth, kTextureHeight });
 
     m_engine_services.sceneScheduler().add(this);
 }

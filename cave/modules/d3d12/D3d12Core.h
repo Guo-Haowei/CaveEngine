@@ -7,108 +7,54 @@
 #include <mutex>
 
 #include "../d3d_common/D3dCommon.h"
-#include "descriptor_table_defines.slang.h"
 #include "engine/private/render/render_device/RenderDevice.h"
 
 namespace cave::render {
 
 class D3d12RenderDevice;
 
-enum class DescriptorResourceType : uint8_t {
-#define DESCRIPTOR_ENUM(ENUM, ...) ENUM,
-#define DESCRIPTOR_SRV             DESCRIPTOR_ENUM
-#define DESCRIPTOR_UAV             DESCRIPTOR_ENUM
-    DESCRIPTOR_TABLE
-#undef DESCRIPTOR_SRV
-#undef DESCRIPTOR_UAV
-#undef DESCRIPTOR_ENUM
-        COUNT
-};
-
-enum DescriptorHeapConstants {
-    _RESOURCE_DUMMY_START = 0,
-    _RESOURCE_DUMMY_MAX_COUNT = 0,
-#define DESCRIPTOR_CONSTANTS(ENUM, NUM, PREV, ...) \
-    ENUM##_MAX_COUNT = NUM,                        \
-    ENUM##_START = PREV##_START + PREV##_MAX_COUNT,
-#define DESCRIPTOR_SRV DESCRIPTOR_CONSTANTS
-#define DESCRIPTOR_UAV DESCRIPTOR_CONSTANTS
-    DESCRIPTOR_TABLE
-#undef DESCRIPTOR_SRV
-#undef DESCRIPTOR_UAV
-#undef DESCRIPTOR_CONSTANTS
-};
-
 struct DescriptorHeapHandle {
     int index;
-    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle;
-    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
+    D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
+    D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle;
 };
 
-class DescriptorHeapBase {
+class DescriptorHeap {
 public:
-    virtual ~DescriptorHeapBase() = default;
+    virtual ~DescriptorHeap() = default;
 
-    virtual auto Initialize(int p_count,
-                            D3D12_DESCRIPTOR_HEAP_TYPE p_type,
-                            ID3D12Device* p_device,
-                            bool p_shard_visible) -> Result<void>;
+    virtual auto Initialize(int count,
+                            D3D12_DESCRIPTOR_HEAP_TYPE type,
+                            ID3D12Device* device,
+                            bool shard_visible) -> Result<void>;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE GetStartCpu() const { return m_startCpu; }
-    D3D12_GPU_DESCRIPTOR_HANDLE GetStartGpu() const { return m_startGpu; };
+    D3D12_CPU_DESCRIPTOR_HANDLE GetStartCpu() const { return m_start_cpu; }
+    D3D12_GPU_DESCRIPTOR_HANDLE GetStartGpu() const { return m_start_gpu; };
     ID3D12DescriptorHeap* GetHeap() { return m_heap.Get(); }
 
-    uint32_t GetIncrementSize() const { return m_incrementSize; }
+    uint32_t GetIncrementSize() const { return m_increment_size; }
+
+    DescriptorHeapHandle AllocHandle();
 
 protected:
-    struct Space {
-        int start;
-        int max;
-        mutable std::atomic_int counter;
-    };
-
-    DescriptorHeapHandle AllocHandle(const Space& p_space);
-
     D3D12_DESCRIPTOR_HEAP_DESC m_desc{};
-    D3D12_CPU_DESCRIPTOR_HANDLE m_startCpu{};
-    D3D12_GPU_DESCRIPTOR_HANDLE m_startGpu{};
+    D3D12_CPU_DESCRIPTOR_HANDLE m_start_cpu{};
+    D3D12_GPU_DESCRIPTOR_HANDLE m_start_gpu{};
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap{};
 
-    uint32_t m_incrementSize{ 0 };
+    uint32_t m_increment_size{ 0 };
     int m_capacity{ 0 };
+    std::atomic_int m_counter{ 0 };
 };
 
-class DescriptorHeap : public DescriptorHeapBase {
-    using Base = DescriptorHeapBase;
-
+class DescriptorHeapSrv : public DescriptorHeap {
 public:
-    DescriptorHeap();
+    using DescriptorHeap::DescriptorHeap;
 
-    DescriptorHeapHandle AllocHandle();
-
-protected:
-    Space m_space;
-};
-
-class DescriptorHeapSrv : public DescriptorHeapBase {
-    using Base = DescriptorHeapBase;
-
-public:
-    virtual auto Initialize(int p_count,
-                            D3D12_DESCRIPTOR_HEAP_TYPE p_type,
-                            ID3D12Device* p_device,
-                            bool p_shard_visible) -> Result<void> override;
-
-    DescriptorHeapHandle AllocBindlessHandle(DescriptorResourceType p_type);
-    DescriptorHeapHandle AllocHandle();
-
-protected:
-    constexpr int GetBindlessMax() const {
-        return RWTexture3D_START + RWTexture3D_MAX_COUNT;
-    }
-
-    Space m_spaces[std::to_underlying(DescriptorResourceType::COUNT)];
-    std::atomic_int m_backCounter;
+    virtual auto Initialize(int count,
+                            D3D12_DESCRIPTOR_HEAP_TYPE type,
+                            ID3D12Device* device,
+                            bool shard_visible) -> Result<void> override;
 };
 
 // @TODO: refactor, this is duplicate

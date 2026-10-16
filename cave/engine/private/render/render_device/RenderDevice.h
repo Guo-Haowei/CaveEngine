@@ -5,7 +5,7 @@
 
 #include "engine/private/core/base/concurrent_queue.h"
 #include "engine/private/core/math/Geomath.h"
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/render/rhi/PipelineState.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/PipelineStateManager.h"

@@ -200,10 +200,10 @@ void MetalCommandList::applyGraphicsPipeline() {
         MTLCullMode cull_mode = MTLCullModeNone;
 
         switch (pipeline->desc.rasterizer_desc->cullMode) {
-        case CullMode::FRONT:
+        case CullMode::Front:
             cull_mode = MTLCullModeFront;
             break;
-        case CullMode::BACK:
+        case CullMode::Back:
             cull_mode = MTLCullModeBack;
             break;
         default:

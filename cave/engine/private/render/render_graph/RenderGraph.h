@@ -1,8 +1,8 @@
 #pragma once
 #include "cave/core/math/Rect.h"
 
-#include "engine/private/renderer/gpu_resource.h"
-#include "engine/private/renderer/pixel_format.h"
+#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/PixelFormat.h"
 #include "RenderPass.h"
 
 // clang-format off
@@ -59,6 +59,8 @@ public:
     RGTextureId createTexture(CreateDesc&& info);
     RGTextureId importTexture(ImportDesc&& info);
     RGDependencyId createDependency();
+
+    const math::IntRect& viewport() const { return m_viewport; }
 
 protected:
     math::IntRect m_viewport;

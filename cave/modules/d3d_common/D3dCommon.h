@@ -2,7 +2,7 @@
 #include <d3dcommon.h>
 #include <wrl/client.h>
 
-#include "engine/private/renderer/gpu_resource.h"
+#include "engine/private/render/rhi/gpu_resource.h"
 
 #define USE_D3D_DEBUG_NAME USE_IF(USING(DEBUG_BUILD))
 #define USE_D3D_ASSERT     IN_USE
@@ -71,8 +71,7 @@ static inline D3D_SRV_DIMENSION ConvertDimension(Dimension dimension) {
 
 auto CompileShader(std::string_view path,
                    const char* target,
-                   const D3D_SHADER_MACRO* defines,
-                   bool is_d3d11 = true) -> Result<Microsoft::WRL::ComPtr<ID3DBlob>>;
+                   const D3D_SHADER_MACRO* defines) -> Result<Microsoft::WRL::ComPtr<ID3DBlob>>;
 
 #if USING(USE_D3D_DEBUG_NAME)
 void SetDebugName(ID3D11DeviceChild* resource, std::string_view name);

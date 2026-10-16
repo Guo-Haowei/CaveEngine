@@ -48,7 +48,7 @@ auto OpenGl4RenderDevice::InitializeInternal() -> Result<void> {
         glGetIntegerv(GL_MAJOR_VERSION, &major);
         glGetIntegerv(GL_MINOR_VERSION, &minor);
         if (major < 4 || minor < 3) {
-            m_capabilities.supportComputeShaders = false;
+            m_capabilities.support_cs = false;
         }
     }
 

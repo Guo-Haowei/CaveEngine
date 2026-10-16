@@ -28,10 +28,10 @@ struct D3d12ConstantBuffer : public GpuConstantBuffer {
 struct D3d12GpuTexture : public GpuTexture {
     using GpuTexture::GpuTexture;
 
-    uint64_t GetHandle() const final { return srvHandle.gpuHandle.ptr; }
+    uint64_t GetHandle() const final { return srv_handle.gpu_handle.ptr; }
 
     uint64_t GetResidentHandle() const final {
-        uint64_t handle = srvHandle.index;
+        uint64_t handle = srv_handle.index;
         switch (desc.dimension) {
             case Dimension::Texture2D:
             case Dimension::TextureCube:
@@ -42,14 +42,14 @@ struct D3d12GpuTexture : public GpuTexture {
         }
     }
 
-    uint64_t GetUavHandle() const final { return uavHandle.index; }
+    uint64_t GetUavHandle() const final { return uav_handle.index; }
 
     Microsoft::WRL::ComPtr<ID3D12Resource> texture;
 
-    DescriptorHeapHandle srvHandle;
-    DescriptorHeapHandle uavHandle;
+    DescriptorHeapHandle srv_handle;
+    DescriptorHeapHandle uav_handle;
 
-    D3D12_RESOURCE_STATES currentState{ D3D12_RESOURCE_STATE_COMMON };
+    D3D12_RESOURCE_STATES current_state{ D3D12_RESOURCE_STATE_COMMON };
 };
 
 }  // namespace cave::render

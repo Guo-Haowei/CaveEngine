@@ -1,16 +1,15 @@
 #include "CommonPasses.h"
 
 #include "cave/core/diagnostics/Profiler.h"
+#include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/display/DisplayService.h"
 
-#include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/render/render_device/RenderDevice.h"
-#include "engine/private/renderer/renderer_misc.h"
-#include "engine/private/renderer/sampler.h"
 #include "RenderGraphDefines.h"
 #include "RenderPass.h"
 
 // @TODO: remove
+#include "engine/private/render/renderer/FrameData.h"
+#include "engine/private/render/render_device/RenderDevice.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -27,7 +26,6 @@ constexpr const char kPassDepthPrepass[] = "p:depth_prepass";
 constexpr const char kPassGbuffer[] = "p:gbuffer";
 constexpr const char kPassLighting[] = "p:lighting";
 constexpr const char kPassForward[] = "p:forward";
-constexpr const char kPassBloomSetup[] = "p:bloom_setup";
 constexpr const char kPassOutline[] = "p:outline";
 constexpr const char kPassPostProcess[] = "p:post_process";
 constexpr const char kPassOverlay[] = "p:overlay";
@@ -44,9 +42,6 @@ extern void GbufferPassFunc(RenderPassExcutionContext& ctx);
 extern void HighlightPassFunc(RenderPassExcutionContext& ctx);
 extern void LightingPassFunc(RenderPassExcutionContext& ctx);
 extern void ForwardPassFunc(RenderPassExcutionContext& ctx);
-extern void BloomSetupFunc(RenderPassExcutionContext& ctx);
-extern void BloomDownSampleFunc(RenderPassExcutionContext& ctx);
-extern void BloomUpSampleFunc(RenderPassExcutionContext& ctx);
 extern void TonePassFunc(RenderPassExcutionContext& ctx);
 extern void OverlayDrawFunc(RenderPassExcutionContext& ctx);
 
@@ -98,7 +93,7 @@ LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in)
         .dependency = createDependency(),
         .lighting = createTexture({
             kResLighting,
-            buildDefaultTextureDesc(RT_FMT_LIGHTING, AttachmentType::COLOR_2D),
+            buildDefaultTextureDesc(kFormatLighting, AttachmentType::COLOR_2D),
         }),
     };
 
@@ -146,97 +141,13 @@ ForwardOutput RenderGraphBuilderExt::addForwardPass(const ForwardInput& in) {
     return out;
 }
 
-BloomOut RenderGraphBuilderExt::addBloomPasses(const BloomInput& in) {
-    const int width = m_viewport.w;
-    const int height = m_viewport.h;
-
-    // @TODO: use mips instead of generate this many resources
-    struct TextureContext {
-        RGTextureId id;
-        int w, h;
-    };
-
-    Vector<TextureContext> textures;
-    for (int i = 0, w = width, h = height;
-         i < kBloomMipChainMax && w > 1 && h > 1;
-         ++i, w /= 2, h /= 2) {
-
-        auto texture_desc = buildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
-                                                    AttachmentType::COLOR_2D,
-                                                    w, h);
-
-        auto res_name = std::format(RG_RES_BLOOM_PREFIX "@{}x{}", w, h);
-        RGTextureId id = createTexture({
-            res_name,
-            texture_desc,
-            LinearClampSampler(),
-        });
-        textures.emplace_back(id, w, h);
-    }
-
-    const int num_textures = static_cast<int>(textures.size());
-    DEV_ASSERT(num_textures > 1);
-
-    // Setup pass
-    RGDependencyId setup_dependency = createDependency();
-
-    RenderPass& setup_pass = addRenderPass(kPassBloomSetup);
-    setup_pass
-        .readDependency(in.dependency)
-        .read(ResourceAccess::SRV, in.color)
-        .read(ResourceAccess::UAV, textures[0].id)
-        .writeDependency(setup_dependency)
-        .setExecuteFunc(BloomSetupFunc);
-
-    RGDependencyId last_dep = setup_dependency;
-
-    // Down Sample
-    for (int i = 0; i < num_textures - 1; ++i) {
-        const auto& dest = textures[i + 1];
-
-        auto pass_name = std::format(RG_PASS_BLOOM_DOWN_PREFIX "@{}x{}", dest.w, dest.h);
-        auto& pass = addRenderPass(pass_name);
-        RGDependencyId new_dep = createDependency();
-        pass.readDependency(last_dep)
-            .read(ResourceAccess::SRV, textures[i].id)
-            .read(ResourceAccess::UAV, dest.id)
-            .writeDependency(new_dep)
-            .setExecuteFunc(BloomDownSampleFunc);
-        last_dep = new_dep;
-    }
-
-    RenderPass* last_pass = nullptr;
-    // Up Sample
-    for (int i = num_textures - 2; i >= 0; --i) {
-        const auto& dest = textures[i];
-        auto pass_name = std::format(RG_PASS_BLOOM_UP_PREFIX "@{}x{}", dest.w, dest.h);
-        auto& pass = addRenderPass(pass_name);
-        last_pass = &pass;
-        RGDependencyId new_dep = createDependency();
-        pass.readDependency(last_dep)
-            .read(ResourceAccess::SRV, textures[i + 1].id)
-            .read(ResourceAccess::UAV, dest.id)
-            .writeDependency(new_dep)
-            .setExecuteFunc(BloomUpSampleFunc);
-        last_dep = new_dep;
-    }
-
-    auto upsample_dependency = createDependency();
-    last_pass->writeDependency(upsample_dependency);
-
-    return {
-        .dependency = upsample_dependency,
-        .bloom = textures[0].id
-    };
-}
-
 HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_in) {
     RenderPass& pass = addRenderPass(kPassOutline);
 
     HighlightOutput out = {
         .outline = createTexture({
             .debug_name = kResOutline,
-            .resourceDesc = buildDefaultTextureDesc(RT_FMT_OUTLINE_SELECT, AttachmentType::COLOR_2D),
+            .resourceDesc = buildDefaultTextureDesc(kFormatOutlineSelect, AttachmentType::COLOR_2D),
             .samplerDesc = PointClampSampler(),
         }),
     };
@@ -250,7 +161,7 @@ HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_
 
 PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInput& in) {
     RenderPass& pass = addRenderPass(kPassPostProcess);
-    auto desc = buildDefaultTextureDesc(RT_FMT_TONE,
+    auto desc = buildDefaultTextureDesc(kFormatTone,
                                         AttachmentType::COLOR_2D);
     desc.bindFlags |= BIND_SHADER_RESOURCE;
 

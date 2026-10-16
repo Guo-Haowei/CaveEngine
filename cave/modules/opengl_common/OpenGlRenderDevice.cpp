@@ -6,7 +6,7 @@
 #include "cave/runtime/framework/IApplication.h"
 
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #include "engine/private/runtime/display/GlfwDisplayService.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"

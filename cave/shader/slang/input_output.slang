@@ -44,7 +44,7 @@ struct VsPrimInput {
     float3 position : POSITION;
     float2 uv : TEXCOORD;
     float4 color : COLOR;
-    nointerpolation uint2 tex_id : TEXID;
+    uint2 tex_id : TEXID;
 };
 
 struct VsPrimOutput {

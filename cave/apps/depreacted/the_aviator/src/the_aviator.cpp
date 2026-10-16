@@ -3,7 +3,7 @@
 #include "engine/private/core/base/random.h"
 #include "cave/core/Color.h"
 #include "engine/private/core/math/geometry.h"
-#include "engine/private/renderer/graphics_dvars.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #include "engine/private/runtime/scene/CameraController.h"
 #include "engine/private/runtime/scene/EntityFactory.h"
 

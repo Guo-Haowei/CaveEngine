@@ -12,10 +12,10 @@ PLATFORM_APIS = {
 }
 
 API_INFO = {
-    "d3d11": ("hlsl", "__TARGET_D3D11__"),
-    "d3d12": ("hlsl", "__TARGET_D3D12__"),
-    "opengl": ("glsl", "__TARGET_OPENGL__"),
-    "metal": ("metal", "__TARGET_METAL__"),
+    "d3d11": ("hlsl", "sm_5_0"),
+    "d3d12": ("dxil", "sm_6_6"),
+    "opengl": ("glsl", "glsl_460"),
+    "metal": ("metal",  None),
 }
 
 
@@ -56,13 +56,15 @@ def run_slangc(
     input_file: Path,
     entry_point: str,
     stage: str,
-    target_lang: str,
-    define: str,
+    api: str,
     output_file: Path,
     spirv_cross_bin: str = "spirv-cross",
     
 ) -> bool:
-    if target_lang == "glsl":
+    lang, profile = API_INFO[api]
+    define = f'__TARGET_{api.upper()}__'
+
+    if api == "opengl":
         spv_file = output_file.with_suffix(".spv")
 
         try:
@@ -94,13 +96,15 @@ def run_slangc(
             str(input_file),
             "-entry", entry_point,
             "-stage", stage,
-            "-target", target_lang,
+            "-target", lang,
             "-no-mangle",
-            "-line-directive-mode", "none"
+            "-line-directive-mode", "none",
+            f"-D{define}",
+            "-o", str(output_file)
         ]
 
-        cmd.append(f"-D{define}")
-        cmd.extend(["-o", str(output_file)])
+        if profile:
+            cmd.extend(["-profile", profile])
 
         if not run_command(cmd, "slangc", input_file, stage):
             return False
@@ -126,7 +130,7 @@ def compile_folder(
     slangc_path: str = "slangc",
     spirv_cross_path: str = "spirv-cross",
 ) -> None:
-    lang, define = API_INFO[api]
+    lang, profile = API_INFO[api]
 
     if not source_folder.exists() or not source_folder.is_dir():
         print(f"Error: Source folder '{source_folder}' does not exist.", file=sys.stderr)
@@ -182,8 +186,7 @@ def compile_folder(
                 input_file=slang_file,
                 entry_point=entry_point,
                 stage=stage,
-                target_lang=lang,
-                define=define,
+                api=api,
                 output_file=output_folder / output_name,
                 spirv_cross_bin=spirv_cross_path,
             )

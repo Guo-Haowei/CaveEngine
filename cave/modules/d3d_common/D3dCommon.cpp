@@ -24,7 +24,7 @@ HRESULT ReportErrorIfFailed(HRESULT result,
                             std::string_view error) {
     if (FAILED(result)) {
         ReportErrorImpl(function, file, line, error);
-        // GENERATE_TRAP();
+        GENERATE_TRAP();
     }
     return result;
 }
@@ -70,12 +70,10 @@ private:
 
 auto CompileShader(std::string_view shader_name,
                    const char* target,
-                   const D3D_SHADER_MACRO* defines,
-                   bool is_d3d11) -> Result<ComPtr<ID3DBlob>> {
+                   const D3D_SHADER_MACRO* defines) -> Result<ComPtr<ID3DBlob>> {
     String file_name{ shader_name };
     file_name.append(".hlsl");
-    fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" /
-                        (is_d3d11 ? "d3d11_generated" : "d3d12_generated") / file_name;
+    fs::path fullpath = fs::path{ ROOT_FOLDER } / "cave" / "shader" / "d3d11_generated" / file_name;
 
     std::string fullpath_str = fullpath.string();
     std::wstring path{ fullpath_str.begin(), fullpath_str.end() };

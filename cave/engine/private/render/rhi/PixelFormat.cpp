@@ -1,9 +1,9 @@
-#include "pixel_format.h"
+#include "cave/render/rhi/PixelFormat.h"
 
 namespace cave {
 
-uint32_t ChannelSize(PixelFormat p_format) {
-    switch (p_format) {
+uint32_t ChannelSize(PixelFormat format) {
+    switch (format) {
         case PixelFormat::R8_UINT:
         case PixelFormat::R8G8_UINT:
         case PixelFormat::R8G8B8_UINT:
@@ -28,8 +28,8 @@ uint32_t ChannelSize(PixelFormat p_format) {
     }
 }
 
-uint32_t ChannelCount(PixelFormat p_format) {
-    switch (p_format) {
+uint32_t ChannelCount(PixelFormat format) {
+    switch (format) {
         case PixelFormat::R8_UINT:
         case PixelFormat::R16_FLOAT:
         case PixelFormat::R32_FLOAT:

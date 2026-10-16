@@ -1,5 +1,4 @@
-#ifndef STRUCTURED_BUFFER_HLSL_H_INCLUDED
-#define STRUCTURED_BUFFER_HLSL_H_INCLUDED
+#pragma once
 #include "cbuffer.slang.h"
 
 struct Particle {
@@ -76,26 +75,20 @@ static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
     RWStructuredBuffer<DATA_TYPE> NAME : register(u##REG);
 #endif
 
-#if defined(HLSL_LANG_D3D12)
-#error "NOT SUPPORTED"
-#define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
-    RWStructuredBuffer<DATA_TYPE> NAME : register(u##REG2, space##REG);
-#endif
-
-#define SBUFFER_LIST                                         \
-    SBUFFER(ParticleCounter, GlobalParticleCounter, 16, 511) \
-    SBUFFER(int, GlobalDeadIndices, 17, 510)                 \
-    SBUFFER(int, GlobalAliveIndicesPreSim, 18, 509)          \
-    SBUFFER(int, GlobalAliveIndicesPostSim, 19, 508)         \
-    SBUFFER(Particle, GlobalParticleData, 20, 507)           \
-    SBUFFER(GpuPtVertex, GlobalPtVertices, 21, 506)          \
-    SBUFFER(GpuPtIndex, GlobalPtIndices, 22, 505)            \
-    SBUFFER(GpuPtBvh, GlobalPtBvhs, 23, 504)                 \
-    SBUFFER(GpuPtMesh, GlobalPtMeshes, 24, 503)              \
-    SBUFFER(GpuPtMaterial, GlobalPtMaterials, 25, 502)
+// clang-format off
+#define SBUFFER_LIST                                           \
+    SBUFFER(ParticleCounter, GlobalParticleCounter,     16, 0) \
+    SBUFFER(int,             GlobalDeadIndices,         17, 1) \
+    SBUFFER(int,             GlobalAliveIndicesPreSim,  18, 2) \
+    SBUFFER(int,             GlobalAliveIndicesPostSim, 19, 3) \
+    SBUFFER(Particle,        GlobalParticleData,        20, 4) \
+    SBUFFER(GpuPtVertex,     GlobalPtVertices,          21, 5) \
+    SBUFFER(GpuPtIndex,      GlobalPtIndices,           22, 6) \
+    SBUFFER(GpuPtBvh,        GlobalPtBvhs,              23, 7) \
+    SBUFFER(GpuPtMesh,       GlobalPtMeshes,            24, 8) \
+    SBUFFER(GpuPtMaterial,   GlobalPtMaterials,         25, 9)
+// clang-format on
 
 SBUFFER_LIST
 
 #undef SBUFFER
-
-#endif
