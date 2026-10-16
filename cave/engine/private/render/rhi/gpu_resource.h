@@ -93,59 +93,40 @@ struct GpuBufferDesc {
     const void* initial_data{ nullptr };
 };
 
-// @TODO: generalize buffers
 struct GpuBuffer {
     const GpuBufferDesc desc;
 
-    GpuBuffer(const GpuBufferDesc& p_desc)
-        : desc(p_desc) {}
+    GpuBuffer(const GpuBufferDesc& desc)
+        : desc(desc) {}
 
     virtual ~GpuBuffer() = default;
 
-    virtual uint64_t GetHandle() const = 0;
-    uint32_t GetHandle32() const { return static_cast<uint32_t>(GetHandle()); }
+    uint32_t capacity() const { return desc.element_count * desc.element_size; }
+
+    int getSlot() const { return desc.slot; }
+
+    virtual uint64_t getHandle() const = 0;
+    uint32_t getHandle32() const { return static_cast<uint32_t>(getHandle()); }
 };
 
-struct GpuConstantBuffer {
-    GpuConstantBuffer(const GpuBufferDesc& p_desc)
-        : desc(p_desc), capacity(desc.element_count * desc.element_size) {}
-
-    virtual ~GpuConstantBuffer() = default;
-
-    int GetSlot() const { return desc.slot; }
-
-    const GpuBufferDesc desc;
-    // @TODO: refactor this
-    const uint32_t capacity;
-};
-
-struct GpuStructuredBuffer {
-    const GpuBufferDesc desc;
-
-    GpuStructuredBuffer(const GpuBufferDesc& p_desc)
-        : desc(p_desc) {}
-
-    virtual ~GpuStructuredBuffer() = default;
-};
-
-constexpr inline int MESH_MAX_VERTEX_BUFFER_COUNT = 8;
+constexpr int kMeshMaxVertexBufferCount = 8;
 
 struct GpuMeshDesc {
     struct VertexLayout {
         uint32_t slot{ 0 };
-        uint32_t strideInByte{ 0 };
-        uint32_t offsetInByte{ 0 };
+        uint32_t stride_in_byte{ 0 };
+        uint32_t offset_in_byte{ 0 };
     };
 
-    uint32_t drawCount{ 0 };  // draw count
-    uint32_t enabledVertexCount{ 0 };
-    VertexLayout vertexLayout[MESH_MAX_VERTEX_BUFFER_COUNT];
+    uint32_t draw_count{ 0 };
+    uint32_t enabled_vertex_count{ 0 };
+    VertexLayout vertex_layout[kMeshMaxVertexBufferCount];
 };
 
 struct GpuMesh {
     const GpuMeshDesc desc;
     Ref<GpuBuffer> indexBuffer;
-    std::array<Ref<GpuBuffer>, MESH_MAX_VERTEX_BUFFER_COUNT> vertexBuffers;
+    std::array<Ref<GpuBuffer>, kMeshMaxVertexBufferCount> vertexBuffers;
 
     GpuMesh() = default;
     GpuMesh(const GpuMeshDesc& p_desc)
@@ -171,12 +152,5 @@ struct GpuTexture {
 
 // @TODO: use actual id
 using GpuTextureId = std::shared_ptr<GpuTexture>;
-
-// @TODO: remove this
-template<typename T>
-struct ConstantBuffer {
-    std::shared_ptr<GpuConstantBuffer> buffer;
-    T cache;
-};
 
 }  // namespace cave::render

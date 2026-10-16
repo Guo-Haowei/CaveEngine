@@ -6,22 +6,27 @@ namespace cave::render {
 struct D3d12MeshBuffers : GpuMesh {
     using GpuMesh::GpuMesh;
 
-    D3D12_VERTEX_BUFFER_VIEW vbvs[MESH_MAX_VERTEX_BUFFER_COUNT];
+    D3D12_VERTEX_BUFFER_VIEW vbvs[kMeshMaxVertexBufferCount];
     D3D12_INDEX_BUFFER_VIEW ibv;
 };
 
-struct D3d12ConstantBuffer : public GpuConstantBuffer {
-    using GpuConstantBuffer::GpuConstantBuffer;
+struct D3d12Buffer final : public GpuBuffer {
+    using GpuBuffer::GpuBuffer;
 
-    ~D3d12ConstantBuffer() {
-        if (buffer) {
+    ~D3d12Buffer() {
+        if (buffer && mappedData) {
             buffer->Unmap(0, nullptr);
+            mappedData = nullptr;
         }
-        mappedData = nullptr;
+    }
+
+    uint64_t getHandle() const override {
+        return (size_t)buffer.Get();
     }
 
     Microsoft::WRL::ComPtr<ID3D12Resource> buffer{};
     uint8_t* mappedData{ nullptr };
+    DescriptorHeapHandle handle;
 };
 
 // @TODO: refactor

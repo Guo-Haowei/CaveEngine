@@ -128,15 +128,15 @@ auto RenderDevice::createMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
     const bool is_dynamic = false;
 
     GpuMeshDesc desc;
-    desc.enabledVertexCount = count;
-    desc.drawCount = static_cast<uint32_t>(p_mesh.indices.empty() ? p_mesh.positions.size() : p_mesh.indices.size());
+    desc.enabled_vertex_count = count;
+    desc.draw_count = static_cast<uint32_t>(p_mesh.indices.empty() ? p_mesh.positions.size() : p_mesh.indices.size());
 
     for (int index = 0; index < (int)attribs.size(); ++index) {
         const auto& in = p_mesh.attributes[std::to_underlying(attribs[index])];
-        auto& layout = desc.vertexLayout[index];
+        auto& layout = desc.vertex_layout[index];
         layout.slot = index;
-        layout.offsetInByte = in.offsetInByte;
-        layout.strideInByte = in.strideInByte;
+        layout.offset_in_byte = in.offsetInByte;
+        layout.stride_in_byte = in.strideInByte;
 
         auto& buffer_desc = vb_descs[index];
         buffer_desc.slot = index;
@@ -297,7 +297,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     }
 }
 
-void RenderDevice::updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) {
+void RenderDevice::updateBufferData(const GpuBufferDesc&, const GpuBuffer*) {
 }
 
 void RenderDevice::beginFrame() {
@@ -361,7 +361,7 @@ void RenderDevice::drawSkybox() {
     auto& cmd = *getCommandList();
 
     cmd.setMesh(m_skybox_buffers.get());
-    cmd.drawIndexed(m_skybox_buffers->desc.drawCount);
+    cmd.drawIndexed(m_skybox_buffers->desc.draw_count);
 }
 
 void RenderDevice::beginPass(const CompiledPass& pass) {

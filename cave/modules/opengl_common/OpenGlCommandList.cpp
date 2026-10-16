@@ -78,12 +78,12 @@ void OpenGlCommandList::popDebugGroup() {
 #endif
 }
 
-void OpenGlCommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
+void OpenGlCommandList::bindConstantBufferRange(const GpuBuffer* buffer,
                                                 uint32_t size,
                                                 uint32_t offset) {
-    auto gl_buffer = reinterpret_cast<const OpenGlConstantBuffer*>(buffer);
-    DEV_ASSERT(size + offset <= gl_buffer->capacity);
-    glBindBufferRange(GL_UNIFORM_BUFFER, buffer->GetSlot(), gl_buffer->handle, offset, size);
+    auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
+    DEV_ASSERT(size + offset <= gl_buffer->capacity());
+    glBindBufferRange(GL_UNIFORM_BUFFER, buffer->getSlot(), gl_buffer->handle, offset, size);
 }
 
 void OpenGlCommandList::setViewport(const Viewport& p_viewport) {
@@ -248,8 +248,8 @@ void OpenGlCommandList::unbindTexture(Dimension dimension, int slot) {
     glBindTexture(texture_type, 0);
 }
 
-void OpenGlCommandList::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
-    auto gl_buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(buffer);
+void OpenGlCommandList::bindStructuredBuffer(int slot, const GpuBuffer* buffer) {
+    auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, gl_buffer->handle);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, gl_buffer->handle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -259,7 +259,7 @@ void OpenGlCommandList::unbindStructuredBuffer(int slot) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
 }
 
-void OpenGlCommandList::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
+void OpenGlCommandList::bindStructuredBufferSRV(int slot, const GpuBuffer* buffer) {
     bindStructuredBuffer(slot, buffer);
 }
 

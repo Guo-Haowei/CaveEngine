@@ -91,12 +91,12 @@ void D3d12CommandList::popDebugGroup() {
     PIXEndEvent(m_command_list.Get());
 }
 
-void D3d12CommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
+void D3d12CommandList::bindConstantBufferRange(const GpuBuffer* buffer,
                                                uint32_t size,
                                                uint32_t offset) {
 
-    auto d3d_buffer = reinterpret_cast<const D3d12ConstantBuffer*>(buffer);
-    DEV_ASSERT(size + offset <= d3d_buffer->capacity);
+    auto d3d_buffer = reinterpret_cast<const D3d12Buffer*>(buffer);
+    DEV_ASSERT(size + offset <= d3d_buffer->capacity());
 
     D3D12_GPU_VIRTUAL_ADDRESS batch_address = d3d_buffer->buffer->GetGPUVirtualAddress();
 
@@ -156,7 +156,7 @@ void D3d12CommandList::setMesh(const GpuMesh* gpu_mesh) {
     auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(gpu_mesh);
 
     m_command_list->IASetVertexBuffers(0,
-                                       mesh->desc.enabledVertexCount,
+                                       mesh->desc.enabled_vertex_count,
                                        mesh->vbvs);
     if (mesh->indexBuffer) {
         m_command_list->IASetIndexBuffer(&mesh->ibv);
@@ -172,7 +172,7 @@ void D3d12CommandList::unbindTexture(Dimension, int slot) {
     unused(slot);
 }
 
-void D3d12CommandList::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
+void D3d12CommandList::bindStructuredBuffer(int slot, const GpuBuffer* buffer) {
     unused(slot);
     unused(buffer);
 }
@@ -181,7 +181,7 @@ void D3d12CommandList::unbindStructuredBuffer(int slot) {
     unused(slot);
 }
 
-void D3d12CommandList::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
+void D3d12CommandList::bindStructuredBufferSRV(int slot, const GpuBuffer* buffer) {
     unused(slot);
 
     DEV_ASSERT(buffer);

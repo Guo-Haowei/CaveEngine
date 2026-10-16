@@ -27,11 +27,11 @@ public:
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
-    void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
+    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    void updateBufferData(const GpuBufferDesc& desc, const GpuBuffer* buffer) override;
 
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
+    void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) override;
 
     void generateMipmap(const GpuTexture* texture) override;
 

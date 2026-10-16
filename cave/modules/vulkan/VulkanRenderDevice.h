@@ -26,10 +26,10 @@ public:
         return nullptr;
     }
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override { return nullptr; }
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override { return nullptr; }
+    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
 
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override {}
+    void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) override {}
 
     void generateMipmap(const GpuTexture* texture) override {}
 

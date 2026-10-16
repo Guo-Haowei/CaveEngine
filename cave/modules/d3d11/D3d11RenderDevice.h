@@ -13,16 +13,6 @@ namespace cave::render {
 class D3d11ViewCache;
 struct D3d11MeshBuffers;
 
-struct D3d11Buffer : GpuBuffer {
-    using GpuBuffer::GpuBuffer;
-
-    Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
-
-    uint64_t GetHandle() const final {
-        return (size_t)buffer.Get();
-    }
-};
-
 class D3d11RenderDevice final : public RenderDevice {
 public:
     D3d11RenderDevice();
@@ -35,8 +25,8 @@ public:
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
+    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
 
     void generateMipmap(const GpuTexture* texture) override;
 
@@ -47,7 +37,7 @@ public:
     // @TODO: refactor
     virtual ICommandList* getCommandList() const { return m_command_list.get(); }
 
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
+    void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) override;
 
     void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 

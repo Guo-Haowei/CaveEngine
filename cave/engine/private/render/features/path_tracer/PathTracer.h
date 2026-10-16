@@ -39,11 +39,11 @@ private:
     bool createAccelStructure(const Scene& scene);
     void updateAccelStructure(const Scene& scene);
 
-    Ref<GpuStructuredBuffer> m_bvh_buffer;
-    Ref<GpuStructuredBuffer> m_vertex_buffer;
-    Ref<GpuStructuredBuffer> m_index_buffer;
-    Ref<GpuStructuredBuffer> m_mesh_buffer;
-    Ref<GpuStructuredBuffer> m_material_buffer;
+    Ref<GpuBuffer> m_bvh_buffer;
+    Ref<GpuBuffer> m_vertex_buffer;
+    Ref<GpuBuffer> m_index_buffer;
+    Ref<GpuBuffer> m_mesh_buffer;
+    Ref<GpuBuffer> m_material_buffer;
 
     struct MeshData {
         int root_bvh_id;

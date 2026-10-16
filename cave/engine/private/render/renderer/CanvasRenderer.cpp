@@ -163,12 +163,12 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
     };
 
     GpuMeshDesc desc;
-    desc.drawCount = index_count;
-    desc.enabledVertexCount = static_cast<uint32_t>(buffer_descs.size());
-    desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec3f), 0 };
-    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
-    desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
-    desc.vertexLayout[3] = GpuMeshDesc::VertexLayout{ 3, sizeof(Vec2u), 0 };
+    desc.draw_count = index_count;
+    desc.enabled_vertex_count = static_cast<uint32_t>(buffer_descs.size());
+    desc.vertex_layout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec3f), 0 };
+    desc.vertex_layout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
+    desc.vertex_layout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
+    desc.vertex_layout[3] = GpuMeshDesc::VertexLayout{ 3, sizeof(Vec2u), 0 };
 
     auto mesh_result = device.createMeshImpl(desc, buffer_descs, &index_desc);
     if (!mesh_result) {

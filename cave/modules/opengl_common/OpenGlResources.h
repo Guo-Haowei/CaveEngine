@@ -20,11 +20,11 @@ struct OpenGlBuffer : GpuBuffer {
     gl::BUFFER_TYPE type;
     uint32_t handle{ 0 };
 
-    ~OpenGlBuffer() { Clear(); }
+    ~OpenGlBuffer() { clear(); }
 
-    void Clear();
+    void clear();
 
-    uint64_t GetHandle() const final { return handle; }
+    uint64_t getHandle() const final { return handle; }
 };
 
 struct OpenGlGpuTexture : public GpuTexture {
@@ -42,26 +42,6 @@ struct OpenGlGpuTexture : public GpuTexture {
 
     uint32_t handle = 0;
     uint64_t residentHandle = 0;
-};
-
-struct OpenGlConstantBuffer : public GpuConstantBuffer {
-    using GpuConstantBuffer::GpuConstantBuffer;
-
-    ~OpenGlConstantBuffer() { clear(); }
-
-    void clear();
-
-    uint32_t handle = 0;
-};
-
-struct OpenGlStructuredBuffer : public GpuStructuredBuffer {
-    using GpuStructuredBuffer::GpuStructuredBuffer;
-
-    ~OpenGlStructuredBuffer() { clear(); }
-
-    void clear();
-
-    uint32_t handle = 0;
 };
 
 }  // namespace cave::render

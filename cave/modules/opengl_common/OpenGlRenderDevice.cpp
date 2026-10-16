@@ -57,18 +57,18 @@ void OpenGlRenderDevice::FinalizeImpl() {
     m_pipeline_state_manager->finalize();
 }
 
-auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
-    auto type = gl::Convert(p_desc.type);
+auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
+    auto type = gl::Convert(desc.type);
 
-    const GLenum usage = p_desc.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+    const GLenum usage = desc.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(type, handle);
-    glBufferData(type, p_desc.element_count * p_desc.element_size, p_desc.initial_data, usage);
+    glBufferData(type, desc.element_count * desc.element_size, desc.initial_data, usage);
     glBindBuffer(type, 0);
 
-    auto buffer = MakeRef<OpenGlBuffer>(p_desc);
+    auto buffer = MakeRef<OpenGlBuffer>(desc);
     buffer->handle = handle;
     buffer->type = type;
     return buffer;
@@ -76,7 +76,7 @@ auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std
 
 auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
                                         std::span<const GpuBufferDesc> vb_descs,
-                                        const GpuBufferDesc* ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
+                                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> {
     // create VAO
     uint32_t vao;
     glGenVertexArrays(1, &vao);
@@ -93,7 +93,7 @@ auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
         }
         ret->indexBuffer = *res;
 
-        const uint32_t ebo = ret->indexBuffer->GetHandle32();
+        const uint32_t ebo = ret->indexBuffer->getHandle32();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     }
 
@@ -108,8 +108,8 @@ auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
         }
         ret->vertexBuffers[slot] = *res;
 
-        const uint32_t vbo = ret->vertexBuffers[slot]->GetHandle32();
-        const uint32_t stride_in_byte = ret->desc.vertexLayout[slot].strideInByte;
+        const uint32_t vbo = ret->vertexBuffers[slot]->getHandle32();
+        const uint32_t stride_in_byte = ret->desc.vertex_layout[slot].stride_in_byte;
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glVertexAttribPointer(slot,
@@ -129,14 +129,14 @@ void OpenGlRenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_
     DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
     if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
         const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
-        const uint32_t vbo = p_buffer->GetHandle32();
+        const uint32_t vbo = p_buffer->getHandle32();
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferSubData(GL_ARRAY_BUFFER, 0, size_in_byte, p_desc.initial_data);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 
-auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
+auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
     GLuint handle = 0;
 
     glGenBuffers(1, &handle);
@@ -145,32 +145,29 @@ auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Re
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, handle);
-    glBufferData(GL_UNIFORM_BUFFER, p_desc.element_count * p_desc.element_size, nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, desc.element_count * desc.element_size, nullptr, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferBase(GL_UNIFORM_BUFFER, p_desc.slot, handle);
+    glBindBufferBase(GL_UNIFORM_BUFFER, desc.slot, handle);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    auto buffer = MakeRef<OpenGlConstantBuffer>(p_desc);
+    auto buffer = MakeRef<OpenGlBuffer>(desc);
     buffer->handle = handle;
     return buffer;
 }
 
-auto OpenGlRenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
-    unused(p_desc);
+auto OpenGlRenderDevice::createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> {
     CRASH_NOW();
     return nullptr;
 }
 
-void OpenGlRenderDevice::updateBufferData(const GpuBufferDesc& p_desc, const GpuStructuredBuffer* p_buffer) {
-    unused(p_desc);
-    unused(p_buffer);
+void OpenGlRenderDevice::updateBufferData(const GpuBufferDesc&, const GpuBuffer*) {
     CRASH_NOW();
 }
 
-void OpenGlRenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
-    auto buffer = reinterpret_cast<const OpenGlConstantBuffer*>(p_buffer);
-    glBindBuffer(GL_UNIFORM_BUFFER, buffer->handle);
-    glBufferData(GL_UNIFORM_BUFFER, p_size, p_data, GL_DYNAMIC_DRAW);
+void OpenGlRenderDevice::updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) {
+    auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer->handle);
+    glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

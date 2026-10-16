@@ -15,9 +15,9 @@ public:
     void submit(Owner<render::RenderSubmission>&&) override {}
 
     // resource
-    auto createConstantBuffer(const GpuBufferDesc&) -> Result<Ref<GpuConstantBuffer>> override { return nullptr; }
-    auto createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuStructuredBuffer>> override { return nullptr; }
-    void updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) override {}
+    auto createConstantBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    auto createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    void updateBufferData(const GpuBufferDesc&, const GpuBuffer*) override {}
 
     auto createBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
     void updateBuffer(const GpuBufferDesc&, GpuBuffer*) override {}
@@ -29,7 +29,7 @@ public:
         return nullptr;
     }
 
-    void updateConstantBuffer(const GpuConstantBuffer*, const void*, size_t) override {}
+    void updateConstantBuffer(const GpuBuffer*, const void*, size_t) override {}
 
     Ref<GpuTexture> createTexture(const GpuTextureDesc&, const SamplerDesc&) override { return nullptr; }
     Ref<GpuTexture> createTexture(ImageAsset*) override { return nullptr; }

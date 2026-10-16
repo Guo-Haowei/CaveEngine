@@ -21,19 +21,17 @@ struct D3d11GpuTexture : public GpuTexture {
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
 };
 
-struct D3d11UniformBuffer : public GpuConstantBuffer {
-    using GpuConstantBuffer::GpuConstantBuffer;
+struct D3d11Buffer : public GpuBuffer {
+    using GpuBuffer::GpuBuffer;
 
-    Microsoft::WRL::ComPtr<ID3D11Buffer> internalBuffer;
-    mutable const char* data;
-};
-
-struct D3d11StructuredBuffer : GpuStructuredBuffer {
-    using GpuStructuredBuffer::GpuStructuredBuffer;
-
-    Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> internal_buffer;
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
+    mutable const char* data = nullptr;
+
+    uint64_t getHandle() const final {
+        return (size_t)internal_buffer.Get();
+    }
 };
 
 struct D3d11MeshBuffers : GpuMesh {

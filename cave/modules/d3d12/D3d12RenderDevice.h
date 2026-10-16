@@ -11,16 +11,6 @@ struct D3d12GpuTexture;
 class D3d12CommandList;
 class D3d12ViewCache;
 
-struct D3d12Buffer final : GpuBuffer {
-    using GpuBuffer::GpuBuffer;
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
-
-    uint64_t GetHandle() const override {
-        return (size_t)buffer.Get();
-    }
-};
-
 class D3d12RenderDevice final : public RenderDevice {
 public:
     D3d12RenderDevice();
@@ -34,10 +24,10 @@ public:
                         std::span<const GpuBufferDesc> vb_descs,
                         const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
+    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
+    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) override;
 
     // @TODO: remove Dimension
     void generateMipmap(const GpuTexture* texture) override;

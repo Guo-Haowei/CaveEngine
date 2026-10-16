@@ -23,9 +23,7 @@ struct RenderSubmission;
 struct BlendDesc;
 struct GpuBuffer;
 struct GpuBufferDesc;
-struct GpuConstantBuffer;
 struct GpuMeshDesc;
-struct GpuStructuredBuffer;
 struct GpuTexture;
 struct GpuTextureDesc;
 struct SamplerDesc;
@@ -57,9 +55,9 @@ public:
     virtual void submit(Owner<RenderSubmission>&& submission) = 0;
 
     // resource
-    virtual auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> = 0;
-    virtual auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> = 0;
-    virtual void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) = 0;
+    virtual auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
+    virtual auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
+    virtual void updateBufferData(const GpuBufferDesc& desc, const GpuBuffer* buffer) = 0;
 
     virtual auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
     virtual void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) = 0;
@@ -70,13 +68,13 @@ public:
                                 std::span<const GpuBufferDesc> vb_descs,
                                 const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> = 0;
 
-    virtual void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) = 0;
+    virtual void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) = 0;
     template<typename T>
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::vector<T>& vector) {
+    void updateConstantBuffer(const GpuBuffer* buffer, const std::vector<T>& vector) {
         updateConstantBuffer(buffer, vector.data(), sizeof(T) * (uint32_t)vector.size());
     }
     template<typename T, int N>
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::array<T, N>& array) {
+    void updateConstantBuffer(const GpuBuffer* buffer, const std::array<T, N>& array) {
         updateConstantBuffer(buffer, array.data(), sizeof(T) * N);
     }
 
