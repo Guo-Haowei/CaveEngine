@@ -420,7 +420,7 @@ void D3d12RenderDevice::updateConstantBuffer(const GpuBuffer* buffer, const void
 }
 
 Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc&) {
-    auto initial_data = reinterpret_cast<const uint8_t*>(texture_desc.initialData);
+    auto initial_data = reinterpret_cast<const uint8_t*>(texture_desc.initial_data);
 
     bool gen_mip_map = false;
     PixelFormat format = texture_desc.format;
@@ -449,7 +449,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     }
     if (texture_desc.type == AttachmentType::NONE)
         initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
-    else if (texture_desc.initialData) {
+    else if (texture_desc.initial_data) {
         initial_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     }
 
@@ -481,12 +481,12 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     resource_desc.Alignment = 0;
     resource_desc.Width = texture_desc.width;
     resource_desc.Height = texture_desc.height;
-    resource_desc.DepthOrArraySize = static_cast<UINT16>(texture_desc.arraySize);
-    resource_desc.MipLevels = static_cast<UINT16>(gen_mip_map ? 0 : texture_desc.mipLevels);
+    resource_desc.DepthOrArraySize = static_cast<UINT16>(texture_desc.array_size);
+    resource_desc.MipLevels = static_cast<UINT16>(gen_mip_map ? 0 : texture_desc.mip_levels);
     resource_desc.Format = texture_format;
     resource_desc.SampleDesc = { 1, 0 };
     resource_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    resource_desc.Flags = ConvertBindFlags(texture_desc.bindFlags);
+    resource_desc.Flags = ConvertBindFlags(texture_desc.bind_flags);
 
     ID3D12Resource* texture_ptr = nullptr;
     D3D_FAIL_V(m_device->CreateCommittedResource(&props, D3D12_HEAP_FLAG_NONE, &resource_desc, initial_state, NULL, IID_PPV_ARGS(&texture_ptr)), nullptr);
@@ -602,7 +602,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
 
     auto gpu_texture = MakeRef<D3d12GpuTexture>(texture_desc);
     // Create a shader resource view for the texture
-    if (texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
+    if (texture_desc.bind_flags & BIND_SHADER_RESOURCE) {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
         srv_desc.Format = srv_format;
         switch (texture_desc.dimension) {
@@ -621,7 +621,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
                 srv_desc.TextureCubeArray.MipLevels = resource_desc.MipLevels;
                 srv_desc.TextureCubeArray.MostDetailedMip = 0;
                 srv_desc.TextureCubeArray.First2DArrayFace = 0;
-                srv_desc.TextureCubeArray.NumCubes = texture_desc.arraySize / 6;
+                srv_desc.TextureCubeArray.NumCubes = texture_desc.array_size / 6;
                 break;
             default:
                 CRASH_NOW();
@@ -634,7 +634,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         gpu_texture->srv_handle = srv_handle;
     }
 
-    if (texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
+    if (texture_desc.bind_flags & BIND_UNORDERED_ACCESS) {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
         uav_desc.Format = d3d::Convert(texture_desc.format);
 

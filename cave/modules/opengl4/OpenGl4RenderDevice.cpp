@@ -84,7 +84,7 @@ void OpenGl4RenderDevice::updateBufferData(const GpuBufferDesc& desc, const GpuB
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, gl_buffer->handle);
         float* ptr = (float*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
         DEV_ASSERT(ptr);
-        memcpy(ptr + desc.offset, desc.initial_data, desc.element_count * desc.element_size);
+        memcpy(ptr, desc.initial_data, buffer->capacity());
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }

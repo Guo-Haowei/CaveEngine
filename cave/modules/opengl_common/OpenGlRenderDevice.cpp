@@ -199,7 +199,7 @@ Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuTextureDesc& p_te
                                   0,
                                   format,
                                   data_type,
-                                  p_texture_desc.initialData));
+                                  p_texture_desc.initial_data));
         } break;
         case GL_TEXTURE_CUBE_MAP: {
             for (int i = 0; i < 6; ++i) {
@@ -211,7 +211,7 @@ Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuTextureDesc& p_te
                                       0,
                                       format,
                                       data_type,
-                                      p_texture_desc.initialData));
+                                      p_texture_desc.initial_data));
             }
         } break;
 #if !USING(USE_GLES3)
@@ -221,13 +221,13 @@ Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuTextureDesc& p_te
                                   internal_format,
                                   p_texture_desc.width,
                                   p_texture_desc.height,
-                                  p_texture_desc.arraySize,
-                                  0, format, data_type, p_texture_desc.initialData));
+                                  p_texture_desc.array_size,
+                                  0, format, data_type, p_texture_desc.initial_data));
         } break;
 #endif
         case GL_TEXTURE_3D: {
             GL_CHECK(glTexStorage3D(GL_TEXTURE_3D,
-                                    p_texture_desc.mipLevels,
+                                    p_texture_desc.mip_levels,
                                     internal_format,
                                     p_texture_desc.width,
                                     p_texture_desc.height,
@@ -239,7 +239,7 @@ Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuTextureDesc& p_te
     }
 
     gl::SetSampler(texture_type, p_sampler_desc);
-    if (p_texture_desc.miscFlags & RESOURCE_MISC_GENERATE_MIPS) {
+    if (p_texture_desc.misc_flags & RESOURCE_MISC_GENERATE_MIPS) {
         glGenerateMipmap(texture_type);
     }
 

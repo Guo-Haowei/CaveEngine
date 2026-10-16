@@ -84,11 +84,11 @@ ViewTabBase::ViewTabBase(EditorState& editor,
         .width = kTextureWidth,
         .height = kTextureHeight,
         .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
+        .mip_levels = 1,
+        .array_size = 1,
         .format = PixelFormat::R16G16B16A16_FLOAT,
-        .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
+        .bind_flags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+        .misc_flags = RESOURCE_MISC_NONE,
     };
 
     m_texture = m_engine_services.renderDevice().createTexture(desc, PointClampSampler());

@@ -308,7 +308,7 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
     DXGI_FORMAT texture_format = d3d::Convert(format);
     DXGI_FORMAT srv_format = d3d::Convert(format);
     // @TODO: refactor this
-    bool gen_mip_map = p_texture_desc.bindFlags & BIND_SHADER_RESOURCE;
+    bool gen_mip_map = p_texture_desc.bind_flags & BIND_SHADER_RESOURCE;
     if (p_texture_desc.dimension == Dimension::TextureCube) {
         gen_mip_map = false;
     }
@@ -343,23 +343,23 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
         texture_desc.Width = p_texture_desc.width;
         texture_desc.Height = p_texture_desc.height;
         texture_desc.Depth = p_texture_desc.depth;
-        texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mipLevels;
+        texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mip_levels;
         // texture_desc.MipLevels = 0;
         texture_desc.Format = texture_format;
         texture_desc.Usage = D3D11_USAGE_DEFAULT;
-        texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bindFlags);
+        texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bind_flags);
         texture_desc.CPUAccessFlags = 0;
-        texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.miscFlags);
+        texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.misc_flags);
         ComPtr<ID3D11Texture3D> texture;
         D3D_FAIL_V(m_device->CreateTexture3D(&texture_desc, nullptr, texture.GetAddressOf()), nullptr);
         SetDebugName(texture.Get(), p_texture_desc.name);
 
         auto gpu_texture = MakeRef<D3d11GpuTexture>(p_texture_desc);
-        if (p_texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
+        if (p_texture_desc.bind_flags & BIND_SHADER_RESOURCE) {
             D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
             srv_desc.Format = srv_format;
             srv_desc.ViewDimension = ConvertDimension(p_texture_desc.dimension);
-            srv_desc.Texture3D.MipLevels = p_texture_desc.mipLevels;
+            srv_desc.Texture3D.MipLevels = p_texture_desc.mip_levels;
             srv_desc.Texture3D.MostDetailedMip = 0;
 
             if (gen_mip_map) {
@@ -370,14 +370,14 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
                            nullptr,
                            "Failed to create shader resource view");
 
-            if (p_texture_desc.miscFlags & RESOURCE_MISC_GENERATE_MIPS) {
+            if (p_texture_desc.misc_flags & RESOURCE_MISC_GENERATE_MIPS) {
                 m_device_context->GenerateMips(srv.Get());
             }
 
             gpu_texture->srv = srv;
         }
 
-        if (p_texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
+        if (p_texture_desc.bind_flags & BIND_UNORDERED_ACCESS) {
             // Create UAV
             D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
             uav_desc.Format = texture_format;
@@ -400,32 +400,32 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
     D3D11_TEXTURE2D_DESC texture_desc{};
     texture_desc.Width = p_texture_desc.width;
     texture_desc.Height = p_texture_desc.height;
-    texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mipLevels;
+    texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mip_levels;
     // texture_desc.MipLevels = 0;
-    texture_desc.ArraySize = p_texture_desc.arraySize;
+    texture_desc.ArraySize = p_texture_desc.array_size;
     texture_desc.Format = texture_format;
     texture_desc.SampleDesc = { 1, 0 };
     texture_desc.Usage = D3D11_USAGE_DEFAULT;
-    texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bindFlags);
+    texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bind_flags);
     texture_desc.CPUAccessFlags = 0;
-    texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.miscFlags);
+    texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.misc_flags);
     ComPtr<ID3D11Texture2D> texture;
     if (FAILED(m_device->CreateTexture2D(&texture_desc, nullptr, texture.GetAddressOf()))) {
         return nullptr;
     }
     SetDebugName(texture.Get(), p_texture_desc.name);
 
-    if (p_texture_desc.initialData) {
+    if (p_texture_desc.initial_data) {
         uint32_t row_pitch = p_texture_desc.width * ChannelCount(format) * ChannelSize(format);
-        m_device_context->UpdateSubresource(texture.Get(), 0, nullptr, p_texture_desc.initialData, row_pitch, 0);
+        m_device_context->UpdateSubresource(texture.Get(), 0, nullptr, p_texture_desc.initial_data, row_pitch, 0);
     }
 
     auto gpu_texture = MakeRef<D3d11GpuTexture>(p_texture_desc);
-    if (p_texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
+    if (p_texture_desc.bind_flags & BIND_SHADER_RESOURCE) {
         D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
         srv_desc.Format = srv_format;
         srv_desc.ViewDimension = ConvertDimension(p_texture_desc.dimension);
-        srv_desc.Texture2D.MipLevels = p_texture_desc.mipLevels;
+        srv_desc.Texture2D.MipLevels = p_texture_desc.mip_levels;
         srv_desc.Texture2D.MostDetailedMip = 0;
 
         switch (srv_desc.ViewDimension) {
@@ -435,7 +435,7 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
                 break;
             case D3D_SRV_DIMENSION_TEXTURECUBEARRAY:
                 srv_desc.TextureCubeArray.First2DArrayFace = 0;
-                srv_desc.TextureCubeArray.NumCubes = p_texture_desc.arraySize / 6;
+                srv_desc.TextureCubeArray.NumCubes = p_texture_desc.array_size / 6;
                 break;
             case D3D_SRV_DIMENSION_TEXTURE3D:
                 break;
@@ -452,14 +452,14 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
                        nullptr,
                        "Failed to create shader resource view");
 
-        if (p_texture_desc.miscFlags & RESOURCE_MISC_GENERATE_MIPS) {
+        if (p_texture_desc.misc_flags & RESOURCE_MISC_GENERATE_MIPS) {
             m_device_context->GenerateMips(srv.Get());
         }
 
         gpu_texture->srv = srv;
     }
 
-    if (p_texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
+    if (p_texture_desc.bind_flags & BIND_UNORDERED_ACCESS) {
         // Create UAV
         D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
         uav_desc.Format = texture_format;

@@ -35,16 +35,16 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
         desc.name = node.debug_name;
         ResourceAccess access = node.access_mask;
         if ((access & ResourceAccess::RTV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_RENDER_TARGET;
+            desc.bind_flags |= BIND_RENDER_TARGET;
         }
         if ((access & ResourceAccess::DSV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_DEPTH_STENCIL;
+            desc.bind_flags |= BIND_DEPTH_STENCIL;
         }
         if ((access & ResourceAccess::SRV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_SHADER_RESOURCE;
         }
         if ((access & ResourceAccess::UAV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_UNORDERED_ACCESS;
+            desc.bind_flags |= BIND_UNORDERED_ACCESS;
         }
 
         auto texture = pool.acquireTexture({

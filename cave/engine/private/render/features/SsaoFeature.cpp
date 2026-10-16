@@ -37,12 +37,12 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
         .width = SSAO_NOISE_SIZE,
         .height = SSAO_NOISE_SIZE,
         .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
+        .mip_levels = 1,
+        .array_size = 1,
         .format = PixelFormat::R32G32_FLOAT,
-        .bindFlags = BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
-        .initialData = ssao_noise.data(),
+        .bind_flags = BIND_SHADER_RESOURCE,
+        .misc_flags = RESOURCE_MISC_NONE,
+        .initial_data = ssao_noise.data(),
     };
 
     return p_device.createTexture(desc, PointWrapSampler());

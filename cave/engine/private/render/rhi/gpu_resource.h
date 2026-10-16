@@ -68,18 +68,18 @@ enum class AttachmentType {
 
 struct GpuTextureDesc {
     AttachmentType type;  // this should be removed
+
     Dimension dimension;
     uint32_t width;
     uint32_t height;
     uint32_t depth;
-    uint32_t mipLevels;
-    uint32_t arraySize;
+    uint32_t mip_levels;
+    uint32_t array_size;
     PixelFormat format;
-    BindFlags bindFlags;
-    ResourceMiscFlags miscFlags;
-    const void* initialData;
-    // @TODO: get rid of the name
-    std::string name;
+    BindFlags bind_flags;
+    ResourceMiscFlags misc_flags;
+    const void* initial_data = nullptr;
+    std::string name; // @TODO: use char[]
 };
 
 struct GpuBufferDesc {
@@ -89,7 +89,6 @@ struct GpuBufferDesc {
     uint32_t slot{ 0 };  // remove this if possible
     uint32_t element_size{ 0 };
     uint32_t element_count{ 0 };
-    uint32_t offset{ 0 };
     const void* initial_data{ nullptr };
 };
 

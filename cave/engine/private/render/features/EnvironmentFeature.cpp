@@ -103,7 +103,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
                 kIBLMipChainMax);
-            desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_env_cube = m_device.createTexture(desc, CubemapSampler());
         }
@@ -115,7 +115,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
                 kIrradianceCubemapSize,
                 kIrradianceCubemapSize,
                 6);
-            desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_diffuse = m_device.createTexture(desc, CubemapNoMipSampler());
         }
@@ -128,7 +128,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
                 kIBLMipChainMax);
-            desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_specular = m_device.createTexture(desc, CubemapLodSampler());
         }

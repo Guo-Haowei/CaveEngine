@@ -190,11 +190,11 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
     texture_desc.dimension = Dimension::Texture2D;
     texture_desc.width = image->width;
     texture_desc.height = image->height;
-    texture_desc.arraySize = 1;
-    texture_desc.bindFlags |= BIND_SHADER_RESOURCE | BIND_RENDER_TARGET;
-    texture_desc.initialData = image->buffer.data();
-    texture_desc.mipLevels = 1;
-    texture_desc.miscFlags |= RESOURCE_MISC_GENERATE_MIPS;
+    texture_desc.array_size = 1;
+    texture_desc.bind_flags |= BIND_SHADER_RESOURCE | BIND_RENDER_TARGET;
+    texture_desc.initial_data = image->buffer.data();
+    texture_desc.mip_levels = 1;
+    texture_desc.misc_flags |= RESOURCE_MISC_GENERATE_MIPS;
 
     if (is_hdr_file) {
         sampler_desc.min_filter = MinFilter::Linear;
@@ -395,14 +395,14 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
     // bind srvs
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = pass.srvs[i].get()) {
-            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            DEV_ASSERT(srv->desc.bind_flags & BIND_SHADER_RESOURCE);
             cmd->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
         }
     }
     // bind uavs
     for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
         if (GpuTexture* uav = pass.uavs[i].get()) {
-            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            DEV_ASSERT(uav->desc.bind_flags & BIND_UNORDERED_ACCESS);
             cmd->bindUnorderedAccessView(i, uav);
         }
     }
@@ -424,7 +424,7 @@ void RenderDevice::endPass(const CompiledPass& pass) {
     // unbind srvs
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = pass.srvs[i].get()) {
-            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+            DEV_ASSERT(srv->desc.bind_flags & BIND_SHADER_RESOURCE);
             cmd->unbindTexture(srv->desc.dimension, i);
         }
     }
@@ -432,7 +432,7 @@ void RenderDevice::endPass(const CompiledPass& pass) {
     // unbind uavs
     for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
         if (GpuTexture* uav = pass.uavs[i].get()) {
-            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+            DEV_ASSERT(uav->desc.bind_flags & BIND_UNORDERED_ACCESS);
             cmd->unbindUnorderedAccessView(i);
         }
     }

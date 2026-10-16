@@ -57,11 +57,11 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
         .width = w,
         .height = h,
         .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
+        .mip_levels = 1,
+        .array_size = 1,
         .format = PixelFormat::R16G16B16A16_FLOAT,
-        .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
+        .bind_flags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+        .misc_flags = RESOURCE_MISC_NONE,
     };
     auto tex = m_render_device.createTexture(
         tex_desc,

@@ -163,7 +163,7 @@ PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInp
     RenderPass& pass = addRenderPass(kPassPostProcess);
     auto desc = buildDefaultTextureDesc(kFormatTone,
                                         AttachmentType::COLOR_2D);
-    desc.bindFlags |= BIND_SHADER_RESOURCE;
+    desc.bind_flags |= BIND_SHADER_RESOURCE;
 
     PostProcessOutput out{
         .dependency = createDependency(),
