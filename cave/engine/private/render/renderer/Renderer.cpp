@@ -220,14 +220,14 @@ static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data
         for (size_t slot = 0; slot < pass.srvs.size(); ++slot) {
             const auto& texture = pass.srvs[slot];
             if (texture) {
-                cache.c_pass_textures[slot].x = (uint32_t)texture->GetResidentHandle();
+                cache.c_pass_textures[slot].x = (uint32_t)texture->getResidentHandle();
             }
         }
 
         uint* uavs = &cache.c_output_uav0;
         for (size_t slot = 0; slot < pass.uavs.size(); ++slot) {
             if (const auto& texture = pass.uavs[slot]) {
-                uavs[slot] = (uint32_t)texture->GetUavHandle();
+                uavs[slot] = (uint32_t)texture->getUavHandle();
             }
         }
     }
@@ -247,33 +247,6 @@ static void FillEnvConstants(FrameData& out_data) {
             batch.c_env_pass_roughness = (float)mip_idx / (float)(kIBLMipChainMax - 1);
         }
     }
-}
-
-template<typename T>
-static GpuBufferDesc fillDesc(const std::vector<T>& data) {
-    GpuBufferDesc desc{};
-    desc.type = GpuBufferType::Vertex;
-    desc.dynamic = true;
-    desc.element_size = sizeof(T);
-    desc.element_count = static_cast<uint32_t>(data.size());
-    desc.initial_data = data.data();
-    return desc;
-}
-
-// @TODO: move to UIRenderer
-template<typename T>
-static bool updateUIBuffer(IRenderDevice& device,
-                           const std::vector<T>& data,
-                           GpuBuffer* gpu_buffer) {
-    if (data.size() > gpu_buffer->desc.element_count) {
-        return false;
-    }
-
-    GpuBufferDesc desc = gpu_buffer->desc;
-    desc.element_count = (uint32_t)data.size();
-    desc.initial_data = data.data();
-    device.updateBuffer(desc, gpu_buffer);
-    return true;
 }
 
 Renderer::Impl::Impl(EngineServices& services)

@@ -66,11 +66,11 @@ auto OpenGl4RenderDevice::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-auto OpenGl4RenderDevice::createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto OpenGl4RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, handle);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, desc.element_count * desc.element_size, desc.initial_data, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, desc.byteSize(), desc.initial_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     auto buffer = MakeRef<OpenGlBuffer>(desc);
@@ -78,13 +78,13 @@ auto OpenGl4RenderDevice::createStructuredBuffer(const GpuBufferDesc& desc) -> R
     return buffer;
 }
 
-void OpenGl4RenderDevice::updateBufferData(const GpuBufferDesc& desc, const GpuBuffer* buffer) {
+void OpenGl4RenderDevice::updateBufferData(const GpuResourceDesc& desc, const GpuBuffer* buffer) {
     auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
     if (DEV_VERIFY(gl_buffer)) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, gl_buffer->handle);
         float* ptr = (float*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
         DEV_ASSERT(ptr);
-        memcpy(ptr, desc.initial_data, buffer->capacity());
+        memcpy(ptr, desc.initial_data, buffer->desc.byteSize());
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }

@@ -23,15 +23,15 @@ public:
     // Resources
     //-----------------------------------------------------------------------------------------------------------------
 
-    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override;
 
     void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
 
     auto createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuBufferDesc> vb_descs, const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
+    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
 
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
 
     void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
 

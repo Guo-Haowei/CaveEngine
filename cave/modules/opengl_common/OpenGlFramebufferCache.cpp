@@ -14,7 +14,7 @@ void FillTextureView(const TextureViewDesc& view, FboAttachmentKey& key) {
 
 FboAttachmentKey MakeColorAttachment(const ColorAttachmentDesc& desc, uint8_t attachment) {
     FboAttachmentKey key{};
-    key.tex = static_cast<uint32_t>(desc.tex->GetHandle());
+    key.tex = static_cast<uint32_t>(desc.tex->getHandle());
     key.attachment_point = attachment;
     switch (desc.tex->desc.type) {
         case AttachmentType::COLOR_2D: {
@@ -34,7 +34,7 @@ FboAttachmentKey MakeColorAttachment(const ColorAttachmentDesc& desc, uint8_t at
 FboAttachmentKey MakeDepthAttachment(const DepthAttachmentDesc& desc) {
     FboAttachmentKey key{};
     key.attachment_point = 255;
-    key.tex = static_cast<uint32_t>(desc.tex->GetHandle());
+    key.tex = static_cast<uint32_t>(desc.tex->getHandle());
     switch (desc.tex->desc.type) {
         case AttachmentType::DEPTH_STENCIL_2D: {
             key.kind = AttachKind::Tex2D;

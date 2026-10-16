@@ -22,7 +22,7 @@ struct RenderSubmission;
 
 struct BlendDesc;
 struct GpuBuffer;
-struct GpuBufferDesc;
+struct GpuResourceDesc;
 struct GpuMeshDesc;
 struct GpuTexture;
 struct GpuTextureDesc;
@@ -55,18 +55,18 @@ public:
     virtual void submit(Owner<RenderSubmission>&& submission) = 0;
 
     // resource
-    virtual auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
-    virtual auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
-    virtual void updateBufferData(const GpuBufferDesc& desc, const GpuBuffer* buffer) = 0;
+    virtual auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
+    virtual auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
+    virtual void updateBufferData(const GpuResourceDesc& desc, const GpuBuffer* buffer) = 0;
 
-    virtual auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
-    virtual void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) = 0;
+    virtual auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
+    virtual void updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) = 0;
 
     virtual auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> = 0;
 
     virtual auto createMeshImpl(const GpuMeshDesc& desc,
-                                std::span<const GpuBufferDesc> vb_descs,
-                                const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> = 0;
+                                std::span<const GpuResourceDesc> vb_descs,
+                                const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> = 0;
 
     virtual void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) = 0;
     template<typename T>

@@ -369,7 +369,7 @@ bool TileSetPanel::drawAtlas(TileSetAsset* tile_set, ImageAsset* image) {
     }
 
     if (image && image->gpu_texture) {
-        desc.texture = image->gpu_texture->GetHandle();
+        desc.texture = image->gpu_texture->getHandle();
         desc.layout.image_size_px = Vec2f{ image->width, image->height };
     }
 

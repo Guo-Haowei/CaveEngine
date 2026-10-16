@@ -19,15 +19,12 @@ namespace cave {
 namespace cave::render {
 
 template<typename T>
-static auto CreateBuffer(IRenderDevice* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
-    GpuBufferDesc desc{
-        .slot = p_slot,
-        .element_size = sizeof(T),
-        .element_count = static_cast<uint32_t>(p_data.size()),
-        .initial_data = p_data.data(),
-    };
+static auto CreateBuffer(IRenderDevice* device, uint32_t slot, const std::vector<T>& data) {
+    auto desc = GpuResourceDesc::structuredBuffer(sizeof(T), static_cast<uint32_t>(data.size()));
+    desc.deprecated_slot = slot;
+    desc.initial_data = data.data();
 
-    return p_gm->createStructuredBuffer(desc);
+    return device->createStructuredBuffer(desc);
 }
 
 static void ConstructMesh(const MeshAsset& p_mesh, GpuScene& p_gpu_scene) {
@@ -151,12 +148,9 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
             materials.emplace_back(gpu_mat);
         }
 
-        GpuBufferDesc desc{
-            .slot = GetGlobalPtMeshesSlot(),
-            .element_size = sizeof(materials[0]),
-            .element_count = static_cast<uint32_t>(materials.size()),
-            .initial_data = materials.data(),
-        };
+        auto desc = GpuResourceDesc::structuredBuffer(sizeof(materials[0]), static_cast<uint32_t>(materials.size()));
+        desc.deprecated_slot = GetGlobalPtMaterialsSlot();
+        desc.initial_data = materials.data();
 
         // @TODO: only change when material is dirty
         if ((dirty_flag != SCENE_DIRTY_NONE) || m_material_buffer == nullptr) {
@@ -195,12 +189,9 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
             }
         }
 
-        GpuBufferDesc desc{
-            .slot = GetGlobalPtMeshesSlot(),
-            .element_size = sizeof(meshes[0]),
-            .element_count = static_cast<uint32_t>(meshes.size()),
-            .initial_data = meshes.data(),
-        };
+        auto desc = GpuResourceDesc::structuredBuffer(sizeof(meshes[0]), static_cast<uint32_t>(meshes.size()));
+        desc.deprecated_slot = GetGlobalPtMeshesSlot();
+        desc.initial_data = meshes.data();
 
         if ((dirty_flag & SCENE_DIRTY_WORLD) || m_mesh_buffer == nullptr) {
             m_mesh_buffer = *gm->createStructuredBuffer(desc);

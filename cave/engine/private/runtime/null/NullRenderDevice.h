@@ -15,17 +15,17 @@ public:
     void submit(Owner<render::RenderSubmission>&&) override {}
 
     // resource
-    auto createConstantBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    auto createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    void updateBufferData(const GpuBufferDesc&, const GpuBuffer*) override {}
+    auto createConstantBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    auto createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    void updateBufferData(const GpuResourceDesc&, const GpuBuffer*) override {}
 
-    auto createBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    void updateBuffer(const GpuBufferDesc&, GpuBuffer*) override {}
+    auto createBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    void updateBuffer(const GpuResourceDesc&, GpuBuffer*) override {}
 
     auto createMesh(const MeshAsset&) -> Result<Ref<GpuMesh>> override { return nullptr; }
     auto createMeshImpl(const GpuMeshDesc&,
-                        std::span<const GpuBufferDesc>,
-                        const GpuBufferDesc*) -> Result<Ref<GpuMesh>> final {
+                        std::span<const GpuResourceDesc>,
+                        const GpuResourceDesc*) -> Result<Ref<GpuMesh>> final {
         return nullptr;
     }
 

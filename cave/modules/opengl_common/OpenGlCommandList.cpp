@@ -82,7 +82,7 @@ void OpenGlCommandList::bindConstantBufferRange(const GpuBuffer* buffer,
                                                 uint32_t size,
                                                 uint32_t offset) {
     auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
-    DEV_ASSERT(size + offset <= gl_buffer->capacity());
+    DEV_ASSERT(size + offset <= gl_buffer->desc.byteSize());
     glBindBufferRange(GL_UNIFORM_BUFFER, buffer->getSlot(), gl_buffer->handle, offset, size);
 }
 

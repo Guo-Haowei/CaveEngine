@@ -34,11 +34,11 @@ struct OpenGlGpuTexture : public GpuTexture {
 
     void Clear();
 
-    uint64_t GetResidentHandle() const final {
+    uint64_t getResidentHandle() const final {
         return residentHandle;
     }
-    uint64_t GetHandle() const final { return handle; }
-    uint64_t GetUavHandle() const final { return handle; }
+    uint64_t getHandle() const final { return handle; }
+    uint64_t getUavHandle() const final { return handle; }
 
     uint32_t handle = 0;
     uint64_t residentHandle = 0;

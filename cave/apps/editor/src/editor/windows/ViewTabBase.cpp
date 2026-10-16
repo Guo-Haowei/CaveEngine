@@ -234,7 +234,7 @@ void ViewTabBase::drawMainViewImpl(const FloatRect& rect) {
     draw_list->AddRectFilled(min, max, IM_COL32(60, 60, 60, 255));
 
     // @TODO: move it somewhere else
-    uint64_t tex = m_texture->GetHandle();
+    uint64_t tex = m_texture->getHandle();
 
     m_engine_services.imgui->drawTexture(*draw_list, tex, min, max);
 

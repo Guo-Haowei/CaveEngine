@@ -286,30 +286,30 @@ ID3D12Resource* D3d12RenderDevice::uploadBuffer(uint32_t p_byte_size, const void
     return p_out_buffer;
 };
 
-auto D3d12RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> {
-    auto ret = MakeRef<D3d12Buffer>(p_desc);
+auto D3d12RenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+    auto d3d_buffer = MakeRef<D3d12Buffer>(desc);
 
-    const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
-    ret->buffer = uploadBuffer(size_in_byte, p_desc.initial_data, nullptr);
-    if (ret->buffer == nullptr) {
+    const uint32_t size_in_byte = desc.byteSize();
+    d3d_buffer->buffer = uploadBuffer(size_in_byte, desc.initial_data, nullptr);
+    if (d3d_buffer->buffer == nullptr) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
-    return ret;
+    return d3d_buffer;
 }
 
-auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
-                                       std::span<const GpuBufferDesc> p_vb_descs,
-                                       const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> {
-    auto ret = MakeRef<D3d12MeshBuffers>(p_desc);
-    for (uint32_t index = 0; index < (uint32_t)p_vb_descs.size(); ++index) {
-        const auto& vb_desc = p_vb_descs[index];
-        if (vb_desc.element_count == 0) {
+auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
+                                       std::span<const GpuResourceDesc> vb_descs,
+                                       const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> {
+    auto ret = MakeRef<D3d12MeshBuffers>(mesh_desc);
+    for (uint32_t index = 0; index < (uint32_t)vb_descs.size(); ++index) {
+        const auto& vb_desc = vb_descs[index];
+        if (vb_desc.byteSize() == 0) {
             ret->vbvs[index] = { 0, 0, 0 };
             continue;
         }
 
-        auto res = createBuffer(p_vb_descs[index]);
+        auto res = createBuffer(vb_descs[index]);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -317,20 +317,20 @@ auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
         ret->vertexBuffers[index] = *res;
         ret->vbvs[index] = {
             .BufferLocation = ((ID3D12Resource*)(ret->vertexBuffers[index]->getHandle()))->GetGPUVirtualAddress(),
-            .SizeInBytes = vb_desc.element_count * vb_desc.element_size,
-            .StrideInBytes = vb_desc.element_size,
+            .SizeInBytes = vb_desc.byteSize(),
+            .StrideInBytes = vb_desc.element_stride,
         };
     }
 
-    if (p_ib_desc) {
-        auto res = createBuffer(*p_ib_desc);
+    if (ib_desc) {
+        auto res = createBuffer(*ib_desc);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
         ret->indexBuffer = *res;
         ret->ibv = {
             .BufferLocation = ((ID3D12Resource*)(ret->indexBuffer->getHandle()))->GetGPUVirtualAddress(),
-            .SizeInBytes = p_ib_desc->element_count * p_ib_desc->element_size,
+            .SizeInBytes = ib_desc->byteSize(),
             .Format = DXGI_FORMAT_R32_UINT,
         };
     }
@@ -338,17 +338,17 @@ auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d12RenderDevice::updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) {
-    DEV_ASSERT(desc.element_size == buffer->desc.element_size);
-    if (DEV_VERIFY(buffer->desc.element_count >= desc.element_count)) {
+void D3d12RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) {
+    DEV_ASSERT(desc.byteSize() == buffer->desc.byteSize());
+    if (DEV_VERIFY(buffer->desc.byteSize() >= desc.byteSize())) {
         auto d3d_buffer = reinterpret_cast<D3d12Buffer*>(buffer);
-        const uint32_t size_in_byte = desc.element_count * desc.element_size;
+        const uint32_t size_in_byte = desc.byteSize();
         uploadBuffer(size_in_byte, desc.initial_data, d3d_buffer->buffer.Get());
     }
 }
 
-auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
-    const uint32_t size_in_byte = desc.element_count * desc.element_size;
+auto D3d12RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+    const uint32_t size_in_byte = desc.byteSize();
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_byte);
     ComPtr<ID3D12Resource> buffer;
@@ -369,26 +369,26 @@ auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Resul
     return result;
 }
 
-auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> {
-    DEV_ASSERT(!p_desc.initial_data && "TODO: initial data");
+auto D3d12RenderDevice::createStructuredBuffer(const GpuResourceDesc& buffer_desc) -> Result<Ref<GpuBuffer>> {
+    DEV_ASSERT(!buffer_desc.initial_data && "TODO: initial data");
 
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    D3D12_RESOURCE_DESC buffer_desc{};
-    buffer_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    buffer_desc.Width = p_desc.element_count * p_desc.element_size;
-    buffer_desc.Height = 1;
-    buffer_desc.DepthOrArraySize = 1;
-    buffer_desc.MipLevels = 1;
-    buffer_desc.Format = DXGI_FORMAT_UNKNOWN;
-    buffer_desc.SampleDesc.Count = 1;
-    buffer_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    buffer_desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    D3D12_RESOURCE_DESC resource_desc{};
+    resource_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    resource_desc.Width = buffer_desc.byteSize();
+    resource_desc.Height = 1;
+    resource_desc.DepthOrArraySize = 1;
+    resource_desc.MipLevels = 1;
+    resource_desc.Format = DXGI_FORMAT_UNKNOWN;
+    resource_desc.SampleDesc.Count = 1;
+    resource_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    resource_desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
     ComPtr<ID3D12Resource> buffer;
     D3D_FAIL(m_device->CreateCommittedResource(
                  &heap_properties,
                  D3D12_HEAP_FLAG_NONE,
-                 &buffer_desc,
+                 &resource_desc,
                  D3D12_RESOURCE_STATE_COMMON,
                  nullptr, IID_PPV_ARGS(&buffer)),
              "Failed to create buffer (StructuredBuffer)");
@@ -400,13 +400,13 @@ auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> R
     uav_desc.Format = DXGI_FORMAT_UNKNOWN;  // Structured buffer doesn't have a format
     uav_desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
     uav_desc.Buffer.FirstElement = 0;
-    uav_desc.Buffer.NumElements = p_desc.element_count;
-    uav_desc.Buffer.StructureByteStride = p_desc.element_size;
+    uav_desc.Buffer.NumElements = buffer_desc.elementCount();
+    uav_desc.Buffer.StructureByteStride = buffer_desc.element_stride;
 
     auto handle = m_srv_heap.AllocHandle();
     m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpu_handle);
 
-    auto result = MakeRef<D3d12Buffer>(p_desc);
+    auto result = MakeRef<D3d12Buffer>(buffer_desc);
     result->buffer = buffer;
     result->handle = handle;
     return result;

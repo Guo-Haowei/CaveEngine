@@ -28,6 +28,7 @@ enum class Backend : uint8_t {
 };
 
 enum class Dimension : uint8_t {
+    Buffer = 0,
     Texture1D,
     Texture1DArray,
     Texture2D,

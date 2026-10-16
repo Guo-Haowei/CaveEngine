@@ -17,17 +17,17 @@ public:
     void FinalizeImpl() final;
 
     auto createMeshImpl(const GpuMeshDesc& desc,
-                        std::span<const GpuBufferDesc> vb_descs,
-                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> final {
+                        std::span<const GpuResourceDesc> vb_descs,
+                        const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> final {
         return nullptr;
     }
 
-    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override {
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override {
         return nullptr;
     }
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
 
     void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) override {}
 

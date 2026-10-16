@@ -57,15 +57,22 @@ void OpenGlRenderDevice::FinalizeImpl() {
     m_pipeline_state_manager->finalize();
 }
 
-auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
-    auto type = gl::Convert(desc.type);
+auto OpenGlRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+    gl::BUFFER_TYPE type = gl::ARRAY_BUFFER;
+    if (desc.bind_flags & BindFlags::BIND_VERTEX_BUFFER) {
+        // type = gl::ARRAY_BUFFER;
+    } else if (desc.bind_flags & BindFlags::BIND_INDEX_BUFFER) {
+        type = gl::INDEX_BUFFER;
+    } else {
+        CRASH_NOW();
+    }
 
-    const GLenum usage = desc.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+    const GLenum usage = desc.isDynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(type, handle);
-    glBufferData(type, desc.element_count * desc.element_size, desc.initial_data, usage);
+    glBufferData(type, desc.byteSize(), desc.initial_data, usage);
     glBindBuffer(type, 0);
 
     auto buffer = MakeRef<OpenGlBuffer>(desc);
@@ -75,8 +82,8 @@ auto OpenGlRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<G
 }
 
 auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
-                                        std::span<const GpuBufferDesc> vb_descs,
-                                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> {
+                                        std::span<const GpuResourceDesc> vb_descs,
+                                        const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> {
     // create VAO
     uint32_t vao;
     glGenVertexArrays(1, &vao);
@@ -98,7 +105,7 @@ auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     }
 
     for (uint32_t slot = 0; slot < (uint32_t)vb_descs.size(); ++slot) {
-        if (vb_descs[slot].element_count == 0) {
+        if (vb_descs[slot].byteSize() == 0) {
             continue;
         }
 
@@ -125,18 +132,17 @@ auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     return ret;
 }
 
-void OpenGlRenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
-    DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
-    if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
-        const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
-        const uint32_t vbo = p_buffer->getHandle32();
+void OpenGlRenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) {
+    DEV_ASSERT(desc.byteSize() == buffer->desc.byteSize());
+    if (DEV_VERIFY(buffer->desc.byteSize() >= desc.byteSize())) {
+        const uint32_t vbo = buffer->getHandle32();
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, size_in_byte, p_desc.initial_data);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, desc.byteSize(), desc.initial_data);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 
-auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto OpenGlRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
     GLuint handle = 0;
 
     glGenBuffers(1, &handle);
@@ -145,9 +151,9 @@ auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Resu
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, handle);
-    glBufferData(GL_UNIFORM_BUFFER, desc.element_count * desc.element_size, nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, desc.byteSize(), nullptr, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferBase(GL_UNIFORM_BUFFER, desc.slot, handle);
+    glBindBufferBase(GL_UNIFORM_BUFFER, desc.deprecated_slot, handle);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     auto buffer = MakeRef<OpenGlBuffer>(desc);
@@ -155,12 +161,12 @@ auto OpenGlRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Resu
     return buffer;
 }
 
-auto OpenGlRenderDevice::createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuBuffer>> {
+auto OpenGlRenderDevice::createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> {
     CRASH_NOW();
     return nullptr;
 }
 
-void OpenGlRenderDevice::updateBufferData(const GpuBufferDesc&, const GpuBuffer*) {
+void OpenGlRenderDevice::updateBufferData(const GpuResourceDesc&, const GpuBuffer*) {
     CRASH_NOW();
 }
 

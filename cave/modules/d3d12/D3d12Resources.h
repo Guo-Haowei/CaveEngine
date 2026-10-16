@@ -33,9 +33,9 @@ struct D3d12Buffer final : public GpuBuffer {
 struct D3d12GpuTexture : public GpuTexture {
     using GpuTexture::GpuTexture;
 
-    uint64_t GetHandle() const final { return srv_handle.gpu_handle.ptr; }
+    uint64_t getHandle() const final { return srv_handle.gpu_handle.ptr; }
 
-    uint64_t GetResidentHandle() const final {
+    uint64_t getResidentHandle() const final {
         uint64_t handle = srv_handle.index;
         switch (desc.dimension) {
             case Dimension::Texture2D:
@@ -47,7 +47,7 @@ struct D3d12GpuTexture : public GpuTexture {
         }
     }
 
-    uint64_t GetUavHandle() const final { return uav_handle.index; }
+    uint64_t getUavHandle() const final { return uav_handle.index; }
 
     Microsoft::WRL::ComPtr<ID3D12Resource> texture;
 

@@ -66,8 +66,82 @@ enum class AttachmentType {
     RW_TEXTURE,
 };
 
+struct GpuResourceDesc {
+    Dimension dimension = Dimension::Texture2D;
+    BufferUsage usage = BufferUsage::Default;
+
+    uint32_t width = 1;
+    uint32_t height = 1;
+    uint32_t depth = 1;
+    uint32_t mip_levels = 1;
+    uint32_t array_size = 1;
+
+    PixelFormat format = PixelFormat::UNKNOWN;
+    BindFlags bind_flags = BIND_NONE;
+    ResourceMiscFlags misc_flags = RESOURCE_MISC_NONE;
+
+    const void* initial_data = nullptr;
+    std::string name;  // @TODO: use char[]
+
+    uint32_t element_stride = 0;
+
+    // @TODO: remove the following
+    AttachmentType type = AttachmentType::NONE;
+    uint32_t deprecated_slot = 0;
+
+    bool isBuffer() const { return dimension == Dimension::Buffer; }
+    bool isTexture() const { return dimension != Dimension::Buffer; }
+    bool isStructured() const { return element_stride > 0; }
+    bool isDynamic() const { return usage == BufferUsage::Dynamic; }
+    uint32_t byteSize() const { return width; }
+    uint32_t elementCount() const { return element_stride > 0 ? (width / element_stride) : 0; }
+
+    static GpuResourceDesc vertexBuffer(uint32_t size, uint32_t max_count, const void* initial_data) {
+        GpuResourceDesc desc{};
+        desc.dimension = Dimension::Buffer;
+        desc.width = size * max_count;
+        desc.element_stride = size;  // @TODO: should not set this here
+        desc.bind_flags = BIND_VERTEX_BUFFER;
+        desc.initial_data = initial_data;
+        return desc;
+    }
+
+    static GpuResourceDesc indexBuffer(uint32_t size, uint32_t max_count, const void* initial_data) {
+        GpuResourceDesc desc{};
+        desc.dimension = Dimension::Buffer;
+        desc.width = size * max_count;
+        desc.element_stride = size;  // @TODO: should not set this here
+        desc.bind_flags = BIND_INDEX_BUFFER;
+        desc.initial_data = initial_data;
+        return desc;
+    }
+
+    static GpuResourceDesc constantBuffer(uint32_t size, uint32_t max_count) {
+        GpuResourceDesc desc{};
+        desc.dimension = Dimension::Buffer;
+        desc.usage = BufferUsage::Dynamic;
+        desc.width = size * max_count;
+        desc.element_stride = size;  // @TODO: should not set this here
+        desc.bind_flags = BIND_CONSTANT_BUFFER;
+        return desc;
+    }
+
+    static GpuResourceDesc structuredBuffer(uint32_t element_stride, uint32_t element_count) {
+        GpuResourceDesc desc{};
+        desc.dimension = Dimension::Buffer;
+        desc.usage = BufferUsage::Default;
+        desc.width = element_stride * element_count;
+        desc.element_stride = element_stride;
+        desc.bind_flags = BIND_SHADER_RESOURCE;
+        // desc.bind_flags |= BIND_UNORDERED_ACCESS;
+        desc.misc_flags = RESOURCE_MISC_BUFFER_STRUCTURED;
+        return desc;
+    }
+};
+
 struct GpuTextureDesc {
-    AttachmentType type;  // this should be removed
+    // @TODO remove AttachmentType
+    AttachmentType type;
 
     Dimension dimension;
     uint32_t width;
@@ -79,33 +153,36 @@ struct GpuTextureDesc {
     BindFlags bind_flags;
     ResourceMiscFlags misc_flags;
     const void* initial_data = nullptr;
-    std::string name; // @TODO: use char[]
-};
-
-struct GpuBufferDesc {
-    GpuBufferType type{ GpuBufferType::Unknown };
-    // @TODO: need better flags than this
-    bool dynamic{ false };
-    uint32_t slot{ 0 };  // remove this if possible
-    uint32_t element_size{ 0 };
-    uint32_t element_count{ 0 };
-    const void* initial_data{ nullptr };
+    std::string name;  // @TODO: use char[]
 };
 
 struct GpuBuffer {
-    const GpuBufferDesc desc;
+    const GpuResourceDesc desc;
 
-    GpuBuffer(const GpuBufferDesc& desc)
+    GpuBuffer(const GpuResourceDesc& desc)
         : desc(desc) {}
 
     virtual ~GpuBuffer() = default;
 
-    uint32_t capacity() const { return desc.element_count * desc.element_size; }
-
-    int getSlot() const { return desc.slot; }
+    int getSlot() const { return desc.deprecated_slot; }
 
     virtual uint64_t getHandle() const = 0;
     uint32_t getHandle32() const { return static_cast<uint32_t>(getHandle()); }
+};
+
+struct GpuTexture {
+    GpuTexture(const GpuTextureDesc& p_desc)
+        : desc(p_desc) {}
+
+    virtual ~GpuTexture() = default;
+
+    virtual uint64_t getResidentHandle() const = 0;
+    virtual uint64_t getHandle() const = 0;
+    virtual uint64_t getUavHandle() const = 0;
+
+    uint32_t GetHandle32() const { return static_cast<uint32_t>(getHandle()); }
+
+    const GpuTextureDesc desc;
 };
 
 constexpr int kMeshMaxVertexBufferCount = 8;
@@ -132,21 +209,6 @@ struct GpuMesh {
         : desc(p_desc) {}
 
     virtual ~GpuMesh() = default;
-};
-
-struct GpuTexture {
-    GpuTexture(const GpuTextureDesc& p_desc)
-        : desc(p_desc) {}
-
-    virtual ~GpuTexture() = default;
-
-    virtual uint64_t GetResidentHandle() const = 0;
-    virtual uint64_t GetHandle() const = 0;
-    virtual uint64_t GetUavHandle() const = 0;
-
-    uint32_t GetHandle32() const { return static_cast<uint32_t>(GetHandle()); }
-
-    const GpuTextureDesc desc;
 };
 
 // @TODO: use actual id

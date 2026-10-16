@@ -79,7 +79,7 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
             .output = tex,
         },
         .state = ThumbnailState::Missing,
-        .gpu_handle = tex->GetHandle(),
+        .gpu_handle = tex->getHandle(),
         .last_used_frame = m_frame_index,
         .submitted_frame = 0,
         .generation = 1,

@@ -44,9 +44,9 @@ public:
     void submit(Owner<render::RenderSubmission>&& submission) final;
 
     // resource
-    void updateBufferData(const GpuBufferDesc& desc, const GpuBuffer* buffer) override;
+    void updateBufferData(const GpuResourceDesc& desc, const GpuBuffer* buffer) override;
 
-    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
+    void updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) override;
 
     auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> override;
 

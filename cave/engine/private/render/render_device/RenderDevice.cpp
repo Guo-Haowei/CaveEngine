@@ -34,10 +34,8 @@ template<typename T>
 static auto CreateUniformCheckSize(RenderDevice& device, uint32_t max_count) {
     static_assert(sizeof(T) % 256 == 0);
 
-    GpuBufferDesc buffer_desc{};
-    buffer_desc.slot = T::GetUniformBufferSlot();
-    buffer_desc.element_count = max_count;
-    buffer_desc.element_size = sizeof(T);
+    auto buffer_desc = GpuResourceDesc::constantBuffer(sizeof(T), max_count);
+    buffer_desc.deprecated_slot = T::GetUniformBufferSlot();
     return device.createConstantBuffer(buffer_desc);
 }
 
@@ -93,13 +91,11 @@ void RenderDevice::requestMesh(MeshAsset* mesh) {
     m_loaded_meshes.push(mesh);
 }
 
-void RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
-    unused(p_desc);
-    unused(p_buffer);
+void RenderDevice::updateBuffer(const GpuResourceDesc&, GpuBuffer*) {
     CRASH_NOW();
 }
 
-auto RenderDevice::createMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+auto RenderDevice::createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> {
     constexpr uint32_t count = std::to_underlying(VertexAttributeName::COUNT);
     std::array<VertexAttributeName, count> attribs = {
         VertexAttributeName::POSITION,
@@ -113,59 +109,47 @@ auto RenderDevice::createMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
     };
 
     std::array<const void*, count> data = {
-        p_mesh.positions.data(),
-        p_mesh.normals.data(),
-        p_mesh.texcoords_0.data(),
-        p_mesh.tangents.data(),
-        p_mesh.joints_0.data(),
-        p_mesh.weights_0.data(),
-        p_mesh.color_0.data(),
-        p_mesh.texcoords_1.data(),
+        mesh.positions.data(),
+        mesh.normals.data(),
+        mesh.texcoords_0.data(),
+        mesh.tangents.data(),
+        mesh.joints_0.data(),
+        mesh.weights_0.data(),
+        mesh.color_0.data(),
+        mesh.texcoords_1.data(),
     };
 
-    std::array<GpuBufferDesc, count> vb_descs;
-
-    const bool is_dynamic = false;
+    std::array<GpuResourceDesc, count> vb_descs;
 
     GpuMeshDesc desc;
     desc.enabled_vertex_count = count;
-    desc.draw_count = static_cast<uint32_t>(p_mesh.indices.empty() ? p_mesh.positions.size() : p_mesh.indices.size());
+    desc.draw_count = static_cast<uint32_t>(mesh.indices.empty() ? mesh.positions.size() : mesh.indices.size());
 
     for (int index = 0; index < (int)attribs.size(); ++index) {
-        const auto& in = p_mesh.attributes[std::to_underlying(attribs[index])];
+        const auto& in = mesh.attributes[std::to_underlying(attribs[index])];
         auto& layout = desc.vertex_layout[index];
         layout.slot = index;
         layout.offset_in_byte = in.offsetInByte;
         layout.stride_in_byte = in.strideInByte;
 
         auto& buffer_desc = vb_descs[index];
-        buffer_desc.slot = index;
-        buffer_desc.type = GpuBufferType::Vertex;
-        buffer_desc.element_count = in.elementCount;
-        buffer_desc.element_size = in.strideInByte;
-        buffer_desc.initial_data = data[index];
-        buffer_desc.dynamic = is_dynamic;
+        buffer_desc = GpuResourceDesc::vertexBuffer(in.strideInByte, in.elementCount, data[index]);
     }
 
-    GpuBufferDesc ib_desc;
-    GpuBufferDesc* ib_desc_ptr = nullptr;
-    if (!p_mesh.indices.empty()) {
-        ib_desc = GpuBufferDesc{
-            .type = GpuBufferType::Index,
-            .element_size = sizeof(uint32_t),
-            .element_count = (uint32_t)p_mesh.indices.size(),
-            .initial_data = p_mesh.indices.data(),
-        };
+    GpuResourceDesc ib_desc{};
+    GpuResourceDesc* ib_desc_ptr = nullptr;
+    if (!mesh.indices.empty()) {
+        ib_desc = GpuResourceDesc::indexBuffer(sizeof(uint32_t), (uint32_t)mesh.indices.size(), mesh.indices.data());
         ib_desc_ptr = &ib_desc;
     }
 
-    auto ret = createMeshImpl(desc, vb_descs, ib_desc_ptr);
-    if (!ret) {
-        return CAVE_ERROR(ret.error());
+    auto gpu_mesh = createMeshImpl(desc, vb_descs, ib_desc_ptr);
+    if (!gpu_mesh) {
+        return CAVE_ERROR(gpu_mesh.error());
     }
 
-    p_mesh.gpuResource = *ret;
-    return ret;
+    mesh.gpuResource = *gpu_mesh;
+    return gpu_mesh;
 }
 
 // @TODO: refactor this
@@ -297,7 +281,8 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     }
 }
 
-void RenderDevice::updateBufferData(const GpuBufferDesc&, const GpuBuffer*) {
+void RenderDevice::updateBufferData(const GpuResourceDesc&, const GpuBuffer*) {
+    CRASH_NOW();
 }
 
 void RenderDevice::beginFrame() {
@@ -396,7 +381,7 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
         if (const GpuTexture* srv = pass.srvs[i].get()) {
             DEV_ASSERT(srv->desc.bind_flags & BIND_SHADER_RESOURCE);
-            cmd->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
+            cmd->bindTexture(srv->desc.dimension, srv->getHandle(), i);
         }
     }
     // bind uavs

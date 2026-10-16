@@ -74,7 +74,7 @@ void SpriteSelector::SelectSprite(const ImageAsset& p_image,
 
     // Draw image
     draw_list->AddImage(
-        p_image.gpu_texture ? p_image.gpu_texture->GetHandle() : 0,
+        p_image.gpu_texture ? p_image.gpu_texture->getHandle() : 0,
         cursor,
         cursor + tile_size,
         ImVec2(0, 0), ImVec2(1, 1),

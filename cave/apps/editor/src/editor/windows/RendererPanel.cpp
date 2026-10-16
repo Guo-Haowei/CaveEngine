@@ -84,7 +84,7 @@ void RendererPanel::drawUIImpl() {
 
                 // 2. Render Texture Preview
                 ImGui::TableSetColumnIndex(1);
-                ImTextureID img_id = tex.texture->GetHandle();
+                ImTextureID img_id = tex.texture->getHandle();
 
                 float aspect = (tex.height > 0) ? static_cast<float>(tex.width) / static_cast<float>(tex.height) : 1.0f;
                 ImVec2 img_size(preview_h * aspect, preview_h);

@@ -96,13 +96,13 @@ void D3d12CommandList::bindConstantBufferRange(const GpuBuffer* buffer,
                                                uint32_t offset) {
 
     auto d3d_buffer = reinterpret_cast<const D3d12Buffer*>(buffer);
-    DEV_ASSERT(size + offset <= d3d_buffer->capacity());
+    DEV_ASSERT(size + offset <= d3d_buffer->desc.byteSize());
 
     D3D12_GPU_VIRTUAL_ADDRESS batch_address = d3d_buffer->buffer->GetGPUVirtualAddress();
 
     batch_address += offset;
-    m_command_list->SetGraphicsRootConstantBufferView(d3d_buffer->desc.slot, batch_address);
-    m_command_list->SetComputeRootConstantBufferView(d3d_buffer->desc.slot, batch_address);
+    m_command_list->SetGraphicsRootConstantBufferView(d3d_buffer->desc.deprecated_slot, batch_address);
+    m_command_list->SetComputeRootConstantBufferView(d3d_buffer->desc.deprecated_slot, batch_address);
 }
 
 void D3d12CommandList::setViewport(const Viewport& viewport) {

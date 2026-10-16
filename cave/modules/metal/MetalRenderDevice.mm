@@ -253,7 +253,7 @@ void MetalRenderDevice::generateMipmap(const GpuTexture* texture) {
 // Buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto MetalRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
 
     const size_t bytes = static_cast<size_t>(desc.element_count) * desc.element_size;
 
@@ -333,7 +333,7 @@ auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& desc, std::span<const 
 // Constant buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> {
+auto MetalRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuConstantBuffer>> {
     const size_t bytes = static_cast<size_t>(desc.element_count) * desc.element_size;
 
     id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
@@ -379,7 +379,7 @@ void MetalRenderDevice::updateConstantBuffer(const GpuConstantBuffer* base, cons
 // Structured buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuStructuredBuffer>> {
+auto MetalRenderDevice::createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuStructuredBuffer>> {
     CRASH_NOW();
     return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal structured buffers are not implemented yet");
 }

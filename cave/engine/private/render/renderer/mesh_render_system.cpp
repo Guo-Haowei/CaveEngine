@@ -58,8 +58,8 @@ static void FillMaterialConstantBuffer(bool,
             return 0;
         }
 
-        out_handle.value = texture->GetHandle();
-        resident_handle = (uint)texture->GetResidentHandle();
+        out_handle.value = texture->getHandle();
+        resident_handle = (uint)texture->getResidentHandle();
         return 1;
     };
 

@@ -56,7 +56,7 @@ void ProjectBrowserState::drawRecentProjects() {
     render::GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
 
     for (const ProjectInfo& project : m_project_list) {
-        auto [hovered, clicked] = ui::AssetCard(texture ? texture->GetHandle() : 0,
+        auto [hovered, clicked] = ui::AssetCard(texture ? texture->getHandle() : 0,
                                                 project.name.c_str(),
                                                 thumbnail_size);
         ImGui::TableNextColumn();

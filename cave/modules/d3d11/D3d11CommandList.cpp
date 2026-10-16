@@ -91,7 +91,7 @@ void D3d11CommandList::bindConstantBufferRange(const GpuBuffer* buffer,
                                                uint32_t size,
                                                uint32_t offset) {
     auto d3d_buffer = reinterpret_cast<const D3d11Buffer*>(buffer);
-    DEV_ASSERT(size + offset <= d3d_buffer->capacity());
+    DEV_ASSERT(size + offset <= d3d_buffer->desc.byteSize());
     D3D11_MAPPED_SUBRESOURCE mapped;
     ZeroMemory(&mapped, sizeof(D3D11_MAPPED_SUBRESOURCE));
     if (d3d_buffer->data) {
@@ -230,7 +230,7 @@ void D3d11CommandList::unbindStructuredBufferSRV(int slot) {
 void D3d11CommandList::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
     DEV_ASSERT(p_texture);
 
-    ID3D11UnorderedAccessView* ptr = reinterpret_cast<ID3D11UnorderedAccessView*>(p_texture->GetUavHandle());
+    ID3D11UnorderedAccessView* ptr = reinterpret_cast<ID3D11UnorderedAccessView*>(p_texture->getUavHandle());
     m_device_context->CSSetUnorderedAccessViews(p_slot, 1, &ptr, nullptr);
 }
 
