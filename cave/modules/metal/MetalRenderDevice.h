@@ -17,15 +17,15 @@ public:
 
     void FinalizeImpl() override;
 
-    void generateMipmap(const GpuTexture* texture) override;
+    void generateMipmap(const GpuResource* texture) override;
 
     //-----------------------------------------------------------------------------------------------------------------
     // Resources
     //-----------------------------------------------------------------------------------------------------------------
 
-    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
 
-    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
+    void updateBuffer(const GpuBufferDesc& desc, GpuResource* buffer) override;
 
     auto createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuBufferDesc> vb_descs, const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
@@ -42,7 +42,7 @@ public:
 protected:
     auto InitializeInternal() -> Result<void> override;
 
-    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc& sampler) override;
+    Ref<GpuResource> createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc& sampler) override;
 
     void beginFrame() override;
     void endFrame() override;

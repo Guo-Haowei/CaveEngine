@@ -15,7 +15,7 @@ namespace cave::render {
 class ICommandList;
 class IRenderDevice;
 struct CompiledPass;
-struct GpuTexture;
+struct GpuResource;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;

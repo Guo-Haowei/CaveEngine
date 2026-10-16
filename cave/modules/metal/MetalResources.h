@@ -4,8 +4,8 @@
 
 namespace cave::render {
 
-struct MetalBuffer final : GpuBuffer {
-    using GpuBuffer::GpuBuffer;
+struct MetalBuffer final : GpuResource {
+    using GpuResource::GpuResource;
 
     void* object{};
 
@@ -14,8 +14,8 @@ struct MetalBuffer final : GpuBuffer {
     uint64_t GetHandle() const final { return reinterpret_cast<uint64_t>(object); }
 };
 
-struct MetalTexture final : GpuTexture {
-    using GpuTexture::GpuTexture;
+struct MetalTexture final : GpuResource {
+    using GpuResource::GpuResource;
 
     void* object{};
 

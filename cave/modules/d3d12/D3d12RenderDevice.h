@@ -17,20 +17,20 @@ public:
 
     void FinalizeImpl() override;
 
-    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override;
-    void updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) override;
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
+    void updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) override;
 
     auto createMeshImpl(const GpuMeshDesc& desc,
                         std::span<const GpuResourceDesc> vb_descs,
                         const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
 
-    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override;
-    void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) override;
+    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
+    void updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) override;
 
     // @TODO: remove Dimension
-    void generateMipmap(const GpuTexture* texture) override;
+    void generateMipmap(const GpuResource* texture) override;
 
     ID3D12CommandQueue* createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 
@@ -41,7 +41,7 @@ public:
 
 protected:
     auto InitializeInternal() -> Result<void> override;
-    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    Ref<GpuResource> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
 
     void render() override;
     void present() override;

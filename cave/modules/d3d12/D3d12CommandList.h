@@ -42,7 +42,7 @@ public:
 
     void setStencilRef(uint32_t ref) override;
 
-    void bindConstantBufferRange(const GpuBuffer* buffer,
+    void bindConstantBufferRange(const GpuResource* buffer,
                                  uint32_t size,
                                  uint32_t offset) override;
 
@@ -56,12 +56,12 @@ public:
     void bindTexture(Dimension dimension, uint64_t handle, int slot) override;
     void unbindTexture(Dimension dimension, int slot) override;
 
-    void bindStructuredBuffer(int slot, const GpuBuffer* buffer) override;
+    void bindStructuredBuffer(int slot, const GpuResource* buffer) override;
     void unbindStructuredBuffer(int slot) override;
-    void bindStructuredBufferSRV(int slot, const GpuBuffer* buffer) override;
+    void bindStructuredBufferSRV(int slot, const GpuResource* buffer) override;
     void unbindStructuredBufferSRV(int slot) override;
 
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
+    void bindUnorderedAccessView(uint32_t slot, GpuResource* texture) override;
     void unbindUnorderedAccessView(uint32_t slot) override;
 
 private:

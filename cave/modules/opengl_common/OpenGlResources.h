@@ -14,8 +14,8 @@ struct OpenGlGpuMesh : GpuMesh {
     uint32_t vao{ 0 };
 };
 
-struct OpenGlBuffer : GpuBuffer {
-    using GpuBuffer::GpuBuffer;
+struct OpenGlBuffer : GpuResource {
+    using GpuResource::GpuResource;
 
     gl::BUFFER_TYPE type;
     uint32_t handle{ 0 };
@@ -27,8 +27,8 @@ struct OpenGlBuffer : GpuBuffer {
     uint64_t getHandle() const final { return handle; }
 };
 
-struct OpenGlGpuTexture : public GpuTexture {
-    using GpuTexture::GpuTexture;
+struct OpenGlGpuTexture : public GpuResource {
+    using GpuResource::GpuResource;
 
     ~OpenGlGpuTexture() { Clear(); }
 

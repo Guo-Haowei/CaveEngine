@@ -47,7 +47,7 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
             ImNodes::EndInputAttribute();
         }
 
-        auto add_image = [](bool flip, const std::shared_ptr<GpuTexture>& texture) {
+        auto add_image = [](bool flip, const std::shared_ptr<GpuResource>& texture) {
             if (!texture) return;
 
             ImGui::TextUnformatted(texture->desc.name.c_str());

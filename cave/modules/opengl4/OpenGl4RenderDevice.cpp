@@ -66,7 +66,7 @@ auto OpenGl4RenderDevice::InitializeInternal() -> Result<void> {
     return Result<void>();
 }
 
-auto OpenGl4RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto OpenGl4RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     GLuint handle = 0;
     glGenBuffers(1, &handle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, handle);
@@ -78,7 +78,7 @@ auto OpenGl4RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) ->
     return buffer;
 }
 
-void OpenGl4RenderDevice::updateBufferData(const GpuResourceDesc& desc, const GpuBuffer* buffer) {
+void OpenGl4RenderDevice::updateBufferData(const GpuResourceDesc& desc, const GpuResource* buffer) {
     auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
     if (DEV_VERIFY(gl_buffer)) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, gl_buffer->handle);

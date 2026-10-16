@@ -10,8 +10,8 @@ struct D3d12MeshBuffers : GpuMesh {
     D3D12_INDEX_BUFFER_VIEW ibv;
 };
 
-struct D3d12Buffer final : public GpuBuffer {
-    using GpuBuffer::GpuBuffer;
+struct D3d12Buffer final : public GpuResource {
+    using GpuResource::GpuResource;
 
     ~D3d12Buffer() {
         if (buffer && mappedData) {
@@ -30,8 +30,8 @@ struct D3d12Buffer final : public GpuBuffer {
 };
 
 // @TODO: refactor
-struct D3d12GpuTexture : public GpuTexture {
-    using GpuTexture::GpuTexture;
+struct D3d12GpuTexture : public GpuResource {
+    using GpuResource::GpuResource;
 
     uint64_t getHandle() const final { return srv_handle.gpu_handle.ptr; }
 

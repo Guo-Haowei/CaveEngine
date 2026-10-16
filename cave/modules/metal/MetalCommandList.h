@@ -20,7 +20,7 @@ public:
     // Transitional helpers.
     // Move these into ICommandList later.
 
-    void generateMipmap(const GpuTexture* texture);
+    void generateMipmap(const GpuResource* texture);
 
     // ICommandList
     void draw(uint32_t count, uint32_t offset) override;
@@ -52,7 +52,7 @@ public:
     void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
     void unbindStructuredBufferSRV(int slot) override;
 
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
+    void bindUnorderedAccessView(uint32_t slot, GpuResource* texture) override;
     void unbindUnorderedAccessView(uint32_t slot) override;
 
 private:

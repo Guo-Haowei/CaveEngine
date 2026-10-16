@@ -91,7 +91,7 @@ void RenderDevice::requestMesh(MeshAsset* mesh) {
     m_loaded_meshes.push(mesh);
 }
 
-void RenderDevice::updateBuffer(const GpuResourceDesc&, GpuBuffer*) {
+void RenderDevice::updateBuffer(const GpuResourceDesc&, GpuResource*) {
     CRASH_NOW();
 }
 
@@ -207,7 +207,7 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
     }
 }
 
-Ref<GpuTexture> RenderDevice::createTexture(ImageAsset* image) {
+Ref<GpuResource> RenderDevice::createTexture(ImageAsset* image) {
     DEV_ASSERT(image);
 
     GpuResourceDesc texture_desc{};
@@ -281,7 +281,7 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     }
 }
 
-void RenderDevice::updateBufferData(const GpuResourceDesc&, const GpuBuffer*) {
+void RenderDevice::updateBufferData(const GpuResourceDesc&, const GpuResource*) {
     CRASH_NOW();
 }
 
@@ -298,7 +298,7 @@ Ref<FrameContext> RenderDevice::createFrameContext() {
     return MakeRef<FrameContext>();
 }
 
-Ref<GpuTexture> RenderDevice::createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) {
+Ref<GpuResource> RenderDevice::createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) {
     auto texture = createTextureImpl(texture_desc, sampler_desc);
     return texture;
 }
@@ -379,14 +379,14 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
 
     // bind srvs
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
-        if (const GpuTexture* srv = pass.srvs[i].get()) {
+        if (const GpuResource* srv = pass.srvs[i].get()) {
             DEV_ASSERT(srv->desc.bind_flags & BIND_SHADER_RESOURCE);
             cmd->bindTexture(srv->desc.dimension, srv->getHandle(), i);
         }
     }
     // bind uavs
     for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
-        if (GpuTexture* uav = pass.uavs[i].get()) {
+        if (GpuResource* uav = pass.uavs[i].get()) {
             DEV_ASSERT(uav->desc.bind_flags & BIND_UNORDERED_ACCESS);
             cmd->bindUnorderedAccessView(i, uav);
         }
@@ -408,7 +408,7 @@ void RenderDevice::endPass(const CompiledPass& pass) {
 
     // unbind srvs
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
-        if (const GpuTexture* srv = pass.srvs[i].get()) {
+        if (const GpuResource* srv = pass.srvs[i].get()) {
             DEV_ASSERT(srv->desc.bind_flags & BIND_SHADER_RESOURCE);
             cmd->unbindTexture(srv->desc.dimension, i);
         }
@@ -416,7 +416,7 @@ void RenderDevice::endPass(const CompiledPass& pass) {
 
     // unbind uavs
     for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
-        if (GpuTexture* uav = pass.uavs[i].get()) {
+        if (GpuResource* uav = pass.uavs[i].get()) {
             DEV_ASSERT(uav->desc.bind_flags & BIND_UNORDERED_ACCESS);
             cmd->unbindUnorderedAccessView(i);
         }

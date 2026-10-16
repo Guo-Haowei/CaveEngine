@@ -57,7 +57,7 @@ void OpenGlRenderDevice::FinalizeImpl() {
     m_pipeline_state_manager->finalize();
 }
 
-auto OpenGlRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto OpenGlRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     gl::BUFFER_TYPE type = gl::ARRAY_BUFFER;
     if (desc.bind_flags & BindFlags::BIND_VERTEX_BUFFER) {
         // type = gl::ARRAY_BUFFER;
@@ -132,7 +132,7 @@ auto OpenGlRenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     return ret;
 }
 
-void OpenGlRenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) {
+void OpenGlRenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) {
     DEV_ASSERT(desc.byteSize() == buffer->desc.byteSize());
     if (DEV_VERIFY(buffer->desc.byteSize() >= desc.byteSize())) {
         const uint32_t vbo = buffer->getHandle32();
@@ -142,7 +142,7 @@ void OpenGlRenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuBuffer* bu
     }
 }
 
-auto OpenGlRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto OpenGlRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     GLuint handle = 0;
 
     glGenBuffers(1, &handle);
@@ -161,30 +161,30 @@ auto OpenGlRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Re
     return buffer;
 }
 
-auto OpenGlRenderDevice::createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> {
+auto OpenGlRenderDevice::createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuResource>> {
     CRASH_NOW();
     return nullptr;
 }
 
-void OpenGlRenderDevice::updateBufferData(const GpuResourceDesc&, const GpuBuffer*) {
+void OpenGlRenderDevice::updateBufferData(const GpuResourceDesc&, const GpuResource*) {
     CRASH_NOW();
 }
 
-void OpenGlRenderDevice::updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) {
+void OpenGlRenderDevice::updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) {
     auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer->handle);
     glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void OpenGlRenderDevice::generateMipmap(const GpuTexture* base) {
+void OpenGlRenderDevice::generateMipmap(const GpuResource* base) {
     auto dimension = gl::ConvertDimension(base->desc.dimension);
     glBindTexture(dimension, base->GetHandle32());
     glGenerateMipmap(dimension);
     glBindTexture(dimension, 0);
 }
 
-Ref<GpuTexture> OpenGlRenderDevice::createTextureImpl(const GpuResourceDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
+Ref<GpuResource> OpenGlRenderDevice::createTextureImpl(const GpuResourceDesc& p_texture_desc, const SamplerDesc& p_sampler_desc) {
     GLuint texture_id = 0;
     glGenTextures(1, &texture_id);
 

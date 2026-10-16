@@ -7,8 +7,8 @@
 
 namespace cave::render {
 
-struct GpuTexture;
-using GpuTextureId = Ref<GpuTexture>;
+struct GpuResource;
+using GpuTextureId = Ref<GpuResource>;
 
 // clang-format off
 #define BACKEND_LIST                                    \

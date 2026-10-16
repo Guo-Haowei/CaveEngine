@@ -23,14 +23,14 @@ namespace cave::render {
 struct CompiledPass;
 
 struct FrameContext {
-    Ref<GpuBuffer> batch_cb;
-    Ref<GpuBuffer> material_cb;
-    Ref<GpuBuffer> bone_cb;
-    Ref<GpuBuffer> view_cb;
-    Ref<GpuBuffer> pass_cb;
-    Ref<GpuBuffer> emitter_cb;
-    Ref<GpuBuffer> per_frame_cb;
-    Ref<GpuBuffer> point_shadow_cb;
+    Ref<GpuResource> batch_cb;
+    Ref<GpuResource> material_cb;
+    Ref<GpuResource> bone_cb;
+    Ref<GpuResource> view_cb;
+    Ref<GpuResource> pass_cb;
+    Ref<GpuResource> emitter_cb;
+    Ref<GpuResource> per_frame_cb;
+    Ref<GpuResource> point_shadow_cb;
 };
 
 class RenderDevice : public IRenderDevice,
@@ -44,14 +44,14 @@ public:
     void submit(Owner<render::RenderSubmission>&& submission) final;
 
     // resource
-    void updateBufferData(const GpuResourceDesc& desc, const GpuBuffer* buffer) override;
+    void updateBufferData(const GpuResourceDesc& desc, const GpuResource* buffer) override;
 
-    void updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) override;
+    void updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) override;
 
     auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> override;
 
-    Ref<GpuTexture> createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
-    Ref<GpuTexture> createTexture(ImageAsset* image) override;
+    Ref<GpuResource> createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    Ref<GpuResource> createTexture(ImageAsset* image) override;
 
     void requestTexture(ImageAsset* image) override;
     void requestMesh(MeshAsset* mesh) override;

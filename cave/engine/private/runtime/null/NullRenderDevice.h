@@ -15,12 +15,12 @@ public:
     void submit(Owner<render::RenderSubmission>&&) override {}
 
     // resource
-    auto createConstantBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    auto createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    void updateBufferData(const GpuResourceDesc&, const GpuBuffer*) override {}
+    auto createConstantBuffer(const GpuResourceDesc&) -> Result<Ref<GpuResource>> override { return nullptr; }
+    auto createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuResource>> override { return nullptr; }
+    void updateBufferData(const GpuResourceDesc&, const GpuResource*) override {}
 
-    auto createBuffer(const GpuResourceDesc&) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    void updateBuffer(const GpuResourceDesc&, GpuBuffer*) override {}
+    auto createBuffer(const GpuResourceDesc&) -> Result<Ref<GpuResource>> override { return nullptr; }
+    void updateBuffer(const GpuResourceDesc&, GpuResource*) override {}
 
     auto createMesh(const MeshAsset&) -> Result<Ref<GpuMesh>> override { return nullptr; }
     auto createMeshImpl(const GpuMeshDesc&,
@@ -29,12 +29,12 @@ public:
         return nullptr;
     }
 
-    void updateConstantBuffer(const GpuBuffer*, const void*, size_t) override {}
+    void updateConstantBuffer(const GpuResource*, const void*, size_t) override {}
 
-    Ref<GpuTexture> createTexture(const GpuResourceDesc&, const SamplerDesc&) override { return nullptr; }
-    Ref<GpuTexture> createTexture(ImageAsset*) override { return nullptr; }
+    Ref<GpuResource> createTexture(const GpuResourceDesc&, const SamplerDesc&) override { return nullptr; }
+    Ref<GpuResource> createTexture(ImageAsset*) override { return nullptr; }
 
-    void generateMipmap(const GpuTexture*) override {}
+    void generateMipmap(const GpuResource*) override {}
 
     void requestTexture(ImageAsset*) override {}
     void requestMesh(MeshAsset*) override {}
@@ -51,7 +51,7 @@ public:
     ICommandList* getCommandList() const override { return nullptr; }
 
 protected:
-    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc&, const SamplerDesc&) override { return nullptr; }
+    Ref<GpuResource> createTextureImpl(const GpuResourceDesc&, const SamplerDesc&) override { return nullptr; }
 
     void render() override {}
     void present() override {}

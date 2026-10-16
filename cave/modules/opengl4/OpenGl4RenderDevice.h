@@ -9,8 +9,8 @@ public:
     OpenGl4RenderDevice()
         : OpenGlRenderDevice() {}
 
-    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override;
-    void updateBufferData(const GpuResourceDesc& desc, const GpuBuffer* buffer) override;
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
+    void updateBufferData(const GpuResourceDesc& desc, const GpuResource* buffer) override;
 
 protected:
     auto InitializeInternal() -> Result<void> override;

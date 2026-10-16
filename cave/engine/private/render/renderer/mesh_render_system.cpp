@@ -53,7 +53,7 @@ static void FillMaterialConstantBuffer(bool,
             return 0;
         }
 
-        auto texture = reinterpret_cast<GpuTexture*>(image->gpu_texture.get());
+        auto texture = reinterpret_cast<GpuResource*>(image->gpu_texture.get());
         if (!texture) {
             return 0;
         }

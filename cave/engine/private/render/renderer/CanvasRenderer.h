@@ -7,7 +7,7 @@ namespace cave { class AssetRegistry; }
 
 namespace cave::render {
 
-struct GpuTexture;
+struct GpuResource;
 
 class IRenderDevice;
 
@@ -27,7 +27,7 @@ private:
     bool m_screen_space = false;
 
     AssetRegistry& m_asset_reg;
-    Ref<GpuTexture> m_default_texture{};
+    Ref<GpuResource> m_default_texture{};
 };
 
 }  // namespace cave::render

@@ -22,22 +22,22 @@ public:
         return nullptr;
     }
 
-    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override {
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override {
         return nullptr;
     }
 
-    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
-    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> override { return nullptr; }
+    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override { return nullptr; }
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override { return nullptr; }
 
-    void updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) override {}
+    void updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) override {}
 
-    void generateMipmap(const GpuTexture* texture) override {}
+    void generateMipmap(const GpuResource* texture) override {}
 
     ICommandList* getCommandList() const override { return nullptr; }
 
 protected:
     auto InitializeInternal() -> Result<void> final;
-    Ref<GpuTexture> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override { return nullptr; }
+    Ref<GpuResource> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override { return nullptr; }
 
     void render() override {}
     void present() final;

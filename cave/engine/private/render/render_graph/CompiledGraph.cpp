@@ -4,13 +4,13 @@
 
 namespace cave::render {
 
-void CompiledGraph::addResource(RGTextureId handle, const Ref<GpuTexture>& resource) {
+void CompiledGraph::addResource(RGTextureId handle, const Ref<GpuResource>& resource) {
     const int idx = static_cast<int>(m_resources.size());
     m_resources.push_back(resource);
     m_resource_lookup.insert({ handle, idx });
 }
 
-Ref<GpuTexture> CompiledGraph::findResource(RGTextureId handle) {
+Ref<GpuResource> CompiledGraph::findResource(RGTextureId handle) {
     auto it = m_resource_lookup.find(handle);
     if (it == m_resource_lookup.end()) {
         return nullptr;

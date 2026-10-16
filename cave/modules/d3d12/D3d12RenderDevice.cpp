@@ -286,7 +286,7 @@ ID3D12Resource* D3d12RenderDevice::uploadBuffer(uint32_t p_byte_size, const void
     return p_out_buffer;
 };
 
-auto D3d12RenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto D3d12RenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     auto d3d_buffer = MakeRef<D3d12Buffer>(desc);
 
     const uint32_t size_in_byte = desc.byteSize();
@@ -338,7 +338,7 @@ auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     return ret;
 }
 
-void D3d12RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) {
+void D3d12RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) {
     DEV_ASSERT(desc.byteSize() == buffer->desc.byteSize());
     if (DEV_VERIFY(buffer->desc.byteSize() >= desc.byteSize())) {
         auto d3d_buffer = reinterpret_cast<D3d12Buffer*>(buffer);
@@ -347,7 +347,7 @@ void D3d12RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buf
     }
 }
 
-auto D3d12RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto D3d12RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     const uint32_t size_in_byte = desc.byteSize();
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_byte);
@@ -369,7 +369,7 @@ auto D3d12RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Res
     return result;
 }
 
-auto D3d12RenderDevice::createStructuredBuffer(const GpuResourceDesc& buffer_desc) -> Result<Ref<GpuBuffer>> {
+auto D3d12RenderDevice::createStructuredBuffer(const GpuResourceDesc& buffer_desc) -> Result<Ref<GpuResource>> {
     DEV_ASSERT(!buffer_desc.initial_data && "TODO: initial data");
 
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -412,14 +412,14 @@ auto D3d12RenderDevice::createStructuredBuffer(const GpuResourceDesc& buffer_des
     return result;
 }
 
-void D3d12RenderDevice::updateConstantBuffer(const GpuBuffer* buffer, const void* data, size_t size) {
+void D3d12RenderDevice::updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) {
     if (size) {
         auto d3d_buffer = reinterpret_cast<const D3d12Buffer*>(buffer);
         memcpy(d3d_buffer->mappedData, data, size);
     }
 }
 
-Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc&) {
+Ref<GpuResource> D3d12RenderDevice::createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc&) {
     auto initial_data = reinterpret_cast<const uint8_t*>(texture_desc.initial_data);
 
     bool gen_mip_map = false;
@@ -665,7 +665,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuResourceDesc& text
     return gpu_texture;
 }
 
-void D3d12RenderDevice::generateMipmap(const GpuTexture* texture) {
+void D3d12RenderDevice::generateMipmap(const GpuResource* texture) {
     unused(texture);
 }
 

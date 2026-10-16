@@ -242,7 +242,7 @@ void MetalRenderDevice::endFrame() {
 //---------------------------------------------------------------------------------------------------------------------
 // Transitional command wrappers
 //---------------------------------------------------------------------------------------------------------------------
-void MetalRenderDevice::generateMipmap(const GpuTexture* texture) {
+void MetalRenderDevice::generateMipmap(const GpuResource* texture) {
 
     DEV_ASSERT(m_command_list);
 
@@ -253,7 +253,7 @@ void MetalRenderDevice::generateMipmap(const GpuTexture* texture) {
 // Buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto MetalRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
 
     const size_t bytes = static_cast<size_t>(desc.element_count) * desc.element_size;
 
@@ -277,7 +277,7 @@ auto MetalRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<
     return result;
 }
 
-void MetalRenderDevice::updateBuffer(const GpuBufferDesc& desc, GpuBuffer* base) {
+void MetalRenderDevice::updateBuffer(const GpuBufferDesc& desc, GpuResource* base) {
 
     DEV_ASSERT(base);
 
@@ -422,7 +422,7 @@ static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
     }
 }
 
-Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc&) {
+Ref<GpuResource> MetalRenderDevice::createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc&) {
     MTLPixelFormat texture_format = ToMetalTextureFormat(desc.format);
 
     DEV_ASSERT(texture_format != MTLPixelFormatInvalid);

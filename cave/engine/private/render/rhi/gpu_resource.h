@@ -139,33 +139,21 @@ struct GpuResourceDesc {
     }
 };
 
-struct GpuBuffer {
+struct GpuResource {
     const GpuResourceDesc desc;
 
-    GpuBuffer(const GpuResourceDesc& desc)
+    GpuResource(const GpuResourceDesc& desc)
         : desc(desc) {}
 
-    virtual ~GpuBuffer() = default;
+    virtual ~GpuResource() = default;
 
     int getSlot() const { return desc.deprecated_slot; }
 
     virtual uint64_t getHandle() const = 0;
     uint32_t getHandle32() const { return static_cast<uint32_t>(getHandle()); }
-};
 
-struct GpuTexture {
-    GpuTexture(const GpuResourceDesc& desc)
-        : desc(desc) {}
-
-    virtual ~GpuTexture() = default;
-
-    virtual uint64_t getResidentHandle() const = 0;
-    virtual uint64_t getHandle() const = 0;
-    virtual uint64_t getUavHandle() const = 0;
-
-    uint32_t GetHandle32() const { return static_cast<uint32_t>(getHandle()); }
-
-    const GpuResourceDesc desc;
+    virtual uint64_t getUavHandle() const { return 0; }
+    virtual uint64_t getResidentHandle() const { return 0; }
 };
 
 constexpr int kMeshMaxVertexBufferCount = 8;
@@ -184,8 +172,8 @@ struct GpuMeshDesc {
 
 struct GpuMesh {
     const GpuMeshDesc desc;
-    Ref<GpuBuffer> indexBuffer;
-    std::array<Ref<GpuBuffer>, kMeshMaxVertexBufferCount> vertexBuffers;
+    Ref<GpuResource> indexBuffer;
+    std::array<Ref<GpuResource>, kMeshMaxVertexBufferCount> vertexBuffers;
 
     GpuMesh() = default;
     GpuMesh(const GpuMeshDesc& p_desc)
@@ -195,6 +183,6 @@ struct GpuMesh {
 };
 
 // @TODO: use actual id
-using GpuTextureId = std::shared_ptr<GpuTexture>;
+using GpuTextureId = std::shared_ptr<GpuResource>;
 
 }  // namespace cave::render

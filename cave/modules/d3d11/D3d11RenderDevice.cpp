@@ -215,7 +215,7 @@ auto D3d11RenderDevice::initSamplers() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d11RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto D3d11RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     D3D11_BUFFER_DESC buffer_desc{};
     buffer_desc.ByteWidth = desc.byteSize();
     buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -237,7 +237,7 @@ auto D3d11RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Res
     return uniform_buffer;
 }
 
-auto D3d11RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuBuffer>> {
+auto D3d11RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     ComPtr<ID3D11Buffer> buffer;
     ComPtr<ID3D11UnorderedAccessView> uav;
     ComPtr<ID3D11ShaderResourceView> srv;
@@ -286,7 +286,7 @@ auto D3d11RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> R
     return structured_buffer;
 }
 
-void D3d11RenderDevice::updateConstantBuffer(const GpuBuffer* buffer,
+void D3d11RenderDevice::updateConstantBuffer(const GpuResource* buffer,
                                              const void* data,
                                              size_t size) {
     auto d3d_buffer = reinterpret_cast<const D3d11Buffer*>(buffer);
@@ -294,13 +294,13 @@ void D3d11RenderDevice::updateConstantBuffer(const GpuBuffer* buffer,
     d3d_buffer->data = (const char*)data;
 }
 
-void D3d11RenderDevice::generateMipmap(const GpuTexture* texture) {
+void D3d11RenderDevice::generateMipmap(const GpuResource* texture) {
     auto d3d_tex = reinterpret_cast<const D3d11GpuTexture*>(texture);
     m_device_context->GenerateMips(d3d_tex->srv.Get());
 }
 
-Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuResourceDesc& p_texture_desc,
-                                                     const SamplerDesc&) {
+Ref<GpuResource> D3d11RenderDevice::createTextureImpl(const GpuResourceDesc& p_texture_desc,
+                                                      const SamplerDesc&) {
     ComPtr<ID3D11ShaderResourceView> srv;
     ComPtr<ID3D11UnorderedAccessView> uav;
 
@@ -478,7 +478,7 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuResourceDesc& p_te
     return gpu_texture;
 }
 
-auto D3d11RenderDevice::createBuffer(const GpuResourceDesc& p_desc) -> Result<Ref<GpuBuffer>> {
+auto D3d11RenderDevice::createBuffer(const GpuResourceDesc& p_desc) -> Result<Ref<GpuResource>> {
     const bool is_dynamic = p_desc.isDynamic();
     ComPtr<ID3D11Buffer> buffer;
 
@@ -536,7 +536,7 @@ auto D3d11RenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
     return ret;
 }
 
-void D3d11RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuBuffer* buffer) {
+void D3d11RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) {
     DEV_ASSERT(desc.byteSize() == buffer->desc.byteSize());
     if (DEV_VERIFY(buffer->desc.byteSize() >= desc.byteSize())) {
         auto d3d_buffer = reinterpret_cast<D3d11Buffer*>(buffer);

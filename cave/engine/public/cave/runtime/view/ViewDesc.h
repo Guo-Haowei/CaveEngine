@@ -11,8 +11,8 @@
 #include "cave/runtime/ecs/components/CameraComponent.h"
 
 namespace cave::render {
-struct GpuTexture;
-using GpuTextureId = std::shared_ptr<render::GpuTexture>;
+struct GpuResource;
+using GpuTextureId = std::shared_ptr<render::GpuResource>;
 }  // namespace cave::render
 
 namespace cave {

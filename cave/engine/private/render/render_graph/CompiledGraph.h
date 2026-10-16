@@ -17,8 +17,8 @@ class TransientPool;
 
 class CompiledGraph : public NonCopyable {
 public:
-    void addResource(RGTextureId handle, const Ref<GpuTexture>& resource);
-    Ref<GpuTexture> findResource(RGTextureId handle);
+    void addResource(RGTextureId handle, const Ref<GpuResource>& resource);
+    Ref<GpuResource> findResource(RGTextureId handle);
 
     std::span<const CompiledPass> getCompiledPass() const {
         return m_compiled_pass;
@@ -29,7 +29,7 @@ public:
 private:
     Vector<CompiledPass> m_compiled_pass;
 
-    Vector<Ref<GpuTexture>> m_resources;
+    Vector<Ref<GpuResource>> m_resources;
     HashMap<RGTextureId, int> m_resource_lookup;
 
     // transferred from RenderGraph

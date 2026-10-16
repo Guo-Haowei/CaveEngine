@@ -6,8 +6,8 @@
 
 namespace cave::render {
 
-struct D3d11GpuTexture : public GpuTexture {
-    using GpuTexture::GpuTexture;
+struct D3d11GpuTexture : public GpuResource {
+    using GpuResource::GpuResource;
 
     uint64_t getResidentHandle() const final { return 0; }
     uint64_t getHandle() const final { return (uint64_t)srv.Get(); }
@@ -21,8 +21,8 @@ struct D3d11GpuTexture : public GpuTexture {
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
 };
 
-struct D3d11Buffer : public GpuBuffer {
-    using GpuBuffer::GpuBuffer;
+struct D3d11Buffer : public GpuResource {
+    using GpuResource::GpuResource;
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> internal_buffer;
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;

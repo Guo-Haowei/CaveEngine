@@ -17,7 +17,7 @@ namespace {
 struct PrimBatch {
     uint32_t index_offset = 0;
     uint32_t index_count = 0;
-    const GpuTexture* tex{};
+    const GpuResource* tex{};
 };
 
 struct BuildResult {
@@ -27,7 +27,7 @@ struct BuildResult {
 
 BuildResult BuildCanvasMesh(IRenderDevice& device,
                             CanvasBucket&& bucket,
-                            const GpuTexture* default_tex) {
+                            const GpuResource* default_tex) {
     BuildResult result;
 
     const uint32_t item_count = static_cast<uint32_t>(bucket.shapes.size());
@@ -46,7 +46,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
     uvs.reserve(item_count * 4);
     colors.reserve(item_count * 4);
 
-    auto begin_batch = [&](const GpuTexture* tex) {
+    auto begin_batch = [&](const GpuResource* tex) {
         PrimBatch batch;
         batch.tex = tex;
         batch.index_offset = static_cast<uint32_t>(indices.size());
@@ -54,7 +54,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         result.batches.push_back(batch);
     };
 
-    const GpuTexture* current_tex = nullptr;
+    const GpuResource* current_tex = nullptr;
 
     for (const PrimShape& item : bucket.shapes) {
         if (result.batches.empty() || item.tex != current_tex) {

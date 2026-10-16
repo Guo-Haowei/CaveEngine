@@ -394,7 +394,7 @@ void MetalCommandList::unbindTexture(Dimension, int slot) {
 // UAV
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
+void MetalCommandList::bindUnorderedAccessView(uint32_t slot, GpuResource* texture) {
 
     if (slot >= m_bound_uavs.size())
         return;
@@ -502,7 +502,7 @@ void MetalCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) {
 // Mips
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::generateMipmap(const GpuTexture* base) {
+void MetalCommandList::generateMipmap(const GpuResource* base) {
     if (!base || !m_command_buffer) {
         return;
     }
