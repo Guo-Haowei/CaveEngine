@@ -15,7 +15,7 @@ class MeshAsset;
 
 namespace cave::render {
 
-enum PipelineStateName : uint8_t;
+enum class PipelineStateName : uint8_t;
 
 struct FrameContext;
 struct RenderSubmission;

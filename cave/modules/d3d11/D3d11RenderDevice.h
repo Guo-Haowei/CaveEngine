@@ -6,7 +6,7 @@
 #include "D3d11Resources.h"
 
 #include "engine/private/core/base/rid_owner.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 
 namespace cave::render {
 

@@ -3,7 +3,7 @@
 #include "cave/core/string/StringUtils.h"
 #include "cave/runtime/ecs/components/MiscComponents.h"
 
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"

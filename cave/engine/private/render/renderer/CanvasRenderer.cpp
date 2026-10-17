@@ -1,12 +1,12 @@
 #include "CanvasRenderer.h"
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/PipelineState.h"
 
+#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 // @TODO: move IRenderDevice to render?
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/render/rhi/PipelineState.h"
 
 namespace cave::render {
 
@@ -189,7 +189,7 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
 
     command->setMesh(result.mesh.get());
     // @TODO: clean this up
-    const PipelineStateName pso = m_screen_space ? PSO_UI_OVERLAY : PSO_PRIMITIVE;
+    const PipelineStateName pso = m_screen_space ? PipelineStateName::UiOverlay : PipelineStateName::Primitive;
     command->setPipelineState(pso);
 
     constexpr int kSpriteSlot = 0;

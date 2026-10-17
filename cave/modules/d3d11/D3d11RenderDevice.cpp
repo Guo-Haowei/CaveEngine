@@ -272,7 +272,6 @@ auto D3d11RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> R
                  "Failed to create UAV (StructuredBuffer)");
     }
 
-
     D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
     srv_desc.Format = DXGI_FORMAT_UNKNOWN;
     srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;

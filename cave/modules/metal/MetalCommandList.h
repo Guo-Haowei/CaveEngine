@@ -1,9 +1,7 @@
 #pragma once
-
 #include <array>
 
 #include "cave/render/rhi/ICommandList.h"
-#include "engine/private/render/renderer/GraphicsDefines.h"
 
 namespace cave::render {
 

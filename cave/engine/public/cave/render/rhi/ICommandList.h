@@ -2,12 +2,9 @@
 // File: cave/render/rhi/ICommandList.h
 // =============================================================================
 #pragma once
-#include "cave/render/rhi/Defines.h"
+#include "cave/render/rhi/PipelineState.h"
 
 namespace cave::render {
-
-// @TODO: move these to rhi/Defines.h
-enum PipelineStateName : uint8_t;
 
 struct GpuResource;
 struct GpuMesh;

@@ -2,13 +2,13 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/math/Vec.h"
+#include "cave/render/rhi/PipelineState.h"
 #include "cave/render/rhi/Sampler.h"
 
 // @TODO: remove this
 #include "engine/private/render/render_graph/RenderGraph.h"
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/core/base/random.h"
-#include "engine/private/render/rhi/PipelineState.h"
 
 namespace cave {
 #include "shader_resource_defines.slang.h"
@@ -57,7 +57,7 @@ static void SsaoPassFunc(RenderPassExcutionContext& ctx) {
 
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_SSAO);
+    cmd.setPipelineState(PipelineStateName::Ssao);
     cmd.setMesh(nullptr);
     cmd.draw(6);
 }

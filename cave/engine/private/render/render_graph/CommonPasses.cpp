@@ -9,7 +9,7 @@
 
 // @TODO: remove
 #include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 

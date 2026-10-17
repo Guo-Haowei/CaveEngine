@@ -4,7 +4,6 @@
 
 // @TODO: fix
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/renderer/GraphicsDefines.h"
 
 // clang-format off
 namespace cave { struct FrameData; }

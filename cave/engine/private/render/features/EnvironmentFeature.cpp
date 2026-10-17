@@ -7,7 +7,7 @@
 // @TODO: remove these
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/render/renderer/FrameData.h"
 
 namespace cave::render {
@@ -28,7 +28,7 @@ void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
     auto& device = ctx.device;
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
+    cmd.setPipelineState(PipelineStateName::EnvSkyboxToCubemap);
 
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), face);
     device.drawSkybox();
@@ -44,7 +44,7 @@ void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
     auto& device = ctx.device;
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_DIFFUSE_IRRADIANCE);
+    cmd.setPipelineState(PipelineStateName::DiffuseIrradiance);
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), face);
     device.drawSkybox();
 }
@@ -58,7 +58,7 @@ void PrefilteredFunc(RenderPassExcutionContext& ctx,
     auto& cmd = ctx.command;
 
     const int index = mip * 6 + face;
-    cmd.setPipelineState(PSO_PREFILTER);
+    cmd.setPipelineState(PipelineStateName::Prefilter);
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), index);
     device.drawSkybox();
 }

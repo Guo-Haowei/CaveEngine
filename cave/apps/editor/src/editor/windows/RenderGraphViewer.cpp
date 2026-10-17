@@ -3,7 +3,7 @@
 #include <imnodes/imnodes.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "cave/runtime/framework/IApplication.h"
 

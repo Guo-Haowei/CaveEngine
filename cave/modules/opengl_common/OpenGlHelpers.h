@@ -3,10 +3,10 @@
 #endif
 #define OPENGL_HELPERS_INCLUDED
 
+#include "cave/render/rhi/PipelineState.h"
 #include "cave/render/rhi/Sampler.h"
 
 #include "engine/private/render/rhi/gpu_resource.h"
-#include "engine/private/render/rhi/PipelineState.h"
 
 #include "OpenGlPrerequisites.h"
 

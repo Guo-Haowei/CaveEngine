@@ -2,7 +2,7 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/math/Utils.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/render/render_graph/RenderGraph.h"
 
 // @TODO: refactor
@@ -20,7 +20,7 @@ namespace {
 void PathTracerComputeFunc(RenderPassExcutionContext& ctx) {
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_PATH_TRACER);
+    cmd.setPipelineState(PipelineStateName::PathTracer);
     const auto& input = ctx.pass.uavs[0];
 
     DEV_ASSERT(input);
@@ -38,7 +38,7 @@ void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
 
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_POST_PROCESS);
+    cmd.setPipelineState(PipelineStateName::PostProcess);
     cmd.setMesh(nullptr);
     cmd.draw(6);
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "cave/render/rhi/Defines.h"
-
 #include "cave/render/rhi/PixelFormat.h"
 
 namespace cave::render {
