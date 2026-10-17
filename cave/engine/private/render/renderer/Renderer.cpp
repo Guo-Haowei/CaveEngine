@@ -165,24 +165,25 @@ static void DebugDrawBVH(int p_level, BvhAccel* p_bvh, const Mat4f* p_matrix) {
 #endif
 
 // @TODO: refactor
-static void FillConstantBuffer(const FrameTime& p_frame,
-                               const Scene* p_scene,
-                               const ResolvedView& p_view,
-                               FrameData& p_out_data) {
-    const auto& options = p_out_data.options;
-    auto& cache = p_out_data.perFrameCache;
+static void FillConstantBuffer(const FrameTime& time,
+                               const Scene* scene,
+                               const ResolvedView& resolved_view,
+                               bool reset_accumulation,
+                               FrameData& out) {
+    const auto& options = out.options;
+    auto& cache = out.per_frame_cache;
 
-    cache.c_screen_size.x = (float)p_view.viewport_px.w;
-    cache.c_screen_size.y = (float)p_view.viewport_px.h;
+    cache.c_screen_size.x = (float)resolved_view.viewport_px.w;
+    cache.c_screen_size.y = (float)resolved_view.viewport_px.h;
 
     // camera
     {
-        const CameraParams& cam = p_view.cam;
+        const CameraParams& cam = resolved_view.cam;
         cache.c_cam_view = cam.view;
         cache.c_cam_proj = cam.proj;
         cache.c_inv_cam_view = cam.view_inv;
         cache.c_inv_cam_proj = cam.proj_inv;
-        cache.c_cam_fovy = p_view.fovy_rad;
+        cache.c_cam_fovy = resolved_view.fovy_rad;
         cache.c_cam_forward = (cam.view_inv * -Vec4f::UnitZ);
         cache.c_cam_right = (cam.view_inv * Vec4f::UnitX);
         cache.c_cam_up = (cam.view_inv * Vec4f::UnitY);
@@ -195,7 +196,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
         cache.c_enable_bloom = options.enable_bloom;
 
         cache.c_debug_voxel = options.debug_voxel_id;
-        cache.c_pt_object_count = p_scene ? ((int)p_scene->count<MeshRendererComponent>()) : 0;
+        cache.c_pt_object_count = scene ? ((int)scene->count<MeshRendererComponent>()) : 0;
     }
 
     // IBL
@@ -214,17 +215,16 @@ static void FillConstantBuffer(const FrameTime& p_frame,
         memcpy(cache.c_ssao_kernel, kernel_data.data(), kernel_size);
     }
 
-    cache.c_frame_index = static_cast<uint32_t>(p_frame.frame_index);
+    cache.c_frame_index = static_cast<uint32_t>(time.frame_index);
     // @TODO: fix this
-    cache.c_reset_accumulation = true;
-    cache.c_reset_accumulation = false;
+    cache.c_reset_accumulation = reset_accumulation;
 }
 
 static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data) {
     int idx = 0;
-    out_data.passCache.resize(graph.getCompiledPass().size());
+    out_data.pass_cache.resize(graph.getCompiledPass().size());
     for (const CompiledPass& pass : graph.getCompiledPass()) {
-        auto& cache = out_data.passCache[idx++];
+        auto& cache = out_data.pass_cache[idx++];
         std::memset(&cache, 0, sizeof(cache));
         DEV_ASSERT(pass.srvs.size() <= std::size(cache.c_pass_textures));
         for (size_t slot = 0; slot < pass.srvs.size(); ++slot) {
@@ -245,14 +245,14 @@ static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data
 
 static void FillEnvConstants(FrameData& out_data) {
     constexpr int count = kIBLMipChainMax * 6;
-    if (out_data.batchCache.buffer.size() < count) {
-        out_data.batchCache.buffer.resize(count);
+    if (out_data.batch_cache.buffer.size() < count) {
+        out_data.batch_cache.buffer.resize(count);
     }
 
     auto matrices = out_data.options.is_opengl ? math::BuildOpenGlCubeMapViewProjectionMatrix(Vec3f(0)) : BuildCubeMapViewProjectionMatrix(Vec3f(0));
     for (int mip_idx = 0; mip_idx < kIBLMipChainMax; ++mip_idx) {
         for (int face_id = 0; face_id < 6; ++face_id) {
-            auto& batch = out_data.batchCache.buffer[mip_idx * 6 + face_id];
+            auto& batch = out_data.batch_cache.buffer[mip_idx * 6 + face_id];
             batch.c_cube_proj_view_matrix = matrices[face_id];
             batch.c_env_pass_roughness = (float)mip_idx / (float)(kIBLMipChainMax - 1);
         }
@@ -265,7 +265,7 @@ Renderer::Impl::Impl(EngineServices& services)
     , m_transient_pool(m_device)
     , m_env(m_transient_pool, m_device)
     , m_ssao(m_device)
-    , m_pathtracer(m_device) {
+    , m_pathtracer(services.eventQueue(), m_device) {
 }
 
 auto Renderer::Impl::initialize() -> Result<void> {
@@ -343,7 +343,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
         FrameData& framedata = plan.frame_data[view_idx];
         framedata.options = options;
 
-        FillConstantBuffer(time, view.scene, view, framedata);
+        FillConstantBuffer(time, view.scene, view, m_pathtracer.consumeReset(), framedata);
 
         RunMeshRenderSystem(*view.scene, render_scene, view, framedata);
 

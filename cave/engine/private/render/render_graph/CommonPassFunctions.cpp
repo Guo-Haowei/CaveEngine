@@ -81,7 +81,7 @@ void ExecuteDrawCommands(RenderPassExcutionContext& ctx,
         }
 
         if (draw.mat_idx != -1) {
-            const MaterialConstantBuffer& material = ctx.frameData.materialCache.buffer[draw.mat_idx];
+            const MaterialConstantBuffer& material = ctx.frameData.material_cache.buffer[draw.mat_idx];
             cmd.bindTexture(Dimension::Texture2D, material.c_base_color_map_handle.value, GetBaseColorMapSlot());
             cmd.bindTexture(Dimension::Texture2D, material.c_normal_map_handle.value, GetNormalMapSlot());
             cmd.bindTexture(Dimension::Texture2D, material.c_material_map_handle.value, GetMaterialMapSlot());
@@ -108,7 +108,7 @@ void DepthPrepassFunc(RenderPassExcutionContext& ctx) {
         return;
     }
 
-    const PassContext& pass = ctx.frameData.mainPass;
+    const PassContext& pass = ctx.frameData.main_pass;
     cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PipelineStateName::Prepass);
@@ -126,7 +126,7 @@ void GbufferPassFunc(RenderPassExcutionContext& ctx) {
         return;
     }
 
-    const PassContext& pass = ctx.frameData.mainPass;
+    const PassContext& pass = ctx.frameData.main_pass;
     cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PipelineStateName::Gbuffer);
@@ -281,7 +281,7 @@ void ForwardPassFunc(RenderPassExcutionContext& ctx) {
 
     auto& cmd = ctx.command;
 
-    const PassContext& pass = ctx.frameData.mainPass;
+    const PassContext& pass = ctx.frameData.main_pass;
     cmd.bindConstantBufferSlot<PerViewConstantBuffer>(ctx.device.getCurrentFrame().view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PipelineStateName::EnvSkybox);

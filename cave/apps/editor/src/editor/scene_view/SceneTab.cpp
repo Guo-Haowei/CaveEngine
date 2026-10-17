@@ -15,6 +15,7 @@
 #include "editor/tile_map/TilePaintTool.h"
 
 // @TODO: refactor
+#include "engine/private/runtime/framework\EventQueue.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
@@ -77,10 +78,8 @@ void SceneTab::onCreate() {
         .doc_id = m_doc_id,
     };
 
-    m_scene_tools[std::to_underlying(SceneViewToolType::Select)] =
-        MakeOwner<SceneSelectTool>(ctx);
-    m_scene_tools[std::to_underlying(SceneViewToolType::TilePaint)] =
-        MakeOwner<TilePaintTool>(ctx);
+    m_scene_tools[std::to_underlying(SceneViewToolType::Select)] = MakeOwner<SceneSelectTool>(ctx);
+    m_scene_tools[std::to_underlying(SceneViewToolType::TilePaint)] = MakeOwner<TilePaintTool>(ctx);
     m_tile_paint_tool = static_cast<TilePaintTool*>(m_scene_tools[std::to_underlying(SceneViewToolType::TilePaint)].get());
 
     m_editor_services.picking().addConsumer(this);
@@ -158,7 +157,11 @@ void SceneTab::onInputEvents(const InputFrame& input) {
 
     const KeyState& st = m_engine_services.inputService().keyState();
     if (!st.anyAltDown() && !st.anyCtrlDown() && !st.anyShiftDown()) {
-        m_camera_controller->update(input);
+        if (m_camera_controller->update(input)) {
+            ViewCameraChangedEvent event;
+            event.view_id = m_view_id;
+            m_engine_services.eventQueue().dispatchEvent(&event);
+        }
     }
 }
 

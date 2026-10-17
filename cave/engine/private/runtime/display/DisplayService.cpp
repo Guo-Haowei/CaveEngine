@@ -38,7 +38,7 @@ Result<void> DisplayService::InitializeImpl() {
         .decorated = spec.decorated,
         .fullscreen = spec.fullscreen,
         .vsync = spec.vsync,
-        .enableImgui = spec.enableImgui,
+        .enable_imgui = spec.enableImgui,
     };
 
     return initializeWindow(info);

@@ -6,6 +6,7 @@
 
 // @TODO: refactor this
 #include "engine/private/render/render_graph/RGTextureId.h"
+#include "engine/private/runtime/framework/EventQueue.h"
 
 namespace cave {
 class Scene;
@@ -22,15 +23,16 @@ enum class PathTracerMode {
     Interactive,
 };
 
-class PathTracerFeature : public NonCopyable {
+class PathTracerFeature : public NonCopyable,
+                          public EventListener {
 public:
     struct Inputs {
         RGTextureId skybox{};
         GpuTextureId out{};
     };
 
-    PathTracerFeature(IRenderDevice& device)
-        : m_device(device) {}
+    PathTracerFeature(EventQueue& event_queue, IRenderDevice& device);
+    ~PathTracerFeature();
 
     void build(RenderGraph& graph,
                const Inputs& inputs,
@@ -41,10 +43,15 @@ public:
     bool isActive() const;
     void setMode(PathTracerMode mode);
 
+    bool consumeReset();
+
+    void eventReceived(const IEvent* event) override;
+
 private:
     bool createAccelStructure(const Scene& scene);
     void updateAccelStructure(const Scene& scene);
 
+    EventQueue& m_event_queue;
     IRenderDevice& m_device;
 
     Ref<GpuResource> m_bvh_buffer;
@@ -61,6 +68,8 @@ private:
     HashMap<Guid, MeshData> m_meshs;
 
     PathTracerMode m_mode{ PathTracerMode::None };
+
+    bool m_reset_pending = true;
 };
 
 }  // namespace cave::render

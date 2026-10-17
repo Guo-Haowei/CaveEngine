@@ -86,8 +86,6 @@ public:
     virtual void requestMesh(MeshAsset* mesh) = 0;
 
     // @TODO: thread safety ?
-    virtual void eventReceived(Ref<IEvent> event) = 0;
-
     virtual FrameContext& getCurrentFrame() = 0;
 
     virtual void drawSkybox() = 0;

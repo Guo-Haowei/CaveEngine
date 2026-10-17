@@ -83,19 +83,19 @@ struct FrameData {
     render::RenderOptions options;
     // @TODO: multi camera & viewport
 
-    PerFrameConstantBuffer perFrameCache;
-    BufferCache<PerBatchConstantBuffer> batchCache;
-    BufferCache<MaterialConstantBuffer> materialCache;
-    Vector<PerViewConstantBuffer> viewCache;
-    Vector<PerPassConstantBuffer> passCache;
+    PerFrameConstantBuffer per_frame_cache;
+    BufferCache<PerBatchConstantBuffer> batch_cache;
+    BufferCache<MaterialConstantBuffer> material_cache;
+    Vector<PerViewConstantBuffer> view_cache;
+    Vector<PerPassConstantBuffer> pass_cache;
     std::array<PointShadowConstantBuffer, MAX_POINT_LIGHT_SHADOW_COUNT * 6> pointShadowCache;
-    BufferCache<BoneConstantBuffer> boneCache;
+    BufferCache<BoneConstantBuffer> bone_cache;
     // Vector<EmitterConstantBuffer> emitterCache;
 
     // @TODO: rename
-    std::array<PassContext, 1> shadowPasses;  // @TODO: support multi ortho light
+    std::array<PassContext, 1> shadow_passes;  // @TODO: support multi ortho light
 
-    PassContext mainPass;
+    PassContext main_pass;
 
     std::array<Vector<DrawItem>, std::to_underlying(DrawPhase::Count)> commands;
 

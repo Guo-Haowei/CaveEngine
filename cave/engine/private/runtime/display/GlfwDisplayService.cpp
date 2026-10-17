@@ -26,6 +26,9 @@
 
 namespace cave {
 
+GlfwDisplayService::GlfwDisplayService()
+    : DisplayService("GlfwDisplayService") {}
+
 auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Result<void> {
     using render::Backend;
 
@@ -89,7 +92,7 @@ auto GlfwDisplayService::initializeWindow(const WindowSpecfication& spec) -> Res
     }
 
     glfwSetWindowPos(m_window, 40, 40);
-    glfwGetWindowSize(m_window, &frame_size_.x, &frame_size_.y);
+    glfwGetWindowSize(m_window, &m_frame_size.x, &m_frame_size.y);
 
     switch (m_backend) {
         case Backend::OpenGl:
@@ -151,8 +154,8 @@ void GlfwDisplayService::beginFrame() {
     glfwPollEvents();
     int x, y;
     glfwGetWindowPos(m_window, &x, &y);
-    window_pos_.x = (float)x;
-    window_pos_.y = (float)y;
+    m_window_pos.x = (float)x;
+    m_window_pos.y = (float)y;
 }
 
 std::string_view GlfwDisplayService::title() {
@@ -175,10 +178,12 @@ void* GlfwDisplayService::nativeWindow() {
 void GlfwDisplayService::windowSizeCallback(GLFWwindow*, int w, int h) {
     GlfwDisplayService& window = reinterpret_cast<GlfwDisplayService&>(DisplayService::singleton());
 
-    auto event = std::make_shared<ResizeEvent>(w, h);
-    window.frame_size_.x = w;
-    window.frame_size_.y = h;
-    window.m_app->eventQueue().DispatchEvent(event);
+    window.m_frame_size.x = w;
+    window.m_frame_size.y = h;
+
+    ResizeEvent event(w, h);
+
+    window.m_app->eventQueue().dispatchEvent(&event);
 }
 
 }  // namespace cave

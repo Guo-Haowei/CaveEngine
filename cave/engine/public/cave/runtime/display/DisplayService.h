@@ -19,7 +19,7 @@ struct WindowSpecfication {
     bool decorated;
     bool fullscreen;
     bool vsync;
-    bool enableImgui;
+    bool enable_imgui;
 };
 
 class DisplayService : public Singleton<DisplayService>,
@@ -40,14 +40,14 @@ public:
     virtual std::string_view title() = 0;
     virtual void title(std::string_view title) = 0;
 
-    math::Vec2i windowSize() const { return frame_size_; }
-    math::Vec2f windowPos() const { return window_pos_; }
+    math::Vec2i windowSize() const { return m_frame_size; }
+    math::Vec2f windowPos() const { return m_window_pos; }
 
 protected:
     virtual auto initializeWindow(const WindowSpecfication& spec) -> Result<void> = 0;
 
-    math::Vec2i frame_size_;
-    math::Vec2f window_pos_;
+    math::Vec2i m_frame_size;
+    math::Vec2f m_window_pos;
 };
 
 }  // namespace cave

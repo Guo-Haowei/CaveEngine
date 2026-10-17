@@ -135,6 +135,16 @@ void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
 
 }  // namespace
 
+PathTracerFeature::PathTracerFeature(EventQueue& event_queue, IRenderDevice& device)
+    : m_event_queue(event_queue)
+    , m_device(device) {
+    m_event_queue.registerListener(this);
+}
+
+PathTracerFeature::~PathTracerFeature() {
+    m_event_queue.unregisterListener(this);
+}
+
 void PathTracerFeature::build(RenderGraph& graph,
                               const Inputs& inputs,
                               const RenderOptions&) {
@@ -205,6 +215,18 @@ void PathTracerFeature::update(Scene& scene) {
 
     std::vector<GpuPtMesh> meshes;
     updateAccelStructure(scene);
+}
+
+bool PathTracerFeature::consumeReset() {
+    const bool reset = m_reset_pending;
+    m_reset_pending = false;
+    return reset;
+}
+
+void PathTracerFeature::eventReceived(const IEvent* event) {
+    if (auto e = dynamic_cast<const ViewCameraChangedEvent*>(event)) {
+        m_reset_pending = true;
+    }
 }
 
 void PathTracerFeature::updateAccelStructure(const Scene& scene) {

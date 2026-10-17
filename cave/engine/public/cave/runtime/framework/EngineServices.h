@@ -14,6 +14,7 @@ class AssetRegistry;
 class CommandRegistry;
 class Console;
 class DisplayService;
+class EventQueue;
 class IAssetManager;
 class ICanvas;
 class IGameInput;
@@ -36,6 +37,7 @@ struct RuntimeServices {
     Console* console_{};
     CommandRegistry* command_registry{};
     DisplayService* display_service{};
+    EventQueue* event_queue{};
     ICanvas* canvas_{};
     IGameInput* game_input{};
     InputService* input_service{};
@@ -54,6 +56,7 @@ struct RuntimeServices {
     Console& console() { return *console_; }
     CommandRegistry& commandRegistry() { return *command_registry; }
     DisplayService& displayService() { return *display_service; }
+    EventQueue& eventQueue() { return *event_queue; }
     ICanvas& canvas() { return *canvas_; }
     IGameInput& gameInput() { return *game_input; }
     InputService& inputService() { return *input_service; }
