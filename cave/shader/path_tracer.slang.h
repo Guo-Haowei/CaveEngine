@@ -186,8 +186,7 @@ HitResult HitScene(inout Ray p_ray) {
 
 float3 RayColor(inout Ray ray, inout uint state) {
     float3 radiance = float3(0, 0, 0);
-    // float3 throughput = float3(1, 1, 1);
-    float3 throughput = float3(4, 4, 4);
+    float3 throughput = float3(1, 1, 1);
 
     for (int i = 0; i < MAX_BOUNCE; ++i) {
         // check all objects
