@@ -17,6 +17,8 @@ class RenderGraph;
 class PathTracerFeature {
 public:
     struct Inputs {
+        RGTextureId skybox{};
+
         GpuTextureId out{};
     };
 

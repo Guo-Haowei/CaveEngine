@@ -82,7 +82,8 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
     }
 
     if (!m_env_texture) {
-        const char* path = "sky.hdr";
+        const char* path = "test.hdr";
+        //const char* path = "sky.hdr";
         std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage(path);
         if (!image) {
             return {};

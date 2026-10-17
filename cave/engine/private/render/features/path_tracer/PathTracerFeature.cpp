@@ -78,6 +78,7 @@ PathTracerFeature::Outputs PathTracerFeature::build(RenderGraph& graph,
         .read(ResourceAccess::SRV, index_buffer)
         .read(ResourceAccess::SRV, mesh_buffer)
         .read(ResourceAccess::SRV, material_buffer)
+        .read(ResourceAccess::SRV, inputs.skybox)
         .setExecuteFunc(PathTracerComputeFunc);
 
     RenderPass& present_pass = graph.addRenderPass(kPassPathTracerPresent);
@@ -89,14 +90,14 @@ PathTracerFeature::Outputs PathTracerFeature::build(RenderGraph& graph,
     return {};
 }
 
-void RequestPathTracerUpdate(Scene& p_scene) {
+void RequestPathTracerUpdate(Scene& scene) {
     // @TODO: refactor
-    s_glob.pt.update(p_scene);
+    s_glob.pt.update(scene);
 }
 
 // path tracer
-void SetPathTracerMode(PathTracerMode p_mode) {
-    s_glob.pt.setMode(p_mode);
+void SetPathTracerMode(PathTracerMode mode) {
+    s_glob.pt.setMode(mode);
 }
 
 bool IsPathTracerActive() {

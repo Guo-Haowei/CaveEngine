@@ -5,6 +5,7 @@
 #include <cmath>
 
 namespace cave {
+#include "shader_defines.slang.h"
 #include "path_tracer_defines.slang.h"
 
 #define inout
@@ -204,11 +205,8 @@ float3 RayColor(inout Ray ray, inout uint state) {
             float3 n3 = GlobalPtVertices[indices.z].normal;
             float3 n = n1 + result.uv.x * (n2 - n1) + result.uv.y * (n3 - n1);
             n = normalize(mul(mesh.transform, float4(n, 0.0f)).xyz);
-#if 0
-            return 0.5f * n + 0.5f;
-#endif
 
-            GpuPtMaterial material = GlobalPtMaterials[mesh.material_id];
+            GpuPtMaterial material = GlobalPtMaterials[mesh.material_idx];
 
             float3 diffuse_color = material.base_color;
             float metallic = material.metallic;
@@ -226,7 +224,8 @@ float3 RayColor(inout Ray ray, inout uint state) {
             radiance += material.emissive * throughput;
             throughput *= diffuse_color;
         } else {
-            radiance += float3(0.3f, 0.3f, 0.3f) * throughput;
+            float3 color = SAMPLE_CUBE_LEVEL(PASS(t_Skybox), s_linearClampSampler, ray.direction, 0.0f).rgb;
+            radiance += color * throughput;
             break;
         }
     }

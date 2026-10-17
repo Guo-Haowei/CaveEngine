@@ -1,6 +1,7 @@
 /// File: pass_tracer.slang
 #include "../cbuffer.slang.h"
 #include "../path_tracer_defines.slang.h"
+#include "../sampler.slang.h"
 
 #include "common.slang"
 
@@ -12,12 +13,16 @@
 #define GlobalPtMaterials (StructuredBuffer<GpuPtMaterial>(ResourceDescriptorHeap[c_pass_textures[4].x]))
 #else
 RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
+
 StructuredBuffer<GpuPtBvh> GlobalPtBvhs : register(t0);
 StructuredBuffer<GpuPtVertex> GlobalPtVertices : register(t1);
 StructuredBuffer<GpuPtIndex> GlobalPtIndices : register(t2);
 StructuredBuffer<GpuPtMesh> GlobalPtMeshes : register(t3);
 StructuredBuffer<GpuPtMaterial> GlobalPtMaterials : register(t4);
 #endif
+
+TEXTURE_CUBE(u_Texture5, 5);
+#define t_Skybox u_Texture5
 
 // @NOTE: include this at last
 #include "../path_tracer.slang.h"
@@ -78,9 +83,7 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
 
     float4 final_color = float4(radiance, 1.0);
 
-#if !defined(FORCE_UPDATE)
-    // if (c_scene_dirty == CAVE_FALSE)
-    {
+    if (c_scene_dirty == CAVE_FALSE) {
         float4 accumulated = output[uv];
         float weight = accumulated.a;
         float3 new_color = radiance + weight * accumulated.rgb;
@@ -88,7 +91,6 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
         new_color /= new_weight;
         final_color = float4(new_color, new_weight);
     }
-#endif
 
     output[uv] = final_color;
 }

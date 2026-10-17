@@ -207,6 +207,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     }
 
     cache.c_frame_index = static_cast<uint32_t>(p_frame.frame_index);
+    // @TODO: fix this
     cache.c_scene_dirty = true;
 }
 
@@ -469,7 +470,14 @@ auto Renderer::Impl::buildRenderGraphPt(const RenderOptions& plan,
                                         const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
     RenderGraph graph(view.viewport_px);
 
-    m_pathtracer.build(graph, { view.output }, plan);
+    auto env_outputs = m_env.build(graph, plan);
+
+    PathTracerFeature::Inputs inputs{
+        .skybox = env_outputs.skybox,
+        .out = view.output,
+    };
+
+    m_pathtracer.build(graph, inputs, plan);
 
     return graph.compile();
 }

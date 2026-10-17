@@ -21,7 +21,6 @@ namespace cave::render {
 namespace {
 
 struct GpuScene {
-    // @TODO: material
     Vector<GpuPtBvh> bvhs;
     Vector<GpuPtVertex> vertices;
     Vector<GpuPtIndex> indices;
