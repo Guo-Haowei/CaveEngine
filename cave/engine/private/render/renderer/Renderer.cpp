@@ -60,7 +60,7 @@ public:
 #if USING(USE_COMMAND)
     bool cmdDump(CommandContext& ctx, const CommandArgs& args);
 #endif
-    
+
     PathTracerFeature& pathtracer() {
         return m_pathtracer;
     }
@@ -264,7 +264,8 @@ Renderer::Impl::Impl(EngineServices& services)
     , m_device(services.renderDevice())
     , m_transient_pool(m_device)
     , m_env(m_transient_pool, m_device)
-    , m_ssao(m_device) {
+    , m_ssao(m_device)
+    , m_pathtracer(m_device) {
 }
 
 auto Renderer::Impl::initialize() -> Result<void> {

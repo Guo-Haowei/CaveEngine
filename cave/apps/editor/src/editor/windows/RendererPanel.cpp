@@ -120,7 +120,7 @@ void RendererPanel::drawUIImpl() {
     });
 
     CollapseWindow("Path Tracer", [&]() {
-        render:: PathTracerFeature pt = m_renderer.pathtracer();
+        render::PathTracerFeature& pt = m_renderer.pathtracer();
         bool active = pt.isActive();
 
         if (ImGui::Checkbox("start", &active)) {
