@@ -200,17 +200,47 @@ float3 RayColor(inout Ray ray, inout uint state) {
             GpuPtMesh mesh = GlobalPtMeshes[result.hitMeshId];
 
             int3 indices = GlobalPtIndices[result.hitTriangleId].tri;
-            float3 n1 = GlobalPtVertices[indices.x].normal;
-            float3 n2 = GlobalPtVertices[indices.y].normal;
-            float3 n3 = GlobalPtVertices[indices.z].normal;
-            float3 n = n1 + result.uv.x * (n2 - n1) + result.uv.y * (n3 - n1);
+            GpuPtVertex p0 = GlobalPtVertices[indices.x];
+            GpuPtVertex p1 = GlobalPtVertices[indices.y];
+            GpuPtVertex p2 = GlobalPtVertices[indices.z];
+
+            float3 n0 = p0.normal;
+            float3 n1 = p1.normal;
+            float3 n2 = p2.normal;
+            float3 n = n0 + result.uv.x * (n1 - n0) + result.uv.y * (n2 - n0);
+
+            float2 uv0 = float2(p0.u, p0.v);
+            float2 uv1 = float2(p1.u, p1.v);
+            float2 uv2 = float2(p2.u, p2.v);
+            float2 uv = uv0 + result.uv.x * (uv1 - uv0) + result.uv.y * (uv2 - uv0);
+
             n = normalize(mul(mesh.transform, float4(n, 0.0f)).xyz);
 
             GpuPtMaterial material = GlobalPtMaterials[mesh.material_idx];
 
-            float3 diffuse_color = material.base_color;
-            float metallic = material.metallic;
-            float roughness = material.roughness;
+            float3 diffuse_color;
+#if defined(__TARGET_D3D12__)
+            if (material.base_color_map_handle != INVALID_RESIDENT_HANDLE) {
+                diffuse_color = SAMPLE_2D(material.base_color_map_handle, s_linearMipWrapSampler, uv).rgb;
+            } else
+#endif
+            {
+                diffuse_color = material.base_color.rgb;
+            }
+
+            float metallic;
+            float roughness;
+#if defined(__TARGET_D3D12__)
+            if (material.material_map_handle != INVALID_RESIDENT_HANDLE) {
+                float3 value = SAMPLE_2D(material.material_map_handle, s_linearMipWrapSampler, uv).rgb;
+                metallic = value.b;
+                roughness = value.g;
+            } else
+#endif
+            {
+                metallic = material.metallic;
+                roughness = material.roughness;
+            }
 
             float reflect_chance = Random(state) > metallic ? 0.0 : 1.0;
 
@@ -224,7 +254,11 @@ float3 RayColor(inout Ray ray, inout uint state) {
             radiance += material.emissive * throughput;
             throughput *= diffuse_color;
         } else {
-            float3 color = SAMPLE_CUBE_LEVEL(PASS(t_Skybox), s_linearClampSampler, ray.direction, 0.0f).rgb;
+            float3 dir = ray.direction;
+#if !defined(__TARGET_OPENGL__)
+            dir.y = -dir.y;
+#endif
+            float3 color = SAMPLE_CUBE_LEVEL(PASS(t_Skybox), s_linearClampSampler, dir, 0.0f).rgb;
             radiance += color * throughput;
             break;
         }

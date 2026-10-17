@@ -10,10 +10,13 @@
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
 #include "engine/private/render/render_graph/RenderGraph.h"
+#include "engine/private/runtime/assets/ImageAsset.h"
+#include "engine/private/runtime/assets/MaterialAsset.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 
 // @TODO: remove
+#include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
 
 namespace cave::render {
@@ -44,6 +47,8 @@ void ConstructMesh(const MeshAsset& mesh, GpuScene& gpu_scene) {
         GpuPtVertex vertex;
         vertex.position = mesh.positions[i];
         vertex.normal = mesh.normals[i];
+        vertex.u = mesh.texcoords_0[i].x;
+        vertex.v = mesh.texcoords_0[i].y;
         gpu_scene.vertices.emplace_back(vertex);
     }
 
@@ -201,7 +206,10 @@ bool PathTracerFeature::isActive() const {
 }
 
 void PathTracerFeature::setMode(PathTracerMode mode) {
-    m_mode = mode;
+    if (m_mode != mode) {
+        m_mode = mode;
+        m_reset_pending = true;
+    }
 }
 
 void PathTracerFeature::update(Scene& scene) {
@@ -218,6 +226,10 @@ void PathTracerFeature::update(Scene& scene) {
 }
 
 bool PathTracerFeature::consumeReset() {
+    if (!isActive()) {
+        return false;
+    }
+
     const bool reset = m_reset_pending;
     m_reset_pending = false;
     return reset;
@@ -234,15 +246,30 @@ void PathTracerFeature::updateAccelStructure(const Scene& scene) {
 
     HashMap<ecs::Entity, int> materials_lut;
 
+    auto fill_texture = [](const MaterialAsset* asset, TextureSlot slot, uint& out) {
+        const Guid& guid = asset->textures[std::to_underlying(slot)];
+        auto opt = AssetRegistry::singleton().findByGuid<ImageAsset>(guid);
+        if (opt.is_none()) {
+            return;
+        }
+        const ImageAsset* image = opt.unwrap_unchecked().get();
+        if (image && image->gpu_texture) {
+            out = (uint)image->gpu_texture->getResidentHandle();
+        }
+    };
+
     if ((dirty_flag != SCENE_DIRTY_NONE) || m_material_buffer == nullptr) {
         auto view = scene.view<MaterialComponent>();
         Vector<GpuPtMaterial> materials;
 
-        GpuPtMaterial default_mat{
-            .base_color = math::Vec3f::One,
+        GpuPtMaterial default_mat {
+            .base_color = math::Vec4f::One,
             .roughness = 0.9f,
-            .emissive = math::Vec3f::Zero,
+            .emissive = 0.0f,
             .metallic = 0.1f,
+            .base_color_map_handle = INVALID_RESIDENT_HANDLE,
+            .normal_map_handle = INVALID_RESIDENT_HANDLE,
+            .material_map_handle = INVALID_RESIDENT_HANDLE,
         };
         materials.push_back(default_mat);
         materials_lut[ecs::Entity::null()] = 0;
@@ -253,10 +280,18 @@ void PathTracerFeature::updateAccelStructure(const Scene& scene) {
             if (!ok) continue;
 
             GpuPtMaterial gpu_mat;
-            gpu_mat.base_color = material.base_color.xyz;
-            gpu_mat.emissive = gpu_mat.base_color * material.emissive;
+            gpu_mat.base_color = material.base_color;
+            gpu_mat.emissive = material.emissive;
             gpu_mat.roughness = material.roughness;
             gpu_mat.metallic = material.metallic;
+            gpu_mat.base_color_map_handle = gpu_mat.normal_map_handle = gpu_mat.material_map_handle = gpu_mat.height_map_handle = INVALID_RESIDENT_HANDLE;
+
+            if (const MaterialAsset* asset = material.m_material_handle.get()) {
+                fill_texture(asset, TextureSlot::Base, gpu_mat.base_color_map_handle);
+                fill_texture(asset, TextureSlot::Normal, gpu_mat.normal_map_handle);
+                fill_texture(asset, TextureSlot::MetallicRoughness, gpu_mat.material_map_handle);
+            }
+
             materials.emplace_back(gpu_mat);
         }
 
@@ -356,34 +391,7 @@ bool PathTracerFeature::createAccelStructure(const Scene& scene) {
              triangle_count,
              bvh_count);
 
-    /// materials
 #if 0
-    for (auto [entity, material] : scene.view<MaterialComponent>()) {
-        auto fill_texture = [&](int p_index, int& p_out_enabled, sampler2D& p_out_handle) {
-            const ImageAsset* image = AssetRegistry::singleton().GetAssetByHandle<ImageAsset>(material.textures[p_index].path);
-            if (image && image->gpu_texture) {
-                uint64_t handle = image->gpu_texture->GetResidentHandle();
-                if (handle) {
-                    p_out_enabled = true;
-                    if (is_opengl) {
-                        p_out_handle.Set64(handle);
-
-                    } else {
-                        p_out_handle.Set32(static_cast<int>(handle));
-                    }
-                    return true;
-                }
-            }
-            return false;
-        };
-
-        fill_texture(MaterialComponent::TEXTURE_BASE, gpu_mat.has_base_color_map, gpu_mat.base_color_map_handle);
-        fill_texture(MaterialComponent::TEXTURE_NORMAL, gpu_mat.has_normal_map, gpu_mat.normal_map_handle);
-        fill_texture(MaterialComponent::TEXTURE_METALLIC_ROUGHNESS, gpu_mat.has_material_map, gpu_mat.material_map_handle);
-
-        p_out_scene.materials.push_back(gpu_mat);
-        material_lut[entity] = static_cast<int>(p_out_scene.materials.size()) - 1;
-    }
 
     /// objects
     p_out_scene.geometries.clear();

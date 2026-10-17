@@ -48,6 +48,8 @@
 // compute local sizes
 #define COMPUTE_LOCAL_SIZE_VOXEL 4
 
+#define INVALID_RESIDENT_HANDLE (0xFFFFFFFF)
+
 #if defined(__cplusplus)
 
 using uint = unsigned int;

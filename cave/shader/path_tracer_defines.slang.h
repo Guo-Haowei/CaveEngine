@@ -14,9 +14,9 @@ struct GpuPtBvh {
 
 struct GpuPtVertex {
     float3 position;
-    int _padding1;
+    float u;
     float3 normal;
-    int _padding2;
+    float v;
 };
 
 struct GpuPtIndex {
@@ -34,10 +34,17 @@ struct GpuPtMesh {
 };
 
 struct GpuPtMaterial {
-    float3 base_color;
+    float4 base_color;
+
     float roughness;
-    float3 emissive;
+    float emissive;
     float metallic;
+    float padding;
+
+    uint base_color_map_handle;
+    uint normal_map_handle;
+    uint material_map_handle;
+    uint height_map_handle;
 };
 
 #if defined(__cplusplus)
