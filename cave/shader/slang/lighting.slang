@@ -65,7 +65,7 @@ float4 ps_main(VS_OUTPUT_UV input) : SV_TARGET {
                                     metallic,
                                     roughness,
                                     emissive);
-    if (c_ssaoEnabled != 0) {
+    if (c_enable_ssao != 0) {
         float ao = SAMPLE_2D(PASS(t_SsaoMap), s_pointClampSampler, uv).r;
         color *= ao;
     }

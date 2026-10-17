@@ -91,18 +91,18 @@ void D3d12CommandList::popDebugGroup() {
     PIXEndEvent(m_command_list.Get());
 }
 
-void D3d12CommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
+void D3d12CommandList::bindConstantBufferRange(const GpuResource* buffer,
                                                uint32_t size,
                                                uint32_t offset) {
 
-    auto d3d_buffer = reinterpret_cast<const D3d12ConstantBuffer*>(buffer);
-    DEV_ASSERT(size + offset <= d3d_buffer->capacity);
+    auto d3d_buffer = reinterpret_cast<const D3d12GpuBuffer*>(buffer);
+    DEV_ASSERT(size + offset <= d3d_buffer->desc.byteSize());
 
     D3D12_GPU_VIRTUAL_ADDRESS batch_address = d3d_buffer->buffer->GetGPUVirtualAddress();
 
     batch_address += offset;
-    m_command_list->SetGraphicsRootConstantBufferView(d3d_buffer->desc.slot, batch_address);
-    m_command_list->SetComputeRootConstantBufferView(d3d_buffer->desc.slot, batch_address);
+    m_command_list->SetGraphicsRootConstantBufferView(d3d_buffer->desc.deprecated_slot, batch_address);
+    m_command_list->SetComputeRootConstantBufferView(d3d_buffer->desc.deprecated_slot, batch_address);
 }
 
 void D3d12CommandList::setViewport(const Viewport& viewport) {
@@ -146,6 +146,49 @@ void D3d12CommandList::dispatch(uint32_t num_groups_x,
     m_command_list->Dispatch(num_groups_x, num_groups_y, num_groups_z);
 }
 
+void D3d12CommandList::barriers(std::span<const Ref<GpuResource>> resources) {
+    if (resources.empty()) return;
+
+    std::vector<D3D12_RESOURCE_BARRIER> d3d_barriers;
+    d3d_barriers.reserve(resources.size());
+
+    for (auto& res : resources) {
+        if (!res) continue;
+
+        ID3D12Resource* native_res = nullptr;
+        D3D12_RESOURCE_STATES state;
+        if (res->desc.isBuffer()) {
+            auto ptr = static_cast<D3d12GpuBuffer*>(res.get());
+            native_res = ptr->buffer.Get();
+            state = ptr->current_state;
+        } else {
+            auto ptr = static_cast<D3d12GpuTexture*>(res.get());
+            native_res = ptr->texture.Get();
+            state = ptr->current_state;
+            continue;
+        }
+        if (!native_res) continue;
+
+        D3D12_RESOURCE_BARRIER barrier{};
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        barrier.Transition.pResource = native_res;
+        barrier.Transition.StateBefore = state;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
+        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+        if (barrier.Transition.StateBefore == barrier.Transition.StateAfter) {
+            continue;
+        }
+
+        d3d_barriers.push_back(barrier);
+    }
+
+    if (!d3d_barriers.empty()) {
+        m_command_list->ResourceBarrier(static_cast<UINT>(d3d_barriers.size()), d3d_barriers.data());
+    }
+}
+
 void D3d12CommandList::setMesh(const GpuMesh* gpu_mesh) {
     if (!gpu_mesh) {
         m_command_list->IASetVertexBuffers(0, 0, nullptr);
@@ -156,7 +199,7 @@ void D3d12CommandList::setMesh(const GpuMesh* gpu_mesh) {
     auto mesh = reinterpret_cast<const D3d12MeshBuffers*>(gpu_mesh);
 
     m_command_list->IASetVertexBuffers(0,
-                                       mesh->desc.enabledVertexCount,
+                                       mesh->desc.enabled_vertex_count,
                                        mesh->vbvs);
     if (mesh->indexBuffer) {
         m_command_list->IASetIndexBuffer(&mesh->ibv);
@@ -172,26 +215,7 @@ void D3d12CommandList::unbindTexture(Dimension, int slot) {
     unused(slot);
 }
 
-void D3d12CommandList::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
-    unused(slot);
-    unused(buffer);
-}
-
-void D3d12CommandList::unbindStructuredBuffer(int slot) {
-    unused(slot);
-}
-
-void D3d12CommandList::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
-    unused(slot);
-
-    DEV_ASSERT(buffer);
-}
-
-void D3d12CommandList::unbindStructuredBufferSRV(int slot) {
-    unused(slot);
-}
-
-void D3d12CommandList::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
+void D3d12CommandList::bindUnorderedAccessView(uint32_t slot, GpuResource* texture) {
     unused(slot);
     unused(texture);
 }

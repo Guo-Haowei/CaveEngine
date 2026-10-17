@@ -1,12 +1,12 @@
 #include "CanvasRenderer.h"
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/PipelineState.h"
 
+#include "cave/render/rhi/GpuResources.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 // @TODO: move IRenderDevice to render?
 #include "engine/private/runtime/framework/IRenderDevice.h"
-#include "engine/private/render/rhi/PipelineState.h"
 
 namespace cave::render {
 
@@ -17,7 +17,7 @@ namespace {
 struct PrimBatch {
     uint32_t index_offset = 0;
     uint32_t index_count = 0;
-    const GpuTexture* tex{};
+    const GpuResource* tex{};
 };
 
 struct BuildResult {
@@ -27,7 +27,7 @@ struct BuildResult {
 
 BuildResult BuildCanvasMesh(IRenderDevice& device,
                             CanvasBucket&& bucket,
-                            const GpuTexture* default_tex) {
+                            const GpuResource* default_tex) {
     BuildResult result;
 
     const uint32_t item_count = static_cast<uint32_t>(bucket.shapes.size());
@@ -46,7 +46,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
     uvs.reserve(item_count * 4);
     colors.reserve(item_count * 4);
 
-    auto begin_batch = [&](const GpuTexture* tex) {
+    auto begin_batch = [&](const GpuResource* tex) {
         PrimBatch batch;
         batch.tex = tex;
         batch.index_offset = static_cast<uint32_t>(indices.size());
@@ -54,7 +54,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         result.batches.push_back(batch);
     };
 
-    const GpuTexture* current_tex = nullptr;
+    const GpuResource* current_tex = nullptr;
 
     for (const PrimShape& item : bucket.shapes) {
         if (result.batches.empty() || item.tex != current_tex) {
@@ -67,7 +67,7 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         const uint32_t offset = static_cast<uint32_t>(positions.size());
         const uint32_t before_index_count = static_cast<uint32_t>(indices.size());
 
-        const uint64_t tex_id = (current_tex ? current_tex : default_tex)->GetResidentHandle();
+        const uint64_t tex_id = (current_tex ? current_tex : default_tex)->getResidentHandle();
         const Vec2u packed_tex_id{ 0xFFFFFFFF & tex_id, tex_id << 32 };
 
         switch (item.type) {
@@ -125,50 +125,21 @@ BuildResult BuildCanvasMesh(IRenderDevice& device,
         return {};
     }
 
-    std::array<GpuBufferDesc, 4> buffer_descs;
-    buffer_descs[0] = {
-        .type = GpuBufferType::Vertex,
-        .slot = 0,
-        .element_size = sizeof(Vec3f),
-        .element_count = vertex_count,
-        .initial_data = positions.data(),
-    };
-    buffer_descs[1] = {
-        .type = GpuBufferType::Vertex,
-        .slot = 1,
-        .element_size = sizeof(Vec2f),
-        .element_count = vertex_count,
-        .initial_data = uvs.data(),
-    };
-    buffer_descs[2] = {
-        .type = GpuBufferType::Vertex,
-        .slot = 2,
-        .element_size = sizeof(Vec4f),
-        .element_count = vertex_count,
-        .initial_data = colors.data(),
-    };
-    buffer_descs[3] = {
-        .type = GpuBufferType::Vertex,
-        .slot = 3,
-        .element_size = sizeof(Vec2u),
-        .element_count = vertex_count,
-        .initial_data = tex_ids.data(),
-    };
+    std::array<GpuResourceDesc, 4> buffer_descs;
+    buffer_descs[0] = GpuResourceDesc::vertexBuffer(sizeof(Vec3f), vertex_count, positions.data());
+    buffer_descs[1] = GpuResourceDesc::vertexBuffer(sizeof(Vec2f), vertex_count, uvs.data());
+    buffer_descs[2] = GpuResourceDesc::vertexBuffer(sizeof(Vec4f), vertex_count, colors.data());
+    buffer_descs[3] = GpuResourceDesc::vertexBuffer(sizeof(Vec2u), vertex_count, tex_ids.data());
 
-    GpuBufferDesc index_desc = {
-        .type = GpuBufferType::Index,
-        .element_size = sizeof(uint32_t),
-        .element_count = index_count,
-        .initial_data = indices.data(),
-    };
+    auto index_desc = GpuResourceDesc::indexBuffer(sizeof(uint32_t), index_count, indices.data());
 
     GpuMeshDesc desc;
-    desc.drawCount = index_count;
-    desc.enabledVertexCount = static_cast<uint32_t>(buffer_descs.size());
-    desc.vertexLayout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec3f), 0 };
-    desc.vertexLayout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
-    desc.vertexLayout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
-    desc.vertexLayout[3] = GpuMeshDesc::VertexLayout{ 3, sizeof(Vec2u), 0 };
+    desc.draw_count = index_count;
+    desc.enabled_vertex_count = static_cast<uint32_t>(buffer_descs.size());
+    desc.vertex_layout[0] = GpuMeshDesc::VertexLayout{ 0, sizeof(Vec3f), 0 };
+    desc.vertex_layout[1] = GpuMeshDesc::VertexLayout{ 1, sizeof(Vec2f), 0 };
+    desc.vertex_layout[2] = GpuMeshDesc::VertexLayout{ 2, sizeof(Vec4f), 0 };
+    desc.vertex_layout[3] = GpuMeshDesc::VertexLayout{ 3, sizeof(Vec2u), 0 };
 
     auto mesh_result = device.createMeshImpl(desc, buffer_descs, &index_desc);
     if (!mesh_result) {
@@ -218,12 +189,12 @@ void CanvasRenderer::drawCanvas(IRenderDevice& device,
 
     command->setMesh(result.mesh.get());
     // @TODO: clean this up
-    const PipelineStateName pso = m_screen_space ? PSO_UI_OVERLAY : PSO_PRIMITIVE;
+    const PipelineStateName pso = m_screen_space ? PipelineStateName::UiOverlay : PipelineStateName::Primitive;
     command->setPipelineState(pso);
 
     constexpr int kSpriteSlot = 0;
     for (const PrimBatch& batch : result.batches) {
-        const uint64_t tex = (batch.tex ? batch.tex : m_default_texture.get())->GetHandle();
+        const uint64_t tex = (batch.tex ? batch.tex : m_default_texture.get())->getHandle();
         command->bindTexture(Dimension::Texture2D, tex, kSpriteSlot);
         command->drawIndexed(batch.index_count, batch.index_offset);
     }

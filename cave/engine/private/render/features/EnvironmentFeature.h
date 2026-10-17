@@ -1,7 +1,7 @@
 #pragma once
-#include "engine/private/render/render_graph/RGTextureId.h"
+#include "cave/render/rhi/GpuResources.h"
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "engine/private/render/render_graph/RGTextureId.h"
 
 namespace cave::render {
 

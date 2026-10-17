@@ -1,8 +1,8 @@
 #pragma once
 #include "cave/core/math/Vec.h"
+#include "cave/render/rhi/GpuResources.h"
 
 #include "engine/private/render/render_graph/RGTextureId.h"
-#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 
 namespace cave::render {

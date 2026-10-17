@@ -158,18 +158,18 @@ const RGTextureNode* RenderGraph::getLogicalTexture(RGTextureId handle) const {
     return &m_textures[handle.underlying() - 1];
 }
 
-RGTextureId RenderGraph::createTexture(CreateDesc&& info) {
+RGTextureId RenderGraph::createResource(CreateDesc&& info) {
     RGTextureId handle = allocHandle();
     m_textures.resize(m_handle_id);
     RGTextureNode& node = m_textures.back();
     node.handle = handle;
-    node.desc = info.resourceDesc;
-    node.sampler = info.samplerDesc;
+    node.desc = info.resource_desc;
+    node.sampler = info.sampler_desc;
     node.debug_name = std::move(info.debug_name);
     return handle;
 }
 
-RGTextureId RenderGraph::importTexture(ImportDesc&& info) {
+RGTextureId RenderGraph::importResource(ImportDesc&& info) {
     DEV_ASSERT(info.external);
     RGTextureId handle = allocHandle();
     m_textures.resize(m_handle_id);
@@ -188,23 +188,23 @@ RGDependencyId RenderGraph::createDependency() {
 }
 
 ///  @TODO: remove this
-GpuTextureDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
-                                                    AttachmentType type,
-                                                    uint32_t width,
-                                                    uint32_t height,
-                                                    uint32_t array_size,
-                                                    ResourceMiscFlags misc_flag,
-                                                    uint32_t mips_level) {
-    GpuTextureDesc desc{};
+GpuResourceDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
+                                                     AttachmentType type,
+                                                     uint32_t width,
+                                                     uint32_t height,
+                                                     uint32_t array_size,
+                                                     ResourceMiscFlags misc_flag,
+                                                     uint32_t mips_level) {
+    GpuResourceDesc desc{};
     desc.type = type;
     desc.format = format;
-    desc.arraySize = array_size;
+    desc.array_size = array_size;
     desc.dimension = Dimension::Texture2D;
     desc.width = width;
     desc.height = height;
-    desc.mipLevels = mips_level ? mips_level : 1;
-    desc.miscFlags = misc_flag;
-    desc.initialData = nullptr;
+    desc.mip_levels = mips_level ? mips_level : 1;
+    desc.misc_flags = misc_flag;
+    desc.initial_data = nullptr;
 
     switch (type) {
         case AttachmentType::COLOR_2D:
@@ -215,12 +215,12 @@ GpuTextureDesc RenderGraph::buildDefaultTextureDesc(PixelFormat format,
             break;
         case AttachmentType::COLOR_CUBE:
             desc.dimension = Dimension::TextureCube;
-            desc.miscFlags |= RESOURCE_MISC_TEXTURECUBE;
+            desc.misc_flags |= RESOURCE_MISC_TEXTURECUBE;
             DEV_ASSERT(array_size == 6);
             break;
         case AttachmentType::SHADOW_CUBE_ARRAY:
             desc.dimension = Dimension::TextureCubeArray;
-            desc.miscFlags |= RESOURCE_MISC_TEXTURECUBE;
+            desc.misc_flags |= RESOURCE_MISC_TEXTURECUBE;
             DEV_ASSERT(array_size / 6 > 0);
             break;
         case AttachmentType::RW_TEXTURE:

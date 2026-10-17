@@ -78,12 +78,12 @@ void OpenGlCommandList::popDebugGroup() {
 #endif
 }
 
-void OpenGlCommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
+void OpenGlCommandList::bindConstantBufferRange(const GpuResource* buffer,
                                                 uint32_t size,
                                                 uint32_t offset) {
-    auto gl_buffer = reinterpret_cast<const OpenGlConstantBuffer*>(buffer);
-    DEV_ASSERT(size + offset <= gl_buffer->capacity);
-    glBindBufferRange(GL_UNIFORM_BUFFER, buffer->GetSlot(), gl_buffer->handle, offset, size);
+    auto gl_buffer = reinterpret_cast<const OpenGlBuffer*>(buffer);
+    DEV_ASSERT(size + offset <= gl_buffer->desc.byteSize());
+    glBindBufferRange(GL_UNIFORM_BUFFER, buffer->getSlot(), gl_buffer->handle, offset, size);
 }
 
 void OpenGlCommandList::setViewport(const Viewport& p_viewport) {
@@ -102,24 +102,24 @@ void OpenGlCommandList::setStencilRef(uint32_t ref) {
 }
 
 void OpenGlCommandList::setBlendState(const BlendDesc& blend_desc, const float*, uint32_t) {
-    const auto& desc = blend_desc.renderTargets[0];
-    if (desc.blendEnabled) {
+    const auto& desc = blend_desc.render_targets[0];
+    if (desc.blend_enabled) {
         glEnable(GL_BLEND);
     } else {
         glDisable(GL_BLEND);
         return;
     }
 
-    const bool r_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_RED;
-    const bool g_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_GREEN;
-    const bool b_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_BLUE;
-    const bool a_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_ALPHA;
+    const bool r_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_RED;
+    const bool g_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_GREEN;
+    const bool b_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_BLUE;
+    const bool a_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_ALPHA;
 
     glColorMask(r_mask, g_mask, b_mask, a_mask);
 
-    auto src_blend = gl::Convert(desc.blendSrc);
-    auto dest_blend = gl::Convert(desc.blendDest);
-    auto func = gl::Convert(desc.blendOp);
+    auto src_blend = gl::Convert(desc.blend_src);
+    auto dest_blend = gl::Convert(desc.blend_dest);
+    auto func = gl::Convert(desc.blend_op);
 
     glBlendEquation(func);
     glBlendFunc(src_blend, dest_blend);
@@ -234,43 +234,36 @@ void OpenGlCommandList::setMesh(const GpuMesh* p_mesh) {
 }
 
 void OpenGlCommandList::bindTexture(Dimension dimension, uint64_t handle, int slot) {
-    if (handle) {
+    if (!handle) {
+        return;
+    }
+
+    const GLuint handle32 = static_cast<GLuint>(handle);
+    if (dimension == Dimension::Buffer) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, handle32);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, handle32);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    } else {
         const GLuint texture_type = gl::ConvertDimension(dimension);
         glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(texture_type, static_cast<GLuint>(handle));
+        glBindTexture(texture_type, handle32);
     }
 }
 
 void OpenGlCommandList::unbindTexture(Dimension dimension, int slot) {
-    const GLuint texture_type = gl::ConvertDimension(dimension);
-
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(texture_type, 0);
+    if (dimension == Dimension::Buffer) {
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+    } else {
+        const GLuint texture_type = gl::ConvertDimension(dimension);
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(texture_type, 0);
+    }
 }
 
-void OpenGlCommandList::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
-    auto gl_buffer = reinterpret_cast<const OpenGlStructuredBuffer*>(buffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, gl_buffer->handle);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, gl_buffer->handle);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-void OpenGlCommandList::unbindStructuredBuffer(int slot) {
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
-}
-
-void OpenGlCommandList::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
-    bindStructuredBuffer(slot, buffer);
-}
-
-void OpenGlCommandList::unbindStructuredBufferSRV(int slot) {
-    unbindStructuredBuffer(slot);
-}
-
-void OpenGlCommandList::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
+void OpenGlCommandList::bindUnorderedAccessView(uint32_t slot, GpuResource* texture) {
     DEV_ASSERT(texture);
     auto internal_format = gl::ConvertInternalFormat(texture->desc.format);
-    glBindImageTexture(slot, texture->GetHandle32(), 0, GL_TRUE, 0, GL_READ_WRITE, internal_format);
+    glBindImageTexture(slot, texture->getHandle32(), 0, GL_TRUE, 0, GL_READ_WRITE, internal_format);
 }
 
 void OpenGlCommandList::unbindUnorderedAccessView(uint32_t slot) {

@@ -5,7 +5,7 @@ namespace cave::render {
 
 enum StencilFlags : uint8_t;
 struct GpuMesh;
-struct GpuTexture;
+struct GpuResource;
 
 struct DrawItem {
     struct Range {
@@ -14,7 +14,7 @@ struct DrawItem {
     };
 
     const GpuMesh* mesh_data = nullptr;
-    const GpuTexture* texture = nullptr;
+    const GpuResource* texture = nullptr;
     Range index;
 
     int bone_idx = -1;

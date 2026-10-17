@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 
 struct GLFWwindow;
 
@@ -17,27 +17,27 @@ public:
     void FinalizeImpl() final;
 
     auto createMeshImpl(const GpuMeshDesc& desc,
-                        std::span<const GpuBufferDesc> vb_descs,
-                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> final {
+                        std::span<const GpuResourceDesc> vb_descs,
+                        const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> final {
         return nullptr;
     }
 
-    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override {
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override {
         return nullptr;
     }
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override { return nullptr; }
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override { return nullptr; }
+    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override { return nullptr; }
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override { return nullptr; }
 
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override {}
+    void updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) override {}
 
-    void generateMipmap(const GpuTexture* texture) override {}
+    void generateMipmap(const GpuResource* texture) override {}
 
     ICommandList* getCommandList() const override { return nullptr; }
 
 protected:
     auto InitializeInternal() -> Result<void> final;
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override { return nullptr; }
+    Ref<GpuResource> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override { return nullptr; }
 
     void render() override {}
     void present() final;

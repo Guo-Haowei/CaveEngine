@@ -1,5 +1,6 @@
 #include "ViewTabBase.h"
 
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/EngineServices.h"
 
@@ -16,7 +17,6 @@
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
-#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 
@@ -78,17 +78,17 @@ ViewTabBase::ViewTabBase(EditorState& editor,
     using namespace render;
 
     // @TODO: move it to somewhere else
-    GpuTextureDesc desc{
-        .type = AttachmentType::COLOR_2D,
+    GpuResourceDesc desc{
         .dimension = Dimension::Texture2D,
         .width = kTextureWidth,
         .height = kTextureHeight,
         .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
+        .mip_levels = 1,
+        .array_size = 1,
         .format = PixelFormat::R16G16B16A16_FLOAT,
-        .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
+        .bind_flags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+        .misc_flags = RESOURCE_MISC_NONE,
+        .type = AttachmentType::COLOR_2D,
     };
 
     m_texture = m_engine_services.renderDevice().createTexture(desc, PointClampSampler());
@@ -234,7 +234,7 @@ void ViewTabBase::drawMainViewImpl(const FloatRect& rect) {
     draw_list->AddRectFilled(min, max, IM_COL32(60, 60, 60, 255));
 
     // @TODO: move it somewhere else
-    uint64_t tex = m_texture->GetHandle();
+    uint64_t tex = m_texture->getHandle();
 
     m_engine_services.imgui->drawTexture(*draw_list, tex, min, max);
 

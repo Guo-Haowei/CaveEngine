@@ -151,7 +151,7 @@ HitResult HitScene(inout Ray p_ray) {
     res.uv = float2(0.0f, 0.0f);
 
     // check if it hits all the objects
-    for (int mesh_id = 0; mesh_id < c_ptObjectCount; ++mesh_id) {
+    for (int mesh_id = 0; mesh_id < c_pt_object_count; ++mesh_id) {
         GpuPtMesh mesh = GlobalPtMeshes[mesh_id];
         float4x4 inversed = mesh.transformInv;
         Ray local_ray;

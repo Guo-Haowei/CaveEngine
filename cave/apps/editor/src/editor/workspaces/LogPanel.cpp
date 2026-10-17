@@ -14,7 +14,7 @@
 // @TODO: refactor
 #include "ConsolePanel.h"
 
-#include "engine/private/core/os/os.h"
+#include "engine/private/core/os/OS.h"
 
 namespace cave {
 

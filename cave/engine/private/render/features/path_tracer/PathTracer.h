@@ -1,12 +1,11 @@
 #pragma once
-#include "BvhAccel.h"
-#include "PathTracerFeature.h"
-
 #include "cave/core/ids/Entity.h"
 #include "cave/core/ids/Guid.h"
 #include "cave/core/math/Box.h"
+#include "cave/render/rhi/GpuResources.h"
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "BvhAccel.h"
+#include "PathTracerFeature.h"
 
 // @TODO: should not view raw scene
 namespace cave {
@@ -31,19 +30,15 @@ public:
 
     bool isActive() const;
 
-    void bindData(ICommandList& cmd);
-
-    void unbindData(ICommandList& cmd);
-
 private:
     bool createAccelStructure(const Scene& scene);
     void updateAccelStructure(const Scene& scene);
 
-    Ref<GpuStructuredBuffer> m_bvh_buffer;
-    Ref<GpuStructuredBuffer> m_vertex_buffer;
-    Ref<GpuStructuredBuffer> m_index_buffer;
-    Ref<GpuStructuredBuffer> m_mesh_buffer;
-    Ref<GpuStructuredBuffer> m_material_buffer;
+    Ref<GpuResource> m_bvh_buffer;
+    Ref<GpuResource> m_vertex_buffer;
+    Ref<GpuResource> m_index_buffer;
+    Ref<GpuResource> m_mesh_buffer;
+    Ref<GpuResource> m_material_buffer;
 
     struct MeshData {
         int root_bvh_id;
@@ -54,6 +49,8 @@ private:
     HashMap<Guid, MeshData> m_meshs;
 
     PathTracerMode m_mode{ PathTracerMode::NONE };
+
+    friend class PathTracerFeature;
 };
 
 }  // namespace cave::render

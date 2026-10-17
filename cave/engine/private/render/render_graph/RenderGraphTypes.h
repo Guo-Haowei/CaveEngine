@@ -1,10 +1,8 @@
 #pragma once
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/Sampler.h"
 
 #include "RGTextureId.h"
-
-// @TODO: refactor
-#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave::render {
 
@@ -26,7 +24,7 @@ DEFINE_ENUM_BITWISE_OPERATIONS(ResourceAccess);
 
 struct RGTextureNode {
     RGTextureId handle;
-    GpuTextureDesc desc{};
+    GpuResourceDesc desc{};
     SamplerDesc sampler{};
     ResourceAccess access_mask{ ResourceAccess::None };
     GpuTextureId external{};

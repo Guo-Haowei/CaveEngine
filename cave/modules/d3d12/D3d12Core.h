@@ -7,7 +7,7 @@
 #include <mutex>
 
 #include "../d3d_common/D3dCommon.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 
 namespace cave::render {
 

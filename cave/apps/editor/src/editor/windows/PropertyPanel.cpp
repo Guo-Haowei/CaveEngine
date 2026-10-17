@@ -171,8 +171,6 @@ void PropertyPanel::drawUIImpl() {
 #define DRAW_COMPONENT_ARGS(DISPLAY) DISPLAY, ctx
 
     DrawComponent(DRAW_COMPONENT_ARGS("Transform"), transform, [&ctx, &camera](TransformComponent& transform) {
-        const math::Mat4f old_transform = transform.localMatrix();
-
         TransformComponent copy = transform;
         const bool dirty = DrawObjectAuto<TransformComponent>(&copy, ctx);
         if (dirty && camera) {

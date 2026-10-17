@@ -3,7 +3,7 @@
 #endif
 #define OPENGL_RESOURCES_INCLUDED
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/GpuResources.h"
 #include "OpenGlDefines.h"
 
 namespace cave::render {
@@ -14,54 +14,34 @@ struct OpenGlGpuMesh : GpuMesh {
     uint32_t vao{ 0 };
 };
 
-struct OpenGlBuffer : GpuBuffer {
-    using GpuBuffer::GpuBuffer;
+struct OpenGlBuffer : GpuResource {
+    using GpuResource::GpuResource;
 
     gl::BUFFER_TYPE type;
     uint32_t handle{ 0 };
 
-    ~OpenGlBuffer() { Clear(); }
+    ~OpenGlBuffer() { clear(); }
 
-    void Clear();
+    void clear();
 
-    uint64_t GetHandle() const final { return handle; }
+    uint64_t getHandle() const final { return handle; }
 };
 
-struct OpenGlGpuTexture : public GpuTexture {
-    using GpuTexture::GpuTexture;
+struct OpenGlGpuTexture : public GpuResource {
+    using GpuResource::GpuResource;
 
     ~OpenGlGpuTexture() { Clear(); }
 
     void Clear();
 
-    uint64_t GetResidentHandle() const final {
+    uint64_t getResidentHandle() const final {
         return residentHandle;
     }
-    uint64_t GetHandle() const final { return handle; }
-    uint64_t GetUavHandle() const final { return handle; }
+    uint64_t getHandle() const final { return handle; }
+    uint64_t getUavHandle() const final { return handle; }
 
     uint32_t handle = 0;
     uint64_t residentHandle = 0;
-};
-
-struct OpenGlConstantBuffer : public GpuConstantBuffer {
-    using GpuConstantBuffer::GpuConstantBuffer;
-
-    ~OpenGlConstantBuffer() { clear(); }
-
-    void clear();
-
-    uint32_t handle = 0;
-};
-
-struct OpenGlStructuredBuffer : public GpuStructuredBuffer {
-    using GpuStructuredBuffer::GpuStructuredBuffer;
-
-    ~OpenGlStructuredBuffer() { clear(); }
-
-    void clear();
-
-    uint32_t handle = 0;
 };
 
 }  // namespace cave::render

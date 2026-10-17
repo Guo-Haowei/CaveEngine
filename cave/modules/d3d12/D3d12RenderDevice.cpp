@@ -35,13 +35,6 @@ namespace cave::render {
 using namespace cave::math;
 using Microsoft::WRL::ComPtr;
 
-struct D3d12StructuredBuffer : public GpuStructuredBuffer {
-    using GpuStructuredBuffer::GpuStructuredBuffer;
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> buffer{};
-    DescriptorHeapHandle handle;
-};
-
 struct D3d12FrameContext : FrameContext {
     ~D3d12FrameContext() {
         SafeRelease(m_commandAllocator);
@@ -293,51 +286,51 @@ ID3D12Resource* D3d12RenderDevice::uploadBuffer(uint32_t p_byte_size, const void
     return p_out_buffer;
 };
 
-auto D3d12RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuBuffer>> {
-    auto ret = MakeRef<D3d12Buffer>(p_desc);
+auto D3d12RenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
+    auto d3d_buffer = MakeRef<D3d12GpuBuffer>(desc);
 
-    const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
-    ret->buffer = uploadBuffer(size_in_byte, p_desc.initial_data, nullptr);
-    if (ret->buffer == nullptr) {
+    const uint32_t size_in_byte = desc.byteSize();
+    d3d_buffer->buffer = uploadBuffer(size_in_byte, desc.initial_data, nullptr);
+    if (d3d_buffer->buffer == nullptr) {
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE);
     }
 
-    return ret;
+    return d3d_buffer;
 }
 
-auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
-                                       std::span<const GpuBufferDesc> p_vb_descs,
-                                       const GpuBufferDesc* p_ib_desc) -> Result<Ref<GpuMesh>> {
-    auto ret = MakeRef<D3d12MeshBuffers>(p_desc);
-    for (uint32_t index = 0; index < (uint32_t)p_vb_descs.size(); ++index) {
-        const auto& vb_desc = p_vb_descs[index];
-        if (vb_desc.element_count == 0) {
+auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
+                                       std::span<const GpuResourceDesc> vb_descs,
+                                       const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> {
+    auto ret = MakeRef<D3d12MeshBuffers>(mesh_desc);
+    for (uint32_t index = 0; index < (uint32_t)vb_descs.size(); ++index) {
+        const auto& vb_desc = vb_descs[index];
+        if (vb_desc.byteSize() == 0) {
             ret->vbvs[index] = { 0, 0, 0 };
             continue;
         }
 
-        auto res = createBuffer(p_vb_descs[index]);
+        auto res = createBuffer(vb_descs[index]);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
 
         ret->vertexBuffers[index] = *res;
         ret->vbvs[index] = {
-            .BufferLocation = ((ID3D12Resource*)(ret->vertexBuffers[index]->GetHandle()))->GetGPUVirtualAddress(),
-            .SizeInBytes = vb_desc.element_count * vb_desc.element_size,
-            .StrideInBytes = vb_desc.element_size,
+            .BufferLocation = ((ID3D12Resource*)(ret->vertexBuffers[index]->getHandle()))->GetGPUVirtualAddress(),
+            .SizeInBytes = vb_desc.byteSize(),
+            .StrideInBytes = vb_desc.element_stride,
         };
     }
 
-    if (p_ib_desc) {
-        auto res = createBuffer(*p_ib_desc);
+    if (ib_desc) {
+        auto res = createBuffer(*ib_desc);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
         ret->indexBuffer = *res;
         ret->ibv = {
-            .BufferLocation = ((ID3D12Resource*)(ret->indexBuffer->GetHandle()))->GetGPUVirtualAddress(),
-            .SizeInBytes = p_ib_desc->element_count * p_ib_desc->element_size,
+            .BufferLocation = ((ID3D12Resource*)(ret->indexBuffer->getHandle()))->GetGPUVirtualAddress(),
+            .SizeInBytes = ib_desc->byteSize(),
             .Format = DXGI_FORMAT_R32_UINT,
         };
     }
@@ -345,17 +338,17 @@ auto D3d12RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d12RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
-    DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
-    if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
-        auto buffer = reinterpret_cast<D3d12Buffer*>(p_buffer);
-        const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
-        uploadBuffer(size_in_byte, p_desc.initial_data, buffer->buffer.Get());
+void D3d12RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) {
+    DEV_ASSERT(desc.byteSize() == buffer->desc.byteSize());
+    if (DEV_VERIFY(buffer->desc.byteSize() >= desc.byteSize())) {
+        auto d3d_buffer = reinterpret_cast<D3d12GpuBuffer*>(buffer);
+        const uint32_t size_in_byte = desc.byteSize();
+        uploadBuffer(size_in_byte, desc.initial_data, d3d_buffer->buffer.Get());
     }
 }
 
-auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
-    const uint32_t size_in_byte = p_desc.element_count * p_desc.element_size;
+auto D3d12RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
+    const uint32_t size_in_byte = desc.byteSize();
     CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CD3DX12_RESOURCE_DESC buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_byte);
     ComPtr<ID3D12Resource> buffer;
@@ -367,7 +360,7 @@ auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Res
                  nullptr, IID_PPV_ARGS(&buffer)),
              "Failed to create CommittedResource");
 
-    auto result = MakeRef<D3d12ConstantBuffer>(p_desc);
+    auto result = MakeRef<D3d12GpuBuffer>(desc);
     result->buffer = buffer;
 
     D3D_FAIL(result->buffer->Map(0, nullptr, reinterpret_cast<void**>(&result->mappedData)),
@@ -376,20 +369,24 @@ auto D3d12RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Res
     return result;
 }
 
-auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuStructuredBuffer>> {
-    DEV_ASSERT(!p_desc.initial_data && "TODO: initial data");
+auto D3d12RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
+    DEV_ASSERT(desc.initial_data && "TODO: initial data");
 
-    CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    D3D12_RESOURCE_STATES initial_state = D3D12_RESOURCE_STATE_GENERIC_READ;
+
+    CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     D3D12_RESOURCE_DESC buffer_desc{};
     buffer_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    buffer_desc.Width = p_desc.element_count * p_desc.element_size;
+    buffer_desc.Width = desc.byteSize();
     buffer_desc.Height = 1;
     buffer_desc.DepthOrArraySize = 1;
     buffer_desc.MipLevels = 1;
     buffer_desc.Format = DXGI_FORMAT_UNKNOWN;
     buffer_desc.SampleDesc.Count = 1;
     buffer_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    buffer_desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    buffer_desc.Flags = (desc.bind_flags & BIND_UNORDERED_ACCESS)
+                            ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+                            : D3D12_RESOURCE_FLAG_NONE;
 
     ComPtr<ID3D12Resource> buffer;
     D3D_FAIL(m_device->CreateCommittedResource(
@@ -400,34 +397,57 @@ auto D3d12RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> R
                  nullptr, IID_PPV_ARGS(&buffer)),
              "Failed to create buffer (StructuredBuffer)");
 
-    // @TODO: set debug name
-    LOG_WARN("TODO: set buffer name");
-    // SetDebugName(buffer.Get(), "");
-    D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
-    uav_desc.Format = DXGI_FORMAT_UNKNOWN;  // Structured buffer doesn't have a format
-    uav_desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
-    uav_desc.Buffer.FirstElement = 0;
-    uav_desc.Buffer.NumElements = p_desc.element_count;
-    uav_desc.Buffer.StructureByteStride = p_desc.element_size;
-
-    auto handle = m_srv_heap.AllocHandle();
-    m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpu_handle);
-
-    auto result = MakeRef<D3d12StructuredBuffer>(p_desc);
+    auto result = MakeRef<D3d12GpuBuffer>(desc);
     result->buffer = buffer;
-    result->handle = handle;
+    result->current_state = initial_state;
+
+    if (desc.initial_data) {
+        void* mapped = nullptr;
+        D3D12_RANGE range{ 0, 0 };
+        buffer->Map(0, &range, &mapped);
+        std::memcpy(mapped, desc.initial_data, desc.byteSize());
+        buffer->Unmap(0, nullptr);
+    }
+
+    {
+        D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
+        srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srv_desc.Format = DXGI_FORMAT_UNKNOWN;
+        srv_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+        srv_desc.Buffer.FirstElement = 0;
+        srv_desc.Buffer.NumElements = desc.elementCount();
+        srv_desc.Buffer.StructureByteStride = desc.element_stride;
+
+        auto handle = m_srv_heap.AllocHandle();
+        m_device->CreateShaderResourceView(buffer.Get(), &srv_desc, handle.cpu_handle);
+        result->srv_handle = handle;
+    }
+
+    if (desc.bind_flags & BIND_UNORDERED_ACCESS) {
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
+        uav_desc.Format = DXGI_FORMAT_UNKNOWN;  // Structured buffer doesn't have a format
+        uav_desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+        uav_desc.Buffer.FirstElement = 0;
+        uav_desc.Buffer.NumElements = desc.elementCount();
+        uav_desc.Buffer.StructureByteStride = desc.element_stride;
+
+        auto handle = m_srv_heap.AllocHandle();
+        m_device->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav_desc, handle.cpu_handle);
+        result->uav_handle = handle;
+    }
+
     return result;
 }
 
-void D3d12RenderDevice::updateConstantBuffer(const GpuConstantBuffer* p_buffer, const void* p_data, size_t p_size) {
-    if (p_size) {
-        auto cb = reinterpret_cast<const D3d12ConstantBuffer*>(p_buffer);
-        memcpy(cb->mappedData, p_data, p_size);
+void D3d12RenderDevice::updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) {
+    if (size) {
+        auto d3d_buffer = reinterpret_cast<const D3d12GpuBuffer*>(buffer);
+        memcpy(d3d_buffer->mappedData, data, size);
     }
 }
 
-Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc&) {
-    auto initial_data = reinterpret_cast<const uint8_t*>(texture_desc.initialData);
+Ref<GpuResource> D3d12RenderDevice::createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc&) {
+    auto initial_data = reinterpret_cast<const uint8_t*>(texture_desc.initial_data);
 
     bool gen_mip_map = false;
     PixelFormat format = texture_desc.format;
@@ -456,7 +476,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     }
     if (texture_desc.type == AttachmentType::NONE)
         initial_state = D3D12_RESOURCE_STATE_COPY_DEST;
-    else if (texture_desc.initialData) {
+    else if (texture_desc.initial_data) {
         initial_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     }
 
@@ -488,12 +508,12 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     resource_desc.Alignment = 0;
     resource_desc.Width = texture_desc.width;
     resource_desc.Height = texture_desc.height;
-    resource_desc.DepthOrArraySize = static_cast<UINT16>(texture_desc.arraySize);
-    resource_desc.MipLevels = static_cast<UINT16>(gen_mip_map ? 0 : texture_desc.mipLevels);
+    resource_desc.DepthOrArraySize = static_cast<UINT16>(texture_desc.array_size);
+    resource_desc.MipLevels = static_cast<UINT16>(gen_mip_map ? 0 : texture_desc.mip_levels);
     resource_desc.Format = texture_format;
     resource_desc.SampleDesc = { 1, 0 };
     resource_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    resource_desc.Flags = ConvertBindFlags(texture_desc.bindFlags);
+    resource_desc.Flags = ConvertBindFlags(texture_desc.bind_flags);
 
     ID3D12Resource* texture_ptr = nullptr;
     D3D_FAIL_V(m_device->CreateCommittedResource(&props, D3D12_HEAP_FLAG_NONE, &resource_desc, initial_state, NULL, IID_PPV_ARGS(&texture_ptr)), nullptr);
@@ -609,7 +629,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
 
     auto gpu_texture = MakeRef<D3d12GpuTexture>(texture_desc);
     // Create a shader resource view for the texture
-    if (texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
+    if (texture_desc.bind_flags & BIND_SHADER_RESOURCE) {
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
         srv_desc.Format = srv_format;
         switch (texture_desc.dimension) {
@@ -628,7 +648,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
                 srv_desc.TextureCubeArray.MipLevels = resource_desc.MipLevels;
                 srv_desc.TextureCubeArray.MostDetailedMip = 0;
                 srv_desc.TextureCubeArray.First2DArrayFace = 0;
-                srv_desc.TextureCubeArray.NumCubes = texture_desc.arraySize / 6;
+                srv_desc.TextureCubeArray.NumCubes = texture_desc.array_size / 6;
                 break;
             default:
                 CRASH_NOW();
@@ -641,7 +661,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
         gpu_texture->srv_handle = srv_handle;
     }
 
-    if (texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
+    if (texture_desc.bind_flags & BIND_UNORDERED_ACCESS) {
         D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{};
         uav_desc.Format = d3d::Convert(texture_desc.format);
 
@@ -672,7 +692,7 @@ Ref<GpuTexture> D3d12RenderDevice::createTextureImpl(const GpuTextureDesc& textu
     return gpu_texture;
 }
 
-void D3d12RenderDevice::generateMipmap(const GpuTexture* texture) {
+void D3d12RenderDevice::generateMipmap(const GpuResource* texture) {
     unused(texture);
 }
 

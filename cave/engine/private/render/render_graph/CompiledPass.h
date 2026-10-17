@@ -4,7 +4,6 @@
 
 // @TODO: fix
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/renderer/GraphicsDefines.h"
 
 // clang-format off
 namespace cave { struct FrameData; }
@@ -15,7 +14,7 @@ namespace cave::render {
 class ICommandList;
 class IRenderDevice;
 struct CompiledPass;
-struct GpuTexture;
+struct GpuResource;
 
 struct RenderPassExcutionContext {
     const FrameData& frameData;

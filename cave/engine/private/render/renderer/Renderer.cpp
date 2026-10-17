@@ -184,26 +184,26 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     // Bloom
     {
         cache.c_bloom_threshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
-        cache.c_enableBloom = options.enable_bloom;
+        cache.c_enable_bloom = options.enable_bloom;
 
-        cache.c_debugVoxelId = options.debugVoxelId;
-        cache.c_ptObjectCount = p_scene ? ((int)p_scene->count<MeshRendererComponent>()) : 0;
+        cache.c_debug_voxel = options.debugVoxelId;
+        cache.c_pt_object_count = p_scene ? ((int)p_scene->count<MeshRendererComponent>()) : 0;
     }
 
     // IBL
     {
-        cache.c_iblEnabled = options.enable_ibl;
+        cache.c_enable_ibl = options.enable_ibl;
     }
 
     // SSAO
     {
         // @TODO: do this properly
         static auto kernel_data = SsaoFeature::createKernel();
-        cache.c_ssaoEnabled = options.enable_ssao;
+        cache.c_enable_ssao = options.enable_ssao;
         cache.c_ssao_kernal_radius = options.ssaoKernelRadius;
         constexpr size_t kernel_size = sizeof(kernel_data);
-        static_assert(sizeof(cache.c_ssaoKernel) == kernel_size);
-        memcpy(cache.c_ssaoKernel, kernel_data.data(), kernel_size);
+        static_assert(sizeof(cache.c_ssao_kernel) == kernel_size);
+        memcpy(cache.c_ssao_kernel, kernel_data.data(), kernel_size);
     }
 
     cache.c_frame_index = static_cast<uint32_t>(p_frame.frame_index);
@@ -220,14 +220,14 @@ static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data
         for (size_t slot = 0; slot < pass.srvs.size(); ++slot) {
             const auto& texture = pass.srvs[slot];
             if (texture) {
-                cache.c_pass_textures[slot].x = (uint32_t)texture->GetResidentHandle();
+                cache.c_pass_textures[slot].x = (uint32_t)texture->getResidentHandle();
             }
         }
 
         uint* uavs = &cache.c_output_uav0;
         for (size_t slot = 0; slot < pass.uavs.size(); ++slot) {
             if (const auto& texture = pass.uavs[slot]) {
-                uavs[slot] = (uint32_t)texture->GetUavHandle();
+                uavs[slot] = (uint32_t)texture->getUavHandle();
             }
         }
     }
@@ -247,33 +247,6 @@ static void FillEnvConstants(FrameData& out_data) {
             batch.c_env_pass_roughness = (float)mip_idx / (float)(kIBLMipChainMax - 1);
         }
     }
-}
-
-template<typename T>
-static GpuBufferDesc fillDesc(const std::vector<T>& data) {
-    GpuBufferDesc desc{};
-    desc.type = GpuBufferType::Vertex;
-    desc.dynamic = true;
-    desc.element_size = sizeof(T);
-    desc.element_count = static_cast<uint32_t>(data.size());
-    desc.initial_data = data.data();
-    return desc;
-}
-
-// @TODO: move to UIRenderer
-template<typename T>
-static bool updateUIBuffer(IRenderDevice& device,
-                           const std::vector<T>& data,
-                           GpuBuffer* gpu_buffer) {
-    if (data.size() > gpu_buffer->desc.element_count) {
-        return false;
-    }
-
-    GpuBufferDesc desc = gpu_buffer->desc;
-    desc.element_count = (uint32_t)data.size();
-    desc.initial_data = data.data();
-    device.updateBuffer(desc, gpu_buffer);
-    return true;
 }
 
 Renderer::Impl::Impl(EngineServices& services)
@@ -395,9 +368,9 @@ auto Renderer::Impl::buildRenderGraphDeferred(const RenderOptions& plan,
 
     RenderGraphBuilderExt graph(view.viewport_px);
 
-    RGTextureId brdf = graph.importTexture({ m_brdf });
-    RGTextureId ltc1 = graph.importTexture({ m_ltc1 });
-    RGTextureId ltc2 = graph.importTexture({ m_ltc2 });
+    RGTextureId brdf = graph.importResource({ m_brdf });
+    RGTextureId ltc1 = graph.importResource({ m_ltc1 });
+    RGTextureId ltc2 = graph.importResource({ m_ltc2 });
 
     auto env_outputs = m_env.build(graph, plan);
 

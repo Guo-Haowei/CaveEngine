@@ -6,6 +6,7 @@
 #include "D3d11Helpers.h"
 #include "D3d11PipelineStateManager.h"
 
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -14,7 +15,6 @@
 #include "../d3d_common/D3dCommon.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 
@@ -215,9 +215,9 @@ auto D3d11RenderDevice::initSamplers() -> Result<void> {
     return Result<void>();
 }
 
-auto D3d11RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Result<Ref<GpuConstantBuffer>> {
+auto D3d11RenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     D3D11_BUFFER_DESC buffer_desc{};
-    buffer_desc.ByteWidth = p_desc.element_count * p_desc.element_size;
+    buffer_desc.ByteWidth = desc.byteSize();
     buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
     buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -228,32 +228,32 @@ auto D3d11RenderDevice::createConstantBuffer(const GpuBufferDesc& p_desc) -> Res
     D3D_FAIL(m_device->CreateBuffer(&buffer_desc, nullptr, d3d_buffer.GetAddressOf()),
              "failed to create ConstantBuffer");
 
-    auto uniform_buffer = MakeRef<D3d11UniformBuffer>(p_desc);
-    uniform_buffer->internalBuffer = d3d_buffer;
+    auto uniform_buffer = MakeRef<D3d11Buffer>(desc);
+    uniform_buffer->internal_buffer = d3d_buffer;
 
-    m_device_context->VSSetConstantBuffers(p_desc.slot, 1, uniform_buffer->internalBuffer.GetAddressOf());
-    m_device_context->PSSetConstantBuffers(p_desc.slot, 1, uniform_buffer->internalBuffer.GetAddressOf());
-    m_device_context->CSSetConstantBuffers(p_desc.slot, 1, uniform_buffer->internalBuffer.GetAddressOf());
+    m_device_context->VSSetConstantBuffers(desc.deprecated_slot, 1, uniform_buffer->internal_buffer.GetAddressOf());
+    m_device_context->PSSetConstantBuffers(desc.deprecated_slot, 1, uniform_buffer->internal_buffer.GetAddressOf());
+    m_device_context->CSSetConstantBuffers(desc.deprecated_slot, 1, uniform_buffer->internal_buffer.GetAddressOf());
     return uniform_buffer;
 }
 
-auto D3d11RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuStructuredBuffer>> {
+auto D3d11RenderDevice::createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
     ComPtr<ID3D11Buffer> buffer;
     ComPtr<ID3D11UnorderedAccessView> uav;
     ComPtr<ID3D11ShaderResourceView> srv;
 
     D3D11_BUFFER_DESC buffer_desc = {};
     buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-    buffer_desc.ByteWidth = p_desc.element_count * p_desc.element_size;
+    buffer_desc.ByteWidth = desc.byteSize();
     buffer_desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
     buffer_desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
     buffer_desc.CPUAccessFlags = 0;
-    buffer_desc.StructureByteStride = p_desc.element_size;
+    buffer_desc.StructureByteStride = desc.element_stride;
 
     D3D11_SUBRESOURCE_DATA* init_data_ref = nullptr;
     D3D11_SUBRESOURCE_DATA init_data{};
-    if (p_desc.initial_data) {
-        init_data.pSysMem = p_desc.initial_data;
+    if (desc.initial_data) {
+        init_data.pSysMem = desc.initial_data;
         init_data.SysMemPitch = 0;
         init_data.SysMemSlicePitch = 0;
         init_data_ref = &init_data;
@@ -262,45 +262,47 @@ auto D3d11RenderDevice::createStructuredBuffer(const GpuBufferDesc& p_desc) -> R
     D3D_FAIL(m_device->CreateBuffer(&buffer_desc, init_data_ref, buffer.GetAddressOf()),
              "Failed to create buffer (StructuredBuffer)");
 
-    D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
-    uav_desc.Format = DXGI_FORMAT_UNKNOWN;
-    uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-    uav_desc.Buffer.FirstElement = 0;
-    uav_desc.Buffer.NumElements = p_desc.element_count;
-    D3D_FAIL(m_device->CreateUnorderedAccessView(buffer.Get(), &uav_desc, uav.GetAddressOf()),
-             "Failed to create UAV (StructuredBuffer)");
+    if (desc.bind_flags & BIND_UNORDERED_ACCESS) {
+        D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
+        uav_desc.Format = DXGI_FORMAT_UNKNOWN;
+        uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+        uav_desc.Buffer.FirstElement = 0;
+        uav_desc.Buffer.NumElements = desc.elementCount();
+        D3D_FAIL(m_device->CreateUnorderedAccessView(buffer.Get(), &uav_desc, uav.GetAddressOf()),
+                 "Failed to create UAV (StructuredBuffer)");
+    }
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
     srv_desc.Format = DXGI_FORMAT_UNKNOWN;
     srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
     srv_desc.Buffer.FirstElement = 0;
-    srv_desc.Buffer.NumElements = p_desc.element_count;
+    srv_desc.Buffer.NumElements = desc.elementCount();
     D3D_FAIL(m_device->CreateShaderResourceView(buffer.Get(), &srv_desc, srv.GetAddressOf()),
              "Failed to create SRV (StructuredBuffer)");
 
-    auto structured_buffer = std::make_shared<D3d11StructuredBuffer>(p_desc);
-    structured_buffer->buffer = buffer;
+    auto structured_buffer = MakeRef<D3d11Buffer>(desc);
+    structured_buffer->internal_buffer = buffer;
     structured_buffer->uav = uav;
     structured_buffer->srv = srv;
 
     return structured_buffer;
 }
 
-void D3d11RenderDevice::updateConstantBuffer(const GpuConstantBuffer* buffer,
+void D3d11RenderDevice::updateConstantBuffer(const GpuResource* buffer,
                                              const void* data,
                                              size_t size) {
-    auto d3d_buffer = reinterpret_cast<const D3d11UniformBuffer*>(buffer);
-    DEV_ASSERT(size <= d3d_buffer->capacity);
+    auto d3d_buffer = reinterpret_cast<const D3d11Buffer*>(buffer);
+    DEV_ASSERT(size <= d3d_buffer->desc.byteSize());
     d3d_buffer->data = (const char*)data;
 }
 
-void D3d11RenderDevice::generateMipmap(const GpuTexture* texture) {
+void D3d11RenderDevice::generateMipmap(const GpuResource* texture) {
     auto d3d_tex = reinterpret_cast<const D3d11GpuTexture*>(texture);
     m_device_context->GenerateMips(d3d_tex->srv.Get());
 }
 
-Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_texture_desc,
-                                                     const SamplerDesc&) {
+Ref<GpuResource> D3d11RenderDevice::createTextureImpl(const GpuResourceDesc& p_texture_desc,
+                                                      const SamplerDesc&) {
     ComPtr<ID3D11ShaderResourceView> srv;
     ComPtr<ID3D11UnorderedAccessView> uav;
 
@@ -308,7 +310,7 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
     DXGI_FORMAT texture_format = d3d::Convert(format);
     DXGI_FORMAT srv_format = d3d::Convert(format);
     // @TODO: refactor this
-    bool gen_mip_map = p_texture_desc.bindFlags & BIND_SHADER_RESOURCE;
+    bool gen_mip_map = p_texture_desc.bind_flags & BIND_SHADER_RESOURCE;
     if (p_texture_desc.dimension == Dimension::TextureCube) {
         gen_mip_map = false;
     }
@@ -343,23 +345,23 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
         texture_desc.Width = p_texture_desc.width;
         texture_desc.Height = p_texture_desc.height;
         texture_desc.Depth = p_texture_desc.depth;
-        texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mipLevels;
+        texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mip_levels;
         // texture_desc.MipLevels = 0;
         texture_desc.Format = texture_format;
         texture_desc.Usage = D3D11_USAGE_DEFAULT;
-        texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bindFlags);
+        texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bind_flags);
         texture_desc.CPUAccessFlags = 0;
-        texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.miscFlags);
+        texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.misc_flags);
         ComPtr<ID3D11Texture3D> texture;
         D3D_FAIL_V(m_device->CreateTexture3D(&texture_desc, nullptr, texture.GetAddressOf()), nullptr);
         SetDebugName(texture.Get(), p_texture_desc.name);
 
-        auto gpu_texture = std::make_shared<D3d11GpuTexture>(p_texture_desc);
-        if (p_texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
+        auto gpu_texture = MakeRef<D3d11GpuTexture>(p_texture_desc);
+        if (p_texture_desc.bind_flags & BIND_SHADER_RESOURCE) {
             D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
             srv_desc.Format = srv_format;
             srv_desc.ViewDimension = ConvertDimension(p_texture_desc.dimension);
-            srv_desc.Texture3D.MipLevels = p_texture_desc.mipLevels;
+            srv_desc.Texture3D.MipLevels = p_texture_desc.mip_levels;
             srv_desc.Texture3D.MostDetailedMip = 0;
 
             if (gen_mip_map) {
@@ -370,14 +372,14 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
                            nullptr,
                            "Failed to create shader resource view");
 
-            if (p_texture_desc.miscFlags & RESOURCE_MISC_GENERATE_MIPS) {
+            if (p_texture_desc.misc_flags & RESOURCE_MISC_GENERATE_MIPS) {
                 m_device_context->GenerateMips(srv.Get());
             }
 
             gpu_texture->srv = srv;
         }
 
-        if (p_texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
+        if (p_texture_desc.bind_flags & BIND_UNORDERED_ACCESS) {
             // Create UAV
             D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
             uav_desc.Format = texture_format;
@@ -400,32 +402,32 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
     D3D11_TEXTURE2D_DESC texture_desc{};
     texture_desc.Width = p_texture_desc.width;
     texture_desc.Height = p_texture_desc.height;
-    texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mipLevels;
+    texture_desc.MipLevels = gen_mip_map ? 0 : p_texture_desc.mip_levels;
     // texture_desc.MipLevels = 0;
-    texture_desc.ArraySize = p_texture_desc.arraySize;
+    texture_desc.ArraySize = p_texture_desc.array_size;
     texture_desc.Format = texture_format;
     texture_desc.SampleDesc = { 1, 0 };
     texture_desc.Usage = D3D11_USAGE_DEFAULT;
-    texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bindFlags);
+    texture_desc.BindFlags = d3d::ConvertBindFlags(p_texture_desc.bind_flags);
     texture_desc.CPUAccessFlags = 0;
-    texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.miscFlags);
+    texture_desc.MiscFlags = d3d::ConvertResourceMiscFlags(p_texture_desc.misc_flags);
     ComPtr<ID3D11Texture2D> texture;
     if (FAILED(m_device->CreateTexture2D(&texture_desc, nullptr, texture.GetAddressOf()))) {
         return nullptr;
     }
     SetDebugName(texture.Get(), p_texture_desc.name);
 
-    if (p_texture_desc.initialData) {
+    if (p_texture_desc.initial_data) {
         uint32_t row_pitch = p_texture_desc.width * ChannelCount(format) * ChannelSize(format);
-        m_device_context->UpdateSubresource(texture.Get(), 0, nullptr, p_texture_desc.initialData, row_pitch, 0);
+        m_device_context->UpdateSubresource(texture.Get(), 0, nullptr, p_texture_desc.initial_data, row_pitch, 0);
     }
 
-    auto gpu_texture = std::make_shared<D3d11GpuTexture>(p_texture_desc);
-    if (p_texture_desc.bindFlags & BIND_SHADER_RESOURCE) {
+    auto gpu_texture = MakeRef<D3d11GpuTexture>(p_texture_desc);
+    if (p_texture_desc.bind_flags & BIND_SHADER_RESOURCE) {
         D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
         srv_desc.Format = srv_format;
         srv_desc.ViewDimension = ConvertDimension(p_texture_desc.dimension);
-        srv_desc.Texture2D.MipLevels = p_texture_desc.mipLevels;
+        srv_desc.Texture2D.MipLevels = p_texture_desc.mip_levels;
         srv_desc.Texture2D.MostDetailedMip = 0;
 
         switch (srv_desc.ViewDimension) {
@@ -435,7 +437,7 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
                 break;
             case D3D_SRV_DIMENSION_TEXTURECUBEARRAY:
                 srv_desc.TextureCubeArray.First2DArrayFace = 0;
-                srv_desc.TextureCubeArray.NumCubes = p_texture_desc.arraySize / 6;
+                srv_desc.TextureCubeArray.NumCubes = p_texture_desc.array_size / 6;
                 break;
             case D3D_SRV_DIMENSION_TEXTURE3D:
                 break;
@@ -452,14 +454,14 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
                        nullptr,
                        "Failed to create shader resource view");
 
-        if (p_texture_desc.miscFlags & RESOURCE_MISC_GENERATE_MIPS) {
+        if (p_texture_desc.misc_flags & RESOURCE_MISC_GENERATE_MIPS) {
             m_device_context->GenerateMips(srv.Get());
         }
 
         gpu_texture->srv = srv;
     }
 
-    if (p_texture_desc.bindFlags & BIND_UNORDERED_ACCESS) {
+    if (p_texture_desc.bind_flags & BIND_UNORDERED_ACCESS) {
         // Create UAV
         D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
         uav_desc.Format = texture_format;
@@ -478,26 +480,22 @@ Ref<GpuTexture> D3d11RenderDevice::createTextureImpl(const GpuTextureDesc& p_tex
     return gpu_texture;
 }
 
-auto D3d11RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std::shared_ptr<GpuBuffer>> {
-    const bool is_dynamic = p_desc.dynamic;
+auto D3d11RenderDevice::createBuffer(const GpuResourceDesc& p_desc) -> Result<Ref<GpuResource>> {
+    const bool is_dynamic = p_desc.isDynamic();
     ComPtr<ID3D11Buffer> buffer;
 
     uint32_t flags = 0;
-    switch (p_desc.type) {
-        case GpuBufferType::Vertex:
-            flags |= D3D11_BIND_VERTEX_BUFFER;
-            break;
-        case GpuBufferType::Index:
-            flags |= D3D11_BIND_INDEX_BUFFER;
-            break;
-        default:
-            CRASH_NOW();
-            break;
+    if (p_desc.bind_flags & BIND_VERTEX_BUFFER) {
+        flags |= D3D11_BIND_VERTEX_BUFFER;
+    } else if (p_desc.bind_flags & BIND_INDEX_BUFFER) {
+        flags |= D3D11_BIND_INDEX_BUFFER;
+    } else {
+        CRASH_NOW();
     }
 
     D3D11_BUFFER_DESC bufferDesc{};
     bufferDesc.Usage = is_dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_IMMUTABLE;
-    bufferDesc.ByteWidth = p_desc.element_count * p_desc.element_size;
+    bufferDesc.ByteWidth = p_desc.byteSize();
     bufferDesc.BindFlags = flags;
     bufferDesc.CPUAccessFlags = is_dynamic ? D3D11_CPU_ACCESS_WRITE : 0;
     bufferDesc.MiscFlags = 0;
@@ -508,29 +506,29 @@ auto D3d11RenderDevice::createBuffer(const GpuBufferDesc& p_desc) -> Result<std:
                    CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "failed to create buffer"),
                    "Failed to Create vertex buffer");
 
-    auto ret = std::make_shared<D3d11Buffer>(p_desc);
-    ret->buffer = buffer;
+    auto ret = MakeRef<D3d11Buffer>(p_desc);
+    ret->internal_buffer = buffer;
     return ret;
 }
 
-auto D3d11RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
-                                       std::span<const GpuBufferDesc> p_vb_descs,
-                                       const GpuBufferDesc* p_ib_desc) -> Result<std::shared_ptr<GpuMesh>> {
-    auto ret = std::make_shared<D3d11MeshBuffers>(p_desc);
+auto D3d11RenderDevice::createMeshImpl(const GpuMeshDesc& mesh_desc,
+                                       std::span<const GpuResourceDesc> vb_descs,
+                                       const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> {
+    auto ret = MakeRef<D3d11MeshBuffers>(mesh_desc);
 
-    for (uint32_t index = 0; index < (uint32_t)p_vb_descs.size(); ++index) {
-        if (!p_vb_descs[index].element_count) {
+    for (uint32_t index = 0; index < (uint32_t)vb_descs.size(); ++index) {
+        if (!vb_descs[index].byteSize()) {
             continue;
         }
-        auto res = createBuffer(p_vb_descs[index]);
+        auto res = createBuffer(vb_descs[index]);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
         ret->vertexBuffers[index] = *res;
     }
 
-    if (p_ib_desc) {
-        auto res = createBuffer(*p_ib_desc);
+    if (ib_desc) {
+        auto res = createBuffer(*ib_desc);
         if (!res) {
             return CAVE_ERROR(res.error());
         }
@@ -540,16 +538,16 @@ auto D3d11RenderDevice::createMeshImpl(const GpuMeshDesc& p_desc,
     return ret;
 }
 
-void D3d11RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
-    DEV_ASSERT(p_desc.element_size == p_buffer->desc.element_size);
-    if (DEV_VERIFY(p_buffer->desc.element_count >= p_desc.element_count)) {
-        auto buffer = reinterpret_cast<D3d11Buffer*>(p_buffer);
+void D3d11RenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) {
+    DEV_ASSERT(desc.byteSize() == buffer->desc.byteSize());
+    if (DEV_VERIFY(buffer->desc.byteSize() >= desc.byteSize())) {
+        auto d3d_buffer = reinterpret_cast<D3d11Buffer*>(buffer);
         D3D11_MAPPED_SUBRESOURCE mapped;
-        HRESULT hr = m_device_context->Map(buffer->buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+        HRESULT hr = m_device_context->Map(d3d_buffer->internal_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
         DEV_ASSERT(SUCCEEDED(hr));
 
-        memcpy(mapped.pData, p_desc.initial_data, p_desc.element_size * p_desc.element_count);
-        m_device_context->Unmap(buffer->buffer.Get(), 0);
+        memcpy(mapped.pData, desc.initial_data, buffer->desc.byteSize());
+        m_device_context->Unmap(d3d_buffer->internal_buffer.Get(), 0);
     }
 }
 

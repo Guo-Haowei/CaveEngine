@@ -33,8 +33,8 @@
 #include <imnodes/imnodes.h>
 
 #include "Enums.h"
-#include "engine/private/core/os/os.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/core/os/OS.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/input/InputService.h"

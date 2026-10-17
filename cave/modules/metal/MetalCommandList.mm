@@ -53,7 +53,7 @@ void MetalCommandList::beginRendering(const RenderingInfo& info) {
         if (!color.tex)
             continue;
 
-        const auto* texture = static_cast<const MetalTexture*>(color.tex.get());
+        const auto* texture = static_cast<const MetalGpuTexture*>(color.tex.get());
         DEV_ASSERT(texture && texture->object);
 
         MTLRenderPassColorAttachmentDescriptor* attachment = pass.colorAttachments[i];
@@ -68,7 +68,7 @@ void MetalCommandList::beginRendering(const RenderingInfo& info) {
 
     // Depth / stencil
     if (info.depth && info.depth->tex) {
-        const auto* texture = static_cast<const MetalTexture*>(info.depth->tex.get());
+        const auto* texture = static_cast<const MetalGpuTexture*>(info.depth->tex.get());
         DEV_ASSERT(texture && texture->object);
 
         id<MTLTexture> metal_texture = (__bridge id<MTLTexture>)texture->object;
@@ -257,13 +257,13 @@ void MetalCommandList::applyMesh() {
     // Missing streams use the first valid VB as a dummy buffer.
     //-----------------------------------------------------------------------------------------------------------------
 
-    const MetalBuffer* dummy_buffer = nullptr;
+    const MetalGpuBuffer* dummy_buffer = nullptr;
 
     for (const auto& vertex_buffer : mesh->vertexBuffers) {
         if (!vertex_buffer)
             continue;
 
-        dummy_buffer = static_cast<const MetalBuffer*>(vertex_buffer.get());
+        dummy_buffer = static_cast<const MetalGpuBuffer*>(vertex_buffer.get());
         break;
     }
 
@@ -279,7 +279,7 @@ void MetalCommandList::applyMesh() {
         id<MTLBuffer> buffer = dummy;
 
         if (vertex_buffer) {
-            const auto* metal_buffer = static_cast<const MetalBuffer*>(vertex_buffer.get());
+            const auto* metal_buffer = static_cast<const MetalGpuBuffer*>(vertex_buffer.get());
 
             buffer = (__bridge id<MTLBuffer>)metal_buffer->object;
         }
@@ -318,7 +318,7 @@ void MetalCommandList::drawIndexedInstanced(uint32_t instance_count, uint32_t co
     if (!mesh->indexBuffer)
         return;
 
-    const auto* index_buffer = static_cast<const MetalBuffer*>(mesh->indexBuffer.get());
+    const auto* index_buffer = static_cast<const MetalGpuBuffer*>(mesh->indexBuffer.get());
 
     id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)index_buffer->object;
 
@@ -329,10 +329,10 @@ void MetalCommandList::drawIndexedInstanced(uint32_t instance_count, uint32_t co
 // Constant buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::bindConstantBufferRange(const GpuConstantBuffer* base, uint32_t size, uint32_t offset) {
+void MetalCommandList::bindConstantBufferRange(const GpuResource* base, uint32_t size, uint32_t offset) {
     DEV_ASSERT(base);
 
-    const auto* buffer = static_cast<const MetalConstantBuffer*>(base);
+    const auto* buffer = static_cast<const MetalGpuBuffer*>(base);
 
     DEV_ASSERT(buffer->object);
 
@@ -343,7 +343,7 @@ void MetalCommandList::bindConstantBufferRange(const GpuConstantBuffer* base, ui
     if (!m_encoder)
         return;
 
-    const uint32_t slot = base->GetSlot();
+    const uint32_t slot = base->getSlot();
 
     [(id<MTLRenderCommandEncoder>)m_encoder setVertexBuffer:metal_buffer offset:offset atIndex:slot];
 
@@ -394,12 +394,12 @@ void MetalCommandList::unbindTexture(Dimension, int slot) {
 // UAV
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) {
+void MetalCommandList::bindUnorderedAccessView(uint32_t slot, GpuResource* texture) {
 
     if (slot >= m_bound_uavs.size())
         return;
 
-    m_bound_uavs[slot] = texture ? texture->GetHandle() : 0;
+    m_bound_uavs[slot] = texture ? texture->getHandle() : 0;
 }
 
 void MetalCommandList::unbindUnorderedAccessView(uint32_t slot) {
@@ -409,22 +409,6 @@ void MetalCommandList::unbindUnorderedAccessView(uint32_t slot) {
 
     m_bound_uavs[slot] = 0;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
-// Structured buffers
-//---------------------------------------------------------------------------------------------------------------------
-
-void MetalCommandList::bindStructuredBuffer(int, const GpuStructuredBuffer*) {
-    // TODO:
-    // Implement when Metal structured buffer
-    // resources are implemented.
-}
-
-void MetalCommandList::unbindStructuredBuffer(int) {}
-
-void MetalCommandList::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) { bindStructuredBuffer(slot, buffer); }
-
-void MetalCommandList::unbindStructuredBufferSRV(int slot) { unbindStructuredBuffer(slot); }
 
 //---------------------------------------------------------------------------------------------------------------------
 // Compute
@@ -502,12 +486,12 @@ void MetalCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) {
 // Mips
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::generateMipmap(const GpuTexture* base) {
+void MetalCommandList::generateMipmap(const GpuResource* base) {
     if (!base || !m_command_buffer) {
         return;
     }
 
-    const auto* texture = static_cast<const MetalTexture*>(base);
+    const auto* texture = static_cast<const MetalGpuTexture*>(base);
 
     DEV_ASSERT(texture->object);
 

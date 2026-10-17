@@ -1,8 +1,8 @@
 #pragma once
-#include "engine/private/render/render_graph/RGTextureId.h"
+#include "cave/render/rhi/GpuResources.h"
 
 // @TODO: refactor this
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "engine/private/render/render_graph/RGTextureId.h"
 
 namespace cave {
 class Scene;
@@ -37,7 +37,5 @@ enum class PathTracerMode {
 void RequestPathTracerUpdate(Scene& p_scene);
 void SetPathTracerMode(PathTracerMode p_mode);
 bool IsPathTracerActive();
-void BindPathTracerData(ICommandList& p_device);
-void UnbindPathTracerData(ICommandList& p_device);
 
 }  // namespace cave::render

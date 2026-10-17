@@ -50,7 +50,7 @@ uint pop_alive_index() {
             }
 
             for (int index = 0; index < c_forceFieldsCount; ++index) {
-                ForceField force_field = c_forceFields[index];
+                ForceField force_field = c_force_fields[index];
                 float3 delta = force_field.position - particle.position.xyz;
                 float dist = length(delta);
                 if (dist <= 0.001) {

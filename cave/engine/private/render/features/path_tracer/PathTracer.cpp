@@ -7,7 +7,7 @@
 #include "cave/render/components/MeshRendererComponent.h"
 #include "cave/runtime/ecs/components/TransformComponent.h"
 
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/runtime/assets/MeshAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/scene/Scene.h"
@@ -19,15 +19,11 @@ namespace cave {
 namespace cave::render {
 
 template<typename T>
-static auto CreateBuffer(IRenderDevice* p_gm, uint32_t p_slot, const std::vector<T>& p_data) {
-    GpuBufferDesc desc{
-        .slot = p_slot,
-        .element_size = sizeof(T),
-        .element_count = static_cast<uint32_t>(p_data.size()),
-        .initial_data = p_data.data(),
-    };
+static auto CreateBuffer(IRenderDevice* device, const std::vector<T>& data) {
+    auto desc = GpuResourceDesc::structuredBuffer(sizeof(T), static_cast<uint32_t>(data.size()));
+    desc.initial_data = data.data();
 
-    return p_gm->createStructuredBuffer(desc);
+    return device->createStructuredBuffer(desc);
 }
 
 static void ConstructMesh(const MeshAsset& p_mesh, GpuScene& p_gpu_scene) {
@@ -151,12 +147,8 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
             materials.emplace_back(gpu_mat);
         }
 
-        GpuBufferDesc desc{
-            .slot = GetGlobalPtMeshesSlot(),
-            .element_size = sizeof(materials[0]),
-            .element_count = static_cast<uint32_t>(materials.size()),
-            .initial_data = materials.data(),
-        };
+        auto desc = GpuResourceDesc::structuredBuffer(sizeof(materials[0]), static_cast<uint32_t>(materials.size()));
+        desc.initial_data = materials.data();
 
         // @TODO: only change when material is dirty
         if ((dirty_flag != SCENE_DIRTY_NONE) || m_material_buffer == nullptr) {
@@ -195,12 +187,8 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
             }
         }
 
-        GpuBufferDesc desc{
-            .slot = GetGlobalPtMeshesSlot(),
-            .element_size = sizeof(meshes[0]),
-            .element_count = static_cast<uint32_t>(meshes.size()),
-            .initial_data = meshes.data(),
-        };
+        auto desc = GpuResourceDesc::structuredBuffer(sizeof(meshes[0]), static_cast<uint32_t>(meshes.size()));
+        desc.initial_data = meshes.data();
 
         if ((dirty_flag & SCENE_DIRTY_WORLD) || m_mesh_buffer == nullptr) {
             m_mesh_buffer = *gm->createStructuredBuffer(desc);
@@ -212,7 +200,7 @@ bool PathTracer::createAccelStructure(const Scene& p_scene) {
     DEV_ASSERT(m_vertex_buffer == nullptr);
 
     // @TODO: refactor
-    auto gm = RenderDevice::singletonPtr();
+    auto device = RenderDevice::singletonPtr();
     GpuScene gpu_scene;
 
     Stopwatch stopwatch;
@@ -251,9 +239,9 @@ bool PathTracer::createAccelStructure(const Scene& p_scene) {
     const uint32_t triangle_count = (uint32_t)gpu_scene.indices.size();
     const uint32_t bvh_count = (uint32_t)gpu_scene.bvhs.size();
 
-    m_bvh_buffer = *CreateBuffer(gm, GetGlobalPtBvhsSlot(), gpu_scene.bvhs);
-    m_vertex_buffer = *CreateBuffer(gm, GetGlobalPtVerticesSlot(), gpu_scene.vertices);
-    m_index_buffer = *CreateBuffer(gm, GetGlobalPtIndicesSlot(), gpu_scene.indices);
+    m_bvh_buffer = *CreateBuffer(device, gpu_scene.bvhs);
+    m_vertex_buffer = *CreateBuffer(device, gpu_scene.vertices);
+    m_index_buffer = *CreateBuffer(device, gpu_scene.indices);
 
     stopwatch.stop();
     LOG_INFO("Path tracer scene loaded in {}, contains {} triangles, {} BVH",
@@ -329,24 +317,6 @@ bool PathTracer::isActive() const {
     }
 
     return true;
-}
-
-// @TODO: use different one
-void PathTracer::bindData(ICommandList& cmd) {
-    // @TODO: check null
-    cmd.bindStructuredBuffer(GetGlobalPtMeshesSlot(), m_mesh_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtBvhsSlot(), m_bvh_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtVerticesSlot(), m_vertex_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtIndicesSlot(), m_index_buffer.get());
-    cmd.bindStructuredBuffer(GetGlobalPtMaterialsSlot(), m_material_buffer.get());
-}
-
-void PathTracer::unbindData(ICommandList& cmd) {
-    cmd.unbindStructuredBuffer(GetGlobalPtBvhsSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtVerticesSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtIndicesSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtMeshesSlot());
-    cmd.unbindStructuredBuffer(GetGlobalPtMaterialsSlot());
 }
 
 }  // namespace cave::render

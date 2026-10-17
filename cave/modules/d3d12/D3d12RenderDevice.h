@@ -3,7 +3,7 @@
 #include "D3d12Resources.h"
 
 #include "engine/private/core/base/rid_owner.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 
 namespace cave::render {
 
@@ -11,36 +11,26 @@ struct D3d12GpuTexture;
 class D3d12CommandList;
 class D3d12ViewCache;
 
-struct D3d12Buffer final : GpuBuffer {
-    using GpuBuffer::GpuBuffer;
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
-
-    uint64_t GetHandle() const override {
-        return (size_t)buffer.Get();
-    }
-};
-
 class D3d12RenderDevice final : public RenderDevice {
 public:
     D3d12RenderDevice();
 
     void FinalizeImpl() override;
 
-    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
-    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
+    void updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) override;
 
     auto createMeshImpl(const GpuMeshDesc& desc,
-                        std::span<const GpuBufferDesc> vb_descs,
-                        const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
+                        std::span<const GpuResourceDesc> vb_descs,
+                        const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
+    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
+    void updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) override;
 
     // @TODO: remove Dimension
-    void generateMipmap(const GpuTexture* texture) override;
+    void generateMipmap(const GpuResource* texture) override;
 
     ID3D12CommandQueue* createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 
@@ -51,7 +41,7 @@ public:
 
 protected:
     auto InitializeInternal() -> Result<void> override;
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) override;
+    Ref<GpuResource> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) override;
 
     void render() override;
     void present() override;

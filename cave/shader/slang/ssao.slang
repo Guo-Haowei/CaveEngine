@@ -37,7 +37,7 @@ float ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     float occlusion = 0.0;
 
     for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
-        float3 samplePos = mul(c_ssaoKernel[i].xyz, TBN);
+        float3 samplePos = mul(c_ssao_kernel[i].xyz, TBN);
         samplePos = origin.xyz + samplePos * c_ssao_kernal_radius;
 
         float4 offset = float4(samplePos, 1.0);

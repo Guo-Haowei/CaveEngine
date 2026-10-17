@@ -4,7 +4,7 @@
 
 namespace cave::render {
 
-void OpenGlBuffer::Clear() {
+void OpenGlBuffer::clear() {
     if (handle) {
         glDeleteBuffers(1, &handle);
         handle = 0;
@@ -16,20 +16,6 @@ void OpenGlGpuTexture::Clear() {
         glDeleteTextures(1, &handle);
         handle = 0;
         residentHandle = 0;
-    }
-}
-
-void OpenGlConstantBuffer::clear() {
-    if (handle) {
-        glDeleteBuffers(1, &handle);
-        handle = 0;
-    }
-}
-
-void OpenGlStructuredBuffer::clear() {
-    if (handle) {
-        glDeleteBuffers(1, &handle);
-        handle = 0;
     }
 }
 

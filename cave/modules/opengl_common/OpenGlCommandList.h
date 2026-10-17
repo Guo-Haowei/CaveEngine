@@ -1,8 +1,6 @@
 #pragma once
 #include "cave/render/rhi/ICommandList.h"
 
-#include "engine/private/render/renderer/GraphicsDefines.h"
-
 #include "OpenGlDefines.h"
 
 namespace cave::render {
@@ -40,7 +38,7 @@ public:
 
     void setStencilRef(uint32_t ref) override;
 
-    void bindConstantBufferRange(const GpuConstantBuffer* buffer,
+    void bindConstantBufferRange(const GpuResource* buffer,
                                  uint32_t size,
                                  uint32_t offset) override;
 
@@ -54,12 +52,7 @@ public:
     void bindTexture(Dimension dimension, uint64_t handle, int slot) override;
     void unbindTexture(Dimension dimension, int slot) override;
 
-    void bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) override;
-    void unbindStructuredBuffer(int slot) override;
-    void bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) override;
-    void unbindStructuredBufferSRV(int slot) override;
-
-    void bindUnorderedAccessView(uint32_t slot, GpuTexture* texture) override;
+    void bindUnorderedAccessView(uint32_t slot, GpuResource* texture) override;
     void unbindUnorderedAccessView(uint32_t slot) override;
 
 private:

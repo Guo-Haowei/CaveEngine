@@ -5,7 +5,7 @@
 
 // @TODO: remove this
 #include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 
 namespace cave::render {
 
@@ -32,7 +32,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& ctx) {
     const PassContext& pass = ctx.frameData.shadowPasses[0];
     cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
-    cmd.setPipelineState(PSO_DPETH);
+    cmd.setPipelineState(PipelineStateName::Depth);
     ExecuteDrawCommands(ctx, shadow_commands, false);
 }
 
@@ -42,7 +42,7 @@ ShadowFeature::Outputs ShadowFeature::build(RenderGraph& graph, const RenderOpti
     RenderPass& pass = graph.addRenderPass(kPassShadow);
 
     Outputs out{
-        .shadow = graph.createTexture({
+        .shadow = graph.createResource({
             kResShadowMap,
             graph.buildDefaultTextureDesc(PixelFormat::D32_FLOAT,
                                           AttachmentType::SHADOW_2D,

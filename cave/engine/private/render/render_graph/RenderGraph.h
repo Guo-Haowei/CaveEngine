@@ -1,8 +1,8 @@
 #pragma once
 #include "cave/core/math/Rect.h"
-
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/PixelFormat.h"
+
 #include "RenderPass.h"
 
 // clang-format off
@@ -17,12 +17,12 @@ class RenderGraph {
 public:
     struct CreateDesc {
         std::string debug_name;
-        GpuTextureDesc resourceDesc;
-        SamplerDesc samplerDesc = PointClampSampler();
+        GpuResourceDesc resource_desc;
+        SamplerDesc sampler_desc = PointClampSampler();
     };
 
     struct ImportDesc {
-        GpuTextureId external;
+        Ref<GpuResource> external;
     };
 
     RenderGraph(const math::IntRect& rect)
@@ -33,19 +33,19 @@ public:
     [[nodiscard]]
     auto compile() -> Result<Ref<CompiledGraph>>;
 
-    static GpuTextureDesc buildDefaultTextureDesc(PixelFormat format,
-                                                  AttachmentType type,
-                                                  uint32_t width,
-                                                  uint32_t height,
-                                                  uint32_t array_size = 1,
-                                                  ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
-                                                  uint32_t mips_level = 0);
+    static GpuResourceDesc buildDefaultTextureDesc(PixelFormat format,
+                                                   AttachmentType type,
+                                                   uint32_t width,
+                                                   uint32_t height,
+                                                   uint32_t array_size = 1,
+                                                   ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
+                                                   uint32_t mips_level = 0);
 
-    GpuTextureDesc buildDefaultTextureDesc(PixelFormat format,
-                                           AttachmentType type,
-                                           uint32_t array_size = 1,
-                                           ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
-                                           uint32_t mips_level = 0) {
+    GpuResourceDesc buildDefaultTextureDesc(PixelFormat format,
+                                            AttachmentType type,
+                                            uint32_t array_size = 1,
+                                            ResourceMiscFlags misc_flag = RESOURCE_MISC_NONE,
+                                            uint32_t mips_level = 0) {
 
         return buildDefaultTextureDesc(format,
                                        type,
@@ -56,8 +56,8 @@ public:
                                        mips_level);
     }
 
-    RGTextureId createTexture(CreateDesc&& info);
-    RGTextureId importTexture(ImportDesc&& info);
+    RGTextureId createResource(CreateDesc&& info);
+    RGTextureId importResource(ImportDesc&& info);
     RGDependencyId createDependency();
 
     const math::IntRect& viewport() const { return m_viewport; }

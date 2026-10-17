@@ -3,7 +3,7 @@
 #include <imnodes/imnodes.h>
 
 #include "cave/core/diagnostics/Profiler.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "cave/runtime/framework/IApplication.h"
 
@@ -47,16 +47,16 @@ void RenderGraphViewer::DrawNodes(const render::CompiledGraph& p_graph) {
             ImNodes::EndInputAttribute();
         }
 
-        auto add_image = [](bool flip, const std::shared_ptr<GpuTexture>& texture) {
+        auto add_image = [](bool flip, const std::shared_ptr<GpuResource>& texture) {
             if (!texture) return;
 
             ImGui::TextUnformatted(texture->desc.name.c_str());
             if (texture && texture->desc.dimension == Dimension::Texture2D) {
                 ImVec2 size(180 * 3, 120 * 3);
                 if (flip) {
-                    ImGui::Image(texture->GetHandle(), size, ImVec2(0, 1), ImVec2(1, 0));
+                    ImGui::Image(texture->getHandle(), size, ImVec2(0, 1), ImVec2(1, 0));
                 } else {
-                    ImGui::Image(texture->GetHandle(), size);
+                    ImGui::Image(texture->getHandle(), size);
                 }
             }
         };

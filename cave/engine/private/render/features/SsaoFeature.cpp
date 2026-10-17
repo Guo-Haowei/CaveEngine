@@ -2,13 +2,13 @@
 
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/core/math/Vec.h"
+#include "cave/render/rhi/PipelineState.h"
 #include "cave/render/rhi/Sampler.h"
 
 // @TODO: remove this
 #include "engine/private/render/render_graph/RenderGraph.h"
 #include "engine/private/render/renderer/FrameData.h"
 #include "engine/private/core/base/random.h"
-#include "engine/private/render/rhi/PipelineState.h"
 
 namespace cave {
 #include "shader_resource_defines.slang.h"
@@ -31,18 +31,19 @@ static GpuTextureId GenerateSsaoNoise(IRenderDevice& p_device) {
         ssao_noise.emplace_back(noise);
     }
 
-    GpuTextureDesc desc{
-        .type = AttachmentType::NONE,
+    GpuResourceDesc desc{
         .dimension = Dimension::Texture2D,
         .width = SSAO_NOISE_SIZE,
         .height = SSAO_NOISE_SIZE,
         .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
+        .mip_levels = 1,
+        .array_size = 1,
         .format = PixelFormat::R32G32_FLOAT,
-        .bindFlags = BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
-        .initialData = ssao_noise.data(),
+        .bind_flags = BIND_SHADER_RESOURCE,
+        .misc_flags = RESOURCE_MISC_NONE,
+        .initial_data = ssao_noise.data(),
+
+        .type = AttachmentType::NONE,
     };
 
     return p_device.createTexture(desc, PointWrapSampler());
@@ -56,7 +57,7 @@ static void SsaoPassFunc(RenderPassExcutionContext& ctx) {
 
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_SSAO);
+    cmd.setPipelineState(PipelineStateName::Ssao);
     cmd.setMesh(nullptr);
     cmd.draw(6);
 }
@@ -71,11 +72,11 @@ SsaoFeature::Outputs SsaoFeature::build(RenderGraph& graph,
         m_ssao_texture = GenerateSsaoNoise(m_device);
     }
 
-    RGTextureId noise = graph.importTexture({ m_ssao_texture });
+    RGTextureId noise = graph.importResource({ m_ssao_texture });
 
     RenderPass& pass = graph.addRenderPass(kPassSsao);
     Outputs out{
-        .processed = graph.createTexture({
+        .processed = graph.createResource({
             kResSsao,
             graph.buildDefaultTextureDesc(kFormatSsao, AttachmentType::COLOR_2D),
         })

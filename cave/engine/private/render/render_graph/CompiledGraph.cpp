@@ -4,13 +4,13 @@
 
 namespace cave::render {
 
-void CompiledGraph::addResource(RGTextureId handle, const Ref<GpuTexture>& resource) {
+void CompiledGraph::addResource(RGTextureId handle, const Ref<GpuResource>& resource) {
     const int idx = static_cast<int>(m_resources.size());
     m_resources.push_back(resource);
     m_resource_lookup.insert({ handle, idx });
 }
 
-Ref<GpuTexture> CompiledGraph::findResource(RGTextureId handle) {
+Ref<GpuResource> CompiledGraph::findResource(RGTextureId handle) {
     auto it = m_resource_lookup.find(handle);
     if (it == m_resource_lookup.end()) {
         return nullptr;
@@ -30,21 +30,21 @@ void CompiledGraph::resolveTextures(TransientPool& pool) {
             continue;
         }
 
-        GpuTextureDesc desc = node.desc;
+        GpuResourceDesc desc = node.desc;
         // @TODO: get rid of the name
         desc.name = node.debug_name;
         ResourceAccess access = node.access_mask;
         if ((access & ResourceAccess::RTV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_RENDER_TARGET;
+            desc.bind_flags |= BIND_RENDER_TARGET;
         }
         if ((access & ResourceAccess::DSV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_DEPTH_STENCIL;
+            desc.bind_flags |= BIND_DEPTH_STENCIL;
         }
         if ((access & ResourceAccess::SRV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_SHADER_RESOURCE;
         }
         if ((access & ResourceAccess::UAV) != ResourceAccess::None) {
-            desc.bindFlags |= BIND_UNORDERED_ACCESS;
+            desc.bind_flags |= BIND_UNORDERED_ACCESS;
         }
 
         auto texture = pool.acquireTexture({

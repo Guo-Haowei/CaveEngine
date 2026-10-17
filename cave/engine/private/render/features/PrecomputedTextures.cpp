@@ -15,19 +15,20 @@ static GpuTextureId CreateLTC(IRenderDevice& p_device,
                               std::string_view p_name,
                               const float* p_matrix_table) {
     constexpr int LTC_SIZE = 64;
-    GpuTextureDesc desc{
-        .type = AttachmentType::NONE,
+    GpuResourceDesc desc{
         .dimension = Dimension::Texture2D,
         .width = LTC_SIZE,
         .height = LTC_SIZE,
         .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
+        .mip_levels = 1,
+        .array_size = 1,
         .format = PixelFormat::R32G32B32A32_FLOAT,
-        .bindFlags = BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
-        .initialData = p_matrix_table,
+        .bind_flags = BIND_SHADER_RESOURCE,
+        .misc_flags = RESOURCE_MISC_NONE,
+        .initial_data = p_matrix_table,
         .name = std::string(p_name),
+
+        .type = AttachmentType::NONE,
     };
 
     return p_device.createTexture(desc, PointClampSampler());

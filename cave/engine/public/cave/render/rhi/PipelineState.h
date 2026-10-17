@@ -1,5 +1,8 @@
+// =============================================================================
+// File: cave/render/rhi/PipelineState.h
+// =============================================================================
 #pragma once
-#include "engine/private/render/renderer/GraphicsDefines.h"
+#include "cave/render/rhi/Defines.h"
 #include "cave/render/rhi/PixelFormat.h"
 
 namespace cave::render {
@@ -90,55 +93,55 @@ struct PipelineState {
     const PipelineStateDesc desc;
 };
 
-#define PSO_NAME_LIST                    \
-    PSO_NAME(PSO_DPETH)                  \
-    PSO_NAME(PSO_POINT_SHADOW)           \
-    PSO_NAME(PSO_PREPASS)                \
-    PSO_NAME(PSO_GBUFFER)                \
-    PSO_NAME(PSO_GBUFFER_DOUBLE_SIDED)   \
-    PSO_NAME(PSO_FORWARD_TRANSPARENT)    \
-    PSO_NAME(PSO_VOXELIZATION)           \
-    PSO_NAME(PSO_VOXELIZATION_PRE)       \
-    PSO_NAME(PSO_VOXELIZATION_POST)      \
-    PSO_NAME(PSO_HIGHLIGHT)              \
-    PSO_NAME(PSO_LIGHTING)               \
-    PSO_NAME(PSO_BLOOM_SETUP)            \
-    PSO_NAME(PSO_BLOOM_DOWNSAMPLE)       \
-    PSO_NAME(PSO_BLOOM_UPSAMPLE)         \
-    PSO_NAME(PSO_SSAO)                   \
-    PSO_NAME(PSO_POST_PROCESS)           \
-    PSO_NAME(PSO_DEBUG_VOXEL)            \
-    PSO_NAME(PSO_ENV_SKYBOX_TO_CUBE_MAP) \
-    PSO_NAME(PSO_DIFFUSE_IRRADIANCE)     \
-    PSO_NAME(PSO_PREFILTER)              \
-    PSO_NAME(PSO_ENV_SKYBOX)             \
-    PSO_NAME(PSO_BILLBOARD)              \
-    PSO_NAME(PSO_PATH_TRACER)            \
-    PSO_NAME(PSO_PARTICLE_INIT)          \
-    PSO_NAME(PSO_PARTICLE_KICKOFF)       \
-    PSO_NAME(PSO_PARTICLE_EMIT)          \
-    PSO_NAME(PSO_PARTICLE_SIM)           \
-    PSO_NAME(PSO_PARTICLE_RENDERING)     \
-    PSO_NAME(PSO_UI_OVERLAY)             \
-    PSO_NAME(PSO_PRIMITIVE)
+#define PSO_NAME_LIST            \
+    PSO_NAME(UiOverlay)          \
+    PSO_NAME(Primitive)          \
+    PSO_NAME(Depth)              \
+    PSO_NAME(PointShadow)        \
+    PSO_NAME(Prepass)            \
+    PSO_NAME(Gbuffer)            \
+    PSO_NAME(GbufferDoubleSided) \
+    PSO_NAME(Forward)            \
+    PSO_NAME(Highlight)          \
+    PSO_NAME(Lighting)           \
+    PSO_NAME(BloomSetup)         \
+    PSO_NAME(BloomDownsample)    \
+    PSO_NAME(BloomUpsample)      \
+    PSO_NAME(Ssao)               \
+    PSO_NAME(Tone)               \
+    PSO_NAME(PostProcess)        \
+    PSO_NAME(PSO_DEBUG_VOXEL)    \
+    PSO_NAME(EnvSkyboxToCubemap) \
+    PSO_NAME(DiffuseIrradiance)  \
+    PSO_NAME(Prefilter)          \
+    PSO_NAME(EnvSkybox)          \
+    PSO_NAME(PathTracer)         \
+    PSO_NAME(ParticleInit)       \
+    PSO_NAME(ParticleKickoff)    \
+    PSO_NAME(ParticleEmit)       \
+    PSO_NAME(ParticleSim)        \
+    PSO_NAME(ParticleRendering)  \
+    PSO_NAME(Voxelization)       \
+    PSO_NAME(VoxelizationPre)    \
+    PSO_NAME(VoxelizationPost)
 
-enum PipelineStateName : uint8_t {
+enum class PipelineStateName : uint8_t {
 #define PSO_NAME(ENUM) ENUM,
     PSO_NAME_LIST
 #undef PSO_NAME
 
-        PSO_NAME_MAX,
+        Count,
 };
 
 static inline const char* EnumToString(PipelineStateName name) {
-    DEV_ASSERT_INDEX(name, PipelineStateName::PSO_NAME_MAX);
+    DEV_ASSERT_INDEX(name, PipelineStateName::Count);
     static const char* s_table[] = {
 #define PSO_NAME(ENUM) #ENUM,
         PSO_NAME_LIST
 #undef PSO_NAME
     };
-    static_assert(std::size(s_table) == std::to_underlying(PipelineStateName::PSO_NAME_MAX));
-    return s_table[name];
+    static_assert(std::size(s_table) == std::to_underlying(PipelineStateName::Count));
+    return s_table[std::to_underlying(name)];
 }
 
 }  // namespace cave::render

@@ -36,21 +36,14 @@ id<MTLSamplerState> createSampler(id<MTLDevice> device, MTLSamplerDescriptor* de
 // Resources
 //---------------------------------------------------------------------------------------------------------------------
 
-MetalBuffer::~MetalBuffer() {
+MetalGpuBuffer::~MetalGpuBuffer() {
     if (object) {
         CFRelease(object);
         object = nullptr;
     }
 }
 
-MetalTexture::~MetalTexture() {
-    if (object) {
-        CFRelease(object);
-        object = nullptr;
-    }
-}
-
-MetalConstantBuffer::~MetalConstantBuffer() {
+MetalGpuTexture::~MetalGpuTexture() {
     if (object) {
         CFRelease(object);
         object = nullptr;
@@ -242,7 +235,7 @@ void MetalRenderDevice::endFrame() {
 //---------------------------------------------------------------------------------------------------------------------
 // Transitional command wrappers
 //---------------------------------------------------------------------------------------------------------------------
-void MetalRenderDevice::generateMipmap(const GpuTexture* texture) {
+void MetalRenderDevice::generateMipmap(const GpuResource* texture) {
 
     DEV_ASSERT(m_command_list);
 
@@ -253,9 +246,8 @@ void MetalRenderDevice::generateMipmap(const GpuTexture* texture) {
 // Buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> {
-
-    const size_t bytes = static_cast<size_t>(desc.element_count) * desc.element_size;
+auto MetalRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
+    const size_t bytes = desc.byteSize();
 
     id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
 
@@ -270,24 +262,23 @@ auto MetalRenderDevice::createBuffer(const GpuBufferDesc& desc) -> Result<Ref<Gp
         memcpy(buffer.contents, desc.initial_data, bytes);
     }
 
-    auto result = MakeRef<MetalBuffer>(desc);
+    auto result = MakeRef<MetalGpuBuffer>(desc);
 
     result->object = buffer;
 
     return result;
 }
 
-void MetalRenderDevice::updateBuffer(const GpuBufferDesc& desc, GpuBuffer* base) {
-
+void MetalRenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuResource* base) {
     DEV_ASSERT(base);
 
-    auto* buffer = static_cast<MetalBuffer*>(base);
+    auto* buffer = static_cast<MetalGpuBuffer*>(base);
 
     DEV_ASSERT(buffer->object);
 
     id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buffer->object;
 
-    const size_t bytes = static_cast<size_t>(desc.element_count) * desc.element_size;
+    const size_t bytes = desc.byteSize();
 
     DEV_ASSERT(bytes <= metal_buffer.length);
 
@@ -301,12 +292,12 @@ void MetalRenderDevice::updateBuffer(const GpuBufferDesc& desc, GpuBuffer* base)
 // Mesh
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuBufferDesc> vertex_buffers, const GpuBufferDesc* index_buffer) -> Result<Ref<GpuMesh>> {
+auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuResourceDesc> vertex_buffers, const GpuResourceDesc* index_buffer) -> Result<Ref<GpuMesh>> {
     auto mesh = MakeRef<MetalGpuMesh>(desc);
 
     for (uint32_t slot = 0; slot < vertex_buffers.size(); ++slot) {
-        const GpuBufferDesc& buffer_desc = vertex_buffers[slot];
-        if (!buffer_desc.element_count)
+        const GpuResourceDesc& buffer_desc = vertex_buffers[slot];
+        if (!buffer_desc.byteSize())
             continue;
 
         auto result = createBuffer(buffer_desc);
@@ -333,8 +324,8 @@ auto MetalRenderDevice::createMeshImpl(const GpuMeshDesc& desc, std::span<const 
 // Constant buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> {
-    const size_t bytes = static_cast<size_t>(desc.element_count) * desc.element_size;
+auto MetalRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> {
+    const size_t bytes = desc.byteSize();
 
     id<MTLDevice> device = (__bridge id<MTLDevice>)m_device;
 
@@ -344,7 +335,7 @@ auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Resul
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal constant buffer allocation failed");
     }
 
-    auto result = MakeRef<MetalConstantBuffer>(desc);
+    auto result = MakeRef<MetalGpuBuffer>(desc);
 
     result->object = buffer;
 
@@ -352,17 +343,17 @@ auto MetalRenderDevice::createConstantBuffer(const GpuBufferDesc& desc) -> Resul
     // Transitional fixed-slot model
     //-----------------------------------------------------------------------------------------------------------------
 
-    DEV_ASSERT(desc.slot == m_constant_buffers.size());
+    DEV_ASSERT(desc.deprecated_slot == m_constant_buffers.size());
 
     m_constant_buffers.push_back(result->object);
 
     return result;
 }
 
-void MetalRenderDevice::updateConstantBuffer(const GpuConstantBuffer* base, const void* data, size_t size) {
+void MetalRenderDevice::updateConstantBuffer(const GpuResource* base, const void* data, size_t size) {
     DEV_ASSERT(base);
 
-    const auto* buffer = static_cast<const MetalConstantBuffer*>(base);
+    const auto* buffer = static_cast<const MetalGpuBuffer*>(base);
 
     DEV_ASSERT(buffer->object);
 
@@ -379,12 +370,12 @@ void MetalRenderDevice::updateConstantBuffer(const GpuConstantBuffer* base, cons
 // Structured buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-auto MetalRenderDevice::createStructuredBuffer(const GpuBufferDesc&) -> Result<Ref<GpuStructuredBuffer>> {
+auto MetalRenderDevice::createStructuredBuffer(const GpuResourceDesc&) -> Result<Ref<GpuResource>> {
     CRASH_NOW();
     return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal structured buffers are not implemented yet");
 }
 
-void MetalRenderDevice::updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) {}
+void MetalRenderDevice::updateBufferData(const GpuResourceDesc&, const GpuResource*) {}
 
 //---------------------------------------------------------------------------------------------------------------------
 // Texture helpers
@@ -422,7 +413,7 @@ static NSUInteger GetBytesPerPixel(MTLPixelFormat format) {
     }
 }
 
-Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc, const SamplerDesc&) {
+Ref<GpuResource> MetalRenderDevice::createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc&) {
     MTLPixelFormat texture_format = ToMetalTextureFormat(desc.format);
 
     DEV_ASSERT(texture_format != MTLPixelFormatInvalid);
@@ -431,11 +422,11 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
         return nullptr;
     }
 
-    bool generate_mips = (desc.bindFlags & BIND_SHADER_RESOURCE) != 0;
+    bool generate_mips = (desc.bind_flags & BIND_SHADER_RESOURCE) != 0;
 
     if (desc.dimension == Dimension::TextureCube || desc.dimension == Dimension::TextureCubeArray) {
         generate_mips = false;
-    } else if (desc.mipLevels == 1) {
+    } else if (desc.mip_levels == 1) {
         generate_mips = false;
     }
 
@@ -483,7 +474,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
 
     const uint32_t max_mip_levels = get_full_mip_count(desc.width, desc.height, desc.dimension == Dimension::Texture3D ? desc.depth : 1);
 
-    uint32_t mip_levels = desc.mipLevels;
+    uint32_t mip_levels = desc.mip_levels;
 
     if (generate_mips || mip_levels == 0) {
 
@@ -515,11 +506,11 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
         break;
 
     case Dimension::Texture2DArray:
-        if (desc.arraySize == 0)
+        if (desc.array_size == 0)
             return nullptr;
 
         texture_desc.textureType = MTLTextureType2DArray;
-        texture_desc.arrayLength = desc.arraySize;
+        texture_desc.arrayLength = desc.array_size;
         break;
 
     case Dimension::TextureCube:
@@ -536,13 +527,13 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
             return nullptr;
         }
 
-        if (desc.arraySize == 0 || (desc.arraySize % 6) != 0) {
+        if (desc.array_size == 0 || (desc.array_size % 6) != 0) {
             return nullptr;
         }
 
         texture_desc.textureType = MTLTextureTypeCubeArray;
 
-        texture_desc.arrayLength = desc.arraySize / 6;
+        texture_desc.arrayLength = desc.array_size / 6;
         break;
 
     case Dimension::Texture3D:
@@ -564,15 +555,15 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
 
     texture_desc.usage = 0;
 
-    if (desc.bindFlags & BIND_SHADER_RESOURCE) {
+    if (desc.bind_flags & BIND_SHADER_RESOURCE) {
         texture_desc.usage |= MTLTextureUsageShaderRead;
     }
 
-    if (desc.bindFlags & BIND_UNORDERED_ACCESS) {
+    if (desc.bind_flags & BIND_UNORDERED_ACCESS) {
         texture_desc.usage |= MTLTextureUsageShaderWrite;
     }
 
-    if ((desc.bindFlags & BIND_RENDER_TARGET) || (desc.bindFlags & BIND_DEPTH_STENCIL)) {
+    if ((desc.bind_flags & BIND_RENDER_TARGET) || (desc.bind_flags & BIND_DEPTH_STENCIL)) {
         texture_desc.usage |= MTLTextureUsageRenderTarget;
     }
 
@@ -596,7 +587,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
     // Initial data
     //-----------------------------------------------------------------------------------------------------------------
 
-    if (desc.initialData) {
+    if (desc.initial_data) {
         const NSUInteger bytes_per_pixel = GetBytesPerPixel(texture_format);
 
         if (bytes_per_pixel == 0)
@@ -606,9 +597,9 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
 
         if (desc.dimension == Dimension::Texture3D) {
             const NSUInteger image_pitch = row_pitch * static_cast<NSUInteger>(desc.height);
-            [texture replaceRegion:MTLRegionMake3D(0, 0, 0, desc.width, desc.height, desc.depth) mipmapLevel:0 slice:0 withBytes:desc.initialData bytesPerRow:row_pitch bytesPerImage:image_pitch];
+            [texture replaceRegion:MTLRegionMake3D(0, 0, 0, desc.width, desc.height, desc.depth) mipmapLevel:0 slice:0 withBytes:desc.initial_data bytesPerRow:row_pitch bytesPerImage:image_pitch];
         } else {
-            [texture replaceRegion:MTLRegionMake2D(0, 0, desc.width, desc.height) mipmapLevel:0 slice:0 withBytes:desc.initialData bytesPerRow:row_pitch bytesPerImage:0];
+            [texture replaceRegion:MTLRegionMake2D(0, 0, desc.width, desc.height) mipmapLevel:0 slice:0 withBytes:desc.initial_data bytesPerRow:row_pitch bytesPerImage:0];
         }
     }
 
@@ -619,7 +610,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
     // Runtime mip generation goes through MetalCommandList.
     //-----------------------------------------------------------------------------------------------------------------
 
-    if ((desc.miscFlags & RESOURCE_MISC_GENERATE_MIPS) && mip_levels > 1 && (desc.bindFlags & BIND_SHADER_RESOURCE)) {
+    if ((desc.misc_flags & RESOURCE_MISC_GENERATE_MIPS) && mip_levels > 1 && (desc.bind_flags & BIND_SHADER_RESOURCE)) {
         id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)m_command_queue;
         id<MTLCommandBuffer> command_buffer = [queue commandBuffer];
         id<MTLBlitCommandEncoder> blit = [command_buffer blitCommandEncoder];
@@ -632,7 +623,7 @@ Ref<GpuTexture> MetalRenderDevice::createTextureImpl(const GpuTextureDesc& desc,
         [command_buffer waitUntilCompleted];
     }
 
-    auto result = MakeRef<MetalTexture>(desc);
+    auto result = MakeRef<MetalGpuTexture>(desc);
     result->object = texture;
 
     return result;

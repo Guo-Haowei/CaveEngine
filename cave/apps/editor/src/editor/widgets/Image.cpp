@@ -75,7 +75,7 @@ void CenteredImage(const ImageAsset* p_image,
         image_region.x = static_cast<float>(p_image->width);
         image_region.y = static_cast<float>(p_image->height);
         if (p_image->gpu_texture) {
-            texture_handle = p_image->gpu_texture->GetHandle();
+            texture_handle = p_image->gpu_texture->getHandle();
         }
     }
 

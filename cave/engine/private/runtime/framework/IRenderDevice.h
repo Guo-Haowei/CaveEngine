@@ -15,19 +15,16 @@ class MeshAsset;
 
 namespace cave::render {
 
-enum PipelineStateName : uint8_t;
+enum class PipelineStateName : uint8_t;
 
 struct FrameContext;
 struct RenderSubmission;
 
 struct BlendDesc;
-struct GpuBuffer;
-struct GpuBufferDesc;
-struct GpuConstantBuffer;
+struct GpuResource;
+struct GpuResourceDesc;
 struct GpuMeshDesc;
-struct GpuStructuredBuffer;
-struct GpuTexture;
-struct GpuTextureDesc;
+struct GpuResource;
 struct SamplerDesc;
 struct Viewport;
 
@@ -57,33 +54,33 @@ public:
     virtual void submit(Owner<RenderSubmission>&& submission) = 0;
 
     // resource
-    virtual auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> = 0;
-    virtual auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> = 0;
-    virtual void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) = 0;
+    virtual auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> = 0;
+    virtual auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> = 0;
+    virtual void updateBufferData(const GpuResourceDesc& desc, const GpuResource* buffer) = 0;
 
-    virtual auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> = 0;
-    virtual void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) = 0;
+    virtual auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> = 0;
+    virtual void updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) = 0;
 
     virtual auto createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> = 0;
 
     virtual auto createMeshImpl(const GpuMeshDesc& desc,
-                                std::span<const GpuBufferDesc> vb_descs,
-                                const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> = 0;
+                                std::span<const GpuResourceDesc> vb_descs,
+                                const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> = 0;
 
-    virtual void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) = 0;
+    virtual void updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) = 0;
     template<typename T>
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::vector<T>& vector) {
+    void updateConstantBuffer(const GpuResource* buffer, const std::vector<T>& vector) {
         updateConstantBuffer(buffer, vector.data(), sizeof(T) * (uint32_t)vector.size());
     }
     template<typename T, int N>
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const std::array<T, N>& array) {
+    void updateConstantBuffer(const GpuResource* buffer, const std::array<T, N>& array) {
         updateConstantBuffer(buffer, array.data(), sizeof(T) * N);
     }
 
-    virtual Ref<GpuTexture> createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
-    virtual Ref<GpuTexture> createTexture(ImageAsset* image) = 0;
+    virtual Ref<GpuResource> createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
+    virtual Ref<GpuResource> createTexture(ImageAsset* image) = 0;
 
-    virtual void generateMipmap(const GpuTexture* texture) = 0;
+    virtual void generateMipmap(const GpuResource* texture) = 0;
 
     virtual void requestTexture(ImageAsset* image) = 0;
     virtual void requestMesh(MeshAsset* mesh) = 0;
@@ -103,7 +100,7 @@ public:
     virtual ICommandList* getCommandList() const = 0;
 
 protected:
-    virtual Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
+    virtual Ref<GpuResource> createTextureImpl(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) = 0;
 
     virtual void render() = 0;
     virtual void present() = 0;

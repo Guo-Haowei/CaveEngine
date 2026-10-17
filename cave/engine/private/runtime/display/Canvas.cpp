@@ -1,6 +1,6 @@
 #include "Canvas.h"
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/GpuResources.h"
 
 #include <algorithm>
 
@@ -87,7 +87,7 @@ bool Canvas::takeBucket(ViewId view_id, CanvasBucket& out) {
     return false;
 }
 
-void Canvas::addImage(const GpuTexture* texture,
+void Canvas::addImage(const GpuResource* texture,
                       const math::Vec2f& min,
                       const math::Vec2f& max,
                       const ImageDrawOptions& options) {
@@ -127,7 +127,7 @@ void Canvas::addBox2Frame(const Vec2f& min,
     addBox2({ min.x, max.y - ty }, max, options);
 }
 
-void Canvas::addImageImpl(const GpuTexture* texture,
+void Canvas::addImageImpl(const GpuResource* texture,
                           const math::Vec2f& min,
                           const math::Vec2f& max,
                           const ImageDrawOptions& options) {

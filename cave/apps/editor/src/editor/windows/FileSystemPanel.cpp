@@ -46,7 +46,7 @@ void FileSystemPanel::drawFolderTreeNode(const ContentEntry& entry, bool open) {
     ImGui::SameLine();
     if (const auto* image = entry.handle.get<ImageAsset>()) {
         const float icon_size = ImGui::GetFrameHeight();
-        const uint64_t tex = image->gpu_texture ? image->gpu_texture->GetHandle() : 0;
+        const uint64_t tex = image->gpu_texture ? image->gpu_texture->getHandle() : 0;
         ImGui::Image(tex, ImVec2(icon_size, icon_size));
     } else {
         const char* icon = GetContentIcon(entry, expanded);

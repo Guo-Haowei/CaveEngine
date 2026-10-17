@@ -31,7 +31,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3d12ViewCache::getOrCreateRtv(const ColorAttachment
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
     rtvDesc.Format = format;
 
-    const bool isArray = (d3dTex->desc.arraySize > 1) || (key.arraySize > 1) || (key.firstArraySlice > 0);
+    const bool isArray = (d3dTex->desc.array_size > 1) || (key.arraySize > 1) || (key.firstArraySlice > 0);
 
     if (isArray) {
         rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
@@ -72,7 +72,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3d12ViewCache::getOrCreateDsv(const DepthAttachment
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
     dsvDesc.Format = format;
 
-    const bool isArray = (d3dTex->desc.arraySize > 1) || (key.arraySize > 1) || (key.firstArraySlice > 0);
+    const bool isArray = (d3dTex->desc.array_size > 1) || (key.arraySize > 1) || (key.firstArraySlice > 0);
 
     if (isArray) {
         dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;

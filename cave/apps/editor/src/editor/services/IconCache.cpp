@@ -57,7 +57,7 @@ render::GpuTextureId IconCache::getIcon(IconName name) const {
 
 uint64_t IconCache::getIconHandle(IconName name) const {
     auto texture = getIcon(name);
-    return texture ? texture->GetHandle() : 0;
+    return texture ? texture->getHandle() : 0;
 }
 
 }  // namespace cave

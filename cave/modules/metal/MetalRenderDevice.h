@@ -1,8 +1,5 @@
 #pragma once
-
-#include "engine/private/render/render_device/RenderDevice.h"
-
-#include "MetalResources.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 
 struct GLFWwindow;
 
@@ -17,32 +14,32 @@ public:
 
     void FinalizeImpl() override;
 
-    void generateMipmap(const GpuTexture* texture) override;
+    void generateMipmap(const GpuResource* texture) override;
 
     //-----------------------------------------------------------------------------------------------------------------
     // Resources
     //-----------------------------------------------------------------------------------------------------------------
 
-    auto createBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuBuffer>> override;
+    auto createBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
 
-    void updateBuffer(const GpuBufferDesc& desc, GpuBuffer* buffer) override;
+    void updateBuffer(const GpuResourceDesc& desc, GpuResource* buffer) override;
 
-    auto createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuBufferDesc> vb_descs, const GpuBufferDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
+    auto createMeshImpl(const GpuMeshDesc& desc, std::span<const GpuResourceDesc> vb_descs, const GpuResourceDesc* ib_desc) -> Result<Ref<GpuMesh>> override;
 
-    auto createConstantBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuConstantBuffer>> override;
+    auto createConstantBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
 
-    auto createStructuredBuffer(const GpuBufferDesc& desc) -> Result<Ref<GpuStructuredBuffer>> override;
+    auto createStructuredBuffer(const GpuResourceDesc& desc) -> Result<Ref<GpuResource>> override;
 
-    void updateBufferData(const GpuBufferDesc& desc, const GpuStructuredBuffer* buffer) override;
+    void updateBufferData(const GpuResourceDesc& desc, const GpuResource* buffer) override;
 
-    void updateConstantBuffer(const GpuConstantBuffer* buffer, const void* data, size_t size) override;
+    void updateConstantBuffer(const GpuResource* buffer, const void* data, size_t size) override;
 
     ICommandList* getCommandList() const override;
 
 protected:
     auto InitializeInternal() -> Result<void> override;
 
-    Ref<GpuTexture> createTextureImpl(const GpuTextureDesc& desc, const SamplerDesc& sampler) override;
+    Ref<GpuResource> createTextureImpl(const GpuResourceDesc& desc, const SamplerDesc& sampler) override;
 
     void beginFrame() override;
     void endFrame() override;

@@ -3,10 +3,9 @@
 #endif
 #define OPENGL_HELPERS_INCLUDED
 
+#include "cave/render/rhi/GpuResources.h"
+#include "cave/render/rhi/PipelineState.h"
 #include "cave/render/rhi/Sampler.h"
-
-#include "engine/private/render/rhi/gpu_resource.h"
-#include "engine/private/render/rhi/PipelineState.h"
 
 #include "OpenGlPrerequisites.h"
 
@@ -90,13 +89,13 @@ enum BLEND : uint32_t {
 
 static inline BLEND Convert(Blend p_blend) {
     switch (p_blend) {
-        case Blend::BLEND_ZERO:
+        case Blend::Zero:
             return gl::BLEND_ZERO;
-        case Blend::BLEND_ONE:
+        case Blend::One:
             return gl::BLEND_ONE;
-        case Blend::BLEND_SRC_ALPHA:
+        case Blend::SrcAlpha:
             return gl::BLEND_SRC_ALPHA;
-        case Blend::BLEND_INV_SRC_ALPHA:
+        case Blend::InvSrcAlpha:
             return gl::BLEND_INV_SRC_ALPHA;
         default:
             CRASH_NOW();
@@ -111,9 +110,9 @@ enum BLEND_OP : uint32_t {
 
 static inline BLEND_OP Convert(BlendOp p_op) {
     switch (p_op) {
-        case BlendOp::BLEND_OP_SUB:
+        case BlendOp::Sub:
             return gl::BLEND_OP_SUB;
-        case BlendOp::BLEND_OP_ADD:
+        case BlendOp::Add:
             return gl::BLEND_OP_ADD;
         default:
             CRASH_NOW();

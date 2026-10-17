@@ -1,12 +1,12 @@
 #include "ViewManager.h"
 
+#include "cave/render/rhi/Defines.h"
 #include "cave/runtime/framework/IApplication.h"
 
+// @TODO: remove
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-// @TODO: remove
-#include "engine/private/render/renderer/GraphicsDefines.h"
 
 namespace cave {
 

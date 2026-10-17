@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/runtime/assets/IAsset.h"
 
 namespace cave {
@@ -39,7 +39,7 @@ struct ImageAsset : IAsset {
 
     // @TODO: write data to meta
     // @TODO: refactor
-    Ref<render::GpuTexture> gpu_texture;
+    Ref<render::GpuResource> gpu_texture;
 
     Result<void> loadFromDisk(const AssetMetaData& meta) override;
 

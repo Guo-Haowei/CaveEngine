@@ -34,10 +34,8 @@ template<typename T>
 static auto CreateUniformCheckSize(RenderDevice& device, uint32_t max_count) {
     static_assert(sizeof(T) % 256 == 0);
 
-    GpuBufferDesc buffer_desc{};
-    buffer_desc.slot = T::GetUniformBufferSlot();
-    buffer_desc.element_count = max_count;
-    buffer_desc.element_size = sizeof(T);
+    auto buffer_desc = GpuResourceDesc::constantBuffer(sizeof(T), max_count);
+    buffer_desc.deprecated_slot = T::GetUniformBufferSlot();
     return device.createConstantBuffer(buffer_desc);
 }
 
@@ -93,13 +91,11 @@ void RenderDevice::requestMesh(MeshAsset* mesh) {
     m_loaded_meshes.push(mesh);
 }
 
-void RenderDevice::updateBuffer(const GpuBufferDesc& p_desc, GpuBuffer* p_buffer) {
-    unused(p_desc);
-    unused(p_buffer);
+void RenderDevice::updateBuffer(const GpuResourceDesc&, GpuResource*) {
     CRASH_NOW();
 }
 
-auto RenderDevice::createMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr<GpuMesh>> {
+auto RenderDevice::createMesh(const MeshAsset& mesh) -> Result<Ref<GpuMesh>> {
     constexpr uint32_t count = std::to_underlying(VertexAttributeName::COUNT);
     std::array<VertexAttributeName, count> attribs = {
         VertexAttributeName::POSITION,
@@ -113,64 +109,52 @@ auto RenderDevice::createMesh(const MeshAsset& p_mesh) -> Result<std::shared_ptr
     };
 
     std::array<const void*, count> data = {
-        p_mesh.positions.data(),
-        p_mesh.normals.data(),
-        p_mesh.texcoords_0.data(),
-        p_mesh.tangents.data(),
-        p_mesh.joints_0.data(),
-        p_mesh.weights_0.data(),
-        p_mesh.color_0.data(),
-        p_mesh.texcoords_1.data(),
+        mesh.positions.data(),
+        mesh.normals.data(),
+        mesh.texcoords_0.data(),
+        mesh.tangents.data(),
+        mesh.joints_0.data(),
+        mesh.weights_0.data(),
+        mesh.color_0.data(),
+        mesh.texcoords_1.data(),
     };
 
-    std::array<GpuBufferDesc, count> vb_descs;
-
-    const bool is_dynamic = false;
+    std::array<GpuResourceDesc, count> vb_descs;
 
     GpuMeshDesc desc;
-    desc.enabledVertexCount = count;
-    desc.drawCount = static_cast<uint32_t>(p_mesh.indices.empty() ? p_mesh.positions.size() : p_mesh.indices.size());
+    desc.enabled_vertex_count = count;
+    desc.draw_count = static_cast<uint32_t>(mesh.indices.empty() ? mesh.positions.size() : mesh.indices.size());
 
     for (int index = 0; index < (int)attribs.size(); ++index) {
-        const auto& in = p_mesh.attributes[std::to_underlying(attribs[index])];
-        auto& layout = desc.vertexLayout[index];
+        const auto& in = mesh.attributes[std::to_underlying(attribs[index])];
+        auto& layout = desc.vertex_layout[index];
         layout.slot = index;
-        layout.offsetInByte = in.offsetInByte;
-        layout.strideInByte = in.strideInByte;
+        layout.offset_in_byte = in.offsetInByte;
+        layout.stride_in_byte = in.strideInByte;
 
         auto& buffer_desc = vb_descs[index];
-        buffer_desc.slot = index;
-        buffer_desc.type = GpuBufferType::Vertex;
-        buffer_desc.element_count = in.elementCount;
-        buffer_desc.element_size = in.strideInByte;
-        buffer_desc.initial_data = data[index];
-        buffer_desc.dynamic = is_dynamic;
+        buffer_desc = GpuResourceDesc::vertexBuffer(in.strideInByte, in.elementCount, data[index]);
     }
 
-    GpuBufferDesc ib_desc;
-    GpuBufferDesc* ib_desc_ptr = nullptr;
-    if (!p_mesh.indices.empty()) {
-        ib_desc = GpuBufferDesc{
-            .type = GpuBufferType::Index,
-            .element_size = sizeof(uint32_t),
-            .element_count = (uint32_t)p_mesh.indices.size(),
-            .initial_data = p_mesh.indices.data(),
-        };
+    GpuResourceDesc ib_desc{};
+    GpuResourceDesc* ib_desc_ptr = nullptr;
+    if (!mesh.indices.empty()) {
+        ib_desc = GpuResourceDesc::indexBuffer(sizeof(uint32_t), (uint32_t)mesh.indices.size(), mesh.indices.data());
         ib_desc_ptr = &ib_desc;
     }
 
-    auto ret = createMeshImpl(desc, vb_descs, ib_desc_ptr);
-    if (!ret) {
-        return CAVE_ERROR(ret.error());
+    auto gpu_mesh = createMeshImpl(desc, vb_descs, ib_desc_ptr);
+    if (!gpu_mesh) {
+        return CAVE_ERROR(gpu_mesh.error());
     }
 
-    p_mesh.gpuResource = *ret;
-    return ret;
+    mesh.gpuResource = *gpu_mesh;
+    return gpu_mesh;
 }
 
 // @TODO: refactor this
 static void FillTextureAndSamplerDesc(const ImageAsset* image,
-                                      GpuTextureDesc& texture_desc,
+                                      GpuResourceDesc& texture_desc,
                                       SamplerDesc& sampler_desc) {
     DEV_ASSERT(image);
     bool is_hdr_file = false;
@@ -190,11 +174,11 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
     texture_desc.dimension = Dimension::Texture2D;
     texture_desc.width = image->width;
     texture_desc.height = image->height;
-    texture_desc.arraySize = 1;
-    texture_desc.bindFlags |= BIND_SHADER_RESOURCE | BIND_RENDER_TARGET;
-    texture_desc.initialData = image->buffer.data();
-    texture_desc.mipLevels = 1;
-    texture_desc.miscFlags |= RESOURCE_MISC_GENERATE_MIPS;
+    texture_desc.array_size = 1;
+    texture_desc.bind_flags |= BIND_SHADER_RESOURCE | BIND_RENDER_TARGET;
+    texture_desc.initial_data = image->buffer.data();
+    texture_desc.mip_levels = 1;
+    texture_desc.misc_flags |= RESOURCE_MISC_GENERATE_MIPS;
 
     if (is_hdr_file) {
         sampler_desc.min_filter = MinFilter::Linear;
@@ -223,10 +207,10 @@ static void FillTextureAndSamplerDesc(const ImageAsset* image,
     }
 }
 
-Ref<GpuTexture> RenderDevice::createTexture(ImageAsset* image) {
+Ref<GpuResource> RenderDevice::createTexture(ImageAsset* image) {
     DEV_ASSERT(image);
 
-    GpuTextureDesc texture_desc{};
+    GpuResourceDesc texture_desc{};
     SamplerDesc sampler_desc{};
     FillTextureAndSamplerDesc(image, texture_desc, sampler_desc);
 
@@ -297,7 +281,8 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
     }
 }
 
-void RenderDevice::updateBufferData(const GpuBufferDesc&, const GpuStructuredBuffer*) {
+void RenderDevice::updateBufferData(const GpuResourceDesc&, const GpuResource*) {
+    CRASH_NOW();
 }
 
 void RenderDevice::beginFrame() {
@@ -313,7 +298,7 @@ Ref<FrameContext> RenderDevice::createFrameContext() {
     return MakeRef<FrameContext>();
 }
 
-Ref<GpuTexture> RenderDevice::createTexture(const GpuTextureDesc& texture_desc, const SamplerDesc& sampler_desc) {
+Ref<GpuResource> RenderDevice::createTexture(const GpuResourceDesc& texture_desc, const SamplerDesc& sampler_desc) {
     auto texture = createTextureImpl(texture_desc, sampler_desc);
     return texture;
 }
@@ -361,7 +346,7 @@ void RenderDevice::drawSkybox() {
     auto& cmd = *getCommandList();
 
     cmd.setMesh(m_skybox_buffers.get());
-    cmd.drawIndexed(m_skybox_buffers->desc.drawCount);
+    cmd.drawIndexed(m_skybox_buffers->desc.draw_count);
 }
 
 void RenderDevice::beginPass(const CompiledPass& pass) {
@@ -394,27 +379,22 @@ void RenderDevice::beginPass(const CompiledPass& pass) {
 
     // bind srvs
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
-        if (const GpuTexture* srv = pass.srvs[i].get()) {
-            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
-            cmd->bindTexture(srv->desc.dimension, srv->GetHandle(), i);
+        if (const GpuResource* resource = pass.srvs[i].get()) {
+            DEV_ASSERT(resource->desc.bind_flags & BIND_SHADER_RESOURCE);
+            cmd->bindTexture(resource->desc.dimension, resource->getSrvHandle(), i);
         }
     }
     // bind uavs
     for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
-        if (GpuTexture* uav = pass.uavs[i].get()) {
-            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+        if (GpuResource* uav = pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bind_flags & BIND_UNORDERED_ACCESS);
             cmd->bindUnorderedAccessView(i, uav);
         }
     }
 
     // transition srvs
-#if 0
-    for (auto& texture : pass.srvs) {
-        if (!texture) continue;
-        auto* d3d_tex = static_cast<D3d12GpuTexture*>(texture.get());
-        transitionTexture(d3d_tex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
-#endif
+    // std::span<const Ref<GpuResource>> srvs{ pass.srvs.data(), pass.srvs.size() };
+    // cmd->barriers(srvs);
 }
 
 void RenderDevice::endPass(const CompiledPass& pass) {
@@ -423,16 +403,16 @@ void RenderDevice::endPass(const CompiledPass& pass) {
 
     // unbind srvs
     for (uint32_t i = 0; i < pass.srvs.size(); ++i) {
-        if (const GpuTexture* srv = pass.srvs[i].get()) {
-            DEV_ASSERT(srv->desc.bindFlags & BIND_SHADER_RESOURCE);
+        if (const GpuResource* srv = pass.srvs[i].get()) {
+            DEV_ASSERT(srv->desc.bind_flags & BIND_SHADER_RESOURCE);
             cmd->unbindTexture(srv->desc.dimension, i);
         }
     }
 
     // unbind uavs
     for (uint32_t i = 0; i < pass.uavs.size(); ++i) {
-        if (GpuTexture* uav = pass.uavs[i].get()) {
-            DEV_ASSERT(uav->desc.bindFlags & BIND_UNORDERED_ACCESS);
+        if (GpuResource* uav = pass.uavs[i].get()) {
+            DEV_ASSERT(uav->desc.bind_flags & BIND_UNORDERED_ACCESS);
             cmd->unbindUnorderedAccessView(i);
         }
     }

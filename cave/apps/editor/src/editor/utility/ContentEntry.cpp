@@ -104,7 +104,7 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
             case AssetType::Image: {
                 const auto* texture = dynamic_cast<const ImageAsset*>(handle.get());
                 if (texture && texture->gpu_texture) {
-                    ui::CenteredImage(texture->gpu_texture->GetHandle(),
+                    ui::CenteredImage(texture->gpu_texture->getHandle(),
                                       kThumbnailSize,
                                       texture->width,
                                       texture->height,
@@ -115,7 +115,7 @@ void ShowAssetToolTip(ThumbnailService& thumbnail, const AssetHandle& handle) {
                 if (const auto* tile_set = dynamic_cast<const TileSetAsset*>(handle.get())) {
                     const auto* texture = dynamic_cast<const ImageAsset*>(tile_set->handle().get());
                     if (texture && texture->gpu_texture) {
-                        ui::CenteredImage(texture->gpu_texture->GetHandle(),
+                        ui::CenteredImage(texture->gpu_texture->getHandle(),
                                           kThumbnailSize,
                                           texture->width,
                                           texture->height,

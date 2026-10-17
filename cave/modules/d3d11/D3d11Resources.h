@@ -2,16 +2,16 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/GpuResources.h"
 
 namespace cave::render {
 
-struct D3d11GpuTexture : public GpuTexture {
-    using GpuTexture::GpuTexture;
+struct D3d11GpuTexture : public GpuResource {
+    using GpuResource::GpuResource;
 
-    uint64_t GetResidentHandle() const final { return 0; }
-    uint64_t GetHandle() const final { return (uint64_t)srv.Get(); }
-    uint64_t GetUavHandle() const final { return (uint64_t)uav.Get(); }
+    uint64_t getResidentHandle() const final { return 0; }
+    uint64_t getHandle() const final { return (uint64_t)srv.Get(); }
+    uint64_t getUavHandle() const final { return (uint64_t)uav.Get(); }
 
     Microsoft::WRL::ComPtr<ID3D11Resource> texture;
 
@@ -21,19 +21,25 @@ struct D3d11GpuTexture : public GpuTexture {
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
 };
 
-struct D3d11UniformBuffer : public GpuConstantBuffer {
-    using GpuConstantBuffer::GpuConstantBuffer;
+struct D3d11Buffer : public GpuResource {
+    using GpuResource::GpuResource;
 
-    Microsoft::WRL::ComPtr<ID3D11Buffer> internalBuffer;
-    mutable const char* data;
-};
-
-struct D3d11StructuredBuffer : GpuStructuredBuffer {
-    using GpuStructuredBuffer::GpuStructuredBuffer;
-
-    Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> internal_buffer;
     Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
+    mutable const char* data = nullptr;
+
+    uint64_t getHandle() const final {
+        return (size_t)internal_buffer.Get();
+    }
+
+    uint64_t getSrvHandle() const final {
+        return (size_t)srv.Get();
+    }
+
+    uint64_t getUavHandle() const final {
+        return (size_t)uav.Get();
+    }
 };
 
 struct D3d11MeshBuffers : GpuMesh {

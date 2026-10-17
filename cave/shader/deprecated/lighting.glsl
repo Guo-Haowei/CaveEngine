@@ -145,7 +145,7 @@ vec3 compute_lighting(sampler2D shadow_map,
         vec3(t1.z, 0, t1.w));
     // ------------------- for area light
 
-    for (int light_idx = 0; light_idx < c_lightCount; ++light_idx) {
+    for (int light_idx = 0; light_idx < c_light_count; ++light_idx) {
         Light light = c_lights[light_idx];
         int light_type = c_lights[light_idx].type;
         vec3 direct_lighting = vec3(0.0);
@@ -201,7 +201,7 @@ vec3 compute_lighting(sampler2D shadow_map,
     vec3 specular = vec3(0);
 
 #if ENABLE_IBL == 1
-    if (c_iblEnabled != 0) {
+    if (c_enable_ibl != 0) {
         irradiance = texture(t_DiffuseIrradiance, N).rgb;
         diffuse = irradiance * base_color.rgb;
 
@@ -216,7 +216,7 @@ vec3 compute_lighting(sampler2D shadow_map,
     vec3 ambient = (kD * diffuse + specular) * ao;
 
 #if ENABLE_VXGI
-    if (c_enableVxgi == 1) {
+    if (c_enable_vxgi == 1) {
         vec3 F = FresnelSchlickRoughness(NdotV, F0, roughness);
         vec3 kS = F;
         vec3 kD = (1.0 - kS) * (1.0 - metallic);

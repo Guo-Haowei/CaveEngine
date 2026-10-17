@@ -9,7 +9,7 @@
 #include "editor/widgets/Image.h"
 
 // @TODO: remove private includes
-#include "engine/private/core/os/os.h"
+#include "engine/private/core/os/OS.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
@@ -53,10 +53,10 @@ void ProjectBrowserState::drawRecentProjects() {
 
     // @TODO: use actual image
     std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage("scene@256x256.png");
-    render::GpuTexture* texture = image ? image->gpu_texture.get() : nullptr;
+    render::GpuResource* texture = image ? image->gpu_texture.get() : nullptr;
 
     for (const ProjectInfo& project : m_project_list) {
-        auto [hovered, clicked] = ui::AssetCard(texture ? texture->GetHandle() : 0,
+        auto [hovered, clicked] = ui::AssetCard(texture ? texture->getHandle() : 0,
                                                 project.name.c_str(),
                                                 thumbnail_size);
         ImGui::TableNextColumn();

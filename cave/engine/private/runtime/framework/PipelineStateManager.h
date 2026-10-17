@@ -1,8 +1,5 @@
 #pragma once
-#include "cave/render/rhi/Defines.h"
-
-#include "engine/private/render/renderer/GraphicsDefines.h"
-#include "engine/private/render/rhi/PipelineState.h"
+#include "cave/render/rhi/PipelineState.h"
 
 namespace cave::render {
 
@@ -33,7 +30,7 @@ protected:
 private:
     auto create(PipelineStateName name, const PipelineStateDesc& desc) -> Result<void>;
 
-    std::array<Owner<PipelineState>, PSO_NAME_MAX> m_pso_cache;
+    std::array<Owner<PipelineState>, std::to_underlying(PipelineStateName::Count)> m_pso_cache;
 };
 
 }  // namespace cave::render

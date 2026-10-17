@@ -87,17 +87,17 @@ void D3d11CommandList::popDebugGroup() {
     }
 }
 
-void D3d11CommandList::bindConstantBufferRange(const GpuConstantBuffer* buffer,
+void D3d11CommandList::bindConstantBufferRange(const GpuResource* buffer,
                                                uint32_t size,
                                                uint32_t offset) {
-    auto d3d_buffer = reinterpret_cast<const D3d11UniformBuffer*>(buffer);
-    DEV_ASSERT(size + offset <= d3d_buffer->capacity);
+    auto d3d_buffer = reinterpret_cast<const D3d11Buffer*>(buffer);
+    DEV_ASSERT(size + offset <= d3d_buffer->desc.byteSize());
     D3D11_MAPPED_SUBRESOURCE mapped;
     ZeroMemory(&mapped, sizeof(D3D11_MAPPED_SUBRESOURCE));
     if (d3d_buffer->data) {
-        m_device_context->Map(d3d_buffer->internalBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+        m_device_context->Map(d3d_buffer->internal_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
         memcpy(mapped.pData, d3d_buffer->data + offset, size);
-        m_device_context->Unmap(d3d_buffer->internalBuffer.Get(), 0);
+        m_device_context->Unmap(d3d_buffer->internal_buffer.Get(), 0);
     }
 }
 
@@ -167,24 +167,24 @@ void D3d11CommandList::setMesh(const GpuMesh* mesh) {
     }
     auto d3d_mesh = reinterpret_cast<const D3d11MeshBuffers*>(mesh);
 
-    std::array<ID3D11Buffer*, MESH_MAX_VERTEX_BUFFER_COUNT> buffers{ nullptr };
-    std::array<uint32_t, MESH_MAX_VERTEX_BUFFER_COUNT> strides{ 0 };
-    std::array<uint32_t, MESH_MAX_VERTEX_BUFFER_COUNT> offsets{ 0 };
+    std::array<ID3D11Buffer*, kMeshMaxVertexBufferCount> buffers{ nullptr };
+    std::array<uint32_t, kMeshMaxVertexBufferCount> strides{ 0 };
+    std::array<uint32_t, kMeshMaxVertexBufferCount> offsets{ 0 };
 
     for (int index = 0; index < d3d_mesh->vertexBuffers.size(); ++index) {
         const auto& vertex = d3d_mesh->vertexBuffers[index];
         if (vertex == nullptr) {
             continue;
         }
-        buffers[index] = (ID3D11Buffer*)vertex->GetHandle();
-        strides[index] = mesh->desc.vertexLayout[index].strideInByte;
-        offsets[index] = mesh->desc.vertexLayout[index].offsetInByte;
+        buffers[index] = (ID3D11Buffer*)vertex->getHandle();
+        strides[index] = mesh->desc.vertex_layout[index].stride_in_byte;
+        offsets[index] = mesh->desc.vertex_layout[index].offset_in_byte;
     }
 
-    m_device_context->IASetVertexBuffers(0, MESH_MAX_VERTEX_BUFFER_COUNT, buffers.data(), strides.data(), offsets.data());
+    m_device_context->IASetVertexBuffers(0, kMeshMaxVertexBufferCount, buffers.data(), strides.data(), offsets.data());
 
     if (d3d_mesh->indexBuffer) {
-        ID3D11Buffer* index_buffer = (ID3D11Buffer*)d3d_mesh->indexBuffer->GetHandle();
+        ID3D11Buffer* index_buffer = (ID3D11Buffer*)d3d_mesh->indexBuffer->getHandle();
         m_device_context->IASetIndexBuffer(index_buffer, DXGI_FORMAT_R32_UINT, 0);
     }
 }
@@ -203,34 +203,10 @@ void D3d11CommandList::unbindTexture(Dimension, int slot) {
     m_device_context->CSSetShaderResources(slot, 1, &srv);
 }
 
-void D3d11CommandList::bindStructuredBuffer(int slot, const GpuStructuredBuffer* buffer) {
-    auto structured_buffer = reinterpret_cast<const D3d11StructuredBuffer*>(buffer);
-    m_device_context->CSSetUnorderedAccessViews(slot, 1, structured_buffer->uav.GetAddressOf(), nullptr);
-}
-
-void D3d11CommandList::unbindStructuredBuffer(int slot) {
-    ID3D11UnorderedAccessView* uav = nullptr;
-    m_device_context->CSSetUnorderedAccessViews(slot, 1, &uav, nullptr);
-}
-
-void D3d11CommandList::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) {
-    DEV_ASSERT(buffer);
-
-    auto structured_buffer = reinterpret_cast<const D3d11StructuredBuffer*>(buffer);
-    if (structured_buffer->srv != nullptr) {
-        m_device_context->VSSetShaderResources(slot, 1, structured_buffer->srv.GetAddressOf());
-    }
-}
-
-void D3d11CommandList::unbindStructuredBufferSRV(int slot) {
-    ID3D11ShaderResourceView* srv = nullptr;
-    m_device_context->VSSetShaderResources(slot, 1, &srv);
-}
-
-void D3d11CommandList::bindUnorderedAccessView(uint32_t p_slot, GpuTexture* p_texture) {
+void D3d11CommandList::bindUnorderedAccessView(uint32_t p_slot, GpuResource* p_texture) {
     DEV_ASSERT(p_texture);
 
-    ID3D11UnorderedAccessView* ptr = reinterpret_cast<ID3D11UnorderedAccessView*>(p_texture->GetUavHandle());
+    ID3D11UnorderedAccessView* ptr = reinterpret_cast<ID3D11UnorderedAccessView*>(p_texture->getUavHandle());
     m_device_context->CSSetUnorderedAccessViews(p_slot, 1, &ptr, nullptr);
 }
 

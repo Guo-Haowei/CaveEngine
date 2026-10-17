@@ -9,7 +9,7 @@
 
 // @TODO: remove
 #include "engine/private/render/renderer/FrameData.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 
@@ -49,7 +49,7 @@ DepthPrepassOutput RenderGraphBuilderExt::addDepthPrepass() {
     RenderPass& pass = addRenderPass(kPassDepthPrepass);
 
     DepthPrepassOutput out{
-        .depth = createTexture({
+        .depth = createResource({
             kResDepthStencil,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
         }),
@@ -65,15 +65,15 @@ GbufferOutput RenderGraphBuilderExt::addGbufferPass(const DepthPrepassOutput& p_
     RenderPass& pass = addRenderPass(kPassGbuffer);
 
     GbufferOutput out{
-        .color0 = createTexture({
+        .color0 = createResource({
             kResColor0,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_BASE_COLOR, AttachmentType::COLOR_2D),
         }),
-        .color1 = createTexture({
+        .color1 = createResource({
             kResColor1,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_NORMAL, AttachmentType::COLOR_2D),
         }),
-        .color2 = createTexture({
+        .color2 = createResource({
             kResColor2,
             buildDefaultTextureDesc(RT_FMT_GBUFFER_MATERIAL, AttachmentType::COLOR_2D),
         }),
@@ -91,7 +91,7 @@ GbufferOutput RenderGraphBuilderExt::addGbufferPass(const DepthPrepassOutput& p_
 LightingOutput RenderGraphBuilderExt::addLightingPass(const LightingInput& p_in) {
     LightingOutput out = {
         .dependency = createDependency(),
-        .lighting = createTexture({
+        .lighting = createResource({
             kResLighting,
             buildDefaultTextureDesc(kFormatLighting, AttachmentType::COLOR_2D),
         }),
@@ -145,10 +145,10 @@ HighlightOutput RenderGraphBuilderExt::addHighlightPass(const HighlightInput& p_
     RenderPass& pass = addRenderPass(kPassOutline);
 
     HighlightOutput out = {
-        .outline = createTexture({
+        .outline = createResource({
             .debug_name = kResOutline,
-            .resourceDesc = buildDefaultTextureDesc(kFormatOutlineSelect, AttachmentType::COLOR_2D),
-            .samplerDesc = PointClampSampler(),
+            .resource_desc = buildDefaultTextureDesc(kFormatOutlineSelect, AttachmentType::COLOR_2D),
+            .sampler_desc = PointClampSampler(),
         }),
     };
 
@@ -163,11 +163,11 @@ PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInp
     RenderPass& pass = addRenderPass(kPassPostProcess);
     auto desc = buildDefaultTextureDesc(kFormatTone,
                                         AttachmentType::COLOR_2D);
-    desc.bindFlags |= BIND_SHADER_RESOURCE;
+    desc.bind_flags |= BIND_SHADER_RESOURCE;
 
     PostProcessOutput out{
         .dependency = createDependency(),
-        .processed = importTexture({ in.color_attachment }),
+        .processed = importResource({ in.color_attachment }),
     };
 
     pass.readDependency(in.dependency)
@@ -185,12 +185,12 @@ PostProcessOutput RenderGraphBuilderExt::addPostProcessPass(const PostProcessInp
 Pass2DOutput RenderGraphBuilderExt::add2dPass(const Pass2DInput& in) {
     RenderPass& pass = addRenderPass(kPass2D);
 
-    RGTextureId depth = createTexture({
+    RGTextureId depth = createResource({
         kResDepthStencil,
         buildDefaultTextureDesc(RT_FMT_GBUFFER_DEPTH, AttachmentType::DEPTH_STENCIL_2D),
     });
 
-    RGTextureId color = importTexture({ in.color_attachment });
+    RGTextureId color = importResource({ in.color_attachment });
     RGDependencyId dependency = createDependency();
 
     pass.writeDependency(dependency)
@@ -206,7 +206,7 @@ Pass2DOutput RenderGraphBuilderExt::add2dPass(const Pass2DInput& in) {
 void RenderGraphBuilderExt::addOverlayPass(const OverlayInput& in) {
     RenderPass& pass = addRenderPass(kPassOverlay);
 
-    RGTextureId color = importTexture({ in.color_attachment });
+    RGTextureId color = importResource({ in.color_attachment });
     pass.writeColor(color, {}, LoadOp::Load)
         .readDependency(in.dependency)
         .setExecuteFunc(OverlayDrawFunc);
@@ -220,7 +220,7 @@ void RenderGraphBuilderExt::AddVoxelizationPass() {
     }
 
     const int voxel_size = DVAR_GET_INT(gfx_voxel_size);
-    GpuTextureDesc desc = BuildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
+    GpuResourceDesc desc = BuildDefaultTextureDesc(PixelFormat::R16G16B16A16_FLOAT,
                                                   AttachmentType::RW_TEXTURE,
                                                   voxel_size, voxel_size);
     desc.dimension = Dimension::TEXTURE_3D;

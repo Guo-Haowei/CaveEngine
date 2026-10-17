@@ -1,18 +1,16 @@
 #pragma once
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/Sampler.h"
 
 #include "RendererDebug.h"
-
-#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave::render {
 
 class IRenderDevice;
 
-// just use unique name for reusing
 struct TransientTextureDesc {
-    GpuTextureDesc texture;
-    SamplerDesc sampler;
+    GpuResourceDesc texture;
+    SamplerDesc sampler;  // @TODO: remove sampler
 };
 
 class TransientPool {

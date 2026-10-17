@@ -5,13 +5,11 @@
 #include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/EngineServices.h"
 
+// @TODO: refactor
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-
-// @TODO: refactor
-#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 
@@ -51,17 +49,18 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
 
     using namespace render;
 
-    GpuTextureDesc tex_desc{
-        .type = AttachmentType::COLOR_2D,
+    GpuResourceDesc tex_desc{
         .dimension = Dimension::Texture2D,
         .width = w,
         .height = h,
         .depth = 1,
-        .mipLevels = 1,
-        .arraySize = 1,
+        .mip_levels = 1,
+        .array_size = 1,
         .format = PixelFormat::R16G16B16A16_FLOAT,
-        .bindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
-        .miscFlags = RESOURCE_MISC_NONE,
+        .bind_flags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE,
+        .misc_flags = RESOURCE_MISC_NONE,
+
+        .type = AttachmentType::COLOR_2D,
     };
     auto tex = m_render_device.createTexture(
         tex_desc,
@@ -79,7 +78,7 @@ uint64_t ThumbnailService::getOrRequest(const ThumbnailKey& key) {
             .output = tex,
         },
         .state = ThumbnailState::Missing,
-        .gpu_handle = tex->GetHandle(),
+        .gpu_handle = tex->getHandle(),
         .last_used_frame = m_frame_index,
         .submitted_frame = 0,
         .generation = 1,

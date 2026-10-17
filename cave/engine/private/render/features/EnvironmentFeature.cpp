@@ -7,7 +7,7 @@
 // @TODO: remove these
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 #include "engine/private/render/renderer/FrameData.h"
 
 namespace cave::render {
@@ -28,7 +28,7 @@ void ConvertToCubemapFunc(RenderPassExcutionContext& ctx, int face) {
     auto& device = ctx.device;
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_ENV_SKYBOX_TO_CUBE_MAP);
+    cmd.setPipelineState(PipelineStateName::EnvSkyboxToCubemap);
 
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), face);
     device.drawSkybox();
@@ -44,7 +44,7 @@ void DiffuseIrradianceFunc(RenderPassExcutionContext& ctx, int face) {
     auto& device = ctx.device;
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_DIFFUSE_IRRADIANCE);
+    cmd.setPipelineState(PipelineStateName::DiffuseIrradiance);
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), face);
     device.drawSkybox();
 }
@@ -58,7 +58,7 @@ void PrefilteredFunc(RenderPassExcutionContext& ctx,
     auto& cmd = ctx.command;
 
     const int index = mip * 6 + face;
-    cmd.setPipelineState(PSO_PREFILTER);
+    cmd.setPipelineState(PipelineStateName::Prefilter);
     cmd.bindConstantBufferSlot<PerBatchConstantBuffer>(device.getCurrentFrame().batch_cb.get(), index);
     device.drawSkybox();
 }
@@ -71,9 +71,9 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
         DEV_ASSERT(m_diffuse);
         DEV_ASSERT(m_specular);
 
-        RGTextureId env_cube_id = graph.importTexture({ m_env_cube });
-        RGTextureId diffuse_id = graph.importTexture({ m_diffuse });
-        RGTextureId specular_id = graph.importTexture({ m_specular });
+        RGTextureId env_cube_id = graph.importResource({ m_env_cube });
+        RGTextureId diffuse_id = graph.importResource({ m_diffuse });
+        RGTextureId specular_id = graph.importResource({ m_specular });
         return {
             .skybox = env_cube_id,
             .ibl_diffuse = diffuse_id,
@@ -95,7 +95,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
         DEV_ASSERT(!m_specular);
 
         {
-            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
+            GpuResourceDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 kCubemapSize,
@@ -103,24 +103,24 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
                 kIBLMipChainMax);
-            desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_env_cube = m_device.createTexture(desc, CubemapSampler());
         }
         {
 
-            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
+            GpuResourceDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 kIrradianceCubemapSize,
                 kIrradianceCubemapSize,
                 6);
-            desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_diffuse = m_device.createTexture(desc, CubemapNoMipSampler());
         }
         {
-            GpuTextureDesc desc = RenderGraph::buildDefaultTextureDesc(
+            GpuResourceDesc desc = RenderGraph::buildDefaultTextureDesc(
                 PixelFormat::R32G32B32A32_FLOAT,
                 AttachmentType::COLOR_CUBE,
                 kPrefilteredCubemapSize,
@@ -128,16 +128,16 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
                 6,
                 RESOURCE_MISC_GENERATE_MIPS,
                 kIBLMipChainMax);
-            desc.bindFlags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+            desc.bind_flags |= BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 
             m_specular = m_device.createTexture(desc, CubemapLodSampler());
         }
     }
 
-    RGTextureId env_hdr = graph.importTexture({ m_env_texture });
-    RGTextureId env_cube = graph.importTexture({ m_env_cube });
-    RGTextureId diffuse = graph.importTexture({ m_diffuse });
-    RGTextureId specular = graph.importTexture({ m_specular });
+    RGTextureId env_hdr = graph.importResource({ m_env_texture });
+    RGTextureId env_cube = graph.importResource({ m_env_cube });
+    RGTextureId diffuse = graph.importResource({ m_diffuse });
+    RGTextureId specular = graph.importResource({ m_specular });
 
     // bake environment cubemap
     for (uint16_t face = 0; face < 6; ++face) {

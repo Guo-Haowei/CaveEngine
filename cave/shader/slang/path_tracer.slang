@@ -2,10 +2,25 @@
 #include "../cbuffer.slang.h"
 #include "../structured_buffer.slang.h"
 
+#include "common.slang"
+
+#if defined(__TARGET_D3D12__)
+#define GlobalPtBvhs      (StructuredBuffer<GpuPtBvh>(ResourceDescriptorHeap[c_pass_textures[0].x]))
+#define GlobalPtVertices  (StructuredBuffer<GpuPtVertex>(ResourceDescriptorHeap[c_pass_textures[1].x]))
+#define GlobalPtIndices   (StructuredBuffer<GpuPtIndex>(ResourceDescriptorHeap[c_pass_textures[2].x]))
+#define GlobalPtMeshes    (StructuredBuffer<GpuPtMesh>(ResourceDescriptorHeap[c_pass_textures[3].x]))
+#define GlobalPtMaterials (StructuredBuffer<GpuPtMaterial>(ResourceDescriptorHeap[c_pass_textures[4].x]))
+#else
+RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
+StructuredBuffer<GpuPtBvh> GlobalPtBvhs : register(t0);
+StructuredBuffer<GpuPtVertex> GlobalPtVertices : register(t1);
+StructuredBuffer<GpuPtIndex> GlobalPtIndices : register(t2);
+StructuredBuffer<GpuPtMesh> GlobalPtMeshes : register(t3);
+StructuredBuffer<GpuPtMaterial> GlobalPtMaterials : register(t4);
+#endif
+
 // @NOTE: include this at last
 #include "../shared_path_tracer.h"
-
-RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
 
 [shader("compute")]
 [numthreads(16, 16, 1)]
@@ -16,7 +31,14 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
     // iPixelCoords += tileOffset;
     float2 fPixelCoords = float2(float(uv.x), float(uv.y));
     uint2 dims;
-    u_PathTracerOutputImage.GetDimensions(dims.x, dims.y);
+
+#if defined(__TARGET_D3D12__)
+    RWTexture2D<float4> output = RW_TEX_2D(c_output_uav0);
+#else
+    RWTexture2D<float4> output = u_PathTracerOutputImage;
+#endif
+
+    output.GetDimensions(dims.x, dims.y);
 
     uint seed = uint(uint(uv.x) * uint(1973) + uint(uv.y) * uint(9277) + uint(c_frame_index) * uint(26699)) | uint(1);
 
@@ -58,7 +80,7 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
 
 #if !defined(FORCE_UPDATE)
     if (c_scene_dirty == CAVE_FALSE) {
-        float4 accumulated = u_PathTracerOutputImage[uv];
+        float4 accumulated = output[uv];
         float weight = accumulated.a;
         float3 new_color = radiance + weight * accumulated.rgb;
         float new_weight = accumulated.a + 1.0;
@@ -67,5 +89,5 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
     }
 #endif
 
-    u_PathTracerOutputImage[uv] = final_color;
+    output[uv] = final_color;
 }

@@ -1,8 +1,8 @@
 #pragma once
-#include "OpenGlPrerequisites.h"
-
 #include "cave/core/hash/Hash.h"
 #include "cave/render/rhi/Defines.h"
+
+#include "OpenGlPrerequisites.h"
 
 namespace cave::render {
 

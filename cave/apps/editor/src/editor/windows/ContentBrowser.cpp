@@ -176,7 +176,7 @@ void ContentBrowser::drawContentBrowser() {
             if (meta->type == AssetType::Image) {
                 const ImageAsset* img = p_entry.handle.get<ImageAsset>();
                 if (img && img->gpu_texture) {
-                    return img->gpu_texture->GetHandle();
+                    return img->gpu_texture->getHandle();
                 }
             }
 

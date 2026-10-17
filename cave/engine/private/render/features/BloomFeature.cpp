@@ -3,7 +3,7 @@
 #include "cave/core/diagnostics/Profiler.h"
 
 #include "engine/private/render/render_graph/RenderGraph.h"
-#include "engine/private/render/render_device/RenderDevice.h"
+#include "engine/private/render/rhi/RenderDevice.h"
 
 #define RG_PASS_BLOOM_DOWN_PREFIX "p:bloom_downsample"
 #define RG_PASS_BLOOM_UP_PREFIX   "p:bloom_upsample"
@@ -23,7 +23,7 @@ void BloomSetupFunc(RenderPassExcutionContext& ctx) {
 
     auto uav = ctx.pass.uavs[0];
 
-    cmd.setPipelineState(PSO_BLOOM_SETUP);
+    cmd.setPipelineState(PipelineStateName::BloomSetup);
 
     const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
     const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
@@ -36,7 +36,7 @@ void BloomDownSampleFunc(RenderPassExcutionContext& ctx) {
 
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PSO_BLOOM_DOWNSAMPLE);
+    cmd.setPipelineState(PipelineStateName::BloomDownsample);
 
     auto uav = ctx.pass.uavs[0];
 
@@ -53,7 +53,7 @@ void BloomUpSampleFunc(RenderPassExcutionContext& ctx) {
 
     auto uav = ctx.pass.uavs[0];
 
-    cmd.setPipelineState(PSO_BLOOM_UPSAMPLE);
+    cmd.setPipelineState(PipelineStateName::BloomUpsample);
 
     const uint32_t work_group_x = math::CeilingDivision(uav->desc.width, 16);
     const uint32_t work_group_y = math::CeilingDivision(uav->desc.height, 16);
@@ -86,7 +86,7 @@ BloomFeature::Outputs BloomFeature::build(RenderGraph& graph,
                                                           w, h);
 
         auto res_name = std::format(RG_RES_BLOOM_PREFIX "@{}x{}", w, h);
-        RGTextureId id = graph.createTexture({
+        RGTextureId id = graph.createResource({
             res_name,
             texture_desc,
             LinearClampSampler(),
