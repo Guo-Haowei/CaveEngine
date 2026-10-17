@@ -3,37 +3,40 @@
 #include "cave/core/math/Vec.h"
 
 namespace cave {
-#include "structured_buffer.slang.h"
+#include "shader_defines.slang.h"
+#include "path_tracer_defines.slang.h"
 }  // namespace cave
 
 namespace cave::render {
 
-struct BvhAccel {
-    using Ref = std::shared_ptr<BvhAccel>;
+class BvhAccel {
+public:
+    BvhAccel(int index,
+             const BvhAccel* parent)
+        : m_index(index), m_parent(parent) {}
 
-    BvhAccel(int p_index,
-             const BvhAccel* p_parent)
-        : index(p_index), parent(p_parent) {}
+    void fillGpuBvhAccel(std::vector<GpuPtBvh>& out);
 
-    void DiscoverIdx();
+    static Ref<BvhAccel> construct(std::span<const uint32_t> indices,
+                                   std::span<const math::Vec3f> vertices);
 
-    math::AABB aabb;
+private:
+    void discoverIdx();
 
-    const int index;
-    const BvhAccel* parent;
+    const int m_index;
+    const BvhAccel* m_parent;
 
-    int triangleIndex{ -1 };
-    int hitIndex{ -1 };
-    int missIndex{ -1 };
-    int depth{ 0 };
-    Ref left{ nullptr };
-    Ref right{ nullptr };
-    bool isLeaf{ false };
+    math::AABB m_aabb;
 
-    static Ref Construct(const std::vector<uint32_t>& p_indices,
-                         const std::vector<math::Vec3f>& p_vertices);
+    int m_triangle_index = -1;
+    int m_hit_index = -1;
+    int m_miss_index = -1;
+    int m_depth = 0;
+    Ref<BvhAccel> m_left = nullptr;
+    Ref<BvhAccel> m_right = nullptr;
+    bool m_is_leaf = false;
 
-    void FillGpuBvhAccel(std::vector<GpuPtBvh>& p_out);
+    friend class BvhBuilder;
 };
 
 }  // namespace cave::render

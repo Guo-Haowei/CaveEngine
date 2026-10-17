@@ -4,24 +4,14 @@
 #include "cave/core/math/Box.h"
 #include "cave/render/rhi/GpuResources.h"
 
-#include "BvhAccel.h"
 #include "PathTracerFeature.h"
 
-// @TODO: should not view raw scene
-namespace cave {
-class Scene;
-}
+// clang-format off
+namespace cave { class Scene; }
+// clang-format on
 
 namespace cave::render {
 
-struct GpuScene {
-    // @TODO: material
-    Vector<GpuPtBvh> bvhs;
-    Vector<GpuPtVertex> vertices;
-    Vector<GpuPtIndex> indices;
-};
-
-// @TODO: make it a layer?
 class PathTracer {
 public:
     void setMode(PathTracerMode mode) { m_mode = mode; }
@@ -42,7 +32,6 @@ private:
 
     struct MeshData {
         int root_bvh_id;
-        ecs::Entity material_id;
     };
 
     // @TODO: rename

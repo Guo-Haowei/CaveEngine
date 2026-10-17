@@ -1,6 +1,6 @@
 /// File: pass_tracer.slang
 #include "../cbuffer.slang.h"
-#include "../structured_buffer.slang.h"
+#include "../path_tracer_defines.slang.h"
 
 #include "common.slang"
 
@@ -20,7 +20,7 @@ StructuredBuffer<GpuPtMaterial> GlobalPtMaterials : register(t4);
 #endif
 
 // @NOTE: include this at last
-#include "../shared_path_tracer.h"
+#include "../path_tracer.slang.h"
 
 [shader("compute")]
 [numthreads(16, 16, 1)]
@@ -79,7 +79,8 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
     float4 final_color = float4(radiance, 1.0);
 
 #if !defined(FORCE_UPDATE)
-    if (c_scene_dirty == CAVE_FALSE) {
+    // if (c_scene_dirty == CAVE_FALSE)
+    {
         float4 accumulated = output[uv];
         float weight = accumulated.a;
         float3 new_color = radiance + weight * accumulated.rgb;

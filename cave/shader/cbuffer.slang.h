@@ -1,7 +1,7 @@
 /// File: cbuffer.slang.h
 #ifndef CBUFFER_INCLUDED
 #define CBUFFER_INCLUDED
-#include "shader_defines.hlsl.h"
+#include "shader_defines.slang.h"
 
 struct Light {
     float4x4 projection_matrix;  // 64

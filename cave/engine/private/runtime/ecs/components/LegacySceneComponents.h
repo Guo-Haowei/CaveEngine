@@ -6,7 +6,7 @@
 #include "cave/runtime/ecs/ComponentDefines.h"
 
 namespace cave {
-#include "shader_defines.hlsl.h"
+#include "shader_defines.slang.h"
 }  // namespace cave
 
 namespace cave {

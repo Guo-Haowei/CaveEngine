@@ -1,5 +1,5 @@
 /// File: voxelization_post.pre.glsl
-#include "../shader_defines.hlsl.h"
+#include "../shader_defines.slang.h"
 
 layout(local_size_x = COMPUTE_LOCAL_SIZE_VOXEL, local_size_y = COMPUTE_LOCAL_SIZE_VOXEL, local_size_z = COMPUTE_LOCAL_SIZE_VOXEL) in;
 layout(rgba16f, binding = 0) uniform image3D u_albedo_texture;

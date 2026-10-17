@@ -245,8 +245,8 @@ void PropertyPanel::drawUIImpl() {
         });
 
     MeshRendererComponent* mesh_renderer = scene.component<MeshRendererComponent>(id);
-    DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& p_render) {
-        DrawObjectAuto<MeshRendererComponent>(&p_render, ctx);
+    DrawComponent(DRAW_COMPONENT_ARGS("MeshRenderer"), mesh_renderer, [&](MeshRendererComponent& renderer) {
+        DrawObjectAuto<MeshRendererComponent>(&renderer, ctx);
 
         if (ImGui::Button("+")) {
             // @TODO: command
@@ -260,8 +260,8 @@ void PropertyPanel::drawUIImpl() {
 #endif
         }
 
-        for (ecs::Entity id : p_render.materialInstances()) {
-            if (MaterialComponent* material = scene.component<MaterialComponent>(id); material) {
+        for (ecs::Entity id : renderer.materialInstances()) {
+            if (MaterialComponent* material = scene.component<MaterialComponent>(id)) {
                 DrawObjectCtx copy_ctx = ctx;
                 copy_ctx.entity = id;
                 DrawObjectAuto<MaterialComponent>(material, copy_ctx);
