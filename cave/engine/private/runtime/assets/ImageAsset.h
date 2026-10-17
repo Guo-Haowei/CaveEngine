@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/runtime/assets/IAsset.h"
 
 namespace cave {

@@ -5,13 +5,11 @@
 #include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/EngineServices.h"
 
+// @TODO: refactor
 #include "engine/private/runtime/framework/AssetRegistry.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/view/ViewManager.h"
 #include "engine/private/runtime/scene/SceneRegistry.h"
-
-// @TODO: refactor
-#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 

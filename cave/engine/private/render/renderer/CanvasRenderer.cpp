@@ -2,7 +2,7 @@
 
 #include "cave/render/rhi/PipelineState.h"
 
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "cave/render/rhi/GpuResources.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/AssetRegistry.h"
 // @TODO: move IRenderDevice to render?

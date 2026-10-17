@@ -1,5 +1,6 @@
 #include "ViewTabBase.h"
 
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/framework/EngineServices.h"
 
@@ -16,7 +17,6 @@
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/scene/SceneScheduler.h"
 #include "engine/private/runtime/view/ViewManager.h"
-#include "engine/private/render/rhi/gpu_resource.h"
 
 namespace cave {
 

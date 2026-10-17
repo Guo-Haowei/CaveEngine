@@ -102,24 +102,24 @@ void OpenGlCommandList::setStencilRef(uint32_t ref) {
 }
 
 void OpenGlCommandList::setBlendState(const BlendDesc& blend_desc, const float*, uint32_t) {
-    const auto& desc = blend_desc.renderTargets[0];
-    if (desc.blendEnabled) {
+    const auto& desc = blend_desc.render_targets[0];
+    if (desc.blend_enabled) {
         glEnable(GL_BLEND);
     } else {
         glDisable(GL_BLEND);
         return;
     }
 
-    const bool r_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_RED;
-    const bool g_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_GREEN;
-    const bool b_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_BLUE;
-    const bool a_mask = desc.colorWriteMask & COLOR_WRITE_ENABLE_ALPHA;
+    const bool r_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_RED;
+    const bool g_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_GREEN;
+    const bool b_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_BLUE;
+    const bool a_mask = desc.color_write_mask & COLOR_WRITE_ENABLE_ALPHA;
 
     glColorMask(r_mask, g_mask, b_mask, a_mask);
 
-    auto src_blend = gl::Convert(desc.blendSrc);
-    auto dest_blend = gl::Convert(desc.blendDest);
-    auto func = gl::Convert(desc.blendOp);
+    auto src_blend = gl::Convert(desc.blend_src);
+    auto dest_blend = gl::Convert(desc.blend_dest);
+    auto func = gl::Convert(desc.blend_op);
 
     glBlendEquation(func);
     glBlendFunc(src_blend, dest_blend);

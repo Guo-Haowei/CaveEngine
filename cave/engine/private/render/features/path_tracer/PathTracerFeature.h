@@ -1,8 +1,8 @@
 #pragma once
-#include "engine/private/render/render_graph/RGTextureId.h"
+#include "cave/render/rhi/GpuResources.h"
 
 // @TODO: refactor this
-#include "engine/private/render/rhi/gpu_resource.h"
+#include "engine/private/render/render_graph/RGTextureId.h"
 
 namespace cave {
 class Scene;

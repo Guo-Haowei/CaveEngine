@@ -178,13 +178,13 @@ static inline D3D_(TEXTURE_ADDRESS_MODE) Convert(AddressMode p_mode) {
 
 static inline D3D_(BLEND) Convert(Blend blend) {
     switch (blend) {
-        case Blend::BLEND_ZERO:
+        case Blend::Zero:
             return D3D_BLEND_(ZERO);
-        case Blend::BLEND_ONE:
+        case Blend::One:
             return D3D_BLEND_(ONE);
-        case Blend::BLEND_SRC_ALPHA:
+        case Blend::SrcAlpha:
             return D3D_BLEND_(SRC_ALPHA);
-        case Blend::BLEND_INV_SRC_ALPHA:
+        case Blend::InvSrcAlpha:
             return D3D_BLEND_(INV_SRC_ALPHA);
         default:
             CRASH_NOW();
@@ -192,11 +192,11 @@ static inline D3D_(BLEND) Convert(Blend blend) {
     }
 }
 
-static inline D3D_(BLEND_OP) Convert(BlendOp p_blend_op) {
-    switch (p_blend_op) {
-        case BlendOp::BLEND_OP_ADD:
+static inline D3D_(BLEND_OP) Convert(BlendOp blend_op) {
+    switch (blend_op) {
+        case BlendOp::Add:
             return D3D_BLEND_(OP_ADD);
-        case BlendOp::BLEND_OP_SUB:
+        case BlendOp::Sub:
             return D3D_BLEND_(OP_SUBTRACT);
         default:
             CRASH_NOW();
@@ -204,8 +204,8 @@ static inline D3D_(BLEND_OP) Convert(BlendOp p_blend_op) {
     }
 }
 
-static inline D3D_(STENCIL_OP) Convert(StencilOp p_op) {
-    switch (p_op) {
+static inline D3D_(STENCIL_OP) Convert(StencilOp stencil_op) {
+    switch (stencil_op) {
 #define STENCIL_OP_ENUM(ENUM, VALUE) \
     case StencilOp::ENUM:            \
         return D3D_STENCIL_OP_(ENUM);
@@ -227,62 +227,61 @@ static inline D3D_(FILTER) Convert(MinFilter p_min_filter, MagFilter p_mag_filte
     return filter;
 }
 
-static inline auto Convert(const StencilOpDesc* p_in) {
-    if (!p_in) {
+static inline auto Convert(const StencilOpDesc* stencil_op_desc) {
+    if (!stencil_op_desc) {
         CRASH_NOW_MSG("TODO: default");
     }
 
     D3D_(DEPTH_STENCILOP_DESC)
     desc{};
-    desc.StencilFunc = Convert(p_in->stencilFunc);
-    desc.StencilFailOp = Convert(p_in->stencilFailOp);
-    desc.StencilDepthFailOp = Convert(p_in->stencilDepthFailOp);
-    desc.StencilPassOp = Convert(p_in->stencilPassOp);
+    desc.StencilFunc = Convert(stencil_op_desc->stencilFunc);
+    desc.StencilFailOp = Convert(stencil_op_desc->stencilFailOp);
+    desc.StencilDepthFailOp = Convert(stencil_op_desc->stencilDepthFailOp);
+    desc.StencilPassOp = Convert(stencil_op_desc->stencilPassOp);
     return desc;
 }
 
-static inline auto Convert(const BlendDesc* p_in) {
-    if (!p_in) {
+static inline auto Convert(const BlendDesc* blend_desc) {
+    if (!blend_desc) {
         CRASH_NOW_MSG("TODO: default");
     }
 
     D3D_(BLEND_DESC)
-    desc;
-    ZeroMemory(&desc, sizeof(desc));
-    for (uint32_t i = 0; i < std::size(p_in->renderTargets); ++i) {
+    desc{};
+    for (uint32_t i = 0; i < std::size(blend_desc->render_targets); ++i) {
         auto& out = desc.RenderTarget[i];
-        const auto& in = p_in->renderTargets[i];
-        out.BlendEnable = in.blendEnabled;
-        out.SrcBlend = out.SrcBlendAlpha = Convert(in.blendSrc);
-        out.DestBlend = out.DestBlendAlpha = Convert(in.blendDest);
-        out.BlendOp = out.BlendOpAlpha = Convert(in.blendOp);
-        out.RenderTargetWriteMask = in.colorWriteMask;
+        const auto& in = blend_desc->render_targets[i];
+        out.BlendEnable = in.blend_enabled;
+        out.SrcBlend = out.SrcBlendAlpha = Convert(in.blend_src);
+        out.DestBlend = out.DestBlendAlpha = Convert(in.blend_dest);
+        out.BlendOp = out.BlendOpAlpha = Convert(in.blend_op);
+        out.RenderTargetWriteMask = in.color_write_mask;
     }
     return desc;
 }
 
-static inline auto Convert(const DepthStencilDesc* p_in) {
-    if (!p_in) {
+static inline auto Convert(const DepthStencilDesc* depth_stencil_desc) {
+    if (!depth_stencil_desc) {
         CRASH_NOW_MSG("TODO: default");
     }
 
     D3D_(DEPTH_STENCIL_DESC)
     desc{};
-    desc.DepthEnable = p_in->depthEnabled;
-    desc.DepthFunc = d3d::Convert(p_in->depthFunc);
+    desc.DepthEnable = depth_stencil_desc->depthEnabled;
+    desc.DepthFunc = d3d::Convert(depth_stencil_desc->depthFunc);
     desc.DepthWriteMask = D3D_(DEPTH_WRITE_MASK_ALL);
-    desc.StencilEnable = p_in->stencilEnabled;
-    desc.StencilWriteMask = p_in->stencilWriteMask;
-    desc.StencilReadMask = p_in->stencilReadMask;
+    desc.StencilEnable = depth_stencil_desc->stencilEnabled;
+    desc.StencilWriteMask = depth_stencil_desc->stencilWriteMask;
+    desc.StencilReadMask = depth_stencil_desc->stencilReadMask;
 
-    desc.FrontFace = d3d::Convert(&p_in->frontFace);
-    desc.BackFace = d3d::Convert(&p_in->backFace);
+    desc.FrontFace = d3d::Convert(&depth_stencil_desc->frontFace);
+    desc.BackFace = d3d::Convert(&depth_stencil_desc->backFace);
     return desc;
 }
 
 #if defined(INCLUDE_AS_D3D11)
-static inline D3D11_USAGE Convert(BufferUsage p_usage) {
-    switch (p_usage) {
+static inline D3D11_USAGE Convert(BufferUsage usage) {
+    switch (usage) {
         case BufferUsage::Immutable:
             return D3D11_USAGE_IMMUTABLE;
         case BufferUsage::Dynamic:
@@ -298,8 +297,8 @@ static inline D3D11_USAGE Convert(BufferUsage p_usage) {
 #endif
 
 #if defined(INCLUDE_AS_D3D12)
-static inline D3D12_STATIC_BORDER_COLOR Convert(StaticBorderColor p_color) {
-    switch (p_color) {
+static inline D3D12_STATIC_BORDER_COLOR Convert(StaticBorderColor color) {
+    switch (color) {
         case StaticBorderColor::TransparentBlack:
             return D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
         case StaticBorderColor::OpaqueBlack:

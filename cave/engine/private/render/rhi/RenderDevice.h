@@ -1,11 +1,12 @@
 #pragma once
 #include "cave/core/base/Singleton.h"
+#include "cave/core/math/Matrix.h"
+#include "cave/core/math/Vec.h"
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/PipelineState.h"
 
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/core/base/concurrent_queue.h"
-// #include "engine/private/core/math/Geomath.h"
-#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/runtime/framework/IRenderDevice.h"
 #include "engine/private/runtime/framework/PipelineStateManager.h"
 

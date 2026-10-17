@@ -6,6 +6,7 @@
 #include "D3d11Helpers.h"
 #include "D3d11PipelineStateManager.h"
 
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/render/rhi/Sampler.h"
 #include "cave/runtime/display/DisplayService.h"
 #include "cave/runtime/framework/IApplication.h"
@@ -14,7 +15,6 @@
 #include "../d3d_common/D3dCommon.h"
 #include "engine/private/render/render_graph/CompiledGraph.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
-#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
 

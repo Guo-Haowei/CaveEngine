@@ -10,6 +10,10 @@ namespace cave::render {
 struct GpuResource;
 using GpuTextureId = Ref<GpuResource>;
 
+// =============================================================================
+// RHI Backends
+// =============================================================================
+
 // clang-format off
 #define BACKEND_LIST                                    \
     BACKEND_DECLARE(Null,       "Null",         null)   \
@@ -26,6 +30,10 @@ enum class Backend : uint8_t {
 #undef BACKEND_DECLARE
         Count,
 };
+
+// =============================================================================
+// Resource
+// =============================================================================
 
 enum class Dimension : uint8_t {
     Buffer = 0,
@@ -53,6 +61,10 @@ enum class GpuBufferType : uint8_t {
     Structured,
 };
 
+// =============================================================================
+// Input Assembler
+// =============================================================================
+
 enum class PrimitiveTopology : uint8_t {
     Undefined = 0,
     Point,
@@ -61,43 +73,14 @@ enum class PrimitiveTopology : uint8_t {
     Patch,
 };
 
-enum class LoadOp : uint8_t {
-    Load = 0,
-    Clear,
-    DontCare,
-};
-
-enum class StoreOp : uint8_t {
-    Store = 0,
-};
-
-enum class MagFilter : uint8_t {
-    Point,
-    Linear,
-};
-
-enum class MinFilter : uint8_t {
-    Point,
-    Linear,
-    LinearMipmapLinear,
-};
-
-enum class AddressMode : uint8_t {
-    Wrap,
-    Clamp,
-    Border,
-};
-
-enum class StaticBorderColor {
-    TransparentBlack = 0,
-    OpaqueBlack,
-    OpaqueWhite,
-};
-
 enum class InputClassification : uint8_t {
     PerVertexData = 0,
     PerInstanceData,
 };
+
+// =============================================================================
+// Rasterizer
+// =============================================================================
 
 enum class FillMode : uint8_t {
     Wireframe = 0,
@@ -111,37 +94,24 @@ enum class CullMode : uint8_t {
     FrontAndBack,
 };
 
-enum class Blend : uint8_t {
-    BLEND_ZERO = 1,
-    BLEND_ONE,
-    BLEND_SRC_ALPHA,
-    BLEND_INV_SRC_ALPHA,
+struct Viewport {
+    Viewport(int width, int height)
+        : width(width)
+        , height(height)
+        , top_left_x(0)
+        , top_left_y(0) {}
+
+    int width;
+    int height;
+    int top_left_x;
+    int top_left_y;
 };
 
-enum class BlendOp : uint8_t {
-    BLEND_OP_ADD,
-    BLEND_OP_SUB,
-};
+// =============================================================================
+// Output Merger
+// =============================================================================
 
-// clang-format off
-enum ColorWriteEnable : uint8_t {
-    COLOR_WRITE_ENABLE_NONE  = 0,
-    COLOR_WRITE_ENABLE_RED   = BIT(0),
-    COLOR_WRITE_ENABLE_GREEN = BIT(1),
-    COLOR_WRITE_ENABLE_BLUE  = BIT(2),
-    COLOR_WRITE_ENABLE_ALPHA = BIT(3),
-    COLOR_WRITE_ENABLE_ALL   = COLOR_WRITE_ENABLE_RED | COLOR_WRITE_ENABLE_GREEN | COLOR_WRITE_ENABLE_BLUE | COLOR_WRITE_ENABLE_ALPHA,
-};
-// clang-format on
-DEFINE_ENUM_BITWISE_OPERATIONS(ColorWriteEnable);
-
-struct RenderTargetBlendDesc {
-    bool blendEnabled{ false };
-    Blend blendSrc{ Blend::BLEND_ONE };
-    Blend blendDest{ Blend::BLEND_ZERO };
-    BlendOp blendOp{ BlendOp::BLEND_OP_ADD };
-    ColorWriteEnable colorWriteMask{ COLOR_WRITE_ENABLE_ALL };
-};
+// --- Depth & Stencil ---
 
 #define COMPARISON_FUNC_ENUM_LIST          \
     COMPARISON_FUNC_ENUM(NEVER, 1)         \
@@ -175,10 +145,59 @@ enum class StencilOp : uint8_t {
 #undef STENCIL_OP_ENUM
 };
 
+// @TODO: remove this
+enum StencilFlags : uint8_t {
+    STENCIL_FLAG_NONE = 0,
+    STENCIL_FLAG_HIGHLIGHT = 1,
+    STENCIL_FLAG_SKY = 255,
+};
+
+// --- Color & Blending ---
+enum class Blend : uint8_t {
+    Zero = 1,
+    One,
+    SrcAlpha,
+    InvSrcAlpha,
+};
+
+enum class BlendOp : uint8_t {
+    Add,
+    Sub,
+};
+
+enum ColorWriteEnable : uint8_t {
+    COLOR_WRITE_ENABLE_NONE = 0,
+    COLOR_WRITE_ENABLE_RED = 1,
+    COLOR_WRITE_ENABLE_GREEN = 2,
+    COLOR_WRITE_ENABLE_BLUE = 4,
+    COLOR_WRITE_ENABLE_ALPHA = 8,
+    COLOR_WRITE_ENABLE_ALL = COLOR_WRITE_ENABLE_RED | COLOR_WRITE_ENABLE_GREEN | COLOR_WRITE_ENABLE_BLUE | COLOR_WRITE_ENABLE_ALPHA,
+};
+DEFINE_ENUM_BITWISE_OPERATIONS(ColorWriteEnable);
+
+struct RenderTargetBlendDesc {
+    bool blend_enabled{ false };
+    Blend blend_src{ Blend::One };
+    Blend blend_dest{ Blend::Zero };
+    BlendOp blend_op{ BlendOp::Add };
+    ColorWriteEnable color_write_mask{ COLOR_WRITE_ENABLE_ALL };
+};
+
 struct BlendDesc {
-    bool alphaToCoverageEnable{ false };
-    bool independentBlendEnable{ false };
-    RenderTargetBlendDesc renderTargets[8]{};
+    bool alpha_to_coverage_enable{ false };
+    bool independent_blend_enable{ false };
+    RenderTargetBlendDesc render_targets[8]{};
+};
+
+// --- Render Targets ---
+enum class LoadOp : uint8_t {
+    Load = 0,
+    Clear,
+    DontCare,
+};
+
+enum class StoreOp : uint8_t {
+    Store = 0,
 };
 
 struct TextureViewDesc {
@@ -208,24 +227,31 @@ struct RenderingInfo {
     std::optional<DepthAttachmentDesc> depth;
 };
 
-struct Viewport {
-    Viewport(int width, int height)
-        : width(width)
-        , height(height)
-        , top_left_x(0)
-        , top_left_y(0) {}
+// =============================================================================
+// Sampler State
+// =============================================================================
 
-    int width;
-    int height;
-    int top_left_x;
-    int top_left_y;
+enum class MagFilter : uint8_t {
+    Point,
+    Linear,
 };
 
-// @TODO: remove this
-enum StencilFlags : uint8_t {
-    STENCIL_FLAG_NONE = 0,
-    STENCIL_FLAG_HIGHLIGHT = 1,
-    STENCIL_FLAG_SKY = 255,
+enum class MinFilter : uint8_t {
+    Point,
+    Linear,
+    LinearMipmapLinear,
+};
+
+enum class AddressMode : uint8_t {
+    Wrap,
+    Clamp,
+    Border,
+};
+
+enum class StaticBorderColor {
+    TransparentBlack = 0,
+    OpaqueBlack,
+    OpaqueWhite,
 };
 
 }  // namespace cave::render

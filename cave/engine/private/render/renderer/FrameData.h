@@ -5,12 +5,11 @@
 #include "cave/core/math/Angle.h"
 #include "cave/core/math/AABB.h"
 #include "cave/render/rhi/Defines.h"
+#include "cave/render/rhi/GpuResources.h"
 #include "cave/runtime/view/ViewDesc.h"
 
 #include "RenderPackets.h"
 
-#include "engine/private/core/math/Geomath.h"
-#include "engine/private/render/rhi/gpu_resource.h"
 #include "engine/private/runtime/view/ResolvedView.h"
 
 namespace cave {

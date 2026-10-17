@@ -95,25 +95,25 @@ static const DepthStencilDesc s_depth_reversed_stencil_on_highlight = {
 static const BlendDesc s_default_blend_state = {};
 
 static const BlendDesc s_transparent = {
-    .renderTargets = {
+    .render_targets = {
         {
-            .blendEnabled = true,
-            .blendSrc = Blend::BLEND_SRC_ALPHA,
-            .blendDest = Blend::BLEND_INV_SRC_ALPHA,
-            .blendOp = BlendOp::BLEND_OP_ADD,
+            .blend_enabled = true,
+            .blend_src = Blend::SrcAlpha,
+            .blend_dest = Blend::InvSrcAlpha,
+            .blend_op = BlendOp::Add,
         } }
 };
 
 static const BlendDesc s_blend_state_off = {
-    .renderTargets = {
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
-        { .colorWriteMask = COLOR_WRITE_ENABLE_NONE },
+    .render_targets = {
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
+        { .color_write_mask = COLOR_WRITE_ENABLE_NONE },
     },
 };
 
