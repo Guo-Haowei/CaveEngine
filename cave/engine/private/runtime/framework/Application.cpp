@@ -65,6 +65,7 @@ auto Application::setupModules() -> Result<void> {
     m_engine_services.ui_canvas = &m_ui_canvas;
     m_engine_services.intent_bus = &m_intent_bus;
     m_engine_services.command_registry = &m_command_registry;
+    m_engine_services.event_queue = &m_event_queue;
 
     m_console = MakeOwner<Console>(services());
     m_engine_services.console_ = m_console.get();
@@ -134,7 +135,7 @@ auto Application::setupModules() -> Result<void> {
         registerModule(m_imgui);
     }
 
-    m_event_queue.RegisterListener(m_render_device);
+    m_event_queue.registerListener(m_render_device);
 
     // @TODO: move to registerCommands
     RegisterCommands(m_command_registry);
@@ -185,6 +186,8 @@ auto Application::initialize() -> Result<void> {
 
 void Application::finalize() {
     m_state_machine.shutdown();
+
+    m_event_queue.unregisterListener(m_render_device);
 
     // @TODO: move it to request shutdown
     thread::RequestShutdown();

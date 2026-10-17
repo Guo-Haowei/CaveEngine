@@ -8,7 +8,7 @@
 
 namespace cave {
 
-// must be same order as "shader_defines.hlsl.h"
+// must be same order as "shader_defines.slang.h"
 enum class LightType : uint8_t {
     Infinite = 0,
     Point,

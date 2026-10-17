@@ -113,7 +113,7 @@ static void FillPass(const RenderScene& p_rs,
                 memcpy(bone.c_bones, skeleton->bone_transforms.data(), sizeof(Mat4f) * skeleton->bone_transforms.size());
 
                 // @TODO: better memory usage
-                draw.bone_idx = p_framedata.boneCache.FindOrAdd(skeleton_id, bone);
+                draw.bone_idx = p_framedata.bone_cache.FindOrAdd(skeleton_id, bone);
             }
         }
 
@@ -122,7 +122,7 @@ static void FillPass(const RenderScene& p_rs,
         }
 
         draw.mesh_data = mesh.gpu_mesh;
-        draw.batch_idx = p_framedata.batchCache.FindOrAdd(header.owner, batch_buffer);
+        draw.batch_idx = p_framedata.batch_cache.FindOrAdd(header.owner, batch_buffer);
 
         // if pass doesn't need material, early return
         if (p_no_mat) {
@@ -149,7 +149,7 @@ static void FillPass(const RenderScene& p_rs,
                                        material_buffer);
 
             draw.index = { subset.index_offset, subset.index_count };
-            draw.mat_idx = p_framedata.materialCache.FindOrAdd(material_id, material_buffer);
+            draw.mat_idx = p_framedata.material_cache.FindOrAdd(material_id, material_buffer);
 
             p_commands.emplace_back(draw);
         }
@@ -162,7 +162,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
                             FrameData& p_framedata) {
     const uint32_t light_count = glm::min<uint32_t>((uint32_t)p_scene.count<LightComponent>(), MAX_LIGHT_COUNT);
 
-    auto& cache = p_framedata.perFrameCache;
+    auto& cache = p_framedata.per_frame_cache;
     cache.c_light_count = light_count;
 
     [[maybe_unused]] auto& point_shadow_cache = p_framedata.pointShadowCache;
@@ -213,8 +213,8 @@ static void FillLightBuffer(const RenderScene& p_rs,
                 // @TODO: Build correct matrices
                 pass_constant.c_projectionMatrix = light.projection_matrix;
                 pass_constant.c_viewMatrix = light.view_matrix;
-                p_framedata.shadowPasses[0].pass_idx = static_cast<int>(p_framedata.viewCache.size());
-                p_framedata.viewCache.emplace_back(pass_constant);
+                p_framedata.shadow_passes[0].pass_idx = static_cast<int>(p_framedata.view_cache.size());
+                p_framedata.view_cache.emplace_back(pass_constant);
 
                 Frustum light_frustum(light.projection_matrix * light.view_matrix);
                 FillPass(
@@ -301,8 +301,8 @@ static void FillMainPass(const Scene& p_es,
     pass_constant.c_viewMatrix = camera.view;
     pass_constant.c_projectionMatrix = camera.proj;
 
-    p_framedata.mainPass.pass_idx = static_cast<int>(p_framedata.viewCache.size());
-    p_framedata.viewCache.emplace_back(pass_constant);
+    p_framedata.main_pass.pass_idx = static_cast<int>(p_framedata.view_cache.size());
+    p_framedata.view_cache.emplace_back(pass_constant);
 
     FillPass(
         p_rs,

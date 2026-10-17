@@ -46,7 +46,7 @@ public:
 
     void drawSkybox() override {}
 
-    void eventReceived(Ref<IEvent>) override {}
+    void eventReceived(const IEvent*) override {}
 
     ICommandList* getCommandList() const override { return nullptr; }
 

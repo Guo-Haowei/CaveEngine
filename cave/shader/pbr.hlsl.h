@@ -1,7 +1,7 @@
 /// File: pbr.hlsl.h
 #ifndef PBR_HLSL_H_INCLUDED
 #define PBR_HLSL_H_INCLUDED
-#include "shader_defines.hlsl.h"
+#include "shader_defines.slang.h"
 
 #if defined(__cplusplus)
 #include <cave/core/math/Vec.h>

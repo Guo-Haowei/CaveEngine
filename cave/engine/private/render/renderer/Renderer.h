@@ -15,6 +15,7 @@ namespace cave { struct FrameData; }
 
 namespace cave::render {
 
+class PathTracerFeature;
 class TransientPool;
 
 struct RendererCapabilities {
@@ -42,6 +43,8 @@ public:
     const RendererCapabilities& getCapabilities() const;
     // @TODO: instead, create renderer after project selected
     void setMode(bool is_2d);
+
+    PathTracerFeature& pathtracer();
 
     template<typename T>
     T* tryGet() { return nullptr; }

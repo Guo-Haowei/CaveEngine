@@ -10,7 +10,7 @@
 
 namespace cave {
 
-#include "shader_defines.hlsl.h"
+#include "shader_defines.slang.h"
 
 using namespace ::cave::math;
 using ::cave::ecs::Entity;

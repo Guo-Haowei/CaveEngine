@@ -8,8 +8,7 @@ namespace cave {
 
 class GlfwDisplayService final : public DisplayService {
 public:
-    GlfwDisplayService()
-        : DisplayService("GlfwDisplayService") {}
+    GlfwDisplayService();
 
     void FinalizeImpl() override;
 

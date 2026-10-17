@@ -19,54 +19,6 @@ struct ParticleCounter {
     int emissionCount;
 };
 
-// ray tracing
-struct GpuPtBvh {
-    float3 min;
-    int missIdx;
-    float3 max;
-    int hitIdx;
-
-    float2 _padding;
-    int leaf;
-    int triangleIndex;
-};
-
-struct GpuPtVertex {
-    float3 position;
-    int _padding1;
-    float3 normal;
-    int _padding2;
-};
-
-struct GpuPtIndex {
-    int3 tri;
-    int _padding1;
-};
-
-struct GpuPtMesh {
-    float4x4 transform;
-    float4x4 transformInv;
-
-    float2 _padding4;
-    int rootBvhId;
-    int materialId;
-};
-
-struct GpuPtMaterial {
-    float3 baseColor;
-    float roughness;
-    float3 emissive;
-    float metallic;
-};
-
-#if defined(__cplusplus)
-static_assert(sizeof(GpuPtBvh) % sizeof(float4) == 0);
-static_assert(sizeof(GpuPtVertex) % sizeof(float4) == 0);
-static_assert(sizeof(GpuPtIndex) % sizeof(float4) == 0);
-static_assert(sizeof(GpuPtMesh) % sizeof(float4) == 0);
-static_assert(sizeof(GpuPtMaterial) % sizeof(float4) == 0);
-#endif
-
 #if defined(__cplusplus)
 #define SBUFFER(DATA_TYPE, NAME, REG, REG2) \
     static constexpr inline int Get##NAME##Slot() { return REG; }

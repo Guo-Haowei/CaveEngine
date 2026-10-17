@@ -1,11 +1,12 @@
-/// File: shared_path_tracer.h
+/// File: .slang.h
 #if defined(__cplusplus)
 #include <cave/core/math/Vec.h>
 
 #include <cmath>
 
 namespace cave {
-#include "structured_buffer.slang.h"
+#include "shader_defines.slang.h"
+#include "path_tracer_defines.slang.h"
 
 #define inout
 #define in
@@ -52,13 +53,13 @@ struct Sphere {
 // Random function
 //------------------------------------------------------------------------------
 // https://blog.demofox.org/2020/05/25/casual-shadertoy-path-tracing-1-basic-camera-diffuse-emissive/
-uint WangHash(inout uint p_seed) {
-    p_seed = uint(p_seed ^ uint(61)) ^ uint(p_seed >> uint(16));
-    p_seed *= uint(9);
-    p_seed = p_seed ^ (p_seed >> 4);
-    p_seed *= uint(0x27d4eb2d);
-    p_seed = p_seed ^ (p_seed >> 15);
-    return p_seed;
+uint WangHash(inout uint seed) {
+    seed = uint(seed ^ uint(61)) ^ uint(seed >> uint(16));
+    seed *= uint(9);
+    seed = seed ^ (seed >> 4);
+    seed *= uint(0x27d4eb2d);
+    seed = seed ^ (seed >> 15);
+    return seed;
 }
 
 // random number between 0 and 1
@@ -67,9 +68,9 @@ float Random(inout uint p_state) {
 }
 
 // random unit vector
-float3 RandomUnitVector(inout uint p_state) {
-    float z = Random(p_state) * 2.0 - 1.0;
-    float a = Random(p_state) * MY_TWO_PI;
+float3 RandomUnitVector(inout uint state) {
+    float z = Random(state) * 2.0 - 1.0;
+    float a = Random(state) * MY_TWO_PI;
     float r = sqrt(1.0 - z * z);
     float x = r * cos(a);
     float y = r * sin(a);
@@ -153,14 +154,14 @@ HitResult HitScene(inout Ray p_ray) {
     // check if it hits all the objects
     for (int mesh_id = 0; mesh_id < c_pt_object_count; ++mesh_id) {
         GpuPtMesh mesh = GlobalPtMeshes[mesh_id];
-        float4x4 inversed = mesh.transformInv;
+        float4x4 inversed = mesh.transform_inv;
         Ray local_ray;
         local_ray.origin = mul(inversed, float4(p_ray.origin, 1.0f)).xyz;
         local_ray.direction = mul(inversed, float4(p_ray.direction, 0.0f)).xyz;
         local_ray.invDir = 1.0f / local_ray.direction;
         local_ray.t = p_ray.t;
 
-        int bvhIndex = mesh.rootBvhId;
+        int bvhIndex = mesh.root_bvh_id;
         while (bvhIndex >= 0) {
             GpuPtBvh bvh = GlobalPtBvhs[bvhIndex];
             if (HitBvh(local_ray, bvh.min, bvh.max)) {
@@ -173,9 +174,9 @@ HitResult HitScene(inout Ray p_ray) {
                         p_ray.t = local_ray.t;
                     }
                 }
-                bvhIndex = bvh.hitIdx;
+                bvhIndex = bvh.hit_idx;
             } else {
-                bvhIndex = bvh.missIdx;
+                bvhIndex = bvh.miss_idx;
             }
         }
     }
@@ -183,50 +184,82 @@ HitResult HitScene(inout Ray p_ray) {
     return res;
 }
 
-float3 RayColor(inout Ray p_ray, inout uint state) {
+float3 RayColor(inout Ray ray, inout uint state) {
     float3 radiance = float3(0, 0, 0);
     // float3 throughput = float3(1, 1, 1);
     float3 throughput = float3(4, 4, 4);
 
     for (int i = 0; i < MAX_BOUNCE; ++i) {
         // check all objects
-        HitResult result = HitScene(p_ray);
+        HitResult result = HitScene(ray);
         if (result.hitMeshId >= 0 && result.hitTriangleId >= 0) {
-            p_ray.origin = p_ray.origin + p_ray.t * p_ray.direction;
-            p_ray.t = RAY_T_MAX;
+            ray.origin = ray.origin + ray.t * ray.direction;
+            ray.t = RAY_T_MAX;
 
             // calculate normal
             GpuPtMesh mesh = GlobalPtMeshes[result.hitMeshId];
 
             int3 indices = GlobalPtIndices[result.hitTriangleId].tri;
-            float3 n1 = GlobalPtVertices[indices.x].normal;
-            float3 n2 = GlobalPtVertices[indices.y].normal;
-            float3 n3 = GlobalPtVertices[indices.z].normal;
-            float3 n = n1 + result.uv.x * (n2 - n1) + result.uv.y * (n3 - n1);
+            GpuPtVertex p0 = GlobalPtVertices[indices.x];
+            GpuPtVertex p1 = GlobalPtVertices[indices.y];
+            GpuPtVertex p2 = GlobalPtVertices[indices.z];
+
+            float3 n0 = p0.normal;
+            float3 n1 = p1.normal;
+            float3 n2 = p2.normal;
+            float3 n = n0 + result.uv.x * (n1 - n0) + result.uv.y * (n2 - n0);
+
+            float2 uv0 = float2(p0.u, p0.v);
+            float2 uv1 = float2(p1.u, p1.v);
+            float2 uv2 = float2(p2.u, p2.v);
+            float2 uv = uv0 + result.uv.x * (uv1 - uv0) + result.uv.y * (uv2 - uv0);
+
             n = normalize(mul(mesh.transform, float4(n, 0.0f)).xyz);
-#if 0
-            return 0.5f * n + 0.5f;
+
+            GpuPtMaterial material = GlobalPtMaterials[mesh.material_idx];
+
+            float3 diffuse_color;
+#if defined(__TARGET_D3D12__)
+            if (material.base_color_map_handle != INVALID_RESIDENT_HANDLE) {
+                diffuse_color = SAMPLE_2D(material.base_color_map_handle, s_linearMipWrapSampler, uv).rgb;
+            } else
 #endif
+            {
+                diffuse_color = material.base_color.rgb;
+            }
 
-            GpuPtMaterial material = GlobalPtMaterials[mesh.materialId];
-
-            float3 diffuse_color = material.baseColor;
-            float metallic = material.metallic;
-            float roughness = material.roughness;
+            float metallic;
+            float roughness;
+#if defined(__TARGET_D3D12__)
+            if (material.material_map_handle != INVALID_RESIDENT_HANDLE) {
+                float3 value = SAMPLE_2D(material.material_map_handle, s_linearMipWrapSampler, uv).rgb;
+                metallic = value.b;
+                roughness = value.g;
+            } else
+#endif
+            {
+                metallic = material.metallic;
+                roughness = material.roughness;
+            }
 
             float reflect_chance = Random(state) > metallic ? 0.0 : 1.0;
 
             float3 diffuse_dir = normalize(n + RandomUnitVector(state));
-            float3 reflect_dir = reflect(p_ray.direction, n);
+            float3 reflect_dir = reflect(ray.direction, n);
             reflect_dir = normalize(lerp(reflect_dir, diffuse_dir, roughness * roughness));
 
-            p_ray.direction = normalize(lerp(diffuse_dir, reflect_dir, reflect_chance));
-            p_ray.invDir = 1.0f / p_ray.direction;
+            ray.direction = normalize(lerp(diffuse_dir, reflect_dir, reflect_chance));
+            ray.invDir = 1.0f / ray.direction;
 
             radiance += material.emissive * throughput;
             throughput *= diffuse_color;
         } else {
-            radiance += float3(0.3f, 0.3f, 0.3f) * throughput;
+            float3 dir = ray.direction;
+#if !defined(__TARGET_OPENGL__)
+            dir.y = -dir.y;
+#endif
+            float3 color = SAMPLE_CUBE_LEVEL(PASS(t_Skybox), s_linearClampSampler, dir, 0.0f).rgb;
+            radiance += color * throughput;
             break;
         }
     }

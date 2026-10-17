@@ -62,7 +62,7 @@ public:
 
     void drawSkybox() override;
 
-    void eventReceived(Ref<IEvent> event) final;
+    void eventReceived(const IEvent* event) final;
 
 private:
     void execute(const FrameData& data, const CompiledPass& pass);

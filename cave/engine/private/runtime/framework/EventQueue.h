@@ -1,4 +1,5 @@
 #pragma once
+#include "cave/core/ids/ViewId.h"
 
 namespace cave {
 
@@ -25,27 +26,33 @@ protected:
     int m_height;
 };
 
+struct ViewCameraChangedEvent : public IEvent {
+    ViewId view_id;
+};
+
 class EventListener {
 public:
     virtual ~EventListener() {}
-    virtual void eventReceived(std::shared_ptr<IEvent> p_event) = 0;
+    virtual void eventReceived(const IEvent* event) = 0;
 };
 
 class EventQueue {
 public:
-    void EnqueueEvent(std::shared_ptr<IEvent> p_event);
+    ~EventQueue();
 
-    void DispatchEvent(std::shared_ptr<IEvent> p_event);
+    void enqueueEvent(Owner<IEvent> event);
 
-    void FlushEvents();
+    void dispatchEvent(const IEvent* event);
 
-    void RegisterListener(EventListener* p_listener);
+    void flushEvents();
 
-    void UnregisterListener(EventListener* p_listener);
+    void registerListener(EventListener* listener);
+
+    void unregisterListener(EventListener* listener);
 
 private:
-    std::queue<std::shared_ptr<IEvent>> m_events;
-    std::vector<EventListener*> m_listeners;
+    std::queue<Owner<IEvent>> m_events;
+    Vector<EventListener*> m_listeners;
 };
 
 }  // namespace cave

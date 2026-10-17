@@ -11,7 +11,7 @@ struct InputFrame;
 class ICameraController {
 public:
     virtual ~ICameraController() = default;
-    virtual void update(const InputFrame& input) = 0;
+    virtual bool update(const InputFrame& input) = 0;
 
     virtual void setMoveSpeed(float) {}
 };
@@ -23,7 +23,7 @@ public:
     CameraController2DEditor(CameraComponent& camera,
                              TransformComponent& transform);
 
-    void update(const InputFrame& input) final;
+    bool update(const InputFrame& input) final;
 
     void setMoveSpeed(float value) override { m_move_speed = value; }
 
@@ -39,7 +39,7 @@ public:
     CameraControllerFPS(CameraComponent& camera,
                         TransformComponent& transform);
 
-    void update(const InputFrame& input) final;
+    bool update(const InputFrame& input) final;
 
 private:
     CameraComponent& m_camera;

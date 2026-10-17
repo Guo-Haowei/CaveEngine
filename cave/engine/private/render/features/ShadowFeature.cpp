@@ -29,7 +29,7 @@ static void ShadowPassFunc(RenderPassExcutionContext& ctx) {
     auto& cmd = ctx.command;
     const auto& frame = device.getCurrentFrame();
 
-    const PassContext& pass = ctx.frameData.shadowPasses[0];
+    const PassContext& pass = ctx.frameData.shadow_passes[0];
     cmd.bindConstantBufferSlot<PerViewConstantBuffer>(frame.view_cb.get(), pass.pass_idx);
 
     cmd.setPipelineState(PipelineStateName::Depth);

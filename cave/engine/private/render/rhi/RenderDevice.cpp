@@ -77,9 +77,9 @@ auto RenderDevice::InitializeImpl() -> Result<void> {
     return Result<void>();
 }
 
-void RenderDevice::eventReceived(std::shared_ptr<IEvent> p_event) {
-    if (ResizeEvent* e = dynamic_cast<ResizeEvent*>(p_event.get()); e) {
-        onWindowResize(e->GetWidth(), e->GetHeight());
+void RenderDevice::eventReceived(const IEvent* event) {
+    if (const ResizeEvent* resize_event = dynamic_cast<const ResizeEvent*>(event); resize_event) {
+        onWindowResize(resize_event->GetWidth(), resize_event->GetHeight());
     }
 }
 
@@ -253,17 +253,17 @@ void RenderDevice::submit(Owner<render::RenderSubmission>&& submission) {
         for (const FrameData& data : submission->frame_data) {
 
             auto& frame = getCurrentFrame();
-            updateConstantBuffer(frame.batch_cb.get(), data.batchCache.buffer);
-            updateConstantBuffer(frame.material_cb.get(), data.materialCache.buffer);
-            updateConstantBuffer(frame.bone_cb.get(), data.boneCache.buffer);
-            updateConstantBuffer(frame.view_cb.get(), data.viewCache);
-            updateConstantBuffer(frame.pass_cb.get(), data.passCache);
+            updateConstantBuffer(frame.batch_cb.get(), data.batch_cache.buffer);
+            updateConstantBuffer(frame.material_cb.get(), data.material_cache.buffer);
+            updateConstantBuffer(frame.bone_cb.get(), data.bone_cache.buffer);
+            updateConstantBuffer(frame.view_cb.get(), data.view_cache);
+            updateConstantBuffer(frame.pass_cb.get(), data.pass_cache);
 
             updateConstantBuffer<PointShadowConstantBuffer, 6 * MAX_POINT_LIGHT_SHADOW_COUNT>(
                 frame.point_shadow_cb.get(),
                 data.pointShadowCache);
             updateConstantBuffer(frame.per_frame_cb.get(),
-                                 &data.perFrameCache,
+                                 &data.per_frame_cache,
                                  sizeof(PerFrameConstantBuffer));
 
             getCommandList()->bindConstantBufferSlot<PerFrameConstantBuffer>(frame.per_frame_cb.get(), 0);

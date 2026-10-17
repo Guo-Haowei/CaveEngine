@@ -20,7 +20,7 @@ CameraController2DEditor::CameraController2DEditor(CameraComponent& camera,
     , m_root(tranform) {
 }
 
-void CameraController2DEditor::update(const InputFrame& input) {
+bool CameraController2DEditor::update(const InputFrame& input) {
     constexpr Key drag_key = Key::MMB;
     const InputDeviceId id{ 0 };
     const bool drag_key_down = input.keystate.down(id, drag_key);
@@ -75,6 +75,8 @@ void CameraController2DEditor::update(const InputFrame& input) {
         m_root.updateTransform();
         m_camera.update(m_root.worldMatrix());
     }
+
+    return need_update;
 }
 
 CameraControllerFPS::CameraControllerFPS(CameraComponent& camera,
@@ -83,7 +85,7 @@ CameraControllerFPS::CameraControllerFPS(CameraComponent& camera,
     , m_root(tranform) {
 }
 
-void CameraControllerFPS::update(const InputFrame& input) {
+bool CameraControllerFPS::update(const InputFrame& input) {
     constexpr Key kDragKey = Key::MMB;
     const InputDeviceId id{ 0 };
     auto& ks = input.keystate;
@@ -150,10 +152,10 @@ void CameraControllerFPS::update(const InputFrame& input) {
         return rotate_x != 0.0f || rotate_y != 0.0f;
     };
 
-    if (moved || rotate_camera()) {
-        m_camera.setDirty();
-    }
-    if (m_root.dirty()) {
+    bool need_update = false;
+
+    if (moved || rotate_camera() || m_root.dirty()) {
+        need_update = true;
         m_camera.setDirty();
     }
 
@@ -161,6 +163,8 @@ void CameraControllerFPS::update(const InputFrame& input) {
     Mat4f R = glm::rotate(glm::radians(m_pitch), glm::vec3(1, 0, 0));
     Mat4f trans = m_root.localMatrix() * R;
     m_camera.update(trans);
+
+    return need_update;
 }
 
 }  // namespace cave

@@ -1,4 +1,4 @@
-/// File: shader_defines.hlsl.h
+/// File: shader_defines.slang.h
 #ifndef SHADER_DEFINES_INCLUDED
 #define SHADER_DEFINES_INCLUDED
 
@@ -47,6 +47,8 @@
 
 // compute local sizes
 #define COMPUTE_LOCAL_SIZE_VOXEL 4
+
+#define INVALID_RESIDENT_HANDLE (0xFFFFFFFF)
 
 #if defined(__cplusplus)
 

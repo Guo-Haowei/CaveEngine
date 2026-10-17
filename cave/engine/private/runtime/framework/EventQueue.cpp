@@ -2,31 +2,42 @@
 
 namespace cave {
 
-void EventQueue::EnqueueEvent(std::shared_ptr<IEvent> p_event) {
-    m_events.push(p_event);
+EventQueue::~EventQueue() {
+#if USING(DEBUG_BUILD)
+    if (!m_listeners.empty()) {
+        LOG_ERROR(LogChannel::Core, "{} listeners not unregisted", m_listeners.size());
+    }
+#endif
 }
 
-void EventQueue::DispatchEvent(std::shared_ptr<IEvent> p_event) {
-    for (auto& listener : m_listeners) {
-        listener->eventReceived(p_event);
+void EventQueue::enqueueEvent(Owner<IEvent> event) {
+    if (DEV_VERIFY(event)) {
+        m_events.push(std::move(event));
     }
 }
 
-void EventQueue::FlushEvents() {
+void EventQueue::dispatchEvent(const IEvent* event) {
+    for (auto& listener : m_listeners) {
+        listener->eventReceived(event);
+    }
+}
+
+void EventQueue::flushEvents() {
     while (!m_events.empty()) {
-        auto event = m_events.front();
-        DispatchEvent(event);
+        dispatchEvent(m_events.front().get());
         m_events.pop();
     }
 }
 
-void EventQueue::RegisterListener(EventListener* p_listener) {
-    m_listeners.push_back(p_listener);
+void EventQueue::registerListener(EventListener* listener) {
+    if (DEV_VERIFY(listener)) {
+        m_listeners.push_back(listener);
+    }
 }
 
-void EventQueue::UnregisterListener(EventListener* p_listener) {
-    auto it = std::find(m_listeners.begin(), m_listeners.end(), p_listener);
-    if (it != m_listeners.end()) {
+void EventQueue::unregisterListener(EventListener* listener) {
+    auto it = std::find(m_listeners.begin(), m_listeners.end(), listener);
+    if (DEV_VERIFY(it != m_listeners.end())) {
         m_listeners.erase(it);
     }
 }
