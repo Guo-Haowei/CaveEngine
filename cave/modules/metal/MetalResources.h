@@ -3,14 +3,14 @@
 
 namespace cave::render {
 
-struct MetalBuffer final : GpuResource {
+struct MetalGpuBuffer final : GpuResource {
     using GpuResource::GpuResource;
 
     void* object{};
 
-    ~MetalBuffer() override;
+    ~MetalGpuBuffer() override;
 
-    uint64_t getHandle() const final { return reinterpret_cast<uint64_t>(object); }
+    uint64_t getHandle() const override { return reinterpret_cast<uint64_t>(object); }
 };
 
 struct MetalGpuTexture final : GpuResource {
@@ -25,16 +25,6 @@ struct MetalGpuTexture final : GpuResource {
     uint64_t getHandle() const final { return reinterpret_cast<uint64_t>(object); }
 
     uint64_t getUavHandle() const final { return getHandle(); }
-};
-
-struct MetalConstantBuffer final : GpuResource {
-    using GpuResource::GpuResource;
-
-    void* object{};
-
-    ~MetalConstantBuffer() override;
-    
-    uint64_t getHandle() const override { return 0; }
 };
 
 struct MetalGpuMesh final : GpuMesh {

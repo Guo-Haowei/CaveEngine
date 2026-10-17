@@ -257,13 +257,13 @@ void MetalCommandList::applyMesh() {
     // Missing streams use the first valid VB as a dummy buffer.
     //-----------------------------------------------------------------------------------------------------------------
 
-    const MetalBuffer* dummy_buffer = nullptr;
+    const MetalGpuBuffer* dummy_buffer = nullptr;
 
     for (const auto& vertex_buffer : mesh->vertexBuffers) {
         if (!vertex_buffer)
             continue;
 
-        dummy_buffer = static_cast<const MetalBuffer*>(vertex_buffer.get());
+        dummy_buffer = static_cast<const MetalGpuBuffer*>(vertex_buffer.get());
         break;
     }
 
@@ -279,7 +279,7 @@ void MetalCommandList::applyMesh() {
         id<MTLBuffer> buffer = dummy;
 
         if (vertex_buffer) {
-            const auto* metal_buffer = static_cast<const MetalBuffer*>(vertex_buffer.get());
+            const auto* metal_buffer = static_cast<const MetalGpuBuffer*>(vertex_buffer.get());
 
             buffer = (__bridge id<MTLBuffer>)metal_buffer->object;
         }
@@ -318,7 +318,7 @@ void MetalCommandList::drawIndexedInstanced(uint32_t instance_count, uint32_t co
     if (!mesh->indexBuffer)
         return;
 
-    const auto* index_buffer = static_cast<const MetalBuffer*>(mesh->indexBuffer.get());
+    const auto* index_buffer = static_cast<const MetalGpuBuffer*>(mesh->indexBuffer.get());
 
     id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)index_buffer->object;
 
@@ -332,7 +332,7 @@ void MetalCommandList::drawIndexedInstanced(uint32_t instance_count, uint32_t co
 void MetalCommandList::bindConstantBufferRange(const GpuResource* base, uint32_t size, uint32_t offset) {
     DEV_ASSERT(base);
 
-    const auto* buffer = static_cast<const MetalConstantBuffer*>(base);
+    const auto* buffer = static_cast<const MetalGpuBuffer*>(base);
 
     DEV_ASSERT(buffer->object);
 

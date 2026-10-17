@@ -1,8 +1,5 @@
 #pragma once
-
 #include "engine/private/render/rhi/RenderDevice.h"
-
-#include "MetalResources.h"
 
 struct GLFWwindow;
 

@@ -36,7 +36,7 @@ id<MTLSamplerState> createSampler(id<MTLDevice> device, MTLSamplerDescriptor* de
 // Resources
 //---------------------------------------------------------------------------------------------------------------------
 
-MetalBuffer::~MetalBuffer() {
+MetalGpuBuffer::~MetalGpuBuffer() {
     if (object) {
         CFRelease(object);
         object = nullptr;
@@ -44,13 +44,6 @@ MetalBuffer::~MetalBuffer() {
 }
 
 MetalGpuTexture::~MetalGpuTexture() {
-    if (object) {
-        CFRelease(object);
-        object = nullptr;
-    }
-}
-
-MetalConstantBuffer::~MetalConstantBuffer() {
     if (object) {
         CFRelease(object);
         object = nullptr;
@@ -269,7 +262,7 @@ auto MetalRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<
         memcpy(buffer.contents, desc.initial_data, bytes);
     }
 
-    auto result = MakeRef<MetalBuffer>(desc);
+    auto result = MakeRef<MetalGpuBuffer>(desc);
 
     result->object = buffer;
 
@@ -279,7 +272,7 @@ auto MetalRenderDevice::createBuffer(const GpuResourceDesc& desc) -> Result<Ref<
 void MetalRenderDevice::updateBuffer(const GpuResourceDesc& desc, GpuResource* base) {
     DEV_ASSERT(base);
 
-    auto* buffer = static_cast<MetalBuffer*>(base);
+    auto* buffer = static_cast<MetalGpuBuffer*>(base);
 
     DEV_ASSERT(buffer->object);
 
@@ -342,7 +335,7 @@ auto MetalRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Res
         return CAVE_ERROR(ErrorCode::ERR_CANT_CREATE, "Metal constant buffer allocation failed");
     }
 
-    auto result = MakeRef<MetalConstantBuffer>(desc);
+    auto result = MakeRef<MetalGpuBuffer>(desc);
 
     result->object = buffer;
 
@@ -360,7 +353,7 @@ auto MetalRenderDevice::createConstantBuffer(const GpuResourceDesc& desc) -> Res
 void MetalRenderDevice::updateConstantBuffer(const GpuResource* base, const void* data, size_t size) {
     DEV_ASSERT(base);
 
-    const auto* buffer = static_cast<const MetalConstantBuffer*>(base);
+    const auto* buffer = static_cast<const MetalGpuBuffer*>(base);
 
     DEV_ASSERT(buffer->object);
 
