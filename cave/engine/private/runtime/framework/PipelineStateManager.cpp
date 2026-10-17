@@ -209,6 +209,17 @@ Result<void> PipelineStateManager::initialize(const RenderCapabilities& capabili
                    .rtv_formats = { kFormatSsao },
                });
 
+    CREATE_PSO(PipelineStateName::Tone,
+               {
+                   .vs = "screenspace_quad.vs",
+                   .ps = "tone.ps",
+                   .rasterizer_desc = &s_rasterizer_cull_back,
+                   .depth_stencil_desc = &s_depth_stencil_off,
+                   .blend_desc = &s_default_blend_state,
+                   .num_render_targets = 1,
+                   .rtv_formats = { kFormatTone },
+               });
+
     CREATE_PSO(PipelineStateName::PostProcess,
                {
                    .vs = "screenspace_quad.vs",

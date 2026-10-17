@@ -139,7 +139,7 @@ CAVE_CBUFFER(BoneConstantBuffer, 4) {
 CAVE_CBUFFER(PerFrameConstantBuffer, 5) {
     Light c_lights[MAX_LIGHT_COUNT];
 
-    float4 c_ssaoKernel[SSAO_KERNEL_SIZE];
+    float4 c_ssao_kernel[SSAO_KERNEL_SIZE];
     //-----------------------------------------
 
     float4x4 c_cam_proj;
@@ -153,15 +153,15 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5) {
     float4 c_cam_up;
 
     //-----------------------------------------
-    int c_lightCount;
-    int c_enableBloom;
-    int c_debugCsm;
-    int c_iblEnabled;
+    int c_enable_ssao;
+    int c_enable_bloom;
+    int c_enable_vxgi;
+    int c_enable_ibl;
 
-    int c_debugVoxelId;
-    int c_ssaoEnabled;
-    int c_enableVxgi;
-    int c_ptObjectCount;
+    int c_debug_csm;
+    int c_debug_voxel;
+    int c_light_count;
+    int _per_frame_padding_2;
 
     float c_cam_fovy;  // 16
     float c_texel_size;
@@ -172,23 +172,23 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5) {
     uint c_PrefilteredResidentHandle;
     uint c_BrdfLutResidentHandle;
     int c_forceFieldsCount;  // 16
-    //-----------------------------------------
-
-    float4 c_screen_size;
-    float4 c_ambientColor;  // 16
-    float4 _per_frame_padding_1;
 
     uint c_frame_index;
-    float c_voxelSize;
+    float c_voxel_size;
     int c_scene_dirty;
-    int _per_frame_padding_2;
+    int c_pt_object_count;
+
+    float4 c_screen_size;
+    float4 c_ambient_color;  // 16
+    float4 _per_frame_padding_1;
 
     float4x4 _per_frame_padding_3;
+    //-----------------------------------------
 
     // float3 c_voxelWorldCenter;
     // float c_voxelWorldSizeHalf;  // 16
 
-    ForceField c_forceFields[MAX_FORCE_FIELD_COUNT];
+    ForceField c_force_fields[MAX_FORCE_FIELD_COUNT];
 };
 
 CAVE_CBUFFER(EmitterConstantBuffer, 6) {

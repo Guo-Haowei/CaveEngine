@@ -93,36 +93,37 @@ struct PipelineState {
     const PipelineStateDesc desc;
 };
 
-#define PSO_NAME_LIST                \
-    PSO_NAME(UiOverlay)              \
-    PSO_NAME(Primitive)              \
-    PSO_NAME(Depth)                  \
-    PSO_NAME(PSO_POINT_SHADOW)       \
-    PSO_NAME(Prepass)                \
-    PSO_NAME(Gbuffer)                \
-    PSO_NAME(GbufferDoubleSided)     \
-    PSO_NAME(Forward)                \
-    PSO_NAME(Highlight)              \
-    PSO_NAME(Lighting)               \
-    PSO_NAME(BloomSetup)             \
-    PSO_NAME(BloomDownsample)        \
-    PSO_NAME(BloomUpsample)          \
-    PSO_NAME(Ssao)                   \
-    PSO_NAME(PostProcess)            \
-    PSO_NAME(PSO_DEBUG_VOXEL)        \
-    PSO_NAME(EnvSkyboxToCubemap)     \
-    PSO_NAME(DiffuseIrradiance)      \
-    PSO_NAME(Prefilter)              \
-    PSO_NAME(EnvSkybox)              \
-    PSO_NAME(PathTracer)             \
-    PSO_NAME(PSO_PARTICLE_INIT)      \
-    PSO_NAME(PSO_PARTICLE_KICKOFF)   \
-    PSO_NAME(PSO_PARTICLE_EMIT)      \
-    PSO_NAME(PSO_PARTICLE_SIM)       \
-    PSO_NAME(PSO_PARTICLE_RENDERING) \
-    PSO_NAME(PSO_VOXELIZATION)       \
-    PSO_NAME(PSO_VOXELIZATION_PRE)   \
-    PSO_NAME(PSO_VOXELIZATION_POST)
+#define PSO_NAME_LIST            \
+    PSO_NAME(UiOverlay)          \
+    PSO_NAME(Primitive)          \
+    PSO_NAME(Depth)              \
+    PSO_NAME(PointShadow)        \
+    PSO_NAME(Prepass)            \
+    PSO_NAME(Gbuffer)            \
+    PSO_NAME(GbufferDoubleSided) \
+    PSO_NAME(Forward)            \
+    PSO_NAME(Highlight)          \
+    PSO_NAME(Lighting)           \
+    PSO_NAME(BloomSetup)         \
+    PSO_NAME(BloomDownsample)    \
+    PSO_NAME(BloomUpsample)      \
+    PSO_NAME(Ssao)               \
+    PSO_NAME(Tone)               \
+    PSO_NAME(PostProcess)        \
+    PSO_NAME(PSO_DEBUG_VOXEL)    \
+    PSO_NAME(EnvSkyboxToCubemap) \
+    PSO_NAME(DiffuseIrradiance)  \
+    PSO_NAME(Prefilter)          \
+    PSO_NAME(EnvSkybox)          \
+    PSO_NAME(PathTracer)         \
+    PSO_NAME(ParticleInit)       \
+    PSO_NAME(ParticleKickoff)    \
+    PSO_NAME(ParticleEmit)       \
+    PSO_NAME(ParticleSim)        \
+    PSO_NAME(ParticleRendering)  \
+    PSO_NAME(Voxelization)       \
+    PSO_NAME(VoxelizationPre)    \
+    PSO_NAME(VoxelizationPost)
 
 enum class PipelineStateName : uint8_t {
 #define PSO_NAME(ENUM) ENUM,

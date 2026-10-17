@@ -27,6 +27,7 @@ def run_command(cmd: list[str], label: str, input_file: Path, stage: str) -> boo
             f"[FAIL {label}] {input_file.name} ({stage}):\n{result.stderr}",
             file=sys.stderr,
         )
+        sys.exit(result.returncode)
         return False
     return True
 

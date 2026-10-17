@@ -163,7 +163,7 @@ static void FillLightBuffer(const RenderScene& p_rs,
     const uint32_t light_count = glm::min<uint32_t>((uint32_t)p_scene.count<LightComponent>(), MAX_LIGHT_COUNT);
 
     auto& cache = p_framedata.perFrameCache;
-    cache.c_lightCount = light_count;
+    cache.c_light_count = light_count;
 
     [[maybe_unused]] auto& point_shadow_cache = p_framedata.pointShadowCache;
 

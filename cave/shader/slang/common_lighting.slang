@@ -201,7 +201,7 @@ float3 compute_lighting(
     );
 
     for (int light_idx = 0; light_idx < MAX_LIGHT_COUNT; ++light_idx) {
-        if (light_idx >= c_lightCount) {
+        if (light_idx >= c_light_count) {
             break;
         }
 
@@ -258,7 +258,7 @@ float3 compute_lighting(
     float3 irradiance = float3(0.0, 0.0, 0.0);
     float3 diffuse = float3(0.0, 0.0, 0.0);
     float3 specular = float3(0.0, 0.0, 0.0);
-    if (c_iblEnabled != 0) {
+    if (c_enable_ibl != 0) {
         irradiance = SAMPLE_CUBE(PASS(t_DiffuseIrradiance), s_cubemapClampSampler, N).rgb;
         diffuse = irradiance * base_color.rgb;
 

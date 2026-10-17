@@ -5,6 +5,11 @@
 #include "common.slang"
 
 #if defined(__TARGET_D3D12__)
+#define GlobalPtBvhs      (StructuredBuffer<GpuPtBvh>(ResourceDescriptorHeap[c_pass_textures[0].x]))
+#define GlobalPtVertices  (StructuredBuffer<GpuPtVertex>(ResourceDescriptorHeap[c_pass_textures[1].x]))
+#define GlobalPtIndices   (StructuredBuffer<GpuPtIndex>(ResourceDescriptorHeap[c_pass_textures[2].x]))
+#define GlobalPtMeshes    (StructuredBuffer<GpuPtMesh>(ResourceDescriptorHeap[c_pass_textures[3].x]))
+#define GlobalPtMaterials (StructuredBuffer<GpuPtMaterial>(ResourceDescriptorHeap[c_pass_textures[4].x]))
 #else
 RWTexture2D<float4> u_PathTracerOutputImage : register(u0);
 StructuredBuffer<GpuPtBvh> GlobalPtBvhs : register(t0);
@@ -13,12 +18,6 @@ StructuredBuffer<GpuPtIndex> GlobalPtIndices : register(t2);
 StructuredBuffer<GpuPtMesh> GlobalPtMeshes : register(t3);
 StructuredBuffer<GpuPtMaterial> GlobalPtMaterials : register(t4);
 #endif
-
-#define GlobalPtBvhs      (StructuredBuffer<GpuPtBvh>(ResourceDescriptorHeap[c_pass_textures[0].x]))
-#define GlobalPtVertices  (StructuredBuffer<GpuPtVertex>(ResourceDescriptorHeap[c_pass_textures[1].x]))
-#define GlobalPtIndices   (StructuredBuffer<GpuPtIndex>(ResourceDescriptorHeap[c_pass_textures[2].x]))
-#define GlobalPtMeshes    (StructuredBuffer<GpuPtMesh>(ResourceDescriptorHeap[c_pass_textures[3].x]))
-#define GlobalPtMaterials (StructuredBuffer<GpuPtMaterial>(ResourceDescriptorHeap[c_pass_textures[4].x]))
 
 // @NOTE: include this at last
 #include "../shared_path_tracer.h"

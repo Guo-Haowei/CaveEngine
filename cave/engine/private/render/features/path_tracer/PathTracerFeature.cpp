@@ -38,7 +38,7 @@ void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
 
     auto& cmd = ctx.command;
 
-    cmd.setPipelineState(PipelineStateName::PostProcess);
+    cmd.setPipelineState(PipelineStateName::Tone);
     cmd.setMesh(nullptr);
     cmd.draw(6);
 }

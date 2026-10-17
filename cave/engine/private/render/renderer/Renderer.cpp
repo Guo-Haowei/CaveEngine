@@ -184,26 +184,26 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     // Bloom
     {
         cache.c_bloom_threshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
-        cache.c_enableBloom = options.enable_bloom;
+        cache.c_enable_bloom = options.enable_bloom;
 
-        cache.c_debugVoxelId = options.debugVoxelId;
-        cache.c_ptObjectCount = p_scene ? ((int)p_scene->count<MeshRendererComponent>()) : 0;
+        cache.c_debug_voxel = options.debugVoxelId;
+        cache.c_pt_object_count = p_scene ? ((int)p_scene->count<MeshRendererComponent>()) : 0;
     }
 
     // IBL
     {
-        cache.c_iblEnabled = options.enable_ibl;
+        cache.c_enable_ibl = options.enable_ibl;
     }
 
     // SSAO
     {
         // @TODO: do this properly
         static auto kernel_data = SsaoFeature::createKernel();
-        cache.c_ssaoEnabled = options.enable_ssao;
+        cache.c_enable_ssao = options.enable_ssao;
         cache.c_ssao_kernal_radius = options.ssaoKernelRadius;
         constexpr size_t kernel_size = sizeof(kernel_data);
-        static_assert(sizeof(cache.c_ssaoKernel) == kernel_size);
-        memcpy(cache.c_ssaoKernel, kernel_data.data(), kernel_size);
+        static_assert(sizeof(cache.c_ssao_kernel) == kernel_size);
+        memcpy(cache.c_ssao_kernel, kernel_data.data(), kernel_size);
     }
 
     cache.c_frame_index = static_cast<uint32_t>(p_frame.frame_index);

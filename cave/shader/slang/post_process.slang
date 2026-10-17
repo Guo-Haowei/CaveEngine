@@ -23,8 +23,7 @@ static const float3x3 sy = float3x3(
     1.0, 0.0, -1.0);
 
 [shader("fragment")]
-float4 ps_main(VS_OUTPUT_UV input)
-    : SV_TARGET {
+float4 ps_main(VS_OUTPUT_UV input) : SV_TARGET {
     float2 uv = input.uv;
 
     // Edge detection
@@ -52,7 +51,7 @@ float4 ps_main(VS_OUTPUT_UV input)
     float3 hdr_color = SAMPLE_2D(PASS(t_TextureLighting), s_linearClampSampler, uv).rgb;
 
     // Bloom
-    if (c_enableBloom == 1) {
+    if (c_enable_bloom == 1) {
         float3 bloom = SAMPLE_2D(PASS(t_BloomInputTexture), s_linearClampSampler, uv).rgb;
         hdr_color += bloom;
     }
