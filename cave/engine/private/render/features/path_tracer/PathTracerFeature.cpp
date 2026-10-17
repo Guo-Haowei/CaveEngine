@@ -262,7 +262,7 @@ void PathTracerFeature::updateAccelStructure(const Scene& scene) {
         auto view = scene.view<MaterialComponent>();
         Vector<GpuPtMaterial> materials;
 
-        GpuPtMaterial default_mat {
+        GpuPtMaterial default_mat{
             .base_color = math::Vec4f::One,
             .roughness = 0.9f,
             .emissive = 0.0f,
