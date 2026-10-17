@@ -87,7 +87,7 @@ EnvironmentFeature::Outputs EnvironmentFeature::build(RenderGraph& graph, const 
 #else
         const char* path = "test.hdr";
 #endif
-        std::shared_ptr<ImageAsset> image = IAssetManager::singleton().findImage(path);
+        Ref<ImageAsset> image = IAssetManager::singleton().findImage(path);
         if (!image) {
             return {};
         }

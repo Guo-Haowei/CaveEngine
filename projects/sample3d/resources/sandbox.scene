@@ -71,7 +71,7 @@ entities:
     TransformComponent:
       translation: [0, -1.14437366, 2.62466511e-08]
       rotation: [-0.70710665, 0, 0, 0.707106888]
-      scale: [6.5899992, 6.58995485, 6.58995485]
+      scale: [15, 15, 15]
     MeshRendererComponent:
       visible: true
       cast_shadow: true
