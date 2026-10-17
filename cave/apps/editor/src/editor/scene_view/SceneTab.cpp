@@ -15,7 +15,7 @@
 #include "editor/tile_map/TilePaintTool.h"
 
 // @TODO: refactor
-#include "engine/private/runtime/framework\EventQueue.h"
+#include "engine/private/runtime/framework/EventQueue.h"
 #include "engine/private/runtime/input/InputService.h"
 #include "engine/private/runtime/scene/Scene.h"
 #include "engine/private/runtime/view/ViewManager.h"
