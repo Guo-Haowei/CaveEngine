@@ -209,6 +209,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
     cache.c_frame_index = static_cast<uint32_t>(p_frame.frame_index);
     // @TODO: fix this
     cache.c_scene_dirty = true;
+    cache.c_scene_dirty = false;
 }
 
 static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data) {

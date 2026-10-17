@@ -138,9 +138,20 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
     auto device = RenderDevice::singletonPtr();
 
     HashMap<ecs::Entity, int> materials_lut;
-    {
+
+    if ((dirty_flag != SCENE_DIRTY_NONE) || m_material_buffer == nullptr) {
         auto view = scene.view<MaterialComponent>();
         Vector<GpuPtMaterial> materials;
+
+        GpuPtMaterial default_mat{
+            .base_color = math::Vec3f::One,
+            .roughness = 0.9f,
+            .emissive = math::Vec3f::Zero,
+            .metallic = 0.1f,
+        };
+        materials.push_back(default_mat);
+        materials_lut[ecs::Entity::null()] = 0;
+
         for (auto [id, material] : view) {
             const int idx = static_cast<int>(materials.size());
             auto [it, ok] = materials_lut.try_emplace(id, idx);
@@ -157,13 +168,10 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
         auto desc = GpuResourceDesc::structuredBuffer(sizeof(materials[0]), static_cast<uint32_t>(materials.size()));
         desc.initial_data = materials.data();
 
-        // @TODO: only change when material is dirty
-        if ((dirty_flag != SCENE_DIRTY_NONE) || m_material_buffer == nullptr) {
-            m_material_buffer = *device->createStructuredBuffer(desc);
-        }
+        m_material_buffer = *device->createStructuredBuffer(desc);
     }
 
-    {
+    if ((dirty_flag & SCENE_DIRTY_WORLD) || m_mesh_buffer == nullptr) {
         auto view = scene.view<MeshRendererComponent, TransformComponent>();
 
         Vector<GpuPtMesh> meshes;
@@ -180,7 +188,8 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
                     continue;
                 }
 
-                const ecs::Entity material_id = renderer.materialInstances()[0];
+                const auto& materials = renderer.materialInstances();
+                const ecs::Entity material_id = materials.empty() ? ecs::Entity::null() : materials[0];
 
                 const auto& cache = mesh_it->second;
                 GpuPtMesh gpu_pt_mesh;
@@ -198,9 +207,7 @@ void PathTracer::updateAccelStructure(const Scene& scene) {
         auto desc = GpuResourceDesc::structuredBuffer(sizeof(meshes[0]), static_cast<uint32_t>(meshes.size()));
         desc.initial_data = meshes.data();
 
-        if ((dirty_flag & SCENE_DIRTY_WORLD) || m_mesh_buffer == nullptr) {
-            m_mesh_buffer = *device->createStructuredBuffer(desc);
-        }
+        m_mesh_buffer = *device->createStructuredBuffer(desc);
     }
 }
 
