@@ -9,7 +9,7 @@
 #include "editor/widgets/Image.h"
 
 // @TODO: remove private includes
-#include "engine/private/core/os/os.h"
+#include "engine/private/core/os/OS.h"
 #include "engine/private/runtime/assets/ImageAsset.h"
 #include "engine/private/runtime/framework/IAssetManager.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"

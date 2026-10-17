@@ -53,7 +53,7 @@ void MetalCommandList::beginRendering(const RenderingInfo& info) {
         if (!color.tex)
             continue;
 
-        const auto* texture = static_cast<const MetalTexture*>(color.tex.get());
+        const auto* texture = static_cast<const MetalGpuTexture*>(color.tex.get());
         DEV_ASSERT(texture && texture->object);
 
         MTLRenderPassColorAttachmentDescriptor* attachment = pass.colorAttachments[i];
@@ -68,7 +68,7 @@ void MetalCommandList::beginRendering(const RenderingInfo& info) {
 
     // Depth / stencil
     if (info.depth && info.depth->tex) {
-        const auto* texture = static_cast<const MetalTexture*>(info.depth->tex.get());
+        const auto* texture = static_cast<const MetalGpuTexture*>(info.depth->tex.get());
         DEV_ASSERT(texture && texture->object);
 
         id<MTLTexture> metal_texture = (__bridge id<MTLTexture>)texture->object;
@@ -329,7 +329,7 @@ void MetalCommandList::drawIndexedInstanced(uint32_t instance_count, uint32_t co
 // Constant buffers
 //---------------------------------------------------------------------------------------------------------------------
 
-void MetalCommandList::bindConstantBufferRange(const GpuConstantBuffer* base, uint32_t size, uint32_t offset) {
+void MetalCommandList::bindConstantBufferRange(const GpuResource* base, uint32_t size, uint32_t offset) {
     DEV_ASSERT(base);
 
     const auto* buffer = static_cast<const MetalConstantBuffer*>(base);
@@ -343,7 +343,7 @@ void MetalCommandList::bindConstantBufferRange(const GpuConstantBuffer* base, ui
     if (!m_encoder)
         return;
 
-    const uint32_t slot = base->GetSlot();
+    const uint32_t slot = base->getSlot();
 
     [(id<MTLRenderCommandEncoder>)m_encoder setVertexBuffer:metal_buffer offset:offset atIndex:slot];
 
@@ -399,7 +399,7 @@ void MetalCommandList::bindUnorderedAccessView(uint32_t slot, GpuResource* textu
     if (slot >= m_bound_uavs.size())
         return;
 
-    m_bound_uavs[slot] = texture ? texture->GetHandle() : 0;
+    m_bound_uavs[slot] = texture ? texture->getHandle() : 0;
 }
 
 void MetalCommandList::unbindUnorderedAccessView(uint32_t slot) {
@@ -409,22 +409,6 @@ void MetalCommandList::unbindUnorderedAccessView(uint32_t slot) {
 
     m_bound_uavs[slot] = 0;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
-// Structured buffers
-//---------------------------------------------------------------------------------------------------------------------
-
-void MetalCommandList::bindStructuredBuffer(int, const GpuStructuredBuffer*) {
-    // TODO:
-    // Implement when Metal structured buffer
-    // resources are implemented.
-}
-
-void MetalCommandList::unbindStructuredBuffer(int) {}
-
-void MetalCommandList::bindStructuredBufferSRV(int slot, const GpuStructuredBuffer* buffer) { bindStructuredBuffer(slot, buffer); }
-
-void MetalCommandList::unbindStructuredBufferSRV(int slot) { unbindStructuredBuffer(slot); }
 
 //---------------------------------------------------------------------------------------------------------------------
 // Compute
@@ -507,7 +491,7 @@ void MetalCommandList::generateMipmap(const GpuResource* base) {
         return;
     }
 
-    const auto* texture = static_cast<const MetalTexture*>(base);
+    const auto* texture = static_cast<const MetalGpuTexture*>(base);
 
     DEV_ASSERT(texture->object);
 
