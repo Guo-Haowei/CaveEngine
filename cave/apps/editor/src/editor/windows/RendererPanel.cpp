@@ -5,18 +5,16 @@
 #include "cave/core/diagnostics/Profiler.h"
 #include "cave/runtime/framework/IApplication.h"
 
+#include "editor/EditorDvars.h"
+#include "editor/EditorState.h"
+
 #include "engine/private/render/features/path_tracer/PathTracerFeature.h"
+#include "engine/private/render/renderer/Renderer.h"
+#include "engine/private/render/renderer/GraphicsDvars.h"
 #include "engine/private/render/render_graph/RenderGraphDefines.h"
 #include "engine/private/runtime/framework/CommonDvars.h"
 #include "engine/private/runtime/framework/ImGuiManager.h"
 #include "engine/private/runtime/scene/Scene.h"
-
-#include "editor/EditorDvars.h"
-#include "editor/EditorState.h"
-
-#include "engine/private/render/renderer/Renderer.h"
-// @TODO: remove
-#include "engine/private/render/renderer/GraphicsDvars.h"
 
 namespace cave {
 
@@ -122,14 +120,12 @@ void RendererPanel::drawUIImpl() {
     });
 
     CollapseWindow("Path Tracer", [&]() {
-        using namespace render;
-        bool active = IsPathTracerActive();
+        render:: PathTracerFeature pt = m_renderer.pathtracer();
+        bool active = pt.isActive();
+
         if (ImGui::Checkbox("start", &active)) {
-            if (active) {
-                SetPathTracerMode(PathTracerMode::INTERACTIVE);
-            } else {
-                SetPathTracerMode(PathTracerMode::NONE);
-            }
+            auto mode = active ? render::PathTracerMode::Interactive : render::PathTracerMode::None;
+            pt.setMode(mode);
         }
 
         if (ImGui::Button("Generate BVH")) {

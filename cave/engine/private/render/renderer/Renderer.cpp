@@ -60,6 +60,10 @@ public:
 #if USING(USE_COMMAND)
     bool cmdDump(CommandContext& ctx, const CommandArgs& args);
 #endif
+    
+    PathTracerFeature& pathtracer() {
+        return m_pathtracer;
+    }
 
 private:
     FramePlan buildFramePlan(const FrameTime& frame,
@@ -133,6 +137,10 @@ void Renderer::setMode(bool is_2d) {
     m_impl->setMode(is_2d);
 }
 
+PathTracerFeature& Renderer::pathtracer() {
+    return m_impl->pathtracer();
+}
+
 // @TODO: remove this
 extern void RunMeshRenderSystem(const Scene& scene,
                                 const RenderScene& rscene,
@@ -186,7 +194,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
         cache.c_bloom_threshold = DVAR_GET_FLOAT(gfx_bloom_threshold);
         cache.c_enable_bloom = options.enable_bloom;
 
-        cache.c_debug_voxel = options.debugVoxelId;
+        cache.c_debug_voxel = options.debug_voxel_id;
         cache.c_pt_object_count = p_scene ? ((int)p_scene->count<MeshRendererComponent>()) : 0;
     }
 
@@ -200,7 +208,7 @@ static void FillConstantBuffer(const FrameTime& p_frame,
         // @TODO: do this properly
         static auto kernel_data = SsaoFeature::createKernel();
         cache.c_enable_ssao = options.enable_ssao;
-        cache.c_ssao_kernal_radius = options.ssaoKernelRadius;
+        cache.c_ssao_kernal_radius = options.ssao_kernel_radius;
         constexpr size_t kernel_size = sizeof(kernel_data);
         static_assert(sizeof(cache.c_ssao_kernel) == kernel_size);
         memcpy(cache.c_ssao_kernel, kernel_data.data(), kernel_size);
@@ -208,8 +216,8 @@ static void FillConstantBuffer(const FrameTime& p_frame,
 
     cache.c_frame_index = static_cast<uint32_t>(p_frame.frame_index);
     // @TODO: fix this
-    cache.c_scene_dirty = true;
-    cache.c_scene_dirty = false;
+    cache.c_reset_accumulation = true;
+    cache.c_reset_accumulation = false;
 }
 
 static void FillPerPassConstants(const CompiledGraph& graph, FrameData& out_data) {
@@ -275,6 +283,12 @@ void Renderer::Impl::tick(const FrameTime& time, std::span<const ResolvedView> v
 
     FramePlan plan = buildFramePlan(time, views);
 
+    if (!views.empty()) {
+        if (Scene* scene = views[0].scene) {
+            m_pathtracer.update(*scene);
+        }
+    }
+
     for (size_t idx = 0; idx < plan.frame_data.size(); ++idx) {
         const ResolvedView& view = plan.views[idx];
         FrameData& data = plan.frame_data[idx];
@@ -303,16 +317,15 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
 
     const bool is_opengl = m_device.backend() == Backend::OpenGl;
     RenderOptions options = {
-        .is_opengl = is_opengl,
         .enable_ssao = DVAR_GET_BOOL(gfx_ssao_enabled),
         .enable_bloom = m_capabilities.canRunBloom && DVAR_GET_BOOL(gfx_enable_bloom),
         .enable_ibl = m_capabilities.canRunIBL && DVAR_GET_BOOL(gfx_enable_ibl),
-
-        .vxgiEnabled = false,
-        .debugVoxelId = DVAR_GET_INT(gfx_debug_vxgi_voxel),
-        .debugBvhDepth = DVAR_GET_INT(gfx_bvh_debug),
-        .voxelTextureSize = DVAR_GET_INT(gfx_voxel_size),
-        .ssaoKernelRadius = DVAR_GET_FLOAT(gfx_ssao_radius),
+        .enable_vxgi = false,
+        .is_opengl = is_opengl,
+        .debug_voxel_id = DVAR_GET_INT(gfx_debug_vxgi_voxel),
+        .debug_bvh_depth = DVAR_GET_INT(gfx_bvh_debug),
+        .voxel_texture_size = DVAR_GET_INT(gfx_voxel_size),
+        .ssao_kernel_radius = DVAR_GET_FLOAT(gfx_ssao_radius),
     };
 
     plan.frame_data.resize(views.size());
@@ -335,11 +348,6 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
 
         FillEnvConstants(framedata);
 
-        // @HACK: only support first scene
-        if (view_idx == 0) {
-            RequestPathTracerUpdate(*view.scene);
-        }
-
         ++view_idx;
     }
 
@@ -348,7 +356,7 @@ FramePlan Renderer::Impl::buildFramePlan(const FrameTime& time,
 
 auto Renderer::Impl::buildRenderGraph(const RenderOptions& plan,
                                       const ResolvedView& view) -> Result<Ref<CompiledGraph>> {
-    if (IsPathTracerActive()) [[unlikely]] {
+    if (m_pathtracer.isActive()) [[unlikely]] {
         return buildRenderGraphPt(plan, view);
     }
 

@@ -19,17 +19,18 @@ namespace cave {
 namespace cave::render {
 
 struct RenderOptions {
-    bool is_opengl{ false };
     bool enable_ssao{ false };
     bool enable_bloom{ false };
     bool enable_ibl{ false };
+    bool enable_vxgi{ false };
+
+    bool is_opengl{ false };
 
     // @TODO: refactor the following
-    bool vxgiEnabled{ false };
-    int debugVoxelId{ 0 };
-    int debugBvhDepth{ -1 };
-    int voxelTextureSize{ 0 };
-    float ssaoKernelRadius{ 0.0f };
+    int debug_voxel_id{ 0 };
+    int debug_bvh_depth{ -1 };
+    int voxel_texture_size{ 0 };
+    float ssao_kernel_radius{ 0.0f };
 };
 
 }  // namespace cave::render

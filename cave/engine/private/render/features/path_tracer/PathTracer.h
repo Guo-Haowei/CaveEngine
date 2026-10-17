@@ -37,7 +37,7 @@ private:
     // @TODO: rename
     HashMap<Guid, MeshData> m_meshs;
 
-    PathTracerMode m_mode{ PathTracerMode::NONE };
+    PathTracerMode m_mode{ PathTracerMode::None };
 
     friend class PathTracerFeature;
 };

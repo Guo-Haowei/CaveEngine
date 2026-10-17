@@ -161,7 +161,7 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5) {
     int c_debug_csm;
     int c_debug_voxel;
     int c_light_count;
-    int _per_frame_padding_2;
+    int _per_frame_padding_0;
 
     float c_cam_fovy;  // 16
     float c_texel_size;
@@ -175,14 +175,14 @@ CAVE_CBUFFER(PerFrameConstantBuffer, 5) {
 
     uint c_frame_index;
     float c_voxel_size;
-    int c_scene_dirty;
+    int c_reset_accumulation;
     int c_pt_object_count;
 
     float4 c_screen_size;
     float4 c_ambient_color;  // 16
     float4 _per_frame_padding_1;
 
-    float4x4 _per_frame_padding_3;
+    float4x4 _per_frame_padding_2;
     //-----------------------------------------
 
     // float3 c_voxelWorldCenter;

@@ -83,7 +83,7 @@ void cs_main(uint3 p_dispatch_thread_id : SV_DISPATCHTHREADID) {
 
     float4 final_color = float4(radiance, 1.0);
 
-    if (c_scene_dirty == CAVE_FALSE) {
+    if (c_reset_accumulation == CAVE_FALSE) {
         float4 accumulated = output[uv];
         float weight = accumulated.a;
         float3 new_color = radiance + weight * accumulated.rgb;

@@ -14,30 +14,27 @@ struct RenderOptions;
 class ICommandList;
 class RenderGraph;
 
+enum class PathTracerMode {
+    None,
+    Interactive,
+};
+
 class PathTracerFeature {
 public:
     struct Inputs {
         RGTextureId skybox{};
-
         GpuTextureId out{};
     };
 
-    struct Outputs {};
 
-    Outputs build(RenderGraph& graph,
-                  const Inputs& inputs,
-                  const RenderOptions& plan);
+    void build(RenderGraph& graph,
+               const Inputs& inputs,
+               const RenderOptions& plan);
+
+    void update(Scene& scene);
+
+    bool isActive() const;
+    void setMode(PathTracerMode mode);
 };
-
-enum class PathTracerMode {
-    NONE,
-    INTERACTIVE,
-    TILED,
-};
-
-// @TODO: refactor
-void RequestPathTracerUpdate(Scene& p_scene);
-void SetPathTracerMode(PathTracerMode p_mode);
-bool IsPathTracerActive();
 
 }  // namespace cave::render

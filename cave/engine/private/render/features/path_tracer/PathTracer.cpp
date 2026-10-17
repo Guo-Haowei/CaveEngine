@@ -110,17 +110,8 @@ void AppendBvhs(std::span<const GpuPtBvh> bvhs,
 }  // namespace
 
 void PathTracer::update(const Scene& scene) {
-    switch (m_mode) {
-        case PathTracerMode::NONE:
-            return;
-        case PathTracerMode::TILED:
-            LOG_ERROR("Not implmeneted");
-            [[fallthrough]];
-        case PathTracerMode::INTERACTIVE:
-            break;
-        default:
-            CRASH_NOW_MSG("Invalid mode");
-            return;
+    if (m_mode != PathTracerMode::Interactive) {
+        return;
     }
 
     if (!m_index_buffer) {
@@ -322,7 +313,7 @@ bool PathTracer::createAccelStructure(const Scene& scene) {
 }
 
 bool PathTracer::isActive() const {
-    if (m_mode != PathTracerMode::INTERACTIVE) {
+    if (m_mode != PathTracerMode::Interactive) {
         return false;
     }
 

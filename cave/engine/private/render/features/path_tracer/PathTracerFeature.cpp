@@ -45,9 +45,9 @@ void PathTracerPresentFunc(RenderPassExcutionContext& ctx) {
 
 }  // namespace
 
-PathTracerFeature::Outputs PathTracerFeature::build(RenderGraph& graph,
-                                                    const Inputs& inputs,
-                                                    const RenderOptions&) {
+void PathTracerFeature::build(RenderGraph& graph,
+                              const Inputs& inputs,
+                              const RenderOptions&) {
     CAVE_PROFILE_EVENT();
 
     constexpr const char kPassPathTracerCompute[] = "p:pathtracer_compute";
@@ -86,22 +86,18 @@ PathTracerFeature::Outputs PathTracerFeature::build(RenderGraph& graph,
         .read(ResourceAccess::SRV, accumulated)
         .writeColor(out, {}, LoadOp::Load)
         .setExecuteFunc(PathTracerPresentFunc);
-
-    return {};
 }
 
-void RequestPathTracerUpdate(Scene& scene) {
-    // @TODO: refactor
-    s_glob.pt.update(scene);
+bool PathTracerFeature::isActive() const {
+    return s_glob.pt.isActive();
 }
 
-// path tracer
-void SetPathTracerMode(PathTracerMode mode) {
+void PathTracerFeature::setMode(PathTracerMode mode) {
     s_glob.pt.setMode(mode);
 }
 
-bool IsPathTracerActive() {
-    return s_glob.pt.isActive();
+void PathTracerFeature::update(Scene& scene) {
+    s_glob.pt.update(scene);
 }
 
 }  // namespace cave::render
